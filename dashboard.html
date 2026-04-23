@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart stock pick</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+
+    header {
+      background: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    nav a {
+      margin-left: 15px;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .hero {
+      background: #2563eb;
+      color: white;
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 36px;
+    }
+
+    .hero button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      background: white;
+      color: #2563eb;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    section {
+      padding: 40px 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .services {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #222;
+      color: white;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h2>xStockEdge (beta test again)</h2>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+	<h1>Data-Driven Stock Picks From Real Market Signals</h1>
+	<p>We scan the market daily using volume, momentum, and price anomaly detection.</p>
+	<button>View Today’s Signals</button>
+  </div>
+
+  <section id="about">
+    <h2>About Us</h2>
+    <p>
+      We are a data-driven stock research company focused on identifying high-potential trading opportunities using quantitative analysis. Our platform scans the market for unusual volume, price momentum, and emerging patterns, transforming raw data into clear, actionable signals. By combining systematic models with transparent performance tracking, we aim to help investors make more informed decisions with confidence and discipline.
+    </p>
+  </section>
+
+  <section id="services">
+    <h2>Our Services</h2>
+    <div class="services">
+      <div class="card">
+        <h3>Market Scanning Engine</h3>
+        <p>We continuously analyze the market to identify stocks with unusual trading activity, including volume spikes and price momentum. Our engine filters thousands of securities daily to surface the most promising opportunities.</p>
+      </div>
+      <div class="card">
+        <h3>Quantitative Scoring System</h3>
+        <p>Each stock is evaluated using a proprietary scoring model that combines multiple factors such as relative volume, price change, and trend strength. This helps users quickly understand the significance and potential of each signal.</p>
+      </div>
+      <div class="card">
+        <h3>Real-Time Alerts & Reports</h3>
+        <p>Users receive timely alerts and daily reports highlighting top stock picks, along with clear explanations of why each signal was generated. This ensures you never miss important market movements.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>Get Alerts</h2>
+    <p>Subscribe to signals</p>
+    <button>Get Daily Stock Picks (future link to email system,Discord bot,Telegram alerts)</button>
+  </section>
+
+  <section id="performance">
+    <h2>Performance Tracking</h2>
+    <p>We track every signal to measure real-world effectiveness.</p>
+    <ul>
+      <li>Average 7-day return: +2.4%</li>
+      <li>Win rate: 61%</li>
+      <li>Signals tracked: 1,284+</li>
+    </ul>
+  </section>
+  
+  <section id="signals">
+	  <h2>Today's Stock Signals</h2>
+	  <div class="services">
+		<div class="card">
+		  <h3>AAPL</h3>
+		  <p>Score: 8.7</p>
+		  <p>Volume spike + momentum breakout</p>
+		</div>
+
+		<div class="card">
+		  <h3>TSLA</h3>
+		  <p>Score: 7.9</p>
+		  <p>Unusual volume + 5-day trend reversal</p>
+		</div>
+
+		<div class="card">
+		  <h3>NVIDIA</h3>
+		  <p>Score: 8.3</p>
+		  <p>Institutional buying signal detected</p>
+		</div>
+	  </div>
+	</section>
+
+  <footer>
+    © 2026 xStockEdge. All rights reserved.
+  </footer>
+
+</body>
+</html>
