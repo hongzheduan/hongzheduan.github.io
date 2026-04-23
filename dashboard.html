@@ -138,31 +138,41 @@
   </section>
   
   <section id="signals">
-	  <h2>Today's Stock Signals</h2>
-	  <div class="services">
-		<div class="card">
-		  <h3>AAPL</h3>
-		  <p>Score: 8.7</p>
-		  <p>Volume spike + momentum breakout</p>
-		</div>
-
-		<div class="card">
-		  <h3>TSLA</h3>
-		  <p>Score: 7.9</p>
-		  <p>Unusual volume + 5-day trend reversal</p>
-		</div>
-
-		<div class="card">
-		  <h3>NVIDIA</h3>
-		  <p>Score: 8.3</p>
-		  <p>Institutional buying signal detected</p>
-		</div>
-	  </div>
+    <h2>Today's Stock Signals</h2>
+    <div class="services" id="signals-container"></div>
 	</section>
 
   <footer>
     © 2026 xStockEdge. All rights reserved.
   </footer>
+
+  <script>
+  fetch("data/latest.json")
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("signals-container");
+
+      // sort by score (highest first)
+      data.sort((a, b) => b.score - a.score);
+
+      data.forEach(stock => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <h3>${stock.ticker}</h3>
+          <p><strong>Score:</strong> ${stock.score}</p>
+          <p>Price: $${stock.price}</p>
+          <p>Volume: ${stock.volume.toLocaleString()}</p>
+        `;
+
+        container.appendChild(card);
+      });
+    })
+    .catch(err => {
+      console.error("Error loading data:", err);
+    });
+  </script>
 
 </body>
 </html>
