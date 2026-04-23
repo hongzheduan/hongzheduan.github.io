@@ -1,35 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Coming Soon</title>
 
-  <!-- Brevo CSS + Fonts (IMPORTANT: must be in <head>) -->
   <style>
-    @font-face {
-      font-display: block;
-      font-family: Roboto;
-      src: url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/7529907e9eaf8ebb5220c5f9850e3811.woff2) format("woff2"),
-           url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/25c678feafdc175a70922a116c9be3e7.woff) format("woff");
-    }
-
-    #sib-container input::placeholder {
-      color: #c0ccda;
-    }
-
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f6f9;
+      background-color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 500px;
+      padding: 20px;
     }
 
     h1 {
-      text-align: center;
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 18px;
+      color: #555;
+      margin-bottom: 25px;
+    }
+
+    .subtext {
+      font-size: 16px;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    #sib-container {
+      box-shadow: none !important;
+      border: none !important;
     }
   </style>
 
@@ -38,42 +50,48 @@
 
 <body>
 
-  <div>
+  <div class="container">
 
     <h1>🚀 Coming Soon</h1>
-    <p style="text-align:center;">Subscribe to get updates</p>
+
+    <p class="subtext">
+      Get free early access to our stock discovery system.
+    </p>
+
+    <p>
+      We help you find stocks with unusual volume and strong signals before the market reacts.
+    </p>
 
     <!-- 🔵 BREVO FORM START -->
-    <div class="sib-form" style="text-align: center; background-color: transparent;">
+    <div class="sib-form" style="text-align:center;">
       <div id="sib-form-container" class="sib-form-container">
-        <div id="sib-container" class="sib-container--large sib-container--vertical"
-             style="max-width:540px; border-radius:6px; border:1px solid #ddd; background:white; padding:20px;">
+        <div id="sib-container"
+          class="sib-container--large sib-container--vertical"
+          style="max-width:420px; margin:0 auto; background:#fff;">
 
           <form id="sib-form" method="POST"
             action="https://2c286f6b.sibforms.com/serve/MUIFAAu6wnFauqXTFZ43cD3h1MSa_AhQJf9j8A5hwyQmgntMan4DzEV9-zRL1xzT1flkI0ZMoNEe99pBITTzQYXE9O3xfiWkGtHBIZ3kOzktw29dzYF2ncz2LIdowU4fgil3OhiIdUlxv9Q-Ng3SeTAzkXd4HZg07Y4Gk2EJUKviYJ9vwggHD00gtkkLpp_ZYiBHIbKgalWigeYvOQ==">
 
-            <h2 style="text-align:center;">Newsletter</h2>
-            <p style="text-align:center;">Stay updated with our latest news</p>
+            <input
+              type="email"
+              name="EMAIL"
+              required
+              placeholder="Enter your email"
+              style="width:100%; padding:12px; border:1px solid #ccc; border-radius:4px;"
+            />
 
-            <div style="margin-top:15px;">
-              <label style="font-weight:bold;">Email</label><br />
-              <input type="email" name="EMAIL" required
-                placeholder="Enter your email"
-                style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
-            </div>
-
-            <div style="margin-top:20px; text-align:center;">
-              <button type="submit"
-                style="padding:10px 20px; background:#3E4857; color:white; border:none; border-radius:4px; cursor:pointer;">
-                Subscribe
-              </button>
-            </div>
+            <button
+              type="submit"
+              style="width:100%; margin-top:12px; padding:12px; background:#000; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+              Get Free Access
+            </button>
 
             <input type="hidden" name="email_address_check" value="">
             <input type="hidden" name="locale" value="en">
             <input type="hidden" name="html_type" value="simple">
 
           </form>
+
         </div>
       </div>
     </div>
