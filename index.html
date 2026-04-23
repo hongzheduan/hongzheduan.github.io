@@ -1,82 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coming Soon</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coming Soon</title>
 
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #0f172a;
-    color: white;
-    text-align: center;
-}
+  <!-- Brevo CSS + Fonts (IMPORTANT: must be in <head>) -->
+  <style>
+    @font-face {
+      font-display: block;
+      font-family: Roboto;
+      src: url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/7529907e9eaf8ebb5220c5f9850e3811.woff2) format("woff2"),
+           url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/25c678feafdc175a70922a116c9be3e7.woff) format("woff");
+    }
 
-.container {
-    padding: 100px 20px;
-}
+    #sib-container input::placeholder {
+      color: #c0ccda;
+    }
 
-h1 {
-    font-size: 42px;
-    margin-bottom: 20px;
-}
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-p {
-    font-size: 18px;
-    color: #cbd5f5;
-    margin-bottom: 30px;
-}
+    h1 {
+      text-align: center;
+    }
+  </style>
 
-input {
-    padding: 12px;
-    width: 250px;
-    border-radius: 6px;
-    border: none;
-    margin-right: 10px;
-}
-
-button {
-    padding: 12px 20px;
-    background: #22c55e;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-button:hover {
-    background: #16a34a;
-}
-
-.note {
-    margin-top: 20px;
-    font-size: 14px;
-    color: #94a3b8;
-}
-</style>
+  <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
 </head>
 
 <body>
 
-<div class="container">
+  <div>
+
     <h1>🚀 Coming Soon</h1>
+    <p style="text-align:center;">Subscribe to get updates</p>
 
-    <p>
-        A smarter way to find unusual stocks before the market moves.
-    </p>
+    <!-- 🔵 BREVO FORM START -->
+    <div class="sib-form" style="text-align: center; background-color: transparent;">
+      <div id="sib-form-container" class="sib-form-container">
+        <div id="sib-container" class="sib-container--large sib-container--vertical"
+             style="max-width:540px; border-radius:6px; border:1px solid #ddd; background:white; padding:20px;">
 
-    <form action="https://formspree.io/f/xdayyoaz" method="POST">
-        <input type="email" name="email" placeholder="Enter your email" required>
-        <button type="submit">Get Early Access</button>
-    </form>
+          <form id="sib-form" method="POST"
+            action="https://2c286f6b.sibforms.com/serve/MUIFAAu6wnFauqXTFZ43cD3h1MSa_AhQJf9j8A5hwyQmgntMan4DzEV9-zRL1xzT1flkI0ZMoNEe99pBITTzQYXE9O3xfiWkGtHBIZ3kOzktw29dzYF2ncz2LIdowU4fgil3OhiIdUlxv9Q-Ng3SeTAzkXd4HZg07Y4Gk2EJUKviYJ9vwggHD00gtkkLpp_ZYiBHIbKgalWigeYvOQ==">
 
-    <div class="note">
-        Be the first to access our stock scanner.
+            <h2 style="text-align:center;">Newsletter</h2>
+            <p style="text-align:center;">Stay updated with our latest news</p>
+
+            <div style="margin-top:15px;">
+              <label style="font-weight:bold;">Email</label><br />
+              <input type="email" name="EMAIL" required
+                placeholder="Enter your email"
+                style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+            </div>
+
+            <div style="margin-top:20px; text-align:center;">
+              <button type="submit"
+                style="padding:10px 20px; background:#3E4857; color:white; border:none; border-radius:4px; cursor:pointer;">
+                Subscribe
+              </button>
+            </div>
+
+            <input type="hidden" name="email_address_check" value="">
+            <input type="hidden" name="locale" value="en">
+            <input type="hidden" name="html_type" value="simple">
+
+          </form>
+        </div>
+      </div>
     </div>
-</div>
+    <!-- 🔵 BREVO FORM END -->
+
+  </div>
 
 </body>
 </html>
