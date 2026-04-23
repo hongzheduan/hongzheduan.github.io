@@ -9,7 +9,8 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #ffffff;
+      background-color: #000;
+      color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -18,30 +19,33 @@
     }
 
     .container {
-      max-width: 500px;
+      max-width: 520px;
       padding: 20px;
     }
 
     h1 {
-      font-size: 40px;
+      font-size: 44px;
       margin-bottom: 10px;
     }
 
-    p {
-      font-size: 18px;
-      color: #555;
-      margin-bottom: 25px;
-    }
-
     .subtext {
-      font-size: 16px;
-      margin-bottom: 30px;
-      color: #333;
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #ddd;
     }
 
+    .desc {
+      font-size: 15px;
+      color: #aaa;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+
+    /* make Brevo blend into dark theme */
     #sib-container {
+      background: #111 !important;
+      border: 1px solid #333 !important;
       box-shadow: none !important;
-      border: none !important;
     }
   </style>
 
@@ -54,20 +58,20 @@
 
     <h1>🚀 Coming Soon</h1>
 
-    <p class="subtext">
-      Get free early access to our stock discovery system.
-    </p>
+    <div class="subtext">
+      Get free early access
+    </div>
 
-    <p>
-      We help you find stocks with unusual volume and strong signals before the market reacts.
-    </p>
+    <div class="desc">
+      A stock discovery system that finds unusual volume, momentum shifts, and early breakout signals before the crowd.
+    </div>
 
     <!-- 🔵 BREVO FORM START -->
-    <div class="sib-form" style="text-align:center;">
+    <div class="sib-form">
       <div id="sib-form-container" class="sib-form-container">
         <div id="sib-container"
           class="sib-container--large sib-container--vertical"
-          style="max-width:420px; margin:0 auto; background:#fff;">
+          style="max-width:420px; margin:0 auto; padding:20px; border-radius:8px;">
 
           <form id="sib-form" method="POST"
             action="https://2c286f6b.sibforms.com/serve/MUIFAAu6wnFauqXTFZ43cD3h1MSa_AhQJf9j8A5hwyQmgntMan4DzEV9-zRL1xzT1flkI0ZMoNEe99pBITTzQYXE9O3xfiWkGtHBIZ3kOzktw29dzYF2ncz2LIdowU4fgil3OhiIdUlxv9Q-Ng3SeTAzkXd4HZg07Y4Gk2EJUKviYJ9vwggHD00gtkkLpp_ZYiBHIbKgalWigeYvOQ==">
@@ -77,12 +81,12 @@
               name="EMAIL"
               required
               placeholder="Enter your email"
-              style="width:100%; padding:12px; border:1px solid #ccc; border-radius:4px;"
+              style="width:100%; padding:12px; border-radius:4px; border:1px solid #444; background:#000; color:#fff;"
             />
 
             <button
               type="submit"
-              style="width:100%; margin-top:12px; padding:12px; background:#000; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+              style="width:100%; margin-top:12px; padding:12px; background:#fff; color:#000; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">
               Get Free Access
             </button>
 
