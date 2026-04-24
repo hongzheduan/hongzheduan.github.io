@@ -72,16 +72,21 @@
       box-sizing: border-box;
     }
 
-    #sib-container {
-      background: #111 !important;
-      border: 1px solid #333 !important;
-      box-shadow: none !important;
-    }
-
     footer {
       margin-top: 40px;
       color: #aaa;
       font-size: 12px;
+    }
+
+    /* LIVE badge */
+    .live-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #0f172a;
+      color: #22c55e;
+      font-size: 12px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -93,6 +98,10 @@
   <!-- HEADER -->
   <h1>🚀 xStockEdge</h1>
 
+  <div class="live-badge">
+    ● LIVE SCANNING
+  </div>
+
   <div class="tagline">
     A data-driven system that detects unusual stock activity using volume and momentum signals.
   </div>
@@ -101,13 +110,13 @@
     Private beta for selected users
   </div>
 
-  <!-- PREVIEW (LIVE DATA) -->
+  <!-- PREVIEW -->
   <div class="section">
     <h3>🔥 Top Live Signals</h3>
     <div id="preview-container"></div>
   </div>
 
-  <!-- DASHBOARD BUTTON -->
+  <!-- LOGIN -->
   <div class="section">
     <a href="login.html">
       <button class="btn-primary">
@@ -116,36 +125,22 @@
     </a>
   </div>
 
-  <!-- EMAIL SUBSCRIPTION (BREVO - KEEP YOUR ORIGINAL) -->
+  <!-- EMAIL -->
   <div class="section">
 
     <h3>Get Daily Stock Signals</h3>
 
-    <div class="sib-form">
-      <div id="sib-form-container" class="sib-form-container">
+    <form method="POST"
+      action="https://2c286f6b.sibforms.com/serve/MUIFAAu6wnFauqXTFZ43cD3h1MSa_AhQJf9j8A5hwyQmgntMan4DzEV9-zRL1xzT1flkI0ZMoNEe99pBITTzQYXE9O3xfiWkGtHBIZ3kOzktw29dzYF2ncz2LIdowU4fgil3OhiIdUlxv9Q-Ng3SeTAzkXd4HZg07Y4Gk2EJUKviYJ9vwggHD00gtkkLpp_ZYiBHIbKgalWigeYvOQ==">
 
-        <div id="sib-container"
-          class="sib-container--large sib-container--vertical"
-          style="max-width:420px; margin:0 auto; padding:20px; border-radius:8px;">
+      <input type="email" name="EMAIL" required placeholder="Enter your email">
 
-          <form id="sib-form" method="POST"
-            action="https://2c286f6b.sibforms.com/serve/MUIFAAu6wnFauqXTFZ43cD3h1MSa_AhQJf9j8A5hwyQmgntMan4DzEV9-zRL1xzT1flkI0ZMoNEe99pBITTzQYXE9O3xfiWkGtHBIZ3kOzktw29dzYF2ncz2LIdowU4fgil3OhiIdUlxv9Q-Ng3SeTAzkXd4HZg07Y4Gk2EJUKviYJ9vwggHD00gtkkLpp_ZYiBHIbKgalWigeYvOQ==">
+      <button class="btn-secondary" type="submit">
+        Get Free Stock Alerts
+      </button>
 
-            <input type="email" name="EMAIL" required placeholder="Enter your email">
+    </form>
 
-            <button class="btn-secondary" type="submit">
-              Get Free Stock Alerts
-            </button>
-
-            <input type="hidden" name="email_address_check" value="">
-            <input type="hidden" name="locale" value="en">
-            <input type="hidden" name="html_type" value="simple">
-
-          </form>
-
-        </div>
-      </div>
-    </div>
   </div>
 
   <footer>
@@ -154,19 +149,30 @@
 
 </div>
 
-<!-- <script>
-fetch("data/latest.json")
-  .then(res => res.json())
-  .then(data => {
+<!-- SCRIPT -->
+<script>
+const email = localStorage.getItem("userEmail") || "";
 
-    data.sort((a, b) => b.relVol - a.relVol);
+document.getElementById("preview-container").innerHTML =
+  "<div class='card'>Loading signals...</div>";
+
+fetch(`http://127.0.0.1:8000/signals?email=${email}`)
+// fetch("http://127.0.0.1:8000/signals")
+  .then(res => res.json())
+  .then(response => {
+
+    console.log("Last updated:", response.timestamp);
+
+    // const data = response.data;
+    const data = response.data || [];
+
     const top3 = data.slice(0, 3);
 
     const container = document.getElementById("preview-container");
+    container.innerHTML = "";
 
     top3.forEach(stock => {
       const div = document.createElement("div");
-
       div.className = "card";
 
       div.innerHTML = `
@@ -177,43 +183,11 @@ fetch("data/latest.json")
     });
 
   })
-
   .catch(err => {
     document.getElementById("preview-container").innerHTML =
       "<div class='card' style='color:red'>Failed to load signals</div>";
   });
-</script> -->
-
-<script type="module">
-  // import { processSignals } from "./signalEngine.js";
-
-  // fetch("data/latest.json")
-  fetch("http://127.0.0.1:8000/signals")
-    .then(res => res.json())
-    .then(data => {
-
-      // const top3 = processSignals(data, 3);
-      const top3 = data.slice(0, 3);
-
-      const container = document.getElementById("preview-container");
-
-      top3.forEach(stock => {
-        const div = document.createElement("div");
-        div.className = "card";
-
-        div.innerHTML = `
-          ${stock.ticker} — RelVol ${stock.relVol} — ${stock.change1d}%
-        `;
-
-        container.appendChild(div);
-      });
-
-    })
-    .catch(err => {
-      document.getElementById("preview-container").innerHTML =
-        "<div class='card' style='color:red'>Failed to load signals</div>";
-    });
-  </script>
+</script>
 
 </body>
 </html>

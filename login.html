@@ -16,9 +16,26 @@
     function login() {
       const email = document.getElementById("email").value;
 
+      // if (email) {
+      //   localStorage.setItem("loggedIn", "true");
+      //   window.location.href = "dashboard.html";
+      // }
+
       if (email) {
         localStorage.setItem("loggedIn", "true");
+        localStorage.setItem("userEmail", email);
+
+        // 🆕 SIMPLE TIER LOGIC
+        let tier = "free";
+
+        if (email.includes("premium") || email.includes("pro")) {
+          tier = "premium";
+        }
+
+        localStorage.setItem("userTier", tier);
+
         window.location.href = "dashboard.html";
+
       }
     }
   </script>

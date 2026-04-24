@@ -1,9 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Request
 import pandas as pd
 import time
 
+
 app = FastAPI()
+
+# SIMPLE USER DATABASE (for now)
+users = {
+    "test@gmail.com": "free",
+    "vip@gmail.com": "premium",
+    "pro@gmail.com": "premium"
+}
 
 # allow frontend access
 app.add_middleware(
@@ -67,20 +76,30 @@ def get_cached_data():
 #     return get_cached_data()
 
 @app.get("/signals")
-def get_signals():
+def get_signals(request: Request):
 
+    email = request.query_params.get("email", "")
+
+    # get cached data (IMPORTANT)
     data = get_cached_data()
 
-    # move logic FROM signalEngine.js TO HERE
-    filtered = [
-        x for x in data
-        if x["relVol"] > 1.2 and x["change1d"] > 0
-    ]
+    # determine tier
+    tier = users.get(email, "free")
 
-    # sort strongest first
-    filtered.sort(key=lambda x: x["relVol"], reverse=True)
+    # sort data
+    data.sort(key=lambda x: x.get("relVol", 0), reverse=True)
 
-    return filtered
+    # apply restriction
+    if tier == "free":
+        filtered_data = data[:3]
+    else:
+        filtered_data = data
+
+    return {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "tier": tier,
+        "data": filtered_data
+    }
 
 @app.get("/refresh")
 def refresh():
