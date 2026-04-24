@@ -61,9 +61,16 @@
 
 </div>
 
+// LOGIN CHECK
+<script>
+if (localStorage.getItem("loggedIn") !== "true") {
+  window.location.href = "login.html";
+}
+</script>
+
+// MAIN DASHBOARD LOGIC
 <script type="module">
 // import { processSignals } from "./signalEngine.js";
-
 // fetch("data/latest.json")
 fetch("http://127.0.0.1:8000/signals")
   .then(res => res.json())

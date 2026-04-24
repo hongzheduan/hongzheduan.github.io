@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - xStockEdge</title>
+</head>
+<body style="background:black; color:white; text-align:center; padding:100px; font-family:Arial;">
+
+  <h1>Login</h1>
+
+  <input id="email" placeholder="Enter email" style="padding:10px; width:250px;"><br><br>
+
+  <button onclick="login()" style="padding:10px 20px;">Continue</button>
+
+  <script>
+    function login() {
+      const email = document.getElementById("email").value;
+
+      if (email) {
+        localStorage.setItem("loggedIn", "true");
+        window.location.href = "dashboard.html";
+      }
+    }
+  </script>
+
+</body>
+</html>
