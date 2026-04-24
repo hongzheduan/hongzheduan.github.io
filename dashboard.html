@@ -71,7 +71,7 @@ fetch("http://127.0.0.1:8000/signals")
 
     // use shared logic (no duplication)
     // const signals = processSignals(data);
-    const signals = data;
+    const signals = data; // 👈 clean
 
     const container = document.getElementById("signals-container");
     container.innerHTML = "";
