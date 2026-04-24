@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coming Soon</title>
+  <title>xStockEdge</title>
 
   <style>
     body {
@@ -11,27 +11,65 @@
       font-family: Arial, sans-serif;
       background-color: #000;
       color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       text-align: center;
     }
 
     .container {
       max-width: 520px;
+      margin: 0 auto;
       padding: 20px;
     }
 
     h1 {
       font-size: 46px;
-      margin-bottom: 25px;
+      margin-bottom: 10px;
     }
 
-    .bottom-text {
+    .tagline {
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+
+    .section {
       margin-top: 25px;
-      font-size: 14px;
-      color: #aaa;
+    }
+
+    .card {
+      background: #111;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: #000;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 4px;
+      border: 1px solid #444;
+      background: #000;
+      color: #fff;
+      box-sizing: border-box;
     }
 
     #sib-container {
@@ -39,24 +77,53 @@
       border: 1px solid #333 !important;
       box-shadow: none !important;
     }
-  </style>
 
-  <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
+    footer {
+      margin-top: 40px;
+      color: #aaa;
+      font-size: 12px;
+    }
+  </style>
 </head>
 
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <h1>🚀 Coming Soon</h1>
+  <!-- HEADER -->
+  <h1>🚀 xStockEdge</h1>
 
-    <div class="tagline">
-      A smarter way to find unusual stocks before the market moves.
-    </div>
+  <div class="tagline">
+    A data-driven system that detects unusual stock activity using volume and momentum signals.
+  </div>
 
-    <!-- 🔵 BREVO FORM START -->
+  <div style="margin-top:10px; font-size:13px; color:#aaa;">
+    Private beta for selected users
+  </div>
+
+  <!-- PREVIEW (LIVE DATA) -->
+  <div class="section">
+    <h3>🔥 Live Example Signals</h3>
+    <div id="preview-container"></div>
+  </div>
+
+  <!-- DASHBOARD BUTTON -->
+  <div class="section">
+    <a href="dashboard.html">
+      <button class="btn-primary">
+        Enter Live Dashboard
+      </button>
+    </a>
+  </div>
+
+  <!-- EMAIL SUBSCRIPTION (BREVO - KEEP YOUR ORIGINAL) -->
+  <div class="section">
+
+    <h3>Get Daily Stock Signals</h3>
+
     <div class="sib-form">
       <div id="sib-form-container" class="sib-form-container">
+
         <div id="sib-container"
           class="sib-container--large sib-container--vertical"
           style="max-width:420px; margin:0 auto; padding:20px; border-radius:8px;">
@@ -64,17 +131,9 @@
           <form id="sib-form" method="POST"
             action="https://2c286f6b.sibforms.com/serve/MUIFAAu6wnFauqXTFZ43cD3h1MSa_AhQJf9j8A5hwyQmgntMan4DzEV9-zRL1xzT1flkI0ZMoNEe99pBITTzQYXE9O3xfiWkGtHBIZ3kOzktw29dzYF2ncz2LIdowU4fgil3OhiIdUlxv9Q-Ng3SeTAzkXd4HZg07Y4Gk2EJUKviYJ9vwggHD00gtkkLpp_ZYiBHIbKgalWigeYvOQ==">
 
-            <input
-              type="email"
-              name="EMAIL"
-              required
-              placeholder="Enter your email"
-              style="width:100%; padding:12px; border-radius:4px; border:1px solid #444; background:#000; color:#fff;"
-            />
+            <input type="email" name="EMAIL" required placeholder="Enter your email">
 
-            <button
-              type="submit"
-              style="width:100%; margin-top:12px; padding:12px; background:#fff; color:#000; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">
+            <button class="btn-secondary" type="submit">
               Get Free Stock Alerts
             </button>
 
@@ -87,13 +146,73 @@
         </div>
       </div>
     </div>
-    <!-- 🔵 BREVO FORM END -->
-
-    <div class="bottom-text">
-      Be the first to access when we launch.
-    </div>
-
   </div>
+
+  <footer>
+    © 2026 xStockEdge
+  </footer>
+
+</div>
+
+🔥 LIVE PREVIEW SCRIPT -->
+<!-- <script>
+fetch("data/latest.json")
+  .then(res => res.json())
+  .then(data => {
+
+    data.sort((a, b) => b.relVol - a.relVol);
+    const top3 = data.slice(0, 3);
+
+    const container = document.getElementById("preview-container");
+
+    top3.forEach(stock => {
+      const div = document.createElement("div");
+
+      div.className = "card";
+
+      div.innerHTML = `
+        ${stock.ticker} — RelVol ${stock.relVol} — ${stock.change1d}%
+      `;
+
+      container.appendChild(div);
+    });
+
+  })
+
+  .catch(err => {
+    document.getElementById("preview-container").innerHTML =
+      "<div class='card' style='color:red'>Failed to load signals</div>";
+  });
+</script> -->
+
+<script type="module">
+  import { processSignals } from "./signalEngine.js";
+
+  fetch("data/latest.json")
+    .then(res => res.json())
+    .then(data => {
+
+      const top3 = processSignals(data, 3);
+
+      const container = document.getElementById("preview-container");
+
+      top3.forEach(stock => {
+        const div = document.createElement("div");
+        div.className = "card";
+
+        div.innerHTML = `
+          ${stock.ticker} — RelVol ${stock.relVol} — ${stock.change1d}%
+        `;
+
+        container.appendChild(div);
+      });
+
+    })
+    .catch(err => {
+      document.getElementById("preview-container").innerHTML =
+        "<div class='card' style='color:red'>Failed to load signals</div>";
+    });
+  </script>
 
 </body>
 </html>

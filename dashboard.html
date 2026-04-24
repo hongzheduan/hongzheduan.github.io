@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart stock pick</title>
+  <title>xStockEdge Dashboard</title>
   <style>
     body {
       margin: 0;
@@ -81,19 +81,21 @@
 </head>
 <body>
 
-  <header>
+  <!-- <header>
     <h2>xStockEdge (beta test again)</h2>
     <nav>
       <a href="#about">About</a>
       <a href="#services">Services</a>
       <a href="#contact">Contact</a>
     </nav>
-  </header>
+  </header> -->
 
-  <div class="hero">
-	<h1>Data-Driven Stock Picks From Real Market Signals</h1>
-	<p>We scan the market daily using volume, momentum, and price anomaly detection.</p>
-	<button>View Today’s Signals</button>
+  <!-- <div class="hero">
+    <h1>Data-Driven Stock Picks From Real Market Signals</h1>
+    <p>We scan the market daily using volume, momentum, and price anomaly detection.</p>
+    <button onclick="document.getElementById('signals').scrollIntoView({behavior:'smooth'})">
+      View Today’s Signals
+    </button>
   </div>
 
   <section id="about">
@@ -135,8 +137,10 @@
       <li>Win rate: 61%</li>
       <li>Signals tracked: 1,284+</li>
     </ul>
-  </section>
+  </section> -->
   
+  <p id="last-updated" style="color:#666; font-size:14px;"></p>
+
   <section id="signals">
     <h2>Today's Stock Signals</h2>
     <div class="services" id="signals-container"></div>
@@ -150,13 +154,53 @@
   fetch("data/latest.json")
     .then(res => res.json())
     .then(data => {
+
+      // ✅ last updated time
+      const now = new Date();
+      document.getElementById("last-updated").innerText =
+        "Last updated: " + now.toLocaleString();
+
       const container = document.getElementById("signals-container");
 
       // clear container
       container.innerHTML = "";
 
+      // ✅ FILTER STRONG SIGNALS
+      // data = data.filter(x => x.relVol > 1.5);
+      // data = data.filter(x => x.relVol > 1.2 && x.change1d > 0);
+
       // sort by RelVol (strongest first)
-      data.sort((a, b) => b.relVol - a.relVol);
+      // data.sort((a, b) => b.relVol - a.relVol);
+
+      import { processSignals } from "./signalEngine.js";
+
+      fetch("data/latest.json")
+        .then(res => res.json())
+        .then(data => {
+
+          const processed = processSignals(data); // full dataset
+
+          const container = document.getElementById("signals-container");
+          container.innerHTML = "";
+
+          processed.forEach(stock => {
+            const card = document.createElement("div");
+            card.className = "card";
+
+            card.innerHTML = `
+              <h3>${stock.ticker}</h3>
+              <p>Price: $${stock.price}</p>
+              <p>RelVol: ${stock.relVol}</p>
+              <p>Max RelVol (7D): ${stock.maxRelVol}</p>
+              <p>1D: ${stock.change1d}%</p>
+              <p>7D: ${stock.change7d}%</p>
+              <p>Signal: ${stock.signal}</p>
+            `;
+
+            container.appendChild(card);
+          });
+
+        });
 
       data.forEach(stock => {
         const card = document.createElement("div");
@@ -173,6 +217,7 @@
           <h3>${stock.ticker}</h3>
           <p><strong>Price:</strong> $${stock.price}</p>
           <p><strong>RelVol:</strong> ${stock.relVol}</p>
+          <p><strong>Max RelVol (7D):</strong> ${stock.maxRelVol}</p>
           <p><strong>1D:</strong> ${stock.change1d}%</p>
           <p><strong>7D:</strong> ${stock.change7d}%</p>
           <p><strong>Signal:</strong> ${stock.signal}</p>
