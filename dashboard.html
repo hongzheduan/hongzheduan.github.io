@@ -152,26 +152,39 @@
     .then(data => {
       const container = document.getElementById("signals-container");
 
-      // sort by score (highest first)
-      data.sort((a, b) => b.score - a.score);
+      // clear container
+      container.innerHTML = "";
+
+      // sort by RelVol (strongest first)
+      data.sort((a, b) => b.relVol - a.relVol);
 
       data.forEach(stock => {
         const card = document.createElement("div");
         card.className = "card";
 
+        // color coding
+        let color = "#ffffff";
+        if (stock.signal === "Moderate") color = "#d1fae5";
+        if (stock.signal === "Weak") color = "#fee2e2";
+
+        card.style.background = color;
+
         card.innerHTML = `
           <h3>${stock.ticker}</h3>
-          <p><strong>Score:</strong> ${stock.score}</p>
-          <p>Price: $${stock.price}</p>
-          <p>Volume: ${stock.volume.toLocaleString()}</p>
+          <p><strong>Price:</strong> $${stock.price}</p>
+          <p><strong>RelVol:</strong> ${stock.relVol}</p>
+          <p><strong>1D:</strong> ${stock.change1d}%</p>
+          <p><strong>7D:</strong> ${stock.change7d}%</p>
+          <p><strong>Signal:</strong> ${stock.signal}</p>
         `;
 
         container.appendChild(card);
       });
     })
-    .catch(err => {
-      console.error("Error loading data:", err);
-    });
+    .catch(err => console.error(err));
+
+  // auto refresh every 30 sec
+  setInterval(() => location.reload(), 30000);
   </script>
 
 </body>
