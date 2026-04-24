@@ -186,13 +186,15 @@ fetch("data/latest.json")
 </script> -->
 
 <script type="module">
-  import { processSignals } from "./signalEngine.js";
+  // import { processSignals } from "./signalEngine.js";
 
-  fetch("data/latest.json")
+  // fetch("data/latest.json")
+  fetch("http://127.0.0.1:8000/signals")
     .then(res => res.json())
     .then(data => {
 
-      const top3 = processSignals(data, 3);
+      // const top3 = processSignals(data, 3);
+      const top3 = data.slice(0, 3);
 
       const container = document.getElementById("preview-container");
 

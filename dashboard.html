@@ -62,14 +62,16 @@
 </div>
 
 <script type="module">
-import { processSignals } from "./signalEngine.js";
+// import { processSignals } from "./signalEngine.js";
 
-fetch("data/latest.json")
+// fetch("data/latest.json")
+fetch("http://127.0.0.1:8000/signals")
   .then(res => res.json())
   .then(data => {
 
     // use shared logic (no duplication)
-    const signals = processSignals(data);
+    // const signals = processSignals(data);
+    const signals = data;
 
     const container = document.getElementById("signals-container");
     container.innerHTML = "";
