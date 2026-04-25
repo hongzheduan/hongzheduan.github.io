@@ -9,124 +9,229 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #000;
-      color: #fff;
+      background: #ffffff;
+      color: #111;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #fff;
+    }
+
+    .logo img {
+      height: 44px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      flex: 1;
       text-align: center;
     }
 
+    .login button {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ===== LAYOUT ===== */
     .container {
-      max-width: 520px;
+      max-width: 960px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 40px 20px;
+      text-align: center;
     }
 
+    /* ===== HERO ===== */
     h1 {
-      font-size: 46px;
-      margin-bottom: 10px;
+      font-size: 34px;
+      margin-bottom: 12px;
     }
 
-    .tagline {
-      color: #ccc;
-      margin-bottom: 20px;
+    .subtext {
+      color: #6b7280;
+      max-width: 520px;
+      margin: 0 auto 20px auto;
+      font-size: 15px;
     }
 
-    .section {
-      margin-top: 25px;
+    .badge {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #16a34a;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    /* ===== GRID FEATURES ===== */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-top: 30px;
     }
 
     .card {
-      background: #111;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 6px;
-    }
-
-    button {
-      width: 100%;
-      margin-top: 15px;
-      padding: 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .btn-primary {
-      background: #2563eb;
-      color: white;
-    }
-
-    .btn-secondary {
       background: #fff;
-      color: #000;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: left;
+    }
+
+    .card h3 {
+      font-size: 14px;
+      margin: 0 0 6px 0;
+    }
+
+    .card p {
+      font-size: 13px;
+      color: #6b7280;
+      margin: 0;
+    }
+
+    /* ===== EMAIL SECTION ===== */
+    .email-box {
+      margin-top: 40px;
     }
 
     input {
       width: 100%;
+      max-width: 420px;
       padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
       margin-top: 10px;
-      border-radius: 4px;
-      border: 1px solid #444;
-      background: #000;
+    }
+
+    .btn {
+      width: 100%;
+      max-width: 420px;
+      margin-top: 12px;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #111;
       color: #fff;
-      box-sizing: border-box;
+      font-weight: 600;
+      cursor: pointer;
     }
 
+    /* ===== LEGAL ===== */
+    .legal {
+      position: fixed;
+      bottom: 12px;
+      left: 16px;
+      font-size: 12px;
+      color: #6b7280;
+      display: flex;
+      gap: 10px;
+    }
+
+    .legal a {
+      color: #6b7280;
+      text-decoration: none;
+    }
+
+    .legal a:hover {
+      text-decoration: underline;
+    }
+
+    /* ===== FOOTER ===== */
     footer {
-      margin-top: 40px;
-      color: #aaa;
+      margin-top: 50px;
       font-size: 12px;
-    }
-
-    /* LIVE badge */
-    .live-badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 20px;
-      background: #0f172a;
-      color: #22c55e;
-      font-size: 12px;
-      margin-top: 10px;
+      color: #9ca3af;
     }
   </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <img src="assets/logo_ver2.png">
+  </div>
+
+  <div class="login">
+    <a href="login.html">
+      <button>Login</button>
+    </a>
+  </div>
+</div>
+
+<!-- MAIN -->
 <div class="container">
 
-  <!-- HEADER -->
-  <h1>🚀 xStockEdge</h1>
+  <div class="badge">● LIVE MARKET SCANNING</div>
 
-  <div class="live-badge">
-    ● LIVE SCANNING
+  <h1>Detect Unusual Stock Activity</h1>
+  <div style="
+    font-size:44px;
+    font-weight:900;
+    color:#111;
+    letter-spacing:-1px;
+    margin-bottom:8px;
+  ">
+    xStockEdge
   </div>
 
-  <div class="tagline">
-    A data-driven system that detects unusual stock activity using volume and momentum signals.
+  <div style="
+    font-size:14px;
+    font-weight:600;
+    color:#6b7280;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    margin-bottom:18px;
+  ">
+    MARKET SCANNING SYSTEM
   </div>
 
-  <div style="margin-top:10px; font-size:13px; color:#aaa;">
-    Private beta for selected users
+
+  <div class="subtext">
+    AI-powered scanner that identifies volume spikes, momentum shifts, and breakout signals across the market.
   </div>
 
-  <!-- PREVIEW -->
-  <div class="section">
-    <h3>🔥 Top Live Signals</h3>
-    <div id="preview-container"></div>
-  </div>
+  <!-- FEATURES -->
+  <div class="grid">
 
-  <!-- LOGIN -->
-  <div class="section">
-    <a href="login.html">
-      <button class="btn-primary">
-        Enter Live Dashboard
-      </button>
-    </a>
+    <div class="card">
+      <h3>Volume Breakouts</h3>
+      <p>Detect unusual trading volume compared to historical averages.</p>
+    </div>
+
+    <div class="card">
+      <h3>Momentum Signals</h3>
+      <p>Identify strong directional price movement early.</p>
+    </div>
+
+    <div class="card">
+      <h3>After-Market Insights</h3>
+      <p>Daily breakdown of stocks showing unusual market behavior.</p>
+    </div>
+
+    <div class="card">
+      <h3>Daily Signal Reports</h3>
+      <p>Curated end-of-day stock signals based on volume and momentum analysis.</p>
+    </div>
+
   </div>
 
   <!-- EMAIL -->
-  <div class="section">
+  <div class="email-box">
 
     <h3>Get Daily Stock Signals</h3>
 
@@ -135,59 +240,27 @@
 
       <input type="email" name="EMAIL" required placeholder="Enter your email">
 
-      <button class="btn-secondary" type="submit">
+      <button class="btn" type="submit">
         Get Free Stock Alerts
       </button>
 
     </form>
-
   </div>
 
   <footer>
-    © 2026 xStockEdge
+    © 2026 xStockEdge — All rights reserved
   </footer>
 
 </div>
 
-<!-- SCRIPT -->
-<script>
-const email = localStorage.getItem("userEmail") || "";
-
-document.getElementById("preview-container").innerHTML =
-  "<div class='card'>Loading signals...</div>";
-
-fetch(`http://127.0.0.1:8000/signals?email=${email}`)
-// fetch("http://127.0.0.1:8000/signals")
-  .then(res => res.json())
-  .then(response => {
-
-    console.log("Last updated:", response.timestamp);
-
-    // const data = response.data;
-    const data = response.data || [];
-
-    const top3 = data.slice(0, 3);
-
-    const container = document.getElementById("preview-container");
-    container.innerHTML = "";
-
-    top3.forEach(stock => {
-      const div = document.createElement("div");
-      div.className = "card";
-
-      div.innerHTML = `
-        ${stock.ticker} — RelVol ${stock.relVol} — ${stock.change1d}%
-      `;
-
-      container.appendChild(div);
-    });
-
-  })
-  .catch(err => {
-    document.getElementById("preview-container").innerHTML =
-      "<div class='card' style='color:red'>Failed to load signals</div>";
-  });
-</script>
+<!-- LEGAL -->
+<div class="legal">
+  <a href="assets/privacy.html">Privacy</a>
+  <span>|</span>
+  <a href="assets/terms.html">Terms</a>
+  <span>|</span>
+  <a href="assets/disclaimer.html">Disclaimer</a>
+</div>
 
 </body>
 </html>

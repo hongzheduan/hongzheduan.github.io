@@ -160,15 +160,48 @@ function loadData() {
         container.appendChild(hint);
       }
 
+      displayData.sort((a, b) => {
+        const scoreA = a.maxRelVol * Math.abs(a.change7d);
+        const scoreB = b.maxRelVol * Math.abs(b.change7d);
+        return scoreB - scoreA; // highest score first
+      });
+
       displayData.forEach(stock => {
+
+        const score = stock.maxRelVol * Math.abs(stock.change7d/100);
+        let scoreLabel = "";
+        if (score < 0.5) {
+          scoreLabel = "Weak";
+        } else if (score < 1.5) {
+          scoreLabel = "Moderate";
+        } else if (score < 3) {
+          scoreLabel = "Strong";
+        } else {
+          scoreLabel = "Very Strong";
+        }
+
         const card = document.createElement("div");
         card.className = "card";
 
         card.innerHTML = `
+          <h3 style="margin-bottom:6px;">${stock.ticker || "N/A"}</h3>
           <p><strong>Price:</strong> $${stock.price}</p>
           <p><strong>RelVol:</strong> ${stock.relVol}</p>
           <p><strong>7D Max RelVol:</strong> ${stock.maxRelVol}</p>
           <p><strong>1D:</strong> ${stock.change1d}%</p>
+          <p>
+            <strong>Signal Strength:</strong>
+            <span style="
+              color: 
+                ${scoreLabel === "Very Strong" ? "#ef4444" :
+                  scoreLabel === "Strong" ? "#fbbf24" :
+                  scoreLabel === "Moderate" ? "#60a5fa" :
+                  "#9ca3af"};
+              font-weight:bold;
+            ">
+              ${scoreLabel}
+            </span>
+          </p>
         `;
 
         container.appendChild(card);
