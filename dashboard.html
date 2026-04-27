@@ -13,10 +13,59 @@
       color: #fff;
     }
 
-    .container {
-      max-width: 900px;
-      margin: auto;
+    /* ===== LAYOUT ===== */
+    .layout {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 220px;
+      background: #0a0a0a;
+      border-right: 1px solid #222;
+      padding: 15px;
+    }
+
+    .logo img {
+      height: 44px;
+      cursor: pointer;
+    }
+
+    .menu-title {
+      color: #888;
+      font-size: 12px;
+      margin: 20px 0 10px;
+    }
+
+    .menu-btn {
+      width: 100%;
+      background: #111;
+      color: #fff;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      text-align: left;
+      border: none;
+      cursor: pointer;
+    }
+
+    .menu-btn:hover {
+      background: #1f1f1f;
+    }
+
+    /* ===== MAIN ===== */
+    .main {
+      flex: 1;
       padding: 20px;
+      overflow-y: auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
     }
 
     h1 {
@@ -27,51 +76,6 @@
       color: #aaa;
       font-size: 14px;
       margin-top: 4px;
-    }
-
-    .card {
-      background: #111;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: 1px solid #222;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 25px;
-      gap: 20px;
-    }
-
-    .logo img {
-      height: 44px;
-      cursor: pointer;
-    }
-
-    button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .logout {
-      background: #ef4444;
-      color: white;
-    }
-
-    .refresh {
-      background: #2563eb;
-      color: white;
-      margin-bottom: 15px;
-    }
-
-    #lastUpdated {
-      color: #aaa;
-      font-size: 12px;
-      margin-top: 10px;
     }
 
     #todayDate {
@@ -85,55 +89,89 @@
       font-size: 12px;
       margin-top: 6px;
     }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: #111;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #222;
+    }
+
+    /* ===== BUTTON ===== */
+    .logout {
+      background: #ef4444;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- LOGIN GUARD -->
+<script>
+  if (localStorage.getItem("loggedIn") !== "true") {
+    window.location.href = "login.html";
+  }
+</script>
 
-  <!-- LOGIN GUARD -->
-  <script>
-    if (localStorage.getItem("loggedIn") !== "true") {
-      window.location.href = "login.html";
-    }
-  </script>
+<div class="layout">
 
-  <!-- TOP BAR -->
-  <div class="topbar">
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
 
-    <!-- LOGO -->
     <div class="logo">
       <a href="index.html">
         <img src="assets/baize_logo.png" alt="Baizora Logo">
       </a>
     </div>
 
-    <!-- CENTER -->
-    <div style="flex:1; text-align:center;">
-      <h1>Dashboard</h1>
+    <div class="menu-title">SCANNERS</div>
 
+    <button class="menu-btn" onclick="loadScanner('volume')">
+      📊 Volume Breakouts
+    </button>
 
-      <div style="color:#22c55e; font-size:12px; margin-top:4px;">
-        Signals update daily after 6:00 PM ET
-      </div>
+    <button class="menu-btn" onclick="loadScanner('momentum')">
+      ⚡ Momentum Shift
+    </button>
 
-      <div id="todayDate"></div>
-      <div id="userInfo"></div>
-    </div>
-
-    <!-- RIGHT -->
-    <button class="logout" onclick="logout()">Logout</button>
+    <button class="menu-btn" onclick="loadScanner('breakout')">
+      🚀 Breakout Strength
+    </button>
 
   </div>
 
-  <!-- BUTTON -->
-  <button class="refresh" onclick="loadData()">Load Today's Signals</button>
+  <!-- ===== MAIN ===== -->
+  <div class="main">
 
-  <div id="lastUpdated"></div>
+    <div class="topbar">
+      <div>
+        <h1>Baizora Terminal</h1>
 
-  <!-- SIGNALS -->
-  <div id="signals-container"></div>
+        <div class="sub">Daily Quant Signal Engine</div>
+
+        <div style="color:#22c55e; font-size:12px; margin-top:4px;">
+          Signals update after 6:00 PM ET
+        </div>
+
+        <div id="todayDate"></div>
+        <div id="userInfo"></div>
+      </div>
+
+      <button class="logout" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="signals-container">
+      <div class="card">Select a scanner to view signals</div>
+    </div>
+
+  </div>
 
 </div>
 
@@ -143,9 +181,8 @@ function logout() {
   window.location.href = "login.html";
 }
 
-/* Set date once */
+/* ===== INIT DATE ===== */
 window.onload = function () {
-
   const today = new Date();
 
   document.getElementById("todayDate").innerText =
@@ -155,70 +192,53 @@ window.onload = function () {
       month: "long",
       day: "numeric"
     });
-
-  loadData();
 };
 
-/* Load signals once */
-function loadData() {
+/* ===== SCANNER LOADER ===== */
+function loadScanner(type) {
 
   const container = document.getElementById("signals-container");
 
-  container.innerHTML = "<div class='card'>Loading signals...</div>";
+  container.innerHTML = "<div class='card'>Loading " + type + " signals...</div>";
 
-  fetch("data/signals.json")
+  let file = "data/signals.json";
+
+  if (type === "volume") {
+    file = "data/signals_volume.json";
+  } else if (type === "momentum") {
+    file = "data/signals_momentum.json";
+  } else if (type === "breakout") {
+    file = "data/signals_breakout.json";
+  }
+
+  fetch(file)
     .then(res => res.json())
     .then(response => {
 
       const data = response.data;
-      const timestamp = response.timestamp;
-      const tier = response.tier;
+
+      document.getElementById("userInfo").innerText =
+        "Scanner: " + type.toUpperCase();
+
+      container.innerHTML = "";
 
       if (!data || data.length === 0) {
         container.innerHTML = "<div class='card'>No signals found</div>";
         return;
       }
 
-      document.getElementById("userInfo").innerText =
-        "Plan: " + tier.toUpperCase();
-
-      document.getElementById("lastUpdated").innerText =
-        "Last updated: " + timestamp;
-
-      container.innerHTML = "";
-
       data.forEach(stock => {
-
-        const score =
-          stock.maxRelVol * Math.abs(stock.change7d / 100);
-
-        let label = "";
-
-        if (score < 0.5) label = "Weak";
-        else if (score < 1.5) label = "Moderate";
-        else if (score < 3) label = "Strong";
-        else label = "Very Strong";
 
         const card = document.createElement("div");
         card.className = "card";
 
         card.innerHTML = `
-          <h3 style="margin-bottom:6px;">${stock.ticker}</h3>
-          <p><strong>Price:</strong> $${stock.price}</p>
-          <p><strong>RelVol:</strong> ${stock.relVol}</p>
-          <p><strong>7D Max RelVol:</strong> ${stock.maxRelVol}</p>
-          <p><strong>1D:</strong> ${stock.change1d}%</p>
-          <p>
-            <strong>Signal:</strong>
-            <span style="color:
-              ${label === "Very Strong" ? "#ef4444" :
-                label === "Strong" ? "#fbbf24" :
-                label === "Moderate" ? "#60a5fa" :
-                "#9ca3af"};
-              font-weight:bold;">
-              ${label}
-            </span>
-          </p>
+          <h3>${stock.Ticker}</h3>
+          <p><strong>Price:</strong> $${stock.Price}</p>
+          <p><strong>RelVol:</strong> ${stock.RelVol}</p>
+          <p><strong>7D Max:</strong> ${stock.MaxRelVol_7D}</p>
+          <p><strong>1D:</strong> ${stock.Change1D}%</p>
+          <p><strong>Signal:</strong> ${stock.Signal}</p>
         `;
 
         container.appendChild(card);
