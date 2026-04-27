@@ -8,7 +8,7 @@ export function processSignals(data, limit = null) {
   // sort strongest first
   filtered.sort((a, b) => b.relVol - a.relVol);
 
-  // optional limit (homepage uses 3, dashboard uses all)
+  // optional limit (dashboard uses all)
   if (limit) {
     filtered = filtered.slice(0, limit);
   }

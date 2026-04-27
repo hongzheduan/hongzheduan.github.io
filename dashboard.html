@@ -20,23 +20,13 @@
     }
 
     h1 {
-      margin-bottom: 5px;
+      margin: 0;
     }
 
     .sub {
       color: #aaa;
       font-size: 14px;
-      margin-bottom: 20px;
-    }
-
-    .live {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 20px;
-      background: #0f172a;
-      color: #22c55e;
-      font-size: 12px;
-      margin-bottom: 15px;
+      margin-top: 4px;
     }
 
     .card {
@@ -49,9 +39,15 @@
 
     .topbar {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      justify-content: space-between;
+      margin-bottom: 25px;
+      gap: 20px;
+    }
+
+    .logo img {
+      height: 44px;
+      cursor: pointer;
     }
 
     button {
@@ -69,12 +65,25 @@
     .refresh {
       background: #2563eb;
       color: white;
+      margin-bottom: 15px;
     }
 
     #lastUpdated {
       color: #aaa;
       font-size: 12px;
       margin-top: 10px;
+    }
+
+    #todayDate {
+      color: #888;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    #userInfo {
+      color: #aaa;
+      font-size: 12px;
+      margin-top: 6px;
     }
   </style>
 </head>
@@ -92,20 +101,34 @@
 
   <!-- TOP BAR -->
   <div class="topbar">
-    <div>
-      <h1>📊 Dashboard</h1>
-      <div class="sub">Live stock signal engine</div>
 
-      <div id="userInfo" style="color:#aaa;font-size:12px;"></div>
-
+    <!-- LOGO -->
+    <div class="logo">
+      <a href="index.html">
+        <img src="assets/baize_logo.png" alt="Baizora Logo">
+      </a>
     </div>
 
+    <!-- CENTER -->
+    <div style="flex:1; text-align:center;">
+      <h1>Dashboard</h1>
+
+
+      <div style="color:#22c55e; font-size:12px; margin-top:4px;">
+        Signals update daily after 6:00 PM ET
+      </div>
+
+      <div id="todayDate"></div>
+      <div id="userInfo"></div>
+    </div>
+
+    <!-- RIGHT -->
     <button class="logout" onclick="logout()">Logout</button>
+
   </div>
 
-  <div class="live">● LIVE SCANNING</div>
-
-  <button class="refresh" onclick="loadData()">Refresh</button>
+  <!-- BUTTON -->
+  <button class="refresh" onclick="loadData()">Load Today's Signals</button>
 
   <div id="lastUpdated"></div>
 
@@ -120,15 +143,30 @@ function logout() {
   window.location.href = "login.html";
 }
 
+/* Set date once */
+window.onload = function () {
+
+  const today = new Date();
+
+  document.getElementById("todayDate").innerText =
+    today.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+
+  loadData();
+};
+
+/* Load signals once */
 function loadData() {
 
   const container = document.getElementById("signals-container");
 
   container.innerHTML = "<div class='card'>Loading signals...</div>";
 
-  const email = localStorage.getItem("userEmail") || "";
-  fetch(`http://127.0.0.1:8000/signals?email=${email}`)
-  // fetch("http://127.0.0.1:8000/signals")
+  fetch("data/signals.json")
     .then(res => res.json())
     .then(response => {
 
@@ -147,59 +185,38 @@ function loadData() {
       document.getElementById("lastUpdated").innerText =
         "Last updated: " + timestamp;
 
-      const displayData = data;
-
       container.innerHTML = "";
 
-      if (tier === "free") {
-        const hint = document.createElement("div");
-        hint.style.color = "#fbbf24";
-        hint.style.margin = "10px 0";
-        hint.innerText = "Upgrade to Premium to unlock all signals →";
+      data.forEach(stock => {
 
-        container.appendChild(hint);
-      }
+        const score =
+          stock.maxRelVol * Math.abs(stock.change7d / 100);
 
-      displayData.sort((a, b) => {
-        const scoreA = a.maxRelVol * Math.abs(a.change7d);
-        const scoreB = b.maxRelVol * Math.abs(b.change7d);
-        return scoreB - scoreA; // highest score first
-      });
+        let label = "";
 
-      displayData.forEach(stock => {
-
-        const score = stock.maxRelVol * Math.abs(stock.change7d/100);
-        let scoreLabel = "";
-        if (score < 0.5) {
-          scoreLabel = "Weak";
-        } else if (score < 1.5) {
-          scoreLabel = "Moderate";
-        } else if (score < 3) {
-          scoreLabel = "Strong";
-        } else {
-          scoreLabel = "Very Strong";
-        }
+        if (score < 0.5) label = "Weak";
+        else if (score < 1.5) label = "Moderate";
+        else if (score < 3) label = "Strong";
+        else label = "Very Strong";
 
         const card = document.createElement("div");
         card.className = "card";
 
         card.innerHTML = `
-          <h3 style="margin-bottom:6px;">${stock.ticker || "N/A"}</h3>
+          <h3 style="margin-bottom:6px;">${stock.ticker}</h3>
           <p><strong>Price:</strong> $${stock.price}</p>
           <p><strong>RelVol:</strong> ${stock.relVol}</p>
           <p><strong>7D Max RelVol:</strong> ${stock.maxRelVol}</p>
           <p><strong>1D:</strong> ${stock.change1d}%</p>
           <p>
-            <strong>Signal Strength:</strong>
-            <span style="
-              color: 
-                ${scoreLabel === "Very Strong" ? "#ef4444" :
-                  scoreLabel === "Strong" ? "#fbbf24" :
-                  scoreLabel === "Moderate" ? "#60a5fa" :
-                  "#9ca3af"};
-              font-weight:bold;
-            ">
-              ${scoreLabel}
+            <strong>Signal:</strong>
+            <span style="color:
+              ${label === "Very Strong" ? "#ef4444" :
+                label === "Strong" ? "#fbbf24" :
+                label === "Moderate" ? "#60a5fa" :
+                "#9ca3af"};
+              font-weight:bold;">
+              ${label}
             </span>
           </p>
         `;
@@ -210,16 +227,10 @@ function loadData() {
     })
     .catch(err => {
       console.error(err);
-      document.getElementById("signals-container").innerHTML =
-        "<div class='card' style='color:red'>Failed to load data</div>";
+      container.innerHTML =
+        "<div class='card' style='color:red'>Failed to load signals</div>";
     });
 }
-
-// auto load on open
-loadData();
-
-// auto refresh every 30 sec
-setInterval(loadData, 30000);
 </script>
 
 </body>
