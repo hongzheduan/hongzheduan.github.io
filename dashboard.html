@@ -1,256 +1,306 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Baizora Dashboard</title>
+<meta charset="UTF-8">
+<title>Baizora Dashboard</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #000;
-      color: #fff;
-    }
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b0d12;
+    color: white;
+}
 
-    /* ===== LAYOUT ===== */
-    .layout {
-      display: flex;
-      height: 100vh;
-    }
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #0f1117;
+    border-bottom: 1px solid #1f2430;
+}
 
-    /* ===== SIDEBAR ===== */
-    .sidebar {
-      width: 220px;
-      background: #0a0a0a;
-      border-right: 1px solid #222;
-      padding: 15px;
-    }
+.logo a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: bold;
+}
 
-    .logo img {
-      height: 60px;
-      cursor: pointer;
-    }
+.logout {
+    background: #1f2937;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
 
-    .menu-title {
-      color: #888;
-      font-size: 12px;
-      margin: 20px 0 10px;
-    }
+/* LAYOUT */
+.wrapper {
+    display: flex;
+    height: calc(100vh - 52px);
+}
 
-    .menu-btn {
-      width: 100%;
-      background: #111;
-      color: #fff;
-      padding: 10px;
-      margin-bottom: 8px;
-      border-radius: 6px;
-      text-align: left;
-      border: none;
-      cursor: pointer;
-    }
+/* SIDEBAR */
+.sidebar {
+    width: 200px;
+    background: #0f1117;
+    border-right: 1px solid #1f2430;
+}
 
-    .menu-btn:hover {
-      background: #1f1f1f;
-    }
+.tab {
+    padding: 12px;
+    cursor: pointer;
+}
 
-    /* ===== MAIN ===== */
-    .main {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-    }
+.tab.active {
+    background: #151a24;
+    border-left: 3px solid #3b82f6;
+}
 
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 20px;
-    }
+/* MAIN */
+.main {
+    flex: 1;
+    padding: 14px;
+    overflow: auto;
+}
 
-    h1 {
-      margin: 0;
-    }
+/* STATUS BAR */
+.status {
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #121722;
+    font-size: 12px;
+    opacity: 0.9;
+}
 
-    .sub {
-      color: #aaa;
-      font-size: 14px;
-      margin-top: 4px;
-    }
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
 
-    #todayDate {
-      color: #888;
-      font-size: 12px;
-      margin-top: 4px;
-    }
+th, td {
+    padding: 8px;
+    border-bottom: 1px solid #1f2430;
+    text-align: left;
+}
 
-    #userInfo {
-      color: #aaa;
-      font-size: 12px;
-      margin-top: 6px;
-    }
+th {
+    background: #121722;
+    cursor: pointer;
+}
 
-    /* ===== CARDS ===== */
-    .card {
-      background: #111;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: 1px solid #222;
-    }
+/* COLORS */
+.positive { color: #22c55e; }
+.negative { color: #ef4444; }
 
-    /* ===== BUTTON ===== */
-    .logout {
-      background: #ef4444;
-      color: white;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-  </style>
+/* README */
+.readme {
+    display: none;
+}
+
+.readme table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.readme th, .readme td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #1f2430;
+}
+
+/* SMALL TEXT */
+.small {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+</style>
 </head>
 
 <body>
 
-<!-- LOGIN GUARD -->
-<script>
-  if (localStorage.getItem("loggedIn") !== "true") {
-    window.location.href = "login.html";
-  }
-</script>
+<!-- HEADER -->
+<div class="header">
+    <div class="logo"><a href="/">Baizora</a></div>
+    <button class="logout">Logout</button>
+</div>
 
-<div class="layout">
+<!-- LAYOUT -->
+<div class="wrapper">
 
-  <!-- ===== SIDEBAR ===== -->
-  <div class="sidebar">
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="tab active" onclick="showTab('table')">Live Signals</div>
+    <div class="tab" onclick="showTab('readme')">README</div>
+</div>
 
-    <div class="logo">
-      <a href="index.html">
-        <img src="assets/baize_logo.png" alt="Baizora Logo">
-      </a>
-    </div>
+<!-- MAIN -->
+<div class="main">
 
-    <div class="menu-title">SCANNERS</div>
+<div id="status" class="status">Loading data...</div>
 
-    <button class="menu-btn" onclick="loadScanner('volume')">
-      📊 Volume Breakouts
-    </button>
+<!-- TABLE -->
+<div id="tableView">
+<table>
+<thead>
+<tr>
+<th onclick="sortBy('Ticker')">Ticker</th>
+<th onclick="sortBy('Price')">Price</th>
+<th onclick="sortBy('PriceChange1D')">1D %</th>
+<th onclick="sortBy('VolChange1D')">1D Vol</th>
+<th onclick="sortBy('Score1D')">1D Score</th>
+<th onclick="sortBy('PriceChange7D')">7D %</th>
+<th onclick="sortBy('VolChange7D')">7D Vol</th>
+<th onclick="sortBy('Score7D')">7D Score</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
 
-    <button class="menu-btn" onclick="loadScanner('momentum')">
-      ⚡ Momentum Shift
-    </button>
+<!-- README -->
+<div id="readme" class="readme">
 
-    <button class="menu-btn" onclick="loadScanner('breakout')">
-      🚀 Breakout Strength
-    </button>
+<h2>📘 Metric Reference</h2>
 
-  </div>
+<table>
 
-  <!-- ===== MAIN ===== -->
-  <div class="main">
+<tr>
+<th>Metric</th>
+<th>Definition</th>
+<th>Classification</th>
+</tr>
 
-    <div class="topbar">
-      <div>
-        <h1>Baizora Terminal</h1>
+<tr>
+<td><b>1D Price Change</b></td>
+<td>(Close - Prev Close) / Prev Close</td>
+<td>-2%–+2% small · +2%–5% moderate · +5%–10% large · &gt;10% high</td>
+</tr>
 
-        <div class="sub">Daily Quant Signal Engine</div>
+<tr>
+<td><b>7D Price Change</b></td>
+<td>Change over last 7 trading days</td>
+<td>0–1% low · 1–5% moderate · 5–15% higher · &gt;15% large</td>
+</tr>
 
-        <div style="color:#22c55e; font-size:12px; margin-top:4px;">
-          Signals update after 6:00 PM ET
-        </div>
+<tr>
+<td><b>1D Volume</b></td>
+<td>Volume / 21D Avg Volume</td>
+<td>0.5–1 low · 1–2 normal · 2–3 elevated · &gt;3 high</td>
+</tr>
 
-        <div id="todayDate"></div>
-        <div id="userInfo"></div>
-      </div>
+<tr>
+<td><b>7D Volume</b></td>
+<td>Max relative volume (7 trading days)</td>
+<td>0–1.5 low · 1.5–2.5 moderate · 2.5–4 elevated · &gt;4 high</td>
+</tr>
 
-      <button class="logout" onclick="logout()">Logout</button>
-    </div>
+<tr>
+<td><b>1D Score</b></td>
+<td>Volume × Price change</td>
+<td>0–0.5 low · 0.5–1.5 moderate · 1.5–3 higher · &gt;3 high</td>
+</tr>
 
-    <div id="signals-container">
-      <div class="card">Select a scanner to view signals</div>
-    </div>
+<tr>
+<td><b>7D Score</b></td>
+<td>Volume × Price change (7D)</td>
+<td>0–2 low · 2–5 moderate · 5–10 higher · &gt;10 high</td>
+</tr>
 
-  </div>
+</table>
+
+<br>
+
+<p class="small">
+Data updates once per day after U.S. market close (4:10–6:00 PM ET).<br>
+If no data appears, scanner has not finished running.
+</p>
+
+<p class="small">
+⚠️ This is a quantitative signal system, not financial advice.
+</p>
 
 </div>
 
+</div>
+</div>
+
 <script>
-function logout() {
-  localStorage.clear();
-  window.location.href = "login.html";
-}
 
-/* ===== INIT DATE ===== */
-window.onload = function () {
-  const today = new Date();
+let data = [];
+let sortKey = "Score7D";
 
-  document.getElementById("todayDate").innerText =
-    today.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    });
-};
+// LOAD DATA
+fetch("data/latest.json")
+.then(r => {
+    if (!r.ok) throw new Error("no data");
+    return r.json();
+})
+.then(json => {
 
-/* ===== SCANNER LOADER ===== */
-function loadScanner(type) {
+    document.getElementById("status").innerText =
+        `Signals from ${json.date} | ${json.status}`;
 
-  const container = document.getElementById("signals-container");
-
-  container.innerHTML = "<div class='card'>Loading " + type + " signals...</div>";
-
-  let file = "data/signals.json";
-
-  if (type === "volume") {
-    file = "data/signals_volume.json";
-  } else if (type === "momentum") {
-    file = "data/signals_momentum.json";
-  } else if (type === "breakout") {
-    file = "data/signals_breakout.json";
-  }
-
-  fetch(file)
-    .then(res => res.json())
-    .then(response => {
-
-      const data = response.data;
-
-      document.getElementById("userInfo").innerText =
-        "Scanner: " + type.toUpperCase();
-
-      container.innerHTML = "";
-
-      if (!data || data.length === 0) {
-        container.innerHTML = "<div class='card'>No signals found</div>";
+    if (!json.data || json.data.length === 0) {
+        document.getElementById("status").innerText =
+            "⚠️ No data available yet";
         return;
-      }
+    }
 
-      data.forEach(stock => {
+    data = json.data;
+    render();
+})
+.catch(() => {
+    document.getElementById("status").innerText =
+        "❌ No data file found. Run scanner.";
+});
 
-        const card = document.createElement("div");
-        card.className = "card";
-
-        card.innerHTML = `
-          <h3>${stock.Ticker}</h3>
-          <p><strong>Price:</strong> $${stock.Price}</p>
-          <p><strong>RelVol:</strong> ${stock.RelVol}</p>
-          <p><strong>7D Max:</strong> ${stock.MaxRelVol_7D}</p>
-          <p><strong>1D:</strong> ${stock.Change1D}%</p>
-          <p><strong>Signal:</strong> ${stock.Signal}</p>
-        `;
-
-        container.appendChild(card);
-      });
-
-    })
-    .catch(err => {
-      console.error(err);
-      container.innerHTML =
-        "<div class='card' style='color:red'>Failed to load signals</div>";
-    });
+// TAB SWITCH
+function showTab(tab) {
+    document.getElementById("tableView").style.display = tab === "table" ? "block" : "none";
+    document.getElementById("readme").style.display = tab === "readme" ? "block" : "none";
 }
+
+// SORT
+function sortBy(key) {
+    sortKey = key;
+    render();
+}
+
+// RENDER TABLE
+function render() {
+    let arr = [...data];
+    arr.sort((a,b) => (b[sortKey]||0)-(a[sortKey]||0));
+
+    let html = "";
+
+    for (let r of arr.slice(0, 200)) {
+        html += `
+        <tr>
+            <td><b>${r.Ticker}</b></td>
+            <td>${r.Price}</td>
+
+            <td class="${r.PriceChange1D>0?'positive':'negative'}">${r.PriceChange1D}</td>
+            <td>${r.VolChange1D.toFixed(2)}</td>
+            <td>${r.Score1D.toFixed(3)}</td>
+
+            <td class="${r.PriceChange7D>0?'positive':'negative'}">${r.PriceChange7D}</td>
+            <td>${r.VolChange7D.toFixed(2)}</td>
+            <td>${r.Score7D.toFixed(3)}</td>
+        </tr>
+        `;
+    }
+
+    document.getElementById("tableBody").innerHTML = html;
+}
+
 </script>
 
 </body>
