@@ -26,6 +26,17 @@
       color: #111;
     }
 
+    .announcement-bar {
+      width: 100%;
+      background: #0a2f6b;
+      color: white;
+      text-align: center;
+      font-size: 13px;
+      padding: 8px 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
     /* ===== HEADER ===== */
     /* .header {
       display: flex;
@@ -40,7 +51,7 @@
       position: sticky;
       top: 0;
       z-index: 1000;
-      background: #0b0f1a;
+      background: #ffffff;
       padding: 10px 20px;
 
       display: flex;              /* 🔥 KEY FIX */
@@ -184,6 +195,11 @@
 </head>
 
 <body>
+
+<div class="announcement-bar">
+  Early Access — Limited Time Open  
+  <span id="countdown" style="margin-left:10px; font-weight:700;"></span>
+</div>
 
 <!-- HEADER -->
 <div class="top-header">
@@ -333,6 +349,34 @@
   <span>|</span>
   <a href="assets/disclaimer.html">Disclaimer</a>
 </div>
+
+<script>
+  // Set your deadline (CHANGE THIS DATE)
+  const deadline = new Date("2026-06-11T00:00:00").getTime();
+
+  const countdownEl = document.getElementById("countdown");
+
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const diff = deadline - now;
+
+    if (diff <= 0) {
+      countdownEl.innerHTML = "EXPIRED";
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    countdownEl.innerHTML =
+      `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+</script>
 
 </body>
 </html>
