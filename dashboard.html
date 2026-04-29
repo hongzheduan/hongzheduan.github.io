@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>Baizora Dashboard</title>
 
+<link rel="icon" href="assets/baize_favicon_v2.png">
+
 <style>
 body {
     margin: 0;
@@ -22,11 +24,7 @@ body {
     border-bottom: 1px solid #1f2430;
 }
 
-.logo a {
-    color: #3b82f6;
-    text-decoration: none;
-    font-weight: bold;
-}
+.logo img { height: 58px; }
 
 .logout {
     background: #1f2937;
@@ -67,13 +65,12 @@ body {
     overflow: auto;
 }
 
-/* STATUS BAR */
+/* STATUS */
 .status {
     padding: 10px;
-    margin-bottom: 10px;
     background: #121722;
+    margin-bottom: 10px;
     font-size: 12px;
-    opacity: 0.9;
 }
 
 /* TABLE */
@@ -87,40 +84,22 @@ th, td {
     padding: 8px;
     border-bottom: 1px solid #1f2430;
     text-align: left;
-}
-
-th {
-    background: #121722;
     cursor: pointer;
 }
+
+th { background: #121722; }
 
 /* COLORS */
 .positive { color: #22c55e; }
 .negative { color: #ef4444; }
 
 /* README */
-.readme {
-    display: none;
-}
+.readme { display: none; }
 
-.readme table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-
-.readme th, .readme td {
-    text-align: left;
-    padding: 8px;
-    border-bottom: 1px solid #1f2430;
-}
-
-/* SMALL TEXT */
 .small {
     font-size: 12px;
-    opacity: 0.7;
+    opacity: 0.75;
 }
-
 </style>
 </head>
 
@@ -128,23 +107,26 @@ th {
 
 <!-- HEADER -->
 <div class="header">
-    <div class="logo"><a href="/">Baizora</a></div>
+    <div class="logo">
+        <a href="./">
+            <img src="assets/baize_logo_v2.png">
+        </a>
+    </div>
     <button class="logout">Logout</button>
 </div>
 
-<!-- LAYOUT -->
 <div class="wrapper">
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-    <div class="tab active" onclick="showTab('table')">Live Signals</div>
+    <div class="tab active" onclick="showTab('table')">Signals</div>
     <div class="tab" onclick="showTab('readme')">README</div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-<div id="status" class="status">Loading data...</div>
+<div id="status" class="status">Loading...</div>
 
 <!-- TABLE -->
 <div id="tableView">
@@ -153,14 +135,22 @@ th {
 <tr>
 <th onclick="sortBy('Ticker')">Ticker</th>
 <th onclick="sortBy('Price')">Price</th>
+
+<!-- 1D -->
 <th onclick="sortBy('PriceChange1D')">1D %</th>
-<th onclick="sortBy('VolChange1D')">1D Vol</th>
-<th onclick="sortBy('Score1D')">1D Score</th>
-<th onclick="sortBy('PriceChange7D')">7D %</th>
-<th onclick="sortBy('VolChange7D')">7D Vol</th>
-<th onclick="sortBy('Score7D')">7D Score</th>
+<th onclick="sortBy('VolumeChange1D')">1D Vol %</th>
+<th onclick="sortBy('PriceVsMA21_1D')">1D Price/MA21</th>
+<th onclick="sortBy('VolumeVsMA21_1D')">1D Vol/MA21</th>
+
+<!-- 7D -->
+<th onclick="sortBy('Max7DPriceChange')">7D Max Price %</th>
+<th onclick="sortBy('Max7DVolumeChange')">7D Max Vol %</th>
+<th onclick="sortBy('Max7DPriceVsMA21')">7D Max Price/MA21</th>
+<th onclick="sortBy('Max7DVolumeVsMA21')">7D Max Vol/MA21</th>
+
 </tr>
 </thead>
+
 <tbody id="tableBody"></tbody>
 </table>
 </div>
@@ -168,50 +158,90 @@ th {
 <!-- README -->
 <div id="readme" class="readme">
 
-<h2>📘 Metric Reference</h2>
+<h2>📘 Baizora Signal System (v8)</h2>
 
 <table>
 
 <tr>
 <th>Metric</th>
-<th>Definition</th>
-<th>Classification</th>
+<th>Formula</th>
+<th>Description</th>
 </tr>
 
 <tr>
-<td><b>1D Price Change</b></td>
+<td>1D Price Change</td>
 <td>(Close - Prev Close) / Prev Close</td>
-<td>-2%–+2% small · +2%–5% moderate · +5%–10% large · &gt;10% high</td>
+<td>Daily price momentum</td>
 </tr>
 
 <tr>
-<td><b>7D Price Change</b></td>
-<td>Change over last 7 trading days</td>
-<td>0–1% low · 1–5% moderate · 5–15% higher · &gt;15% large</td>
+<td>1D Volume Change</td>
+<td>(Volume - Prev Volume) / Prev Volume</td>
+<td>Daily liquidity change</td>
 </tr>
 
 <tr>
-<td><b>1D Volume</b></td>
-<td>Volume / 21D Avg Volume</td>
-<td>0.5–1 low · 1–2 normal · 2–3 elevated · &gt;3 high</td>
+<td>1D Price vs MA21</td>
+<td>Close / MA21(Price)</td>
+<td>Current trend position vs baseline</td>
 </tr>
 
 <tr>
-<td><b>7D Volume</b></td>
-<td>Max relative volume (7 trading days)</td>
-<td>0–1.5 low · 1.5–2.5 moderate · 2.5–4 elevated · &gt;4 high</td>
+<td>1D Volume vs MA21</td>
+<td>Volume / MA21(Volume)</td>
+<td>Current activity vs normal level</td>
 </tr>
 
 <tr>
-<td><b>1D Score</b></td>
-<td>Volume × Price change</td>
-<td>0–0.5 low · 0.5–1.5 moderate · 1.5–3 higher · &gt;3 high</td>
+<td>7D Max Price Change</td>
+<td>max((Close[t] - Close[t-1]) / Close[t-1])</td>
+<td>Strongest daily price move in last 7 days</td>
 </tr>
 
 <tr>
-<td><b>7D Score</b></td>
-<td>Volume × Price change (7D)</td>
-<td>0–2 low · 2–5 moderate · 5–10 higher · &gt;10 high</td>
+<td>7D Max Volume Change</td>
+<td>max((Volume[t] - Volume[t-1]) / Volume[t-1])</td>
+<td>Strongest volume spike in last 7 days</td>
+</tr>
+
+<tr>
+<td>7D Max Price vs MA21</td>
+<td>max(Close / MA21)</td>
+<td>Peak trend expansion in last 7 days</td>
+</tr>
+
+<tr>
+<td>7D Max Volume vs MA21</td>
+<td>max(Volume / MA21)</td>
+<td>Peak activity expansion in last 7 days</td>
+</tr>
+
+</table>
+
+<br>
+
+<h3>📊 MA21 Ratio Interpretation</h3>
+
+<table>
+
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+
+<tr>
+<td>&gt; 1.0</td>
+<td class="positive">Above average (expansion)</td>
+</tr>
+
+<tr>
+<td>≈ 1.0</td>
+<td>Neutral / baseline</td>
+</tr>
+
+<tr>
+<td>&lt; 1.0</td>
+<td class="negative">Below average (contraction)</td>
 </tr>
 
 </table>
@@ -219,8 +249,8 @@ th {
 <br>
 
 <p class="small">
-Data updates once per day after U.S. market close (4:10–6:00 PM ET).<br>
-If no data appears, scanner has not finished running.
+Data updates once per day after US market close (4:10–6:00 PM ET).<br>
+If no data appears, scanner has not completed running.
 </p>
 
 <p class="small">
@@ -235,73 +265,97 @@ If no data appears, scanner has not finished running.
 <script>
 
 let data = [];
-let sortKey = "Score7D";
+let sortKey = "Max7DPriceChange";
+let sortAsc = false;
 
-// LOAD DATA
+// LOAD
 fetch("data/latest.json")
-.then(r => {
-    if (!r.ok) throw new Error("no data");
-    return r.json();
-})
+.then(r => r.json())
 .then(json => {
 
     document.getElementById("status").innerText =
-        `Signals from ${json.date} | ${json.status}`;
+        `Signals from ${json.date} | ${json.count} rows`;
 
-    if (!json.data || json.data.length === 0) {
-        document.getElementById("status").innerText =
-            "⚠️ No data available yet";
-        return;
-    }
-
-    data = json.data;
+    data = json.data || [];
     render();
 })
 .catch(() => {
     document.getElementById("status").innerText =
-        "❌ No data file found. Run scanner.";
+        "❌ No data available";
 });
 
-// TAB SWITCH
-function showTab(tab) {
-    document.getElementById("tableView").style.display = tab === "table" ? "block" : "none";
-    document.getElementById("readme").style.display = tab === "readme" ? "block" : "none";
+// TAB
+function showTab(t){
+    document.getElementById("tableView").style.display = t === "table" ? "block" : "none";
+    document.getElementById("readme").style.display = t === "readme" ? "block" : "none";
 }
 
 // SORT
-function sortBy(key) {
-    sortKey = key;
+function sortBy(k){
+    if(sortKey === k){
+        sortAsc = !sortAsc;
+    } else {
+        sortKey = k;
+        sortAsc = false;
+    }
     render();
 }
 
-// RENDER TABLE
-function render() {
-    let arr = [...data];
-    arr.sort((a,b) => (b[sortKey]||0)-(a[sortKey]||0));
+// SAFE
+function safe(v){
+    if(v === null || v === undefined || isNaN(v)) return "0";
+    return Number(v).toFixed(2);
+}
 
+// MA21 COLOR RULE
+function ma21Color(v){
+    if(v === null || v === undefined || isNaN(v)) return "";
+    return v >= 1 ? "positive" : "negative";
+}
+
+// SORT DATA
+function sorted(){
+    return [...data].sort((a,b)=>{
+        let A = a[sortKey] ?? 0;
+        let B = b[sortKey] ?? 0;
+        return sortAsc ? A - B : B - A;
+    });
+}
+
+// RENDER
+function render(){
+
+    let arr = sorted();
     let html = "";
 
-    for (let r of arr.slice(0, 200)) {
+    for(let r of arr.slice(0,200)){
+
         html += `
-        <tr>
-            <td><b>${r.Ticker}</b></td>
-            <td>${r.Price}</td>
+<tr>
+<td><b>${r.Ticker}</b></td>
+<td>${safe(r.Price)}</td>
 
-            <td class="${r.PriceChange1D>0?'positive':'negative'}">${r.PriceChange1D}</td>
-            <td>${r.VolChange1D.toFixed(2)}</td>
-            <td>${r.Score1D.toFixed(3)}</td>
+<td class="${r.PriceChange1D>=0?'positive':'negative'}">${safe(r.PriceChange1D)}%</td>
+<td class="${r.VolumeChange1D>=0?'positive':'negative'}">${safe(r.VolumeChange1D)}%</td>
 
-            <td class="${r.PriceChange7D>0?'positive':'negative'}">${r.PriceChange7D}</td>
-            <td>${r.VolChange7D.toFixed(2)}</td>
-            <td>${r.Score7D.toFixed(3)}</td>
-        </tr>
-        `;
+<td class="${ma21Color(r.PriceVsMA21_1D)}">${safe(r.PriceVsMA21_1D)}</td>
+<td class="${ma21Color(r.VolumeVsMA21_1D)}">${safe(r.VolumeVsMA21_1D)}</td>
+
+<td class="${r.Max7DPriceChange>=0?'positive':'negative'}">${safe(r.Max7DPriceChange)}%</td>
+<td class="${r.Max7DVolumeChange>=0?'positive':'negative'}">${safe(r.Max7DVolumeChange)}%</td>
+
+<td class="${ma21Color(r.Max7DPriceVsMA21)}">${safe(r.Max7DPriceVsMA21)}</td>
+<td class="${ma21Color(r.Max7DVolumeVsMA21)}">${safe(r.Max7DVolumeVsMA21)}</td>
+
+</tr>`;
     }
 
     document.getElementById("tableBody").innerHTML = html;
 }
 
 </script>
+
+
 
 </body>
 </html>
