@@ -27,13 +27,25 @@
     }
 
     /* ===== HEADER ===== */
-    .header {
+    /* .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 12px 24px;
       border-bottom: 1px solid #e5e7eb;
       background: #fff;
+    } */
+
+    .top-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #0b0f1a;
+      padding: 10px 20px;
+
+      display: flex;              /* 🔥 KEY FIX */
+      align-items: center;       /* vertical alignment */
+      justify-content: space-between; /* logo left, login right */
     }
 
     .logo img {
@@ -174,7 +186,7 @@
 <body>
 
 <!-- HEADER -->
-<div class="header">
+<div class="top-header">
   <div class="logo">
     <!-- <img src="assets/baize_logo.png"> -->
     <a href="./">
