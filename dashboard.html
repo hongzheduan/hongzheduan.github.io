@@ -2,103 +2,90 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Baizora Dashboard</title>
+<title>Baizora | Dashboard</title>
 
 <link rel="icon" href="assets/baize_favicon_v2.png">
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #0b0d12;
-    color: white;
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0b0d12;
+    color:white;
 }
 
 /* HEADER */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background: #0f1117;
-    border-bottom: 1px solid #1f2430;
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 16px;
+    background:#0f1117;
+    border-bottom:1px solid #1f2430;
 }
 
-.logo img { height: 58px; }
+.logo img{height:58px;}
 
-.logout {
-    background: #1f2937;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-/* LAYOUT */
-.wrapper {
-    display: flex;
-    height: calc(100vh - 52px);
-}
-
-/* SIDEBAR */
-.sidebar {
-    width: 200px;
-    background: #0f1117;
-    border-right: 1px solid #1f2430;
-}
-
-.tab {
-    padding: 12px;
-    cursor: pointer;
-}
-
-.tab.active {
-    background: #151a24;
-    border-left: 3px solid #3b82f6;
+button{
+    margin-left:6px;
+    padding:6px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    background:#1f2937;
+    color:white;
 }
 
 /* MAIN */
-.main {
-    flex: 1;
-    padding: 14px;
-    overflow: auto;
+.wrapper{
+    padding:14px;
 }
 
-/* STATUS */
-.status {
-    padding: 10px;
-    background: #121722;
-    margin-bottom: 10px;
-    font-size: 12px;
+.status{
+    padding:10px;
+    background:#121722;
+    margin-bottom:10px;
+    font-size:12px;
 }
+
+/* SECTION */
+.section{display:none;}
+.section.active{display:block;}
 
 /* TABLE */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
+.tableWrap{
+    overflow-x:auto;
 }
 
-th, td {
-    padding: 8px;
-    border-bottom: 1px solid #1f2430;
-    text-align: left;
-    cursor: pointer;
+table{
+    width:100%;
+    min-width:1200px;
+    border-collapse:collapse;
+    font-size:13px;
 }
 
-th { background: #121722; }
+th,td{
+    padding:8px;
+    border-bottom:1px solid #1f2430;
+    text-align:left;
+    white-space:nowrap;
+}
 
-/* COLORS */
-.positive { color: #22c55e; }
-.negative { color: #ef4444; }
+th{
+    background:#121722;
+}
 
-/* README */
-.readme { display: none; }
+.positive{color:#22c55e;}
+.negative{color:#ef4444;}
 
-.small {
-    font-size: 12px;
-    opacity: 0.75;
+.readme{
+    font-size:13px;
+    line-height:1.5;
+}
+
+.small{
+    font-size:12px;
+    opacity:.75;
 }
 </style>
 </head>
@@ -109,60 +96,44 @@ th { background: #121722; }
 <div class="header">
     <div class="logo">
         <a href="./">
-            <img src="assets/baize_logo_v2.png">
+            <img src="assets/baize_logo_v2.png" alt="Baizora Logo">
         </a>
     </div>
-    <!-- <button class="logout">Logout</button> -->
-    <button class="logout" id="logoutBtn">Logout</button>
+
+    <div>
+        <button onclick="show('sp500')">SP500</button>
+        <button onclick="show('nasdaq')">NASDAQ100</button>
+        <button onclick="show('readme')">README</button>
+        <button id="logoutBtn">Logout</button>
+    </div>
 </div>
 
 <div class="wrapper">
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <div class="tab active" onclick="showTab('table')">Signals</div>
-    <div class="tab" onclick="showTab('readme')">README</div>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-
 <div id="status" class="status">Loading...</div>
 
-<!-- TABLE -->
-<div id="tableView">
-<table>
-<thead>
-<tr>
-<th onclick="sortBy('Ticker')">Ticker</th>
-<th onclick="sortBy('Price')">Price</th>
+<!-- SP500 -->
+<div id="sp500" class="section active">
+<h3>S&P 500 Signals</h3>
+<div class="tableWrap">
+<table id="sp500Table"></table>
+</div>
+</div>
 
-<!-- 1D -->
-<th onclick="sortBy('PriceChange1D')">1D %</th>
-<th onclick="sortBy('VolumeChange1D')">1D Vol %</th>
-<th onclick="sortBy('PriceVsMA21_1D')">1D Price/MA21</th>
-<th onclick="sortBy('VolumeVsMA21_1D')">1D Vol/MA21</th>
-
-<!-- 7D -->
-<th onclick="sortBy('Max7DPriceChange')">7D Max Price %</th>
-<th onclick="sortBy('Max7DVolumeChange')">7D Max Vol %</th>
-<th onclick="sortBy('Max7DPriceVsMA21')">7D Max Price/MA21</th>
-<th onclick="sortBy('Max7DVolumeVsMA21')">7D Max Vol/MA21</th>
-
-</tr>
-</thead>
-
-<tbody id="tableBody"></tbody>
-</table>
+<!-- NASDAQ -->
+<div id="nasdaq" class="section">
+<h3>NASDAQ 100 Signals</h3>
+<div class="tableWrap">
+<table id="nasdaqTable"></table>
+</div>
 </div>
 
 <!-- README -->
-<div id="readme" class="readme">
+<div id="readme" class="section readme">
 
 <h2>📘 Baizora Signal System (v8)</h2>
 
 <table>
-
 <tr>
 <th>Metric</th>
 <th>Formula</th>
@@ -195,13 +166,13 @@ th { background: #121722; }
 
 <tr>
 <td>7D Max Price Change</td>
-<td>max((Close[t] - Close[t-1]) / Close[t-1])</td>
+<td>max((Close[t]-Close[t-1]) / Close[t-1])</td>
 <td>Strongest daily price move in last 7 days</td>
 </tr>
 
 <tr>
 <td>7D Max Volume Change</td>
-<td>max((Volume[t] - Volume[t-1]) / Volume[t-1])</td>
+<td>max((Volume[t]-Volume[t-1]) / Volume[t-1])</td>
 <td>Strongest volume spike in last 7 days</td>
 </tr>
 
@@ -216,7 +187,6 @@ th { background: #121722; }
 <td>max(Volume / MA21)</td>
 <td>Peak activity expansion in last 7 days</td>
 </tr>
-
 </table>
 
 <br>
@@ -224,7 +194,6 @@ th { background: #121722; }
 <h3>📊 MA21 Ratio Interpretation</h3>
 
 <table>
-
 <tr>
 <th>Value</th>
 <th>Meaning</th>
@@ -244,7 +213,6 @@ th { background: #121722; }
 <td>&lt; 1.0</td>
 <td class="negative">Below average (contraction)</td>
 </tr>
-
 </table>
 
 <br>
@@ -261,122 +229,183 @@ If no data appears, scanner has not completed running.
 </div>
 
 </div>
-</div>
-
-<script>
-
-let data = [];
-let sortKey = "Max7DPriceChange";
-let sortAsc = false;
-
-// LOAD
-fetch("data/latest.json")
-.then(r => r.json())
-.then(json => {
-
-    document.getElementById("status").innerText =
-        `Signals from ${json.date} | ${json.count} rows`;
-
-    data = json.data || [];
-    render();
-})
-.catch(() => {
-    document.getElementById("status").innerText =
-        "❌ No data available";
-});
-
-// TAB
-function showTab(t){
-    document.getElementById("tableView").style.display = t === "table" ? "block" : "none";
-    document.getElementById("readme").style.display = t === "readme" ? "block" : "none";
-}
-
-// SORT
-function sortBy(k){
-    if(sortKey === k){
-        sortAsc = !sortAsc;
-    } else {
-        sortKey = k;
-        sortAsc = false;
-    }
-    render();
-}
-
-// SAFE
-function safe(v){
-    if(v === null || v === undefined || isNaN(v)) return "0";
-    return Number(v).toFixed(2);
-}
-
-// MA21 COLOR RULE
-function ma21Color(v){
-    if(v === null || v === undefined || isNaN(v)) return "";
-    return v >= 1 ? "positive" : "negative";
-}
-
-// SORT DATA
-function sorted(){
-    return [...data].sort((a,b)=>{
-        let A = a[sortKey] ?? 0;
-        let B = b[sortKey] ?? 0;
-        return sortAsc ? A - B : B - A;
-    });
-}
-
-// RENDER
-function render(){
-
-    let arr = sorted();
-    let html = "";
-
-    for(let r of arr.slice(0,200)){
-
-        html += `
-<tr>
-<td><b>${r.Ticker}</b></td>
-<td>${safe(r.Price)}</td>
-
-<td class="${r.PriceChange1D>=0?'positive':'negative'}">${safe(r.PriceChange1D)}%</td>
-<td class="${r.VolumeChange1D>=0?'positive':'negative'}">${safe(r.VolumeChange1D)}%</td>
-
-<td class="${ma21Color(r.PriceVsMA21_1D)}">${safe(r.PriceVsMA21_1D)}</td>
-<td class="${ma21Color(r.VolumeVsMA21_1D)}">${safe(r.VolumeVsMA21_1D)}</td>
-
-<td class="${r.Max7DPriceChange>=0?'positive':'negative'}">${safe(r.Max7DPriceChange)}%</td>
-<td class="${r.Max7DVolumeChange>=0?'positive':'negative'}">${safe(r.Max7DVolumeChange)}%</td>
-
-<td class="${ma21Color(r.Max7DPriceVsMA21)}">${safe(r.Max7DPriceVsMA21)}</td>
-<td class="${ma21Color(r.Max7DVolumeVsMA21)}">${safe(r.Max7DVolumeVsMA21)}</td>
-
-</tr>`;
-    }
-
-    document.getElementById("tableBody").innerHTML = html;
-}
-
-</script>
 
 <script type="module">
-    import { auth } from "./firebase.js";
-    import { onAuthStateChanged, signOut } 
-    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // 1. Protect dashboard
-    onAuthStateChanged(auth, (user) => {
-        if (!user) {
-            window.location.href = "login.html";
-        } else {
-            console.log("User logged in:", user.email);
+import { auth } from "./firebase.js";
+import { signOut, onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+let data = [];
+let spRows = [];
+let ndRows = [];
+
+let activeTab = "sp500";
+let sortKey = "Max7DPriceChange";
+let sortAsc = false;
+let loadedDate = "";
+
+/* AUTH */
+onAuthStateChanged(auth,(user)=>{
+    if(!user) window.location.href="login.html";
+});
+
+/* LOAD */
+fetch("data/latest.json")
+.then(r=>r.json())
+.then(json=>{
+
+    loadedDate = json.date;
+    data = json.data || [];
+
+    spRows = data.filter(r => r.InSP500);
+    ndRows = data.filter(r => r.InNASDAQ100);
+
+    render();
+    updateStatus();
+
+})
+.catch(()=>{
+    document.getElementById("status").innerText =
+        "❌ Failed to load data";
+});
+
+/* STATUS */
+function updateStatus(){
+
+    if(activeTab==="readme"){
+        document.getElementById("status").innerText =
+        "README | Baizora Signal System";
+        return;
+    }
+
+    let rows = activeTab==="sp500" ? spRows.length : ndRows.length;
+    let label = activeTab==="sp500" ? "SP500" : "NASDAQ100";
+
+    document.getElementById("status").innerText =
+        `${label} Signals from ${loadedDate} | ${rows} rows`;
+}
+
+/* SORT */
+window.sortBy = function(key){
+
+    if(sortKey===key){
+        sortAsc=!sortAsc;
+    }else{
+        sortKey=key;
+        sortAsc=false;
+    }
+
+    render();
+}
+
+function sorted(arr){
+
+    return [...arr].sort((a,b)=>{
+
+        let A = a[sortKey] ?? 0;
+        let B = b[sortKey] ?? 0;
+
+        if(typeof A === "string"){
+            return sortAsc
+            ? A.localeCompare(B)
+            : B.localeCompare(A);
         }
-    });
 
-    // 2. Logout button
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-        await signOut(auth);
-        window.location.href = "login.html";
+        return sortAsc ? A-B : B-A;
     });
+}
+
+/* HELPERS */
+function ratioColor(v){
+    if(v > 1) return "positive";
+    if(v < 1) return "negative";
+    return "";
+}
+
+function arrow(key){
+
+    if(sortKey !== key) return " ↕";
+
+    return sortAsc ? " ↑" : " ↓";
+}
+
+/* TABLE */
+function buildTable(arr){
+
+arr = sorted(arr);
+
+let html = `
+<tr>
+<th onclick="sortBy('Ticker')" style="cursor:pointer;">Ticker${arrow('Ticker')}</th>
+<th onclick="sortBy('Price')" style="cursor:pointer;">Price${arrow('Price')}</th>
+
+<th onclick="sortBy('PriceChange1D')" style="cursor:pointer;">1D %${arrow('PriceChange1D')}</th>
+<th onclick="sortBy('VolumeChange1D')" style="cursor:pointer;">1D Vol %${arrow('VolumeChange1D')}</th>
+
+<th onclick="sortBy('PriceVsMA21_1D')" style="cursor:pointer;">1D P/MA21${arrow('PriceVsMA21_1D')}</th>
+<th onclick="sortBy('VolumeVsMA21_1D')" style="cursor:pointer;">1D V/MA21${arrow('VolumeVsMA21_1D')}</th>
+
+<th onclick="sortBy('Max7DPriceChange')" style="cursor:pointer;">7D Max %${arrow('Max7DPriceChange')}</th>
+<th onclick="sortBy('Max7DVolumeChange')" style="cursor:pointer;">7D Max Vol %${arrow('Max7DVolumeChange')}</th>
+
+<th onclick="sortBy('Max7DPriceVsMA21')" style="cursor:pointer;">7D Max P/MA21${arrow('Max7DPriceVsMA21')}</th>
+<th onclick="sortBy('Max7DVolumeVsMA21')" style="cursor:pointer;">7D Max V/MA21${arrow('Max7DVolumeVsMA21')}</th>
+</tr>`;
+
+for(let r of arr.slice(0,200)){
+
+html += `
+<tr>
+<td><b>${r.Ticker}</b></td>
+<td>${Number(r.Price).toFixed(2)}</td>
+
+<td class="${r.PriceChange1D>=0?'positive':'negative'}">${r.PriceChange1D}%</td>
+<td class="${r.VolumeChange1D>=0?'positive':'negative'}">${r.VolumeChange1D}%</td>
+
+<td class="${ratioColor(r.PriceVsMA21_1D)}">${r.PriceVsMA21_1D}</td>
+<td class="${ratioColor(r.VolumeVsMA21_1D)}">${r.VolumeVsMA21_1D}</td>
+
+<td class="${r.Max7DPriceChange>=0?'positive':'negative'}">${r.Max7DPriceChange}%</td>
+<td class="${r.Max7DVolumeChange>=0?'positive':'negative'}">${r.Max7DVolumeChange}%</td>
+
+<td class="${ratioColor(r.Max7DPriceVsMA21)}">${r.Max7DPriceVsMA21}</td>
+<td class="${ratioColor(r.Max7DVolumeVsMA21)}">${r.Max7DVolumeVsMA21}</td>
+</tr>`;
+}
+
+return html;
+}
+
+/* RENDER */
+function render(){
+
+document.getElementById("sp500Table").innerHTML =
+    buildTable(spRows);
+
+document.getElementById("nasdaqTable").innerHTML =
+    buildTable(ndRows);
+}
+
+/* BUTTONS */
+window.show = function(id){
+
+document.querySelectorAll(".section")
+.forEach(s=>s.classList.remove("active"));
+
+document.getElementById(id).classList.add("active");
+
+activeTab=id;
+updateStatus();
+}
+
+/* LOGOUT */
+document.getElementById("logoutBtn").addEventListener("click", async ()=>{
+    await signOut(auth);
+    window.location.href="login.html";
+});
+
 </script>
-
 
 </body>
 </html>

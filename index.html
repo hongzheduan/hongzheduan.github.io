@@ -47,6 +47,53 @@
       background: #fff;
     } */
 
+    .contact-section {
+      margin-top: 60px;
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .contact-section h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .contact-section p {
+      margin: 4px 0;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .contact-section a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .contact-section a:hover {
+      text-decoration: underline;
+    }
+
+    .contact-float {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #2563eb;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      z-index: 9999;
+    }
+
+    .contact-float:hover {
+      background: #1d4ed8;
+    }
+
     .top-header {
       position: sticky;
       top: 0;
@@ -191,6 +238,35 @@
       font-size: 12px;
       color: #9ca3af;
     }
+
+    footer.footer {
+      margin-top: 60px;
+      padding: 20px 0;
+      border-top: 1px solid #e5e7eb;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      text-align: center;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .footer-contact {
+      margin-top: 6px;
+    }
+
+    .footer-contact a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-contact a:hover {
+      text-decoration: underline;
+    }
+        
   </style>
 </head>
 
@@ -210,10 +286,23 @@
     </a>
   </div>
 
-  <div class="login">
+  <!-- <div class="login">
     <a href="login.html">
       <button>Login</button>
     </a>
+  </div> -->
+
+  <div style="display: flex; align-items: center; gap: 12px;">
+    
+    <a href="assets/about.html" style="font-size: 13px; color: #6b7280; text-decoration: none;">
+      About
+    </a>
+
+    <div class="login">
+      <a href="login.html">
+        <button>Login</button>
+      </a>
+    </div>
   </div>
 </div>
 
@@ -319,7 +408,7 @@
   </div>
 
   <!-- EMAIL -->
-  <div class="email-box">
+  <!-- <div class="email-box">
 
     <h3>Get Daily Stock Signals</h3>
 
@@ -333,10 +422,21 @@
       </button>
 
     </form>
-  </div>
+  </div> -->
 
-  <footer>
+  <!-- CONTACT -->
+
+  <!-- <footer>
     © 2026 Baizora — All rights reserved
+  </footer> -->
+  <footer class="footer">
+    <div>© 2026 Baizora — All rights reserved</div>
+
+    <div class="footer-contact">
+      <div>
+        <a href="mailto:support@baizora.com">support@baizora.com</a>
+      </div>
+    </div>
   </footer>
 
 </div>
@@ -377,6 +477,7 @@
   updateCountdown();
   setInterval(updateCountdown, 1000);
 </script>
+
 
 </body>
 </html>
