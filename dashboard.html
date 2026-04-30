@@ -112,7 +112,8 @@ th { background: #121722; }
             <img src="assets/baize_logo_v2.png">
         </a>
     </div>
-    <button class="logout">Logout</button>
+    <!-- <button class="logout">Logout</button> -->
+    <button class="logout" id="logoutBtn">Logout</button>
 </div>
 
 <div class="wrapper">
@@ -355,6 +356,24 @@ function render(){
 
 </script>
 
+<script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged, signOut } 
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // 1. Protect dashboard
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = "login.html";
+        }
+    });
+
+    // 2. Logout button
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+        await signOut(auth);
+        window.location.href = "login.html";
+    });
+</script>
 
 
 </body>
