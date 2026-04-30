@@ -1,34 +1,94 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Baizora Login</title>
+  <title>Baizora | Login</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/baize_favicon_v2.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/baize_favicon_v2.png">
+  <link rel="apple-touch-icon" href="assets/baize_favicon_v2.png">
+
+  <style>
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;  /* horizontal center */
+        align-items: center;      /* vertical center */
+        background: #0b0d12;      /* optional (match your dark theme) */
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 280px;
+    }
+
+    input {
+        padding: 10px;
+        border-radius: 6px;
+        border: none;
+    }
+
+    button {
+        padding: 10px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .logo {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+    }
+
+    .logo img {
+        height: 58px;
+    }
+
+  </style>
 </head>
+
 <body>
-  <h2>Login</h2>
 
-  <input id="email" placeholder="Email" />
-  <input id="password" type="password" placeholder="Password" />
-  <button onclick="login()">Login</button>
+    <div class="container">
 
-  <p><a href="signup.html">Create Account</a></p>
+        <div class="logo">
+            <a href="./">
+                <img src="assets/baize_logo_v2.png" alt="Baizora Logo">
+            </a>
+        </div>
 
-<script type="module">
-import { auth } from "./firebase.js";
-import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        <h2>Login</h2>
 
-window.login = async function () {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+        <input id="email" placeholder="Email" />
+        <input id="password" type="password" placeholder="Password" />
+        <button onclick="login()">Login</button>
 
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    alert("Login successful!");
-    window.location.href = "dashboard.html";
-  } catch (e) {
-    alert(e.message);
-  }
-};
-</script>
+        <p><a href="signup.html">Create Account</a></p>
+
+    </div>
+
+    <script type="module">
+    import { auth } from "./firebase.js";
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    window.login = async function () {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("Login successful!");
+        window.location.href = "dashboard.html";
+    } catch (e) {
+        alert(e.message);
+    }
+    };
+    </script>
 
 </body>
 </html>
