@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baizora | Home</title>
+  <title>Baizora | Market Data Intelligence</title>
+
   <link rel="icon" type="image/png" sizes="32x32" href="assets/baize_favicon_v2.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/baize_favicon_v2.png">
   <link rel="apple-touch-icon" href="assets/baize_favicon_v2.png">
@@ -14,7 +15,6 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-DWEPM8KFM9');
   </script>
 
@@ -22,7 +22,7 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #ffffff;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
       color: #111;
     }
 
@@ -34,118 +34,49 @@
       font-size: 13px;
       padding: 8px 12px;
       font-weight: 600;
-      letter-spacing: 0.3px;
-    }
-
-    /* ===== HEADER ===== */
-    /* .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 24px;
-      border-bottom: 1px solid #e5e7eb;
-      background: #fff;
-    } */
-
-    .contact-section {
-      margin-top: 60px;
-      padding: 20px;
-      text-align: center;
-      border-top: 1px solid #e5e7eb;
-    }
-
-    .contact-section h3 {
-      font-size: 16px;
-      margin-bottom: 8px;
-    }
-
-    .contact-section p {
-      margin: 4px 0;
-      font-size: 13px;
-      color: #6b7280;
-    }
-
-    .contact-section a {
-      color: #2563eb;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .contact-section a:hover {
-      text-decoration: underline;
-    }
-
-    .contact-float {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #2563eb;
-      color: white;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-      z-index: 9999;
-    }
-
-    .contact-float:hover {
-      background: #1d4ed8;
     }
 
     .top-header {
       position: sticky;
       top: 0;
       z-index: 1000;
-      background: #ffffff;
+      background: #fff;
       padding: 10px 20px;
-
-      display: flex;              /* 🔥 KEY FIX */
-      align-items: center;       /* vertical alignment */
-      justify-content: space-between; /* logo left, login right */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #eef2f7;
     }
 
-    .logo img {
-      height: 60px;
-    }
-
-    .title {
-      font-size: 18px;
-      font-weight: 700;
-      flex: 1;
-      text-align: center;
-    }
+    .logo img { height: 78px; }
 
     .login button {
       background: #2563eb;
       color: #fff;
       border: none;
       padding: 7px 14px;
-      border-radius: 6px;
+      border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
     }
 
-    /* ===== LAYOUT ===== */
     .container {
-      max-width: 960px;
+      max-width: 980px;
       margin: 0 auto;
-      padding: 40px 20px;
+      padding: 50px 20px;
       text-align: center;
     }
 
-    /* ===== HERO ===== */
-    h1 {
-      font-size: 34px;
-      margin-bottom: 12px;
+    h1 img {
+      height: 72px;
     }
 
     .subtext {
-      color: #6b7280;
-      max-width: 520px;
-      margin: 0 auto 20px auto;
+      color: #4b5563;
+      max-width: 620px;
+      margin: 10px auto 20px;
       font-size: 15px;
+      line-height: 1.5;
     }
 
     .badge {
@@ -153,295 +84,178 @@
       background: #ecfdf5;
       color: #16a34a;
       padding: 6px 12px;
-      border-radius: 20px;
+      border-radius: 999px;
       font-size: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
-    /* ===== GRID FEATURES ===== */
     .grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 14px;
-      margin-top: 30px;
+      margin-top: 35px;
     }
 
     .card {
       background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      padding: 16px;
+      border: 1px solid #eef2f7;
+      border-radius: 14px;
+      padding: 18px;
       text-align: left;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+      transition: transform 0.15s ease;
     }
 
-    .card h3 {
-      font-size: 14px;
-      margin: 0 0 6px 0;
-    }
+    .card:hover { transform: translateY(-3px); }
 
-    .card p {
-      font-size: 13px;
-      color: #6b7280;
-      margin: 0;
-    }
+    .card h3 { font-size: 14px; margin-bottom: 6px; }
+    .card p { font-size: 13px; color: #6b7280; margin: 0; }
 
-    /* ===== EMAIL SECTION ===== */
-    .email-box {
+    .cta {
       margin-top: 40px;
     }
 
-    input {
-      width: 100%;
-      max-width: 420px;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      margin-top: 10px;
-    }
-
-    .btn {
-      width: 100%;
-      max-width: 420px;
-      margin-top: 12px;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
+    .cta button {
       background: #111;
       color: #fff;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 10px;
       font-weight: 600;
       cursor: pointer;
     }
 
-    /* ===== LEGAL ===== */
-    .legal {
-      position: fixed;
-      bottom: 12px;
-      left: 16px;
-      font-size: 12px;
-      color: #6b7280;
-      display: flex;
-      gap: 10px;
-    }
-
-    .legal a {
-      color: #6b7280;
-      text-decoration: none;
-    }
-
-    .legal a:hover {
-      text-decoration: underline;
-    }
-
-    /* ===== FOOTER ===== */
-    footer {
-      margin-top: 50px;
-      font-size: 12px;
-      color: #9ca3af;
-    }
-
-    footer.footer {
+    .footer {
       margin-top: 60px;
-      padding: 20px 0;
-      border-top: 1px solid #e5e7eb;
-
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
+      padding: 20px;
+      border-top: 1px solid #eef2f7;
       text-align: center;
       font-size: 12px;
       color: #9ca3af;
     }
 
-    .footer-contact {
-      margin-top: 6px;
+    .legal {
+      position: fixed;
+      bottom: 12px;
+      left: 16px;
+      font-size: 12px;
+      color: #9ca3af;
+      display: flex;
+      gap: 10px;
     }
 
-    .footer-contact a {
-      color: #2563eb;
+    .legal a {
+      color: #9ca3af;
       text-decoration: none;
-      font-weight: 600;
     }
 
-    .footer-contact a:hover {
-      text-decoration: underline;
+    .legal a:hover { text-decoration: underline; }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
     }
-        
   </style>
 </head>
 
 <body>
 
 <div class="announcement-bar">
-  Early Access — Limited Time Open  
-  <span id="countdown" style="margin-left:10px; font-weight:700;"></span>
+  Early Access — Limited Release Phase <span id="countdown" style="margin-left:10px;"></span>
 </div>
 
-<!-- HEADER -->
 <div class="top-header">
   <div class="logo">
-    <!-- <img src="assets/baize_logo.png"> -->
     <a href="./">
-      <img src="assets/baize_logo_v2.png" alt="Baizora Logo">
+      <img src="assets/baize_logo_v2.png" alt="Baizora">
     </a>
   </div>
 
-  <!-- <div class="login">
-    <a href="login.html">
-      <button>Login</button>
-    </a>
-  </div> -->
-
-  <div style="display: flex; align-items: center; gap: 12px;">
-    
-    <a href="assets/about.html" style="font-size: 13px; color: #6b7280; text-decoration: none;">
-      About
-    </a>
-
+  <div style="display:flex; gap:12px; align-items:center;">
+    <a href="assets/about.html" style="font-size:13px; color:#6b7280; text-decoration:none;">About</a>
     <div class="login">
-      <a href="login.html">
-        <button>Login</button>
-      </a>
+      <a href="login.html"><button>Login</button></a>
     </div>
   </div>
 </div>
 
-<!-- MAIN -->
 <div class="container">
 
-  <!-- <div class="badge">● LIVE MARKET SCANNING</div> -->
+  <div class="badge">DATA INTELLIGENCE PLATFORM</div>
 
-  <!-- <h1>Detect Unusual Stock Activity</h1>
-  <div style="
-    font-size:44px;
-    font-weight:900;
-    color:#111;
-    letter-spacing:-1px;
-    margin-bottom:8px;
-  ">
-    Baizora
+  <h1><img src="assets/baizora_homepage.png" alt="Baizora"></h1>
+
+  <div style="font-size:16px; color:#4b5563; margin-top:10px;">
+    Market behavior insights for US large-cap equities
   </div>
 
-    <div style="
-    font-size:14px;
-    font-weight:600;
-    color:#6b7280;
-    letter-spacing:0.5px;
-    text-transform:uppercase;
-    margin-bottom:18px;
-  ">
-    MARKET SCANNING SYSTEM
-  </div> -->
-
-  <!-- <h1>Baizora</h1>
-<div style="font-size:16px; color:#6b7280; margin-bottom:10px;">
-  Detect Unusual Stock Activity
-</div>
-<div style="font-size:13px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:#9ca3af;">
-  Market Scanning System
-</div>
-
+  <div style="font-size:12px; letter-spacing:2px; color:#9ca3af; margin-top:10px;">
+    SYSTEMATIC DATA PROCESSING ENGINE
+  </div>
 
   <div class="subtext">
-    A rules-based scanner that identifies volume spikes, momentum shifts, and breakout signals across the market.  </div> -->
-  <!-- <h1 style="
-    font-size:52px;
-    font-weight:800;
-    letter-spacing:-1px;
-    margin-bottom:6px;
-  ">
-    Baizora
-  </h1> -->
-  <h1>
-    <img src="assets/baizora_homepage.png" alt="Baizora" style="height: 80px;">
-  </h1>
-
-  <div style="
-    font-size:16px;
-    color:#6b7280;
-    margin-bottom:10px;
-  ">
-    Detect Unusual Stock Activity
+    Baizora is a structured market data system that identifies unusual price and volume behavior
+    across major US equities using consistent statistical comparisons over short-term windows.
   </div>
 
-  <div style="
-    font-size:12px;
-    font-weight:600;
-    letter-spacing:2px;
-    color:#9ca3af;
-    margin-bottom:22px;
-  ">
-    <span style="color:#2563eb; font-weight:700;">CUSTOMIZABLE</span> MARKET SCANNING SYSTEM
-  </div>
-  <!-- <div class="subtext">
-    A customizable US equity signal system focused on S&P 500 and Nasdaq-100 stocks
-  </div> -->
-
-  <div class="subtext">
-    A systematic, data-driven signal engine (no black-box models) focused on S&P 500 and Nasdaq-100 stocks. 
-    Built on price and volume data only, with strict filtering to reduce noise and improve signal clarity.
-  </div>
-
-  <!-- FEATURES -->
   <div class="grid">
 
     <div class="card">
-      <h3>S&P 500 & Nasdaq-100 Focus</h3>
-      <p>Signals are generated only from large-cap US equities to ensure liquidity and consistency.</p>
+      <h3>Large-Cap Coverage</h3>
+      <p>Focus on S&P 500 and Nasdaq-100 constituents for consistent liquidity and reliable data quality.</p>
     </div>
 
     <div class="card">
-      <h3>Noise Filtering System</h3>
-      <p>Excludes stocks under $1 and daily volume below 500K to remove low-quality market noise.</p>
+      <h3>Behavioral Activity Detection</h3>
+      <p>Highlights statistically unusual price and volume movements relative to recent historical baselines.</p>
     </div>
 
     <div class="card">
-      <h3>Strategy-Ready Signal Design</h3>
-      <p>Signal rules can be customized to match user-defined price and volume strategies (in development).</p>
+      <h3>Short-Term Context Window</h3>
+      <p>Provides a 7-day rolling view of market activity for clearer short-term pattern recognition.</p>
     </div>
 
     <div class="card">
-      <h3>Daily Signal Reports</h3>
-      <p>End-of-day signals generated from filtered S&P 500 and Nasdaq-100 price and volume activity.</p>
+      <h3>Daily Data Processing</h3>
+      <p>Signals are computed after market close to ensure stable, noise-reduced daily comparisons.</p>
     </div>
 
   </div>
 
-  <!-- EMAIL -->
-  <!-- <div class="email-box">
-
-    <h3>Get Daily Stock Signals</h3>
-
-    <form method="POST"
-      action="https://2c286f6b.sibforms.com/serve/MUIFAAu6wnFauqXTFZ43cD3h1MSa_AhQJf9j8A5hwyQmgntMan4DzEV9-zRL1xzT1flkI0ZMoNEe99pBITTzQYXE9O3xfiWkGtHBIZ3kOzktw29dzYF2ncz2LIdowU4fgil3OhiIdUlxv9Q-Ng3SeTAzkXd4HZg07Y4Gk2EJUKviYJ9vwggHD00gtkkLpp_ZYiBHIbKgalWigeYvOQ==">
-
-      <input type="email" name="EMAIL" required placeholder="Enter your email">
-
-      <button class="btn" type="submit">
-        Get Free Stock Alerts
-      </button>
-
-    </form>
+  <!-- <div class="cta">
+    <button onclick="location.href='login.html'">Access Dashboard</button>
   </div> -->
 
-  <!-- CONTACT -->
+  <!-- CTA -->
+  <div style="margin-top:30px; text-align:center;">
+    
+    <button onclick="location.href='login.html'" style="
+      background:#111;
+      color:#fff;
+      border:none;
+      padding:14px 20px;
+      border-radius:10px;
+      font-weight:600;
+      cursor:pointer;
+      font-size:14px;
+    ">
+      Start Free Access
+    </button>
 
-  <!-- <footer>
-    © 2026 Baizora — All rights reserved
-  </footer> -->
-  <footer class="footer">
-    <div>© 2026 Baizora — All rights reserved</div>
-
-    <div class="footer-contact">
-      <div>
-        <a href="mailto:support@baizora.com">support@baizora.com</a>
-      </div>
+    <div style="margin-top:10px; font-size:12px; color:#9ca3af;">
+      Explore daily market data in under 30 seconds
     </div>
-  </footer>
+
+  </div>
+
+  <div class="footer">
+    © 2026 Baizora — All rights reserved
+    <div style="margin-top:6px;">
+      <a href="mailto:support@baizora.com">support@baizora.com</a>
+    </div>
+  </div>
 
 </div>
 
-<!-- LEGAL -->
 <div class="legal">
   <a href="assets/privacy.html">Privacy</a>
   <span>|</span>
@@ -451,9 +265,7 @@
 </div>
 
 <script>
-  // Set your deadline (CHANGE THIS DATE)
   const deadline = new Date("2026-05-10T00:00:00").getTime();
-
   const countdownEl = document.getElementById("countdown");
 
   function updateCountdown() {
@@ -461,23 +273,20 @@
     const diff = deadline - now;
 
     if (diff <= 0) {
-      countdownEl.innerHTML = "EXPIRED";
+      countdownEl.innerHTML = "LIVE";
       return;
     }
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
+    const d = Math.floor(diff / (1000*60*60*24));
+    const h = Math.floor((diff / (1000*60*60)) % 24);
+    const m = Math.floor((diff / (1000*60)) % 60);
 
-    countdownEl.innerHTML =
-      `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    countdownEl.innerHTML = `${d}d ${h}h ${m}m`;
   }
 
   updateCountdown();
-  setInterval(updateCountdown, 1000);
+  setInterval(updateCountdown, 60000);
 </script>
-
 
 </body>
 </html>
