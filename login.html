@@ -55,6 +55,28 @@
 
 <body>
 
+    <script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const res = await fetch(
+        `https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=${user.uid}`
+    );
+
+    const data = await res.json();
+
+    if (data.subscriptionStatus !== "active") {
+        window.location.href = "pricing.html";
+    }
+    });
+    </script>
+
     <div class="container">
 
         <div class="logo">
@@ -66,8 +88,19 @@
         <h2>Login</h2>
 
         <input id="email" placeholder="Email" />
+        <!-- <input id="password" type="password" placeholder="Password" />
+        <button onclick="login()">Login</button> -->
+
         <input id="password" type="password" placeholder="Password" />
+
+        <p style="margin:0; text-align:right; font-size:13px;">
+        <a href="#" onclick="resetPassword(); return false;" style="color:#9ca3af; text-decoration:none;">
+            Forgot password?
+        </a>
+        </p>
+
         <button onclick="login()">Login</button>
+
 
         <p><a href="signup.html">Create Account</a></p>
 
@@ -75,7 +108,10 @@
 
     <script type="module">
     import { auth } from "./firebase.js";
-    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+        signInWithEmailAndPassword,
+        sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     window.login = async function () {
     const email = document.getElementById("email").value;
@@ -89,6 +125,25 @@
         alert(e.message);
     }
     };
+
+    window.resetPassword = async function () {
+
+        const email = document.getElementById("email").value.trim();
+
+        if (!email) {
+            alert("Please enter your email first.");
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, email);
+            alert("Password reset email sent. Please check your inbox.");
+        } catch (e) {
+            alert(e.message);
+        }
+    };
+
+
     </script>
 
 </body>

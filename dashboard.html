@@ -236,6 +236,7 @@ import { auth } from "./firebase.js";
 import { signOut, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+
 let data = [];
 let spRows = [];
 let ndRows = [];
@@ -247,10 +248,18 @@ let loadedDate = "";
 
 /* AUTH */
 onAuthStateChanged(auth,(user)=>{
-    if(!user) window.location.href="login.html";
+
+    if(!user){
+        window.location.href="login.html";
+        return;
+    }
+
+    loadDashboard();
 });
 
 /* LOAD */
+function loadDashboard(){
+
 fetch("data/latest.json")
 .then(r=>r.json())
 .then(json=>{
@@ -269,6 +278,7 @@ fetch("data/latest.json")
     document.getElementById("status").innerText =
         "❌ Failed to load data";
 });
+}
 
 /* STATUS */
 function updateStatus(){
@@ -405,6 +415,21 @@ document.getElementById("logoutBtn").addEventListener("click", async ()=>{
     window.location.href="login.html";
 });
 
+</script>
+
+<script>
+async function checkAccess(uid) {
+  const res = await fetch(`/get-user?uid=${uid}`);
+  const data = await res.json();
+
+  if (data.subscriptionStatus !== "active") {
+    window.location.href = "assets/pricing.html";
+  }
+}
+
+/* Example usage */
+const uid = "USER_STRIPE_CUSTOMER_ID"; // replace later with real auth
+checkAccess(uid);
 </script>
 
 </body>
