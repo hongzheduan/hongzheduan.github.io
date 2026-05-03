@@ -1,150 +1,163 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baizora | Login</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/baize_favicon_v2.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/baize_favicon_v2.png">
-  <link rel="apple-touch-icon" href="assets/baize_favicon_v2.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baizora | Login</title>
 
-  <style>
-    body {
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        justify-content: center;  /* horizontal center */
-        align-items: center;      /* vertical center */
-        background: #0b0d12;      /* optional (match your dark theme) */
-        color: white;
-        font-family: Arial, sans-serif;
-    }
+<link rel="icon" type="image/png" sizes="32x32" href="assets/baize_favicon_v2.png">
 
-    .container {
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        width: 280px;
-    }
+<style>
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#0b0d12;
+    color:white;
+    font-family:Arial,sans-serif;
+}
 
-    input {
-        padding: 10px;
-        border-radius: 6px;
-        border: none;
-    }
+.container{
+    width:300px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
 
-    button {
-        padding: 10px;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-    }
+input{
+    padding:10px;
+    border:none;
+    border-radius:6px;
+}
 
-    .logo {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-    }
+button{
+    padding:10px;
+    border:none;
+    border-radius:6px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+}
 
-    .logo img {
-        height: 58px;
-    }
+.logo{
+    position:absolute;
+    top:20px;
+    left:20px;
+}
 
-  </style>
+.logo img{height:58px;}
+
+.small{
+    font-size:13px;
+    color:#9ca3af;
+}
+
+a{
+    color:#9ca3af;
+    text-decoration:none;
+}
+</style>
 </head>
 
 <body>
 
-    <script type="module">
-    import { auth } from "./firebase.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+<div class="logo">
+<a href="./">
+<img src="assets/baize_logo_v2.png">
+</a>
+</div>
 
-    onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-        window.location.href = "login.html";
-        return;
-    }
+<div class="container">
 
-    const res = await fetch(
+<h2>Login</h2>
+
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+
+<div style="text-align:right;">
+<a href="#" onclick="resetPassword();return false;">Forgot password?</a>
+</div>
+
+<button onclick="login()">Login</button>
+
+<div class="small">
+<a href="signup.html">Create Account</a>
+</div>
+
+</div>
+
+<script type="module">
+
+import { auth } from "./firebase.js";
+
+import {
+signInWithEmailAndPassword,
+sendPasswordResetEmail,
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+/* AUTO REDIRECT ONLY IF ALREADY LOGGED IN */
+onAuthStateChanged(auth, async(user)=>{
+
+    if(!user) return;   // stay on login page
+
+    try{
+
+        const res = await fetch(
         `https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=${user.uid}`
-    );
+        );
 
-    const data = await res.json();
+        const data = await res.json();
 
-    if (data.subscriptionStatus !== "active") {
-        window.location.href = "pricing.html";
-    }
-    });
-    </script>
+        if(data.subscriptionStatus === "active"){
+            window.location.href = "dashboard.html";
+        }else{
+            window.location.href = "pricing.html";
+        }
 
-    <div class="container">
-
-        <div class="logo">
-            <a href="./">
-                <img src="assets/baize_logo_v2.png" alt="Baizora Logo">
-            </a>
-        </div>
-
-        <h2>Login</h2>
-
-        <input id="email" placeholder="Email" />
-        <!-- <input id="password" type="password" placeholder="Password" />
-        <button onclick="login()">Login</button> -->
-
-        <input id="password" type="password" placeholder="Password" />
-
-        <p style="margin:0; text-align:right; font-size:13px;">
-        <a href="#" onclick="resetPassword(); return false;" style="color:#9ca3af; text-decoration:none;">
-            Forgot password?
-        </a>
-        </p>
-
-        <button onclick="login()">Login</button>
-
-
-        <p><a href="signup.html">Create Account</a></p>
-
-    </div>
-
-    <script type="module">
-    import { auth } from "./firebase.js";
-    import {
-        signInWithEmailAndPassword,
-        sendPasswordResetEmail
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    window.login = async function () {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-        alert("Login successful!");
+    }catch(e){
         window.location.href = "dashboard.html";
-    } catch (e) {
-        alert(e.message);
     }
-    };
 
-    window.resetPassword = async function () {
+});
 
-        const email = document.getElementById("email").value.trim();
+/* LOGIN */
+window.login = async function(){
 
-        if (!email) {
-            alert("Please enter your email first.");
-            return;
-        }
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value;
 
-        try {
-            await sendPasswordResetEmail(auth, email);
-            alert("Password reset email sent. Please check your inbox.");
-        } catch (e) {
-            alert(e.message);
-        }
-    };
+try{
 
+    await signInWithEmailAndPassword(auth,email,password);
 
-    </script>
+}catch(e){
+    alert(e.message);
+}
+
+}
+
+/* RESET */
+window.resetPassword = async function(){
+
+const email=document.getElementById("email").value.trim();
+
+if(!email){
+    alert("Enter email first.");
+    return;
+}
+
+try{
+    await sendPasswordResetEmail(auth,email);
+    alert("Password reset email sent.");
+}catch(e){
+    alert(e.message);
+}
+
+}
+
+</script>
 
 </body>
 </html>

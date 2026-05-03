@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Baizora | Free Preview</title>
+
+<link rel="icon" href="assets/baize_favicon_v2.png">
+
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0b0d12;
+    color:white;
+}
+
+/* HEADER */
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 16px;
+    background:#0f1117;
+    border-bottom:1px solid #1f2430;
+}
+
+.logo img{height:58px;}
+
+button{
+    margin-left:6px;
+    padding:6px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    background:#1f2937;
+    color:white;
+}
+
+/* MAIN */
+.wrapper{padding:14px;}
+
+.status{
+    padding:10px;
+    background:#121722;
+    margin-bottom:10px;
+    font-size:12px;
+    border-radius:6px;
+}
+
+.banner{
+    margin-bottom:10px;
+    padding:12px;
+    background:#121722;
+    border:1px solid #1f2430;
+    border-radius:6px;
+    font-size:12px;
+    color:#cbd5e1;
+    line-height:1.4;
+}
+
+.section{display:none;}
+.section.active{display:block;}
+
+.tableWrap{overflow-x:auto;}
+
+table{
+    width:100%;
+    min-width:1200px;
+    border-collapse:collapse;
+    font-size:13px;
+}
+
+th,td{
+    padding:8px;
+    border-bottom:1px solid #1f2430;
+    text-align:left;
+    white-space:nowrap;
+}
+
+th{
+    background:#121722;
+    color:#cbd5e1;
+}
+
+.disabledSort{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+.positive{color:#22c55e;}
+.negative{color:#ef4444;}
+
+/* upgrade */
+.upgradeBox{
+    margin-top:14px;
+    padding:12px;
+    background:#111827;
+    border:1px solid #1f2430;
+    border-radius:10px;
+    text-align:center;
+}
+
+.upgradeBtn{
+    margin-top:10px;
+    background:#2563eb;
+    color:white;
+    padding:10px 14px;
+    border-radius:8px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.upgradeBtn.disabled {
+    background: #374151;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="logo">
+        <a href="./">
+            <img src="assets/baize_logo_v2.png">
+        </a>
+    </div>
+
+    <div>
+        <button onclick="show('sp500')">SP500</button>
+        <button onclick="show('nasdaq')">NASDAQ100</button>
+        <button onclick="show('readme')">README</button>
+        <!-- <button id="logoutBtn">Logout</button> -->
+        <button onclick="location.href='login.html'">Login</button>
+    </div>
+</div>
+
+<div class="wrapper">
+
+<div id="status" class="status">Loading free preview...</div>
+
+<!-- INFO BANNER -->
+<div class="banner">
+<b>Free Preview Mode</b><br><br>
+
+Showing <b>Top 3 movers per index</b> only.<br>
+Selection rule: ranked by <b>1D Volume Change (primary)</b> + <b>Price Change (secondary)</b>.<br><br>
+
+You are viewing the <b>full data structure (8-column system)</b>, but limited rows.<br>
+Upgrade to unlock full dataset + sorting + deeper ranking views.
+</div>
+
+<!-- SP500 -->
+<div id="sp500" class="section active">
+<h3>S&P 500 Signals (Top 3 Movers)</h3>
+<div class="tableWrap">
+<table id="sp500Table"></table>
+</div>
+</div>
+
+<!-- NASDAQ -->
+<div id="nasdaq" class="section">
+<h3>NASDAQ 100 Signals (Top 3 Movers)</h3>
+<div class="tableWrap">
+<table id="nasdaqTable"></table>
+</div>
+</div>
+
+<!-- README (same structure as full) -->
+<div id="readme" class="section">
+
+<h3>README (System Overview)</h3>
+
+<div class="banner">
+This preview uses the same Baizora signal engine as full version.
+Only difference: row filtering (Top 3 per index).
+</div>
+
+<ul style="font-size:13px; color:#cbd5e1; line-height:1.6;">
+<li>1D Price Change = (Close - Prev Close) / Prev Close</li>
+<li>1D Volume Change = (Volume - Prev Volume) / Prev Volume</li>
+<li>Price/MA21 = Trend strength vs 21-day baseline</li>
+<li>Volume/MA21 = Activity vs normal liquidity</li>
+<li>7D metrics = peak values in last 7 sessions</li>
+</ul>
+
+</div>
+
+<!-- UPGRADE -->
+<!-- <div class="upgradeBox">
+    <b>Want full rankings + sorting + all tickers?</b><br>
+    Unlock full Baizora dashboard experience.
+
+    <div class="upgradeBtn" onclick="window.location.href='pricing.html'"> -->
+        <!-- Upgrade Now
+    </div>
+</div> -->
+
+<div class="upgradeBox">
+  <b>Full version temporarily unavailable</b><br>
+  Upgrade feature will be enabled soon.
+  
+  <div class="upgradeBtn disabled">
+    Upgrade (Coming Soon)
+  </div>
+</div>
+
+</div>
+
+<script>
+
+/* PUBLIC FREE PAGE — NO LOGIN REQUIRED */
+
+let data = [];
+let spRows = [];
+let ndRows = [];
+
+/* LOAD DATA */
+function load(){
+
+fetch("data/latest.json")
+.then(r => r.json())
+.then(json => {
+
+    data = json.data || [];
+
+    spRows = data.filter(r => r.InSP500);
+    ndRows = data.filter(r => r.InNASDAQ100);
+
+    render();
+
+    document.getElementById("status").innerText =
+        `Free Preview Loaded | ${json.date}`;
+
+})
+.catch(() => {
+    document.getElementById("status").innerText =
+        "Failed to load preview data";
+});
+
+}
+
+/* TOP 3 */
+function top3(arr){
+return [...arr]
+.sort((a,b)=>(b.VolumeChange1D||0)-(a.VolumeChange1D||0))
+.slice(0,3);
+}
+
+/* TABLE */
+function buildTable(arr){
+
+arr = top3(arr);
+
+let html = `
+<tr>
+<th>Ticker</th>
+<th>Price</th>
+<th>1D Price %</th>
+<th>1D Vol %</th>
+<th>1D P/MA21</th>
+<th>1D V/MA21</th>
+<th>7D Price %</th>
+<th>7D Vol %</th>
+<th>7D P/MA21</th>
+<th>7D V/MA21</th>
+</tr>
+`;
+
+for(let r of arr){
+
+html += `
+<tr>
+<td><b>${r.Ticker}</b></td>
+<td>${Number(r.Price).toFixed(2)}</td>
+
+<td class="${r.PriceChange1D>=0?'positive':'negative'}">${r.PriceChange1D}</td>
+<td class="${r.VolumeChange1D>=0?'positive':'negative'}">${r.VolumeChange1D}</td>
+
+<td>${r.PriceVsMA21_1D}</td>
+<td>${r.VolumeVsMA21_1D}</td>
+
+<td class="${r.Max7DPriceChange>=0?'positive':'negative'}">${r.Max7DPriceChange}</td>
+<td class="${r.Max7DVolumeChange>=0?'positive':'negative'}">${r.Max7DVolumeChange}</td>
+
+<td>${r.Max7DPriceVsMA21}</td>
+<td>${r.Max7DVolumeVsMA21}</td>
+</tr>
+`;
+}
+
+return html;
+}
+
+/* RENDER */
+function render(){
+document.getElementById("sp500Table").innerHTML = buildTable(spRows);
+document.getElementById("nasdaqTable").innerHTML = buildTable(ndRows);
+}
+
+/* NAV */
+window.show = function(id){
+document.querySelectorAll(".section")
+.forEach(s => s.classList.remove("active"));
+
+document.getElementById(id).classList.add("active");
+}
+
+/* START */
+load();
+
+</script>
+
+</body>
+</html>

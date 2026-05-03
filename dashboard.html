@@ -423,7 +423,7 @@ async function checkAccess(uid) {
   const data = await res.json();
 
   if (data.subscriptionStatus !== "active") {
-    window.location.href = "assets/pricing.html";
+    window.location.href = "pricing.html";
   }
 }
 
