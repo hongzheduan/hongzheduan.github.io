@@ -13,7 +13,7 @@ from datetime import datetime
 
 # 0 = local
 # 1 = cloud
-RUN_IN_CLOUD = 1
+RUN_IN_CLOUD = 0
 
 DATE_STR = datetime.now().strftime("%Y-%m-%d")
 
@@ -34,7 +34,7 @@ if RUN_IN_CLOUD:
     OUTPUT_CSV = os.path.join(ARCHIVE_DIR, f"results_{DATE_STR}.csv")
 
     API_KEY = os.getenv("API_KEY")
-
+ 
     # SAFETY CHECK
     if not API_KEY:
         raise ValueError("API_KEY environment variable not found")
@@ -52,7 +52,7 @@ else:
     OUTPUT_CSV = os.path.join(ARCHIVE_DIR, f"results_{DATE_STR}.csv")
 
     # local hardcoded key
-    API_KEY = "YOUR_LOCAL_FMP_API_KEY_HERE"
+    API_KEY = "brx09r7m8gaEMaIg51ZBBVC1gkcRJ71h"
 
 # =========================
 # UNIVERSE
