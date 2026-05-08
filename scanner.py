@@ -11,73 +11,54 @@ from datetime import datetime
 # CONFIG
 # =========================
 
-# 0 = local
-# 1 = cloud
-RUN_IN_CLOUD = 0
-
 DATE_STR = datetime.now().strftime("%Y-%m-%d")
 
 
-# =========================
-# ENV SWITCHING
-# =========================
-if RUN_IN_CLOUD:
+DATA_DIR = "data"
+ARCHIVE_DIR = "archive"
 
-    # CLOUD VERSION
-    DATA_DIR = "data"
-    ARCHIVE_DIR = "archive"
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(ARCHIVE_DIR, exist_ok=True)
 
-    os.makedirs(DATA_DIR, exist_ok=True)
-    os.makedirs(ARCHIVE_DIR, exist_ok=True)
-
-    OUTPUT_JSON = os.path.join(DATA_DIR, "latest.json")
-    OUTPUT_CSV = os.path.join(ARCHIVE_DIR, f"results_{DATE_STR}.csv")
-
-    API_KEY = os.getenv("API_KEY")
- 
-    # SAFETY CHECK
-    if not API_KEY:
-        raise ValueError("API_KEY environment variable not found")
-
-else:
-
-    # LOCAL VERSION
-    DATA_DIR = "data"
-    ARCHIVE_DIR = "archive"
-
-    os.makedirs(DATA_DIR, exist_ok=True)
-    os.makedirs(ARCHIVE_DIR, exist_ok=True)
-
-    OUTPUT_JSON = os.path.join(DATA_DIR, "latest.json")
-    OUTPUT_CSV = os.path.join(ARCHIVE_DIR, f"results_{DATE_STR}.csv")
-
-    # local hardcoded key
-    API_KEY = "brx09r7m8gaEMaIg51ZBBVC1gkcRJ71h"
+OUTPUT_JSON = os.path.join(DATA_DIR, "latest.json")
+OUTPUT_CSV = os.path.join(ARCHIVE_DIR, f"results_{DATE_STR}.csv")
 
 # =========================
-# UNIVERSE
+# UNIVERSE (FIXED - NO FMP)
 # =========================
-def get_universes():
-    sp_url = f"https://financialmodelingprep.com/stable/sp500-constituent?apikey={API_KEY}"
-    nd_url = f"https://financialmodelingprep.com/stable/nasdaq-constituent?apikey={API_KEY}"
 
-    try:
-        sp = requests.get(sp_url, timeout=10).json()
-        nd = requests.get(nd_url, timeout=10).json()
+def get_sp500():
+    url = "https://raw.githubusercontent.com/datasets/s-and-p-500-companies/main/data/constituents.csv"
+    df = pd.read_csv(url)
+    return df["Symbol"].tolist()
 
-        sp_set = set(x["symbol"] for x in sp if "symbol" in x)
-        nd_set = set(x["symbol"] for x in nd if "symbol" in x)
+def get_nasdaq100():
+    path = os.path.join("data", "nasdaq100_list.txt")
 
-        return sp_set, nd_set
+    with open(path, "r") as f:
+        tickers = f.read().splitlines()
 
-    except Exception as e:
-        print("Universe fetch error:", e)
-        return set(), set()
+    # clean + remove empty lines
+    tickers = [t.strip().replace(".", "-") for t in tickers if t.strip()]
 
+    return tickers
 
 def get_tickers():
-    sp_set, nd_set = get_universes()
-    return list(sp_set.union(nd_set)), sp_set, nd_set
+    sp500 = get_sp500()
+    nasdaq100 = get_nasdaq100()
+
+    # FIX: remove NaN / non-string values
+    clean = []
+    for t in sp500 + nasdaq100:
+        if isinstance(t, str):
+            clean.append(t.replace(".", "-"))
+
+    tickers = sorted(set(clean))
+
+    sp_set = set([t.replace(".", "-") for t in sp500 if isinstance(t, str)])
+    nd_set = set([t.replace(".", "-") for t in nasdaq100 if isinstance(t, str)])
+
+    return tickers, sp_set, nd_set
 
 
 # =========================
@@ -189,14 +170,8 @@ def scan():
 
     print(f"Total tickers: {len(tickers)}")
 
-    # Different batch size for cloud/local
-    if RUN_IN_CLOUD:
-        batch_size = 50
-        sleep_time = 0.15
-    else:
-        batch_size = 100
-        sleep_time = 0.05
-
+    batch_size = 50
+    sleep_time = 0.15
 
     for i in range(0, len(tickers), batch_size):
 
@@ -400,12 +375,19 @@ def scan():
     }
 
     df = pd.DataFrame(results)
+    if df.empty:
+        print("No results generated — universe or data issue")
+        return df
+
+
     df["MarketCap"] = df["MarketCap"].apply(
-        lambda x: round(x / 1_000_000_000, 2) if pd.notna(x) else None
+        lambda x: round(float(x) / 1_000_000_000, 2)
+        if x is not None and pd.notna(x)
+        else None
     )
 
     df["SectorAvgPE"] = df["Sector"].map(sector_avg_pe)
-    df["SectorAvgPE"] = df["SectorAvgPE"].round(2)
+    df["SectorAvgPE"] = pd.to_numeric(df["SectorAvgPE"], errors="coerce").round(2)
 
     df["PE_vs_Sector"] = np.where(
         (df["PE"].notna()) &
@@ -449,10 +431,7 @@ def export(df):
 # =========================
 if __name__ == "__main__":
 
-    if RUN_IN_CLOUD:
-        print("☁️ Running CLOUD scanner...")
-    else:
-        print("💻 Running LOCAL scanner...")
+    print("Running Baizora scanner...")
 
     df = scan()
 
