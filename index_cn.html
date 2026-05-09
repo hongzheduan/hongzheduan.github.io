@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>贝佐拉</title>
+  <link rel="icon" href="assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-light: #162847;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --gold: #f59e0b;
+      --gold-light: #fcd34d;
+      --white: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.07);
+      --glow: rgba(59,130,246,0.15);
+
+      /* Chinese font stack */
+      --font-cn: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-cn);
+      background: var(--navy);
+      color: var(--white);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── GRID BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(6, 13, 31, 0.85);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-wrap img { height: 50px; }
+
+    .brand-cn {
+      font-family: var(--font-cn);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lang-toggle {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-right: 4px;
+    }
+
+    .lang-toggle button {
+      background: transparent;
+      border: none;
+      padding: 5px 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+
+    .lang-toggle button.active {
+      background: var(--electric);
+      color: white;
+    }
+
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 7px 16px;
+      border-radius: 7px;
+      font-family: var(--font-cn);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .nav-btn:hover {
+      border-color: rgba(59,130,246,0.4);
+      color: var(--white);
+      background: rgba(59,130,246,0.08);
+    }
+
+    .nav-btn-primary {
+      background: var(--electric);
+      border-color: var(--electric);
+      color: white;
+    }
+
+    .nav-btn-primary:hover {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: white;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 100px 40px 80px;
+      text-align: center;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(59,130,246,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-cn);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--electric-bright);
+      border: 1px solid rgba(59,130,246,0.25);
+      background: rgba(59,130,246,0.06);
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 32px;
+    }
+
+    .hero-title {
+      font-family: var(--font-cn);
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+
+    .hero-title .highlight {
+      background: linear-gradient(90deg, var(--electric-bright), #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle-line {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 14px 0 28px;
+    }
+
+    .hero-desc {
+      font-size: 16px;
+      color: #94a3b8;
+      max-width: 540px;
+      margin: 0 auto 12px;
+      line-height: 1.85;
+      font-weight: 300;
+    }
+
+    .hero-cta {
+      margin-top: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--electric);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-family: var(--font-cn);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 0 30px rgba(59,130,246,0.25);
+      letter-spacing: 0.05em;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 0 40px rgba(59,130,246,0.4);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-family: var(--font-cn);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(59,130,246,0.3);
+      color: var(--white);
+      background: rgba(59,130,246,0.05);
+    }
+
+    .hero-note {
+      margin-top: 14px;
+      font-family: var(--font-cn);
+      font-size: 12px;
+      color: #475569;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── TICKER STRIP ── */
+    .ticker-wrap {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(13, 30, 61, 0.5);
+      overflow: hidden;
+      padding: 12px 0;
+    }
+
+    .ticker-track {
+      display: flex;
+      animation: ticker 30s linear infinite;
+      white-space: nowrap;
+      width: max-content;
+    }
+
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 32px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      border-right: 1px solid var(--border);
+    }
+
+    .ticker-item .sym { color: var(--white); font-weight: 500; }
+    .ticker-item .up { color: #22c55e; }
+    .ticker-item .dn { color: #ef4444; }
+
+    /* ── FEATURES ── */
+    .features {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 90px 40px;
+    }
+
+    .section-label {
+      font-family: var(--font-cn);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--electric-bright);
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-family: var(--font-cn);
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: 0.03em;
+      color: var(--white);
+      margin-bottom: 50px;
+    }
+
+    .section-title .dim { color: var(--muted); font-weight: 300; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: rgba(13, 30, 61, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 30px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover {
+      border-color: rgba(59,130,246,0.25);
+      background: rgba(13, 30, 61, 0.9);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card-icon {
+      width: 40px; height: 40px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+
+    .card h3 {
+      font-family: var(--font-cn);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+
+    .card p {
+      font-family: var(--font-cn);
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-weight: 300;
+    }
+
+    /* ── STATS ── */
+    .stats {
+      position: relative;
+      z-index: 10;
+      background: rgba(13, 30, 61, 0.4);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 50px 40px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .stat {
+      text-align: center;
+      padding: 20px;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 52px;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .stat-num span { color: var(--electric-bright); }
+
+    .stat-label {
+      font-family: var(--font-cn);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    /* ── BOTTOM CTA ── */
+    .bottom-cta {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 100px 40px;
+      text-align: center;
+    }
+
+    .cta-box {
+      background: linear-gradient(135deg, rgba(13,30,61,0.9) 0%, rgba(22,40,71,0.9) 100%);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 24px;
+      padding: 70px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: -100px; left: 50%;
+      transform: translateX(-50%);
+      width: 400px; height: 300px;
+      background: radial-gradient(ellipse, rgba(59,130,246,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-box h2 {
+      font-family: var(--font-cn);
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: 0.04em;
+      margin-bottom: 14px;
+    }
+
+    .cta-box p {
+      font-family: var(--font-cn);
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 36px;
+      font-weight: 300;
+      line-height: 1.8;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--border);
+      padding: 28px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left {
+      font-family: var(--font-cn);
+      font-size: 11px;
+      color: #475569;
+      letter-spacing: 0.05em;
+    }
+
+    .footer-left a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a {
+      font-family: var(--font-cn);
+      font-size: 11px;
+      color: #475569;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--electric-bright); }
+
+    /* ── ANIMATIONS ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.7s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      header { padding: 0 20px; }
+      .hero { padding: 70px 20px 60px; }
+      .features { padding: 60px 20px; }
+      .cards { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: 1fr; }
+      .stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat:last-child { border-bottom: none; }
+      .cta-box { padding: 40px 24px; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <a href="./" class="logo-wrap">
+    <img src="assets/baize_logo_v2.png" alt="贝佐拉">
+    <div class="brand-cn">贝佐拉</div>
+  </a>
+  <nav>
+    <div class="lang-toggle">
+      <button onclick="location.href='index.html'">EN</button>
+      <button class="active">中文</button>
+    </div>
+    <a href="assets/about.html" class="nav-btn">关于</a>
+    <a href="pricing.html" class="nav-btn nav-btn-primary">现在加入</a>
+    <a href="login.html" class="nav-btn">登录</a>
+  </nav>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-eyebrow fade-up">◈ &nbsp; 市场短期价量分析平台</div>
+  <h1 class="hero-title fade-up delay-1">
+    读懂市场<span class="highlight">信号</span><br>过滤无效噪声
+  </h1>
+  <div class="hero-subtitle-line fade-up delay-2">Systematic Data Processing Engine</div>
+  <p class="hero-desc fade-up delay-3">
+    基于结构化历史数据，对美股主要标的进行深入分析
+  </p>
+  <p class="hero-desc fade-up delay-3" style="margin-top:-10px;">
+    全面展示短期价格与成交量的最显著变化
+  </p>
+  <div class="hero-cta fade-up delay-4">
+    <a href="free_cn.html" class="btn-primary">
+      立即查看免费预览
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="assets/about.html" class="btn-secondary">了解更多</a>
+  </div>
+  <div class="hero-note fade-up delay-5">无需注册 · 即可查看部分数据 · 每日更新（美东 17:00–18:00）</div>
+</section>
+
+<!-- Ticker Strip -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <div class="ticker-item"><span class="sym">AAPL</span> 213.42 <span class="up">▲ 1.2%</span></div>
+    <div class="ticker-item"><span class="sym">MSFT</span> 418.67 <span class="up">▲ 0.8%</span></div>
+    <div class="ticker-item"><span class="sym">NVDA</span> 892.31 <span class="dn">▼ 0.4%</span></div>
+    <div class="ticker-item"><span class="sym">AMZN</span> 198.55 <span class="up">▲ 1.5%</span></div>
+    <div class="ticker-item"><span class="sym">GOOGL</span> 171.84 <span class="up">▲ 0.3%</span></div>
+    <div class="ticker-item"><span class="sym">META</span> 503.21 <span class="dn">▼ 0.7%</span></div>
+    <div class="ticker-item"><span class="sym">TSLA</span> 174.12 <span class="up">▲ 2.1%</span></div>
+    <div class="ticker-item"><span class="sym">NFLX</span> 647.90 <span class="up">▲ 0.6%</span></div>
+    <div class="ticker-item"><span class="sym">JPM</span> 218.33 <span class="dn">▼ 0.2%</span></div>
+    <div class="ticker-item"><span class="sym">V</span> 284.10 <span class="up">▲ 0.9%</span></div>
+    <!-- duplicate for seamless loop -->
+    <div class="ticker-item"><span class="sym">AAPL</span> 213.42 <span class="up">▲ 1.2%</span></div>
+    <div class="ticker-item"><span class="sym">MSFT</span> 418.67 <span class="up">▲ 0.8%</span></div>
+    <div class="ticker-item"><span class="sym">NVDA</span> 892.31 <span class="dn">▼ 0.4%</span></div>
+    <div class="ticker-item"><span class="sym">AMZN</span> 198.55 <span class="up">▲ 1.5%</span></div>
+    <div class="ticker-item"><span class="sym">GOOGL</span> 171.84 <span class="up">▲ 0.3%</span></div>
+    <div class="ticker-item"><span class="sym">META</span> 503.21 <span class="dn">▼ 0.7%</span></div>
+    <div class="ticker-item"><span class="sym">TSLA</span> 174.12 <span class="up">▲ 2.1%</span></div>
+    <div class="ticker-item"><span class="sym">NFLX</span> 647.90 <span class="up">▲ 0.6%</span></div>
+    <div class="ticker-item"><span class="sym">JPM</span> 218.33 <span class="dn">▼ 0.2%</span></div>
+    <div class="ticker-item"><span class="sym">V</span> 284.10 <span class="up">▲ 0.9%</span></div>
+  </div>
+</div>
+
+<!-- Features -->
+<section class="features">
+  <div class="section-label">平台核心功能</div>
+  <h2 class="section-title">专为精准分析而生<br><span class="dim">数据驱动，清晰呈现</span></h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">◎</div>
+      <h3>核心资产覆盖</h3>
+      <p>覆盖标普500与纳斯达克100成分股，流动性稳定，数据质量可靠，统一结构化处理。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⟁</div>
+      <h3>市场波动分析</h3>
+      <p>基于历史基准，迅速识别价格与成交量的统计异常变化，不依赖主观判断。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">◷</div>
+      <h3>短周期视图</h3>
+      <p>7日滚动窗口分析，聚焦短期市场结构变化，有效过滤长周期噪声干扰。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⟳</div>
+      <h3>每日更新</h3>
+      <p>交易日收盘后自动更新，保证数据一致性与稳定性，每天早晨即可查阅最新信号。</p>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat">
+      <div class="stat-num">600<span>+</span></div>
+      <div class="stat-label">追踪标的数量</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">7<span>日</span></div>
+      <div class="stat-label">滚动分析窗口</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">24<span>H</span></div>
+      <div class="stat-label">每日信号更新</div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom CTA -->
+<section class="bottom-cta">
+  <div class="cta-box">
+    <h2>准备好读懂<br>市场背后的信号了吗？</h2>
+    <p>加入早期访问计划，无噪声，只有结构化数据。</p>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a href="pricing.html" class="btn-primary">
+        现在加入
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="free.html" class="btn-secondary">免费预览</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-left">
+    © 2026 Baizora / 贝佐拉 · All rights reserved &nbsp;·&nbsp;
+    <a href="mailto:support@baizora.com">support@baizora.com</a>
+  </div>
+  <div class="footer-links">
+    <a href="assets/privacy.html">隐私</a>
+    <a href="assets/terms.html">条款</a>
+    <a href="assets/disclaimer.html">免责声明</a>
+    <a href="assets/faq_cn.html">常见问题</a>
+    <a href="assets/about.html">关于</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll-triggered fade-up for cards
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+        e.target.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.card').forEach(c => {
+    c.style.opacity = '0';
+    c.style.transform = 'translateY(20px)';
+    observer.observe(c);
+  });
+</script>
+
+</body>
+</html>

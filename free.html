@@ -1,318 +1,1171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Baizora | Free Preview</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baizora | Free Preview</title>
+  <link rel="icon" href="assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-<link rel="icon" href="assets/baize_favicon_v2.png">
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-surface: #0a1628;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --white: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.07);
+      --border-bright: rgba(255,255,255,0.12);
+      --positive: #22c55e;
+      --negative: #ef4444;
+    }
 
-<style>
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#0b0d12;
-    color:white;
-}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
 
-/* HEADER */
-.header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:12px 16px;
-    background:#0f1117;
-    border-bottom:1px solid #1f2430;
-}
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+    }
 
-.logo img{height:58px;}
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-button{
-    margin-left:6px;
-    padding:6px 12px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    background:#1f2937;
-    color:white;
-}
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      z-index: 100;
+      flex-shrink: 0;
+      height: 56px;
+      background: rgba(6, 13, 31, 0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      gap: 16px;
+    }
 
-/* MAIN */
-.wrapper{padding:14px;}
+    .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .header-left img { height: 50px; }
 
-.status{
-    padding:10px;
-    background:#121722;
-    margin-bottom:10px;
-    font-size:12px;
-    border-radius:6px;
-}
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+    .logo-text span { color: var(--electric); }
 
-.banner{
-    margin-bottom:10px;
-    padding:12px;
-    background:#121722;
-    border:1px solid #1f2430;
-    border-radius:6px;
-    font-size:12px;
-    color:#cbd5e1;
-    line-height:1.4;
-}
+    .header-divider { width: 1px; height: 20px; background: var(--border-bright); margin: 0 4px; }
 
-.section{display:none;}
-.section.active{display:block;}
+    .tab-nav { display: flex; align-items: center; gap: 2px; }
 
-.tableWrap{overflow-x:auto;}
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--white); border-color: var(--border-bright); background: rgba(255,255,255,0.04); }
+    .tab-btn.active { color: var(--electric-bright); border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.08); }
 
-table{
-    width:100%;
-    min-width:1200px;
-    border-collapse:collapse;
-    font-size:13px;
-}
+    .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-th,td{
-    padding:8px;
-    border-bottom:1px solid #1f2430;
-    text-align:left;
-    white-space:nowrap;
-}
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
 
-th{
-    background:#121722;
-    color:#cbd5e1;
-}
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 2s ease infinite; }
+    .status-dot.loading { background: var(--electric-bright); }
+    .status-dot.error   { background: var(--negative); animation: none; }
 
-.disabledSort{
-    opacity:0.6;
-    cursor:not-allowed;
-}
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-.positive{color:#22c55e;}
-.negative{color:#ef4444;}
+    .logout-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .logout-btn:hover { border-color: rgba(239,68,68,0.4); color: #fca5a5; background: rgba(239,68,68,0.06); }
 
-/* upgrade */
-.upgradeBox{
-    margin-top:14px;
-    padding:12px;
-    background:#111827;
-    border:1px solid #1f2430;
-    border-radius:10px;
-    text-align:center;
-}
+    /* ── TOOLBAR ── */
+    .toolbar {
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+      height: 44px;
+      background: rgba(10, 22, 40, 0.9);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+    }
 
-.upgradeBtn{
-    margin-top:10px;
-    background:#2563eb;
-    color:white;
-    padding:10px 14px;
-    border-radius:8px;
-    font-weight:600;
-    cursor:pointer;
-}
+    .toolbar-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #475569;
+    }
 
-.upgradeBtn.disabled {
-    background: #374151;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
+    .window-btns { display: flex; gap: 4px; }
 
-</style>
+    .window-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .window-btn:hover { border-color: var(--border-bright); color: var(--white); }
+    .window-btn.active { background: var(--electric); border-color: var(--electric); color: white; }
+
+    .toolbar-sep { width: 1px; height: 16px; background: var(--border); }
+
+    .row-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: #334155;
+      margin-left: auto;
+    }
+
+    /* ── TABLE AREA ── */
+    .table-area { position: relative; z-index: 10; flex: 1; overflow: auto; }
+
+    .table-area::-webkit-scrollbar { width: 6px; height: 6px; }
+    .table-area::-webkit-scrollbar-track { background: transparent; }
+    .table-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+    .table-area::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 12px; }
+
+    thead { position: sticky; top: 0; z-index: 20; }
+
+    th {
+      background: rgba(10, 22, 40, 0.98);
+      border-bottom: 1px solid var(--border-bright);
+      border-right: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      white-space: nowrap;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #475569;
+      user-select: none;
+      transition: color 0.15s, background 0.15s;
+    }
+    th:hover { color: var(--electric-bright); background: rgba(59,130,246,0.05); }
+    th.sorted { color: var(--electric-bright); }
+    th:last-child { border-right: none; }
+    th.no-sort { cursor: default; }
+    th.no-sort:hover { color: #475569; background: rgba(10,22,40,0.98); }
+
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+      font-size: 12px;
+      color: var(--muted);
+      transition: background 0.1s;
+    }
+    td:last-child { border-right: none; }
+    tr:hover td { background: rgba(59,130,246,0.04); }
+
+    td.spark-cell { padding: 4px 12px; vertical-align: middle; }
+
+    .ticker-cell {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--white);
+      letter-spacing: 0.05em;
+      cursor: pointer;
+    }
+    .ticker-cell:hover { color: var(--electric-bright); }
+
+    .price-cell { font-family: 'DM Mono', monospace; color: var(--white); font-weight: 400; }
+
+    .positive { color: var(--positive); font-family: 'DM Mono', monospace; }
+    .negative { color: var(--negative); font-family: 'DM Mono', monospace; }
+    .neutral  { color: var(--muted);    font-family: 'DM Mono', monospace; }
+
+    th.group-start { border-left: 2px solid rgba(59,130,246,0.2); }
+    td.group-start { border-left: 2px solid rgba(59,130,246,0.1); }
+
+    /* ── README PANEL ── */
+    #readme { padding: 40px; max-width: 680px; }
+
+    #readme h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    #readme .readme-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 20px;
+    }
+
+    #readme p { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; font-weight: 300; }
+
+    #readme .col-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+
+    #readme .col-table th {
+      background: rgba(13,30,61,0.6);
+      font-size: 10px;
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-bright);
+      cursor: default;
+    }
+    #readme .col-table th:hover { color: #475569; background: rgba(13,30,61,0.6); }
+
+    #readme .col-table td { font-size: 12px; padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--muted); }
+
+    #readme .col-table td:first-child {
+      font-family: 'DM Mono', monospace;
+      color: var(--electric-bright);
+      font-size: 11px;
+      cursor: default;
+    }
+
+    /* ── LOADING OVERLAY ── */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      background: rgba(6,13,31,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      backdrop-filter: blur(4px);
+    }
+    .loading-overlay.hidden { display: none; }
+
+    .loader {
+      width: 32px; height: 32px;
+      border: 2px solid var(--border-bright);
+      border-top-color: var(--electric);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .sort-arrow { opacity: 0.5; }
+    th.sorted .sort-arrow { opacity: 1; }
+
+    /* ── TOOLTIPS ── */
+    .bz-tooltip {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .bz-tooltip.visible { opacity: 1; transform: translateY(0); }
+
+    .col-tooltip {
+      background: rgba(10, 22, 40, 0.97);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      max-width: 260px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      backdrop-filter: blur(12px);
+    }
+    .col-tooltip .tt-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 5px;
+    }
+    .col-tooltip .tt-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .ticker-tooltip {
+      background: rgba(10, 22, 40, 0.98);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      min-width: 220px;
+      box-shadow: 0 16px 50px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+    }
+    .ticker-tooltip .tt-header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ticker-tooltip .tt-sym { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: var(--white); letter-spacing: 0.06em; }
+    .ticker-tooltip .tt-sector { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); font-weight: 300; }
+    .ticker-tooltip .tt-rows { display: flex; flex-direction: column; gap: 6px; }
+    .ticker-tooltip .tt-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+    .ticker-tooltip .tt-key { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; flex-shrink: 0; }
+    .ticker-tooltip .tt-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--white); text-align: right; }
+    .ticker-tooltip .tt-val.positive { color: var(--positive); }
+    .ticker-tooltip .tt-val.negative { color: var(--negative); }
+    .ticker-tooltip .tt-val.muted    { color: var(--muted); }
+    .ticker-tooltip .tt-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+    .tt-loading { font-family: 'DM Mono', monospace; font-size: 11px; color: #334155; letter-spacing: 0.08em; text-align: center; padding: 6px 0; }
+	
+	 /* ── FREE PREVIEW BADGE ── */
+    .preview-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold-light, #fcd34d);
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.25);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    /* ── HEADER NAV BTNS ── */
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .nav-btn:hover {
+      border-color: rgba(59,130,246,0.4);
+      color: var(--white);
+      background: rgba(59,130,246,0.08);
+    }
+
+    .nav-btn-upgrade {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      border: none;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 0 20px rgba(245,158,11,0.3);
+    }
+
+    .nav-btn-upgrade:hover {
+      background: linear-gradient(135deg, #d97706, #ea580c);
+      color: white;
+      border: none;
+      box-shadow: 0 0 28px rgba(245,158,11,0.5);
+      transform: translateY(-1px);
+    }
+
+    /* ── BLUR GATE ── */
+    html, body { overflow: hidden; }
+
+    .table-area {
+      position: relative;
+    }
+
+    /* Blurred rows overlay */
+    .blur-gate {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 0;
+      height: 340px;
+      background: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(6,13,31,0.5) 20%,
+        rgba(6,13,31,0.92) 55%,
+        rgba(6,13,31,1) 75%
+      );
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 32px;
+      gap: 0;
+    }
+
+    .blur-gate-inner {
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .blur-gate-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #f59e0b;
+      margin-bottom: 10px;
+    }
+
+    .blur-gate-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(22px, 3vw, 32px);
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 10px;
+      line-height: 1.15;
+    }
+
+    .blur-gate-title em { font-style: italic; color: var(--electric-bright); }
+
+    .blur-gate-sub {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 20px;
+      line-height: 1.6;
+      max-width: 460px;
+    }
+
+    .blur-gate-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .gate-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: white;
+      border: none;
+      padding: 11px 24px;
+      border-radius: 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 0 24px rgba(245,158,11,0.3);
+    }
+
+    .gate-btn-primary:hover {
+      background: linear-gradient(135deg, #d97706, #ea580c);
+      box-shadow: 0 0 36px rgba(245,158,11,0.5);
+      transform: translateY(-1px);
+    }
+
+    .gate-btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border-bright);
+      padding: 11px 20px;
+      border-radius: 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .gate-btn-secondary:hover {
+      border-color: rgba(59,130,246,0.4);
+      color: var(--white);
+      background: rgba(59,130,246,0.06);
+    }
+
+    /* ghost rows behind blur */
+    .ghost-rows tr { opacity: 0.35; filter: blur(3px); pointer-events: none; user-select: none; }
+
+    /* row count label for free preview */
+    .free-row-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: #f59e0b;
+    }
+	
+  </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
-<div class="header">
-    <div class="logo">
-        <a href="./">
-            <img src="assets/baize_logo_v2.png">
-        </a>
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <a href="./" style="display:flex; align-items:center; text-decoration:none; gap:10px;">
+        <img src="assets/baize_favicon_v2.png" alt="Baizora">
+        <span class="logo-text">Baiz<span>ora</span></span>
+      </a>
+      <div class="header-divider"></div>
+	  <div class="preview-badge">⬡ Free Preview</div>
+      <div class="header-divider"></div>
+      <nav class="tab-nav">
+        <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
+        <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
+        <button class="tab-btn" onclick="show('readme', this)">README</button>
+      </nav>
     </div>
 
-    <div>
-        <button onclick="show('sp500')">SP500</button>
-        <button onclick="show('nasdaq')">NASDAQ100</button>
-        <button onclick="show('readme')">README</button>
-        <!-- <button id="logoutBtn">Logout</button> -->
-        <button onclick="location.href='login.html'">Login</button>
+    <div class="header-right">
+      <div class="status-badge">
+        <div class="status-dot loading" id="statusDot"></div>
+        <span id="statusText">Loading…</span>
+      </div>
+      <a href="assets/about.html" class="nav-btn">About</a>
+      <a href="login.html" class="nav-btn">Login</a>
+      <!-- <a href="pricing.html" class="nav-btn">Join Us</a> -->
+      <a href="pricing.html" class="nav-btn nav-btn-upgrade">
+        View Plans
+      </a>
     </div>
-</div>
+  </header>
 
-<div class="wrapper">
-
-<div id="status" class="status">Loading free preview...</div>
-
-<!-- INFO BANNER -->
-<div class="banner">
-<b>Free Preview Mode</b><br><br>
-
-Showing <b>Top 3 movers per index</b> only.<br>
-Selection rule: ranked by <b>1D Volume Change (primary)</b> + <b>Price Change (secondary)</b>.<br><br>
-
-You are viewing the <b>full data structure (8-column system)</b>, but limited rows.<br>
-Upgrade to unlock full dataset + sorting + deeper ranking views.
-</div>
-
-<!-- SP500 -->
-<div id="sp500" class="section active">
-<h3>S&P 500 Signals (Top 3 Movers)</h3>
-<div class="tableWrap">
-<table id="sp500Table"></table>
-</div>
-</div>
-
-<!-- NASDAQ -->
-<div id="nasdaq" class="section">
-<h3>NASDAQ 100 Signals (Top 3 Movers)</h3>
-<div class="tableWrap">
-<table id="nasdaqTable"></table>
-</div>
-</div>
-
-<!-- README (same structure as full) -->
-<div id="readme" class="section">
-
-<h3>README (System Overview)</h3>
-
-<div class="banner">
-This preview uses the same Baizora signal engine as full version.
-Only difference: row filtering (Top 3 per index).
-</div>
-
-<ul style="font-size:13px; color:#cbd5e1; line-height:1.6;">
-<li>1D Price Change = (Close - Prev Close) / Prev Close</li>
-<li>1D Volume Change = (Volume - Prev Volume) / Prev Volume</li>
-<li>Price/MA21 = Trend strength vs 21-day baseline</li>
-<li>Volume/MA21 = Activity vs normal liquidity</li>
-<li>7D metrics = peak values in last 7 sessions</li>
-</ul>
-
-</div>
-
-<!-- UPGRADE -->
-<!-- <div class="upgradeBox">
-    <b>Want full rankings + sorting + all tickers?</b><br>
-    Unlock full Baizora dashboard experience.
-
-    <div class="upgradeBtn" onclick="window.location.href='pricing.html'"> 
-        Upgrade Now
+  <!-- Toolbar — NEW timeframes: 1D 2W 1M 3M 6M 9M 1Y -->
+  <div class="toolbar" id="toolbar">
+    <span class="toolbar-label">Window</span>
+    <div class="window-btns">
+      <button class="window-btn" onclick="setWindow('2W', this)">2W</button>
+      <button class="window-btn" onclick="setWindow('1M', this)">1M</button>
+      <button class="window-btn" onclick="setWindow('3M', this)">3M</button>
+      <button class="window-btn" onclick="setWindow('6M', this)">6M</button>
+      <button class="window-btn" onclick="setWindow('9M', this)">9M</button>
+      <button class="window-btn" onclick="setWindow('1Y', this)">1Y</button>
     </div>
-</div> -->
-
-<div class="upgradeBox">
-  <b>Full version temporarily unavailable</b><br>
-  Upgrade feature will be enabled soon.
-  
-  <div class="upgradeBtn disabled">
-    Upgrade (Coming Soon)
+    <div class="toolbar-sep"></div>
+    <span class="row-count" id="rowCount"></span>
   </div>
-</div>
 
-</div>
+  <!-- Table Area -->
+  <div class="table-area" id="tableArea">
 
-<script>
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loader"></div>
+      <div class="loading-text">Fetching signals…</div>
+    </div>
 
-/* PUBLIC FREE PAGE — NO LOGIN REQUIRED */
+    <div id="sp500" class="section active">
+      <table id="sp500Table"></table>
+      <div class="ghost-rows" id="sp500Ghost"></div>
+    </div>
 
-let data = [];
-let spRows = [];
-let ndRows = [];
+    <div id="nasdaq" class="section">
+      <table id="nasdaqTable"></table>
+      <div class="ghost-rows" id="nasdaqGhost"></div>
+    </div>
 
-/* LOAD DATA */
-function load(){
+    <div id="readme" class="section">
+      <div class="readme-label">◈ &nbsp; Documentation</div>
+      <h2>Signal Reference</h2>
+      <p>
+        Baizora scans S&P 500 and Nasdaq-100 constituents daily after market close.
+        Each row reflects a stock's price and volume behavior relative to recent history
+        using consistent statistical comparisons over rolling windows.
+      </p>
+      <p>
+        Signals are informational only — not buy, sell, or hold recommendations.
+        Use the window buttons to switch timeframes (1D through 1Y).
+        Hover any column header to see its description. Hover a ticker for fundamentals.
+      </p>
+      <table class="col-table">
+        <tr><th>Column</th><th>Description</th></tr>
+        <tr><td>Ticker</td><td>Stock symbol — hover for PE, Market Cap, EPS, Volatility, and sector comparison</td></tr>
+        <tr><td>1Y Trend</td><td>1-year normalized price sparkline. <strong>&#9650; Triangle</strong> = highest-volume day (green=price up, red=price down). <strong>&#9679; Circle</strong> = highest-price-change day (green=volume up, red=volume down).</td></tr>
+        <tr><td>Price</td><td>Latest closing price (USD)</td></tr>
+        <tr><td>Vol (M)</td><td>Volume in millions of shares</td></tr>
+        <tr><td>1D%</td><td>Price change vs previous close (always shown)</td></tr>
+        <tr><td>P/MA21</td><td>Price vs 21-day moving average (ratio; &gt;1 = above MA)</td></tr>
+        <tr><td>1D Vol%</td><td>Volume change vs previous session (always shown)</td></tr>
+        <tr><td>V/MA21</td><td>Volume vs 21-day average volume (ratio; &gt;1 = elevated)</td></tr>
+        <tr><td>Max%</td><td>Largest single-day price change in selected window</td></tr>
+        <tr><td>P Day</td><td>Days ago when the max price change occurred</td></tr>
+        <tr><td>V@Price</td><td>Volume change on the highest-price-change day</td></tr>
+        <tr><td>Vol%</td><td>Largest single-day volume change in selected window</td></tr>
+        <tr><td>V Day</td><td>Days ago when the max volume change occurred</td></tr>
+        <tr><td>P@Vol</td><td>Price change on the highest-volume day</td></tr>
+      </table>
+    </div>
 
-fetch("data/latest.json")
-.then(r => r.json())
-.then(json => {
+  </div>
 
-    data = json.data || [];
+  <!-- Blur gate CTA (only visible on non-readme tabs) -->
+  <div class="blur-gate" id="blurGate">
+    <div class="blur-gate-inner">
+      <div class="blur-gate-eyebrow">◈ &nbsp; Free Preview — 3 of 500+ Symbols</div>
+      <h2 class="blur-gate-title">You're seeing the tip of<br>the <em>iceberg</em></h2>
+      <p class="blur-gate-sub">
+        Full access unlocks all 500+ S&P and Nasdaq-100 signals, daily updates,
+        sortable columns, rolling windows, and fundamentals — starting at $9.99/month.
+      </p>
+      <div class="blur-gate-btns">
+        <a href="pricing.html" class="gate-btn-primary">
+          ⚡ Unlock Full Access
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <!-- <a href="pricing.html" class="gate-btn-secondary">View Plans</a> -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Tooltips -->
+  <div class="bz-tooltip col-tooltip" id="colTooltip">
+    <div class="tt-label" id="colTooltipLabel"></div>
+    <div class="tt-desc"  id="colTooltipDesc"></div>
+  </div>
 
-    spRows = data.filter(r => r.InSP500);
-    ndRows = data.filter(r => r.InNASDAQ100);
+  <div class="bz-tooltip ticker-tooltip" id="tickerTooltip">
+    <div class="tt-header">
+      <span class="tt-sym"    id="ttSym"></span>
+      <span class="tt-sector" id="ttSector"></span>
+    </div>
+    <div class="tt-rows" id="ttRows"></div>
+  </div>
 
-    render();
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    document.getElementById("status").innerText =
-        `Free Preview Loaded | ${json.date}`;
+    /* ── STATE ── */
+    let spRows = [], ndRows = [], allRows = [];
+    let activeTab     = "sp500";
+    let sortKey       = "PriceChange1D";
+    let sortAsc       = false;
+    let currentWindow = "2W";
+    let loadedDate    = "";
 
-})
-.catch(() => {
-    document.getElementById("status").innerText =
-        "Failed to load preview data";
-});
+    /* ── DOM ── */
+    const statusDot  = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const rowCount   = document.getElementById("rowCount");
+    const overlay    = document.getElementById("loadingOverlay");
+    const toolbar    = document.getElementById("toolbar");
+	const blurGate   = document.getElementById("blurGate");
 
-}
+    /* ── LOAD ── */
+    function loadDashboard() {
+      fetch("data/latest.json")
+        .then(r => r.json())
+        .then(json => {
+          allRows    = json.data || [];
+          loadedDate = json.date || "—";
+          spRows = allRows.filter(x => x.InSP500);
+          ndRows = allRows.filter(x => x.InNASDAQ100);
+          overlay.classList.add("hidden");
+          statusDot.className = "status-dot";
+          render();
+          updateStatus();
+        })
+        .catch(err => {
+          console.error(err);
+          overlay.classList.add("hidden");
+          statusDot.className = "status-dot error";
+          statusText.textContent = "Failed to load";
+        });
+    }
 
-/* TOP 3 */
-function top3(arr){
-return [...arr]
-.sort((a,b)=>(b.VolumeChange1D||0)-(a.VolumeChange1D||0))
-.slice(0,3);
-}
+    /* ── STATUS ── */
+    function updateStatus() {
+      const total = activeTab === "sp500" ? spRows.length : ndRows.length;
+      const label = activeTab === "sp500" ? "S&P 500" : "Nasdaq 100";
+      statusText.textContent = loadedDate;
+      rowCount.innerHTML = `<span class="free-row-label">PREVIEW: 3 of ${total} · ${label}</span>`;
+    }
+	
+    /* ── TAB ── */
+    window.show = function(id, btn) {
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      btn.classList.add("active");
+      activeTab = id;
+      const isReadme = (id === "readme");   // ✅ ADD THIS
+      toolbar.style.display = (id === "readme") ? "none" : "flex";
+	  blurGate.style.display = isReadme ? "none" : "flex";
+      updateStatus();
+    };
 
-/* TABLE */
-function buildTable(arr){
+    /* ── WINDOW ── */
+    window.setWindow = function(w, btn) {
+      currentWindow = w;
+      document.querySelectorAll(".window-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      render();
+    };
 
-arr = top3(arr);
+    /* ── SORT ── */
+    // window.sortBy = function(key) {
+    //   if (sortKey === key) sortAsc = !sortAsc;
+    //   else { sortKey = key; sortAsc = false; }
+    //   render();
+    // };
+	
+	/* Top 3 by latest price increase (PriceChange1D descending) */
+    function topThree(arr) {
+      return [...arr]
+        .sort((a, b) => (b.PriceChange1D ?? -Infinity) - (a.PriceChange1D ?? -Infinity))
+        .slice(0, 3);
+    }
 
-let html = `
-<tr>
-<th>Ticker</th>
-<th>Price</th>
-<th>1D Price %</th>
-<th>1D Vol %</th>
-<th>1D P/MA21</th>
-<th>1D V/MA21</th>
-<th>7D Price %</th>
-<th>7D Vol %</th>
-<th>7D P/MA21</th>
-<th>7D V/MA21</th>
-</tr>
-`;
+    /* Ghost rows (blurred placeholder rows) */
+    function ghostRows(count, w) {
+      const cells = 14; // same number of columns
+      return Array.from({ length: count }, (_, i) =>
+        `<tr>${Array.from({ length: cells }, () => `<td>—</td>`).join("")}</tr>`
+      ).join("");
+    }
+	
+    // function sorted(arr) {
+    //   return [...arr].sort((a, b) => {
+    //     let A = a[sortKey] ?? 0;
+    //     let B = b[sortKey] ?? 0;
+    //     if (typeof A === "string") return sortAsc ? A.localeCompare(B) : B.localeCompare(A);
+    //     return sortAsc ? A - B : B - A;
+    //   });
+    // }
 
-for(let r of arr){
+    /* ── HELPERS ── */
+    function colorClass(v) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return "neutral";
+      if (n > 0) return "positive";
+      if (n < 0) return "negative";
+      return "neutral";
+    }
 
-html += `
-<tr>
-<td><b>${r.Ticker}</b></td>
-<td>${Number(r.Price).toFixed(2)}</td>
+    function arrow(key) {
+      if (sortKey !== key) return `<span class="sort-arrow"> ↕</span>`;
+      return `<span class="sort-arrow">${sortAsc ? " ↑" : " ↓"}</span>`;
+    }
 
-<td class="${r.PriceChange1D>=0?'positive':'negative'}">${r.PriceChange1D}</td>
-<td class="${r.VolumeChange1D>=0?'positive':'negative'}">${r.VolumeChange1D}</td>
+    function thSort(key, label, extraClass = "") {
+      const cls = [sortKey === key ? "sorted" : "", extraClass].filter(Boolean).join(" ");
+      return `<th class="${cls}" onclick="sortBy('${key}')" data-col="${key}">${label}${arrow(key)}</th>`;
+    }
 
-<td>${r.PriceVsMA21_1D}</td>
-<td>${r.VolumeVsMA21_1D}</td>
+    function thStatic(dataCol, label, extraClass = "") {
+      const cls = ["no-sort", extraClass].filter(Boolean).join(" ");
+      return `<th class="${cls}" data-col="${dataCol}">${label}</th>`;
+    }
 
-<td class="${r.Max7DPriceChange>=0?'positive':'negative'}">${r.Max7DPriceChange}</td>
-<td class="${r.Max7DVolumeChange>=0?'positive':'negative'}">${r.Max7DVolumeChange}</td>
+    /* -- SPARKLINE (Spark1Y) with two markers --
+       Triangle (^) = max-volume day   (green=price UP, red=price DOWN)
+       Circle   (o) = max-price day    (green=volume UP, red=volume DOWN)
+    -- */
+    function renderSparkline(data, maxVolDay, priceAtMaxVol, maxPriceDay, volAtMaxPrice) {
+      const W = 110, H = 28, PAD = 5;
 
-<td>${r.Max7DPriceVsMA21}</td>
-<td>${r.Max7DVolumeVsMA21}</td>
-</tr>
-`;
-}
+      if (!data || data.length < 2) {
+        return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="#1e293b" stroke-width="1"/></svg>`;
+      }
 
-return html;
-}
+      const n = data.length;
+      const stepX = W / (n - 1);
 
-/* RENDER */
-function render(){
-document.getElementById("sp500Table").innerHTML = buildTable(spRows);
-document.getElementById("nasdaqTable").innerHTML = buildTable(ndRows);
-}
+      const points = data.map((v, i) => ({
+        x: +(i * stepX).toFixed(2),
+        y: +(PAD + (1 - v) * (H - PAD * 2)).toFixed(2)
+      }));
 
-/* NAV */
-window.show = function(id){
-document.querySelectorAll(".section")
-.forEach(s => s.classList.remove("active"));
+      const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x},${p.y}`).join(" ");
+      const lineColor = data[n - 1] >= data[0] ? "#22c55e" : "#ef4444";
 
-document.getElementById(id).classList.add("active");
-}
+      function idxFromDays(daysAgo) {
+        const d = Math.round(parseFloat(daysAgo));
+        return Math.max(0, Math.min(n - 1, n - 1 - d));
+      }
 
-/* START */
-load();
+      /* MARKER 1: max-volume day — upward triangle
+         green if price was UP on that day, red if DOWN */
+      let volMarker = "";
+      if (maxVolDay != null && !isNaN(parseFloat(maxVolDay))) {
+        const idx   = idxFromDays(maxVolDay);
+        const cx    = points[idx].x;
+        const cy    = points[idx].y;
+        const col   = (priceAtMaxVol != null && parseFloat(priceAtMaxVol) >= 0) ? "#22c55e" : "#ef4444";
+        const s = 4.5;  // half-base size
+        const apex = cy - s * 1.5;
+        const bL   = cx - s;
+        const bR   = cx + s;
+        const bY   = cy + s * 0.6;
+        volMarker = `<polygon points="${cx},${apex} ${bL},${bY} ${bR},${bY}"
+          fill="${col}" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>`;
+      }
 
-</script>
+      /* MARKER 2: max-price day — filled circle with bright ring
+         green if volume was UP on that day, red if DOWN */
+      let priceMarker = "";
+      if (maxPriceDay != null && !isNaN(parseFloat(maxPriceDay))) {
+        const idx   = idxFromDays(maxPriceDay);
+        const cx    = points[idx].x;
+        const cy    = points[idx].y;
+        const col   = (volAtMaxPrice != null && parseFloat(volAtMaxPrice) >= 0) ? "#22c55e" : "#ef4444";
+        /* outer glow ring + filled inner dot */
+        priceMarker = `
+          <circle cx="${cx}" cy="${cy}" r="5.5" fill="${col}" opacity="0.25"/>
+          <circle cx="${cx}" cy="${cy}" r="3.2" fill="${col}" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>`;
+      }
+
+      return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none" style="display:block;">
+        <path d="${linePath}" stroke="${lineColor}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+        ${priceMarker}
+        ${volMarker}
+      </svg>`;
+    }
+
+    /* ── BUILD TABLE ── */
+    function buildTable(arr, w) {
+      // arr = sorted(arr);
+      arr = arr.slice(0, 3);
+	  const top3 = topThree(arr);
+	 
+
+      /* Window column headers */
+      const windowHead = `
+        ${thSort(`${w}MaxPriceChange`, "Max%", "group-start")}
+        ${thSort(`${w}MaxPriceChangeDay`, "P Day")}
+        ${thSort(`${w}VolumeChangeAtMaxPrice`, "V@Price")}
+        ${thSort(`${w}MaxVolumeChange`, "Vol%")}
+        ${thSort(`${w}MaxVolumeChangeDay`, "V Day")}
+        ${thSort(`${w}PriceChangeAtMaxVolume`, "P@Vol")}
+      `;
+
+
+      const head = `<thead><tr>
+        ${thSort("Ticker",          "Ticker")}
+        ${thStatic("Spark1Y",       "1Y Trend")}
+        ${thSort("Price",           "Price")}
+        ${thSort("VolumeM",         "Vol (M)")}
+        ${thSort("PriceChange1D",   "1D%",         "group-start")}
+        ${thSort("PriceVsMA21_1D",  "P/MA21",      "group-start")}
+        ${thSort("VolumeChange1D",  "1D Vol%")}
+        ${thSort("VolumeVsMA21_1D", "V/MA21")}
+        ${windowHead}
+      </tr></thead>`;
+
+      const rows = arr.slice(0, 3).map(r => {
+        const pc1  = r.PriceChange1D;
+        const vc1  = r.VolumeChange1D;
+        const pma  = r.PriceVsMA21_1D;
+        const vma  = r.VolumeVsMA21_1D;
+
+        /* Sparkline always uses Spark1Y + 1Y max-volume info */
+        const sparkSVG = renderSparkline(
+          r.Spark1Y,
+          r["1YMaxVolumeChangeDay"],
+          r["1YPriceChangeAtMaxVolume"],
+          r["1YMaxPriceChangeDay"],
+          r["1YVolumeChangeAtMaxPrice"]
+        );
+
+        /* Rolling window cells */
+        let windowCells = "";
+        if (w === "1D") {
+          windowCells = `
+            <td class="neutral group-start">—</td>
+            <td class="neutral">—</td>
+            <td class="neutral">—</td>
+            <td class="neutral">—</td>
+            <td class="neutral">—</td>
+            <td class="neutral">—</td>`;
+        } else {
+          const maxP = r[`${w}MaxPriceChange`];
+          const pDay = r[`${w}MaxPriceChangeDay`];
+          const vAtP = r[`${w}VolumeChangeAtMaxPrice`];
+          const maxV = r[`${w}MaxVolumeChange`];
+          const vDay = r[`${w}MaxVolumeChangeDay`];
+          const pAtV = r[`${w}PriceChangeAtMaxVolume`];
+
+          const fmt = v => (v ?? "—");
+
+          windowCells = `
+            <td class="${colorClass(maxP)} group-start">${fmt(maxP)}%</td>
+            <td class="neutral">${fmt(pDay)}</td>
+            <td class="${colorClass(vAtP)}">${fmt(vAtP)}%</td>
+            <td class="${colorClass(maxV)}">${fmt(maxV)}%</td>
+            <td class="neutral">${fmt(vDay)}</td>
+            <td class="${colorClass(pAtV)}">${fmt(pAtV)}%</td>`;
+        }
+
+        return `<tr>
+          <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+          <td class="spark-cell">${sparkSVG}</td>
+          <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
+          <td class="neutral">${r.VolumeM ?? "—"}</td>
+          <td class="${colorClass(pc1)} group-start">${pc1}%</td>
+          <td class="${colorClass(pma - 1)} group-start">${pma}</td>
+          <td class="${colorClass(vc1)}">${vc1}%</td>
+          <td class="${colorClass(vma - 1)}">${vma}</td>
+          ${windowCells}
+        </tr>`;
+      }).join("");
+
+      // Add ghost/blurred rows to give the feel of a full table below
+      const ghosts = ghostRows(3, w);
+	  
+      return head + "<tbody>" + rows + "</tbody><tbody class='ghost-rows'>" + ghosts + "</tbody>";
+    }
+
+    /* ── RENDER ── */
+    function render() {
+      const w = currentWindow;
+      document.getElementById("sp500Table").innerHTML  = buildTable(spRows, w);
+      document.getElementById("nasdaqTable").innerHTML = buildTable(ndRows, w);
+    }
+
+    /* ══════════════════════════════════════════
+       TOOLTIP SYSTEM
+    ══════════════════════════════════════════ */
+
+    const COL_DESCS = {
+      "Ticker":          { label: "Ticker",    desc: "Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility, and sector comparison." },
+      "Spark1Y":         { label: "1Y Trend",  desc: "1-year normalized price sparkline. ▲ Triangle = highest-volume day (green=price up, red=price down). ● Circle = highest-price-change day (green=volume up, red=volume down)." },
+      "Price":           { label: "Price",     desc: "Latest closing price in USD." },
+      "VolumeM":         { label: "Vol (M)",   desc: "Trading volume in millions of shares for the most recent session." },
+      "PriceChange1D":   { label: "1D%",       desc: "Price change (%) vs the previous session's closing price." },
+      "VolumeChange1D":  { label: "1D Vol%",   desc: "Volume change (%) vs the previous session's volume." },
+      "PriceVsMA21_1D":  { label: "P/MA21",    desc: "Current price as a ratio of the 21-day moving average. Values above 1 indicate price above the MA." },
+      "VolumeVsMA21_1D": { label: "V/MA21",    desc: "Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity." },
+    };
+
+    function getWindowColDesc(key, w) {
+      if (key === `${w}MaxPriceChange`)         return { label: `${w} Max%`,    desc: `Largest single-day price change (%) within the ${w} window.` };
+      if (key === `${w}MaxVolumeChange`)        return { label: `${w} Vol%`,    desc: `Largest single-day volume change (%) within the ${w} window.` };
+      if (key === `${w}MaxPriceChangeDay`)      return { label: `${w} P Day`,   desc: `Days ago when the maximum price change occurred in the ${w} window.` };
+      if (key === `${w}MaxVolumeChangeDay`)     return { label: `${w} V Day`,   desc: `Days ago when the maximum volume change occurred in the ${w} window.` };
+      if (key === `${w}PriceChangeAtMaxVolume`) return { label: `${w} P@Vol`,   desc: `Price change (%) on the highest-volume day in the ${w} window.` };
+      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: `${w} V@Price`, desc: `Volume change (%) on the highest-price-change day in the ${w} window.` };
+      return null;
+    }
+
+    function positionTooltip(el, x, y) {
+      const margin = 12;
+      el.style.left = "0px";
+      el.style.top  = "0px";
+      el.style.visibility = "hidden";
+      el.style.display = "block";
+      const tw = el.offsetWidth, th = el.offsetHeight;
+      const vw = window.innerWidth,  vh = window.innerHeight;
+      let left = x + margin, top = y + margin;
+      if (left + tw > vw - margin) left = x - tw - margin;
+      if (top  + th > vh - margin) top  = y - th  - margin;
+      if (left < margin) left = margin;
+      if (top  < margin) top  = margin;
+      el.style.left = left + "px";
+      el.style.top  = top  + "px";
+      el.style.visibility = "visible";
+    }
+
+    /* Column header tooltip */
+    const colTip   = document.getElementById("colTooltip");
+    const colLabel = document.getElementById("colTooltipLabel");
+    const colDesc  = document.getElementById("colTooltipDesc");
+    let colHideTimer = null;
+
+    document.getElementById("tableArea").addEventListener("mouseover", (e) => {
+      const thEl = e.target.closest("th[data-col]");
+      if (!thEl || thEl.classList.contains("no-sort") && !thEl.dataset.col) return;
+      const key = thEl.dataset.col;
+      if (!key) return;
+      clearTimeout(colHideTimer);
+      const info = COL_DESCS[key] || getWindowColDesc(key, currentWindow);
+      if (!info) return;
+      colLabel.textContent = info.label;
+      colDesc.textContent  = info.desc;
+      positionTooltip(colTip, e.clientX, e.clientY);
+      colTip.classList.add("visible");
+    });
+
+    document.getElementById("tableArea").addEventListener("mousemove", (e) => {
+      const thEl = e.target.closest("th[data-col]");
+      if (!thEl || !thEl.dataset.col) return;
+      positionTooltip(colTip, e.clientX, e.clientY);
+    });
+
+    document.getElementById("tableArea").addEventListener("mouseout", (e) => {
+      const thEl = e.target.closest("th[data-col]");
+      if (!thEl) return;
+      colHideTimer = setTimeout(() => colTip.classList.remove("visible"), 80);
+    });
+
+    /* Ticker tooltip */
+    const tickerTip = document.getElementById("tickerTooltip");
+    const ttSym     = document.getElementById("ttSym");
+    const ttSector  = document.getElementById("ttSector");
+    const ttRows    = document.getElementById("ttRows");
+    let tickerHideTimer = null;
+
+    function fmt(v, suffix = "", decimals = 2) {
+      if (v == null || v === "" || v === undefined) return "—";
+      const n = parseFloat(v);
+      if (isNaN(n)) return String(v);
+      return n.toFixed(decimals) + suffix;
+    }
+
+    function fmtBillion(v) {
+      if (v == null || v === "" || v === undefined) return "—";
+      const n = parseFloat(v);
+      if (isNaN(n)) return "—";
+      if (Math.abs(n) >= 1e12) return (n / 1e12).toFixed(2) + "T";
+      if (Math.abs(n) >= 1e9)  return (n / 1e9).toFixed(2)  + "B";
+      if (Math.abs(n) >= 1e6)  return (n / 1e6).toFixed(2)  + "M";
+      return n.toFixed(2);
+    }
+
+    function valClass(v) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return "muted";
+      return n > 0 ? "positive" : n < 0 ? "negative" : "muted";
+    }
+	
+    function ttRow(key, value, valCls = "") {
+      return `<div class="tt-row"><span class="tt-key">${key}</span><span class="tt-val ${valCls}">${value}</span></div>`;
+    }
+
+    function buildTickerTooltip(r) {
+      ttSym.textContent    = r.Ticker;
+      ttSector.textContent = r.Sector || "";
+      const peVsSecN   = parseFloat(r.PE_vs_Sector);
+      const peVsSecCls = isNaN(peVsSecN) ? "muted" : peVsSecN > 0 ? "positive" : "negative";
+      ttRows.innerHTML = `
+        ${ttRow("Sector",         r.Sector || "—")}
+        <div class="tt-divider"></div>
+        ${ttRow("PE",             fmt(r.PE, "", 1))}
+        ${ttRow("Mkt Cap (USD)",  fmtBillion(r.MarketCap))}
+        ${ttRow("EPS",            fmt(r.EPS, "", 2))}
+        <div class="tt-divider"></div>
+        ${ttRow("Vol 30D",        fmt(r.Volatility30D, "%", 1))}
+        <div class="tt-divider"></div>
+        ${ttRow("Sector Avg PE",  fmt(r.SectorAvgPE, "", 1))}
+        ${ttRow("PE vs Sector",   fmt(r.PE_vs_Sector, "%", 1), peVsSecCls)}
+      `;
+    }
+
+    document.getElementById("tableArea").addEventListener("mouseover", (e) => {
+      const td = e.target.closest("td.ticker-cell");
+      if (!td) return;
+      clearTimeout(tickerHideTimer);
+      const r = allRows.find(x => x.Ticker === td.dataset.ticker);
+      if (!r) {
+        ttSym.textContent    = td.dataset.ticker;
+        ttSector.textContent = "";
+        ttRows.innerHTML     = `<div class="tt-loading">No data available</div>`;
+      } else {
+        buildTickerTooltip(r);
+      }
+      positionTooltip(tickerTip, e.clientX, e.clientY);
+      tickerTip.classList.add("visible");
+    });
+
+    document.getElementById("tableArea").addEventListener("mousemove", (e) => {
+      const td = e.target.closest("td.ticker-cell");
+      if (!td) return;
+      positionTooltip(tickerTip, e.clientX, e.clientY);
+    });
+
+    document.getElementById("tableArea").addEventListener("mouseout", (e) => {
+      const td = e.target.closest("td.ticker-cell");
+      if (!td) return;
+      tickerHideTimer = setTimeout(() => tickerTip.classList.remove("visible"), 80);
+    });
+
+    window.addEventListener("DOMContentLoaded", loadDashboard);
+
+  </script>
 
 </body>
 </html>

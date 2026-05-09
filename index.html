@@ -3,295 +3,942 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baizora | Market Data Intelligence</title>
-
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/baize_favicon_v2.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/baize_favicon_v2.png">
-  <link rel="apple-touch-icon" href="assets/baize_favicon_v2.png">
-
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DWEPM8KFM9"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-DWEPM8KFM9');
-  </script>
+  <title>Baizora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-light: #162847;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --gold: #f59e0b;
+      --gold-light: #fcd34d;
+      --white: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.07);
+      --glow: rgba(59,130,246,0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
-      color: #111;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      overflow-x: hidden;
+      min-height: 100vh;
     }
 
-    .announcement-bar {
-      width: 100%;
-      background: #0a2f6b;
-      color: white;
+    /* ── GRID BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── ANNOUNCEMENT BAR ── */
+    .announcement {
+      position: relative;
+      z-index: 100;
+      background: linear-gradient(90deg, #1e3a6e, #0f2a5a, #1e3a6e);
+      background-size: 200% 100%;
+      animation: shimmer 4s ease infinite;
       text-align: center;
-      font-size: 13px;
-      padding: 8px 12px;
-      font-weight: 600;
+      padding: 9px 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--electric-bright);
+      font-weight: 500;
     }
 
-    .top-header {
+    @keyframes shimmer {
+      0%, 100% { background-position: 0% 0%; }
+      50% { background-position: 100% 0%; }
+    }
+
+    .announcement .dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: #22c55e;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 2s ease infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* ── HEADER ── */
+    header {
       position: sticky;
       top: 0;
-      z-index: 1000;
-      background: #fff;
-      padding: 10px 20px;
+      z-index: 200;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(6, 13, 31, 0.85);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #eef2f7;
     }
 
-    .logo img { height: 58px; }
+    .logo img {
+        height: 50px;
+    }
 
-    .login button {
-      background: #2563eb;
-      color: #fff;
+    .logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    }
+
+    /* .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    } */
+
+    .logo-text span {
+      color: var(--electric);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lang-toggle {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-right: 4px;
+    }
+
+    .lang-toggle button {
+      background: transparent;
       border: none;
-      padding: 7px 14px;
-      border-radius: 8px;
-      font-weight: 600;
+      padding: 5px 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
       cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
     }
 
-    .container {
-      max-width: 980px;
+    .lang-toggle button.active {
+      background: var(--electric);
+      color: white;
+    }
+
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 7px 16px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .nav-btn:hover {
+      border-color: rgba(59,130,246,0.4);
+      color: var(--white);
+      background: rgba(59,130,246,0.08);
+    }
+
+    .nav-btn-primary {
+      background: var(--electric);
+      border-color: var(--electric);
+      color: white;
+    }
+
+    /* ACCOUNT MENU */
+    /* ACCOUNT MENU */
+    .account-menu{
+      position:relative;
+    }
+
+    .account-btn{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .account-dropdown{
+      position:absolute;
+      top:100%;
+      right:0;
+
+      width:220px;
+
+      background:rgba(13,30,61,0.98);
+      border:1px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+
+      display:none;
+
+      backdrop-filter:blur(18px);
+      box-shadow:0 20px 50px rgba(0,0,0,.45);
+
+      padding-top:6px;
+    }
+
+    .account-menu:hover .account-dropdown{
+      display:block;
+    }
+
+    .account-dropdown a{
+      display:block;
+      padding:13px 16px;
+      color:var(--muted);
+      text-decoration:none;
+      font-size:13px;
+      transition:all .2s;
+    }
+
+    .account-dropdown a:hover{
+      background:rgba(59,130,246,.08);
+      color:var(--white);
+    }
+
+    .dropdown-divider{
+      height:1px;
+      background:var(--border);
+      margin:4px 0;
+    }
+
+
+
+    .nav-btn-primary:hover {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: white;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 50px 20px;
+      padding: 100px 40px 80px;
       text-align: center;
     }
 
-    h1 img {
-      height: 72px;
+    /* radial glow behind hero */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(59,130,246,0.12) 0%, transparent 70%);
+      pointer-events: none;
     }
 
-    .subtext {
-      color: #4b5563;
-      max-width: 620px;
-      margin: 10px auto 20px;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    .badge {
-      display: inline-block;
-      background: #ecfdf5;
-      color: #16a34a;
-      padding: 6px 12px;
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      border: 1px solid rgba(59,130,246,0.25);
+      background: rgba(59,130,246,0.06);
+      padding: 6px 14px;
       border-radius: 999px;
-      font-size: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 28px;
     }
 
-    .grid {
+    .hero-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(48px, 7vw, 88px);
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--electric-bright);
+    }
+
+    .hero-subtitle-line {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 16px 0 28px;
+    }
+
+    .hero-desc {
+      font-size: 17px;
+      color: #94a3b8;
+      max-width: 520px;
+      margin: 0 auto 44px;
+      line-height: 1.75;
+      font-weight: 300;
+    }
+
+    .hero-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--electric);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 0 30px rgba(59,130,246,0.25);
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 0 40px rgba(59,130,246,0.4);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(59,130,246,0.3);
+      color: var(--white);
+      background: rgba(59,130,246,0.05);
+    }
+
+    .hero-note {
+      margin-top: 16px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── TICKER STRIP ── */
+    .ticker-wrap {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(13, 30, 61, 0.5);
+      overflow: hidden;
+      padding: 12px 0;
+    }
+
+    .ticker-track {
+      display: flex;
+      gap: 0;
+      animation: ticker 30s linear infinite;
+      white-space: nowrap;
+      width: max-content;
+    }
+
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 32px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      border-right: 1px solid var(--border);
+    }
+
+    .ticker-item .sym { color: var(--white); font-weight: 500; }
+    .ticker-item .up { color: #22c55e; }
+    .ticker-item .dn { color: #ef4444; }
+
+    /* ── FEATURES GRID ── */
+    .features {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 90px 40px;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 50px;
+    }
+
+    .section-title em { font-style: italic; color: var(--muted); }
+
+    .cards {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-      margin-top: 35px;
+      gap: 16px;
     }
 
     .card {
-      background: #fff;
-      border: 1px solid #eef2f7;
-      border-radius: 14px;
-      padding: 18px;
-      text-align: left;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
-      transition: transform 0.15s ease;
+      background: rgba(13, 30, 61, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 30px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    .card:hover { transform: translateY(-3px); }
-
-    .card h3 { font-size: 14px; margin-bottom: 6px; }
-    .card p { font-size: 13px; color: #6b7280; margin: 0; }
-
-    .cta {
-      margin-top: 40px;
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
     }
 
-    .cta button {
-      background: #111;
-      color: #fff;
-      border: none;
-      padding: 12px 18px;
+    .card:hover {
+      border-color: rgba(59,130,246,0.25);
+      background: rgba(13, 30, 61, 0.9);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card-icon {
+      width: 40px; height: 40px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.2);
       border-radius: 10px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .footer {
-      margin-top: 60px;
-      padding: 20px;
-      border-top: 1px solid #eef2f7;
-      text-align: center;
-      font-size: 12px;
-      color: #9ca3af;
-    }
-
-    .legal {
-      position: fixed;
-      bottom: 12px;
-      left: 16px;
-      font-size: 12px;
-      color: #9ca3af;
       display: flex;
-      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-bottom: 18px;
     }
 
-    .legal a {
-      color: #9ca3af;
+    .card h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* ── STATS BAND ── */
+    .stats {
+      position: relative;
+      z-index: 10;
+      background: rgba(13, 30, 61, 0.4);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 50px 40px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+
+    .stat {
+      text-align: center;
+      padding: 20px;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 52px;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-num span { color: var(--electric-bright); }
+
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── BOTTOM CTA ── */
+    .bottom-cta {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 100px 40px;
+      text-align: center;
+    }
+
+    .cta-box {
+      background: linear-gradient(135deg, rgba(13,30,61,0.9) 0%, rgba(22,40,71,0.9) 100%);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 24px;
+      padding: 70px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: -100px; left: 50%;
+      transform: translateX(-50%);
+      width: 400px; height: 300px;
+      background: radial-gradient(ellipse, rgba(59,130,246,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-box h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(32px, 4vw, 52px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .cta-box p {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 36px;
+      font-weight: 300;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--border);
+      padding: 30px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
+      letter-spacing: 0.05em;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
       text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
     }
 
-    .legal a:hover { text-decoration: underline; }
+    .footer-links a:hover { color: var(--electric-bright); }
 
+    /* ── ANIMATIONS ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.7s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+
+    /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      .grid { grid-template-columns: 1fr; }
+      header { padding: 0 20px; }
+      .hero { padding: 70px 20px 60px; }
+      .features { padding: 60px 20px; }
+      .cards { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: 1fr; }
+      .stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat:last-child { border-bottom: none; }
+      .cta-box { padding: 40px 24px; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+      .nav-btn { padding: 6px 12px; font-size: 12px; }
     }
   </style>
 </head>
-
 <body>
 
-<div class="announcement-bar">
-  Early Access — Limited Release Phase <span id="countdown" style="margin-left:10px;"></span>
+<!-- Announcement -->
+<div class="announcement">
+  <span class="dot"></span>
+  EARLY ACCESS — LIMITED RELEASE PHASE &nbsp;·&nbsp;
+  <span id="countdown" style="color:var(--gold-light);"></span>
 </div>
 
-<div class="top-header">
-  <div class="logo">
-    <a href="./">
-      <img src="assets/baize_logo_v2.png" alt="Baizora">
+<!-- Header -->
+<header>
+  <div class="logo" style="display:flex; align-items:center; gap:10px;">
+    <a href="./" style="display:flex; align-items:center; text-decoration:none; gap:10px;">
+      <img src="assets/baize_favicon_v2.png" alt="Baizora">
+      <span class="logo-text">Baiz<span>ora</span></span>
     </a>
   </div>
 
-  <div style="display:flex; gap:12px; align-items:center;">
-    <!-- <a href="assets/about.html" style="font-size:13px; color:#6b7280; text-decoration:none;">About</a> -->
-
-    <div class="login">
-      <a href="assets/about.html"><button>About</button></a>
-      <a href="free.html"><button>Preview</button></a>
-      <!-- <button onclick="window.location.href='pricing.html'">
-        Subscribe
-      </button> -->
-      <a href="login.html"><button>Login</button></a>
-    </div>
-  </div>
-</div>
-
-<div class="container">
-
-  <div class="badge">DATA INTELLIGENCE PLATFORM</div>
-
-  <h1><img src="assets/baizora_homepage.png" alt="Baizora"></h1>
-
-  <div style="font-size:16px; color:#4b5563; margin-top:10px;">
-    Market behavior insights for US large-cap equities
+<nav>
+  <div class="lang-toggle">
+    <button class="active">EN</button>
+    <button onclick="location.href='index_cn.html'">中文</button>
   </div>
 
-  <div style="font-size:12px; letter-spacing:2px; color:#9ca3af; margin-top:10px;">
-    SYSTEMATIC DATA PROCESSING ENGINE
-  </div>
+  <a href="assets/about.html" class="nav-btn">About</a>
+  <a href="assets/faq.html" class="nav-btn">FAQ</a>
 
-  <div class="subtext">
-    Baizora is a structured market data system that identifies unusual price and volume behavior
-    across major US equities using consistent statistical comparisons over short-term windows.
-  </div>
-
-  <div class="grid">
-
-    <div class="card">
-      <h3>Large-Cap Coverage</h3>
-      <p>Focus on S&P 500 and Nasdaq-100 constituents for consistent liquidity and reliable data quality.</p>
-    </div>
-
-    <div class="card">
-      <h3>Behavioral Activity Detection</h3>
-      <p>Highlights statistically unusual price and volume movements relative to recent historical baselines.</p>
-    </div>
-
-    <div class="card">
-      <h3>Short-Term Context Window</h3>
-      <p>Provides a 7-day rolling view of market activity for clearer short-term pattern recognition.</p>
-    </div>
-
-    <div class="card">
-      <h3>Daily Data Processing</h3>
-      <p>Signals are computed after market close to ensure stable, noise-reduced daily comparisons.</p>
-    </div>
-
-  </div>
-
-  <!-- <div class="cta">
-    <button onclick="location.href='login.html'">Access Dashboard</button>
-  </div> -->
-
-  <!-- CTA -->
-  <div style="margin-top:30px; text-align:center;">
-    <!-- <button onclick="location.href='dashboard.html'" style=" -->
-    <button onclick="location.href='free.html'" style=" 
-          background:#111;
-      color:#fff;
-      border:none;
-      padding:14px 20px;
-      border-radius:10px;
-      font-weight:600;
-      cursor:pointer;
-      font-size:14px;
-    ">
-      Access Platform
+  <!-- ACCOUNT DROPDOWN -->
+  <div class="account-menu">
+    <button class="nav-btn nav-btn-primary account-btn">
+      Manage Account ▾
     </button>
 
-    <div style="margin-top:10px; font-size:12px; color:#9ca3af;">
-      Explore daily market data in under 30 seconds
-    </div>
+    <div class="account-dropdown">
+      <a href="pricing.html">Change Plan</a>
 
+      <a href="#"
+        onclick="openPortal(); return false;">
+        Manage Subscription
+      </a>
+
+      <a href="#"
+        onclick="openPortal(); return false;">
+        Billing History
+      </a>
+
+      <a href="#"
+        onclick="openPortal(); return false;">
+        Unsubscribe
+      </a>
+
+      <div class="dropdown-divider"></div>
+
+      <a href="login.html">Login</a>
+    </div>
   </div>
 
-  <div class="footer">
-    © 2026 Baizora — All rights reserved
-    <div style="margin-top:6px;">
-      <a href="mailto:support@baizora.com">support@baizora.com</a>
+</nav>
+
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-eyebrow fade-up">
+    ◈ &nbsp; Short-Term Price-Volume Analysis Platform
+  </div>
+  <h1 class="hero-title fade-up delay-1">
+    Market <em>intelligence</em><br>without the noise
+  </h1>
+  <div class="hero-subtitle-line fade-up delay-2">Systematic Data Processing Engine</div>
+  <p class="hero-desc fade-up delay-3">
+    Baizora identifies unusual price and volume behavior across major US equities using consistent statistical comparisons over short-term windows.
+  </p>
+  <div class="hero-cta fade-up delay-4">
+    <a href="free.html" class="btn-primary">
+      View Live Free Signals (3 assets)
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="assets/about.html" class="btn-secondary">
+      Learn More
+    </a>
+  </div>
+  <div class="hero-note fade-up delay-5">Explore daily market data in under 30 seconds</div>
+</section>
+
+<!-- Ticker Strip -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <!-- doubled for seamless loop -->
+    <div class="ticker-item"><span class="sym">AAPL</span> 213.42 <span class="up">▲ 1.2%</span></div>
+    <div class="ticker-item"><span class="sym">MSFT</span> 418.67 <span class="up">▲ 0.8%</span></div>
+    <div class="ticker-item"><span class="sym">NVDA</span> 892.31 <span class="dn">▼ 0.4%</span></div>
+    <div class="ticker-item"><span class="sym">AMZN</span> 198.55 <span class="up">▲ 1.5%</span></div>
+    <div class="ticker-item"><span class="sym">GOOGL</span> 171.84 <span class="up">▲ 0.3%</span></div>
+    <div class="ticker-item"><span class="sym">META</span> 503.21 <span class="dn">▼ 0.7%</span></div>
+    <div class="ticker-item"><span class="sym">TSLA</span> 174.12 <span class="up">▲ 2.1%</span></div>
+    <div class="ticker-item"><span class="sym">NFLX</span> 647.90 <span class="up">▲ 0.6%</span></div>
+    <div class="ticker-item"><span class="sym">JPM</span> 218.33 <span class="dn">▼ 0.2%</span></div>
+    <div class="ticker-item"><span class="sym">V</span> 284.10 <span class="up">▲ 0.9%</span></div>
+    <!-- duplicate for loop -->
+    <div class="ticker-item"><span class="sym">AAPL</span> 213.42 <span class="up">▲ 1.2%</span></div>
+    <div class="ticker-item"><span class="sym">MSFT</span> 418.67 <span class="up">▲ 0.8%</span></div>
+    <div class="ticker-item"><span class="sym">NVDA</span> 892.31 <span class="dn">▼ 0.4%</span></div>
+    <div class="ticker-item"><span class="sym">AMZN</span> 198.55 <span class="up">▲ 1.5%</span></div>
+    <div class="ticker-item"><span class="sym">GOOGL</span> 171.84 <span class="up">▲ 0.3%</span></div>
+    <div class="ticker-item"><span class="sym">META</span> 503.21 <span class="dn">▼ 0.7%</span></div>
+    <div class="ticker-item"><span class="sym">TSLA</span> 174.12 <span class="up">▲ 2.1%</span></div>
+    <div class="ticker-item"><span class="sym">NFLX</span> 647.90 <span class="up">▲ 0.6%</span></div>
+    <div class="ticker-item"><span class="sym">JPM</span> 218.33 <span class="dn">▼ 0.2%</span></div>
+    <div class="ticker-item"><span class="sym">V</span> 284.10 <span class="up">▲ 0.9%</span></div>
+  </div>
+</div>
+
+<!-- Features -->
+<section class="features">
+  <div class="section-label">Platform Capabilities</div>
+  <h2 class="section-title">Built for precision.<br><em>Designed for clarity.</em></h2>
+  <div class="cards">
+    <div class="card fade-up">
+      <div class="card-icon">◎</div>
+      <h3>Large-Cap Coverage</h3>
+      <p>S&P 500 and Nasdaq-100 constituents with consistent liquidity and institutional-grade data quality.</p>
+    </div>
+    <div class="card fade-up delay-1">
+      <div class="card-icon">⟁</div>
+      <h3>Behavior Detection</h3>
+      <p>Highlights statistically unusual price and volume movements relative to historical baselines — not gut feel.</p>
+    </div>
+    <div class="card fade-up delay-2">
+      <div class="card-icon">◷</div>
+      <h3>Short-Term Window</h3>
+      <p>7-day rolling analysis for cleaner short-term market structure insights, tuned to eliminate long-run noise.</p>
+    </div>
+    <div class="card fade-up delay-3">
+      <div class="card-icon">⟳</div>
+      <h3>Daily Processing</h3>
+      <p>Signals computed after market close for stable, noise-reduced comparisons you can act on each morning.</p>
     </div>
   </div>
+</section>
 
+<!-- Stats -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat">
+      <div class="stat-num">600<span>+</span></div>
+      <div class="stat-label">Equities Tracked</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">7<span>d</span></div>
+      <div class="stat-label">Rolling Window</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">24<span>h</span></div>
+      <div class="stat-label">Daily Signal Updates</div>
+    </div>
+  </div>
 </div>
 
-<div class="legal">
-  <a href="assets/privacy.html">Privacy</a>
-  <span>|</span>
-  <a href="assets/terms.html">Terms</a>
-  <span>|</span>
-  <a href="assets/disclaimer.html">Disclaimer</a>
-</div>
+<!-- Bottom CTA -->
+<section class="bottom-cta">
+  <div class="cta-box">
+    <h2>Ready to see the signal<br>behind the market?</h2>
+    <p>Join the early access cohort. No noise — just structured data.</p>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a href="pricing.html" class="btn-primary">
+        Join Now
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="free.html" class="btn-secondary">Try Free Access</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-left">© 2026 Baizora — All rights reserved &nbsp;·&nbsp; <a href="mailto:support@baizora.com" style="color:inherit;text-decoration:none;">support@baizora.com</a></div>
+  <div class="footer-links">
+    <a href="assets/privacy.html">Privacy</a>
+    <a href="assets/terms.html">Terms</a>
+    <a href="assets/disclaimer.html">Disclaimer</a>
+    <a href="assets/faq.html">FAQ</a>
+    <a href="assets/about.html">About</a>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <script>
-  const deadline = new Date("2026-05-10T00:00:00").getTime();
-  const countdownEl = document.getElementById("countdown");
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+    authDomain: "baizora.firebaseapp.com",
+    projectId: "baizora"
+  };
 
-  function updateCountdown() {
-    const now = new Date().getTime();
-    const diff = deadline - now;
+  firebase.initializeApp(firebaseConfig);
+</script>
 
-    if (diff <= 0) {
-      countdownEl.innerHTML = "LIVE";
-      return;
+<script>
+  // Countdown
+  const deadline = new Date("2026-05-18T00:00:00").getTime();
+  const el = document.getElementById("countdown");
+  function tick() {
+    const diff = deadline - Date.now();
+    if (diff <= 0) { el.textContent = "LIVE NOW"; return; }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    el.textContent = `${d}d ${h}h ${m}m remaining`;
+  }
+  tick();
+  setInterval(tick, 60000);
+
+  // Scroll-triggered fade-up for cards
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+        e.target.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.card').forEach(c => {
+    c.style.opacity = '0';
+    c.style.transform = 'translateY(20px)';
+    observer.observe(c);
+  });
+
+  async function openPortal() {
+    try {
+      const user = firebase.auth().currentUser;
+
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const res = await fetch(
+        "https://us-central1-baizora.cloudfunctions.net/api/create-portal",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            uid: user.uid
+          })
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || "Portal error");
+      }
+
+      window.location.href = data.url;
+
+    } catch(err) {
+      console.error(err);
+      alert("Unable to open subscription portal");
     }
-
-    const d = Math.floor(diff / (1000*60*60*24));
-    const h = Math.floor((diff / (1000*60*60)) % 24);
-    const m = Math.floor((diff / (1000*60)) % 60);
-
-    countdownEl.innerHTML = `${d}d ${h}h ${m}m`;
   }
 
-  updateCountdown();
-  setInterval(updateCountdown, 60000);
 </script>
 
 </body>

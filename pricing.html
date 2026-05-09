@@ -1,339 +1,572 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baizora | Pricing</title>
-
   <link rel="icon" type="image/png" sizes="32x32" href="assets/baize_favicon_v2.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/baize_favicon_v2.png">
   <link rel="apple-touch-icon" href="assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      color: #e5e7eb;
-      background: #0b0d12;
-      overflow-x: hidden;
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-light: #162847;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --gold: #f59e0b;
+      --gold-light: #fcd34d;
+      --white: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.07);
     }
 
-    /* BACKGROUND */
-    .bg {
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── GRID BACKGROUND ── */
+    body::before {
+      content: '';
       position: fixed;
       inset: 0;
-      z-index: -1;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(37,99,235,0.18), transparent 40%),
-        radial-gradient(circle at 80% 30%, rgba(99,102,241,0.14), transparent 45%),
-        radial-gradient(circle at 50% 80%, rgba(16,185,129,0.08), transparent 50%),
-        #0b0d12;
-    }
-
-    .bg::after {
-      content: "";
-      position: absolute;
-      width: 200%;
-      height: 200%;
       background-image:
-        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
       background-size: 60px 60px;
-      animation: gridMove 25s linear infinite;
-      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
     }
 
-    @keyframes gridMove {
-      from { transform: translate(0,0); }
-      to { transform: translate(-60px,-60px); }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
     }
 
-    /* HEADER */
-    .top-header {
+    /* ── RADIAL GLOW ── */
+    .glow {
+      position: fixed;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(59,130,246,0.1) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
       position: sticky;
       top: 0;
-      z-index: 1000;
-      background: #0b0d12;
-      padding: 10px 20px;
+      z-index: 200;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(6, 13, 31, 0.85);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
-    .logo img { height: 78px; }
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
 
-    .login button {
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      padding: 7px 14px;
-      border-radius: 8px;
-      font-weight: 600;
+    .logo-wrap img { height: 50px; }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span { color: var(--electric); }
+
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 7px 18px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
       cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
     }
 
-    /* MAIN */
+    .nav-btn:hover {
+      border-color: rgba(59,130,246,0.4);
+      color: var(--white);
+      background: rgba(59,130,246,0.08);
+    }
+
+    /* ── PAGE CONTENT ── */
     .container {
-      max-width: 1000px;
+      position: relative;
+      z-index: 10;
+      max-width: 900px;
       margin: 0 auto;
-      padding: 60px 20px;
+      padding: 80px 20px 100px;
       text-align: center;
     }
 
-    .badge {
-      display: inline-block;
-      background: rgba(255,255,255,0.06);
-      color: #cbd5e1;
-      padding: 6px 12px;
+    /* ── HERO TEXT ── */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      border: 1px solid rgba(59,130,246,0.25);
+      background: rgba(59,130,246,0.06);
+      padding: 6px 14px;
       border-radius: 999px;
-      font-size: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.5s ease forwards;
     }
 
     h1 {
-      font-size: 24px;
-      margin-bottom: 10px;
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(36px, 5vw, 60px);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      animation: fadeUp 0.5s 0.1s ease both;
     }
+
+    h1 em { font-style: italic; color: var(--electric-bright); }
 
     .subtext {
-      font-size: 14px;
-      color: #cbd5e1;
-      max-width: 600px;
-      margin: 0 auto 40px;
-      line-height: 1.6;
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 60px;
+      line-height: 1.75;
+      font-weight: 300;
+      animation: fadeUp 0.5s 0.2s ease both;
     }
 
-    /* PRICING GRID */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── PRICING GRID ── */
     .pricing-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      max-width: 700px;
-      margin: 0 auto;
+      gap: 20px;
+      max-width: 720px;
+      margin: 0 auto 60px;
       align-items: stretch;
+      animation: fadeUp 0.6s 0.3s ease both;
     }
 
     .plan {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.10);
-    border-radius: 14px;
-    padding: 24px;
-    text-align: left;
-    position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+      background: rgba(13, 30, 61, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      text-align: left;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+      overflow: hidden;
     }
 
-    .plan h3 {
-      font-size: 14px;
-      margin-bottom: 6px;
+    .plan::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59,130,246,0.3), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
     }
 
-    .price {
-      font-size: 28px;
-      font-weight: bold;
-      margin: 10px 0;
+    .plan:hover {
+      border-color: rgba(59,130,246,0.2);
+      transform: translateY(-4px);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.3);
     }
 
-    .period {
-      font-size: 12px;
-      color: #9ca3af;
+    .plan:hover::before { opacity: 1; }
+
+    /* Featured plan */
+    .plan.featured {
+      border-color: rgba(59,130,246,0.35);
+      background: rgba(59,130,246,0.07);
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 18px 0;
-    }
+    .plan.featured::before { opacity: 1; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.5), transparent); }
 
-    li {
-      font-size: 13px;
-      color: #cbd5e1;
-      margin: 8px 0;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: transparent;
-      color: #e5e7eb;
-      cursor: pointer;
-      font-weight: 600;
-      margin-top: auto;
-    }
-
-    .btn:hover {
-      background: rgba(255,255,255,0.06);
-    }
-
-    .featured {
-      border: 1px solid rgba(37,99,235,0.6);
-      background: rgba(37,99,235,0.08);
-      transform: none; /* ❗ remove scaling */
-    }
-
+    /* Tag */
     .tag {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      font-size: 11px;
-      background: rgba(37,99,235,0.2);
-      color: #93c5fd;
-      padding: 4px 8px;
+      top: 16px; right: 16px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(59,130,246,0.15);
+      color: var(--electric-bright);
+      border: 1px solid rgba(59,130,246,0.25);
+      padding: 4px 10px;
       border-radius: 999px;
     }
 
-    /* FOOTER */
-    .footer {
-      margin-top: 60px;
-      padding: 20px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      text-align: center;
-      font-size: 12px;
-      color: #9ca3af;
+    /* Plan name */
+    .plan-name {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
     }
 
-    @media (max-width: 900px) {
-      .pricing-grid {
-        grid-template-columns: 1fr;
-      }
-      .featured {
-        transform: none;
-      }
+    /* Price */
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .currency {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .amount {
+      font-family: 'DM Serif Display', serif;
+      font-size: 56px;
+      line-height: 1;
+      color: var(--white);
+      letter-spacing: -0.03em;
+    }
+
+    .period {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .savings {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: #86efac;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.2);
+      padding: 3px 8px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+    }
+
+    /* Divider */
+    .plan-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    /* Features */
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 28px;
+      flex: 1;
+    }
+
+    li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      line-height: 1.5;
+      font-weight: 300;
+    }
+
+    li .check {
+      color: var(--electric-bright);
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .featured li { color: #cbd5e1; }
+
+    /* Buttons */
+    .plan-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--muted);
+    }
+
+    .btn-outline:hover {
+      border-color: rgba(59,130,246,0.4);
+      color: var(--white);
+      background: rgba(59,130,246,0.06);
+    }
+
+    .btn-filled {
+      background: var(--electric);
+      border: none;
+      color: white;
+      box-shadow: 0 0 24px rgba(59,130,246,0.25);
+    }
+
+    .btn-filled:hover {
+      background: #2563eb;
+      box-shadow: 0 0 36px rgba(59,130,246,0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-filled:active, .btn-outline:active { transform: translateY(0); }
+
+    .plan-btn:disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* spinner */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── NOTE ── */
+    .note {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: #334155;
+      margin-top: -30px;
+      margin-bottom: 60px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--border);
+      padding: 28px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
+      letter-spacing: 0.05em;
+    }
+
+    .footer-left a { color: inherit; text-decoration: none; }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--electric-bright); }
+
+    @media (max-width: 768px) {
+      header { padding: 0 20px; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+      .amount { font-size: 44px; }
     }
   </style>
 </head>
 
 <body>
 
-<div class="bg"></div>
+  <div class="glow"></div>
 
-<!-- HEADER -->
-<div class="top-header">
-  <div class="logo">
-    <a href="./../">
-      <img src="baize_logo_v2.png" alt="Baizora">
+  <!-- Header -->
+  <header>
+    <a href="./" class="logo-wrap">
+      <img src="assets/baize_logo_v2.png" alt="Baizora">
+      <span class="logo-text">Baiz<span>ora</span></span>
     </a>
-  </div>
+    <a href="login.html" class="nav-btn">Login</a>
+  </header>
 
-  <div class="login">
-    <a href="../login.html"><button>Login</button></a>
-  </div>
-</div>
+  <!-- Main -->
+  <div class="container">
 
-<!-- MAIN -->
-<div class="container">
+    <div class="eyebrow">◈ &nbsp; Pricing</div>
+    <h1>Simple, <em>transparent</em> pricing</h1>
+    <p class="subtext">Cancel anytime. No hidden fees. Full platform access from day one.</p>
 
-  <div class="badge">PRICING</div>
-  <div class="subtext">
-    Cancel anytime. No hidden fees.
-  </div>
+    <!-- Pricing Cards -->
+    <div class="pricing-grid">
 
-  <h1>Access options</h1>
+      <!-- Monthly -->
+      <div class="plan">
+        <div class="plan-name">Monthly</div>
+        <div class="price-row">
+          <span class="currency">$</span>
+          <span class="amount">9.99</span>
+        </div>
+        <div class="period">per month</div>
+        <div class="plan-divider"></div>
+        <ul>
+          <li><span class="check">◆</span> Platform dashboard access</li>
+          <li><span class="check">◆</span> Daily updated data system</li>
+          <li><span class="check">◆</span> Short-term analysis window</li>
+          <li><span class="check">◆</span> Behavioral indicators</li>
+        </ul>
+        <button class="plan-btn btn-outline" onclick="startCheckout('monthly', this)">
+          <span class="btn-label">Start Monthly</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
 
-  <div class="subtext">
-    Baizora provides structured market data access through simple plans.
-    Choose the option that fits your usage.
-  </div>
-
-  <!-- PRICING -->
-  <div class="pricing-grid">
-
-    <!-- MONTHLY -->
-    <div class="plan">
-      <h3>Monthly billing</h3>
-      <div class="price">$9.99</div>
-      <div class="period">per month</div>
-
-      <ul>
-        <li>Platform dashboard access</li>
-        <li>Daily updated data system</li>
-        <li>Short-term analysis window</li>
-        <li>Behavioral indicators</li>
-      </ul>
-
-      <!-- <button class="btn" onclick="location.href='login.html'">
-        Start Monthly
-      </button> -->
-    <button class="btn" onclick="startCheckout('monthly', this)">
-      Start Monthly
-    </button>
-
-    </div>
-
-    <!-- YEARLY -->
-    <div class="plan featured">
-      <div class="tag">Recommended</div>
-
-      <h3>Yearly billing • Save ~17%</h3>
-      <!-- <div class="period">Save ~17% yearly</div> -->
-      <div class="price">$99</div>
-      <div class="period">per year</div>
-
-      <ul>
-        <li>Everything in Monthly</li>
-        <li>Lower long-term cost</li>
-        <li>Priority updates</li>
-        <li>Consistent access</li>
-      </ul>
-
-    <button class="btn" onclick="startCheckout('yearly',this)">
-      Start Yearly
-    </button>
+      <!-- Yearly -->
+      <div class="plan featured">
+        <div class="tag">Recommended</div>
+        <div class="plan-name">Yearly · Save ~17%</div>
+        <div class="price-row">
+          <span class="currency">$</span>
+          <span class="amount">99</span>
+        </div>
+        <div class="period">per year</div>
+        <div class="savings">≈ $8.25 / month</div>
+        <div class="plan-divider"></div>
+        <ul>
+          <li><span class="check">◆</span> Everything in Monthly</li>
+          <li><span class="check">◆</span> Lower long-term cost</li>
+          <li><span class="check">◆</span> Priority updates</li>
+          <li><span class="check">◆</span> Consistent access</li>
+        </ul>
+        <button class="plan-btn btn-filled" onclick="startCheckout('yearly', this)">
+          <span class="btn-label">Start Yearly</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
 
     </div>
 
+    <div class="note">Baizora provides structured market data access · Payments secured by Stripe</div>
+
   </div>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    © 2026 Baizora — All rights reserved
-    <div style="margin-top:6px;">
-      <a href="mailto:support@baizora.com" style="color:#9ca3af;">support@baizora.com</a>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">
+      © 2026 Baizora — All rights reserved &nbsp;·&nbsp;
+      <a href="mailto:support@baizora.com">support@baizora.com</a>
     </div>
-  </div>
+    <div class="footer-links">
+      <a href="assets/privacy.html">Privacy</a>
+      <a href="assets/terms.html">Terms</a>
+      <a href="assets/disclaimer.html">Disclaimer</a>
+      <a href="assets/faq.html">FAQ</a>
+    </div>
+  </footer>
 
-</div>
+  <script>
+    const API_URL = "https://us-central1-baizora.cloudfunctions.net/api";
 
-<script>
-const API_URL = "https://us-central1-baizora.cloudfunctions.net/api";
+    async function startCheckout(plan, btn) {
+      const label = btn.querySelector('.btn-label');
+      const spinner = btn.querySelector('.spinner');
 
-async function startCheckout(plan, btn) {
-  try {
-    btn.innerText = "Loading...";
-    btn.disabled = true;
+      label.style.display = 'none';
+      spinner.style.display = 'block';
+      btn.disabled = true;
 
-    const res = await fetch(`${API_URL}/create-${plan}`, {
-      method: "POST"
-    });
+      try {
+        const res = await fetch(`${API_URL}/create-${plan}`, { method: "POST" });
+        const data = await res.json();
 
-    const data = await res.json();
+        if (!data.url) {
+          throw new Error("Payment session failed.");
+        }
 
-    if (!data.url) {
-      btn.innerText = "Start " + plan;
-      btn.disabled = false;
-      alert("Payment session failed.");
-      return;
+        window.location.href = data.url;
+
+      } catch (err) {
+        console.error(err);
+        label.style.display = 'flex';
+        spinner.style.display = 'none';
+        btn.disabled = false;
+        alert(err.message || "Network error. Please try again.");
+      }
     }
-
-    window.location.href = data.url;
-
-  } catch (err) {
-    console.error(err);
-
-    btn.innerText = "Start " + plan;
-    btn.disabled = false;
-
-    alert("Network error.");
-  }
-}
-
-</script>
+  </script>
 
 </body>
 </html>

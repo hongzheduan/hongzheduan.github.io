@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FAQ | Baizora</title>
+
+<style>
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+  margin:0;
+  padding:40px;
+  color:#111;
+  background:#fff;
+}
+
+h1{
+  font-size:22px;
+  margin-bottom:10px;
+}
+
+.sub{
+  color:#6b7280;
+  font-size:13px;
+  margin-bottom:30px;
+}
+
+.q{
+  font-weight:600;
+  margin-top:24px;
+  font-size:14px;
+}
+
+.a{
+  color:#4b5563;
+  margin-top:8px;
+  line-height:1.7;
+  font-size:13px;
+  max-width:720px;
+}
+
+.top-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #fff;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.logo img { height: 58px; }
+
+.nav {
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.nav a button {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav a.secondary button {
+  background: #f3f4f6;
+  color: #111;
+}
+
+.nav a button:hover {
+  opacity: 0.9;
+}
+</style>
+</head>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+    authDomain: "baizora.firebaseapp.com",
+    projectId: "baizora"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+</script>
+
+<body>
+
+<div class="top-header">
+  <div class="logo">
+    <a href="../">
+      <img src="baize_logo_v2.png" alt="Baizora">
+    </a>
+  </div>
+
+  <div class="nav">
+    <a href="about.html"><button>About</button></a>
+    <a href="../pricing.html"><button>Change Plan</button></a>
+
+    <!-- IMPORTANT: use portal function, NOT direct link -->
+    <a href="#" onclick="openPortal(); return false;">
+      <button>Manage Account</button>
+    </a>
+
+    <a href="../login.html"><button>Login</button></a>
+  </div>
+</div>
+
+<h1>Frequently Asked Questions</h1>
+
+<div class="sub">
+Below are answers to the most common questions about Baizora, including preview access, subscription, and account management.
+</div>
+
+<div class="q">1. How does the free preview work?</div>
+<div class="a">
+Baizora provides a free preview experience that does not require login or account creation.  
+Users can immediately access a limited set of market data to understand how the system works.  
+The preview is designed to help users evaluate data quality, structure, and platform usability before committing to a subscription.
+</div>
+
+<div class="q">2. Do I need to sign up to use Baizora?</div>
+<div class="a">
+No sign-up is required for the free preview. You can access selected market insights directly.  
+However, creating an account is required if you want to access full features, save preferences, or manage a subscription plan.
+</div>
+
+<div class="q">3. How does the 7-day free trial work?</div>
+<div class="a">
+The 7-day free trial provides full access to Baizora’s platform features, including complete market data views and analysis tools.  
+During the trial period, you can explore all functionality without limitations.  
+You may cancel at any time via the Stripe Customer Portal, and no charges will be applied.
+</div>
+
+<div class="q">4. How do I manage or cancel my subscription?</div>
+<div class="a">
+All subscription actions (upgrade, downgrade, cancel, billing) are handled securely through the Stripe Customer Portal.  
+Click the “Manage Account” button above to open your portal directly.  
+Changes apply immediately or at the end of your billing cycle depending on the action.
+</div>
+
+<div class="q">5. How is the data updated?</div>
+<div class="a">
+Market data is processed and updated daily after U.S. market close, typically between 5:00–6:00 PM Eastern Time.  
+This ensures consistent and stable daily comparisons without intraday noise.
+</div>
+
+<div class="q">6. How can I contact support?</div>
+<div class="a">
+If you have any questions or encounter issues, you can contact us at  
+<strong>support@baizora.com</strong>.  
+We typically respond within 1–2 business days.
+</div>
+
+<script>
+async function openPortal() {
+  try {
+    const user = await new Promise(resolve => {
+      const u = firebase.auth().currentUser;
+      if (u) return resolve(u);
+
+      firebase.auth().onAuthStateChanged(resolve);
+    });
+
+    if (!user) {
+      window.location.href = "../login.html";
+      return;
+    }
+
+    const res = await fetch(
+      "https://us-central1-baizora.cloudfunctions.net/api/create-portal",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid: user.uid })
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok || !data.url) {
+      throw new Error(data.error || "Portal error");
+    }
+
+    window.location.href = data.url;
+
+  } catch (err) {
+    console.error(err);
+    alert("Unable to open subscription portal");
+  }
+}
+
+</script>
+
+</body>
+</html>

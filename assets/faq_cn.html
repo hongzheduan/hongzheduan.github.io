@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>FAQ | 贝佐拉</title>
+<style>
+/* =========================
+   DESIGN SYSTEM
+========================= */
+
+:root {
+  --primary-blue: #2563eb;   /* 信任蓝 */
+  --black: #111111;          /* 主CTA */
+  --gray: #9ca3af;
+  --border: #e5e7eb;
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC";
+  margin:0;
+  padding:40px;
+  color:#111;
+}
+h1{font-size:22px;}
+.q{
+  font-weight:600;
+  margin-top:20px;
+}
+.a{
+  color:#6b7280;
+  margin-top:6px;
+  line-height:1.6;
+}
+
+.btn {
+  border: none;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* PRIMARY ACTION (black CTA) */
+.btn-black {
+  background: var(--black);
+  color: #fff;
+}
+
+/* SECONDARY (blue system actions) */
+.btn-blue {
+  background: var(--primary-blue);
+  color: #fff;
+}
+
+
+.login button {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.top-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #fff;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.logo img { height: 58px; }
+
+/* BRAND */
+.brand-cn {
+  font-size: 18px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, var(--primary-blue), #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* RIGHT MENU */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+</style>
+</head>
+
+<body>
+<!-- TOP -->
+<div class="top-header">
+
+  <!-- LEFT -->
+  <div class="logo">
+    <a href="../index_cn.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+      <img src="baize_logo_v2.png">
+      <div class="brand-cn">贝佐拉</div>
+    </a>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+
+    <!-- SYSTEM ACTIONS (blue) -->
+    <button class="btn btn-blue" onclick="location.href='about.html'">关于</button>
+    <button class="btn btn-blue" onclick="location.href='../pricing.html'">现在加入</button>
+    <button class="btn btn-blue" onclick="location.href='../login.html'">登录</button>
+
+  </div>
+</div>
+
+<h1>常见问题</h1>
+
+<div class="q">1. 如何取消订阅？</div>
+<div class="a">
+如果您已开通订阅，可在账户页面（现在加入）中随时取消。
+取消后不会再产生后续费用。
+</div>
+
+<div class="q">2. 是否可以免费查看数据？</div>
+<div class="a">
+可以。平台提供免费预览功能，无需登录即可查看部分市场数据内容。
+</div>
+
+<div class="q">3. 7天免费试用如何运作？</div>
+<div class="a">
+新用户可享受7天完整功能试用。试用期间可随时取消，不会产生费用。
+</div>
+
+<div class="q">4. 如何联系支持？</div>
+<div class="a">
+您可以通过邮箱联系我们：support@baizora.com，我们通常会在1-2个工作日内回复。
+</div>
+
+</body>
+</html>
