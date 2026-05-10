@@ -696,13 +696,13 @@
     <button onclick="location.href='index_cn.html'">中文</button>
   </div>
 
-  <a href="assets/about.html" class="nav-btn">About</a>
-  <a href="assets/faq.html" class="nav-btn">FAQ</a>
+  <!-- <a href="assets/about.html" class="nav-btn">About</a> -->
+  <!-- <a href="assets/faq.html" class="nav-btn">FAQ</a> -->
 
   <!-- ACCOUNT DROPDOWN -->
   <div class="account-menu">
     <button class="nav-btn nav-btn-primary account-btn">
-      Manage Account ▾
+      Account
     </button>
 
     <div class="account-dropdown">
@@ -881,7 +881,7 @@
     const d = Math.floor(diff / 86400000);
     const h = Math.floor((diff % 86400000) / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
-    el.textContent = `${d}d ${h}h ${m}m remaining`;
+    el.textContent = `${d}d ${h}h ${m}m`;
   }
   tick();
   setInterval(tick, 60000);
