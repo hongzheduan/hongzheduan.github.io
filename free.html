@@ -64,7 +64,7 @@
     }
 
     .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .header-left img { height: 36px; }
+    .header-left img { height: 50px; }
 
     .logo-text {
       font-family: 'DM Serif Display', serif;
@@ -592,7 +592,7 @@
         <span class="logo-text">Baiz<span>ora</span></span>
       </a>
       <div class="header-divider"></div>
-	    <!-- <div class="preview-badge">⬡ Free Preview</div> -->
+	  <div class="preview-badge">⬡ Free Preview</div>
       <div class="header-divider"></div>
       <nav class="tab-nav">
         <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
@@ -764,9 +764,8 @@
       const label = activeTab === "sp500" ? "S&P 500" : "Nasdaq 100";
       statusText.textContent = loadedDate;
       rowCount.innerHTML = `<span class="free-row-label">PREVIEW: 3 of ${total} · ${label}</span>`;
-      // rowCount.textContent   = `${rows} SYMBOLS · ${label}`;
     }
-    	
+	
     /* ── TAB ── */
     window.show = function(id, btn) {
       document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));

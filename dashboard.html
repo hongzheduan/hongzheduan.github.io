@@ -64,7 +64,7 @@
     }
 
     .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .header-left img { height: 50px; }
+    .header-left img { height: 36px; }
 
     .logo-text {
       font-family: 'DM Serif Display', serif;
@@ -413,7 +413,7 @@
       <nav class="tab-nav">
         <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
         <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
-        <button class="tab-btn" onclick="show('readme', this)">README</button>
+        <!-- <button class="tab-btn" onclick="show('readme', this)">README</button> -->
       </nav>
     </div>
 
@@ -433,6 +433,7 @@
   <div class="toolbar" id="toolbar">
     <span class="toolbar-label">Window</span>
     <div class="window-btns">
+      <button class="window-btn active" onclick="setWindow('1D', this)">1D</button>
       <button class="window-btn" onclick="setWindow('2W', this)">2W</button>
       <button class="window-btn" onclick="setWindow('1M', this)">1M</button>
       <button class="window-btn" onclick="setWindow('3M', this)">3M</button>
@@ -470,7 +471,7 @@
       </p>
       <p>
         Signals are informational only — not buy, sell, or hold recommendations.
-        Use the window buttons to switch timeframes (1D through 1Y).
+        Use the window buttons to switch timeframes (1D through 1Y). The 1D view shows today's 1-day metrics. All other windows show that window's total price change plus max single-day stats.
         Hover any column header to see its description. Hover a ticker for fundamentals.
       </p>
       <table class="col-table">
@@ -483,6 +484,7 @@
         <tr><td>P/MA21</td><td>Price vs 21-day moving average (ratio; &gt;1 = above MA)</td></tr>
         <tr><td>1D Vol%</td><td>Volume change vs previous session (always shown)</td></tr>
         <tr><td>V/MA21</td><td>Volume vs 21-day average volume (ratio; &gt;1 = elevated)</td></tr>
+        <tr><td>Chg%</td><td>Total price change (%) from start of selected window to today — only shown for 2W and longer</td></tr>
         <tr><td>Max%</td><td>Largest single-day price change in selected window</td></tr>
         <tr><td>P Day</td><td>Days ago when the max price change occurred</td></tr>
         <tr><td>V@Price</td><td>Volume change on the highest-price-change day</td></tr>
@@ -518,7 +520,7 @@
     let activeTab     = "sp500";
     let sortKey       = "PriceChange1D";
     let sortAsc       = false;
-    let currentWindow = "2W";
+    let currentWindow = "1D";
     let loadedDate    = "";
 
     /* ── DOM ── */
@@ -692,26 +694,38 @@
     function buildTable(arr, w) {
       arr = sorted(arr);
 
-      /* Window column headers */
-      const windowHead = `
-        ${thSort(`${w}MaxPriceChange`, "Max%", "group-start")}
-        ${thSort(`${w}MaxPriceChangeDay`, "P Day")}
-        ${thSort(`${w}VolumeChangeAtMaxPrice`, "V@Price")}
-        ${thSort(`${w}MaxVolumeChange`, "Vol%")}
-        ${thSort(`${w}MaxVolumeChangeDay`, "V Day")}
-        ${thSort(`${w}PriceChangeAtMaxVolume`, "P@Vol")}
-      `;
+      const is1D = (w === "1D");
 
+      /* Window column headers */
+      let windowHead = "";
+      if (is1D) {
+        // 1D view: no rolling-window cols at all (1D cols already shown above)
+        windowHead = "";
+      } else {
+        // Non-1D: show window price change first, then existing rolling stats
+        windowHead = `
+          ${thSort(`${w}PriceChange`,            `${w} Chg%`,    "group-start")}
+          ${thSort(`${w}MaxPriceChange`,         `${w} Max%`)}
+          ${thSort(`${w}MaxPriceChangeDay`,       `${w} P Day`)}
+          ${thSort(`${w}VolumeChangeAtMaxPrice`,  `${w} V@Price`)}
+          ${thSort(`${w}MaxVolumeChange`,         `${w} Vol%`)}
+          ${thSort(`${w}MaxVolumeChangeDay`,      `${w} V Day`)}
+          ${thSort(`${w}PriceChangeAtMaxVolume`,  `${w} P@Vol`)}`;
+      }
+
+      // For 1D view: show 1D-specific cols; for other windows: show window price change + window stats only
+      const oneDayCols = is1D ? `
+        ${thSort("PriceChange1D",   "1D%",         "group-start")}
+        ${thSort("PriceVsMA21_1D",  "P/MA21",      "group-start")}
+        ${thSort("VolumeChange1D",  "1D Vol%")}
+        ${thSort("VolumeVsMA21_1D", "V/MA21")}` : "";
 
       const head = `<thead><tr>
         ${thSort("Ticker",          "Ticker")}
         ${thStatic("Spark1Y",       "1Y Trend")}
         ${thSort("Price",           "Price")}
         ${thSort("VolumeM",         "Vol (M)")}
-        ${thSort("PriceChange1D",   "1D%",         "group-start")}
-        ${thSort("PriceVsMA21_1D",  "P/MA21",      "group-start")}
-        ${thSort("VolumeChange1D",  "1D Vol%")}
-        ${thSort("VolumeVsMA21_1D", "V/MA21")}
+        ${oneDayCols}
         ${windowHead}
       </tr></thead>`;
 
@@ -732,15 +746,11 @@
 
         /* Rolling window cells */
         let windowCells = "";
-        if (w === "1D") {
-          windowCells = `
-            <td class="neutral group-start">—</td>
-            <td class="neutral">—</td>
-            <td class="neutral">—</td>
-            <td class="neutral">—</td>
-            <td class="neutral">—</td>
-            <td class="neutral">—</td>`;
+        if (is1D) {
+          // 1D view: no rolling window cells (1D cols handled by oneDayTds above)
+          windowCells = "";
         } else {
+          const chgP = r[`${w}PriceChange`];      // total price change over window
           const maxP = r[`${w}MaxPriceChange`];
           const pDay = r[`${w}MaxPriceChangeDay`];
           const vAtP = r[`${w}VolumeChangeAtMaxPrice`];
@@ -751,7 +761,8 @@
           const fmt = v => (v ?? "—");
 
           windowCells = `
-            <td class="${colorClass(maxP)} group-start">${fmt(maxP)}%</td>
+            <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
+            <td class="${colorClass(maxP)}">${fmt(maxP)}%</td>
             <td class="neutral">${fmt(pDay)}</td>
             <td class="${colorClass(vAtP)}">${fmt(vAtP)}%</td>
             <td class="${colorClass(maxV)}">${fmt(maxV)}%</td>
@@ -759,15 +770,19 @@
             <td class="${colorClass(pAtV)}">${fmt(pAtV)}%</td>`;
         }
 
+        // 1D-specific cells (only shown in 1D view)
+        const oneDayTds = is1D ? `
+          <td class="${colorClass(pc1)} group-start">${pc1}%</td>
+          <td class="${colorClass(pma - 1)} group-start">${pma}</td>
+          <td class="${colorClass(vc1)}">${vc1}%</td>
+          <td class="${colorClass(vma - 1)}">${vma}</td>` : "";
+
         return `<tr>
           <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
           <td class="spark-cell">${sparkSVG}</td>
           <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
           <td class="neutral">${r.VolumeM ?? "—"}</td>
-          <td class="${colorClass(pc1)} group-start">${pc1}%</td>
-          <td class="${colorClass(pma - 1)} group-start">${pma}</td>
-          <td class="${colorClass(vc1)}">${vc1}%</td>
-          <td class="${colorClass(vma - 1)}">${vma}</td>
+          ${oneDayTds}
           ${windowCells}
         </tr>`;
       }).join("");
@@ -805,6 +820,7 @@
     };
 
     function getWindowColDesc(key, w) {
+      if (key === `${w}PriceChange`)            return { label: `${w} Chg%`,    desc: `Total price change (%) from the start of the ${w} window to today.` };
       if (key === `${w}MaxPriceChange`)         return { label: `${w} Max%`,    desc: `Largest single-day price change (%) within the ${w} window.` };
       if (key === `${w}MaxVolumeChange`)        return { label: `${w} Vol%`,    desc: `Largest single-day volume change (%) within the ${w} window.` };
       if (key === `${w}MaxPriceChangeDay`)      return { label: `${w} P Day`,   desc: `Days ago when the maximum price change occurred in the ${w} window.` };

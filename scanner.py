@@ -115,6 +115,15 @@ def calculate_period_metrics(df, label, days):
     # recent = df.tail(days).copy().reset_index(drop=True)
     recent = df.iloc[-days:].copy().reset_index(drop=True)
 
+    start_price = recent["Close"].iloc[0]
+    end_price = recent["Close"].iloc[-1]
+
+    period_price_change = (
+        (end_price - start_price) / start_price
+        if start_price not in [0, None] and not pd.isna(start_price)
+        else None
+)
+
     recent["price_change"] = recent["Close"].pct_change()
     recent["volume_change"] = recent["Volume"].pct_change()
 
@@ -134,6 +143,8 @@ def calculate_period_metrics(df, label, days):
     volume_day = (days - 1 - max_vol_idx)
 
     return {
+        f"{label}PriceChange": round(period_price_change * 100, 2) if period_price_change is not None else None,
+        
         f"{label}MaxPriceChange": round(max_price_val * 100, 2),
         f"{label}MaxVolumeChange": round(max_vol_val * 100, 2),
 
