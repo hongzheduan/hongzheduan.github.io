@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -449,10 +449,10 @@
       <div class="brand-cn">贝佐拉</div>
     </a>
     <nav>
-      <a href="about.html" class="nav-btn">关于我们</a>
+      <a href="about_cn.html" class="nav-btn">关于我们</a>
       <a href="../pricing.html" class="nav-btn">更改套餐</a>
       <a href="#" onclick="openPortal(); return false;" class="nav-btn">账户管理</a>
-      <a href="../login.html" class="nav-btn nav-btn-primary">登录</a>
+      <a href="../login_cn.html" class="nav-btn nav-btn-primary">登录</a>
     </nav>
   </header>
 
@@ -656,10 +656,10 @@
       <a href="mailto:support@baizora.com">support@baizora.com</a>
     </div>
     <div class="footer-links">
-      <a href="privacy.html">隐私政策</a>
-      <a href="terms.html">服务条款</a>
-      <a href="disclaimer.html">免责声明</a>
-      <a href="about.html">关于我们</a>
+      <a href="privacy_cn.html">隐私政策</a>
+      <a href="terms_cn.html">服务条款</a>
+      <a href="disclaimer_cn.html">免责声明</a>
+      <a href="about_cn.html">关于我们</a>
     </div>
   </footer>
 
@@ -686,7 +686,7 @@
           firebase.auth().onAuthStateChanged(resolve);
         });
 
-        if (!user) { window.location.href = "../login.html"; return; }
+        if (!user) { window.location.href = "../login_cn.html"; return; }
 
         const res = await fetch(
           "https://us-central1-baizora.cloudfunctions.net/api/create-portal",
