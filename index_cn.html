@@ -1290,6 +1290,11 @@
   /* ── Mobile menu ── */
   function toggleMenu() {
     const drawer = document.getElementById("mobileDrawer");
+    // Position drawer exactly below the header (accounts for announcement bar)
+    const header = document.querySelector("header");
+    const headerBottom = header.getBoundingClientRect().bottom;
+    drawer.style.top = headerBottom + "px";
+    drawer.style.maxHeight = (window.innerHeight - headerBottom) + "px";
     drawer.classList.toggle("open");
   }
 
