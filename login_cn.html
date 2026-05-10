@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baizora | 登录</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-light: #162847;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --gold: #f59e0b;
+      --gold-light: #fcd34d;
+      --green: #22c55e;
+      --red: #ef4444;
+      --white: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.07);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    .glow {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -60%);
+      width: 600px;
+      height: 500px;
+      background: radial-gradient(ellipse at center, rgba(59,130,246,0.1) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .logo-wrap {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      z-index: 20;
+    }
+
+    .logo-wrap img { height: 36px; }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--white);
+    }
+
+    .logo-text span { color: var(--electric); }
+
+    .brand-cn {
+      font-family: var(--font-cn);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 400px;
+      padding: 44px 40px;
+      background: rgba(13, 30, 61, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+    }
+
+    .card-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 32px;
+      font-family: 'DM Serif Display', serif;
+      margin-bottom: 6px;
+    }
+
+    .card-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .field { margin-bottom: 16px; }
+
+    label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: rgba(6,13,31,0.6);
+      color: white;
+    }
+
+    .forgot-row {
+      text-align: right;
+      margin: 10px 0 24px;
+    }
+
+    .forgot-row a {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: var(--electric);
+      border: none;
+      border-radius: 9px;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .signup-row {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .signup-row a {
+      color: var(--electric-bright);
+      text-decoration: none;
+    }
+
+    .error-msg, .success-msg {
+      display: none;
+      margin-bottom: 16px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .error-msg { background: rgba(239,68,68,0.1); color: #fca5a5; }
+    .success-msg { background: rgba(34,197,94,0.1); color: #86efac; }
+
+    .show { display: block; }
+  </style>
+</head>
+
+<body>
+
+  <div class="glow"></div>
+
+  <!-- Logo -->
+  <a href="index_cn.html" class="logo-wrap">
+    <img src="assets/baize_favicon_v2.png">
+    <div class="brand-cn">贝佐拉</div>
+  </a>
+
+  <!-- Card -->
+  <div class="card">
+    <div class="card-eyebrow">◈ 安全登录</div>
+    <div class="card-title">欢迎回来</div>
+    <div class="card-sub">登录你的 Baizora 账户</div>
+
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="success-msg" id="successMsg"></div>
+
+    <div class="field">
+      <label>邮箱地址</label>
+      <input id="email" type="email" placeholder="you@example.com">
+    </div>
+
+    <div class="field">
+      <label>密码</label>
+      <input id="password" type="password" placeholder="••••••••">
+    </div>
+
+    <div class="forgot-row">
+      <a href="#" onclick="resetPassword();return false;">忘记密码？</a>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="login()">
+      登录
+    </button>
+
+    <div class="divider"></div>
+
+    <div class="signup-row">
+      还没有账号？ <a href="signup.html">立即注册</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { signInWithEmailAndPassword, sendPasswordResetEmail } 
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    window.login = async function () {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "dashboard.html";
+      } catch (e) {
+        document.getElementById("errorMsg").textContent = "登录失败，请检查账号或密码";
+        document.getElementById("errorMsg").classList.add("show");
+      }
+    };
+
+    window.resetPassword = async function () {
+      const email = document.getElementById("email").value;
+      await sendPasswordResetEmail(auth, email);
+      document.getElementById("successMsg").textContent = "重置邮件已发送";
+      document.getElementById("successMsg").classList.add("show");
+    };
+  </script>
+
+</body>
+</html>

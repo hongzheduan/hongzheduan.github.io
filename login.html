@@ -15,11 +15,13 @@
       --navy-light: #162847;
       --electric: #3b82f6;
       --electric-bright: #60a5fa;
+      --gold: #f59e0b;
+      --gold-light: #fcd34d;
+      --green: #22c55e;
+      --red: #ef4444;
       --white: #f8fafc;
       --muted: #94a3b8;
       --border: rgba(255,255,255,0.07);
-      --border-focus: rgba(59,130,246,0.5);
-      --error: #ef4444;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -74,17 +76,22 @@
     }
 
     /* ── LOGO ── */
-    .logo {
+    .logo-wrap {
       position: fixed;
       top: 24px;
-      left: 32px;
-      z-index: 100;
+      left: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       text-decoration: none;
+      z-index: 20;
     }
+
+    .logo-wrap img { height: 36px; }
 
     .logo-text {
       font-family: 'DM Serif Display', serif;
-      font-size: 24px;
+      font-size: 22px;
       color: var(--white);
       letter-spacing: -0.02em;
     }
@@ -376,7 +383,8 @@
   <div class="glow"></div>
 
   <!-- Logo -->
-  <a href="./" class="logo">
+  <a href="./" class="logo-wrap">
+    <img src="assets/baize_favicon_v2.png" alt="Baizora">
     <span class="logo-text">Baiz<span>ora</span></span>
   </a>
 
