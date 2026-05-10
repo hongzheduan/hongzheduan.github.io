@@ -250,7 +250,7 @@
     .mobile-drawer {
       display: none;
       position: fixed;
-      top: 60px;
+      top: 0;          /* overridden by JS to sit exactly below header */
       left: 0; right: 0;
       z-index: 199;
       background: rgba(6, 13, 31, 0.98);
@@ -259,6 +259,8 @@
       padding: 16px 24px 24px;
       flex-direction: column;
       gap: 8px;
+      max-height: calc(100vh - 56px);
+      overflow-y: auto;
     }
 
     .mobile-drawer.open { display: flex; }
@@ -939,7 +941,6 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       header { padding: 0 16px; height: 56px; }
-      .mobile-drawer { top: 56px; }
       .desktop-nav { display: none; }
       .hamburger { display: flex; }
       .hero { padding: 60px 20px 50px; }
