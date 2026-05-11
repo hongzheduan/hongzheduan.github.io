@@ -26,16 +26,6 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; }
-    @media (max-width: 768px) {
-      html, body {
-        overflow: auto;
-      }
-
-      .table-area {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-    }
 
     body {
       font-family: 'DM Sans', sans-serif;
@@ -206,26 +196,6 @@
     .section.active { display: block; }
 
     table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 12px; }
-
-    @media (max-width: 768px) {
-      table {
-        font-size: 11px;
-      }
-
-      th, td {
-        padding: 6px 8px;
-        font-size: 10px;
-      }
-
-      .ticker-cell {
-        font-size: 11px;
-      }
-
-      .spark-cell svg {
-        width: 90px;
-        height: 24px;
-      }
-    }
 
     thead { position: sticky; top: 0; z-index: 20; }
 
@@ -608,99 +578,6 @@
       letter-spacing: 0.08em;
       color: #f59e0b;
     }
-
-    @media (max-width: 768px) {
-      header {
-        flex-wrap: wrap;
-        height: auto;
-        padding: 10px 12px;
-        gap: 10px;
-      }
-
-      .header-left {
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .logo-text {
-        font-size: 16px;
-      }
-
-      .tab-nav {
-        flex-wrap: wrap;
-      }
-
-      .tab-btn {
-        font-size: 10px;
-        padding: 4px 10px;
-      }
-
-      .header-right {
-        width: 100%;
-        justify-content: space-between;
-      }
-
-      .status-badge {
-        font-size: 9px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      header {
-        flex-wrap: wrap;
-        height: auto;
-        padding: 10px 12px;
-        gap: 10px;
-      }
-
-      .header-left {
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .logo-text {
-        font-size: 16px;
-      }
-
-      .tab-nav {
-        flex-wrap: wrap;
-      }
-
-      .tab-btn {
-        font-size: 10px;
-        padding: 4px 10px;
-      }
-
-      .header-right {
-        width: 100%;
-        justify-content: space-between;
-      }
-
-      .status-badge {
-        font-size: 9px;
-      }
-    }
-
-    @media (max-width: 768px) {
-  .blur-gate {
-    height: 420px;
-    padding-bottom: 24px;
-  }
-
-  .blur-gate-title {
-    font-size: 20px;
-  }
-
-  .blur-gate-sub {
-    font-size: 12px;
-  }
-
-  .gate-btn-primary,
-  .gate-btn-secondary {
-    width: 100%;
-    justify-content: center;
-  }
-}
 	
   </style>
 </head>
