@@ -4,340 +4,150 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy Policy | Baizora</title>
-
   <link rel="icon" href="baize_favicon_v2.png">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
   <style>
-    :root{
-      --navy:#060d1f;
-      --navy-mid:#0d1e3d;
-      --electric:#3b82f6;
-      --electric-bright:#60a5fa;
-      --white:#f8fafc;
-      --muted:#94a3b8;
-      --border:rgba(255,255,255,0.07);
-    }
-
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-    }
-
-    body{
-      font-family:'DM Sans',sans-serif;
-      background:var(--navy);
-      color:var(--white);
-      overflow-x:hidden;
-      min-height:100vh;
-    }
-
-    body::before{
-      content:'';
-      position:fixed;
-      inset:0;
-      background-image:
-        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
-      background-size:60px 60px;
-      pointer-events:none;
-      z-index:0;
-    }
-
-    .glow{
-      position:fixed;
-      top:0;
-      left:50%;
-      transform:translateX(-50%);
-      width:700px;
-      height:400px;
-      background:radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, transparent 70%);
-      pointer-events:none;
-      z-index:0;
-    }
-
-    /* HEADER */
-    header{
-      position:sticky;
-      top:0;
-      z-index:200;
-      backdrop-filter:blur(20px);
-      background:rgba(6,13,31,0.9);
-      border-bottom:1px solid var(--border);
-      height:64px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:0 40px;
-    }
-
-    .logo-wrap{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      text-decoration:none;
-    }
-
-    .logo-wrap img{ height:36px; }
-
-    .logo-text{
-      font-family:'DM Serif Display',serif;
-      font-size:24px;
-      color:var(--white);
-    }
-
-    .logo-text span{ color:var(--electric); }
-
-    nav{
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-
-    .nav-btn{
-      border:1px solid var(--border);
-      background:transparent;
-      color:var(--muted);
-      padding:7px 16px;
-      border-radius:7px;
-      font-size:13px;
-      text-decoration:none;
-    }
-
-    .nav-btn:hover{
-      border-color:rgba(59,130,246,0.4);
-      color:var(--white);
-      background:rgba(59,130,246,0.08);
-    }
-
-    .nav-btn-primary{
-      background:var(--electric);
-      border-color:var(--electric);
-      color:white;
-    }
-
-    .nav-btn-primary:hover{
-      background:#2563eb;
-    }
-
-    /* CONTENT */
-    .container{
-      position:relative;
-      z-index:10;
-      max-width:860px;
-      margin:0 auto;
-      padding:80px 20px 100px;
-    }
-
-    .eyebrow{
-      display:inline-flex;
-      font-family:'DM Mono',monospace;
-      font-size:10px;
-      letter-spacing:0.18em;
-      text-transform:uppercase;
-      color:var(--electric-bright);
-      border:1px solid rgba(59,130,246,0.25);
-      background:rgba(59,130,246,0.06);
-      padding:6px 14px;
-      border-radius:999px;
-      margin-bottom:24px;
-    }
-
-    h1{
-      font-family:'DM Serif Display',serif;
-      font-size:clamp(34px,5vw,52px);
-      margin-bottom:14px;
-    }
-
-    .intro{
-      color:var(--muted);
-      font-size:15px;
-      line-height:1.85;
-      margin-bottom:60px;
-      max-width:640px;
-    }
-
-    .section{
-      margin-bottom:48px;
-      padding-bottom:28px;
-      border-bottom:1px solid var(--border);
-    }
-
-    .section:last-child{ border-bottom:none; }
-
-    .section-title{
-      font-family:'DM Mono',monospace;
-      font-size:11px;
-      letter-spacing:0.18em;
-      text-transform:uppercase;
-      color:var(--electric-bright);
-      margin-bottom:18px;
-    }
-
-    p{
-      color:var(--muted);
-      font-size:15px;
-      line-height:1.9;
-      margin-bottom:16px;
-    }
-
-    strong{ color:var(--white); }
-
-    a{
-      color:var(--electric-bright);
-      text-decoration:none;
-    }
-
-    a:hover{ text-decoration:underline; }
-
-    .back-wrap{ margin-top:60px; }
-
-    .back-link{
-      font-family:'DM Mono',monospace;
-      font-size:11px;
-      letter-spacing:0.1em;
-      text-transform:uppercase;
-      color:#475569;
-      text-decoration:none;
-    }
-
-    .back-link:hover{ color:var(--electric-bright); }
-
-    footer{
-      position:relative;
-      z-index:10;
-      border-top:1px solid var(--border);
-      padding:28px 40px;
-      display:flex;
-      justify-content:space-between;
-      font-size:11px;
-      color:#475569;
-    }
-
-    footer a{
-      color:inherit;
-      text-decoration:none;
-    }
-
-    footer a:hover{
-      color:var(--electric-bright);
-    }
-
-    @media(max-width:640px){
-      header{ padding:0 20px; }
-      footer{
-        flex-direction:column;
-        gap:12px;
-        text-align:center;
-      }
-    }
+    :root{--navy:#060d1f;--navy-mid:#0d1e3d;--electric:#3b82f6;--electric-bright:#60a5fa;--white:#f8fafc;--muted:#94a3b8;--border:rgba(255,255,255,0.07);--border-bright:rgba(255,255,255,0.12);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4;}
+    .glow{position:fixed;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse at center,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
+    header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(6,13,31,0.92);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;}
+    .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+    .logo-wrap img{height:36px;}
+    .logo-text{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);letter-spacing:-0.02em;}
+    .logo-text span{color:var(--electric);}
+    nav{display:flex;align-items:center;gap:8px;}
+    .nav-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:6px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;white-space:nowrap;}
+    .nav-btn:hover{border-color:rgba(59,130,246,0.4);color:var(--white);background:rgba(59,130,246,0.08);}
+    .nav-btn-primary{background:var(--electric);border-color:var(--electric);color:white;}
+    .nav-btn-primary:hover{background:#2563eb;border-color:#2563eb;color:white;}
+    .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;padding:6px 7px;border:1px solid var(--border);border-radius:6px;background:transparent;flex-shrink:0;}
+    .hamburger span{display:block;width:18px;height:2px;background:var(--muted);border-radius:2px;}
+    .hamburger:hover span{background:var(--white);}
+    .mobile-drawer{display:none;position:fixed;left:0;right:0;background:rgba(6,13,31,0.98);border-bottom:1px solid var(--border-bright);backdrop-filter:blur(20px);z-index:190;flex-direction:column;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+    .mobile-drawer.open{display:flex;}
+    .mobile-drawer a{display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);transition:color 0.15s,background 0.15s;}
+    .mobile-drawer a:last-child{border-bottom:none;}
+    .mobile-drawer a:hover{color:var(--white);background:rgba(255,255,255,0.04);}
+    .mobile-drawer a.primary{color:var(--electric-bright);font-weight:600;}
+    .container{position:relative;z-index:10;max-width:760px;margin:0 auto;padding:72px 32px 100px;}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);border:1px solid rgba(59,130,246,0.25);background:rgba(59,130,246,0.06);padding:6px 14px;border-radius:999px;margin-bottom:24px;}
+    h1{font-family:'DM Serif Display',serif;font-size:clamp(34px,5vw,52px);line-height:1.1;letter-spacing:-0.02em;color:var(--white);margin-bottom:14px;}
+    h1 em{font-style:italic;color:var(--electric-bright);}
+    .intro{font-size:15px;color:var(--muted);line-height:1.85;font-weight:300;margin-bottom:56px;max-width:620px;}
+    .section{margin-bottom:48px;padding-bottom:28px;border-bottom:1px solid var(--border);}
+    .section:last-child{border-bottom:none;}
+    .section-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);margin-bottom:16px;}
+    .section p{font-size:15px;color:var(--muted);line-height:1.9;font-weight:300;margin-bottom:16px;}
+    .section p:last-child{margin-bottom:0;}
+    .section strong{color:var(--white);font-weight:600;}
+    .section a{color:var(--electric-bright);text-decoration:none;}
+    .section a:hover{text-decoration:underline;}
+    .back-wrap{margin-top:56px;}
+    .back-link{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#475569;text-decoration:none;transition:color 0.2s;}
+    .back-link:hover{color:var(--electric-bright);}
+    footer{position:relative;z-index:10;border-top:1px solid var(--border);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+    .footer-left{font-family:'DM Mono',monospace;font-size:11px;color:#475569;letter-spacing:0.05em;}
+    .footer-left a{color:inherit;text-decoration:none;}
+    .footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+    .footer-links a{font-family:'DM Mono',monospace;font-size:11px;color:#475569;text-decoration:none;letter-spacing:0.05em;transition:color 0.2s;}
+    .footer-links a:hover{color:var(--electric-bright);}
+    @media(max-width:640px){header{padding:0 16px;height:56px;}nav{display:none;}.hamburger{display:flex;}.container{padding:48px 20px 72px;}footer{padding:24px 20px;flex-direction:column;text-align:center;}.footer-links{justify-content:center;}}
   </style>
 </head>
-
 <body>
-
 <div class="glow"></div>
 
 <header>
   <a href="../" class="logo-wrap">
     <img src="baize_logo_v2.png" alt="Baizora">
-    <div class="logo-text">Baiz<span>ora</span></div>
+    <span class="logo-text">Baiz<span>ora</span></span>
   </a>
-
   <nav>
     <a href="about.html" class="nav-btn">About</a>
     <a href="faq.html" class="nav-btn">FAQ</a>
     <a href="../pricing.html" class="nav-btn">Pricing</a>
     <a href="../login.html" class="nav-btn nav-btn-primary">Login</a>
   </nav>
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </header>
 
+<div class="mobile-drawer" id="mobileDrawer">
+  <a href="about.html">About</a>
+  <a href="faq.html">FAQ</a>
+  <a href="../pricing.html">Pricing</a>
+  <a href="../login.html" class="primary">Login</a>
+</div>
+
 <div class="container">
-
-  <div class="eyebrow">◈ Legal</div>
-
+  <div class="eyebrow">◈ &nbsp; Legal</div>
   <h1>Privacy <em>Policy</em></h1>
-
-  <p class="intro">
-    This Privacy Policy explains how Baizora collects, uses, and protects your information when you use the platform.
-  </p>
+  <p class="intro">This Privacy Policy explains how Baizora collects, uses, and protects your information when you use the platform.</p>
 
   <div class="section">
     <div class="section-title">Information We Collect</div>
-    <p>
-      We may collect basic account information such as your email address when you register, subscribe, or contact support.
-      We do not collect sensitive personal data.
-    </p>
+    <p>We may collect basic account information such as your email address when you register, subscribe, or contact support. We do not collect sensitive personal data beyond what is required to operate the service.</p>
   </div>
 
   <div class="section">
-    <div class="section-title">How We Use Data</div>
-    <p>
-      Your information is used to operate the platform, manage subscriptions, provide access to features, and send service-related updates.
-    </p>
-    <p>
-      We do not sell, rent, or trade your personal information to third parties.
-    </p>
+    <div class="section-title">How We Use Your Data</div>
+    <p>Your information is used to operate the platform, manage subscriptions, provide access to features, and send service-related updates.</p>
+    <p>We do not sell, rent, or trade your personal information to third parties.</p>
   </div>
 
   <div class="section">
-    <div class="section-title">Data Storage</div>
-    <p>
-      Data may be securely stored using trusted third-party providers such as authentication and payment processors.
-      Reasonable safeguards are used to protect your information.
-    </p>
+    <div class="section-title">Data Storage & Security</div>
+    <p>Data may be securely stored using trusted third-party providers including authentication and payment processors. Reasonable safeguards are applied to protect your information. All data is transmitted over TLS (HTTPS) and passwords are never stored in plain text.</p>
   </div>
 
   <div class="section">
     <div class="section-title">Cookies</div>
-    <p>
-      We may use cookies to improve user experience, maintain sessions, and analyze platform performance.
-    </p>
+    <p>We use only essential cookies required for authentication and session management. We do not use advertising or tracking cookies.</p>
   </div>
 
   <div class="section">
     <div class="section-title">Third-Party Services</div>
-    <p>
-      We use third-party services such as payment processors (e.g., Stripe) and analytics tools.
-      Each provider has its own privacy policy.
-    </p>
+    <p>We use third-party services including <strong>Firebase</strong> (authentication) and <strong>Stripe</strong> (payment processing). Each provider operates under its own privacy policy. We do not store raw payment card numbers.</p>
   </div>
 
   <div class="section">
     <div class="section-title">Your Rights</div>
-    <p>
-      You may request access, correction, or deletion of your data at any time by contacting support.
-      You may also unsubscribe from communications at any time.
-    </p>
+    <p>You may request access, correction, or deletion of your data at any time by contacting support. You may also unsubscribe from communications at any time.</p>
   </div>
 
   <div class="section">
     <div class="section-title">Contact</div>
-    <p>
-      If you have any questions, contact us at <strong>support@baizora.com</strong>
-    </p>
+    <p>For privacy-related questions, contact us at <strong>support@baizora.com</strong></p>
   </div>
 
   <div class="back-wrap">
-    <a class="back-link" href="../">← Back to Home</a>
+    <a href="../" class="back-link">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Home
+    </a>
   </div>
-
 </div>
 
 <footer>
-  <div>
-    © 2026 Baizora — All rights reserved
-  </div>
-  <div>
-    <a href="terms.html">Terms</a> ·
+  <div class="footer-left">© 2026 Baizora — All rights reserved &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
     <a href="disclaimer.html">Disclaimer</a>
+    <a href="faq.html">FAQ</a>
+    <a href="about.html">About</a>
   </div>
 </footer>
 
+<script>
+  function toggleMenu(){const drawer=document.getElementById('mobileDrawer');const header=document.querySelector('header');drawer.style.top=header.getBoundingClientRect().bottom+'px';drawer.classList.toggle('open');}
+  document.addEventListener('click',e=>{const drawer=document.getElementById('mobileDrawer');const btn=document.getElementById('hamburgerBtn');if(drawer.classList.contains('open')&&!drawer.contains(e.target)&&!btn.contains(e.target))drawer.classList.remove('open');});
+</script>
 </body>
 </html>

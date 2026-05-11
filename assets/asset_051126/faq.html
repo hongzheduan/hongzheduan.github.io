@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ | Baizora</title>
+  <link rel="icon" href="baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --gold-light: #fcd34d;
+      --white: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.07);
+      --border-bright: rgba(255,255,255,0.12);
+      --positive: #22c55e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    .glow {
+      position: fixed;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 400px;
+      background: radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(6, 13, 31, 0.9);
+      border-bottom: 1px solid var(--border);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-wrap img { height: 36px; }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span { color: var(--electric); }
+
+    nav { display: flex; align-items: center; gap: 8px; }
+
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 7px 16px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--white); background: rgba(59,130,246,0.08); }
+
+    .nav-btn-primary { background: var(--electric); border-color: var(--electric); color: white; }
+    .nav-btn-primary:hover { background: #2563eb; border-color: #2563eb; color: white; }
+
+    /* ── CONTENT ── */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 80px 20px 100px;
+    }
+
+    /* ── PAGE HERO ── */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      border: 1px solid rgba(59,130,246,0.25);
+      background: rgba(59,130,246,0.06);
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(34px, 5vw, 52px);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 10px;
+      opacity: 0;
+      animation: fadeUp 0.5s 0.1s ease forwards;
+    }
+
+    h1 em { font-style: italic; color: var(--electric-bright); }
+
+    .intro {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-weight: 300;
+      margin-bottom: 56px;
+      max-width: 560px;
+      opacity: 0;
+      animation: fadeUp 0.5s 0.2s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── FAQ SECTIONS ── */
+    .faq-section {
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards;
+    }
+
+    .faq-section:nth-child(4)  { animation-delay: 0.25s; }
+    .faq-section:nth-child(5)  { animation-delay: 0.3s; }
+    .faq-section:nth-child(6)  { animation-delay: 0.35s; }
+    .faq-section:nth-child(7)  { animation-delay: 0.4s; }
+    .faq-section:nth-child(8)  { animation-delay: 0.45s; }
+    .faq-section:nth-child(9)  { animation-delay: 0.5s; }
+    .faq-section:nth-child(10) { animation-delay: 0.55s; }
+
+    .section-group-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── FAQ ITEM ── */
+    .faq-item {
+      border-top: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .faq-item:last-child { border-bottom: 1px solid var(--border); }
+
+    .faq-q {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 0;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s;
+    }
+
+    .faq-q:hover .q-text { color: var(--white); }
+
+    .q-text {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #cbd5e1;
+      line-height: 1.4;
+      transition: color 0.2s;
+    }
+
+    .faq-item.open .q-text { color: var(--white); }
+
+    .q-icon {
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+      transition: all 0.25s;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .faq-item.open .q-icon {
+      background: rgba(59,130,246,0.1);
+      border-color: rgba(59,130,246,0.3);
+      color: var(--electric-bright);
+      transform: rotate(45deg);
+    }
+
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+    }
+
+    .faq-item.open .faq-a {
+      max-height: 600px;
+    }
+
+    .faq-a-inner {
+      padding-bottom: 20px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.85;
+      font-weight: 300;
+    }
+
+    .faq-a-inner a {
+      color: var(--electric-bright);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .faq-a-inner a:hover { color: var(--white); text-decoration: underline; }
+
+    .faq-a-inner strong { color: var(--white); font-weight: 600; }
+
+    .faq-a-inner .highlight {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--positive);
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.2);
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    /* ── CONTACT CARD ── */
+    .contact-card {
+      margin-top: 60px;
+      background: rgba(13, 30, 61, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px 32px;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.6s ease forwards;
+    }
+
+    .contact-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent);
+    }
+
+    .contact-card .section-group-label { border-bottom: none; padding-bottom: 0; margin-bottom: 10px; }
+
+    .contact-card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.75;
+      font-weight: 300;
+      margin-bottom: 14px;
+    }
+
+    .contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      color: var(--electric-bright);
+      text-decoration: none;
+      border: 1px solid rgba(59,130,246,0.25);
+      background: rgba(59,130,246,0.06);
+      padding: 10px 18px;
+      border-radius: 9px;
+      transition: all 0.2s;
+    }
+
+    .contact-link:hover { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.4); color: var(--white); }
+
+    /* ── BACK LINK ── */
+    .back-wrap {
+      margin-top: 52px;
+      opacity: 0;
+      animation: fadeUp 0.5s 0.7s ease forwards;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #475569;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--electric-bright); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--border);
+      padding: 28px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
+      letter-spacing: 0.05em;
+    }
+
+    .footer-left a { color: inherit; text-decoration: none; }
+
+    .footer-links { display: flex; gap: 20px; }
+
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--electric-bright); }
+
+    @media (max-width: 640px) {
+      header { padding: 0 20px; }
+      .container { padding: 60px 20px 80px; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+      nav { gap: 6px; }
+      .nav-btn { padding: 6px 12px; font-size: 12px; }
+    }
+  </style>
+</head>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+    authDomain: "baizora.firebaseapp.com",
+    projectId: "baizora"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+
+<body>
+
+  <div class="glow"></div>
+
+  <!-- Header -->
+  <header>
+    <a href="../" class="logo-wrap">
+      <img src="baize_logo_v2.png" alt="Baizora">
+      <span class="logo-text">Baiz<span>ora</span></span>
+    </a>
+    <nav>
+      <a href="about.html" class="nav-btn">About</a>
+      <a href="../pricing.html" class="nav-btn">Change Plan</a>
+      <a href="#" onclick="openPortal(); return false;" class="nav-btn">Manage Account</a>
+      <a href="../login.html" class="nav-btn nav-btn-primary">Login</a>
+    </nav>
+  </header>
+
+  <!-- Content -->
+  <div class="container">
+
+    <div class="eyebrow">◈ &nbsp; Help Center</div>
+    <h1>Frequently asked <em>questions</em></h1>
+    <p class="intro">
+      Everything you need to know about Baizora — how the platform works, how to manage your subscription, and how to get the most out of the data.
+    </p>
+
+    <!-- Group: Getting Started -->
+    <div class="faq-section">
+      <div class="section-group-label">Getting Started</div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggle(this)">
+          <span class="q-text">How does the free preview work?</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Baizora provides a free preview that requires no login or account creation. You can immediately access a curated set of market signals — the top 3 stocks by daily price increase — to evaluate data quality, structure, and platform usability before committing to a subscription.<br><br>
+            The preview includes live sparkline charts, multi-timeframe rolling statistics, and fundamental data (PE, market cap, EPS, sector). It's a genuine taste of the full product, not a stripped-down demo.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggle(this)">
+          <span class="q-text">Do I need to sign up to use Baizora?</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            No sign-up is required for the free preview. You can access selected market insights directly at <a href="../free.html">baizora.com/free</a>.<br><br>
+            A paid account is required to unlock the full dashboard — all 500+ S&P 500 and Nasdaq-100 symbols, all timeframes (2W to 1Y), sortable columns, and full fundamentals.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggle(this)">
+          <span class="q-text">How does the 7-day free trial work?</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            When you subscribe, you get <strong>7 full days of unrestricted access</strong> to the complete platform — all symbols, all timeframes, all features. No limitations, no partial data.<br><br>
+            You may cancel at any time during the trial via the Stripe Customer Portal and <strong>no charges will be applied</strong>. After 7 days, your subscription begins automatically at $9.99/month or $99/year depending on the plan you selected.
+            <div class="highlight">✓ No credit card charged during trial</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Group: Platform & Data -->
+    <div class="faq-section">
+      <div class="section-group-label">Platform & Data</div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggle(this)">
+          <span class="q-text">How is the data updated?</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Market data is processed and updated daily after U.S. market close, typically between <strong>5:00–6:00 PM Eastern Time</strong>. This ensures consistent, stable daily comparisons without intraday noise.<br><br>
+            All signals — price changes, volume behavior, moving average ratios, sparklines, and fundamentals — reflect the most recent session's closing data.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggle(this)">
+          <span class="q-text">What do the sparkline markers mean?</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Every stock includes a 1-year price trend sparkline with two visual event markers:<br><br>
+            <strong>▲ Triangle</strong> — marks the highest-volume trading day of the past year. Green if price was up on that day, red if price was down.<br><br>
+            <strong>● Circle (with glow)</strong> — marks the highest single-day price change of the past year. Green if volume was elevated on that day, red if volume was low.<br><br>
+            These markers let you instantly spot when unusual activity occurred — without scanning tables. Hover the "1Y Trend" column header in the dashboard for a reminder.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggle(this)">
+          <span class="q-text">What do the timeframe windows show?</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Baizora supports six rolling timeframes: <strong>2W, 1M, 3M, 6M, 9M, and 1Y</strong>, plus a dedicated <strong>1D view</strong>.<br><br>
+            The <strong>1D view</strong> shows today's price change, volume change, and their ratios vs. 21-day moving averages — a quick daily snapshot.<br><br>
+            All other windows show the <strong>total price change</strong> over that period (e.g. how much the stock moved over the last 3 months), plus the single largest price and volume moves within the window and when they occurred.<br><br>
+            Hover any column header in the dashboard to see its exact definition.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggle(this)">
+          <span class="q-text">What stocks does Baizora cover?</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Baizora covers all current constituents of the <strong>S&P 500</strong> and <strong>Nasdaq-100</strong> — approximately 500+ large-cap US equities with consistent liquidity and institutional-grade data quality.<br><br>
+            The platform focuses exclusively on large-cap stocks to ensure data consistency and reliability across all signals.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggle(this)">
+          <span class="q-text">Is Baizora a financial advisor or recommendation service?</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            No. Baizora is a <strong>data intelligence platform</strong> — it surfaces structured statistical signals, not investment recommendations. Nothing on this platform constitutes financial, investment, trading, or professional advice.<br><br>
+            All signals are generated by automated systems. They are not buy, sell, or hold recommendations and should not be interpreted as such. Always conduct your own research or consult a qualified financial advisor before making investment decisions.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Group: Subscription & Billing -->
+    <div class="faq-section">
+      <div class="section-group-label">Subscription & Billing</div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggle(this)">
+          <span class="q-text">How do I manage or cancel my subscription?</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            All subscription actions — upgrade, downgrade, cancel, and billing history — are handled securely through the <strong>Stripe Customer Portal</strong>.<br><br>
+            Click the <strong>"Manage Account"</strong> button in the header above, or log in and use the Account menu on the homepage. Changes apply at the end of your current billing cycle. Cancellations during the free trial incur no charges.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggle(this)">
+          <span class="q-text">What's the difference between monthly and yearly plans?</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Both plans include identical features — full access to all symbols, timeframes, sparklines, and fundamentals.<br><br>
+            <strong>Monthly</strong>: $9.99/month — flexible, cancel anytime.<br>
+            <strong>Yearly</strong>: $99/year — approximately $8.25/month, saving ~17% compared to monthly billing.<br><br>
+            You can switch between plans at any time via the Stripe Customer Portal.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggle(this)">
+          <span class="q-text">What happens after the free trial ends?</span>
+          <span class="q-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            After 7 days, your subscription automatically continues at the rate of the plan you selected during sign-up ($9.99/month or $99/year). You will be charged via the payment method you provided.<br><br>
+            If you cancel before the trial ends, no charge is made and your access ends immediately. You can always re-subscribe at any time.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Contact -->
+    <div class="contact-card">
+      <div class="section-group-label">◈ &nbsp; Still have questions?</div>
+      <p>We read every message and typically respond within 1–2 business days.</p>
+      <a href="mailto:support@baizora.com" class="contact-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        support@baizora.com
+      </a>
+    </div>
+
+    <!-- Back -->
+    <div class="back-wrap">
+      <a href="../" class="back-link">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to Home
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">
+      © 2026 Baizora — All rights reserved &nbsp;·&nbsp;
+      <a href="mailto:support@baizora.com">support@baizora.com</a>
+    </div>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="disclaimer.html">Disclaimer</a>
+      <a href="about.html">About</a>
+    </div>
+  </footer>
+
+  <script>
+    /* ── Accordion ── */
+    function toggle(qEl) {
+      const item = qEl.closest(".faq-item");
+      const isOpen = item.classList.contains("open");
+
+      // Close all others
+      document.querySelectorAll(".faq-item.open").forEach(el => {
+        if (el !== item) el.classList.remove("open");
+      });
+
+      item.classList.toggle("open", !isOpen);
+    }
+
+    /* ── Portal ── */
+    async function openPortal() {
+      try {
+        const user = await new Promise(resolve => {
+          const u = firebase.auth().currentUser;
+          if (u) return resolve(u);
+          firebase.auth().onAuthStateChanged(resolve);
+        });
+
+        if (!user) { window.location.href = "../login.html"; return; }
+
+        const res = await fetch(
+          "https://us-central1-baizora.cloudfunctions.net/api/create-portal",
+          { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ uid: user.uid }) }
+        );
+
+        const data = await res.json();
+        if (!res.ok || !data.url) throw new Error(data.error || "Portal error");
+        window.location.href = data.url;
+      } catch (err) {
+        console.error(err);
+        alert("Unable to open subscription portal");
+      }
+    }
+  </script>
+
+</body>
+</html>
