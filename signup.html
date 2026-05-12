@@ -354,7 +354,7 @@
         </div>
         <div class="field-wrap">
           <label class="field-label" for="password">Password</label>
-          <input type="password" id="password" placeholder="Min. 6 characters" autocomplete="new-password">
+          <input type="password" id="password" placeholder="MinMin. 6 chars, 1 uppercase, 1 number" autocomplete="new-password">
         </div>
       </div>
 
@@ -417,6 +417,12 @@
       if (!email)               { showError("Please enter your email address."); return; }
       if (!password)            { showError("Please enter a password."); return; }
       if (password.length < 6)  { showError("Password must be at least 6 characters."); return; }
+      if (!/[A-Z]/.test(password)) {
+        showError("Password must contain at least one uppercase letter."); return;
+      }
+      if (!/[0-9]/.test(password)) {
+        showError("Password must contain at least one number."); return;
+      }
 
       setLoading(true);
       try {

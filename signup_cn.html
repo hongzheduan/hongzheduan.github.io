@@ -343,10 +343,13 @@
           <label class="field-label" for="email">邮箱</label>
           <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
         </div>
-        <div class="field-wrap">
-          <label class="field-label" for="password">密码</label>
-          <input type="password" id="password" placeholder="至少 6 位字符" autocomplete="new-password">
-        </div>
+          <div class="field-wrap">
+            <label class="field-label" for="password">密码</label>
+            <input type="password" id="password" placeholder="请输入密码" autocomplete="new-password">
+            <div style="font-size:11px; color:#475569; margin-top:4px; font-family:'DM Mono',monospace; letter-spacing:0.04em;">
+              至少 6 位字符，包括至少一个大写字母，一个数字
+            </div>
+          </div>
       </div>
 
       <button class="btn-primary" id="signupBtn" onclick="signup()">
@@ -406,6 +409,12 @@
       if (!email)              { showError("请输入您的邮箱地址。"); return; }
       if (!password)           { showError("请输入密码。"); return; }
       if (password.length < 6) { showError("密码至少需要 6 位字符。"); return; }
+            if (!/[A-Z]/.test(password)) {
+        showError("密码至少需要1个大写字母。"); return;
+      }
+      if (!/[0-9]/.test(password)) {
+        showError("密码至少需要 1 个数字。"); return;
+      }
 
       setLoading(true);
       try {
