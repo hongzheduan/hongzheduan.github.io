@@ -309,7 +309,6 @@
       margin-bottom: 16px;
     }
 
-    /* Wrapper centers the title+bullets block as a unit */
     .hero-text-block {
       max-width: 540px;
       margin: 0 auto 20px;
@@ -566,15 +565,6 @@
     .tf-btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: default; }
     .tf-btn.active { background: var(--electric); border-color: var(--electric); color: white; }
 
-    /* ── STATS BAND ── */
-    .stats { position: relative; z-index: 10; background: rgba(13, 30, 61, 0.4); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .stats-inner { max-width: 1280px; margin: 0 auto; padding: 50px 40px; display: grid; grid-template-columns: repeat(3, 1fr); }
-    .stat { text-align: center; padding: 20px; border-right: 1px solid var(--border); }
-    .stat:last-child { border-right: none; }
-    .stat-num { font-family: 'DM Serif Display', serif; font-size: 52px; color: var(--white); line-height: 1; margin-bottom: 8px; }
-    .stat-num span { color: var(--electric-bright); }
-    .stat-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
-
     /* ── BOTTOM CTA ── */
     .bottom-cta { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 40px 40px 90px; text-align: center; }
     .cta-box { background: linear-gradient(135deg, rgba(13,30,61,0.9) 0%, rgba(22,40,71,0.9) 100%); border: 1px solid rgba(59,130,246,0.2); border-radius: 24px; padding: 70px 60px; position: relative; overflow: hidden; }
@@ -610,9 +600,6 @@
       .hero-bullet { justify-content: center; }
       .features { padding: 60px 20px; }
       .cards { grid-template-columns: 1fr; }
-      .stats-inner { grid-template-columns: 1fr; }
-      .stat { border-right: none; border-bottom: 1px solid var(--border); }
-      .stat:last-child { border-bottom: none; }
       .cta-box { padding: 40px 24px; }
       footer { padding: 24px 20px; flex-direction: column; text-align: center; }
       .footer-links { justify-content: center; }
@@ -662,7 +649,6 @@
       position: relative;
     }
 
-    /* header row with logo + tabs */
     .dash-header {
       display: flex;
       align-items: center;
@@ -672,12 +658,7 @@
       gap: 10px;
     }
 
-    .dash-logo {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin-right: 4px;
-    }
+    .dash-logo { display: flex; align-items: center; gap: 5px; margin-right: 4px; }
 
     .dash-logo-dot {
       width: 18px; height: 18px;
@@ -688,17 +669,9 @@
       font-size: 9px;
     }
 
-    .dash-logo-text {
-      font-family: 'DM Serif Display', serif;
-      font-size: 13px;
-      color: #f8fafc;
-      letter-spacing: -0.01em;
-    }
-
+    .dash-logo-text { font-family: 'DM Serif Display', serif; font-size: 13px; color: #f8fafc; letter-spacing: -0.01em; }
     .dash-logo-text span { color: #60a5fa; }
-
     .dash-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.1); margin: 0 4px; }
-
     .dash-tabs { display: flex; gap: 4px; }
 
     .dash-tab {
@@ -712,13 +685,8 @@
       font-family: 'DM Mono', monospace;
     }
 
-    .dash-tab.active {
-      color: #60a5fa;
-      border-color: rgba(59,130,246,0.3);
-      background: rgba(59,130,246,0.08);
-    }
+    .dash-tab.active { color: #60a5fa; border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.08); }
 
-    /* toolbar row */
     .dash-toolbar {
       display: flex;
       align-items: center;
@@ -728,14 +696,7 @@
       gap: 6px;
     }
 
-    .dash-toolbar-label {
-      font-size: 8px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #334155;
-      margin-right: 4px;
-    }
-
+    .dash-toolbar-label { font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #334155; margin-right: 4px; }
     .dash-wins { display: flex; gap: 3px; }
 
     .dash-win {
@@ -750,7 +711,6 @@
 
     .dash-win.active { background: #3b82f6; border-color: #3b82f6; color: white; }
 
-    /* column headers */
     .dash-thead {
       display: grid;
       grid-template-columns: 44px 96px 64px 62px 56px 58px 54px 62px 62px 54px 58px;
@@ -770,7 +730,13 @@
 
     .dc.gstart { border-left: 2px solid rgba(59,130,246,0.2); padding-left: 5px; }
 
-    /* column tooltip */
+    /* sortable column header */
+    .dk-sort { cursor: pointer !important; user-select: none; }
+    .dk-sort:hover { color: #60a5fa !important; background: rgba(59,130,246,0.05); }
+    .dk-sort.active { color: #60a5fa !important; }
+    .dk-arr { opacity: 0.45; font-size: 8px; margin-left: 2px; }
+    .dk-sort.active .dk-arr { opacity: 1; }
+
     .dc-tip {
       position: absolute;
       bottom: calc(100% + 6px);
@@ -808,7 +774,6 @@
     .dc:hover .dc-tip { opacity: 1; }
     .dc:hover { color: #60a5fa; }
 
-    /* data rows */
     .dash-row {
       display: grid;
       grid-template-columns: 44px 96px 64px 62px 56px 58px 54px 62px 62px 54px 58px;
@@ -822,7 +787,6 @@
     .dash-row:last-child { border-bottom: none; }
     .dash-row:hover { background: rgba(59,130,246,0.04); }
 
-    /* ticker cell + tooltip */
     .dr-tk {
       font-size: 11px;
       font-weight: 500;
@@ -832,7 +796,6 @@
       position: relative;
     }
 
-    /* ticker hover popup */
     .tk-popup {
       position: absolute;
       top: calc(100% + 4px);
@@ -851,18 +814,9 @@
 
     .dr-tk:hover .tk-popup { opacity: 1; }
 
-    .tk-popup-head {
-      display: flex;
-      align-items: baseline;
-      gap: 7px;
-      margin-bottom: 9px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
-
+    .tk-popup-head { display: flex; align-items: baseline; gap: 7px; margin-bottom: 9px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.07); }
     .tk-sym { font-size: 13px; font-weight: 600; color: #f8fafc; letter-spacing: 0.05em; }
     .tk-sector { font-size: 10px; color: #475569; font-family: 'DM Sans', sans-serif; font-weight: 300; }
-
     .tk-rows { display: flex; flex-direction: column; gap: 5px; }
     .tk-row { display: flex; justify-content: space-between; gap: 12px; }
     .tk-key { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #334155; }
@@ -871,15 +825,8 @@
     .tk-neg { color: #ef4444; }
     .tk-div { height: 1px; background: rgba(255,255,255,0.06); margin: 2px 0; }
 
-    /* sparkline cell */
-    .dr-sp {
-      display: flex;
-      align-items: center;
-      position: relative;
-      cursor: default;
-    }
+    .dr-sp { display: flex; align-items: center; position: relative; cursor: default; }
 
-    /* spark tooltip */
     .sp-tip {
       position: absolute;
       bottom: calc(100% + 5px);
@@ -898,23 +845,8 @@
 
     .dr-sp:hover .sp-tip { opacity: 1; }
 
-    .sp-tip-title {
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #60a5fa;
-      margin-bottom: 4px;
-    }
-
-    .sp-tip-desc {
-      font-size: 10px;
-      color: #94a3b8;
-      line-height: 1.55;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
-      letter-spacing: 0;
-    }
-
+    .sp-tip-title { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #60a5fa; margin-bottom: 4px; }
+    .sp-tip-desc { font-size: 10px; color: #94a3b8; line-height: 1.55; font-family: 'DM Sans', sans-serif; font-weight: 300; letter-spacing: 0; }
     .sp-legend { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.06); }
     .sp-legend-row { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #475569; }
 
@@ -923,16 +855,11 @@
     .dr-neg { font-size: 10px; color: #ef4444; }
     .dr-neu { font-size: 10px; color: #94a3b8; }
     .dr-gs { border-left: 2px solid rgba(59,130,246,0.1); padding-left: 5px; }
-
     .mock-spark { display: block; }
 
     /* ── MOBILE: collapse to single column ── */
     @media (max-width: 900px) {
-      .hero-split {
-        flex-direction: column;
-        text-align: center;
-        gap: 32px;
-      }
+      .hero-split { flex-direction: column; text-align: center; gap: 32px; }
       .hero-left { flex: none; width: 100%; align-items: center; }
       .hero-right { width: 100%; max-width: 100%; margin: 0 auto; overflow-x: auto; }
       .dash-mock { min-width: 600px; }
@@ -951,7 +878,6 @@
 <div class="announcement">
   <span class="dot"></span>
   &nbsp; 限时体验 &nbsp;·&nbsp; 首 7 天免费 &nbsp;·&nbsp;联系我们：support@baizora.com
-  <!-- <span id="countdown" style="color:var(--gold-light); font-weight:600;"></span> -->
 </div>
 
 <header>
@@ -995,7 +921,6 @@
 
 <!-- ── HERO ── -->
 <section class="hero">
-  <!-- Two-column: text left, dashboard mock right -->
   <div class="hero-split fade-up delay-1">
 
     <!-- LEFT -->
@@ -1027,11 +952,6 @@
           <div class="fact-num">6<span class="accent">×</span></div>
           <div class="fact-label">分析周期</div>
         </div>
-        <!-- <div class="fact-item">
-          <div class="fact-num"><span class="gold">$9.99</span></div>
-          <div class="fact-label">每月 · 随时取消</div>
-        </div> -->
-
         <div class="fact-item">
           <div class="fact-num">24<span class="accent">h</span></div>
           <div class="fact-label">每日更新</div>
@@ -1040,7 +960,6 @@
           <div class="fact-num">2<span class="accent">×</span></div>
           <div class="fact-label">付费选择</div>
         </div>
-
       </div>
     </div><!-- /hero-left -->
 
@@ -1049,7 +968,6 @@
       <div class="dash-mock-wrap">
       <div class="dash-mock">
 
-        <!-- Header: logo + tabs -->
         <div class="dash-header">
           <div class="dash-logo">
             <div class="dash-logo-dot">⬡</div>
@@ -1062,7 +980,6 @@
           </div>
         </div>
 
-        <!-- Toolbar: window buttons -->
         <div class="dash-toolbar">
           <span class="dash-toolbar-label">WINDOW</span>
           <div class="dash-wins">
@@ -1076,30 +993,25 @@
           </div>
         </div>
 
-        <!-- Column headers with hover tooltips -->
         <div class="dash-thead" id="mockThead">
           <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span></span>
-          <span class="dc" style="cursor:default;" >1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>一年归一化价格趋势图。▲ 三角 = 最大成交量日（绿=涨，红=跌）。● 圆点 = 最大涨跌幅日（绿=量增，红=量减）。</div></span>
-          <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)"   >PRICE <span class="dk-arr">↕</span></span>
-          <span class="dc dk-sort gstart" data-col="chg"  onclick="mockSort('chg',this)"  >1Y CHG% <span class="dk-arr">↓</span></span>
-          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)"   >1Y MAX% <span class="dk-arr">↕</span></span>
-          <span class="dc dk-sort" data-col="pday"  onclick="mockSort('pday',this)" >1Y P DAY <span class="dk-arr">↕</span></span>
+          <span class="dc" style="cursor:default;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>一年归一化价格趋势图。▲ 三角 = 最大成交量日（绿=涨，红=跌）。● 圆点 = 最大涨跌幅日（绿=量增，红=量减）。</div></span>
+          <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span></span>
+          <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">1Y CHG% <span class="dk-arr">↓</span></span>
+          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">1Y MAX% <span class="dk-arr">↕</span></span>
+          <span class="dc dk-sort" data-col="pday"  onclick="mockSort('pday',this)">1Y P DAY <span class="dk-arr">↕</span></span>
           <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@PRICE <span class="dk-arr">↕</span></span>
-          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)"  >1Y VOL% <span class="dk-arr">↕</span></span>
-          <span class="dc dk-sort" data-col="vday"  onclick="mockSort('vday',this)" >1Y V DAY <span class="dk-arr">↕</span></span>
-          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)" >P@VOL <span class="dk-arr">↕</span></span>
-          <span class="dc dk-sort" data-col="volm"  onclick="mockSort('volm',this)" >VOL(M) <span class="dk-arr">↕</span></span>
+          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">1Y VOL% <span class="dk-arr">↕</span></span>
+          <span class="dc dk-sort" data-col="vday"  onclick="mockSort('vday',this)">1Y V DAY <span class="dk-arr">↕</span></span>
+          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@VOL <span class="dk-arr">↕</span></span>
+          <span class="dc dk-sort" data-col="volm"  onclick="mockSort('volm',this)">VOL(M) <span class="dk-arr">↕</span></span>
         </div>
         <div id="mockBody"></div>
-
 
         <!-- Hint bar -->
         <div style="padding:9px 14px; background:rgba(59,130,246,0.08); border-top:1px solid rgba(59,130,246,0.2); display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
           <span style="font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:0.07em; color:#94a3b8;">
             👆 悬停<span style="color:#60a5fa;">代码</span>查看基本面 &nbsp;·&nbsp; 悬停<span style="color:#60a5fa;">列标题</span>查看指标说明 &nbsp;·&nbsp; <span style="color:#22c55e;">↕ 点击列标题排序</span>
-          </span>
-          <span style="font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:0.06em; color:#fcd34d; white-space:nowrap; font-weight:600;">
-            实际共有 20+ 个指标列 →
           </span>
         </div>
         <!-- Demo disclaimer -->
@@ -1247,7 +1159,6 @@
   </div>
 </section>
 
-
 <section class="bottom-cta">
   <div class="cta-box">
     <h2>准备开始发现<br>市场中的真实信号？</h2>
@@ -1284,25 +1195,10 @@
 </script>
 
 <script>
-  /* Countdown */
-  const deadline = new Date("2026-05-18T00:00:00").getTime();
-  const el = document.getElementById("countdown");
-  function tick() {
-    const diff = deadline - Date.now();
-    if (diff <= 0) { el.textContent = "立即开始"; return; }
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor((diff % 86400000) / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    el.textContent = `订阅开放倒计时: ${d}d ${h}h ${m}m`;
-  }
-  tick();
-  setInterval(tick, 60000);
-
   /* Mobile menu */
   function toggleMenu() {
     const drawer = document.getElementById("mobileDrawer");
     const header = document.querySelector("header");
-    const ann    = document.querySelector(".announcement");
     const bottom = header.getBoundingClientRect().bottom;
     drawer.style.top = bottom + "px";
     drawer.style.maxHeight = (window.innerHeight - bottom) + "px";
@@ -1353,7 +1249,6 @@
   }
 </script>
 
-
 <script>
 /* ── Mock table: data + sort ── */
 const MOCK_DATA = [
@@ -1402,11 +1297,6 @@ const MOCK_DATA = [
     spark:'M0,12 L10,10 L20,11 L30,8 L40,10 L50,7 L60,8 L70,5 L80,6 L94,4',
     triX:50,triY:7,dotX:70,dotY:5,
     pr:284.10, chg:13.78, mx:5.55,  pday:153, vatpr:33.3,   vol:410.37, vday:219, pvol:-2.40, volm:1.97  },
-  { tk:'NFLX', sector:'Comm. Services', pe:'52.1', mc:'289B',  eps:'12.44',vol30:'2.8%',  secpe:'24.5', pevsec:'+112.7%',
-    sc:'#ef4444', triC:'#ef4444', dotC:'#ef4444',
-    spark:'M0,6 L10,8 L20,6 L30,9 L40,7 L50,10 L60,8 L70,11 L80,9 L94,12',
-    triX:20,triY:6,dotX:60,dotY:8,
-    pr:647.90, chg:-19.95,mx:13.77, pday:51,  vatpr:134.42, vol:157.56, vday:107, pvol:-2.89, volm:20.32 },
 ];
 
 let mockSortCol = 'chg';
@@ -1421,8 +1311,7 @@ function cc(v) {
 function fmt(v, digits=2) {
   const n = parseFloat(v);
   if (isNaN(n)) return v;
-  const s = (n > 0 ? '+' : '') + n.toFixed(digits) + '%';
-  return s;
+  return (n > 0 ? '+' : '') + n.toFixed(digits) + '%';
 }
 
 function fmtN(v) { return parseFloat(v).toFixed(2); }
@@ -1485,7 +1374,6 @@ function renderMock() {
       <span class="dr-neu">${fmtN(r.volm)}</span>
     </div>`).join('');
 
-  // Update header arrow indicators
   document.querySelectorAll('#mockThead .dk-sort').forEach(el => {
     const arr = el.querySelector('.dk-arr');
     if (!arr) return;
@@ -1510,7 +1398,6 @@ window.mockSort = function(col, el) {
   renderMock();
 };
 
-// Initial render
 document.addEventListener('DOMContentLoaded', renderMock);
 </script>
 
