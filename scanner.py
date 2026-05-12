@@ -37,13 +37,25 @@ OUTPUT_CSV = os.path.join(ARCHIVE_DIR, f"results_{DATE_STR}.csv")
 # UNIVERSE (FIXED - NO FMP)
 # =========================
 
+# def get_sp500():
+#     url = "https://raw.githubusercontent.com/datasets/s-and-p-500-companies/main/data/constituents.csv"
+#     df = pd.read_csv(url)
+#     return df["Symbol"].tolist()
+
+
 def get_sp500():
-    url = "https://raw.githubusercontent.com/datasets/s-and-p-500-companies/main/data/constituents.csv"
-    df = pd.read_csv(url)
-    return df["Symbol"].tolist()
+    path = os.path.join("data", "sp500_symbols.txt")
+
+    with open(path, "r") as f:
+        tickers = f.read().splitlines()
+
+    # clean + remove empty lines
+    tickers = [t.strip().replace(".", "-") for t in tickers if t.strip()]
+
+    return tickers
 
 def get_nasdaq100():
-    path = os.path.join("data", "nasdaq100_list.txt")
+    path = os.path.join("data", "nasdaq100_symbols.txt")
 
     with open(path, "r") as f:
         tickers = f.read().splitlines()

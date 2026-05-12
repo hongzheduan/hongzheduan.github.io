@@ -103,7 +103,7 @@
       -webkit-backdrop-filter: blur(20px);
       background: rgba(6, 13, 31, 0.92);
       border-bottom: 1px solid var(--border);
-      height: 60px;
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -119,10 +119,10 @@
       flex-shrink: 0;
     }
 
-    .logo-wrap img { height: 36px; }
+    .logo-wrap img { height: 32px; }
 
     .brand-cn {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
       letter-spacing: 4px;
       background: linear-gradient(90deg, var(--white), var(--electric-bright));
@@ -156,12 +156,9 @@
     .nav-btn-primary { background: var(--electric); border-color: var(--electric); color: white; }
     .nav-btn-primary:hover { background: #2563eb; border-color: #2563eb; color: white; }
 
-    /* ── ACCOUNT DROPDOWN — gap fix ── */
-    .account-menu {
-      position: relative;
-    }
+    /* ── ACCOUNT DROPDOWN ── */
+    .account-menu { position: relative; }
 
-    /* Invisible bridge fills the gap so hover is never lost */
     .account-menu::after {
       content: '';
       position: absolute;
@@ -198,7 +195,6 @@
     }
 
     .account-dropdown a:hover { background: rgba(59,130,246,.08); color: var(--white); }
-
     .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
 
     /* ── MOBILE HAMBURGER ── */
@@ -260,6 +256,13 @@
 
     .mobile-drawer a:hover { background: rgba(59,130,246,0.08); color: var(--white); border-color: rgba(59,130,246,0.3); }
     .mobile-drawer a.mobile-primary { background: var(--electric); border-color: var(--electric); color: white; text-align: center; }
+    .mobile-drawer a.mobile-gold {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      border: none;
+      color: white;
+      font-weight: 600;
+      text-align: center;
+    }
 
     /* ── HERO ── */
     .hero {
@@ -267,7 +270,7 @@
       z-index: 10;
       max-width: 1100px;
       margin: 0 auto;
-      padding: 90px 40px 70px;
+      padding: 60px 40px 50px;
       text-align: center;
     }
 
@@ -294,34 +297,53 @@
       background: rgba(59,130,246,0.06);
       padding: 6px 14px;
       border-radius: 999px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .hero-title {
-      font-size: clamp(40px, 6vw, 72px);
-      font-weight: 700;
-      line-height: 1.15;
+      font-size: clamp(36px, 5.5vw, 52px);
+      font-weight: 400;
+      line-height: 1.2;
       letter-spacing: 0.04em;
       color: var(--white);
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
-    .hero-subtitle-line {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 16px 0 24px;
-    }
-
-    .hero-desc {
-      font-size: 16px;
-      color: #94a3b8;
+    /* Wrapper centers the title+bullets block as a unit */
+    .hero-text-block {
       max-width: 540px;
-      margin: 0 auto 12px;
-      line-height: 1.85;
+      margin: 0 auto 20px;
+      text-align: left;
+    }
+
+    .hero-text-block .hero-title { margin-bottom: 14px; }
+    .hero-bullets {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0 auto 20px;
+      max-width: 540px;
+      align-items: center;
+    }
+
+    .hero-bullet {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 10px;
+      font-size: 14px;
+      color: #94a3b8;
       font-weight: 300;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .hero-bullet::before {
+      content: '◆';
+      color: var(--electric-bright);
+      font-size: 8px;
+      flex-shrink: 0;
+      margin-top: 1px;
     }
 
     .hero-cta {
@@ -330,7 +352,7 @@
       justify-content: center;
       gap: 12px;
       flex-wrap: wrap;
-      margin-top: 12px;
+      margin-bottom: 20px;
     }
 
     .btn-primary {
@@ -392,12 +414,45 @@
 
     .btn-secondary:hover { border-color: rgba(59,130,246,0.3); color: var(--white); background: rgba(59,130,246,0.05); }
 
-    .hero-note {
-      margin-top: 14px;
+    /* ── FACT BAR ── */
+    .fact-bar {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      max-width: 540px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(13,30,61,0.55);
+      overflow: hidden;
+    }
+
+    .fact-item {
+      flex: 1;
+      padding: 14px 16px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+
+    .fact-item:last-child { border-right: none; }
+
+    .fact-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .fact-num .accent { color: var(--electric-bright); }
+    .fact-num .gold   { color: var(--gold-light); }
+
+    .fact-label {
       font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: #475569;
-      letter-spacing: 0.05em;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
     }
 
     /* ── TICKER STRIP ── */
@@ -444,7 +499,7 @@
       z-index: 10;
       max-width: 1100px;
       margin: 0 auto;
-      padding: 90px 40px;
+      padding: 90px 40px 50px;
     }
 
     .section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 16px; }
@@ -520,22 +575,13 @@
     .stat-num span { color: var(--electric-bright); }
     .stat-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
 
-    /* ── TRIAL BAND ── */
-    .trial-band { position: relative; z-index: 10; background: linear-gradient(135deg, rgba(120,53,15,0.4) 0%, rgba(124,45,18,0.3) 100%); border-top: 1px solid rgba(245,158,11,0.2); border-bottom: 1px solid rgba(245,158,11,0.2); }
-    .trial-band-inner { max-width: 1100px; margin: 0 auto; padding: 44px 40px; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
-    .trial-band-left h2 { font-family: 'DM Serif Display', serif; font-size: clamp(22px, 3vw, 34px); letter-spacing: -0.02em; color: var(--white); margin-bottom: 6px; }
-    .trial-band-left p { font-size: 14px; color: var(--muted); font-weight: 300; line-height: 1.6; }
-    .trial-band-left p strong { color: var(--gold-light); font-weight: 600; }
-    .trial-checklist { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
-    .trial-checklist li { list-style: none; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--muted); display: flex; align-items: center; gap: 8px; }
-    .trial-checklist li::before { content: '✓'; color: var(--green); font-size: 12px; }
-
     /* ── BOTTOM CTA ── */
-    .bottom-cta { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 90px 40px; text-align: center; }
+    .bottom-cta { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 40px 40px 90px; text-align: center; }
     .cta-box { background: linear-gradient(135deg, rgba(13,30,61,0.9) 0%, rgba(22,40,71,0.9) 100%); border: 1px solid rgba(59,130,246,0.2); border-radius: 24px; padding: 70px 60px; position: relative; overflow: hidden; }
     .cta-box::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 400px; height: 300px; background: radial-gradient(ellipse, rgba(59,130,246,0.1) 0%, transparent 70%); pointer-events: none; }
     .cta-box h2 { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 12px; }
-    .cta-box p { font-size: 15px; color: var(--muted); margin-bottom: 32px; font-weight: 300; }
+    .cta-box p { font-size: 15px; color: var(--muted); margin-bottom: 16px; font-weight: 300; }
+    .cta-box p:last-of-type { margin-bottom: 32px; }
 
     /* ── FOOTER ── */
     footer { position: relative; z-index: 10; border-top: 1px solid var(--border); padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
@@ -556,10 +602,12 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      header { padding: 0 16px; height: 56px; }
+      header { padding: 0 16px; height: 52px; }
       .desktop-nav { display: none; }
       .hamburger { display: flex; }
-      .hero { padding: 60px 20px 50px; }
+      .hero { padding: 40px 20px 36px; }
+      .hero-text-block { text-align: center; }
+      .hero-bullet { justify-content: center; }
       .features { padding: 60px 20px; }
       .cards { grid-template-columns: 1fr; }
       .stats-inner { grid-template-columns: 1fr; }
@@ -568,9 +616,11 @@
       .cta-box { padding: 40px 24px; }
       footer { padding: 24px 20px; flex-direction: column; text-align: center; }
       .footer-links { justify-content: center; }
-      .trial-band-inner { flex-direction: column; text-align: center; }
-      .trial-checklist li { justify-content: center; }
       .announcement { font-size: 10px; padding: 8px 12px; letter-spacing: 0.06em; }
+      .fact-bar { flex-wrap: wrap; }
+      .fact-item { min-width: 50%; border-bottom: 1px solid var(--border); }
+      .fact-item:nth-child(odd) { border-right: 1px solid var(--border); }
+      .fact-item:nth-last-child(-n+2) { border-bottom: none; }
     }
   </style>
 </head>
@@ -590,7 +640,7 @@
 
   <div class="desktop-nav">
     <a href="index.html" class="nav-btn">EN</a>
-    <a href="assets/about_cn.html" class="nav-btn">关于</a>
+    <a href="assets/about_cn.html" class="nav-btn">平台简介</a>
     <a href="free.html" class="nav-btn">免费预览</a>
     <div class="account-menu">
       <button class="nav-btn nav-btn-primary">账户</button>
@@ -613,28 +663,55 @@
 
 <div class="mobile-drawer" id="mobileDrawer">
   <a href="free.html">免费预览</a>
-  <a href="assets/about_cn.html">关于</a>
+  <a href="assets/about_cn.html">关于我们</a>
   <a href="login_cn.html">登录</a>
   <a href="signup_cn.html">创建账户</a>
   <a href="pricing_cn.html">管理订阅</a>
   <a href="index.html">English</a>
+  <a href="pricing_cn.html" class="mobile-gold">🔥 免费体验 7 天</a>
 </div>
 
+<!-- ── HERO ── -->
 <section class="hero">
-  <div class="hero-eyebrow fade-up delay-1">◈ &nbsp; 美股短期量价分析平台</div>
-  <h1 class="hero-title fade-up delay-2">读懂市场信号<br>过滤无效噪声</h1>
-  <div class="hero-subtitle-line fade-up delay-2">系统化市场数据处理引擎</div>
-  <p class="hero-desc fade-up delay-3">基于结构化历史数据，对美股主要标的进行深入分析</p>
-  <p class="hero-desc fade-up delay-3" style="margin-top:-10px;">全面展示短期价格与成交量的最显著变化</p>
+  <div class="hero-eyebrow fade-up delay-1">◈ &nbsp; 全面展示短期价格与成交量的最显著变化</div>
+
+  <h1 class="hero-title fade-up delay-2">大型美股短期<br>量价分析平台</h1>
+
+  <!-- Feature lines — centered to match title -->
+  <div class="hero-bullets fade-up delay-3">
+    <div class="hero-bullet">无需跳转，同一界面查看所有信息</div>
+    <div class="hero-bullet">直接查看过去一年股价趋势和最大量价变化日期</div>
+    <div class="hero-bullet">一键找出不同周期内量价变化最大股票</div>
+    <div class="hero-bullet">轻松查看基础面数据：PE、市值、EPS、波动率</div>
+  </div>
+
   <div class="hero-cta fade-up delay-4">
     <a href="pricing_cn.html" class="btn-gold">
       🔥 免费体验 7 天
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
     <a href="free.html" class="btn-primary">查看实时数据（免费3条）</a>
-    <a href="assets/about_cn.html" class="btn-secondary">了解更多</a>
   </div>
-  <div class="hero-note fade-up delay-5">随时取消 · 首日即可完整访问</div>
+
+  <!-- Fact bar: hard numbers right after CTA — inspired by screenshot -->
+  <div class="fact-bar fade-up delay-5">
+    <div class="fact-item">
+      <div class="fact-num">500<span class="accent">+</span></div>
+      <div class="fact-label">追踪股票</div>
+    </div>
+    <div class="fact-item">
+      <div class="fact-num">6<span class="accent">×</span></div>
+      <div class="fact-label">分析周期</div>
+    </div>
+    <div class="fact-item">
+      <div class="fact-num"><span class="gold">$9.99</span></div>
+      <div class="fact-label">每月 · 随时取消</div>
+    </div>
+    <div class="fact-item">
+      <div class="fact-num">24<span class="accent">h</span></div>
+      <div class="fact-label">每日更新</div>
+    </div>
+  </div>
 </section>
 
 <div class="ticker-wrap">
@@ -768,50 +845,12 @@
   </div>
 </section>
 
-<div class="stats">
-  <div class="stats-inner">
-    <div class="stat">
-      <div class="stat-num">500<span>+</span></div>
-      <div class="stat-label">追踪股票</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">6<span>×</span></div>
-      <div class="stat-label">分析周期</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">24<span>h</span></div>
-      <div class="stat-label">每日更新</div>
-    </div>
-  </div>
-</div>
-
-<div class="trial-band">
-  <div class="trial-band-inner">
-    <div class="trial-band-left">
-      <h2>🔥 免费体验 7 天</h2>
-      <p>首日即可完整访问全部功能，支持随时取消。</p>
-      <ul class="trial-checklist">
-        <li>每日更新 500+ 美股市场数据</li>
-        <li>一年趋势图与关键事件标记</li>
-        <li>支持 2周 / 1月 / 3月 / 6月 / 9月 / 1年 周期分析</li>
-        <li>基础面数据：PE、市值、EPS、波动率</li>
-        <li>支持排序筛选，快速定位重点数据</li>
-      </ul>
-    </div>
-    <div style="text-align:center;">
-      <a href="pricing_cn.html" class="btn-gold" style="font-size:15px; padding:16px 36px;">
-        开始免费体验
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <div style="margin-top:10px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.08em; color:#475569;">之后 $9.99/月 · 随时取消</div>
-    </div>
-  </div>
-</div>
 
 <section class="bottom-cta">
   <div class="cta-box">
     <h2>准备开始发现<br>市场中的真实信号？</h2>
     <p>加入早期体验计划。拒绝噪音，只保留结构化数据。</p>
+    <p>首日即可完整访问全部功能，支持随时取消。</p>
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
       <a href="pricing_cn.html" class="btn-gold">
         🔥 免费体验 7 天
@@ -848,7 +887,7 @@
   const el = document.getElementById("countdown");
   function tick() {
     const diff = deadline - Date.now();
-    if (diff <= 0) { el.textContent = "OFFER LIVE"; return; }
+    if (diff <= 0) { el.textContent = "立即开始"; return; }
     const d = Math.floor(diff / 86400000);
     const h = Math.floor((diff % 86400000) / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
@@ -861,13 +900,15 @@
   function toggleMenu() {
     const drawer = document.getElementById("mobileDrawer");
     const header = document.querySelector("header");
-    drawer.style.top = header.getBoundingClientRect().bottom + "px";
-    drawer.style.maxHeight = (window.innerHeight - header.getBoundingClientRect().bottom) + "px";
+    const ann    = document.querySelector(".announcement");
+    const bottom = header.getBoundingClientRect().bottom;
+    drawer.style.top = bottom + "px";
+    drawer.style.maxHeight = (window.innerHeight - bottom) + "px";
     drawer.classList.toggle("open");
   }
 
   document.addEventListener("click", (e) => {
-    const drawer = document.getElementById("mobileDrawer");
+    const drawer    = document.getElementById("mobileDrawer");
     const hamburger = document.getElementById("hamburger");
     if (drawer.classList.contains("open") && !drawer.contains(e.target) && !hamburger.contains(e.target)) {
       drawer.classList.remove("open");
