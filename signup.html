@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baizora | Sign Up</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/baize_favicon_v2.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/baize_favicon_v2.png">
+  <link rel="apple-touch-icon" href="assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-surface: #0a1628;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --white: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.07);
+      --border-bright: rgba(255,255,255,0.12);
+      --negative: #ef4444;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Noise texture */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* Radial glow */
+    .glow {
+      position: fixed;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(59,130,246,0.09) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      z-index: 100;
+      flex-shrink: 0;
+      height: 60px;
+      background: rgba(6,13,31,0.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .header-logo img { height: 36px; }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+    .logo-text span { color: var(--electric); }
+
+    /* ── PAGE BODY ── */
+    .page-body {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      width: 100%;
+      max-width: 380px;
+      background: rgba(10, 22, 40, 0.85);
+      border: 1px solid var(--border-bright);
+      border-radius: 16px;
+      padding: 36px 32px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Top shimmer line on card */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent);
+    }
+
+    .card-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .card-sub {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    /* ── FORM ── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .field-wrap { display: flex; flex-direction: column; gap: 5px; }
+
+    .field-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #475569;
+      display: block;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    input::placeholder { color: #334155; }
+    input:focus {
+      border-color: rgba(59,130,246,0.5);
+      background: rgba(59,130,246,0.05);
+    }
+
+    /* ── ERROR MESSAGE ── */
+    .error-msg {
+      display: none;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--negative);
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 7px;
+      padding: 9px 12px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .error-msg.visible { display: block; }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-primary {
+      width: 100%;
+      padding: 11px 20px;
+      background: linear-gradient(135deg, var(--electric), #2563eb);
+      border: none;
+      border-radius: 9px;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 24px rgba(59,130,246,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      box-shadow: 0 0 36px rgba(59,130,246,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .spinner.visible { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── DIVIDER ── */
+    .card-divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 18px;
+    }
+
+    /* ── FOOTER LINK ── */
+    .card-footer {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+    .card-footer a {
+      color: var(--electric-bright);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .card-footer a:hover { color: var(--white); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .footer-left {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
+      letter-spacing: 0.05em;
+    }
+    .footer-left a { color: inherit; text-decoration: none; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--electric-bright); }
+
+    /* ── MOBILE ── */
+    @media (max-width: 480px) {
+      header { padding: 0 16px; height: 56px; }
+      .header-logo img { height: 28px; }
+      .logo-text { font-size: 17px; }
+      .card { padding: 28px 20px; border-radius: 12px; }
+      .card-title { font-size: 23px; }
+      footer { padding: 16px 20px; flex-direction: column; text-align: center; }
+      .footer-links { justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="glow"></div>
+
+  <!-- Header -->
+  <header>
+    <a href="./" class="header-logo">
+      <img src="assets/baize_favicon_v2.png" alt="Baizora">
+      <span class="logo-text">Baiz<span>ora</span></span>
+    </a>
+  </header>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="card">
+
+      <div class="card-eyebrow">◈ &nbsp; Create Account</div>
+      <h1 class="card-title">Get started</h1>
+      <p class="card-sub">Sign up for free and explore the preview, or upgrade for full access.</p>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <div class="form-group">
+        <div class="field-wrap">
+          <label class="field-label" for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="field-wrap">
+          <label class="field-label" for="password">Password</label>
+          <input type="password" id="password" placeholder="Min. 6 characters" autocomplete="new-password">
+        </div>
+      </div>
+
+      <button class="btn-primary" id="signupBtn" onclick="signup()">
+        <div class="spinner" id="spinner"></div>
+        <span id="btnLabel">Create Account</span>
+      </button>
+
+      <div class="card-divider"></div>
+
+      <p class="card-footer">Already have an account? <a href="login.html">Log in</a></p>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">© 2026 Baizora &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
+    <div class="footer-links">
+      <a href="assets/privacy.html">Privacy</a>
+      <a href="assets/terms.html">Terms</a>
+      <a href="assets/disclaimer.html">Disclaimer</a>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { createUserWithEmailAndPassword }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const errorMsg  = document.getElementById("errorMsg");
+    const spinner   = document.getElementById("spinner");
+    const btnLabel  = document.getElementById("btnLabel");
+    const signupBtn = document.getElementById("signupBtn");
+
+    function setLoading(on) {
+      signupBtn.disabled = on;
+      spinner.classList.toggle("visible", on);
+      btnLabel.textContent = on ? "Creating account…" : "Create Account";
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add("visible");
+    }
+
+    function clearError() {
+      errorMsg.classList.remove("visible");
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") signup();
+    });
+
+    window.signup = async function() {
+      clearError();
+      const email    = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!email)               { showError("Please enter your email address."); return; }
+      if (!password)            { showError("Please enter a password."); return; }
+      if (password.length < 6)  { showError("Password must be at least 6 characters."); return; }
+
+      setLoading(true);
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        window.location.href = "login.html";
+      } catch (e) {
+        const map = {
+          "auth/email-already-in-use":   "An account with this email already exists.",
+          "auth/invalid-email":          "Please enter a valid email address.",
+          "auth/weak-password":          "Password is too weak. Use at least 6 characters.",
+          "auth/network-request-failed": "Network error. Check your connection and try again.",
+        };
+        showError(map[e.code] || e.message);
+        setLoading(false);
+      }
+    };
+  </script>
+
+</body>
+</html>

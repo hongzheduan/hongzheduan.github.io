@@ -111,6 +111,7 @@
       gap: 12px;
     }
 
+    /* Logo */
     .logo-wrap {
       display: flex;
       align-items: center;
@@ -130,11 +131,34 @@
 
     .logo-text span { color: var(--electric); }
 
+    /* Desktop nav */
     .desktop-nav {
       display: flex;
       align-items: center;
       gap: 8px;
     }
+
+    .lang-toggle {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-right: 4px;
+    }
+
+    .lang-toggle button {
+      background: transparent;
+      border: none;
+      padding: 5px 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+
+    .lang-toggle button.active { background: var(--electric); color: white; }
 
     .nav-btn {
       border: 1px solid var(--border);
@@ -153,38 +177,27 @@
     }
 
     .nav-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--white); background: rgba(59,130,246,0.08); }
+
     .nav-btn-primary { background: var(--electric); border-color: var(--electric); color: white; }
     .nav-btn-primary:hover { background: #2563eb; border-color: #2563eb; color: white; }
 
-    /* ── ACCOUNT DROPDOWN — gap fix ── */
-    .account-menu {
-      position: relative;
-    }
-
-    /* Invisible bridge fills the gap so hover is never lost */
-    .account-menu::after {
-      content: '';
-      position: absolute;
-      top: 100%;
-      left: 0; right: 0;
-      height: 12px; /* covers the visual gap */
-    }
+    /* Account dropdown */
+    .account-menu { position: relative; }
 
     .account-dropdown {
       position: absolute;
-      top: calc(100% + 8px); /* visual gap kept for aesthetics */
+      top: 100%;
+      margin-top: 8px;
       right: 0;
       width: 210px;
       background: rgba(13,30,61,0.98);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
-      /* hidden by default, shown on hover of .account-menu */
       display: none;
       backdrop-filter: blur(18px);
       box-shadow: 0 20px 50px rgba(0,0,0,.45);
       padding: 6px 0;
-      z-index: 300;
     }
 
     .account-menu:hover .account-dropdown { display: block; }
@@ -206,10 +219,9 @@
     .hamburger {
       display: none;
       flex-direction: column;
-      justify-content: center;
       gap: 5px;
       cursor: pointer;
-      padding: 6px 7px;
+      padding: 4px;
       border: 1px solid var(--border);
       border-radius: 6px;
       background: transparent;
@@ -218,37 +230,36 @@
 
     .hamburger span {
       display: block;
-      width: 18px;
+      width: 20px;
       height: 2px;
       background: var(--muted);
       border-radius: 2px;
-      transition: background 0.2s;
+      transition: all 0.3s;
     }
-
-    .hamburger:hover span { background: var(--white); }
 
     /* Mobile drawer */
     .mobile-drawer {
       display: none;
       position: fixed;
+      top: 0;          /* overridden by JS to sit exactly below header */
       left: 0; right: 0;
       z-index: 199;
       background: rgba(6, 13, 31, 0.98);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(20px);
-      padding: 12px 20px 20px;
+      padding: 16px 24px 24px;
       flex-direction: column;
       gap: 8px;
-      max-height: calc(100vh - 80px);
+      max-height: calc(100vh - 56px);
       overflow-y: auto;
     }
 
     .mobile-drawer.open { display: flex; }
 
-    .mobile-drawer a {
+    .mobile-drawer a, .mobile-drawer button {
       display: block;
       width: 100%;
-      padding: 13px 16px;
+      padding: 12px 16px;
       border-radius: 8px;
       font-family: 'DM Sans', sans-serif;
       font-size: 14px;
@@ -257,11 +268,44 @@
       text-decoration: none;
       background: transparent;
       border: 1px solid var(--border);
+      cursor: pointer;
+      text-align: left;
       transition: all 0.2s;
     }
 
     .mobile-drawer a:hover { background: rgba(59,130,246,0.08); color: var(--white); border-color: rgba(59,130,246,0.3); }
-    .mobile-drawer a.mobile-primary { background: var(--electric); border-color: var(--electric); color: white; text-align: center; }
+
+    .mobile-drawer .mobile-primary {
+      background: var(--electric);
+      border-color: var(--electric);
+      color: white;
+      text-align: center;
+    }
+
+    .mobile-drawer .mobile-lang {
+      display: flex;
+      gap: 8px;
+      border: none;
+      padding: 0;
+      background: none;
+    }
+
+    .mobile-drawer .mobile-lang button {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mobile-drawer .mobile-lang button.active { background: var(--electric); border-color: var(--electric); color: white; }
 
     /* ── HERO ── */
     .hero {
@@ -283,6 +327,7 @@
       pointer-events: none;
     }
 
+    /* 7-day trial banner */
     .trial-banner {
       display: inline-flex;
       align-items: center;
@@ -298,6 +343,8 @@
       text-transform: uppercase;
       color: var(--gold-light);
     }
+
+    .trial-banner .fire { font-size: 14px; }
 
     .hero-eyebrow {
       display: inline-flex;
@@ -457,7 +504,7 @@
     .ticker-item .up { color: #22c55e; }
     .ticker-item .dn { color: #ef4444; }
 
-    /* ── FEATURES ── */
+    /* ── FEATURES GRID ── */
     .features {
       position: relative;
       z-index: 10;
@@ -527,9 +574,27 @@
       margin-bottom: 18px;
     }
 
-    .card h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
-    .card p { font-size: 14px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+    .card.card-gold .card-icon {
+      background: rgba(245,158,11,0.1);
+      border-color: rgba(245,158,11,0.25);
+    }
 
+    .card h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* ── SPARKLINE DEMO CARD ── */
     .spark-demo {
       background: rgba(13, 30, 61, 0.6);
       border: 1px solid rgba(59,130,246,0.2);
@@ -548,24 +613,121 @@
       background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent);
     }
 
-    .spark-demo h3 { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 6px; }
-    .spark-demo p { font-size: 13px; color: var(--muted); line-height: 1.7; font-weight: 300; margin-bottom: 20px; max-width: 560px; }
+    .spark-demo h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
 
-    .spark-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; }
-    .spark-legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+    .spark-demo p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 300;
+      margin-bottom: 20px;
+      max-width: 560px;
+    }
 
-    .spark-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .spark-legend {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .spark-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+
+    .legend-tri {
+      display: inline-block;
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 9px solid currentColor;
+      color: currentColor;
+    }
+
+    .spark-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
     .spark-row:last-child { border-bottom: none; }
-    .spark-ticker { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: var(--white); width: 44px; flex-shrink: 0; }
+
+    .spark-ticker {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--white);
+      width: 44px;
+      flex-shrink: 0;
+    }
+
     .spark-svg-wrap { flex: 1; }
-    .spark-price { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--white); width: 54px; text-align: right; flex-shrink: 0; }
-    .spark-change { font-family: 'DM Mono', monospace; font-size: 12px; width: 52px; text-align: right; flex-shrink: 0; }
+
+    .spark-price {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--white);
+      width: 54px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .spark-change {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      width: 52px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
     .up-c { color: #22c55e; }
     .dn-c { color: #ef4444; }
 
-    .timeframe-demo { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
-    .tf-btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: default; }
-    .tf-btn.active { background: var(--electric); border-color: var(--electric); color: white; }
+    /* ── TIMEFRAME DEMO ── */
+    .timeframe-demo {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .tf-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      padding: 4px 12px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: default;
+    }
+
+    .tf-btn.active {
+      background: var(--electric);
+      border-color: var(--electric);
+      color: white;
+    }
 
     /* ── STATS BAND ── */
     .stats {
@@ -584,13 +746,33 @@
       grid-template-columns: repeat(3, 1fr);
     }
 
-    .stat { text-align: center; padding: 20px; border-right: 1px solid var(--border); }
-    .stat:last-child { border-right: none; }
-    .stat-num { font-family: 'DM Serif Display', serif; font-size: 52px; color: var(--white); line-height: 1; margin-bottom: 8px; }
-    .stat-num span { color: var(--electric-bright); }
-    .stat-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+    .stat {
+      text-align: center;
+      padding: 20px;
+      border-right: 1px solid var(--border);
+    }
 
-    /* ── TRIAL BAND ── */
+    .stat:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 52px;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-num span { color: var(--electric-bright); }
+
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── TRIAL CTA BAND ── */
     .trial-band {
       position: relative;
       z-index: 10;
@@ -610,13 +792,49 @@
       flex-wrap: wrap;
     }
 
-    .trial-band-left h2 { font-family: 'DM Serif Display', serif; font-size: clamp(22px, 3vw, 34px); letter-spacing: -0.02em; color: var(--white); margin-bottom: 6px; }
-    .trial-band-left p { font-size: 14px; color: var(--muted); font-weight: 300; line-height: 1.6; }
-    .trial-band-left p strong { color: var(--gold-light); font-weight: 600; }
+    .trial-band-left h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(22px, 3vw, 34px);
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
 
-    .trial-checklist { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
-    .trial-checklist li { list-style: none; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--muted); display: flex; align-items: center; gap: 8px; }
-    .trial-checklist li::before { content: '✓'; color: var(--green); font-size: 12px; }
+    .trial-band-left p {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .trial-band-left p strong {
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+
+    .trial-checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .trial-checklist li {
+      list-style: none;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .trial-checklist li::before {
+      content: '✓';
+      color: var(--green);
+      font-size: 12px;
+    }
 
     /* ── BOTTOM CTA ── */
     .bottom-cta {
@@ -647,8 +865,20 @@
       pointer-events: none;
     }
 
-    .cta-box h2 { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 12px; }
-    .cta-box p { font-size: 15px; color: var(--muted); margin-bottom: 32px; font-weight: 300; }
+    .cta-box h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .cta-box p {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
 
     /* ── FOOTER ── */
     footer {
@@ -659,19 +889,39 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
     }
 
-    .footer-left { font-family: 'DM Mono', monospace; font-size: 11px; color: #475569; letter-spacing: 0.05em; }
+    .footer-left {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
+      letter-spacing: 0.05em;
+    }
+
     .footer-left a { color: inherit; text-decoration: none; }
-    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
-    .footer-links a { font-family: 'DM Mono', monospace; font-size: 11px; color: #475569; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
+
+    .footer-links { display: flex; gap: 20px; }
+
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #475569;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+
     .footer-links a:hover { color: var(--electric-bright); }
 
     /* ── ANIMATIONS ── */
-    .fade-up { opacity: 0; transform: translateY(24px); animation: fadeUp 0.7s ease forwards; }
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.7s ease forwards;
+    }
+
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
     .delay-1 { animation-delay: 0.1s; }
     .delay-2 { animation-delay: 0.2s; }
     .delay-3 { animation-delay: 0.3s; }
@@ -690,29 +940,34 @@
       .stat { border-right: none; border-bottom: 1px solid var(--border); }
       .stat:last-child { border-bottom: none; }
       .cta-box { padding: 40px 24px; }
-      footer { padding: 24px 20px; flex-direction: column; text-align: center; }
-      .footer-links { justify-content: center; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
       .trial-band-inner { flex-direction: column; text-align: center; }
       .trial-checklist li { justify-content: center; }
-      .announcement { font-size: 10px; padding: 8px 12px; letter-spacing: 0.06em; }
     }
   </style>
 </head>
 <body>
 
+<!-- Announcement -->
 <div class="announcement">
   <span class="dot"></span>
-  &nbsp; LIMITED OFFER — FIRST 7 DAYS FREE &nbsp;·&nbsp;
+    &nbsp; LIMITED OFFER — FIRST 7 DAYS FREE &nbsp;·&nbsp;
   <span id="countdown" style="color:var(--gold-light); font-weight:600;"></span>
 </div>
 
+<!-- Header -->
 <header>
   <a href="./" class="logo-wrap">
     <img src="assets/baize_favicon_v2.png" alt="Baizora">
     <span class="logo-text">Baiz<span>ora</span></span>
   </a>
 
+  <!-- Desktop nav -->
   <div class="desktop-nav">
+    <!-- <div class="lang-toggle">
+      <button class="active">EN</button>
+      <button onclick="location.href='index_cn.html'">中文</button>
+    </div> -->
     <a href="index_cn.html" class="nav-btn">中文</a>
     <a href="assets/about.html" class="nav-btn">About</a>
     <a href="free.html" class="nav-btn">Free Preview</a>
@@ -729,35 +984,56 @@
     </div>
   </div>
 
+  <!-- Mobile hamburger -->
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
-    <span></span><span></span><span></span>
+    <span></span>
+    <span></span>
+    <span></span>
   </button>
 </header>
 
+<!-- Mobile Drawer -->
 <div class="mobile-drawer" id="mobileDrawer">
+  <!-- <div class="mobile-lang">
+    <button class="active">EN</button>
+    <button onclick="location.href='index_cn.html'">中文</button>
+  </div> -->
   <a href="free.html">Free Preview</a>
   <a href="assets/about.html">About</a>
   <a href="login.html">Login</a>
   <a href="pricing.html">Manage Subscription</a>
   <a href="index_cn.html">中文</a>
+  <!-- <a href="pricing.html" class="mobile-primary">🔥 Start Free — 7 Days</a> -->
 </div>
 
+<!-- Hero -->
 <section class="hero">
-  <div class="hero-eyebrow fade-up delay-1">◈ &nbsp; Short-Term Price-Volume Analysis Platform</div>
-  <h1 class="hero-title fade-up delay-2">Market <em>intelligence</em><br>without the noise</h1>
+  <div class="hero-eyebrow fade-up delay-1">
+    ◈ &nbsp; Short-Term Price-Volume Analysis Platform
+  </div>
+  <h1 class="hero-title fade-up delay-2">
+    Market <em>intelligence</em><br>without the noise
+  </h1>
   <div class="hero-subtitle-line fade-up delay-2">Systematic Data Processing Engine</div>
-  <p class="hero-desc fade-up delay-3">Baizora identifies unusual price and volume behavior across major US equities using consistent statistical comparisons over short-term windows.</p>
+  <p class="hero-desc fade-up delay-3">
+    Baizora identifies unusual price and volume behavior across major US equities using consistent statistical comparisons over short-term windows.
+  </p>
   <div class="hero-cta fade-up delay-4">
     <a href="pricing.html" class="btn-gold">
       🔥 Start Free — 7 Days
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
-    <a href="free.html" class="btn-primary">View Live Signals (3 free)</a>
-    <a href="assets/about.html" class="btn-secondary">Learn More</a>
+    <a href="free.html" class="btn-primary">
+      View Live Signals (3 free)
+    </a>
+    <a href="assets/about.html" class="btn-secondary">
+      Learn More
+    </a>
   </div>
   <div class="hero-note fade-up delay-5">Cancel anytime · Full access from day one</div>
 </section>
 
+<!-- Ticker Strip -->
 <div class="ticker-wrap">
   <div class="ticker-track">
     <div class="ticker-item"><span class="sym">AAPL</span> 213.42 <span class="up">▲ 1.2%</span></div>
@@ -783,6 +1059,7 @@
   </div>
 </div>
 
+<!-- Features -->
 <section class="features">
   <div class="section-label">Platform Capabilities</div>
   <h2 class="section-title">Built for precision.<br><em>Designed for clarity.</em></h2>
@@ -791,7 +1068,7 @@
     <div class="card fade-up">
       <div class="card-icon">◎</div>
       <h3>Large-Cap Coverage</h3>
-      <p>S&amp;P 500 and Nasdaq-100 constituents with consistent liquidity and institutional-grade data quality.</p>
+      <p>S&P 500 and Nasdaq-100 constituents with consistent liquidity and institutional-grade data quality.</p>
     </div>
     <div class="card fade-up delay-1">
       <div class="card-icon">⟁</div>
@@ -814,10 +1091,11 @@
     <div class="card fade-up delay-3">
       <div class="card-icon">⟳</div>
       <h3>Daily Processing</h3>
-      <p>End-of-day signals computed after market close (5:00–6:00 PM ET) for stable, noise-reduced daily insights.</p>
+      <p>End-of-day signals computed after market close (5:00–6:00 PM ET) for stable, noise-reduced daily insights</p>
     </div>
   </div>
 
+  <!-- Sparkline demo card -->
   <div class="spark-demo fade-up">
     <h3>📈 1-Year Trend Sparklines with Event Markers</h3>
     <p>Every stock comes with a 1-year price trend sparkline — and two visual markers that instantly show you <strong style="color:var(--white);">exactly when the most significant events happened</strong> in the past year. No scrolling through data tables. Spot anomalies in seconds.</p>
@@ -847,12 +1125,16 @@
       </div>
     </div>
 
+    <!-- Sample sparklines rendered in SVG -->
     <div class="spark-row">
       <div class="spark-ticker">NVDA</div>
       <div class="spark-svg-wrap">
         <svg width="200" height="28" viewBox="0 0 200 28" fill="none">
-          <path d="M0,22 L10,20 L20,18 L30,15 L40,12 L50,9 L60,11 L70,8 L80,5 L90,7 L100,4 L110,6 L120,3 L130,5 L140,4 L150,7 L160,5 L170,8 L180,10 L190,7 L200,5" stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M0,22 L10,20 L20,18 L30,15 L40,12 L50,9 L60,11 L70,8 L80,5 L90,7 L100,4 L110,6 L120,3 L130,5 L140,4 L150,7 L160,5 L170,8 L180,10 L190,7 L200,5"
+            stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <!-- Max volume day: triangle green (price up) -->
           <polygon points="80,0 75.5,8.6 84.5,8.6" fill="#22c55e" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>
+          <!-- Max price day: circle green (volume up) -->
           <circle cx="120" cy="3" r="5.5" fill="#22c55e" opacity="0.25"/>
           <circle cx="120" cy="3" r="3.2" fill="#22c55e" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
         </svg>
@@ -860,12 +1142,16 @@
       <div class="spark-price">892.31</div>
       <div class="spark-change dn-c">▼ 0.4%</div>
     </div>
+
     <div class="spark-row">
       <div class="spark-ticker">META</div>
       <div class="spark-svg-wrap">
         <svg width="200" height="28" viewBox="0 0 200 28" fill="none">
-          <path d="M0,8 L10,10 L20,12 L30,9 L40,14 L50,11 L60,16 L70,14 L80,18 L90,16 L100,20 L110,17 L120,22 L130,19 L140,16 L150,18 L160,15 L170,17 L180,14 L190,16 L200,13" stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M0,8 L10,10 L20,12 L30,9 L40,14 L50,11 L60,16 L70,14 L80,18 L90,16 L100,20 L110,17 L120,22 L130,19 L140,16 L150,18 L160,15 L170,17 L180,14 L190,16 L200,13"
+            stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <!-- Max volume day: triangle red (price down) -->
           <polygon points="60,11 55.5,19.6 64.5,19.6" fill="#ef4444" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>
+          <!-- Max price day: circle red (volume down) -->
           <circle cx="100" cy="20" r="5.5" fill="#ef4444" opacity="0.25"/>
           <circle cx="100" cy="20" r="3.2" fill="#ef4444" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
         </svg>
@@ -873,12 +1159,16 @@
       <div class="spark-price">503.21</div>
       <div class="spark-change dn-c">▼ 0.7%</div>
     </div>
+
     <div class="spark-row">
       <div class="spark-ticker">TSLA</div>
       <div class="spark-svg-wrap">
         <svg width="200" height="28" viewBox="0 0 200 28" fill="none">
-          <path d="M0,5 L10,8 L20,12 L30,16 L40,20 L50,18 L60,22 L70,18 L80,14 L90,18 L100,22 L110,18 L120,15 L130,19 L140,22 L150,18 L160,20 L170,16 L180,18 L190,14 L200,16" stroke="#ef4444" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M0,5 L10,8 L20,12 L30,16 L40,20 L50,18 L60,22 L70,18 L80,14 L90,18 L100,22 L110,18 L120,15 L130,19 L140,22 L150,18 L160,20 L170,16 L180,18 L190,14 L200,16"
+            stroke="#ef4444" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <!-- Max volume day: triangle green (price up) -->
           <polygon points="70,13 65.5,21.6 74.5,21.6" fill="#22c55e" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>
+          <!-- Max price day: circle green (volume up) -->
           <circle cx="40" cy="20" r="5.5" fill="#22c55e" opacity="0.25"/>
           <circle cx="40" cy="20" r="3.2" fill="#22c55e" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
         </svg>
@@ -889,6 +1179,7 @@
   </div>
 </section>
 
+<!-- Stats -->
 <div class="stats">
   <div class="stats-inner">
     <div class="stat">
@@ -906,29 +1197,31 @@
   </div>
 </div>
 
+<!-- Trial Band -->
 <div class="trial-band">
   <div class="trial-band-inner">
     <div class="trial-band-left">
       <h2>🔥 7 Days Free — Start Today</h2>
       <p>Full platform access from day one. Cancel anytime.</p>
       <ul class="trial-checklist">
-        <li>500+ S&amp;P 500 &amp; Nasdaq-100 signals every day</li>
+        <li>500+ S&P 500 &amp; Nasdaq-100 signals every day</li>
         <li>1-year sparklines with visual event markers</li>
         <li>6 timeframes: 2W / 1M / 3M / 6M / 9M / 1Y</li>
         <li>Fundamentals: PE, market cap, EPS, volatility</li>
         <li>Sortable columns — find what matters instantly</li>
       </ul>
     </div>
-    <div style="text-align:center;">
+    <div>
       <a href="pricing.html" class="btn-gold" style="font-size:15px; padding:16px 36px;">
         Start Free Trial
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
-      <div style="margin-top:10px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.08em; color:#475569;">THEN $9.99/MO · CANCEL ANYTIME</div>
+      <div style="margin-top:10px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.08em; color:#475569; text-align:center;">THEN $9.99/MO · CANCEL ANYTIME</div>
     </div>
   </div>
 </div>
 
+<!-- Bottom CTA -->
 <section class="bottom-cta">
   <div class="cta-box">
     <h2>Ready to see the signal<br>behind the market?</h2>
@@ -943,6 +1236,7 @@
   </div>
 </section>
 
+<!-- Footer -->
 <footer>
   <div class="footer-left">© 2026 Baizora — All rights reserved &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
   <div class="footer-links">
@@ -956,16 +1250,18 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
 <script>
-  firebase.initializeApp({
+  const firebaseConfig = {
     apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
     authDomain: "baizora.firebaseapp.com",
     projectId: "baizora"
-  });
+  };
+  firebase.initializeApp(firebaseConfig);
 </script>
 
 <script>
-  /* Countdown */
+  /* ── Countdown ── */
   const deadline = new Date("2026-05-18T00:00:00").getTime();
   const el = document.getElementById("countdown");
   function tick() {
@@ -979,15 +1275,18 @@
   tick();
   setInterval(tick, 60000);
 
-  /* Mobile menu */
+  /* ── Mobile menu ── */
   function toggleMenu() {
     const drawer = document.getElementById("mobileDrawer");
+    // Position drawer exactly below the header (accounts for announcement bar)
     const header = document.querySelector("header");
-    drawer.style.top = header.getBoundingClientRect().bottom + "px";
-    drawer.style.maxHeight = (window.innerHeight - header.getBoundingClientRect().bottom) + "px";
+    const headerBottom = header.getBoundingClientRect().bottom;
+    drawer.style.top = headerBottom + "px";
+    drawer.style.maxHeight = (window.innerHeight - headerBottom) + "px";
     drawer.classList.toggle("open");
   }
 
+  /* Close drawer when clicking outside */
   document.addEventListener("click", (e) => {
     const drawer = document.getElementById("mobileDrawer");
     const hamburger = document.getElementById("hamburger");
@@ -996,7 +1295,7 @@
     }
   });
 
-  /* Scroll fade-up */
+  /* ── Scroll fade-up ── */
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -1013,7 +1312,7 @@
     observer.observe(c);
   });
 
-  /* Portal */
+  /* ── Portal ── */
   async function openPortal() {
     try {
       const user = firebase.auth().currentUser;
