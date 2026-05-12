@@ -11,7 +11,7 @@ admin.initializeApp();
 const app = express();
 
 /* ---------------------------
-   SECRETS (STABLE WAY)
+   SECRETS
 --------------------------- */
 const stripeSecret = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
@@ -30,77 +30,92 @@ function getStripe() {
 }
 
 /* ---------------------------
+   HELPER: find or create Stripe customer by email
+   This prevents duplicate customers for the same email.
+--------------------------- */
+async function findOrCreateCustomer(stripe, email) {
+  // Search for existing customer by email
+  const existing = await stripe.customers.list({ email, limit: 1 });
+
+  if (existing.data.length > 0) {
+    return existing.data[0].id;
+  }
+
+  // None found — create one
+  const customer = await stripe.customers.create({ email });
+  return customer.id;
+}
+
+/* ---------------------------
+   HELPER: check if customer already has active/trialing sub
+--------------------------- */
+async function getActiveSubscription(stripe, customerId) {
+  const subs = await stripe.subscriptions.list({
+    customer: customerId,
+    status: "all",
+    limit: 10,
+  });
+
+  return subs.data.find(
+    (s) => s.status === "active" || s.status === "trialing"
+  ) || null;
+}
+
+/* ---------------------------
    HEALTH CHECK
 --------------------------- */
 app.get("/", async (req, res) => {
   try {
     const stripe = getStripe();
     await stripe.balance.retrieve();
-
-    res.json({
-      ok: true,
-      message: "Stripe Connected"
-    });
+    res.json({ ok: true, message: "Stripe Connected" });
   } catch (e) {
-    res.status(500).json({
-      ok: false,
-      error: e.message
-    });
+    res.status(500).json({ ok: false, error: e.message });
   }
 });
 
-// app.post("/create-checkout", async (req, res) => {
-//   try {
-//     const stripe = getStripe();
-
-//     const { email, plan } = req.body;
-
-//     const priceId =
-//       plan === "yearly"
-//         ? "price_1TSIPMDRVR8GgjbGDyrT5E3C"
-//         : "price_1TSJVFDRVR8GgjbGyMDrFqTr";
-
-//     const session = await stripe.checkout.sessions.create({
-//       mode: "subscription",
-//       line_items: [{ price: priceId, quantity: 1 }],
-//       customer_email: email,
-//       subscription_data: {
-//         trial_period_days: 7
-//       },
-//       success_url: "https://baizora.com/success.html",
-//       cancel_url: "https://baizora.com/pricing.html"
-//     });
-
-//     res.json({ url: session.url });
-
-//   } catch (e) {
-//     res.status(500).json({ error: e.message });
-//   }
-// });
-
 /* ---------------------------
    CHECKOUT
+   Key fix: reuse existing Stripe customer so no duplicates,
+   and block double-subscription attempt.
 --------------------------- */
 const MONTHLY = "price_1TSJVFDRVR8GgjbGyMDrFqTr";
 const YEARLY  = "price_1TSIPMDRVR8GgjbGDyrT5E3C";
 
 async function createCheckout(priceId, email, res) {
   try {
+    if (!email) {
+      return res.status(400).json({ error: "Missing email" });
+    }
+
     const stripe = getStripe();
+
+    // Reuse existing customer or create fresh one
+    const customerId = await findOrCreateCustomer(stripe, email);
+
+    // Block if already subscribed
+    const existingSub = await getActiveSubscription(stripe, customerId);
+    if (existingSub) {
+      return res.status(409).json({
+        error: "already_subscribed",
+        message: "This email already has an active subscription.",
+        status: existingSub.status,
+      });
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
 
-      customer_email: email,
+      // Use customer ID instead of customer_email — prevents new customer creation
+      customer: customerId,
 
-      // REMOVE THIS BLOCK IF NO TRIAL PERIOD
       subscription_data: {
-        trial_period_days: 7
+        trial_period_days: 7,
       },
 
       success_url: "https://baizora.com/success.html",
-      cancel_url: "https://baizora.com/pricing.html"
+      cancel_url: "https://baizora.com/pricing.html",
     });
 
     res.json({ url: session.url });
@@ -111,10 +126,13 @@ async function createCheckout(priceId, email, res) {
 }
 
 app.post("/create-monthly", (req, res) => createCheckout(MONTHLY, req.body.email, res));
-app.post("/create-yearly", (req, res) => createCheckout(YEARLY, req.body.email, res));
+app.post("/create-yearly",  (req, res) => createCheckout(YEARLY,  req.body.email, res));
 
 /* ---------------------------
    WEBHOOK
+   Key fix: also store email in doc so get-user query works,
+   and use subscriptionId as the doc key (not customerId)
+   to avoid collisions when a customer had multiple subs.
 --------------------------- */
 app.post(
   "/webhook",
@@ -124,7 +142,6 @@ app.post(
     const sig = req.headers["stripe-signature"];
 
     let event;
-
     try {
       event = stripe.webhooks.constructEvent(
         req.body,
@@ -138,35 +155,34 @@ app.post(
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
 
-      const customer = await stripe.customers.retrieve(session.customer);
+      const customer     = await stripe.customers.retrieve(session.customer);
       const subscription = await stripe.subscriptions.retrieve(session.subscription);
 
+      // Write doc keyed by subscriptionId (unique per subscription)
       await admin.firestore()
         .collection("subscriptions")
-        .doc(session.customer)
+        .doc(session.subscription)           // ← use subscriptionId as key
         .set({
-          email: customer.email || "",
-          customerId: session.customer,
-          subscriptionId: session.subscription,
-
-          status: subscription.status,
-          cancelAtPeriodEnd: subscription.cancel_at_period_end,
-          currentPeriodEnd: subscription.current_period_end,
-          createdAt: admin.firestore.FieldValue.serverTimestamp()
+          email:           customer.email || "",
+          customerId:      session.customer,
+          subscriptionId:  session.subscription,
+          status:          subscription.status,
+          cancelAtPeriodEnd:  subscription.cancel_at_period_end,
+          currentPeriodEnd:   subscription.current_period_end,
+          createdAt:       admin.firestore.FieldValue.serverTimestamp(),
         });
     }
-
 
     if (event.type === "customer.subscription.updated") {
       const sub = event.data.object;
 
       await admin.firestore()
         .collection("subscriptions")
-        .doc(sub.customer)
+        .doc(sub.id)                          // ← subscriptionId
         .update({
-          status: sub.status,
-          cancelAtPeriodEnd: sub.cancel_at_period_end,
-          currentPeriodEnd: sub.current_period_end   
+          status:             sub.status,
+          cancelAtPeriodEnd:  sub.cancel_at_period_end,
+          currentPeriodEnd:   sub.current_period_end,
         });
     }
 
@@ -175,11 +191,11 @@ app.post(
 
       await admin.firestore()
         .collection("subscriptions")
-        .doc(sub.customer)
+        .doc(sub.id)                          // ← subscriptionId
         .update({
-          status: "canceled",
+          status:            "canceled",
           cancelAtPeriodEnd: false,
-          canceledAt: admin.firestore.FieldValue.serverTimestamp()
+          canceledAt:        admin.firestore.FieldValue.serverTimestamp(),
         });
     }
 
@@ -189,32 +205,20 @@ app.post(
 
 /* ---------------------------
    GET USER SUBSCRIPTION
+   Key fix: query by email (unchanged), but now the docs
+   are keyed by subscriptionId so duplicates can't overwrite
+   each other, and the status field is always fresh.
 --------------------------- */
-
 app.get("/get-user", async (req, res) => {
-
   try {
-
     const uid = req.query.uid;
+    if (!uid) return res.status(400).json({ error: "Missing uid" });
 
-    if (!uid) {
-      return res.status(400).json({
-        error: "Missing uid"
-      });
-    }
-
-    // Get Firebase user
     const userRecord = await admin.auth().getUser(uid);
-
     const email = userRecord.email;
+    if (!email) return res.status(404).json({ error: "No email found" });
 
-    if (!email) {
-      return res.status(404).json({
-        error: "No email found"
-      });
-    }
-
-    // Find subscription by email
+    // Query Firestore for any active/trialing sub for this email
     const snapshot = await admin.firestore()
       .collection("subscriptions")
       .where("email", "==", email)
@@ -223,65 +227,68 @@ app.get("/get-user", async (req, res) => {
       .get();
 
     if (snapshot.empty) {
-      return res.json({
-        subscriptionStatus: "inactive"
-      });
+      // Also check Stripe directly as a fallback
+      // (handles case where webhook was missed or old customerId docs exist)
+      const stripe = getStripe();
+      const customerId = await findOrCreateCustomer(stripe, email);
+      const activeSub  = await getActiveSubscription(stripe, customerId);
+
+      if (activeSub) {
+        // Backfill missing Firestore doc
+        await admin.firestore()
+          .collection("subscriptions")
+          .doc(activeSub.id)
+          .set({
+            email,
+            customerId,
+            subscriptionId:    activeSub.id,
+            status:            activeSub.status,
+            cancelAtPeriodEnd: activeSub.cancel_at_period_end,
+            currentPeriodEnd:  activeSub.current_period_end,
+            createdAt:         admin.firestore.FieldValue.serverTimestamp(),
+          }, { merge: true });
+
+        return res.json({
+          subscriptionStatus: activeSub.status,
+          cancelAtPeriodEnd:  activeSub.cancel_at_period_end,
+          currentPeriodEnd:   activeSub.current_period_end,
+        });
+      }
+
+      return res.json({ subscriptionStatus: "inactive" });
     }
 
-    const sub = snapshot.docs[0].data()
-
+    const sub = snapshot.docs[0].data();
     return res.json({
-      // subscriptionStatus: "active"
-      subscriptionStatus: sub.status, // "trialing", "active", "canceled"
-      cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
-      currentPeriodEnd: sub.currentPeriodEnd
+      subscriptionStatus: sub.status,
+      cancelAtPeriodEnd:  sub.cancelAtPeriodEnd,
+      currentPeriodEnd:   sub.currentPeriodEnd,
     });
 
   } catch (e) {
-
     console.error(e);
-
-    res.status(500).json({
-      error: e.message
-    });
-
+    res.status(500).json({ error: e.message });
   }
-
 });
 
-
+/* ---------------------------
+   PORTAL
+--------------------------- */
 app.post("/create-portal", async (req, res) => {
   try {
     const stripe = getStripe();
-
     const { uid } = req.body;
-
-    if (!uid) {
-      return res.status(400).json({ error: "Missing uid" });
-    }
+    if (!uid) return res.status(400).json({ error: "Missing uid" });
 
     const userRecord = await admin.auth().getUser(uid);
     const email = userRecord.email;
+    if (!email) return res.status(404).json({ error: "No email found" });
 
-    if (!email) {
-      return res.status(404).json({ error: "No email found" });
-    }
-
-    // find Stripe customer by email (you may need to store customerId later)
-    const customers = await stripe.customers.list({
-      email: email,
-      limit: 1
-    });
-
-    if (!customers.data.length) {
-      return res.status(404).json({ error: "Stripe customer not found" });
-    }
-
-    const customerId = customers.data[0].id;
+    const customerId = await findOrCreateCustomer(stripe, email);
 
     const portalSession = await stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: "https://baizora.com/dashboard.html"
+      customer:   customerId,
+      return_url: "https://baizora.com/dashboard.html",
     });
 
     res.json({ url: portalSession.url });
@@ -293,16 +300,13 @@ app.post("/create-portal", async (req, res) => {
 });
 
 /* ---------------------------
-   CANCELLATION
+   CANCEL SUBSCRIPTION
 --------------------------- */
 app.post("/cancel-subscription", async (req, res) => {
   try {
     const stripe = getStripe();
     const { uid } = req.body;
-
-    if (!uid) {
-      return res.status(400).json({ error: "Missing uid" });
-    }
+    if (!uid) return res.status(400).json({ error: "Missing uid" });
 
     const userRecord = await admin.auth().getUser(uid);
     const email = userRecord.email;
@@ -318,15 +322,13 @@ app.post("/cancel-subscription", async (req, res) => {
       return res.status(404).json({ error: "No active subscription" });
     }
 
-    const doc = snapshot.docs[0];
-    const data = doc.data();
-
+    const data = snapshot.docs[0].data();
     if (!data.subscriptionId) {
       return res.status(400).json({ error: "Missing subscriptionId in DB" });
     }
 
     await stripe.subscriptions.update(data.subscriptionId, {
-      cancel_at_period_end: true
+      cancel_at_period_end: true,
     });
 
     res.json({ success: true });
@@ -338,6 +340,6 @@ app.post("/cancel-subscription", async (req, res) => {
 });
 
 /* ---------------------------
-   EXPORT (STABLE)
+   EXPORT
 --------------------------- */
 exports.api = functions.https.onRequest(app);

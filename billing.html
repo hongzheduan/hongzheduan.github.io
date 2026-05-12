@@ -460,7 +460,11 @@
       <img src="assets/baize_logo_v2.png" alt="Baizora">
       <span class="logo-text">Baiz<span>ora</span></span>
     </a>
-    <a href="login.html" class="nav-btn">Login</a>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span id="userEmail" style="font-family:'DM Mono',monospace; font-size:11px; color:#475569; letter-spacing:0.05em;"></span>
+      <a href="login.html" class="nav-btn" id="loginBtn">Login</a>
+      <button class="nav-btn" id="logoutBtn" style="display:none; border-color:rgba(239,68,68,0.3); color:#fca5a5;" onclick="doLogout()">↪ Logout</button>
+    </div>
   </header>
 
   <!-- Main -->
@@ -508,8 +512,8 @@
         <ul>
           <li><span class="check">◆</span> Everything in Monthly</li>
           <li><span class="check">◆</span> Lower long-term cost</li>
-          <li><span class="check">◆</span> Price locked for one year</li>
-          <li><span class="check">◆</span> Suitable for long-term, consistent use users</li>
+          <li><span class="check">◆</span> Priority updates</li>
+          <li><span class="check">◆</span> Consistent access</li>
         </ul>
         <button class="plan-btn btn-filled" onclick="startCheckout('yearly', this)">
           <span class="btn-label">Start Yearly</span>
@@ -537,6 +541,37 @@
     </div>
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+      authDomain: "baizora.firebaseapp.com",
+      projectId: "baizora"
+    });
+
+    // Show/hide login vs logout based on auth state
+    firebase.auth().onAuthStateChanged(user => {
+      const loginBtn  = document.getElementById('loginBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const emailEl   = document.getElementById('userEmail');
+      if (user) {
+        loginBtn.style.display  = 'none';
+        logoutBtn.style.display = 'inline-block';
+        emailEl.textContent     = user.email;
+      } else {
+        loginBtn.style.display  = 'inline-block';
+        logoutBtn.style.display = 'none';
+        emailEl.textContent     = '';
+      }
+    });
+
+    async function doLogout() {
+      await firebase.auth().signOut();
+      window.location.href = 'login.html';
+    }
+  </script>
+
   <script>
     const API_URL = "https://us-central1-baizora.cloudfunctions.net/api";
 
@@ -549,15 +584,41 @@
       btn.disabled = true;
 
       try {
-        const res = await fetch(`${API_URL}/create-${plan}`, { 
+        // Get current user email — wait for auth state, fallback to prompt
+        const user = await new Promise(resolve => {
+          const unsub = firebase.auth().onAuthStateChanged(u => { unsub(); resolve(u); });
+        });
+        let email = user ? user.email : null;
+
+        // If not logged in, ask for email so Stripe can still find/create customer
+        if (!email) {
+          email = prompt("请输入您的邮箱地址 / Please enter your email:");
+          if (!email || !email.includes("@")) {
+            label.style.display = 'flex';
+            spinner.style.display = 'none';
+            btn.disabled = false;
+            alert("请输入有效的邮箱地址。");
+            return;
+          }
+        }
+
+        const res = await fetch(`${API_URL}/create-${plan}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({})
+          body: JSON.stringify({ email })
         });
+
         const data = await res.json();
 
+        // Already subscribed — redirect to home instead of double-charging
+        if (res.status === 409 && data.error === "already_subscribed") {
+          alert("您已有有效订阅，无需重复订阅。");
+          window.location.href = "index.html";
+          return;
+        }
+
         if (!data.url) {
-          throw new Error("Payment session failed.");
+          throw new Error(data.error || "Payment session failed.");
         }
 
         window.location.href = data.url;
