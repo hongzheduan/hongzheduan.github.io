@@ -105,15 +105,6 @@ async function createCheckout(priceId, email, res) {
       });
     }
 
-    // Check if this customer has ever had a trial before (across all subs)
-    // If yes, skip the trial period — one trial per email, ever
-    const allSubs = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "all",
-      limit: 20,
-    });
-    const hadTrialBefore = allSubs.data.some(s => s.trial_start != null);
-
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
@@ -121,13 +112,12 @@ async function createCheckout(priceId, email, res) {
       // Use customer ID instead of customer_email — prevents new customer creation
       customer: customerId,
 
-      // Only apply trial if customer has never trialed before
-      subscription_data: hadTrialBefore ? {} : {
+      subscription_data: {
         trial_period_days: 7,
       },
 
       success_url: "https://baizora.com/success.html",
-      cancel_url: "https://baizora.com/billing.html",
+      cancel_url: "https://baizora.com/pricing.html",
     });
 
     res.json({ url: session.url });

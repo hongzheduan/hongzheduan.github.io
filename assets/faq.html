@@ -21,19 +21,22 @@
     .logo-text{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);letter-spacing:-0.02em;}
     .logo-text span{color:var(--electric);}
     nav{display:flex;align-items:center;gap:8px;}
-    .nav-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:6px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;white-space:nowrap;}
+    .nav-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:6px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;white-space:nowrap;display:inline-block;}
     .nav-btn:hover{border-color:rgba(59,130,246,0.4);color:var(--white);background:rgba(59,130,246,0.08);}
     .nav-btn-primary{background:var(--electric);border-color:var(--electric);color:white;}
     .nav-btn-primary:hover{background:#2563eb;border-color:#2563eb;color:white;}
+    .nav-btn-danger{border-color:rgba(239,68,68,0.3);color:#fca5a5;}
+    .nav-btn-danger:hover{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.5);}
     .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;padding:6px 7px;border:1px solid var(--border);border-radius:6px;background:transparent;flex-shrink:0;}
     .hamburger span{display:block;width:18px;height:2px;background:var(--muted);border-radius:2px;}
     .hamburger:hover span{background:var(--white);}
     .mobile-drawer{display:none;position:fixed;left:0;right:0;background:rgba(6,13,31,0.98);border-bottom:1px solid var(--border-bright);backdrop-filter:blur(20px);z-index:190;flex-direction:column;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
     .mobile-drawer.open{display:flex;}
-    .mobile-drawer a{display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);transition:color 0.15s,background 0.15s;}
-    .mobile-drawer a:last-child{border-bottom:none;}
-    .mobile-drawer a:hover{color:var(--white);background:rgba(255,255,255,0.04);}
+    .mobile-drawer a,.mobile-drawer button{display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);transition:color 0.15s,background 0.15s;width:100%;text-align:left;background:transparent;border-left:none;border-right:none;border-top:none;cursor:pointer;font-family:'DM Sans',sans-serif;}
+    .mobile-drawer a:last-child,.mobile-drawer button:last-child{border-bottom:none;}
+    .mobile-drawer a:hover,.mobile-drawer button:hover{color:var(--white);background:rgba(255,255,255,0.04);}
     .mobile-drawer a.primary{color:var(--electric-bright);font-weight:600;}
+    .mobile-drawer .m-danger{color:#fca5a5;}
     .container{position:relative;z-index:10;max-width:760px;margin:0 auto;padding:72px 32px 100px;}
     .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);border:1px solid rgba(59,130,246,0.25);background:rgba(59,130,246,0.06);padding:6px 14px;border-radius:999px;margin-bottom:24px;opacity:0;animation:fadeUp 0.5s ease forwards;}
     h1{font-family:'DM Serif Display',serif;font-size:clamp(34px,5vw,52px);letter-spacing:-0.02em;line-height:1.1;color:var(--white);margin-bottom:10px;opacity:0;animation:fadeUp 0.5s 0.1s ease forwards;}
@@ -98,14 +101,14 @@
 
 <header>
   <a href="../" class="logo-wrap">
-    <img src="baize_logo_v2.png" alt="Baizora">
+    <img src="baize_favicon_v2.png" alt="Baizora">
     <span class="logo-text">Baiz<span>ora</span></span>
   </a>
   <nav>
     <a href="about.html" class="nav-btn">About</a>
-    <a href="../pricing.html" class="nav-btn">Change Plan</a>
-    <a href="#" onclick="openPortal();return false;" class="nav-btn">Manage Account</a>
-    <a href="../login.html" class="nav-btn nav-btn-primary">Login</a>
+    <a href="../billing.html" class="nav-btn">Plans</a>
+    <a href="../dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
+    <a href="../login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign In</a>
   </nav>
   <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -114,9 +117,8 @@
 
 <div class="mobile-drawer" id="mobileDrawer">
   <a href="about.html">About</a>
-  <a href="../pricing.html">Change Plan</a>
-  <a href="#" onclick="openPortal();toggleMenu();return false;">Manage Account</a>
-  <a href="../login.html" class="primary">Login</a>
+  <a href="../billing.html">Plans</a>
+  <div id="mobileAuthLinks"></div>
 </div>
 
 <div class="container">
@@ -146,7 +148,19 @@
       </div>
       <div class="faq-a"><div class="faq-a-inner">
         No sign-up is required for the free preview. You can access selected market insights directly at <a href="../free.html">baizora.com/free</a>.<br><br>
-        A paid account is required to unlock the full dashboard — all 500+ S&P 500 and Nasdaq-100 symbols, all timeframes (2W to 1Y), sortable columns, and full fundamentals.
+        A paid subscription is required to unlock the full dashboard — all 500+ S&amp;P 500 and Nasdaq-100 symbols, all timeframes (2W to 1Y), sortable columns, and full fundamentals.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">How do I create an account?</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        Click <strong>Sign In</strong> on the homepage, then <strong>Create one</strong> on the login page. Enter your email and a password (minimum 6 characters, at least one uppercase letter and one number).<br><br>
+        After signing up, we send a <strong>verification email</strong> to your address. You must click the link in that email before you can log in. This ensures your account is protected and your email is valid.
+        <div class="highlight">✓ Check your spam folder if you don't see it</div>
       </div></div>
     </div>
 
@@ -156,9 +170,10 @@
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        When you subscribe, you get <strong>7 full days of unrestricted access</strong> to the complete platform. No limitations, no partial data.<br><br>
-        You may cancel at any time during the trial via the Stripe Customer Portal and <strong>no charges will be applied</strong>. After 7 days, your subscription begins automatically at $9.99/month or $99/year depending on the plan you selected.
-        <div class="highlight">✓ No credit card charged during trial</div>
+        When you subscribe for the first time, you get <strong>7 full days of unrestricted access</strong> to the complete platform — no limitations, no partial data.<br><br>
+        You may cancel at any time during the trial via <a href="../account.html">your account page</a> or the Stripe billing portal, and <strong>no charges will be applied</strong>. After 7 days, your subscription begins automatically at $9.99/month or $99/year depending on the plan you selected.<br><br>
+        <strong>The free trial is available once per email address.</strong> Re-subscribing with the same email after cancellation will start a paid subscription immediately with no trial period.
+        <!-- <div class="highlight">✓ No charge until trial ends</div> -->
       </div></div>
     </div>
   </div>
@@ -237,8 +252,10 @@
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        All subscription actions — upgrade, downgrade, cancel, and billing history — are handled securely through the <strong>Stripe Customer Portal</strong>.<br><br>
-        Click the <strong>"Manage Account"</strong> button in the header above, or log in and use the Account menu on the homepage. Changes apply at the end of your current billing cycle. Cancellations during the free trial incur no charges.
+        All subscription actions are available in two places:<br><br>
+        1. Visit your <a href="../account.html"><strong>Account page</strong></a> or go via <strong>Dashboard → My Account</strong> to view your current subscription status, trial end date, and a <strong>Cancel Subscription</strong> button. Cancellation takes effect at the end of your current billing period — you keep full access until then.<br><br>
+        2. <strong>Manage Billing</strong> button on the account page opens the <strong>Stripe Customer Portal</strong> where you can update your payment method, view invoices, switch plans, or cancel.<br><br>
+        Cancellations made during the free trial incur no charges — access continues until the trial period expires.
       </div></div>
     </div>
 
@@ -251,7 +268,7 @@
         Both plans include identical features — full access to all symbols, timeframes, sparklines, and fundamentals.<br><br>
         <strong>Monthly</strong>: $9.99/month — flexible, cancel anytime.<br>
         <strong>Yearly</strong>: $99/year — approximately $8.25/month, saving ~17% vs monthly billing.<br><br>
-        You can switch between plans at any time via the Stripe Customer Portal.
+        You can switch between plans at any time via the Stripe billing portal accessible from your <a href="../account.html">account page</a>.
       </div></div>
     </div>
 
@@ -261,8 +278,20 @@
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        After 7 days, your subscription automatically continues at the rate of the plan you selected ($9.99/month or $99/year). You will be charged via the payment method you provided.<br><br>
-        If you cancel before the trial ends, no charge is made and your access ends immediately. You can always re-subscribe at any time.
+        After 7 days, your subscription automatically continues at the rate of the plan you selected ($9.99/month or $99/year). You will be charged via the payment method you provided at signup.<br><br>
+        If you cancel before the trial ends, no charge is made and your access continues until the trial period expires. You can always re-subscribe at any time from the <a href="../billing.html">plans page</a>.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">I subscribed but can't access the dashboard — what should I do?</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        First, make sure your email address is verified — check your inbox for a verification email and click the link. Unverified accounts cannot log in.<br><br>
+        If your email is verified but you're still redirected to the billing page after login, try signing out and signing back in. Your subscription status is checked at login.<br><br>
+        If the issue persists, contact us at <a href="mailto:support@baizora.com">support@baizora.com</a> with your email address and we'll resolve it promptly.
       </div></div>
     </div>
   </div>
@@ -303,18 +332,38 @@
     document.querySelectorAll('.faq-item.open').forEach(el=>{if(el!==item)el.classList.remove('open');});
     item.classList.toggle('open',!isOpen);
   }
-  function toggleMenu(){const drawer=document.getElementById('mobileDrawer');const header=document.querySelector('header');drawer.style.top=header.getBoundingClientRect().bottom+'px';drawer.classList.toggle('open');}
-  document.addEventListener('click',e=>{const drawer=document.getElementById('mobileDrawer');const btn=document.getElementById('hamburgerBtn');if(drawer.classList.contains('open')&&!drawer.contains(e.target)&&!btn.contains(e.target))drawer.classList.remove('open');});
-  async function openPortal(){
-    try{
-      const user=await new Promise(resolve=>{const u=firebase.auth().currentUser;if(u)return resolve(u);firebase.auth().onAuthStateChanged(resolve);});
-      if(!user){window.location.href='../login.html';return;}
-      const res=await fetch('https://us-central1-baizora.cloudfunctions.net/api/create-portal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:user.uid})});
-      const data=await res.json();
-      if(!res.ok||!data.url)throw new Error(data.error||'Portal error');
-      window.location.href=data.url;
-    }catch(err){console.error(err);alert('Unable to open subscription portal');}
+
+  function toggleMenu(){
+    const drawer=document.getElementById('mobileDrawer');
+    const header=document.querySelector('header');
+    drawer.style.top=header.getBoundingClientRect().bottom+'px';
+    drawer.classList.toggle('open');
   }
+
+  document.addEventListener('click',e=>{
+    const drawer=document.getElementById('mobileDrawer');
+    const btn=document.getElementById('hamburgerBtn');
+    if(drawer.classList.contains('open')&&!drawer.contains(e.target)&&!btn.contains(e.target))
+      drawer.classList.remove('open');
+  });
+
+  /* ── Dynamic auth ── */
+  const mStyle='display:block;padding:14px 20px;color:#94a3b8;text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.07);';
+
+  firebase.auth().onAuthStateChanged(function(user){
+    const loginBtn  = document.getElementById('navLoginLogout');
+    const dashBtn   = document.getElementById('navDashBtn');
+    const mLinks    = document.getElementById('mobileAuthLinks');
+    if(user){
+      if(loginBtn){ loginBtn.textContent='Sign Out'; loginBtn.className='nav-btn nav-btn-danger'; loginBtn.href='#'; loginBtn.onclick=function(e){e.preventDefault();firebase.auth().signOut().then(()=>{window.location.href='../index.html';});}; }
+      if(dashBtn) dashBtn.style.display='inline-block';
+      if(mLinks) mLinks.innerHTML='<a href="../dashboard.html" style="'+mStyle+'">Dashboard</a><a href="../account.html" style="'+mStyle+'">My Account</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index.html\');" style="'+mStyle+'color:#fca5a5;">Sign Out</a>';
+    } else {
+      if(loginBtn){ loginBtn.textContent='Sign In'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login.html'; loginBtn.onclick=null; }
+      if(dashBtn) dashBtn.style.display='none';
+      if(mLinks) mLinks.innerHTML='<a href="../login.html" style="'+mStyle+'">Sign In</a><a href="../signup.html" style="'+mStyle+'">Create Account</a>';
+    }
+  });
 </script>
 </body>
 </html>

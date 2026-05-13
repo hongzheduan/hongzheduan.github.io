@@ -710,8 +710,11 @@
     /* ── PORTAL ── */
     window.openPortal = async function () {
       try {
-        const user = auth.currentUser;
-        if (!user) return;
+        // Wait for auth to resolve rather than relying on currentUser snapshot
+        const user = await new Promise((resolve) => {
+          const unsub = auth.onAuthStateChanged(u => { unsub(); resolve(u); });
+        });
+        if (!user) { window.location.href = "login.html"; return; }
         const res  = await fetch(`${API}/create-portal`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
