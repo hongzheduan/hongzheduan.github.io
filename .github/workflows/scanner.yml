@@ -5,9 +5,9 @@ on:
     - cron: "30 20 * * 1-5"
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  
+permissions:
+  contents: write
+
 jobs:
   run-scanner:
     runs-on: ubuntu-latest
@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -35,6 +37,6 @@ jobs:
           git add data/latest.json
           git add archive/*.csv
 
-          git commit -m "auto update $(date -u)" || echo "No changes"
+          git diff --cached --quiet || git commit -m "auto update $(date -u)"
 
           git push
