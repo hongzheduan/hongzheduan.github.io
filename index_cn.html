@@ -890,16 +890,8 @@
     <a href="index.html" class="nav-btn">EN</a>
     <a href="assets/about_cn.html" class="nav-btn">平台简介</a>
     <a href="pricing_cn.html" class="nav-btn">加入我们</a>
-    <!-- 账户 always visible -->
-    <div class="account-menu">
-      <button class="nav-btn nav-btn-primary">账户</button>
-      <div class="account-dropdown">
-        <a href="account.html">管理订阅</a>
-        <a href="pricing_cn.html">更改套餐</a>
-        <div class="dropdown-divider"></div>
-        <a href="login_cn.html" id="navLoginLogout">登录</a>
-      </div>
-    </div>
+    <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">控制台</a>
+    <a href="login_cn.html" class="nav-btn nav-btn-primary" id="navLoginLogout">登录</a>
   </div>
 
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="菜单">
@@ -1229,6 +1221,7 @@
   /* ── Dynamic auth state ── */
   firebase.auth().onAuthStateChanged(function(user) {
     const loginLogout = document.getElementById('navLoginLogout');
+    const dashBtn     = document.getElementById('navDashBtn');
     const mobileLinks = document.getElementById('mobileAuthLinks');
 
     const mStyle = 'display:block;width:100%;padding:13px 16px;border-radius:8px;' +
@@ -1236,20 +1229,25 @@
       'text-decoration:none;background:transparent;margin-bottom:8px;';
 
     if (user) {
-      // Logged in: swap 登录 → 退出登录
+      if (dashBtn) dashBtn.style.display = 'inline-flex';
       if (loginLogout) {
         loginLogout.textContent = '退出登录';
+        loginLogout.style.background = 'transparent';
+        loginLogout.style.borderColor = 'rgba(239,68,68,0.3)';
         loginLogout.style.color = '#fca5a5';
         loginLogout.href = '#';
-        loginLogout.onclick = function() { doLogoutCn(); return false; };
+        loginLogout.onclick = function(e) { e.preventDefault(); doLogoutCn(); };
       }
       mobileLinks.innerHTML =
-        '<a href="login_cn.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">进入控制台</a>' +
+        '<a href="dashboard.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">控制台</a>' +
+        '<a href="account.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">我的账户</a>' +
         '<a href="#" onclick="doLogoutCn();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">退出登录</a>';
     } else {
-      // Logged out: show 登录
+      if (dashBtn) dashBtn.style.display = 'none';
       if (loginLogout) {
         loginLogout.textContent = '登录';
+        loginLogout.style.background = '';
+        loginLogout.style.borderColor = '';
         loginLogout.style.color = '';
         loginLogout.href = 'login_cn.html';
         loginLogout.onclick = null;

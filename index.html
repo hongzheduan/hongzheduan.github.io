@@ -890,16 +890,8 @@
     <a href="index_cn.html" class="nav-btn">中文</a>
     <a href="assets/about.html" class="nav-btn">About</a>
     <a href="billing.html" class="nav-btn">Plans</a>
-    <!-- 账户 always visible -->
-    <div class="account-menu">
-      <button class="nav-btn nav-btn-primary">Account</button>
-      <div class="account-dropdown">
-        <a href="account.html">Manage Subscription</a>
-        <a href="billing.html">Change Plan</a>
-        <div class="dropdown-divider"></div>
-        <a href="login.html" id="navLoginLogout">Sign In</a>
-      </div>
-    </div>
+    <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
+    <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign In</a>
   </div>
 
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
@@ -1228,31 +1220,37 @@
 
   /* ── Dynamic auth state ── */
   firebase.auth().onAuthStateChanged(function(user) {
-    const loginLogout = document.getElementById('navLoginLogout');
+    const btn         = document.getElementById('navLoginLogout');
+    const dashBtn     = document.getElementById('navDashBtn');
     const mobileLinks = document.getElementById('mobileAuthLinks');
 
     const mStyle = 'display:block;width:100%;padding:13px 16px;border-radius:8px;' +
-      'font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;' +
+      'font-family:\'DM Sans\',sans-serif;font-size:14px;font-weight:500;' +
       'text-decoration:none;background:transparent;margin-bottom:8px;';
 
     if (user) {
-      // Logged in: swap 登录 → 退出登录
-      if (loginLogout) {
-        loginLogout.textContent = 'Sign Out';
-        loginLogout.style.color = '#fca5a5';
-        loginLogout.href = '#';
-        loginLogout.onclick = function() { doLogoutCn(); return false; };
+      if (dashBtn) dashBtn.style.display = 'inline-flex';
+      if (btn) {
+        btn.textContent = 'Sign Out';
+        btn.style.background = 'transparent';
+        btn.style.borderColor = 'rgba(239,68,68,0.3)';
+        btn.style.color = '#fca5a5';
+        btn.href = '#';
+        btn.onclick = function(e) { e.preventDefault(); doLogout(); };
       }
       mobileLinks.innerHTML =
-        '<a href="login.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Go to Dashboard</a>' +
-        '<a href="#" onclick="doLogoutCn();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">Sign Out</a>';
+        '<a href="dashboard.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Dashboard</a>' +
+        '<a href="account.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">My Account</a>' +
+        '<a href="#" onclick="doLogout();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">Sign Out</a>';
     } else {
-      // Logged out: show 登录
-      if (loginLogout) {
-        loginLogout.textContent = 'Sign In';
-        loginLogout.style.color = '';
-        loginLogout.href = 'login_cn.html';
-        loginLogout.onclick = null;
+      if (dashBtn) dashBtn.style.display = 'none';
+      if (btn) {
+        btn.textContent = 'Sign In';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        btn.href = 'login.html';
+        btn.onclick = null;
       }
       mobileLinks.innerHTML =
         '<a href="login.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Sign In</a>' +
@@ -1260,10 +1258,11 @@
     }
   });
 
-  async function doLogoutCn() {
+  async function doLogout() {
     await firebase.auth().signOut();
     window.location.href = 'index.html';
   }
+
 
   /* Portal */
   async function openPortal() {

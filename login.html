@@ -466,6 +466,15 @@
         const result = await signInWithEmailAndPassword(auth, email, password);
         const user   = result.user;
 
+        // ── Block unverified emails ──
+        if (!user.emailVerified) {
+          await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js")
+            .then(m => m.sendEmailVerification(user));
+          btn.classList.remove("loading");
+          showError("Please verify your email first. A new verification link has been sent to " + user.email + ".");
+          return;
+        }
+
         // ── Check subscription status ──
         let subscriptionStatus = "inactive";
         try {
