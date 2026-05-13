@@ -35,9 +35,11 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          # Fetch and rebase onto latest remote to avoid rejected push
+          # Stash scanner output, sync with remote, then restore
+          git stash --include-untracked
           git fetch origin ${{ github.ref_name }}
           git rebase origin/${{ github.ref_name }}
+          git stash pop
 
           git add data/latest.json || echo "data/latest.json not found, skipping"
           git add archive/*.csv 2>/dev/null || echo "No archive csv files found, skipping"
