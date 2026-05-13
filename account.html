@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baizora | Account</title>
+  <link rel="icon" href="assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-surface: #0a1628;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --gold: #f59e0b;
+      --gold-light: #fcd34d;
+      --green: #22c55e;
+      --red: #ef4444;
+      --white: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.07);
+      --border-bright: rgba(255,255,255,0.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: rgba(6,13,31,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      gap: 12px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .header-left img { height: 32px; }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span { color: var(--electric); }
+
+    .header-right { display: flex; align-items: center; gap: 8px; }
+
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--white); background: rgba(59,130,246,0.08); }
+
+    .nav-btn-danger { border-color: rgba(239,68,68,0.25); color: #fca5a5; }
+    .nav-btn-danger:hover { border-color: rgba(239,68,68,0.5); background: rgba(239,68,68,0.08); color: #fca5a5; }
+
+    /* hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 5px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+    }
+
+    .hamburger span { display: block; width: 18px; height: 2px; background: var(--muted); border-radius: 2px; }
+
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      left: 0; right: 0;
+      z-index: 99;
+      background: rgba(6,13,31,0.98);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      padding: 12px 20px 20px;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mobile-drawer.open { display: flex; }
+
+    .mobile-drawer a, .mobile-drawer button {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      background: transparent;
+      border: 1px solid var(--border);
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(59,130,246,0.08); color: var(--white); }
+    .mobile-drawer .m-danger { border-color: rgba(239,68,68,0.25); color: #fca5a5; }
+    .mobile-drawer .m-danger:hover { background: rgba(239,68,68,0.08); }
+
+    /* ── PAGE ── */
+    .page {
+      position: relative;
+      z-index: 10;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .page-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 10px;
+    }
+
+    .page-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 5vw, 40px);
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+
+    .page-sub {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 40px;
+    }
+
+    /* ── CARDS ── */
+    .section-card {
+      background: rgba(13,30,61,0.6);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59,130,246,0.25), transparent);
+    }
+
+    .card-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 18px;
+    }
+
+    /* ── STATUS BADGE ── */
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .status-left { display: flex; flex-direction: column; gap: 4px; }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+    }
+
+    .status-badge.active   { background: rgba(34,197,94,0.12);  border: 1px solid rgba(34,197,94,0.3);  color: #86efac; }
+    .status-badge.trialing { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: var(--gold-light); }
+    .status-badge.canceled { background: rgba(239,68,68,0.1);   border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
+    .status-badge.inactive { background: rgba(148,163,184,0.1); border: 1px solid rgba(148,163,184,0.2);color: var(--muted); }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+
+    .status-badge.active   .status-dot { background: #22c55e; animation: pulse 2s ease infinite; }
+    .status-badge.trialing .status-dot { background: var(--gold); animation: pulse 2s ease infinite; }
+    .status-badge.canceled .status-dot { background: var(--red); }
+    .status-badge.inactive .status-dot { background: var(--muted); }
+
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+    .status-plan {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--white);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* ── INFO ROWS ── */
+    .info-rows { display: flex; flex-direction: column; gap: 0; }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-key {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #475569;
+      flex-shrink: 0;
+    }
+
+    .info-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--white);
+      text-align: right;
+    }
+
+    .info-val.muted  { color: var(--muted); }
+    .info-val.gold   { color: var(--gold-light); }
+    .info-val.green  { color: #86efac; }
+    .info-val.red    { color: #fca5a5; }
+
+    /* ── ACTION BUTTONS ── */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .action-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--white); background: rgba(59,130,246,0.08); }
+
+    .action-btn-primary {
+      background: var(--electric);
+      border-color: var(--electric);
+      color: white;
+      font-weight: 600;
+    }
+
+    .action-btn-primary:hover { background: #2563eb; border-color: #2563eb; color: white; transform: translateY(-1px); }
+
+    .action-btn-danger { border-color: rgba(239,68,68,0.25); color: #fca5a5; }
+    .action-btn-danger:hover { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); }
+
+    .action-btn-full { grid-column: 1 / -1; }
+
+    /* ── ACCOUNT INFO CARD ── */
+    .avatar {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    /* ── LOADING STATE ── */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+      height: 14px;
+    }
+
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ── ALERT ── */
+    .alert {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 300;
+      margin-bottom: 16px;
+    }
+
+    .alert.show { display: block; }
+    .alert-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: #86efac; }
+    .alert-error   { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
+
+    /* ── CANCEL CONFIRM MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: rgba(13,30,61,0.98);
+      border: 1px solid var(--border-bright);
+      border-radius: 16px;
+      padding: 32px 28px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    }
+
+    .modal h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .modal p { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.7; margin-bottom: 24px; }
+
+    .modal-btns { display: flex; gap: 10px; }
+    .modal-btns button { flex: 1; padding: 11px; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border); }
+    .modal-btn-cancel { background: transparent; color: var(--muted); }
+    .modal-btn-cancel:hover { background: rgba(255,255,255,0.05); color: var(--white); }
+    .modal-btn-confirm { background: var(--red); border-color: var(--red); color: white; }
+    .modal-btn-confirm:hover { background: #dc2626; }
+    .modal-btn-confirm.loading { opacity: 0.6; pointer-events: none; }
+
+    /* ── NOT LOGGED IN STATE ── */
+    .not-logged-in {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .not-logged-in h2 { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 10px; }
+    .not-logged-in p { color: var(--muted); font-size: 14px; margin-bottom: 28px; font-weight: 300; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      header { padding: 0 16px; }
+      .header-right .nav-btn { display: none; }
+      .hamburger { display: flex; }
+      .page { padding: 32px 16px 60px; }
+      .action-grid { grid-template-columns: 1fr; }
+      .action-btn-full { grid-column: 1; }
+      .section-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="./" class="header-left">
+      <img src="assets/baize_favicon_v2.png" alt="Baizora">
+      <span class="logo-text">Baiz<span>ora</span></span>
+    </a>
+    <div class="header-right">
+      <a href="dashboard.html" class="nav-btn">↩ Dashboard</a>
+      <span id="headerEmail" style="font-family:'DM Mono',monospace; font-size:11px; color:#475569; letter-spacing:0.05em;"></span>
+      <button class="nav-btn nav-btn-danger" id="headerLogoutBtn" style="display:none;" onclick="doLogout()">↪ Logout</button>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <a href="dashboard.html">↩ Dashboard</a>
+    <a href="billing.html">View Plans</a>
+    <button class="m-danger" onclick="doLogout(); return false;">↪ Logout</button>
+  </div>
+
+  <!-- Alert bar -->
+  <div style="max-width:680px; margin:0 auto; padding:0 24px;">
+    <div class="alert alert-success" id="alertSuccess"></div>
+    <div class="alert alert-error"   id="alertError"></div>
+  </div>
+
+  <!-- Main page content (shown when logged in) -->
+  <div class="page" id="mainContent" style="display:none;">
+
+    <div class="page-eyebrow">◈ &nbsp; Account Management</div>
+    <h1 class="page-title">Your Account</h1>
+    <p class="page-sub" id="pageSubEmail">Manage your subscription and billing details.</p>
+
+    <!-- Subscription Card -->
+    <div class="section-card">
+      <div class="card-label">Subscription</div>
+
+      <div class="status-row">
+        <div class="status-left">
+          <div id="statusBadge" class="status-badge inactive">
+            <span class="status-dot"></span>
+            <span id="statusText">Loading…</span>
+          </div>
+          <div class="status-plan" id="planName"></div>
+        </div>
+      </div>
+
+      <div class="info-rows" id="subInfoRows">
+        <div class="info-row">
+          <span class="info-key">Status</span>
+          <span class="info-val skeleton" style="width:80px;">&nbsp;</span>
+        </div>
+      </div>
+
+      <div class="action-grid" id="actionGrid" style="display:none;">
+        <button class="action-btn action-btn-primary" onclick="openPortal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Manage Billing
+        </button>
+        <a href="dashboard.html" class="action-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Go to Dashboard
+        </a>
+        <button class="action-btn action-btn-danger action-btn-full" id="cancelBtn" onclick="showCancelModal()" style="display:none;">
+          Cancel Subscription
+        </button>
+      </div>
+
+      <!-- No subscription -->
+      <div id="noSubActions" style="display:none; margin-top:16px;">
+        <a href="billing.html" class="action-btn action-btn-primary" style="justify-content:center;">
+          🔥 Start Free Trial — 7 Days Free
+        </a>
+      </div>
+    </div>
+
+    <!-- Account Info Card -->
+    <div class="section-card">
+      <div class="card-label">Account</div>
+      <div class="avatar">👤</div>
+      <div class="info-rows">
+        <div class="info-row">
+          <span class="info-key">Email</span>
+          <span class="info-val" id="accountEmail">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Member Since</span>
+          <span class="info-val" id="memberSince">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">UID</span>
+          <span class="info-val muted" id="accountUid" style="font-size:10px;">—</span>
+        </div>
+      </div>
+      <div class="action-grid" style="margin-top:20px;">
+        <button class="action-btn" onclick="sendReset()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+          Reset Password
+        </button>
+        <button class="action-btn nav-btn-danger" onclick="doLogout()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /mainContent -->
+
+  <!-- Not logged in state -->
+  <div class="page not-logged-in" id="notLoggedIn" style="display:none;">
+    <div style="font-size:48px; margin-bottom:20px;">🔒</div>
+    <h2>Sign in to view your account</h2>
+    <p>You need to be logged in to manage your subscription.</p>
+    <a href="login.html" class="action-btn action-btn-primary" style="display:inline-flex; margin:0 auto;">
+      Sign In
+    </a>
+  </div>
+
+  <!-- Cancel confirmation modal -->
+  <div class="modal-overlay" id="cancelModal">
+    <div class="modal">
+      <h3>Cancel Subscription?</h3>
+      <p>Your access will continue until the end of the current billing period. After that, you'll lose access to the full dashboard.</p>
+      <div class="modal-btns">
+        <button class="modal-btn-cancel" onclick="hideCancelModal()">Keep Plan</button>
+        <button class="modal-btn-confirm" id="confirmCancelBtn" onclick="doCancel()">Yes, Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import {
+      onAuthStateChanged,
+      signOut,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const API = "https://us-central1-baizora.cloudfunctions.net/api";
+
+    /* ── HELPERS ── */
+    function showAlert(msg, type = "success") {
+      const el = document.getElementById(type === "success" ? "alertSuccess" : "alertError");
+      const other = document.getElementById(type === "success" ? "alertError" : "alertSuccess");
+      el.textContent = msg;
+      el.classList.add("show");
+      other.classList.remove("show");
+      setTimeout(() => el.classList.remove("show"), 5000);
+    }
+
+    function fmtDate(ts) {
+      if (!ts) return "—";
+      const d = new Date(ts * 1000);
+      return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    }
+
+    function fmtJoinDate(isoStr) {
+      if (!isoStr) return "—";
+      const d = new Date(isoStr);
+      return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    }
+
+    /* ── RENDER SUBSCRIPTION ── */
+    function renderSub(data, user) {
+      const status = data.subscriptionStatus || "inactive";
+      const badge  = document.getElementById("statusBadge");
+      const text   = document.getElementById("statusText");
+      const plan   = document.getElementById("planName");
+      const rows   = document.getElementById("subInfoRows");
+      const grid   = document.getElementById("actionGrid");
+      const noSub  = document.getElementById("noSubActions");
+      const cancelBtn = document.getElementById("cancelBtn");
+
+      // Badge
+      badge.className = `status-badge ${status}`;
+      text.textContent =
+        status === "active"   ? "Active"   :
+        status === "trialing" ? "Free Trial" :
+        status === "canceled" ? "Canceled" : "No Subscription";
+
+      // Plan label
+      plan.textContent = status === "inactive" || status === "canceled" ? "" : "Baizora Full Access";
+
+      // Info rows
+      let html = `
+        <div class="info-row">
+          <span class="info-key">Status</span>
+          <span class="info-val ${status === 'active' ? 'green' : status === 'trialing' ? 'gold' : 'red'}">
+            ${status === "active" ? "Active" : status === "trialing" ? "Trial period" : status === "canceled" ? "Canceled" : "—"}
+          </span>
+        </div>`;
+
+      if (data.currentPeriodEnd) {
+        const label = status === "trialing" ? "Trial Ends" :
+                      data.cancelAtPeriodEnd ? "Access Until" : "Next Billing";
+        html += `
+          <div class="info-row">
+            <span class="info-key">${label}</span>
+            <span class="info-val">${fmtDate(data.currentPeriodEnd)}</span>
+          </div>`;
+      }
+
+      if (data.cancelAtPeriodEnd) {
+        html += `
+          <div class="info-row">
+            <span class="info-key">Auto-Renew</span>
+            <span class="info-val red">Off — cancels at period end</span>
+          </div>`;
+      }
+
+      rows.innerHTML = html;
+
+      // Show right action buttons
+      if (status === "active" || status === "trialing") {
+        grid.style.display = "grid";
+        noSub.style.display = "none";
+        // Show cancel only if not already canceling
+        cancelBtn.style.display = data.cancelAtPeriodEnd ? "none" : "block";
+      } else {
+        grid.style.display = "none";
+        noSub.style.display = "block";
+      }
+    }
+
+    /* ── AUTH STATE ── */
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        document.getElementById("mainContent").style.display = "none";
+        document.getElementById("notLoggedIn").style.display = "block";
+        document.getElementById("headerLogoutBtn").style.display = "none";
+        return;
+      }
+
+      // Show main content
+      document.getElementById("mainContent").style.display = "block";
+      document.getElementById("notLoggedIn").style.display = "none";
+      document.getElementById("headerLogoutBtn").style.display = "inline-flex";
+      document.getElementById("headerEmail").textContent = user.email;
+
+      // Fill account info
+      document.getElementById("accountEmail").textContent  = user.email;
+      document.getElementById("accountUid").textContent    = user.uid;
+      document.getElementById("memberSince").textContent   = fmtJoinDate(user.metadata.creationTime);
+      document.getElementById("pageSubEmail").textContent  = user.email;
+
+      // Fetch subscription
+      try {
+        const res  = await fetch(`${API}/get-user?uid=${user.uid}`);
+        const data = await res.json();
+        renderSub(data, user);
+      } catch (e) {
+        console.error(e);
+        renderSub({ subscriptionStatus: "inactive" }, user);
+      }
+    });
+
+    /* ── PORTAL ── */
+    window.openPortal = async function () {
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+        const res  = await fetch(`${API}/create-portal`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: user.uid })
+        });
+        const data = await res.json();
+        if (!data.url) throw new Error(data.error || "Portal error");
+        window.location.href = data.url;
+      } catch (e) {
+        showAlert(e.message || "Could not open billing portal.", "error");
+      }
+    };
+
+    /* ── CANCEL ── */
+    window.showCancelModal = function () {
+      document.getElementById("cancelModal").classList.add("open");
+    };
+
+    window.hideCancelModal = function () {
+      document.getElementById("cancelModal").classList.remove("open");
+    };
+
+    window.doCancel = async function () {
+      const btn = document.getElementById("confirmCancelBtn");
+      btn.classList.add("loading");
+      btn.textContent = "Canceling…";
+      try {
+        const user = auth.currentUser;
+        const res  = await fetch(`${API}/cancel-subscription`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: user.uid })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Cancel failed");
+        hideCancelModal();
+        showAlert("Subscription canceled. You'll keep access until the end of the billing period.", "success");
+        // Refresh sub info
+        const res2  = await fetch(`${API}/get-user?uid=${user.uid}`);
+        const data2 = await res2.json();
+        renderSub(data2, user);
+      } catch (e) {
+        hideCancelModal();
+        showAlert(e.message || "Cancellation failed. Please try again.", "error");
+      } finally {
+        btn.classList.remove("loading");
+        btn.textContent = "Yes, Cancel";
+      }
+    };
+
+    /* ── LOGOUT ── */
+    window.doLogout = async function () {
+      await signOut(auth);
+      window.location.href = "login.html";
+    };
+
+    /* ── RESET PASSWORD ── */
+    window.sendReset = async function () {
+      const user = auth.currentUser;
+      if (!user) return;
+      try {
+        await sendPasswordResetEmail(auth, user.email);
+        showAlert("Password reset email sent. Check your inbox.", "success");
+      } catch (e) {
+        showAlert(e.message, "error");
+      }
+    };
+
+    /* ── MOBILE MENU ── */
+    window.toggleMenu = function () {
+      const drawer = document.getElementById("mobileDrawer");
+      const header = document.querySelector("header");
+      drawer.style.top = header.getBoundingClientRect().bottom + "px";
+      drawer.classList.toggle("open");
+    };
+
+    document.addEventListener("click", (e) => {
+      const drawer = document.getElementById("mobileDrawer");
+      const btn    = document.getElementById("hamburger");
+      if (drawer.classList.contains("open") && !drawer.contains(e.target) && !btn.contains(e.target)) {
+        drawer.classList.remove("open");
+      }
+    });
+
+    // Close modal on overlay click
+    document.getElementById("cancelModal").addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) hideCancelModal();
+    });
+  </script>
+
+</body>
+</html>

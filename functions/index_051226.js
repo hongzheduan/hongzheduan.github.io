@@ -20,9 +20,7 @@ const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
    MIDDLEWARE
 --------------------------- */
 app.use(cors({ origin: true }));
-// NOTE: express.json() is intentionally NOT added here globally.
-// Each route that needs JSON parsing gets it explicitly below.
-// The /webhook route must receive raw bytes for Stripe signature verification.
+app.use(express.json());
 
 /* ---------------------------
    STRIPE INIT
@@ -127,8 +125,8 @@ async function createCheckout(priceId, email, res) {
   }
 }
 
-app.post("/create-monthly", express.json(), (req, res) => createCheckout(MONTHLY, req.body.email, res));
-app.post("/create-yearly",  express.json(), (req, res) => createCheckout(YEARLY,  req.body.email, res));
+app.post("/create-monthly", (req, res) => createCheckout(MONTHLY, req.body.email, res));
+app.post("/create-yearly",  (req, res) => createCheckout(YEARLY,  req.body.email, res));
 
 /* ---------------------------
    WEBHOOK
@@ -136,94 +134,69 @@ app.post("/create-yearly",  express.json(), (req, res) => createCheckout(YEARLY,
    and use subscriptionId as the doc key (not customerId)
    to avoid collisions when a customer had multiple subs.
 --------------------------- */
-app.post("/webhook", async (req, res) => {
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
     const stripe = getStripe();
     const sig = req.headers["stripe-signature"];
 
     let event;
     try {
-      // Firebase Functions pre-parses the body — reconstruct raw buffer for Stripe
-      let rawBody = req.rawBody; // Firebase provides this automatically
-      if (!rawBody) {
-        // Fallback: re-stringify the parsed body
-        rawBody = JSON.stringify(req.body);
-      }
       event = stripe.webhooks.constructEvent(
-        rawBody,
+        req.body,
         sig,
         stripeWebhookSecret.value()
       );
     } catch (err) {
-      console.error("Webhook signature error:", err.message);
       return res.status(400).send(err.message);
     }
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
-      try {
-        // session.subscription can be null for one-time payments
-        if (!session.subscription) {
-          console.log("No subscription in session, skipping.");
-          return res.json({ received: true });
-        }
 
-        const customer     = await stripe.customers.retrieve(session.customer);
-        const subscription = await stripe.subscriptions.retrieve(session.subscription);
+      const customer     = await stripe.customers.retrieve(session.customer);
+      const subscription = await stripe.subscriptions.retrieve(session.subscription);
 
-        await admin.firestore()
-          .collection("subscriptions")
-          .doc(session.subscription)
-          .set({
-            email:             customer.email || "",
-            customerId:        session.customer,
-            subscriptionId:    session.subscription,
-            status:            subscription.status,
-            cancelAtPeriodEnd: subscription.cancel_at_period_end,
-            currentPeriodEnd:  subscription.current_period_end,
-            createdAt:         admin.firestore.FieldValue.serverTimestamp(),
-          });
-        console.log("Subscription written:", session.subscription, subscription.status);
-      } catch (e) {
-        console.error("checkout.session.completed error:", e.message);
-        // Still return 200 so Stripe doesn't keep retrying a permanently broken event
-        return res.json({ received: true, warning: e.message });
-      }
+      // Write doc keyed by subscriptionId (unique per subscription)
+      await admin.firestore()
+        .collection("subscriptions")
+        .doc(session.subscription)           // ← use subscriptionId as key
+        .set({
+          email:           customer.email || "",
+          customerId:      session.customer,
+          subscriptionId:  session.subscription,
+          status:          subscription.status,
+          cancelAtPeriodEnd:  subscription.cancel_at_period_end,
+          currentPeriodEnd:   subscription.current_period_end,
+          createdAt:       admin.firestore.FieldValue.serverTimestamp(),
+        });
     }
 
     if (event.type === "customer.subscription.updated") {
       const sub = event.data.object;
-      try {
-        const customer = await stripe.customers.retrieve(sub.customer);
-        await admin.firestore()
-          .collection("subscriptions")
-          .doc(sub.id)
-          .set({                              // set+merge creates doc if missing
-            email:             customer.email || "",
-            customerId:        sub.customer,
-            subscriptionId:    sub.id,
-            status:            sub.status,
-            cancelAtPeriodEnd: sub.cancel_at_period_end,
-            currentPeriodEnd:  sub.current_period_end,
-          }, { merge: true });
-      } catch(e) {
-        console.error("subscription.updated error:", e.message);
-      }
+
+      await admin.firestore()
+        .collection("subscriptions")
+        .doc(sub.id)                          // ← subscriptionId
+        .update({
+          status:             sub.status,
+          cancelAtPeriodEnd:  sub.cancel_at_period_end,
+          currentPeriodEnd:   sub.current_period_end,
+        });
     }
 
     if (event.type === "customer.subscription.deleted") {
       const sub = event.data.object;
-      try {
-        await admin.firestore()
-          .collection("subscriptions")
-          .doc(sub.id)
-          .set({
-            status:            "canceled",
-            cancelAtPeriodEnd: false,
-            canceledAt:        admin.firestore.FieldValue.serverTimestamp(),
-          }, { merge: true });
-      } catch(e) {
-        console.error("subscription.deleted error:", e.message);
-      }
+
+      await admin.firestore()
+        .collection("subscriptions")
+        .doc(sub.id)                          // ← subscriptionId
+        .update({
+          status:            "canceled",
+          cancelAtPeriodEnd: false,
+          canceledAt:        admin.firestore.FieldValue.serverTimestamp(),
+        });
     }
 
     res.json({ received: true });
@@ -245,7 +218,7 @@ app.get("/get-user", async (req, res) => {
     const email = userRecord.email;
     if (!email) return res.status(404).json({ error: "No email found" });
 
-    // ── 1. Check new `subscriptions` collection (keyed by subscriptionId) ──
+    // Query Firestore for any active/trialing sub for this email
     const snapshot = await admin.firestore()
       .collection("subscriptions")
       .where("email", "==", email)
@@ -253,98 +226,44 @@ app.get("/get-user", async (req, res) => {
       .limit(1)
       .get();
 
-    if (!snapshot.empty) {
-      const sub = snapshot.docs[0].data();
-      return res.json({
-        subscriptionStatus: sub.status,
-        cancelAtPeriodEnd:  sub.cancelAtPeriodEnd,
-        currentPeriodEnd:   sub.currentPeriodEnd,
-      });
-    }
+    if (snapshot.empty) {
+      // Also check Stripe directly as a fallback
+      // (handles case where webhook was missed or old customerId docs exist)
+      const stripe = getStripe();
+      const customerId = await findOrCreateCustomer(stripe, email);
+      const activeSub  = await getActiveSubscription(stripe, customerId);
 
-    // ── 2. Check old `users` collection (keyed by Firebase UID) ──
-    const userDoc = await admin.firestore()
-      .collection("users")
-      .doc(uid)
-      .get();
+      if (activeSub) {
+        // Backfill missing Firestore doc
+        await admin.firestore()
+          .collection("subscriptions")
+          .doc(activeSub.id)
+          .set({
+            email,
+            customerId,
+            subscriptionId:    activeSub.id,
+            status:            activeSub.status,
+            cancelAtPeriodEnd: activeSub.cancel_at_period_end,
+            currentPeriodEnd:  activeSub.current_period_end,
+            createdAt:         admin.firestore.FieldValue.serverTimestamp(),
+          }, { merge: true });
 
-    if (userDoc.exists) {
-      const userData = userDoc.data();
-      const oldStatus = userData.subscriptionStatus || "inactive";
-
-      // If old doc shows active/trialing, trust it and backfill to new schema
-      if (oldStatus === "active" || oldStatus === "trialing") {
-        // Try to get fresh data from Stripe if we have a subscriptionId
-        if (userData.stripeSubscriptionId) {
-          try {
-            const stripe = getStripe();
-            const sub = await stripe.subscriptions.retrieve(userData.stripeSubscriptionId);
-            // Backfill into new subscriptions collection
-            await admin.firestore()
-              .collection("subscriptions")
-              .doc(sub.id)
-              .set({
-                email,
-                customerId:        sub.customer,
-                subscriptionId:    sub.id,
-                status:            sub.status,
-                cancelAtPeriodEnd: sub.cancel_at_period_end,
-                currentPeriodEnd:  sub.current_period_end,
-                createdAt:         admin.firestore.FieldValue.serverTimestamp(),
-              }, { merge: true });
-            return res.json({
-              subscriptionStatus: sub.status,
-              cancelAtPeriodEnd:  sub.cancel_at_period_end,
-              currentPeriodEnd:   sub.current_period_end,
-            });
-          } catch(e) {
-            // Stripe lookup failed — fall through to return old status
-            console.warn("Stripe sub lookup failed:", e.message);
-          }
-        }
-        return res.json({ subscriptionStatus: oldStatus });
+        return res.json({
+          subscriptionStatus: activeSub.status,
+          cancelAtPeriodEnd:  activeSub.cancel_at_period_end,
+          currentPeriodEnd:   activeSub.current_period_end,
+        });
       }
+
+      return res.json({ subscriptionStatus: "inactive" });
     }
 
-    // ── 3. Stripe fallback — search all customers for this email ──
-    const stripe = getStripe();
-    const customers = await stripe.customers.list({ email, limit: 10 });
-
-    let activeSub = null;
-    let foundCustomerId = null;
-
-    for (const customer of customers.data) {
-      const sub = await getActiveSubscription(stripe, customer.id);
-      if (sub) {
-        activeSub = sub;
-        foundCustomerId = customer.id;
-        break;
-      }
-    }
-
-    if (activeSub) {
-      // Backfill into new subscriptions collection
-      await admin.firestore()
-        .collection("subscriptions")
-        .doc(activeSub.id)
-        .set({
-          email,
-          customerId:        foundCustomerId,
-          subscriptionId:    activeSub.id,
-          status:            activeSub.status,
-          cancelAtPeriodEnd: activeSub.cancel_at_period_end,
-          currentPeriodEnd:  activeSub.current_period_end,
-          createdAt:         admin.firestore.FieldValue.serverTimestamp(),
-        }, { merge: true });
-
-      return res.json({
-        subscriptionStatus: activeSub.status,
-        cancelAtPeriodEnd:  activeSub.cancel_at_period_end,
-        currentPeriodEnd:   activeSub.current_period_end,
-      });
-    }
-
-    return res.json({ subscriptionStatus: "inactive" });
+    const sub = snapshot.docs[0].data();
+    return res.json({
+      subscriptionStatus: sub.status,
+      cancelAtPeriodEnd:  sub.cancelAtPeriodEnd,
+      currentPeriodEnd:   sub.currentPeriodEnd,
+    });
 
   } catch (e) {
     console.error(e);
@@ -355,7 +274,7 @@ app.get("/get-user", async (req, res) => {
 /* ---------------------------
    PORTAL
 --------------------------- */
-app.post("/create-portal", express.json(), async (req, res) => {
+app.post("/create-portal", async (req, res) => {
   try {
     const stripe = getStripe();
     const { uid } = req.body;
@@ -383,7 +302,7 @@ app.post("/create-portal", express.json(), async (req, res) => {
 /* ---------------------------
    CANCEL SUBSCRIPTION
 --------------------------- */
-app.post("/cancel-subscription", express.json(), async (req, res) => {
+app.post("/cancel-subscription", async (req, res) => {
   try {
     const stripe = getStripe();
     const { uid } = req.body;

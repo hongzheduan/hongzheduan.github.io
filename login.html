@@ -38,7 +38,6 @@
       overflow: hidden;
     }
 
-    /* ── GRID BACKGROUND ── */
     body::before {
       content: '';
       position: fixed;
@@ -51,7 +50,6 @@
       z-index: 0;
     }
 
-    /* ── NOISE ── */
     body::after {
       content: '';
       position: fixed;
@@ -62,7 +60,6 @@
       opacity: 0.4;
     }
 
-    /* ── RADIAL GLOW ── */
     .glow {
       position: fixed;
       top: 50%;
@@ -75,7 +72,6 @@
       z-index: 0;
     }
 
-    /* ── LOGO ── */
     .logo-wrap {
       position: fixed;
       top: 24px;
@@ -98,7 +94,6 @@
 
     .logo-text span { color: var(--electric); }
 
-    /* ── CARD ── */
     .card {
       position: relative;
       z-index: 10;
@@ -114,7 +109,6 @@
       animation: fadeUp 0.5s ease forwards;
     }
 
-    /* top shimmer line */
     .card::before {
       content: '';
       position: absolute;
@@ -129,7 +123,6 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── HEADER ── */
     .card-eyebrow {
       font-family: 'DM Mono', monospace;
       font-size: 10px;
@@ -155,7 +148,6 @@
       font-weight: 300;
     }
 
-    /* ── FORM ── */
     .field {
       display: flex;
       flex-direction: column;
@@ -171,9 +163,7 @@
       color: var(--muted);
     }
 
-    .input-wrap {
-      position: relative;
-    }
+    .input-wrap { position: relative; }
 
     input {
       width: 100%;
@@ -191,11 +181,10 @@
     input::placeholder { color: #334155; }
 
     input:focus {
-      border-color: var(--border-focus);
+      border-color: rgba(59,130,246,0.5);
       box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
     }
 
-    /* password toggle */
     .toggle-pw {
       position: absolute;
       right: 12px;
@@ -213,7 +202,6 @@
 
     .toggle-pw:hover { color: var(--electric-bright); }
 
-    /* ── FORGOT ── */
     .forgot-row {
       display: flex;
       justify-content: flex-end;
@@ -232,7 +220,6 @@
 
     .forgot-row a:hover { color: var(--electric-bright); }
 
-    /* ── BUTTON ── */
     .btn-login {
       width: 100%;
       padding: 13px;
@@ -253,20 +240,10 @@
       letter-spacing: 0.02em;
     }
 
-    .btn-login:hover {
-      background: #2563eb;
-      box-shadow: 0 0 36px rgba(59,130,246,0.4);
-      transform: translateY(-1px);
-    }
-
+    .btn-login:hover { background: #2563eb; box-shadow: 0 0 36px rgba(59,130,246,0.4); transform: translateY(-1px); }
     .btn-login:active { transform: translateY(0); }
+    .btn-login.loading { opacity: 0.7; pointer-events: none; }
 
-    .btn-login.loading {
-      opacity: 0.7;
-      pointer-events: none;
-    }
-
-    /* spinner */
     .spinner {
       width: 15px; height: 15px;
       border: 2px solid rgba(255,255,255,0.3);
@@ -281,7 +258,6 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── DIVIDER ── */
     .divider {
       display: flex;
       align-items: center;
@@ -304,7 +280,6 @@
       text-transform: uppercase;
     }
 
-    /* ── SIGNUP LINK ── */
     .signup-row {
       text-align: center;
       font-size: 13px;
@@ -321,7 +296,6 @@
 
     .signup-row a:hover { color: var(--white); }
 
-    /* ── ERROR MSG ── */
     .error-msg {
       display: none;
       background: rgba(239,68,68,0.1);
@@ -336,7 +310,6 @@
 
     .error-msg.show { display: block; }
 
-    /* ── SUCCESS MSG ── */
     .success-msg {
       display: none;
       background: rgba(34,197,94,0.1);
@@ -351,7 +324,6 @@
 
     .success-msg.show { display: block; }
 
-    /* ── FOOTER ── */
     .page-footer {
       position: fixed;
       bottom: 20px;
@@ -382,23 +354,19 @@
 
   <div class="glow"></div>
 
-  <!-- Logo -->
   <a href="./" class="logo-wrap">
     <img src="assets/baize_favicon_v2.png" alt="Baizora">
     <span class="logo-text">Baiz<span>ora</span></span>
   </a>
 
-  <!-- Card -->
   <div class="card">
     <div class="card-eyebrow">◈ &nbsp; Secure Access</div>
     <h1 class="card-title">Welcome back</h1>
     <p class="card-sub">Sign in to your Baizora account</p>
 
-    <!-- Error / Success -->
     <div class="error-msg" id="errorMsg"></div>
     <div class="success-msg" id="successMsg"></div>
 
-    <!-- Email -->
     <div class="field">
       <label for="email">Email address</label>
       <div class="input-wrap">
@@ -406,7 +374,6 @@
       </div>
     </div>
 
-    <!-- Password -->
     <div class="field">
       <label for="password">Password</label>
       <div class="input-wrap">
@@ -417,12 +384,10 @@
       </div>
     </div>
 
-    <!-- Forgot -->
     <div class="forgot-row">
       <a href="#" onclick="resetPassword();return false;">Forgot password?</a>
     </div>
 
-    <!-- Login Btn -->
     <button class="btn-login" id="loginBtn" onclick="login()">
       <span class="btn-label">Sign In</span>
       <div class="spinner"></div>
@@ -435,7 +400,6 @@
     </div>
   </div>
 
-  <!-- Footer links -->
   <div class="page-footer">
     <a href="assets/privacy.html">Privacy</a>
     <a href="assets/terms.html">Terms</a>
@@ -443,7 +407,6 @@
   </div>
 
   <script>
-    // Password visibility toggle
     let pwVisible = false;
     function togglePw() {
       pwVisible = !pwVisible;
@@ -474,7 +437,6 @@
       document.getElementById('successMsg').classList.remove('show');
     }
 
-    // Enter key support
     document.addEventListener('keydown', e => {
       if (e.key === 'Enter') login();
     });
@@ -489,9 +451,9 @@
 
     window.login = async function () {
       clearMessages();
-      const email = document.getElementById("email").value.trim();
+      const email    = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
-      const btn = document.getElementById("loginBtn");
+      const btn      = document.getElementById("loginBtn");
 
       if (!email || !password) {
         showError("Please enter your email and password.");
@@ -502,21 +464,29 @@
 
       try {
         const result = await signInWithEmailAndPassword(auth, email, password);
-        const user = result.user;
+        const user   = result.user;
 
-        const res = await fetch(
-          `https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=${user.uid}`
-        );
-
-        if (!res.ok) {
-          const text = await res.text();
-          console.error(text);
-          throw new Error(`Backend error: ${res.status}`);
+        // ── Check subscription status ──
+        let subscriptionStatus = "inactive";
+        try {
+          const res = await fetch(
+            `https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=${user.uid}`
+          );
+          if (res.ok) {
+            const data = await res.json();
+            subscriptionStatus = data.subscriptionStatus || "inactive";
+          } else {
+            // Backend error — log it but don't block login
+            console.warn("get-user returned", res.status, await res.text());
+          }
+        } catch (fetchErr) {
+          // Network issue — log but don't block login
+          console.warn("get-user fetch failed:", fetchErr.message);
         }
 
-        const data = await res.json();
-
-        if (data.subscriptionStatus === "active") {
+        // ── Redirect based on status ──
+        // "trialing" counts as active access
+        if (subscriptionStatus === "active" || subscriptionStatus === "trialing") {
           window.location.href = "dashboard.html";
         } else {
           window.location.href = "billing.html";
@@ -524,11 +494,13 @@
 
       } catch (e) {
         console.error(e);
-        const msg = e.code === "auth/invalid-credential"
-          ? "Incorrect email or password."
-          : e.code === "auth/too-many-requests"
-          ? "Too many attempts. Please try again later."
-          : e.message || "Login failed. Please try again.";
+        const msg =
+          e.code === "auth/invalid-credential"  ? "Incorrect email or password."         :
+          e.code === "auth/user-not-found"       ? "No account found with this email."    :
+          e.code === "auth/wrong-password"       ? "Incorrect password."                  :
+          e.code === "auth/too-many-requests"    ? "Too many attempts. Try again later."  :
+          e.code === "auth/network-request-failed" ? "Network error. Check your connection." :
+          e.message || "Login failed. Please try again.";
         showError(msg);
         btn.classList.remove("loading");
       }

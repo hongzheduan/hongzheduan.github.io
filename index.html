@@ -103,7 +103,7 @@
       -webkit-backdrop-filter: blur(20px);
       background: rgba(6, 13, 31, 0.92);
       border-bottom: 1px solid var(--border);
-      height: 60px;
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -119,16 +119,16 @@
       flex-shrink: 0;
     }
 
-    .logo-wrap img { height: 36px; }
+    .logo-wrap img { height: 32px; }
 
-    .logo-text {
-      font-family: 'DM Serif Display', serif;
-      font-size: 22px;
-      color: var(--white);
-      letter-spacing: -0.02em;
+    .brand-cn {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-
-    .logo-text span { color: var(--electric); }
 
     .desktop-nav {
       display: flex;
@@ -156,30 +156,26 @@
     .nav-btn-primary { background: var(--electric); border-color: var(--electric); color: white; }
     .nav-btn-primary:hover { background: #2563eb; border-color: #2563eb; color: white; }
 
-    /* ── ACCOUNT DROPDOWN — gap fix ── */
-    .account-menu {
-      position: relative;
-    }
+    /* ── ACCOUNT DROPDOWN ── */
+    .account-menu { position: relative; }
 
-    /* Invisible bridge fills the gap so hover is never lost */
     .account-menu::after {
       content: '';
       position: absolute;
       top: 100%;
       left: 0; right: 0;
-      height: 12px; /* covers the visual gap */
+      height: 12px;
     }
 
     .account-dropdown {
       position: absolute;
-      top: calc(100% + 8px); /* visual gap kept for aesthetics */
+      top: calc(100% + 8px);
       right: 0;
       width: 210px;
       background: rgba(13,30,61,0.98);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
-      /* hidden by default, shown on hover of .account-menu */
       display: none;
       backdrop-filter: blur(18px);
       box-shadow: 0 20px 50px rgba(0,0,0,.45);
@@ -199,7 +195,6 @@
     }
 
     .account-dropdown a:hover { background: rgba(59,130,246,.08); color: var(--white); }
-
     .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
 
     /* ── MOBILE HAMBURGER ── */
@@ -227,7 +222,6 @@
 
     .hamburger:hover span { background: var(--white); }
 
-    /* Mobile drawer */
     .mobile-drawer {
       display: none;
       position: fixed;
@@ -262,14 +256,21 @@
 
     .mobile-drawer a:hover { background: rgba(59,130,246,0.08); color: var(--white); border-color: rgba(59,130,246,0.3); }
     .mobile-drawer a.mobile-primary { background: var(--electric); border-color: var(--electric); color: white; text-align: center; }
+    .mobile-drawer a.mobile-gold {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      border: none;
+      color: white;
+      font-weight: 600;
+      text-align: center;
+    }
 
     /* ── HERO ── */
     .hero {
       position: relative;
       z-index: 10;
-      max-width: 1100px;
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 90px 40px 70px;
+      padding: 52px 40px 50px;
       text-align: center;
     }
 
@@ -281,22 +282,6 @@
       width: 700px; height: 500px;
       background: radial-gradient(ellipse at center, rgba(59,130,246,0.12) 0%, transparent 70%);
       pointer-events: none;
-    }
-
-    .trial-banner {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(249,115,22,0.1));
-      border: 1px solid rgba(245,158,11,0.4);
-      border-radius: 999px;
-      padding: 8px 20px;
-      margin-bottom: 24px;
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--gold-light);
     }
 
     .hero-eyebrow {
@@ -312,36 +297,52 @@
       background: rgba(59,130,246,0.06);
       padding: 6px 14px;
       border-radius: 999px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .hero-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(44px, 7vw, 88px);
-      line-height: 1.0;
-      letter-spacing: -0.03em;
+      font-size: clamp(36px, 5.5vw, 52px);
+      font-weight: 400;
+      line-height: 1.2;
+      letter-spacing: 0.04em;
       color: var(--white);
-      margin-bottom: 8px;
+      margin-bottom: 16px;
     }
 
-    .hero-title em { font-style: italic; color: var(--electric-bright); }
-
-    .hero-subtitle-line {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 16px 0 24px;
+    .hero-text-block {
+      max-width: 540px;
+      margin: 0 auto 20px;
+      text-align: left;
     }
 
-    .hero-desc {
-      font-size: 17px;
+    .hero-text-block .hero-title { margin-bottom: 14px; }
+    .hero-bullets {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0 auto 20px;
+      max-width: 540px;
+      align-items: center;
+    }
+
+    .hero-bullet {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 10px;
+      font-size: 14px;
       color: #94a3b8;
-      max-width: 520px;
-      margin: 0 auto 36px;
-      line-height: 1.75;
       font-weight: 300;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .hero-bullet::before {
+      content: '◆';
+      color: var(--electric-bright);
+      font-size: 8px;
+      flex-shrink: 0;
+      margin-top: 1px;
     }
 
     .hero-cta {
@@ -350,6 +351,7 @@
       justify-content: center;
       gap: 12px;
       flex-wrap: wrap;
+      margin-bottom: 20px;
     }
 
     .btn-primary {
@@ -411,12 +413,45 @@
 
     .btn-secondary:hover { border-color: rgba(59,130,246,0.3); color: var(--white); background: rgba(59,130,246,0.05); }
 
-    .hero-note {
-      margin-top: 14px;
+    /* ── FACT BAR ── */
+    .fact-bar {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      max-width: 540px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(13,30,61,0.55);
+      overflow: hidden;
+    }
+
+    .fact-item {
+      flex: 1;
+      padding: 14px 16px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+
+    .fact-item:last-child { border-right: none; }
+
+    .fact-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .fact-num .accent { color: var(--electric-bright); }
+    .fact-num .gold   { color: var(--gold-light); }
+
+    .fact-label {
       font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: #475569;
-      letter-spacing: 0.05em;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
     }
 
     /* ── TICKER STRIP ── */
@@ -463,34 +498,15 @@
       z-index: 10;
       max-width: 1100px;
       margin: 0 auto;
-      padding: 90px 40px;
+      padding: 90px 60px 50px;
     }
 
-    .section-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--electric-bright);
-      margin-bottom: 16px;
-    }
+    .section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 16px; }
 
-    .section-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(30px, 4vw, 46px);
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      color: var(--white);
-      margin-bottom: 50px;
-    }
-
+    .section-title { font-family: 'DM Serif Display', serif; font-size: clamp(30px, 4vw, 46px); line-height: 1.1; letter-spacing: -0.02em; color: var(--white); margin-bottom: 50px; }
     .section-title em { font-style: italic; color: var(--muted); }
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
+    .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
     .card {
       background: rgba(13, 30, 61, 0.6);
@@ -515,18 +531,7 @@
     .card:hover { border-color: rgba(59,130,246,0.25); background: rgba(13, 30, 61, 0.9); transform: translateY(-3px); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
     .card:hover::before { opacity: 1; }
 
-    .card-icon {
-      width: 40px; height: 40px;
-      background: rgba(59,130,246,0.1);
-      border: 1px solid rgba(59,130,246,0.2);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      margin-bottom: 18px;
-    }
-
+    .card-icon { width: 40px; height: 40px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 18px; }
     .card h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
     .card p { font-size: 14px; color: var(--muted); line-height: 1.7; font-weight: 300; }
 
@@ -540,14 +545,7 @@
       overflow: hidden;
     }
 
-    .spark-demo::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 10%; right: 10%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent);
-    }
-
+    .spark-demo::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent); }
     .spark-demo h3 { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 6px; }
     .spark-demo p { font-size: 13px; color: var(--muted); line-height: 1.7; font-weight: 300; margin-bottom: 20px; max-width: 560px; }
 
@@ -567,102 +565,16 @@
     .tf-btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: default; }
     .tf-btn.active { background: var(--electric); border-color: var(--electric); color: white; }
 
-    /* ── STATS BAND ── */
-    .stats {
-      position: relative;
-      z-index: 10;
-      background: rgba(13, 30, 61, 0.4);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .stats-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 50px 40px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    .stat { text-align: center; padding: 20px; border-right: 1px solid var(--border); }
-    .stat:last-child { border-right: none; }
-    .stat-num { font-family: 'DM Serif Display', serif; font-size: 52px; color: var(--white); line-height: 1; margin-bottom: 8px; }
-    .stat-num span { color: var(--electric-bright); }
-    .stat-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
-
-    /* ── TRIAL BAND ── */
-    .trial-band {
-      position: relative;
-      z-index: 10;
-      background: linear-gradient(135deg, rgba(120,53,15,0.4) 0%, rgba(124,45,18,0.3) 100%);
-      border-top: 1px solid rgba(245,158,11,0.2);
-      border-bottom: 1px solid rgba(245,158,11,0.2);
-    }
-
-    .trial-band-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 44px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 32px;
-      flex-wrap: wrap;
-    }
-
-    .trial-band-left h2 { font-family: 'DM Serif Display', serif; font-size: clamp(22px, 3vw, 34px); letter-spacing: -0.02em; color: var(--white); margin-bottom: 6px; }
-    .trial-band-left p { font-size: 14px; color: var(--muted); font-weight: 300; line-height: 1.6; }
-    .trial-band-left p strong { color: var(--gold-light); font-weight: 600; }
-
-    .trial-checklist { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
-    .trial-checklist li { list-style: none; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--muted); display: flex; align-items: center; gap: 8px; }
-    .trial-checklist li::before { content: '✓'; color: var(--green); font-size: 12px; }
-
     /* ── BOTTOM CTA ── */
-    .bottom-cta {
-      position: relative;
-      z-index: 10;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 90px 40px;
-      text-align: center;
-    }
-
-    .cta-box {
-      background: linear-gradient(135deg, rgba(13,30,61,0.9) 0%, rgba(22,40,71,0.9) 100%);
-      border: 1px solid rgba(59,130,246,0.2);
-      border-radius: 24px;
-      padding: 70px 60px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cta-box::before {
-      content: '';
-      position: absolute;
-      top: -100px; left: 50%;
-      transform: translateX(-50%);
-      width: 400px; height: 300px;
-      background: radial-gradient(ellipse, rgba(59,130,246,0.1) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
+    .bottom-cta { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 40px 40px 90px; text-align: center; }
+    .cta-box { background: linear-gradient(135deg, rgba(13,30,61,0.9) 0%, rgba(22,40,71,0.9) 100%); border: 1px solid rgba(59,130,246,0.2); border-radius: 24px; padding: 70px 60px; position: relative; overflow: hidden; }
+    .cta-box::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 400px; height: 300px; background: radial-gradient(ellipse, rgba(59,130,246,0.1) 0%, transparent 70%); pointer-events: none; }
     .cta-box h2 { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 12px; }
-    .cta-box p { font-size: 15px; color: var(--muted); margin-bottom: 32px; font-weight: 300; }
+    .cta-box p { font-size: 15px; color: var(--muted); margin-bottom: 16px; font-weight: 300; }
+    .cta-box p:last-of-type { margin-bottom: 32px; }
 
     /* ── FOOTER ── */
-    footer {
-      position: relative;
-      z-index: 10;
-      border-top: 1px solid var(--border);
-      padding: 28px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
+    footer { position: relative; z-index: 10; border-top: 1px solid var(--border); padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
     .footer-left { font-family: 'DM Mono', monospace; font-size: 11px; color: #475569; letter-spacing: 0.05em; }
     .footer-left a { color: inherit; text-decoration: none; }
     .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
@@ -680,21 +592,284 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      header { padding: 0 16px; height: 56px; }
+      header { padding: 0 16px; height: 52px; }
       .desktop-nav { display: none; }
       .hamburger { display: flex; }
-      .hero { padding: 60px 20px 50px; }
+      .hero { padding: 40px 20px 36px; }
+      .hero-text-block { text-align: center; }
+      .hero-bullet { justify-content: center; }
       .features { padding: 60px 20px; }
       .cards { grid-template-columns: 1fr; }
-      .stats-inner { grid-template-columns: 1fr; }
-      .stat { border-right: none; border-bottom: 1px solid var(--border); }
-      .stat:last-child { border-bottom: none; }
       .cta-box { padding: 40px 24px; }
       footer { padding: 24px 20px; flex-direction: column; text-align: center; }
       .footer-links { justify-content: center; }
-      .trial-band-inner { flex-direction: column; text-align: center; }
-      .trial-checklist li { justify-content: center; }
       .announcement { font-size: 10px; padding: 8px 12px; letter-spacing: 0.06em; }
+      .fact-bar { flex-wrap: wrap; }
+      .fact-item { min-width: 50%; border-bottom: 1px solid var(--border); }
+      .fact-item:nth-child(odd) { border-right: 1px solid var(--border); }
+      .fact-item:nth-last-child(-n+2) { border-bottom: none; }
+    }
+
+    /* ══ TWO-COLUMN HERO ══ */
+    .hero-split {
+      display: flex;
+      align-items: flex-start;
+      gap: 40px;
+      text-align: left;
+    }
+
+    .hero-left {
+      flex: 0 0 40%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+    }
+
+    .hero-right {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Override centered defaults when inside the split */
+    .hero-split .hero-title    { text-align: left; }
+    .hero-split .hero-bullets  { align-items: flex-start; margin-left: 0; }
+    .hero-split .hero-bullet   { justify-content: flex-start; text-align: left; }
+    .hero-split .hero-cta      { justify-content: flex-start; margin-top: 20px; }
+    .hero-split .fact-bar      { margin: 16px 0 0 0; max-width: 100%; }
+
+    /* ── DASHBOARD MOCK ── */
+    .dash-mock {
+      background: #060d1f;
+      border: 1px solid rgba(59,130,246,0.18);
+      border-radius: 12px;
+      overflow: visible;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(59,130,246,0.06);
+      font-family: 'DM Mono', monospace;
+      position: relative;
+    }
+
+    .dash-header {
+      display: flex;
+      align-items: center;
+      padding: 9px 14px;
+      background: rgba(6,13,31,0.98);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      gap: 10px;
+    }
+
+    .dash-logo { display: flex; align-items: center; gap: 5px; margin-right: 4px; }
+
+    .dash-logo-dot {
+      width: 18px; height: 18px;
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px;
+    }
+
+    .dash-logo-text { font-family: 'DM Serif Display', serif; font-size: 13px; color: #f8fafc; letter-spacing: -0.01em; }
+    .dash-logo-text span { color: #60a5fa; }
+    .dash-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.1); margin: 0 4px; }
+    .dash-tabs { display: flex; gap: 4px; }
+
+    .dash-tab {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      padding: 3px 10px;
+      border-radius: 5px;
+      color: #475569;
+      border: 1px solid transparent;
+      cursor: default;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .dash-tab.active { color: #60a5fa; border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.08); }
+
+    .dash-toolbar {
+      display: flex;
+      align-items: center;
+      padding: 6px 14px;
+      background: rgba(10,22,40,0.9);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      gap: 6px;
+    }
+
+    .dash-toolbar-label { font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #334155; margin-right: 4px; }
+    .dash-wins { display: flex; gap: 3px; }
+
+    .dash-win {
+      font-size: 9px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: #475569;
+      border: 1px solid rgba(255,255,255,0.07);
+      cursor: default;
+      letter-spacing: 0.04em;
+    }
+
+    .dash-win.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+
+    .dash-thead {
+      display: grid;
+      grid-template-columns: 44px 96px 64px 62px 56px 58px 54px 62px 62px 54px 58px;
+      padding: 6px 14px;
+      background: rgba(10,22,40,0.98);
+      border-bottom: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .dc {
+      font-size: 8.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #475569;
+      cursor: default;
+      position: relative;
+    }
+
+    .dc.gstart { border-left: 2px solid rgba(59,130,246,0.2); padding-left: 5px; }
+
+    /* sortable column header */
+    .dk-sort { cursor: pointer !important; user-select: none; }
+    .dk-sort:hover { color: #60a5fa !important; background: rgba(59,130,246,0.05); }
+    .dk-sort.active { color: #60a5fa !important; }
+    .dk-arr { opacity: 0.45; font-size: 8px; margin-left: 2px; }
+    .dk-sort.active .dk-arr { opacity: 1; }
+
+    .dc-tip {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10,22,40,0.98);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 7px;
+      padding: 7px 11px;
+      width: 170px;
+      font-size: 10px;
+      color: #94a3b8;
+      line-height: 1.5;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 100;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      white-space: normal;
+    }
+
+    .dc-tip .dc-tip-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #60a5fa;
+      margin-bottom: 3px;
+    }
+
+    .dc:hover .dc-tip { opacity: 1; }
+    .dc:hover { color: #60a5fa; }
+
+    .dash-row {
+      display: grid;
+      grid-template-columns: 44px 96px 64px 62px 56px 58px 54px 62px 62px 54px 58px;
+      padding: 6px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      align-items: center;
+      transition: background 0.1s;
+      position: relative;
+    }
+
+    .dash-row:last-child { border-bottom: none; }
+    .dash-row:hover { background: rgba(59,130,246,0.04); }
+
+    .dr-tk {
+      font-size: 11px;
+      font-weight: 500;
+      color: #f8fafc;
+      letter-spacing: 0.05em;
+      cursor: default;
+      position: relative;
+    }
+
+    .tk-popup {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      background: rgba(10,22,40,0.99);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 10px;
+      padding: 12px 14px;
+      min-width: 190px;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    }
+
+    .dr-tk:hover .tk-popup { opacity: 1; }
+
+    .tk-popup-head { display: flex; align-items: baseline; gap: 7px; margin-bottom: 9px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .tk-sym { font-size: 13px; font-weight: 600; color: #f8fafc; letter-spacing: 0.05em; }
+    .tk-sector { font-size: 10px; color: #475569; font-family: 'DM Sans', sans-serif; font-weight: 300; }
+    .tk-rows { display: flex; flex-direction: column; gap: 5px; }
+    .tk-row { display: flex; justify-content: space-between; gap: 12px; }
+    .tk-key { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #334155; }
+    .tk-val { font-size: 10px; color: #f8fafc; }
+    .tk-pos { color: #22c55e; }
+    .tk-neg { color: #ef4444; }
+    .tk-div { height: 1px; background: rgba(255,255,255,0.06); margin: 2px 0; }
+
+    .dr-sp { display: flex; align-items: center; position: relative; cursor: default; }
+
+    .sp-tip {
+      position: absolute;
+      bottom: calc(100% + 5px);
+      left: 0;
+      background: rgba(10,22,40,0.98);
+      border: 1px solid rgba(59,130,246,0.22);
+      border-radius: 7px;
+      padding: 7px 10px;
+      width: 200px;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    .dr-sp:hover .sp-tip { opacity: 1; }
+
+    .sp-tip-title { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #60a5fa; margin-bottom: 4px; }
+    .sp-tip-desc { font-size: 10px; color: #94a3b8; line-height: 1.55; font-family: 'DM Sans', sans-serif; font-weight: 300; letter-spacing: 0; }
+    .sp-legend { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .sp-legend-row { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #475569; }
+
+    .dr-pr { font-size: 10px; color: #f8fafc; }
+    .dr-pos { font-size: 10px; color: #22c55e; }
+    .dr-neg { font-size: 10px; color: #ef4444; }
+    .dr-neu { font-size: 10px; color: #94a3b8; }
+    .dr-gs { border-left: 2px solid rgba(59,130,246,0.1); padding-left: 5px; }
+    .mock-spark { display: block; }
+
+    /* ── MOBILE: collapse to single column ── */
+    @media (max-width: 900px) {
+      .hero-split { flex-direction: column; text-align: center; gap: 32px; }
+      .hero-left { flex: none; width: 100%; align-items: center; }
+      .hero-right { width: 100%; max-width: 100%; margin: 0 auto; overflow-x: auto; }
+      .dash-mock { min-width: 600px; }
+      .dash-mock-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+      .dash-mock-wrap::after { content: '← Scroll to see more columns'; display:block; text-align:center; font-family:'DM Mono',monospace; font-size:9px; color:#475569; padding:6px 0; letter-spacing:0.08em; }
+      .hero-split .hero-title    { text-align: center; }
+      .hero-split .hero-bullets  { align-items: center; }
+      .hero-split .hero-bullet   { justify-content: center; text-align: center; }
+      .hero-split .hero-cta      { justify-content: center; }
+      .hero-split .fact-bar      { margin: 16px auto 0; }
     }
   </style>
 </head>
@@ -702,29 +877,27 @@
 
 <div class="announcement">
   <span class="dot"></span>
-  &nbsp; LIMITED OFFER — FIRST 7 DAYS FREE &nbsp;·&nbsp;
-  <span id="countdown" style="color:var(--gold-light); font-weight:600;"></span>
+  &nbsp; Limited Time &nbsp;·&nbsp; First 7 Days Free &nbsp;·&nbsp; Contact: support@baizora.com
 </div>
 
 <header>
   <a href="./" class="logo-wrap">
     <img src="assets/baize_favicon_v2.png" alt="Baizora">
-    <span class="logo-text">Baiz<span>ora</span></span>
+    <span class="logo-text" style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;">Baiz<span style="color:#3b82f6;">ora</span></span>
   </a>
 
   <div class="desktop-nav">
     <a href="index_cn.html" class="nav-btn">中文</a>
     <a href="assets/about.html" class="nav-btn">About</a>
-    <a href="free.html" class="nav-btn">Free Preview</a>
+    <a href="billing.html" class="nav-btn">Plans</a>
+    <!-- 账户 always visible -->
     <div class="account-menu">
       <button class="nav-btn nav-btn-primary">Account</button>
       <div class="account-dropdown">
-        <a href="pricing.html">Change Plan</a>
-        <a href="#" onclick="openPortal(); return false;">Manage Subscription</a>
-        <a href="#" onclick="openPortal(); return false;">Billing History</a>
-        <a href="#" onclick="openPortal(); return false;">Unsubscribe</a>
+        <a href="account.html">Manage Subscription</a>
+        <a href="billing.html">Change Plan</a>
         <div class="dropdown-divider"></div>
-        <a href="login.html">Login</a>
+        <a href="login.html" id="navLoginLogout">Sign In</a>
       </div>
     </div>
   </div>
@@ -735,27 +908,120 @@
 </header>
 
 <div class="mobile-drawer" id="mobileDrawer">
-  <a href="free.html">Free Preview</a>
   <a href="assets/about.html">About</a>
-  <a href="login.html">Login</a>
-  <a href="pricing.html">Manage Subscription</a>
+  <div id="mobileAuthLinks"></div>
+  <a href="account.html">Manage Subscription</a>
   <a href="index_cn.html">中文</a>
+  <a href="billing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a>
 </div>
 
+<!-- ── HERO ── -->
 <section class="hero">
-  <div class="hero-eyebrow fade-up delay-1">◈ &nbsp; Short-Term Price-Volume Analysis Platform</div>
-  <h1 class="hero-title fade-up delay-2">Market <em>intelligence</em><br>without the noise</h1>
-  <div class="hero-subtitle-line fade-up delay-2">Systematic Data Processing Engine</div>
-  <p class="hero-desc fade-up delay-3">Baizora identifies unusual price and volume behavior across major US equities using consistent statistical comparisons over short-term windows.</p>
-  <div class="hero-cta fade-up delay-4">
-    <a href="pricing.html" class="btn-gold">
-      🔥 Start Free — 7 Days
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </a>
-    <a href="free.html" class="btn-primary">View Live Signals (3 free)</a>
-    <a href="assets/about.html" class="btn-secondary">Learn More</a>
-  </div>
-  <div class="hero-note fade-up delay-5">Cancel anytime · Full access from day one</div>
+  <div class="hero-split fade-up delay-1">
+
+    <!-- LEFT -->
+    <div class="hero-left">
+      <div class="hero-eyebrow" style="margin-bottom:18px;">◈ &nbsp; Price &amp; Volume Intelligence for US Equities</div>
+      <h1 class="hero-title">US Large-Cap<br>Price &amp; Volume<br>Analytics</h1>
+
+      <div class="hero-bullets">
+        <div class="hero-bullet">All signals in one view — no tab-switching</div>
+        <div class="hero-bullet">1-year price trend with max volume &amp; price-change dates marked</div>
+        <div class="hero-bullet">Sort any timeframe to find the biggest movers instantly</div>
+        <div class="hero-bullet">Fundamentals at a glance: PE, Market Cap, EPS, Volatility</div>
+      </div>
+
+      <div class="hero-cta">
+        <a href="billing.html" class="btn-gold">
+          🔥 Start Free — 7 Days
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="free.html" class="btn-primary">Free Preview (No Sign-up)</a>
+      </div>
+
+      <div class="fact-bar">
+        <div class="fact-item">
+          <div class="fact-num">500<span class="accent">+</span></div>
+          <div class="fact-label">Symbols Tracked</div>
+        </div>
+        <div class="fact-item">
+          <div class="fact-num">6<span class="accent">×</span></div>
+          <div class="fact-label">Timeframes</div>
+        </div>
+        <div class="fact-item">
+          <div class="fact-num">24<span class="accent">h</span></div>
+          <div class="fact-label">Daily Updates</div>
+        </div>
+        <div class="fact-item">
+          <div class="fact-num">2<span class="accent">×</span></div>
+          <div class="fact-label">Plan Options</div>
+        </div>
+      </div>
+    </div><!-- /hero-left -->
+
+    <!-- RIGHT: dashboard mock -->
+    <div class="hero-right">
+      <div class="dash-mock-wrap">
+      <div class="dash-mock">
+
+        <div class="dash-header">
+          <div class="dash-logo">
+            <div class="dash-logo-dot">⬡</div>
+            <span class="dash-logo-text">Baiz<span>ora</span></span>
+          </div>
+          <div class="dash-divider"></div>
+          <div class="dash-tabs">
+            <span class="dash-tab active">S&amp;P 500</span>
+            <span class="dash-tab">NASDAQ 100</span>
+          </div>
+        </div>
+
+        <div class="dash-toolbar">
+          <span class="dash-toolbar-label">WINDOW</span>
+          <div class="dash-wins">
+            <span class="dash-win">1D</span>
+            <span class="dash-win active">2W</span>
+            <span class="dash-win">1M</span>
+            <span class="dash-win">3M</span>
+            <span class="dash-win">6M</span>
+            <span class="dash-win">9M</span>
+            <span class="dash-win">1Y</span>
+          </div>
+        </div>
+
+        <div class="dash-thead" id="mockThead">
+          <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility and sector comparison.</div></span>
+          <span class="dc" style="cursor:default;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart. ▲ Triangle = highest-volume day (green=up, red=down). ● Circle = largest price-change day (green=vol up, red=vol down).</div></span>
+          <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
+          <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">1Y CHG% <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">1Y MAX% <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price change (%) within the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="pday"  onclick="mockSort('pday',this)">1Y P DAY <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y P DAY</div>Trading days ago when the largest price change occurred.</div></span>
+          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price move.</div></span>
+          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">1Y VOL% <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume change (%) within the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="vday"  onclick="mockSort('vday',this)">1Y V DAY <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y V DAY</div>Trading days ago when the largest volume change occurred.</div></span>
+          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@VOL <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume move.</div></span>
+          <span class="dc dk-sort" data-col="volm"  onclick="mockSort('volm',this)">VOL(M) <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">VOL(M)</div>Trading volume in millions of shares for the most recent session.</div></span>
+        </div>
+        <div id="mockBody"></div>
+
+        <!-- Hint bar -->
+        <div style="padding:9px 14px; background:rgba(59,130,246,0.08); border-top:1px solid rgba(59,130,246,0.2); display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+          <span style="font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:0.07em; color:#94a3b8;">
+            👆 Hover <span style="color:#60a5fa;">ticker</span> for fundamentals &nbsp;·&nbsp; Hover <span style="color:#60a5fa;">column header</span> for description &nbsp;·&nbsp; <span style="color:#22c55e;">↕ Click to sort</span>
+          </span>
+        </div>
+        <!-- Demo disclaimer -->
+        <div style="padding:6px 14px; background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.04); text-align:center;">
+          <span style="font-family:'DM Mono',monospace; font-size:8.5px; letter-spacing:0.1em; color:#475569; text-transform:uppercase;">
+            ◈ &nbsp; Demo data only — not real-time
+          </span>
+        </div>
+
+      </div><!-- /dash-mock -->
+      </div><!-- /dash-mock-wrap -->
+    </div><!-- /hero-right -->
+
+  </div><!-- /hero-split -->
 </section>
 
 <div class="ticker-wrap">
@@ -784,24 +1050,24 @@
 </div>
 
 <section class="features">
-  <div class="section-label">Platform Capabilities</div>
-  <h2 class="section-title">Built for precision.<br><em>Designed for clarity.</em></h2>
+  <div class="section-label">Platform Features</div>
+  <h2 class="section-title">Built for precision analysis<br><em>designed for clear decisions</em></h2>
 
   <div class="cards">
     <div class="card fade-up">
       <div class="card-icon">◎</div>
-      <h3>Large-Cap Coverage</h3>
-      <p>S&amp;P 500 and Nasdaq-100 constituents with consistent liquidity and institutional-grade data quality.</p>
+      <h3>Large-Cap US Coverage</h3>
+      <p>Covers all S&amp;P 500 and Nasdaq-100 constituents — stable liquidity and high-quality market data.</p>
     </div>
     <div class="card fade-up delay-1">
       <div class="card-icon">⟁</div>
-      <h3>Behavior Detection</h3>
-      <p>Highlights statistically unusual price and volume movements relative to historical baselines — not gut feel.</p>
+      <h3>Anomaly Detection</h3>
+      <p>Identifies unusual price and volume changes against historical baselines — no subjective guesswork.</p>
     </div>
     <div class="card fade-up delay-2">
       <div class="card-icon">◷</div>
-      <h3>Multiple Timeframes</h3>
-      <p>Switch between 2W, 1M, 3M, 6M, 9M, and 1Y windows instantly. Each view reveals different patterns in the same data.</p>
+      <h3>Multi-Timeframe Analysis</h3>
+      <p>Switch between 2W, 1M, 3M, 6M, 9M, and 1Y rolling windows with a single click.</p>
       <div class="timeframe-demo">
         <span class="tf-btn active">2W</span>
         <span class="tf-btn">1M</span>
@@ -813,37 +1079,37 @@
     </div>
     <div class="card fade-up delay-3">
       <div class="card-icon">⟳</div>
-      <h3>Daily Processing</h3>
-      <p>End-of-day signals computed after market close (5:00–6:00 PM ET) for stable, noise-reduced daily insights.</p>
+      <h3>Daily Updates</h3>
+      <p>Data is processed after each US market close (5–6 PM ET), delivering stable, low-noise signals every trading day.</p>
     </div>
   </div>
 
   <div class="spark-demo fade-up">
-    <h3>📈 1-Year Trend Sparklines with Event Markers</h3>
-    <p>Every stock comes with a 1-year price trend sparkline — and two visual markers that instantly show you <strong style="color:var(--white);">exactly when the most significant events happened</strong> in the past year. No scrolling through data tables. Spot anomalies in seconds.</p>
+    <h3>📈 1-Year Price Trend with Key Event Markers</h3>
+    <p>Every stock includes a 1-year normalized price sparkline with two visual markers that <strong style="color:var(--white);">instantly pinpoint the most significant events of the past year</strong>. Spot anomalies in seconds — no digging through tables.</p>
 
     <div class="spark-legend">
       <div class="spark-legend-item">
         <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#22c55e"/></svg>
-        Max volume day (price up)
+        Highest-volume day (price was up)
       </div>
       <div class="spark-legend-item">
         <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#ef4444"/></svg>
-        Max volume day (price down)
+        Highest-volume day (price was down)
       </div>
       <div class="spark-legend-item">
         <svg width="14" height="12" viewBox="0 0 14 12">
           <circle cx="7" cy="6" r="5.5" fill="#22c55e" opacity="0.25"/>
           <circle cx="7" cy="6" r="3.2" fill="#22c55e" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
         </svg>
-        Max price change day (volume up)
+        Largest price-change day (volume elevated)
       </div>
       <div class="spark-legend-item">
         <svg width="14" height="12" viewBox="0 0 14 12">
           <circle cx="7" cy="6" r="5.5" fill="#ef4444" opacity="0.25"/>
           <circle cx="7" cy="6" r="3.2" fill="#ef4444" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
         </svg>
-        Max price change day (volume down)
+        Largest price-change day (volume low)
       </div>
     </div>
 
@@ -889,56 +1155,17 @@
   </div>
 </section>
 
-<div class="stats">
-  <div class="stats-inner">
-    <div class="stat">
-      <div class="stat-num">500<span>+</span></div>
-      <div class="stat-label">Equities Tracked</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">6<span>×</span></div>
-      <div class="stat-label">Timeframe Windows</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">24<span>h</span></div>
-      <div class="stat-label">Daily Signal Updates</div>
-    </div>
-  </div>
-</div>
-
-<div class="trial-band">
-  <div class="trial-band-inner">
-    <div class="trial-band-left">
-      <h2>🔥 7 Days Free — Start Today</h2>
-      <p>Full platform access from day one. Cancel anytime.</p>
-      <ul class="trial-checklist">
-        <li>500+ S&amp;P 500 &amp; Nasdaq-100 signals every day</li>
-        <li>1-year sparklines with visual event markers</li>
-        <li>6 timeframes: 2W / 1M / 3M / 6M / 9M / 1Y</li>
-        <li>Fundamentals: PE, market cap, EPS, volatility</li>
-        <li>Sortable columns — find what matters instantly</li>
-      </ul>
-    </div>
-    <div style="text-align:center;">
-      <a href="pricing.html" class="btn-gold" style="font-size:15px; padding:16px 36px;">
-        Start Free Trial
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <div style="margin-top:10px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.08em; color:#475569;">THEN $9.99/MO · CANCEL ANYTIME</div>
-    </div>
-  </div>
-</div>
-
 <section class="bottom-cta">
   <div class="cta-box">
-    <h2>Ready to see the signal<br>behind the market?</h2>
-    <p>Join the early access cohort. No noise — just structured data.</p>
+    <h2>Ready to find the real<br>signals in the market?</h2>
+    <p>Join early access. No noise — just structured data.</p>
+    <p>Full access from day one. Cancel anytime.</p>
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-      <a href="pricing.html" class="btn-gold">
+      <a href="billing.html" class="btn-gold">
         🔥 Start Free — 7 Days
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
-      <a href="free.html" class="btn-secondary">Try Free Preview</a>
+      <a href="free.html" class="btn-secondary">Free Preview</a>
     </div>
   </div>
 </section>
@@ -947,7 +1174,6 @@
   <div class="footer-left">© 2026 Baizora — All rights reserved &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
   <div class="footer-links">
     <a href="assets/privacy.html">Privacy</a>
-    <a href="assets/terms.html">Terms</a>
     <a href="assets/disclaimer.html">Disclaimer</a>
     <a href="assets/faq.html">FAQ</a>
     <a href="assets/about.html">About</a>
@@ -965,31 +1191,18 @@
 </script>
 
 <script>
-  /* Countdown */
-  const deadline = new Date("2026-05-18T00:00:00").getTime();
-  const el = document.getElementById("countdown");
-  function tick() {
-    const diff = deadline - Date.now();
-    if (diff <= 0) { el.textContent = "OFFER LIVE"; return; }
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor((diff % 86400000) / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    el.textContent = `ENROLLMENT OPENS IN: ${d}d ${h}h ${m}m`;
-  }
-  tick();
-  setInterval(tick, 60000);
-
   /* Mobile menu */
   function toggleMenu() {
     const drawer = document.getElementById("mobileDrawer");
     const header = document.querySelector("header");
-    drawer.style.top = header.getBoundingClientRect().bottom + "px";
-    drawer.style.maxHeight = (window.innerHeight - header.getBoundingClientRect().bottom) + "px";
+    const bottom = header.getBoundingClientRect().bottom;
+    drawer.style.top = bottom + "px";
+    drawer.style.maxHeight = (window.innerHeight - bottom) + "px";
     drawer.classList.toggle("open");
   }
 
   document.addEventListener("click", (e) => {
-    const drawer = document.getElementById("mobileDrawer");
+    const drawer    = document.getElementById("mobileDrawer");
     const hamburger = document.getElementById("hamburger");
     if (drawer.classList.contains("open") && !drawer.contains(e.target) && !hamburger.contains(e.target)) {
       drawer.classList.remove("open");
@@ -1013,11 +1226,50 @@
     observer.observe(c);
   });
 
+  /* ── Dynamic auth state ── */
+  firebase.auth().onAuthStateChanged(function(user) {
+    const loginLogout = document.getElementById('navLoginLogout');
+    const mobileLinks = document.getElementById('mobileAuthLinks');
+
+    const mStyle = 'display:block;width:100%;padding:13px 16px;border-radius:8px;' +
+      'font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;' +
+      'text-decoration:none;background:transparent;margin-bottom:8px;';
+
+    if (user) {
+      // Logged in: swap 登录 → 退出登录
+      if (loginLogout) {
+        loginLogout.textContent = 'Sign Out';
+        loginLogout.style.color = '#fca5a5';
+        loginLogout.href = '#';
+        loginLogout.onclick = function() { doLogoutCn(); return false; };
+      }
+      mobileLinks.innerHTML =
+        '<a href="login.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Go to Dashboard</a>' +
+        '<a href="#" onclick="doLogoutCn();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">Sign Out</a>';
+    } else {
+      // Logged out: show 登录
+      if (loginLogout) {
+        loginLogout.textContent = 'Sign In';
+        loginLogout.style.color = '';
+        loginLogout.href = 'login_cn.html';
+        loginLogout.onclick = null;
+      }
+      mobileLinks.innerHTML =
+        '<a href="login.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Sign In</a>' +
+        '<a href="signup.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Create Account</a>';
+    }
+  });
+
+  async function doLogoutCn() {
+    await firebase.auth().signOut();
+    window.location.href = 'index.html';
+  }
+
   /* Portal */
   async function openPortal() {
     try {
       const user = firebase.auth().currentUser;
-      if (!user) { window.location.href = "login.html"; return; }
+      if (!user) { window.location.href = "login_cn.html"; return; }
       const res = await fetch(
         "https://us-central1-baizora.cloudfunctions.net/api/create-portal",
         { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ uid: user.uid }) }
@@ -1027,9 +1279,161 @@
       window.location.href = data.url;
     } catch(err) {
       console.error(err);
-      alert("Unable to open subscription portal");
+      alert("无法打开订阅管理页面，请稍后重试");
     }
   }
+</script>
+
+<script>
+/* ── Mock table: data + sort ── */
+const MOCK_DATA = [
+  { tk:'NVDA', sector:'Technology',     pe:'45.2', mc:'2.78T', eps:'2.53', vol30:'3.2%',  secpe:'38.1', pevsec:'+18.6%',
+    sc:'#22c55e', triC:'#22c55e', dotC:'#22c55e',
+    spark:'M0,18 L8,16 L16,13 L24,9 L32,7 L40,8 L48,5 L56,3 L64,5 L72,3 L84,2 L94,1',
+    triX:48,triY:5,dotX:64,dotY:5,
+    pr:114.23, chg:8.85,  mx:16.98, pday:215, vatpr:208.59, vol:228.73, vday:109, pvol:3.18,  volm:3.98  },
+  { tk:'AAPL', sector:'Technology',     pe:'31.4', mc:'3.21T', eps:'6.43', vol30:'1.8%',  secpe:'38.1', pevsec:'-17.5%',
+    sc:'#ef4444', triC:'#ef4444', dotC:'#22c55e',
+    spark:'M0,8 L8,10 L16,7 L24,9 L32,12 L40,10 L48,14 L56,12 L64,15 L72,14 L84,17 L94,16',
+    triX:40,triY:10,dotX:72,dotY:14,
+    pr:213.42, chg:-4.22, mx:7.44,  pday:189, vatpr:156,    vol:184,    vday:95,  pvol:-1.82, volm:52.3  },
+  { tk:'META', sector:'Comm. Services', pe:'22.8', mc:'1.27T', eps:'22.1', vol30:'2.4%',  secpe:'24.5', pevsec:'-7.0%',
+    sc:'#22c55e', triC:'#22c55e', dotC:'#ef4444',
+    spark:'M0,14 L8,12 L16,13 L24,10 L32,11 L40,8 L48,9 L56,6 L64,7 L72,5 L84,4 L94,3',
+    triX:32,triY:9,dotX:56,dotY:6,
+    pr:503.21, chg:18.41, mx:6.98,  pday:14,  vatpr:50.5,   vol:286.83, vday:203, pvol:-8.43, volm:2.39  },
+  { tk:'TSLA', sector:'Consumer Cycl.', pe:'92.3', mc:'558B',  eps:'1.88', vol30:'4.1%',  secpe:'19.2', pevsec:'+381%',
+    sc:'#ef4444', triC:'#22c55e', dotC:'#22c55e',
+    spark:'M0,4 L8,7 L16,12 L24,16 L32,19 L40,15 L48,18 L56,14 L64,17 L72,14 L84,16 L94,15',
+    triX:24,triY:16,dotX:48,dotY:18,
+    pr:174.12, chg:-15.43,mx:8.85,  pday:196, vatpr:45.5,   vol:267.17, vday:109, pvol:1.99,  volm:6.72  },
+  { tk:'MSFT', sector:'Technology',     pe:'33.6', mc:'3.11T', eps:'12.43',vol30:'1.6%',  secpe:'38.1', pevsec:'-11.8%',
+    sc:'#22c55e', triC:'#22c55e', dotC:'#22c55e',
+    spark:'M0,16 L8,14 L16,11 L24,12 L32,9 L40,7 L48,8 L56,5 L64,6 L72,4 L84,3 L94,2',
+    triX:56,triY:5,dotX:40,dotY:7,
+    pr:418.67, chg:12.33, mx:5.55,  pday:153, vatpr:33.3,   vol:410.37, vday:219, pvol:-2.40, volm:21.5  },
+  { tk:'AMZN', sector:'Consumer Cycl.', pe:'38.2', mc:'2.14T', eps:'5.19', vol30:'2.1%',  secpe:'19.2', pevsec:'+98.9%',
+    sc:'#22c55e', triC:'#22c55e', dotC:'#22c55e',
+    spark:'M0,14 L10,12 L20,10 L30,11 L40,8 L50,6 L60,7 L70,4 L80,5 L94,3',
+    triX:50,triY:5,dotX:70,dotY:4,
+    pr:198.55, chg:6.54,  mx:6.20,  pday:135, vatpr:313,    vol:313.82, vday:135, pvol:6.20,  volm:1.79  },
+  { tk:'GOOGL',sector:'Comm. Services', pe:'20.4', mc:'2.09T', eps:'8.41', vol30:'1.9%',  secpe:'24.5', pevsec:'-16.7%',
+    sc:'#22c55e', triC:'#ef4444', dotC:'#22c55e',
+    spark:'M0,10 L10,8 L20,10 L30,7 L40,9 L50,6 L60,8 L70,5 L80,6 L94,4',
+    triX:30,triY:7,dotX:60,dotY:8,
+    pr:171.84, chg:3.07,  mx:8.31,  pday:44,  vatpr:185.09, vol:425.89, vday:97,  pvol:1.97,  volm:0.58  },
+  { tk:'JPM',  sector:'Financial',      pe:'13.8', mc:'741B',  eps:'15.82',vol30:'1.4%',  secpe:'12.1', pevsec:'+14.0%',
+    sc:'#22c55e', triC:'#22c55e', dotC:'#ef4444',
+    spark:'M0,16 L10,14 L20,15 L30,12 L40,13 L50,10 L60,11 L70,8 L80,9 L94,7',
+    triX:50,triY:10,dotX:30,dotY:12,
+    pr:218.33, chg:-23.94,mx:5.05,  pday:87,  vatpr:17.63,  vol:185.46, vday:43,  pvol:-3.59, volm:0.72  },
+  { tk:'V',    sector:'Financial',      pe:'29.6', mc:'547B',  eps:'9.63', vol30:'1.1%',  secpe:'12.1', pevsec:'+144%',
+    sc:'#22c55e', triC:'#22c55e', dotC:'#22c55e',
+    spark:'M0,12 L10,10 L20,11 L30,8 L40,10 L50,7 L60,8 L70,5 L80,6 L94,4',
+    triX:50,triY:7,dotX:70,dotY:5,
+    pr:284.10, chg:13.78, mx:5.55,  pday:153, vatpr:33.3,   vol:410.37, vday:219, pvol:-2.40, volm:1.97  },
+];
+
+let mockSortCol = 'chg';
+let mockSortAsc = false;
+
+function cc(v) {
+  const n = parseFloat(v);
+  if (isNaN(n) || n === 0) return 'dr-neu';
+  return n > 0 ? 'dr-pos' : 'dr-neg';
+}
+
+function fmt(v, digits=2) {
+  const n = parseFloat(v);
+  if (isNaN(n)) return v;
+  return (n > 0 ? '+' : '') + n.toFixed(digits) + '%';
+}
+
+function fmtN(v) { return parseFloat(v).toFixed(2); }
+
+function sparkSVG(r) {
+  return `<svg class="mock-spark" width="94" height="22" viewBox="0 0 94 22" fill="none">
+    <path d="${r.spark}" stroke="${r.sc}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+    <polygon points="${r.triX},${r.triY-7} ${r.triX-4},${r.triY} ${r.triX+4},${r.triY}" fill="${r.triC}" stroke="rgba(6,13,31,0.9)" stroke-width="1"/>
+    <circle cx="${r.dotX}" cy="${r.dotY}" r="4" fill="${r.dotC}" opacity="0.25"/>
+    <circle cx="${r.dotX}" cy="${r.dotY}" r="2.5" fill="${r.dotC}" stroke="rgba(6,13,31,0.9)" stroke-width="1.2"/>
+  </svg>`;
+}
+
+function renderMock() {
+  const data = [...MOCK_DATA].sort((a, b) => {
+    const A = typeof a[mockSortCol] === 'string' ? a[mockSortCol] : parseFloat(a[mockSortCol]);
+    const B = typeof b[mockSortCol] === 'string' ? b[mockSortCol] : parseFloat(b[mockSortCol]);
+    if (typeof A === 'string') return mockSortAsc ? A.localeCompare(B) : B.localeCompare(A);
+    return mockSortAsc ? A - B : B - A;
+  });
+
+  const body = document.getElementById('mockBody');
+  if (!body) return;
+
+  body.innerHTML = data.map(r => `
+    <div class="dash-row">
+      <span class="dr-tk">${r.tk}
+        <div class="tk-popup">
+          <div class="tk-popup-head"><span class="tk-sym">${r.tk}</span><span class="tk-sector">${r.sector}</span></div>
+          <div class="tk-rows">
+            <div class="tk-row"><span class="tk-key">PE</span><span class="tk-val">${r.pe}</span></div>
+            <div class="tk-row"><span class="tk-key">Mkt Cap</span><span class="tk-val">${r.mc}</span></div>
+            <div class="tk-row"><span class="tk-key">EPS</span><span class="tk-val">${r.eps}</span></div>
+            <div class="tk-div"></div>
+            <div class="tk-row"><span class="tk-key">Vol 30D</span><span class="tk-val">${r.vol30}</span></div>
+            <div class="tk-div"></div>
+            <div class="tk-row"><span class="tk-key">Sector Avg PE</span><span class="tk-val">${r.secpe}</span></div>
+            <div class="tk-row"><span class="tk-key">PE vs Sector</span><span class="tk-val ${r.pevsec.startsWith('+') ? 'tk-pos' : 'tk-neg'}">${r.pevsec}</span></div>
+          </div>
+        </div>
+      </span>
+      <span class="dr-sp">${sparkSVG(r)}
+        <div class="sp-tip">
+          <div class="sp-tip-title">1Y TREND</div>
+          <div class="sp-tip-desc">1-year normalized price chart</div>
+          <div class="sp-legend">
+            <div class="sp-legend-row"><svg width="10" height="9" viewBox="0 0 10 9"><polygon points="5,0 0,9 10,9" fill="${r.triC}"/></svg>Highest-volume day</div>
+            <div class="sp-legend-row"><svg width="10" height="9" viewBox="0 0 10 9"><circle cx="5" cy="5" r="3.5" fill="${r.dotC}" opacity="0.3"/><circle cx="5" cy="5" r="2" fill="${r.dotC}"/></svg>Largest price-change day</div>
+          </div>
+        </div>
+      </span>
+      <span class="dr-pr">${fmtN(r.pr)}</span>
+      <span class="${cc(r.chg)} dr-gs">${fmt(r.chg)}</span>
+      <span class="${cc(r.mx)}">${fmt(r.mx)}</span>
+      <span class="dr-neu">${r.pday}</span>
+      <span class="${cc(r.vatpr)}">${fmt(r.vatpr)}</span>
+      <span class="${cc(r.vol)}">${fmt(r.vol)}</span>
+      <span class="dr-neu">${r.vday}</span>
+      <span class="${cc(r.pvol)}">${fmt(r.pvol)}</span>
+      <span class="dr-neu">${fmtN(r.volm)}</span>
+    </div>`).join('');
+
+  document.querySelectorAll('#mockThead .dk-sort').forEach(el => {
+    const arr = el.querySelector('.dk-arr');
+    if (!arr) return;
+    const col = el.dataset.col;
+    if (col === mockSortCol) {
+      el.classList.add('active');
+      arr.textContent = mockSortAsc ? ' ↑' : ' ↓';
+    } else {
+      el.classList.remove('active');
+      arr.textContent = ' ↕';
+    }
+  });
+}
+
+window.mockSort = function(col, el) {
+  if (mockSortCol === col) {
+    mockSortAsc = !mockSortAsc;
+  } else {
+    mockSortCol = col;
+    mockSortAsc = false;
+  }
+  renderMock();
+};
+
+document.addEventListener('DOMContentLoaded', renderMock);
 </script>
 
 </body>

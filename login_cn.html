@@ -38,7 +38,6 @@
       overflow: hidden;
     }
 
-    /* ── GRID BACKGROUND ── */
     body::before {
       content: '';
       position: fixed;
@@ -51,7 +50,6 @@
       z-index: 0;
     }
 
-    /* ── NOISE ── */
     body::after {
       content: '';
       position: fixed;
@@ -62,7 +60,6 @@
       opacity: 0.4;
     }
 
-    /* ── RADIAL GLOW ── */
     .glow {
       position: fixed;
       top: 50%;
@@ -75,7 +72,6 @@
       z-index: 0;
     }
 
-    /* ── LOGO ── */
     .logo-wrap {
       position: fixed;
       top: 24px;
@@ -99,7 +95,6 @@
     .logo-text span { color: var(--electric); }
 
     .brand-cn {
-      font-family: var(--font-cn);
       font-size: 20px;
       font-weight: 700;
       letter-spacing: 4px;
@@ -108,7 +103,6 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* ── CARD ── */
     .card {
       position: relative;
       z-index: 10;
@@ -124,7 +118,6 @@
       animation: fadeUp 0.5s ease forwards;
     }
 
-    /* top shimmer line */
     .card::before {
       content: '';
       position: absolute;
@@ -139,7 +132,6 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── HEADER ── */
     .card-eyebrow {
       font-family: 'DM Mono', monospace;
       font-size: 10px;
@@ -165,7 +157,6 @@
       font-weight: 300;
     }
 
-    /* ── FORM ── */
     .field {
       display: flex;
       flex-direction: column;
@@ -181,9 +172,7 @@
       color: var(--muted);
     }
 
-    .input-wrap {
-      position: relative;
-    }
+    .input-wrap { position: relative; }
 
     input {
       width: 100%;
@@ -201,11 +190,10 @@
     input::placeholder { color: #334155; }
 
     input:focus {
-      border-color: var(--border-focus);
+      border-color: rgba(59,130,246,0.5);
       box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
     }
 
-    /* password toggle */
     .toggle-pw {
       position: absolute;
       right: 12px;
@@ -223,7 +211,6 @@
 
     .toggle-pw:hover { color: var(--electric-bright); }
 
-    /* ── FORGOT ── */
     .forgot-row {
       display: flex;
       justify-content: flex-end;
@@ -242,7 +229,6 @@
 
     .forgot-row a:hover { color: var(--electric-bright); }
 
-    /* ── BUTTON ── */
     .btn-login {
       width: 100%;
       padding: 13px;
@@ -263,20 +249,10 @@
       letter-spacing: 0.02em;
     }
 
-    .btn-login:hover {
-      background: #2563eb;
-      box-shadow: 0 0 36px rgba(59,130,246,0.4);
-      transform: translateY(-1px);
-    }
-
+    .btn-login:hover { background: #2563eb; box-shadow: 0 0 36px rgba(59,130,246,0.4); transform: translateY(-1px); }
     .btn-login:active { transform: translateY(0); }
+    .btn-login.loading { opacity: 0.7; pointer-events: none; }
 
-    .btn-login.loading {
-      opacity: 0.7;
-      pointer-events: none;
-    }
-
-    /* spinner */
     .spinner {
       width: 15px; height: 15px;
       border: 2px solid rgba(255,255,255,0.3);
@@ -291,7 +267,6 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── DIVIDER ── */
     .divider {
       display: flex;
       align-items: center;
@@ -314,7 +289,6 @@
       text-transform: uppercase;
     }
 
-    /* ── SIGNUP LINK ── */
     .signup-row {
       text-align: center;
       font-size: 13px;
@@ -331,7 +305,6 @@
 
     .signup-row a:hover { color: var(--white); }
 
-    /* ── ERROR MSG ── */
     .error-msg {
       display: none;
       background: rgba(239,68,68,0.1);
@@ -346,7 +319,6 @@
 
     .error-msg.show { display: block; }
 
-    /* ── SUCCESS MSG ── */
     .success-msg {
       display: none;
       background: rgba(34,197,94,0.1);
@@ -361,7 +333,6 @@
 
     .success-msg.show { display: block; }
 
-    /* ── FOOTER ── */
     .page-footer {
       position: fixed;
       bottom: 20px;
@@ -392,23 +363,19 @@
 
   <div class="glow"></div>
 
-  <!-- Logo -->
   <a href="./" class="logo-wrap">
-    <img src="assets/baize_favicon_v2.png" alt="Baizora">
+    <img src="assets/baize_favicon_v2.png" alt="贝佐拉">
     <div class="brand-cn">贝佐拉</div>
   </a>
 
-  <!-- Card -->
   <div class="card">
     <div class="card-eyebrow">◈ &nbsp; 安全登录</div>
     <h1 class="card-title">欢迎回来</h1>
     <p class="card-sub">登录你的贝佐拉账户</p>
 
-    <!-- Error / Success -->
     <div class="error-msg" id="errorMsg"></div>
     <div class="success-msg" id="successMsg"></div>
 
-    <!-- Email -->
     <div class="field">
       <label for="email">邮箱地址</label>
       <div class="input-wrap">
@@ -416,7 +383,6 @@
       </div>
     </div>
 
-    <!-- Password -->
     <div class="field">
       <label for="password">密码</label>
       <div class="input-wrap">
@@ -427,25 +393,22 @@
       </div>
     </div>
 
-    <!-- Forgot -->
     <div class="forgot-row">
       <a href="#" onclick="resetPassword();return false;">忘记密码？</a>
     </div>
 
-    <!-- Login Btn -->
     <button class="btn-login" id="loginBtn" onclick="login()">
       <span class="btn-label">登录</span>
       <div class="spinner"></div>
     </button>
 
-    <div class="divider"><span>or</span></div>
+    <div class="divider"><span>或</span></div>
 
     <div class="signup-row">
       还没有账号？ <a href="signup.html">立即注册</a>
     </div>
   </div>
 
-  <!-- Footer links -->
   <div class="page-footer">
     <a href="assets/privacy_cn.html">隐私政策</a>
     <a href="assets/terms_cn.html">服务条款</a>
@@ -453,11 +416,10 @@
   </div>
 
   <script>
-    // Password visibility toggle
     let pwVisible = false;
     function togglePw() {
       pwVisible = !pwVisible;
-      const pw = document.getElementById('password');
+      const pw   = document.getElementById('password');
       const icon = document.getElementById('eyeIcon');
       pw.type = pwVisible ? 'text' : 'password';
       icon.innerHTML = pwVisible
@@ -484,7 +446,6 @@
       document.getElementById('successMsg').classList.remove('show');
     }
 
-    // Enter key support
     document.addEventListener('keydown', e => {
       if (e.key === 'Enter') login();
     });
@@ -499,12 +460,12 @@
 
     window.login = async function () {
       clearMessages();
-      const email = document.getElementById("email").value.trim();
+      const email    = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
-      const btn = document.getElementById("loginBtn");
+      const btn      = document.getElementById("loginBtn");
 
       if (!email || !password) {
-        showError("Please enter your email and password.");
+        showError("请输入邮箱和密码。");
         return;
       }
 
@@ -512,21 +473,28 @@
 
       try {
         const result = await signInWithEmailAndPassword(auth, email, password);
-        const user = result.user;
+        const user   = result.user;
 
-        const res = await fetch(
-          `https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=${user.uid}`
-        );
-
-        if (!res.ok) {
-          const text = await res.text();
-          console.error(text);
-          throw new Error(`Backend error: ${res.status}`);
+        // ── Check subscription status ──
+        let subscriptionStatus = "inactive";
+        try {
+          const res = await fetch(
+            `https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=${user.uid}`
+          );
+          if (res.ok) {
+            const data = await res.json();
+            subscriptionStatus = data.subscriptionStatus || "inactive";
+          } else {
+            // Backend error — log but don't block login
+            console.warn("get-user returned", res.status, await res.text());
+          }
+        } catch (fetchErr) {
+          // Network issue — log but don't block login
+          console.warn("get-user fetch failed:", fetchErr.message);
         }
 
-        const data = await res.json();
-
-        if (data.subscriptionStatus === "active") {
+        // ── Redirect: trialing counts as full access ──
+        if (subscriptionStatus === "active" || subscriptionStatus === "trialing") {
           window.location.href = "dashboard.html";
         } else {
           window.location.href = "billing.html";
@@ -534,11 +502,13 @@
 
       } catch (e) {
         console.error(e);
-        const msg = e.code === "auth/invalid-credential"
-          ? "Incorrect email or password."
-          : e.code === "auth/too-many-requests"
-          ? "Too many attempts. Please try again later."
-          : e.message || "Login failed. Please try again.";
+        const msg =
+          e.code === "auth/invalid-credential"    ? "邮箱或密码不正确。"         :
+          e.code === "auth/user-not-found"         ? "该邮箱未注册账号。"           :
+          e.code === "auth/wrong-password"         ? "密码不正确。"               :
+          e.code === "auth/too-many-requests"      ? "尝试次数过多，请稍后再试。"   :
+          e.code === "auth/network-request-failed" ? "网络错误，请检查连接。"       :
+          e.message || "登录失败，请重试。";
         showError(msg);
         btn.classList.remove("loading");
       }
@@ -548,12 +518,12 @@
       clearMessages();
       const email = document.getElementById("email").value.trim();
       if (!email) {
-        showError("Enter your email address first.");
+        showError("请先输入邮箱地址。");
         return;
       }
       try {
         await sendPasswordResetEmail(auth, email);
-        showSuccess("Password reset email sent. Check your inbox.");
+        showSuccess("重置密码邮件已发送，请查收收件箱。");
       } catch (e) {
         showError(e.message);
       }
