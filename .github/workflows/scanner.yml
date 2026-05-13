@@ -34,6 +34,9 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
+          # Pull latest remote changes first to avoid diverged history
+          git pull --rebase origin ${{ github.ref_name }}
+
           git add data/latest.json || echo "data/latest.json not found, skipping"
           git add archive/*.csv 2>/dev/null || echo "No archive csv files found, skipping"
 
@@ -41,6 +44,5 @@ jobs:
             echo "No changes to commit, skipping push"
           else
             git commit -m "auto update $(date -u)"
-            git pull --rebase origin ${{ github.ref_name }}
             git push origin HEAD:${{ github.ref_name }}
           fi
