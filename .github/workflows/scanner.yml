@@ -37,8 +37,8 @@ jobs:
 
           # Stash scanner output, sync with remote, then restore
           git stash --include-untracked
-          git fetch origin ${{ github.ref_name }}
-          git rebase origin/${{ github.ref_name }}
+          git fetch origin main
+          git rebase origin/main
           git stash pop
 
           git add data/latest.json || echo "data/latest.json not found, skipping"
@@ -48,5 +48,5 @@ jobs:
             echo "No changes to commit, skipping push"
           else
             git commit -m "auto update $(date -u)"
-            git push origin HEAD:${{ github.ref_name }}
+            git push origin HEAD:main
           fi
