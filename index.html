@@ -714,7 +714,7 @@
 
     .dash-thead {
       display: grid;
-      grid-template-columns: 48px 104px 70px 68px 64px 64px 62px 70px 70px;
+      grid-template-columns: 50px 112px 76px 72px 68px 68px 66px 72px 72px;
       padding: 6px 4px;
       background: rgba(10,22,40,0.98);
       border-bottom: 1px solid rgba(255,255,255,0.09);
@@ -778,7 +778,7 @@
 
     .dash-row {
       display: grid;
-      grid-template-columns: 48px 104px 70px 68px 64px 64px 62px 70px 70px;
+      grid-template-columns: 50px 112px 76px 72px 68px 68px 66px 72px 72px;
       padding: 6px 4px;
       border-bottom: 1px solid rgba(255,255,255,0.03);
       align-items: center;
@@ -990,13 +990,13 @@
           <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility and sector comparison.</div></span>
           <span class="dc" style="cursor:default; padding-left:8px;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart. ▲ Triangle = highest-volume day (green=up, red=down). ● Circle = largest price-change day (green=vol up, red=vol down).</div></span>
           <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
-          <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">1Y CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
-          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">1Y MAX%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price change (%) within the past 1 year.</div></span>
+          <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">MAX%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price change (%) within the past 1 year.</div></span>
 
-          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@PRICE<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price move.</div></span>
-          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">1Y VOL%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume change (%) within the past 1 year.</div></span>
-          <span class="dc dk-sort" data-col="vday"  onclick="mockSort('vday',this)">1Y V DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑥</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y V DAY</div>Trading days ago when the largest volume change occurred.</div></span>
-          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@VOL<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑦</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume move.</div></span>
+          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@PRICE<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price move.</div></span>
+          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">VOL%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume change (%) within the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="vday"  onclick="mockSort('vday',this)">V DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y V DAY</div>Trading days ago when the largest volume change occurred.</div></span>
+          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@VOL<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑥</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume move.</div></span>
 
         </div>
         <div id="mockBody"></div>
@@ -1011,13 +1011,13 @@
         <div style="padding:10px 8px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);">
           <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">Column Guide</div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> 1Y CHG% &nbsp;Total price change over 1 year</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> 1Y MAX% &nbsp;Largest single-day price move</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> CHG% &nbsp;&nbsp;&nbsp;Total price change over 1 year</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> MAX% &nbsp;&nbsp;&nbsp;Largest single-day price move</div>
 
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> V@PRICE &nbsp;Volume change on max price day</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> 1Y VOL% &nbsp;Largest single-day volume move</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑥</span> 1Y V DAY &nbsp;Days ago that max vol occurred</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑦</span> P@VOL &nbsp;&nbsp;&nbsp;Price change on max volume day</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> V@PRICE &nbsp;Volume change on max price day</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> VOL% &nbsp;&nbsp;&nbsp;Largest single-day volume move</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> V DAY &nbsp;&nbsp;&nbsp;Days ago that max vol occurred</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑥</span> P@VOL &nbsp;&nbsp;&nbsp;Price change on max volume day</div>
 
           </div>
         </div>
