@@ -20,9 +20,9 @@
       --gold-light: #fcd34d;
       --green: #22c55e;
       --red: #ef4444;
-      --white: #ffffff;
-      --muted: #cbd5e1;
-      --border: rgba(255,255,255,0.09);
+      --white: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.07);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -139,7 +139,7 @@
     .nav-btn {
       border: 1px solid var(--border);
       background: transparent;
-      color: #cbd5e1;
+      color: var(--muted);
       padding: 6px 14px;
       border-radius: 7px;
       font-family: 'DM Sans', sans-serif;
@@ -215,7 +215,7 @@
       display: block;
       width: 18px;
       height: 2px;
-      background: #94a3b8;
+      background: var(--muted);
       border-radius: 2px;
       transition: background 0.2s;
     }
@@ -248,14 +248,14 @@
       font-family: 'DM Sans', sans-serif;
       font-size: 14px;
       font-weight: 500;
-      color: #cbd5e1;
+      color: var(--muted);
       text-decoration: none;
       background: transparent;
       border: 1px solid var(--border);
       transition: all 0.2s;
     }
 
-    .mobile-drawer a:hover { background: rgba(59,130,246,0.08); color: #ffffff; border-color: rgba(59,130,246,0.3); }
+    .mobile-drawer a:hover { background: rgba(59,130,246,0.08); color: var(--white); border-color: rgba(59,130,246,0.3); }
     .mobile-drawer a.mobile-primary { background: var(--electric); border-color: var(--electric); color: white; text-align: center; }
     .mobile-drawer a.mobile-gold {
       background: linear-gradient(135deg, #f59e0b, #f97316);
@@ -302,11 +302,11 @@
     }
 
     .hero-title {
-      font-size: clamp(40px, 5.5vw, 56px);
+      font-size: clamp(36px, 5.5vw, 52px);
       font-weight: 400;
       line-height: 1.2;
       letter-spacing: 0.04em;
-      color: #ffffff;
+      color: var(--white);
       margin-bottom: 16px;
     }
 
@@ -331,9 +331,9 @@
       align-items: baseline;
       justify-content: center;
       gap: 10px;
-      font-size: 15px;
-      color: #e2e8f0;
-      font-weight: 400;
+      font-size: 14px;
+      color: #94a3b8;
+      font-weight: 300;
       line-height: 1.5;
       text-align: center;
     }
@@ -438,8 +438,8 @@
 
     .fact-num {
       font-family: 'DM Serif Display', serif;
-      font-size: 26px;
-      color: #ffffff;
+      font-size: 24px;
+      color: var(--white);
       line-height: 1;
       margin-bottom: 4px;
       letter-spacing: -0.02em;
@@ -450,8 +450,8 @@
 
     .fact-label {
       font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: #94a3b8;
+      font-size: 10px;
+      color: var(--muted);
       letter-spacing: 0.06em;
     }
 
@@ -485,11 +485,11 @@
       padding: 0 32px;
       font-family: 'DM Mono', monospace;
       font-size: 12px;
-      color: #94a3b8;
+      color: var(--muted);
       border-right: 1px solid var(--border);
     }
 
-    .ticker-item .sym { color: #ffffff; font-weight: 500; }
+    .ticker-item .sym { color: var(--white); font-weight: 500; }
     .ticker-item .up { color: #22c55e; }
     .ticker-item .dn { color: #ef4444; }
 
@@ -502,10 +502,10 @@
       padding: 90px 60px 50px;
     }
 
-    .section-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 16px; }
+    .section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 16px; }
 
-    .section-title { font-family: 'DM Serif Display', serif; font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em; color: #ffffff; margin-bottom: 50px; }
-    .section-title em { font-style: italic; color: #94a3b8; }
+    .section-title { font-family: 'DM Serif Display', serif; font-size: clamp(30px, 4vw, 46px); line-height: 1.1; letter-spacing: -0.02em; color: var(--white); margin-bottom: 50px; }
+    .section-title em { font-style: italic; color: var(--muted); }
 
     .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
@@ -533,8 +533,8 @@
     .card:hover::before { opacity: 1; }
 
     .card-icon { width: 40px; height: 40px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 18px; }
-    .card h3 { font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 600; color: #ffffff; margin-bottom: 8px; }
-    .card p { font-size: 14px; color: #cbd5e1; line-height: 1.7; font-weight: 400; }
+    .card h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
+    .card p { font-size: 14px; color: var(--muted); line-height: 1.7; font-weight: 300; }
 
     .spark-demo {
       background: rgba(13, 30, 61, 0.6);
@@ -547,18 +547,18 @@
     }
 
     .spark-demo::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent); }
-    .spark-demo h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 6px; }
-    .spark-demo p { font-size: 14px; color: #cbd5e1; line-height: 1.7; font-weight: 400; margin-bottom: 20px; max-width: 560px; }
+    .spark-demo h3 { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 6px; }
+    .spark-demo p { font-size: 13px; color: var(--muted); line-height: 1.7; font-weight: 300; margin-bottom: 20px; max-width: 560px; }
 
     .spark-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; }
-    .spark-legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 12px; color: #cbd5e1; letter-spacing: 0.06em; }
+    .spark-legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
 
     .spark-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border); }
     .spark-row:last-child { border-bottom: none; }
-    .spark-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: #ffffff; width: 44px; flex-shrink: 0; }
+    .spark-ticker { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: var(--white); width: 44px; flex-shrink: 0; }
     .spark-svg-wrap { flex: 1; }
-    .spark-price { font-family: 'DM Mono', monospace; font-size: 13px; color: #ffffff; width: 54px; text-align: right; flex-shrink: 0; }
-    .spark-change { font-family: 'DM Mono', monospace; font-size: 13px; color: #ffffff; width: 52px; text-align: right; flex-shrink: 0; }
+    .spark-price { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--white); width: 54px; text-align: right; flex-shrink: 0; }
+    .spark-change { font-family: 'DM Mono', monospace; font-size: 12px; width: 52px; text-align: right; flex-shrink: 0; }
     .up-c { color: #22c55e; }
     .dn-c { color: #ef4444; }
 
@@ -570,16 +570,16 @@
     .bottom-cta { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 40px 40px 90px; text-align: center; }
     .cta-box { background: linear-gradient(135deg, rgba(13,30,61,0.9) 0%, rgba(22,40,71,0.9) 100%); border: 1px solid rgba(59,130,246,0.2); border-radius: 24px; padding: 70px 60px; position: relative; overflow: hidden; }
     .cta-box::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 400px; height: 300px; background: radial-gradient(ellipse, rgba(59,130,246,0.1) 0%, transparent 70%); pointer-events: none; }
-    .cta-box h2 { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 12px; color: #ffffff; }
-    .cta-box p { font-size: 16px; color: #cbd5e1; margin-bottom: 16px; font-weight: 400; }
+    .cta-box h2 { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 12px; }
+    .cta-box p { font-size: 15px; color: var(--muted); margin-bottom: 16px; font-weight: 300; }
     .cta-box p:last-of-type { margin-bottom: 32px; }
 
     /* ── FOOTER ── */
     footer { position: relative; z-index: 10; border-top: 1px solid var(--border); padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-    .footer-left { font-family: 'DM Mono', monospace; font-size: 12px; color: #94a3b8; letter-spacing: 0.05em; }
+    .footer-left { font-family: 'DM Mono', monospace; font-size: 11px; color: #475569; letter-spacing: 0.05em; }
     .footer-left a { color: inherit; text-decoration: none; }
     .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
-    .footer-links a { font-family: 'DM Mono', monospace; font-size: 12px; color: #94a3b8; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
+    .footer-links a { font-family: 'DM Mono', monospace; font-size: 11px; color: #475569; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
     .footer-links a:hover { color: var(--electric-bright); }
 
     /* ── ANIMATIONS ── */
@@ -615,7 +615,7 @@
     .hero-split {
       display: flex;
       align-items: flex-start;
-      gap: 72px;
+      gap: 40px;
       text-align: left;
     }
 
@@ -670,7 +670,7 @@
       font-size: 9px;
     }
 
-    .dash-logo-text { font-family: 'DM Serif Display', serif; font-size: 13px; color: #ffffff; letter-spacing: -0.01em; }
+    .dash-logo-text { font-family: 'DM Serif Display', serif; font-size: 13px; color: #f8fafc; letter-spacing: -0.01em; }
     .dash-logo-text span { color: #60a5fa; }
     .dash-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.1); margin: 0 4px; }
     .dash-tabs { display: flex; gap: 4px; }
@@ -680,7 +680,7 @@
       letter-spacing: 0.06em;
       padding: 3px 10px;
       border-radius: 5px;
-      color: #94a3b8;
+      color: #475569;
       border: 1px solid transparent;
       cursor: default;
       font-family: 'DM Mono', monospace;
@@ -697,15 +697,15 @@
       gap: 6px;
     }
 
-    .dash-toolbar-label { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #94a3b8; margin-right: 4px; }
+    .dash-toolbar-label { font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #334155; margin-right: 4px; }
     .dash-wins { display: flex; gap: 3px; }
 
     .dash-win {
       font-size: 9px;
       padding: 2px 8px;
       border-radius: 4px;
-      color: #cbd5e1;
-      border: 1px solid rgba(255,255,255,0.15);
+      color: #475569;
+      border: 1px solid rgba(255,255,255,0.07);
       cursor: default;
       letter-spacing: 0.04em;
     }
@@ -721,10 +721,10 @@
     }
 
     .dc {
-      font-size: 9.5px;
+      font-size: 8.5px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #cbd5e1;
+      color: #475569;
       cursor: default;
       position: relative;
     }
@@ -789,9 +789,9 @@
     .dash-row:hover { background: rgba(59,130,246,0.04); }
 
     .dr-tk {
-      font-size: 12px;
-      font-weight: 600;
-      color: #ffffff;
+      font-size: 11px;
+      font-weight: 500;
+      color: #f8fafc;
       letter-spacing: 0.05em;
       cursor: default;
       position: relative;
@@ -817,11 +817,11 @@
 
     .tk-popup-head { display: flex; align-items: baseline; gap: 7px; margin-bottom: 9px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.07); }
     .tk-sym { font-size: 13px; font-weight: 600; color: #f8fafc; letter-spacing: 0.05em; }
-    .tk-sector { font-size: 10px; color: #94a3b8; font-family: 'DM Sans', sans-serif; font-weight: 300; }
+    .tk-sector { font-size: 10px; color: #475569; font-family: 'DM Sans', sans-serif; font-weight: 300; }
     .tk-rows { display: flex; flex-direction: column; gap: 5px; }
     .tk-row { display: flex; justify-content: space-between; gap: 12px; }
-    .tk-key { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; }
-    .tk-val { font-size: 10px; color: #ffffff; }
+    .tk-key { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #334155; }
+    .tk-val { font-size: 10px; color: #f8fafc; }
     .tk-pos { color: #22c55e; }
     .tk-neg { color: #ef4444; }
     .tk-div { height: 1px; background: rgba(255,255,255,0.06); margin: 2px 0; }
@@ -851,10 +851,10 @@
     .sp-legend { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.06); }
     .sp-legend-row { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #475569; }
 
-    .dr-pr { font-size: 11px; color: #ffffff; }
-    .dr-pos { font-size: 11px; color: #4ade80; }
-    .dr-neg { font-size: 11px; color: #f87171; }
-    .dr-neu { font-size: 11px; color: #cbd5e1; }
+    .dr-pr { font-size: 10px; color: #f8fafc; }
+    .dr-pos { font-size: 10px; color: #22c55e; }
+    .dr-neg { font-size: 10px; color: #ef4444; }
+    .dr-neu { font-size: 10px; color: #94a3b8; }
     .dr-gs { border-left: 2px solid rgba(59,130,246,0.1); padding-left: 5px; }
     .mock-spark { display: block; }
 
@@ -865,7 +865,7 @@
       .hero-right { width: 100%; max-width: 100%; margin: 0 auto; overflow-x: auto; }
       .dash-mock { min-width: 600px; }
       .dash-mock-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
-      .dash-mock-wrap::after { content: '← Scroll to see more columns'; display:block; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:#94a3b8; padding:6px 0; letter-spacing:0.08em; }
+      .dash-mock-wrap::after { content: '← Scroll to see more columns'; display:block; text-align:center; font-family:'DM Mono',monospace; font-size:9px; color:#475569; padding:6px 0; letter-spacing:0.08em; }
       .hero-split .hero-title    { text-align: center; }
       .hero-split .hero-bullets  { align-items: center; }
       .hero-split .hero-bullet   { justify-content: center; text-align: center; }
@@ -890,9 +890,9 @@
   <div class="desktop-nav">
     <a href="index_cn.html" class="nav-btn">中文</a>
     <a href="assets/about.html" class="nav-btn">About</a>
-    <a href="billing.html" class="nav-btn">Plans</a>
+    <a href="pricing.html" class="nav-btn">Plans</a>
     <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
-    <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
+    <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:11px;color:#475569;letter-spacing:0.05em;display:none;"></span>
     <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign In</a>
   </div>
 
@@ -906,7 +906,7 @@
   <div id="mobileAuthLinks"></div>
   <a href="account.html">Manage Subscription</a>
   <a href="index_cn.html">中文</a>
-  <a href="billing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a>
+  <a href="pricing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a>
 </div>
 
 <!-- ── HERO ── -->
@@ -926,11 +926,11 @@
       </div>
 
       <div class="hero-cta">
-        <a href="billing.html" class="btn-gold">
+        <a href="pricing.html" class="btn-gold">
           🔥 Start Free — 7 Days
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <a href="free.html" class="btn-primary">Free Preview (No Sign-up)</a>
+        <a href="baizora_main_form_free.html" class="btn-primary">Free Preview (No Sign-up)</a>
       </div>
 
       <div class="fact-bar">
@@ -955,7 +955,6 @@
 
     <!-- RIGHT: dashboard mock -->
     <div class="hero-right">
-      <div class="hero-eyebrow" style="margin-bottom:18px;">◈ &nbsp; Demo — Illustrative Data Only</div>
       <div class="dash-mock-wrap">
       <div class="dash-mock">
 
@@ -1000,28 +999,28 @@
         <div id="mockBody"></div>
 
         <!-- Hint bar -->
-        <div style="padding:8px 14px; background:rgba(29,78,216,0.06); border-top:1px solid rgba(29,78,216,0.15); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <span style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.07em; color:#cbd5e1;">
+        <div style="padding:8px 14px; background:rgba(59,130,246,0.08); border-top:1px solid rgba(59,130,246,0.2); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.07em; color:#94a3b8;">
             👆 Hover <span style="color:#60a5fa;">ticker</span> for fundamentals &nbsp;·&nbsp; Hover <span style="color:#60a5fa;">column</span> for description &nbsp;·&nbsp; <span style="color:#22c55e;">↕ click to sort</span>
           </span>
         </div>
         <!-- Column legend -->
         <div style="padding:10px 14px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);">
-          <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">Column Guide</div>
+          <div style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.14em; text-transform:uppercase; color:#334155; margin-bottom:7px;">Column Guide</div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> 1Y CHG% &nbsp;Total price change over 1 year</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> 1Y MAX% &nbsp;Largest single-day price move</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> 1Y P DAY &nbsp;Days ago that max move occurred</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> V@PRICE &nbsp;Volume change on max price day</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> 1Y VOL% &nbsp;Largest single-day volume move</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑥</span> 1Y V DAY &nbsp;Days ago that max vol occurred</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑦</span> P@VOL &nbsp;&nbsp;&nbsp;Price change on max volume day</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑧</span> VOL(M) &nbsp;&nbsp;Daily volume in millions of shares</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">①</span> 1Y CHG% &nbsp;Total price change over 1 year</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">②</span> 1Y MAX% &nbsp;Largest single-day price move</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">③</span> 1Y P DAY &nbsp;Days ago that max move occurred</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">④</span> V@PRICE &nbsp;Volume change on max price day</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑤</span> 1Y VOL% &nbsp;Largest single-day volume move</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑥</span> 1Y V DAY &nbsp;Days ago that max vol occurred</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑦</span> P@VOL &nbsp;&nbsp;&nbsp;Price change on max volume day</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑧</span> VOL(M) &nbsp;&nbsp;Daily volume in millions of shares</div>
           </div>
         </div>
         <!-- Demo disclaimer -->
         <div style="padding:5px 14px; background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.04); text-align:center;">
-          <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; color:#64748b; text-transform:uppercase;">
+          <span style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; color:#334155; text-transform:uppercase;">
             ◈ &nbsp; Demo data only — not real-time
           </span>
         </div>
@@ -1170,11 +1169,11 @@
     <p>Join early access. No noise — just structured data.</p>
     <p>Full access from day one. Cancel anytime.</p>
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-      <a href="billing.html" class="btn-gold">
+      <a href="pricing.html" class="btn-gold">
         🔥 Start Free — 7 Days
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
-      <a href="free.html" class="btn-secondary">Free Preview</a>
+      <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview</a>
     </div>
   </div>
 </section>
