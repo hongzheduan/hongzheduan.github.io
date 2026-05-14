@@ -714,8 +714,8 @@
 
     .dash-thead {
       display: grid;
-      grid-template-columns: 44px 96px 64px 62px 56px 58px 54px 62px 62px 54px 58px;
-      padding: 6px 14px;
+      grid-template-columns: 48px 104px 70px 68px 64px 64px 62px 70px 70px;
+      padding: 6px 4px;
       background: rgba(10,22,40,0.98);
       border-bottom: 1px solid rgba(255,255,255,0.09);
     }
@@ -727,6 +727,7 @@
       color: #cbd5e1;
       cursor: default;
       position: relative;
+      text-align: center;
     }
 
     .dc.gstart { border-left: 2px solid rgba(59,130,246,0.2); padding-left: 5px; }
@@ -777,8 +778,8 @@
 
     .dash-row {
       display: grid;
-      grid-template-columns: 44px 96px 64px 62px 56px 58px 54px 62px 62px 54px 58px;
-      padding: 6px 14px;
+      grid-template-columns: 48px 104px 70px 68px 64px 64px 62px 70px 70px;
+      padding: 6px 4px;
       border-bottom: 1px solid rgba(255,255,255,0.03);
       align-items: center;
       transition: background 0.1s;
@@ -795,6 +796,7 @@
       letter-spacing: 0.05em;
       cursor: default;
       position: relative;
+      text-align: center;
     }
 
     .tk-popup {
@@ -826,7 +828,7 @@
     .tk-neg { color: #ef4444; }
     .tk-div { height: 1px; background: rgba(255,255,255,0.06); margin: 2px 0; }
 
-    .dr-sp { display: flex; align-items: center; position: relative; cursor: default; }
+    .dr-sp { display: flex; align-items: center; position: relative; cursor: default; padding-left: 8px; }
 
     .sp-tip {
       position: absolute;
@@ -851,10 +853,10 @@
     .sp-legend { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.06); }
     .sp-legend-row { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #475569; }
 
-    .dr-pr { font-size: 11px; color: #ffffff; }
-    .dr-pos { font-size: 11px; color: #4ade80; }
-    .dr-neg { font-size: 11px; color: #f87171; }
-    .dr-neu { font-size: 11px; color: #cbd5e1; }
+    .dr-pr { font-size: 11px; color: #ffffff; text-align: center; }
+    .dr-pos { font-size: 11px; color: #4ade80; text-align: center; }
+    .dr-neg { font-size: 11px; color: #f87171; text-align: center; }
+    .dr-neu { font-size: 11px; color: #cbd5e1; text-align: center; }
     .dr-gs { border-left: 2px solid rgba(59,130,246,0.1); padding-left: 5px; }
     .mock-spark { display: block; }
 
@@ -975,52 +977,52 @@
           <span class="dash-toolbar-label">WINDOW</span>
           <div class="dash-wins">
             <span class="dash-win">1D</span>
-            <span class="dash-win active">2W</span>
+            <span class="dash-win">2W</span>
             <span class="dash-win">1M</span>
             <span class="dash-win">3M</span>
             <span class="dash-win">6M</span>
             <span class="dash-win">9M</span>
-            <span class="dash-win">1Y</span>
+            <span class="dash-win active">1Y</span>
           </div>
         </div>
 
         <div class="dash-thead" id="mockThead">
           <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility and sector comparison.</div></span>
-          <span class="dc" style="cursor:default;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart. ▲ Triangle = highest-volume day (green=up, red=down). ● Circle = largest price-change day (green=vol up, red=vol down).</div></span>
+          <span class="dc" style="cursor:default; padding-left:8px;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart. ▲ Triangle = highest-volume day (green=up, red=down). ● Circle = largest price-change day (green=vol up, red=vol down).</div></span>
           <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
           <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">1Y CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
           <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">1Y MAX%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price change (%) within the past 1 year.</div></span>
-          <span class="dc dk-sort" data-col="pday"  onclick="mockSort('pday',this)">1Y P DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y P DAY</div>Trading days ago when the largest price change occurred.</div></span>
+
           <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@PRICE<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price move.</div></span>
           <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">1Y VOL%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume change (%) within the past 1 year.</div></span>
           <span class="dc dk-sort" data-col="vday"  onclick="mockSort('vday',this)">1Y V DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑥</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y V DAY</div>Trading days ago when the largest volume change occurred.</div></span>
           <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@VOL<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑦</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume move.</div></span>
-          <span class="dc dk-sort" data-col="volm"  onclick="mockSort('volm',this)">VOL(M)<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑧</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">VOL(M)</div>Trading volume in millions of shares for the most recent session.</div></span>
+
         </div>
         <div id="mockBody"></div>
 
         <!-- Hint bar -->
-        <div style="padding:8px 14px; background:rgba(29,78,216,0.06); border-top:1px solid rgba(29,78,216,0.15); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <div style="padding:8px 8px; background:rgba(29,78,216,0.06); border-top:1px solid rgba(29,78,216,0.15); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
           <span style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.07em; color:#cbd5e1;">
-            👆 Hover <span style="color:#60a5fa;">ticker</span> for fundamentals &nbsp;·&nbsp; Hover <span style="color:#60a5fa;">column</span> for description &nbsp;·&nbsp; <span style="color:#22c55e;">↕ click to sort</span>
+            👆 Hover <span style="color:#60a5fa;">ticker</span> for fundamentals &nbsp;·&nbsp; <span style="color:#60a5fa;">↕ click to sort</span> &nbsp;·&nbsp; <span style="color:#94a3b8;">+ more columns in full dashboard</span>
           </span>
         </div>
         <!-- Column legend -->
-        <div style="padding:10px 14px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);">
+        <div style="padding:10px 8px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);">
           <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">Column Guide</div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
             <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> 1Y CHG% &nbsp;Total price change over 1 year</div>
             <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> 1Y MAX% &nbsp;Largest single-day price move</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> 1Y P DAY &nbsp;Days ago that max move occurred</div>
+
             <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> V@PRICE &nbsp;Volume change on max price day</div>
             <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> 1Y VOL% &nbsp;Largest single-day volume move</div>
             <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑥</span> 1Y V DAY &nbsp;Days ago that max vol occurred</div>
             <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑦</span> P@VOL &nbsp;&nbsp;&nbsp;Price change on max volume day</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑧</span> VOL(M) &nbsp;&nbsp;Daily volume in millions of shares</div>
+
           </div>
         </div>
         <!-- Demo disclaimer -->
-        <div style="padding:5px 14px; background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.04); text-align:center;">
+        <div style="padding:5px 8px; background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.04); text-align:center;">
           <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.1em; color:#64748b; text-transform:uppercase;">
             ◈ &nbsp; Demo data only — not real-time
           </span>
@@ -1422,12 +1424,10 @@ function renderMock() {
       <span class="dr-pr">${fmtN(r.pr)}</span>
       <span class="${cc(r.chg)} dr-gs">${fmt(r.chg)}</span>
       <span class="${cc(r.mx)}">${fmt(r.mx)}</span>
-      <span class="dr-neu">${r.pday}</span>
       <span class="${cc(r.vatpr)}">${fmt(r.vatpr)}</span>
       <span class="${cc(r.vol)}">${fmt(r.vol)}</span>
       <span class="dr-neu">${r.vday}</span>
       <span class="${cc(r.pvol)}">${fmt(r.pvol)}</span>
-      <span class="dr-neu">${fmtN(r.volm)}</span>
     </div>`).join('');
 
   document.querySelectorAll('#mockThead .dk-sort').forEach(el => {
