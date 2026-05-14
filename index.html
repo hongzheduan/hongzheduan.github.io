@@ -890,9 +890,9 @@
   <div class="desktop-nav">
     <a href="index_cn.html" class="nav-btn">中文</a>
     <a href="assets/about.html" class="nav-btn">About</a>
-    <a href="billing.html" class="nav-btn">Plans</a>
-    <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:11px;color:#475569;letter-spacing:0.05em;display:none;"></span>
+    <a href="pricing.html" class="nav-btn">Plans</a>
     <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
+    <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:11px;color:#475569;letter-spacing:0.05em;display:none;"></span>
     <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign In</a>
   </div>
 
@@ -906,7 +906,7 @@
   <div id="mobileAuthLinks"></div>
   <a href="account.html">Manage Subscription</a>
   <a href="index_cn.html">中文</a>
-  <a href="billing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a>
+  <a href="pricing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a>
 </div>
 
 <!-- ── HERO ── -->
@@ -915,7 +915,7 @@
 
     <!-- LEFT -->
     <div class="hero-left">
-      <div class="hero-eyebrow" style="margin-bottom:18px;">◈ &nbsp; Price &amp; Volume Intelligence for US Equities</div>
+      <div class="hero-eyebrow" style="margin-bottom:18px;">◈ &nbsp; Spot Unusual Moves for US Large-Caps</div>
       <h1 class="hero-title">US Large-Cap<br>Price &amp; Volume<br>Analytics</h1>
 
       <div class="hero-bullets">
@@ -926,7 +926,7 @@
       </div>
 
       <div class="hero-cta">
-        <a href="billing.html" class="btn-gold">
+        <a href="pricing.html" class="btn-gold">
           🔥 Start Free — 7 Days
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -987,26 +987,40 @@
           <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility and sector comparison.</div></span>
           <span class="dc" style="cursor:default;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart. ▲ Triangle = highest-volume day (green=up, red=down). ● Circle = largest price-change day (green=vol up, red=vol down).</div></span>
           <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
-          <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">1Y CHG% <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
-          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">1Y MAX% <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price change (%) within the past 1 year.</div></span>
-          <span class="dc dk-sort" data-col="pday"  onclick="mockSort('pday',this)">1Y P DAY <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y P DAY</div>Trading days ago when the largest price change occurred.</div></span>
-          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price move.</div></span>
-          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">1Y VOL% <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume change (%) within the past 1 year.</div></span>
-          <span class="dc dk-sort" data-col="vday"  onclick="mockSort('vday',this)">1Y V DAY <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y V DAY</div>Trading days ago when the largest volume change occurred.</div></span>
-          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@VOL <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume move.</div></span>
-          <span class="dc dk-sort" data-col="volm"  onclick="mockSort('volm',this)">VOL(M) <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">VOL(M)</div>Trading volume in millions of shares for the most recent session.</div></span>
+          <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">1Y CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">1Y MAX%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price change (%) within the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="pday"  onclick="mockSort('pday',this)">1Y P DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y P DAY</div>Trading days ago when the largest price change occurred.</div></span>
+          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@PRICE<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price move.</div></span>
+          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">1Y VOL%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume change (%) within the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="vday"  onclick="mockSort('vday',this)">1Y V DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑥</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y V DAY</div>Trading days ago when the largest volume change occurred.</div></span>
+          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@VOL<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑦</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume move.</div></span>
+          <span class="dc dk-sort" data-col="volm"  onclick="mockSort('volm',this)">VOL(M)<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑧</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">VOL(M)</div>Trading volume in millions of shares for the most recent session.</div></span>
         </div>
         <div id="mockBody"></div>
 
         <!-- Hint bar -->
-        <div style="padding:9px 14px; background:rgba(59,130,246,0.08); border-top:1px solid rgba(59,130,246,0.2); display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
-          <span style="font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:0.07em; color:#94a3b8;">
-            👆 Hover <span style="color:#60a5fa;">ticker</span> for fundamentals &nbsp;·&nbsp; Hover <span style="color:#60a5fa;">column header</span> for description &nbsp;·&nbsp; <span style="color:#22c55e;">↕ Click to sort</span>
+        <div style="padding:8px 14px; background:rgba(59,130,246,0.08); border-top:1px solid rgba(59,130,246,0.2); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.07em; color:#94a3b8;">
+            👆 Hover <span style="color:#60a5fa;">ticker</span> for fundamentals &nbsp;·&nbsp; Hover <span style="color:#60a5fa;">column</span> for description &nbsp;·&nbsp; <span style="color:#22c55e;">↕ click to sort</span>
           </span>
         </div>
+        <!-- Column legend -->
+        <div style="padding:10px 14px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.14em; text-transform:uppercase; color:#334155; margin-bottom:7px;">Column Guide</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">①</span> 1Y CHG% &nbsp;Total price change over 1 year</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">②</span> 1Y MAX% &nbsp;Largest single-day price move</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">③</span> 1Y P DAY &nbsp;Days ago that max move occurred</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">④</span> V@PRICE &nbsp;Volume change on max price day</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑤</span> 1Y VOL% &nbsp;Largest single-day volume move</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑥</span> 1Y V DAY &nbsp;Days ago that max vol occurred</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑦</span> P@VOL &nbsp;&nbsp;&nbsp;Price change on max volume day</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑧</span> VOL(M) &nbsp;&nbsp;Daily volume in millions of shares</div>
+          </div>
+        </div>
         <!-- Demo disclaimer -->
-        <div style="padding:6px 14px; background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.04); text-align:center;">
-          <span style="font-family:'DM Mono',monospace; font-size:8.5px; letter-spacing:0.1em; color:#475569; text-transform:uppercase;">
+        <div style="padding:5px 14px; background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.04); text-align:center;">
+          <span style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; color:#334155; text-transform:uppercase;">
             ◈ &nbsp; Demo data only — not real-time
           </span>
         </div>
@@ -1045,7 +1059,7 @@
 
 <section class="features">
   <div class="section-label">Platform Features</div>
-  <h2 class="section-title">Built for precision analysis<br><em>designed for clear decisions</em></h2>
+  <h2 class="section-title">Built for precision analysis<br><em>designed for smarter discovery</em></h2>
 
   <div class="cards">
     <div class="card fade-up">
@@ -1155,7 +1169,7 @@
     <p>Join early access. No noise — just structured data.</p>
     <p>Full access from day one. Cancel anytime.</p>
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-      <a href="billing.html" class="btn-gold">
+      <a href="pricing.html" class="btn-gold">
         🔥 Start Free — 7 Days
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
@@ -1326,11 +1340,7 @@ const MOCK_DATA = [
     spark:'M0,16 L8,14 L16,11 L24,12 L32,9 L40,7 L48,8 L56,5 L64,6 L72,4 L84,3 L94,2',
     triX:56,triY:5,dotX:40,dotY:7,
     pr:418.67, chg:12.33, mx:5.55,  pday:153, vatpr:33.3,   vol:410.37, vday:219, pvol:-2.40, volm:21.5  },
-  { tk:'AMZN', sector:'Consumer Cycl.', pe:'38.2', mc:'2.14T', eps:'5.19', vol30:'2.1%',  secpe:'19.2', pevsec:'+98.9%',
-    sc:'#22c55e', triC:'#22c55e', dotC:'#22c55e',
-    spark:'M0,14 L10,12 L20,10 L30,11 L40,8 L50,6 L60,7 L70,4 L80,5 L94,3',
-    triX:50,triY:5,dotX:70,dotY:4,
-    pr:198.55, chg:6.54,  mx:6.20,  pday:135, vatpr:313,    vol:313.82, vday:135, pvol:6.20,  volm:1.79  },
+
   { tk:'GOOGL',sector:'Comm. Services', pe:'20.4', mc:'2.09T', eps:'8.41', vol30:'1.9%',  secpe:'24.5', pevsec:'-16.7%',
     sc:'#22c55e', triC:'#ef4444', dotC:'#22c55e',
     spark:'M0,10 L10,8 L20,10 L30,7 L40,9 L50,6 L60,8 L70,5 L80,6 L94,4',
@@ -1341,11 +1351,7 @@ const MOCK_DATA = [
     spark:'M0,16 L10,14 L20,15 L30,12 L40,13 L50,10 L60,11 L70,8 L80,9 L94,7',
     triX:50,triY:10,dotX:30,dotY:12,
     pr:218.33, chg:-23.94,mx:5.05,  pday:87,  vatpr:17.63,  vol:185.46, vday:43,  pvol:-3.59, volm:0.72  },
-  { tk:'V',    sector:'Financial',      pe:'29.6', mc:'547B',  eps:'9.63', vol30:'1.1%',  secpe:'12.1', pevsec:'+144%',
-    sc:'#22c55e', triC:'#22c55e', dotC:'#22c55e',
-    spark:'M0,12 L10,10 L20,11 L30,8 L40,10 L50,7 L60,8 L70,5 L80,6 L94,4',
-    triX:50,triY:7,dotX:70,dotY:5,
-    pr:284.10, chg:13.78, mx:5.55,  pday:153, vatpr:33.3,   vol:410.37, vday:219, pvol:-2.40, volm:1.97  },
+
 ];
 
 let mockSortCol = 'chg';

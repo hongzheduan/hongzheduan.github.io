@@ -891,8 +891,8 @@
     <a href="index.html" class="nav-btn">EN</a>
     <a href="assets/about_cn.html" class="nav-btn">平台简介</a>
     <a href="pricing_cn.html" class="nav-btn">加入我们</a>
-    <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:11px;color:#475569;letter-spacing:0.05em;display:none;"></span>
     <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">控制台</a>
+    <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:11px;color:#475569;letter-spacing:0.05em;display:none;"></span>
     <a href="login_cn.html" class="nav-btn nav-btn-primary" id="navLoginLogout">登录</a>
   </div>
 
@@ -915,8 +915,8 @@
 
     <!-- LEFT -->
     <div class="hero-left">
-      <div class="hero-eyebrow" style="margin-bottom:18px;">◈ &nbsp; 全面展示短期价格与成交量的最显著变化</div>
-      <h1 class="hero-title">大型美股短期<br>量价分析平台</h1>
+      <div class="hero-eyebrow" style="margin-bottom:18px;">◈ &nbsp; 快速发现主流美股量价异动</div>
+      <h1 class="hero-title">美股量价信号<br>分析平台</h1>
 
       <div class="hero-bullets">
         <div class="hero-bullet">无需跳转，同一界面查看所有信息</div>
@@ -987,27 +987,41 @@
           <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>股票代码。悬停查看基本面：PE、市值、EPS、波动率及行业对比。</div></span>
           <span class="dc" style="cursor:default;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>一年归一化价格趋势图。▲ 三角 = 最大成交量日（绿=涨，红=跌）。● 圆点 = 最大涨跌幅日（绿=量增，红=量减）。</div></span>
           <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>最新收盘价（美元）。</div></span>
-          <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">1Y CHG% <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>过去一年总价格变化幅度（%）。</div></span>
-          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">1Y MAX% <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>过去一年内单日最大涨跌幅（%）。</div></span>
-          <span class="dc dk-sort" data-col="pday"  onclick="mockSort('pday',this)">1Y P DAY <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y P DAY</div>最大价格变动发生于几个交易日前。</div></span>
-          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>最大涨跌幅当日的成交量变化幅度（%）。</div></span>
-          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">1Y VOL% <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>过去一年内单日最大成交量变化幅度（%）。</div></span>
-          <span class="dc dk-sort" data-col="vday"  onclick="mockSort('vday',this)">1Y V DAY <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y V DAY</div>最大成交量变动发生于几个交易日前。</div></span>
-          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@VOL <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>最大成交量当日的股价涨跌幅（%）。</div></span>
-          <span class="dc dk-sort" data-col="volm"  onclick="mockSort('volm',this)">VOL(M) <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">VOL(M)</div>当日成交量（百万股）。</div></span>
+          <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">1Y CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>过去一年总价格变化幅度（%）。</div></span>
+          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">1Y MAX%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>过去一年内单日最大涨跌幅（%）。</div></span>
+          <span class="dc dk-sort" data-col="pday"  onclick="mockSort('pday',this)">1Y P DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y P DAY</div>最大价格变动发生于几个交易日前。</div></span>
+          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@PRICE<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>最大涨跌幅当日的成交量变化幅度（%）。</div></span>
+          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">1Y VOL%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>过去一年内单日最大成交量变化幅度（%）。</div></span>
+          <span class="dc dk-sort" data-col="vday"  onclick="mockSort('vday',this)">1Y V DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑥</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y V DAY</div>最大成交量变动发生于几个交易日前。</div></span>
+          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@VOL<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑦</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>最大成交量当日的股价涨跌幅（%）。</div></span>
+          <span class="dc dk-sort" data-col="volm"  onclick="mockSort('volm',this)">VOL(M)<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑧</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">VOL(M)</div>当日成交量（百万股）。</div></span>
         </div>
         <div id="mockBody"></div>
 
         <!-- Hint bar -->
-        <div style="padding:9px 14px; background:rgba(59,130,246,0.08); border-top:1px solid rgba(59,130,246,0.2); display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
-          <span style="font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:0.07em; color:#94a3b8;">
-            👆 悬停<span style="color:#60a5fa;">代码</span>查看基本面 &nbsp;·&nbsp; 悬停<span style="color:#60a5fa;">列标题</span>查看指标说明 &nbsp;·&nbsp; <span style="color:#22c55e;">↕ 点击列标题排序</span>
+        <div style="padding:8px 14px; background:rgba(59,130,246,0.08); border-top:1px solid rgba(59,130,246,0.2); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.07em; color:#94a3b8;">
+            👆 悬停<span style="color:#60a5fa;">代码</span>查看基本面 &nbsp;·&nbsp; 悬停<span style="color:#60a5fa;">列标题</span>查看说明 &nbsp;·&nbsp; <span style="color:#22c55e;">↕ 点击排序</span>
           </span>
         </div>
+        <!-- Column legend -->
+        <div style="padding:10px 14px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.14em; text-transform:uppercase; color:#334155; margin-bottom:7px;">列说明</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">①</span> 1Y CHG% &nbsp;过去一年总涨跌幅</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">②</span> 1Y MAX% &nbsp;单日最大涨跌幅</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">③</span> 1Y P DAY &nbsp;最大价格变动发生于几日前</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">④</span> V@PRICE &nbsp;最大涨跌日的成交量变化</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑤</span> 1Y VOL% &nbsp;单日最大成交量变化幅度</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑥</span> 1Y V DAY &nbsp;最大成交量变动发生于几日前</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑦</span> P@VOL &nbsp;&nbsp;&nbsp;最大成交量日的股价涨跌幅</div>
+            <div style="font-family:'DM Mono',monospace; font-size:9px; color:#64748b; line-height:1.5;"><span style="color:#60a5fa; font-weight:600;">⑧</span> VOL(M) &nbsp;&nbsp;当日成交量（百万股）</div>
+          </div>
+        </div>
         <!-- Demo disclaimer -->
-        <div style="padding:6px 14px; background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.04); text-align:center;">
-          <span style="font-family:'DM Mono',monospace; font-size:8.5px; letter-spacing:0.1em; color:#475569; text-transform:uppercase;">
-            ◈ &nbsp; 以上为演示数据，非实时行情 &nbsp;·&nbsp; Demo only — not real-time data
+        <div style="padding:5px 14px; background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.04); text-align:center;">
+          <span style="font-family:'DM Mono',monospace; font-size:8px; letter-spacing:0.1em; color:#334155; text-transform:uppercase;">
+            ◈ &nbsp; 以上为演示数据，非实时行情
           </span>
         </div>
 
@@ -1045,7 +1059,7 @@
 
 <section class="features">
   <div class="section-label">平台功能</div>
-  <h2 class="section-title">为精准分析而构建<br><em>为清晰决策而设计</em></h2>
+  <h2 class="section-title">为精准分析而构建<br><em>为高效发现而设计</em></h2>
 
   <div class="cards">
     <div class="card fade-up">
@@ -1324,11 +1338,7 @@ const MOCK_DATA = [
     spark:'M0,16 L8,14 L16,11 L24,12 L32,9 L40,7 L48,8 L56,5 L64,6 L72,4 L84,3 L94,2',
     triX:56,triY:5,dotX:40,dotY:7,
     pr:418.67, chg:12.33, mx:5.55,  pday:153, vatpr:33.3,   vol:410.37, vday:219, pvol:-2.40, volm:21.5  },
-  { tk:'AMZN', sector:'Consumer Cycl.', pe:'38.2', mc:'2.14T', eps:'5.19', vol30:'2.1%',  secpe:'19.2', pevsec:'+98.9%',
-    sc:'#22c55e', triC:'#22c55e', dotC:'#22c55e',
-    spark:'M0,14 L10,12 L20,10 L30,11 L40,8 L50,6 L60,7 L70,4 L80,5 L94,3',
-    triX:50,triY:5,dotX:70,dotY:4,
-    pr:198.55, chg:6.54,  mx:6.20,  pday:135, vatpr:313,    vol:313.82, vday:135, pvol:6.20,  volm:1.79  },
+
   { tk:'GOOGL',sector:'Comm. Services', pe:'20.4', mc:'2.09T', eps:'8.41', vol30:'1.9%',  secpe:'24.5', pevsec:'-16.7%',
     sc:'#22c55e', triC:'#ef4444', dotC:'#22c55e',
     spark:'M0,10 L10,8 L20,10 L30,7 L40,9 L50,6 L60,8 L70,5 L80,6 L94,4',
@@ -1339,11 +1349,7 @@ const MOCK_DATA = [
     spark:'M0,16 L10,14 L20,15 L30,12 L40,13 L50,10 L60,11 L70,8 L80,9 L94,7',
     triX:50,triY:10,dotX:30,dotY:12,
     pr:218.33, chg:-23.94,mx:5.05,  pday:87,  vatpr:17.63,  vol:185.46, vday:43,  pvol:-3.59, volm:0.72  },
-  { tk:'V',    sector:'Financial',      pe:'29.6', mc:'547B',  eps:'9.63', vol30:'1.1%',  secpe:'12.1', pevsec:'+144%',
-    sc:'#22c55e', triC:'#22c55e', dotC:'#22c55e',
-    spark:'M0,12 L10,10 L20,11 L30,8 L40,10 L50,7 L60,8 L70,5 L80,6 L94,4',
-    triX:50,triY:7,dotX:70,dotY:5,
-    pr:284.10, chg:13.78, mx:5.55,  pday:153, vatpr:33.3,   vol:410.37, vday:219, pvol:-2.40, volm:1.97  },
+
 ];
 
 let mockSortCol = 'chg';
