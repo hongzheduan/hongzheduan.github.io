@@ -221,6 +221,7 @@
     }
 
     .hamburger:hover span { background: var(--white); }
+    .hamburger { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 
     .mobile-drawer {
       display: none;
@@ -890,11 +891,12 @@
     <a href="index.html" class="nav-btn">EN</a>
     <a href="assets/about_cn.html" class="nav-btn">平台简介</a>
     <a href="pricing_cn.html" class="nav-btn">加入我们</a>
+    <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:11px;color:#475569;letter-spacing:0.05em;display:none;"></span>
     <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">控制台</a>
     <a href="login_cn.html" class="nav-btn nav-btn-primary" id="navLoginLogout">登录</a>
   </div>
 
-  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="菜单">
+  <button class="hamburger" id="hamburger" aria-label="菜单">
     <span></span><span></span><span></span>
   </button>
 </header>
@@ -1193,10 +1195,19 @@
     drawer.classList.toggle("open");
   }
 
+  const hamburgerBtn = document.getElementById("hamburger");
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener("click", toggleMenu);
+    hamburgerBtn.addEventListener("touchend", function(e) {
+      e.preventDefault();
+      toggleMenu();
+    });
+  }
+
   document.addEventListener("click", (e) => {
     const drawer    = document.getElementById("mobileDrawer");
     const hamburger = document.getElementById("hamburger");
-    if (drawer.classList.contains("open") && !drawer.contains(e.target) && !hamburger.contains(e.target)) {
+    if (drawer && drawer.classList.contains("open") && !drawer.contains(e.target) && !hamburger.contains(e.target)) {
       drawer.classList.remove("open");
     }
   });
@@ -1222,6 +1233,7 @@
   firebase.auth().onAuthStateChanged(function(user) {
     const loginLogout = document.getElementById('navLoginLogout');
     const dashBtn     = document.getElementById('navDashBtn');
+    const emailEl     = document.getElementById('navUserEmail');
     const mobileLinks = document.getElementById('mobileAuthLinks');
 
     const mStyle = 'display:block;width:100%;padding:13px 16px;border-radius:8px;' +
@@ -1230,6 +1242,7 @@
 
     if (user) {
       if (dashBtn) dashBtn.style.display = 'inline-flex';
+      if (emailEl) { emailEl.textContent = user.email; emailEl.style.display = 'inline'; }
       if (loginLogout) {
         loginLogout.textContent = '退出登录';
         loginLogout.style.background = 'transparent';
@@ -1244,6 +1257,7 @@
         '<a href="#" onclick="doLogoutCn();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">退出登录</a>';
     } else {
       if (dashBtn) dashBtn.style.display = 'none';
+      if (emailEl) { emailEl.textContent = ''; emailEl.style.display = 'none'; }
       if (loginLogout) {
         loginLogout.textContent = '登录';
         loginLogout.style.background = '';
