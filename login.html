@@ -495,11 +495,9 @@
 
         // ── Redirect based on status ──
         // "trialing" counts as active access
-        if (subscriptionStatus === "active" || subscriptionStatus === "trialing") {
-          window.location.href = "dashboard.html";
-        } else {
-          window.location.href = "billing.html";
-        }
+        // Always go to dashboard — it handles subscription state
+        // (inactive users see locked tools with a "choose a plan" prompt)
+        window.location.href = "dashboard.html";
 
       } catch (e) {
         console.error(e);
