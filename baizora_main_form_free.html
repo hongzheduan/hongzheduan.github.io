@@ -16,9 +16,9 @@
       --navy-surface: #0a1628;
       --electric: #3b82f6;
       --electric-bright: #60a5fa;
-      --white: #f8fafc;
-      --muted: #94a3b8;
-      --border: rgba(255,255,255,0.07);
+      --white: #ffffff;
+      --muted: #cbd5e1;
+      --border: rgba(255,255,255,0.09);
       --border-bright: rgba(255,255,255,0.12);
       --positive: #22c55e;
       --negative: #ef4444;
@@ -64,7 +64,7 @@
     }
 
     .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .header-left img { height: 36px; }
+    .header-left img { height: 50px; }
 
     .logo-text {
       font-family: 'DM Serif Display', serif;
@@ -182,7 +182,7 @@
       font-size: 10px;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: #475569;
+      color: #94a3b8;
     }
 
     .window-btns { display: flex; gap: 4px; }
@@ -208,7 +208,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.08em;
-      color: #334155;
+      color: #94a3b8;
       margin-left: auto;
     }
 
@@ -241,7 +241,7 @@
       font-size: 10px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #475569;
+      color: #94a3b8;
       user-select: none;
       transition: color 0.15s, background 0.15s;
     }
@@ -249,7 +249,7 @@
     th.sorted { color: var(--electric-bright); }
     th:last-child { border-right: none; }
     th.no-sort { cursor: default; }
-    th.no-sort:hover { color: #475569; background: rgba(10,22,40,0.98); }
+    th.no-sort:hover { color: #94a3b8; background: rgba(10,22,40,0.98); }
 
     td {
       padding: 9px 12px;
@@ -575,7 +575,7 @@
   <header>
     <div class="header-left">
       <a href="./" style="display:flex; align-items:center; text-decoration:none; gap:10px;">
-        <img src="assets/baize_favicon_v2.png" alt="Baizora">
+        <img src="assets/baize_logo_v2.png" alt="Baizora">
         <span class="logo-text">Baiz<span>ora</span></span>
       </a>
       <div class="header-divider"></div>
@@ -897,20 +897,20 @@
       let windowHead = "";
       if (!is1D) {
         windowHead = `
-          ${thSort(`${w}PriceChange`,            `${w} Chg%`,   "group-start")}
-          ${thSort(`${w}MaxPriceChange`,          `${w} Max%`)}
-          ${thSort(`${w}MaxPriceChangeDay`,        `${w} P Day`)}
-          ${thSort(`${w}VolumeChangeAtMaxPrice`,   `${w} V@Price`)}
-          ${thSort(`${w}MaxVolumeChange`,          `${w} Vol%`)}
-          ${thSort(`${w}MaxVolumeChangeDay`,       `${w} V Day`)}
-          ${thSort(`${w}PriceChangeAtMaxVolume`,   `${w} P@Vol`)}`;
+          ${thSort(`${w}PriceChange`,            "P CHG%",   "group-start")}
+          ${thSort(`${w}MaxPriceChange`,          "MAX P CHG%")}
+          ${thSort(`${w}MaxPriceChangeDay`,        "MAX P% Day")}
+          ${thSort(`${w}VolumeChangeAtMaxPrice`,   "V@P Day")}
+          ${thSort(`${w}MaxVolumeChange`,          "MAX V CHG%")}
+          ${thSort(`${w}MaxVolumeChangeDay`,       "MAX V% Day")}
+          ${thSort(`${w}PriceChangeAtMaxVolume`,   "P@V Day")}`;
       }
 
       const oneDayCols = is1D ? `
-        ${thSort("PriceChange1D",   "1D%",        "group-start")}
-        ${thSort("PriceVsMA21_1D",  "P/MA21",     "group-start")}
-        ${thSort("VolumeChange1D",  "1D Vol%")}
-        ${thSort("VolumeVsMA21_1D", "V/MA21")}` : "";
+        ${thSort("PriceChange1D",   "1D P CHG%",  "group-start")}
+        ${thSort("PriceVsMA21_1D",  "PRICE/MA21", "group-start")}
+        ${thSort("VolumeChange1D",  "1D V CHG%")}
+        ${thSort("VolumeVsMA21_1D", "VOL/MA21")}` : "";
 
       const head = `<thead><tr>
         ${thSort("Ticker",          "Ticker")}
@@ -995,20 +995,20 @@
       "Spark1Y":         { label: "1Y Trend",  desc: "1-year normalized price sparkline. ▲ Triangle = highest-volume day (green=price up, red=price down). ● Circle = highest-price-change day (green=volume up, red=volume down)." },
       "Price":           { label: "Price",     desc: "Latest closing price in USD." },
       "VolumeM":         { label: "Vol (M)",   desc: "Trading volume in millions of shares for the most recent session." },
-      "PriceChange1D":   { label: "1D%",       desc: "Price change (%) vs the previous session's closing price." },
-      "VolumeChange1D":  { label: "1D Vol%",   desc: "Volume change (%) vs the previous session's volume." },
-      "PriceVsMA21_1D":  { label: "P/MA21",    desc: "Current price as a ratio of the 21-day moving average. Values above 1 indicate price above the MA." },
-      "VolumeVsMA21_1D": { label: "V/MA21",    desc: "Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity." },
+      "PriceChange1D":   { label: "1D P CHG%",       desc: "Price change (%) vs the previous session's closing price." },
+      "VolumeChange1D":  { label: "1D V CHG%",   desc: "Volume change (%) vs the previous session's volume." },
+      "PriceVsMA21_1D":  { label: "PRICE/MA21",    desc: "Current price as a ratio of the 21-day moving average. Values above 1 indicate price above the MA." },
+      "VolumeVsMA21_1D": { label: "VOL/MA21",    desc: "Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity." },
     };
 
     function getWindowColDesc(key, w) {
-      if (key === `${w}PriceChange`)            return { label: `${w} Chg%`,    desc: `Total price change (%) over the ${w} window.` };
-      if (key === `${w}MaxPriceChange`)         return { label: `${w} Max%`,    desc: `Largest single-day price change (%) within the ${w} window.` };
-      if (key === `${w}MaxVolumeChange`)        return { label: `${w} Vol%`,    desc: `Largest single-day volume change (%) within the ${w} window.` };
-      if (key === `${w}MaxPriceChangeDay`)      return { label: `${w} P Day`,   desc: `Days ago when the maximum price change occurred in the ${w} window.` };
-      if (key === `${w}MaxVolumeChangeDay`)     return { label: `${w} V Day`,   desc: `Days ago when the maximum volume change occurred in the ${w} window.` };
-      if (key === `${w}PriceChangeAtMaxVolume`) return { label: `${w} P@Vol`,   desc: `Price change (%) on the highest-volume day in the ${w} window.` };
-      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: `${w} V@Price`, desc: `Volume change (%) on the highest-price-change day in the ${w} window.` };
+      if (key === `${w}PriceChange`)            return { label: "P CHG%",    desc: `Total price change (%) over the ${w} window.` };
+      if (key === `${w}MaxPriceChange`)         return { label: "MAX P CHG%",    desc: `Largest single-day price change (%) within the ${w} window.` };
+      if (key === `${w}MaxVolumeChange`)        return { label: "MAX V CHG%",    desc: `Largest single-day volume change (%) within the ${w} window.` };
+      if (key === `${w}MaxPriceChangeDay`)      return { label: "MAX P% Day",   desc: `Days ago when the maximum price change occurred in the ${w} window.` };
+      if (key === `${w}MaxVolumeChangeDay`)     return { label: "MAX V% Day",   desc: `Days ago when the maximum volume change occurred in the ${w} window.` };
+      if (key === `${w}PriceChangeAtMaxVolume`) return { label: "P@V Day",   desc: `Price change (%) on the highest-volume day in the ${w} window.` };
+      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: "V@P Day", desc: `Volume change (%) on the highest-price-change day in the ${w} window.` };
       return null;
     }
 

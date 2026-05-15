@@ -988,15 +988,15 @@
 
         <div class="dash-thead" id="mockThead">
           <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">代码 <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility and sector comparison.</div></span>
-          <span class="dc" style="cursor:default; padding-left:8px;">年趋势图<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart. ▲ Triangle = highest-volume day (green=up, red=down). ● Circle = largest price-change day (green=vol up, red=vol down).</div></span>
+          <span class="dc" style="cursor:default; padding-left:8px;">年趋势图<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart. ▲ Triangle = highest-volume day (green=up, red=down). ● Circle = largest price-increase day (green=vol up, red=vol down).</div></span>
           <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">价格 <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
           <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">年涨幅<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
-          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">日最大价变<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price change (%) within the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">日最大价涨<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price increase (%) within the past 1 year.</div></span>
 
-          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">量@价日<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price move.</div></span>
-          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">日最大量变<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume change (%) within the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">量@价日<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price increase.</div></span>
+          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">日最大量涨<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume increase (%) within the past 1 year.</div></span>
 
-          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">价@量日<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume move.</div></span>
+          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">价@量日<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume increase.</div></span>
 
         </div>
         <div id="mockBody"></div>
@@ -1011,11 +1011,11 @@
         <div style="padding:10px 8px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);">
           <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">列说明</div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> 年涨幅 &nbsp;&nbsp;过去一年总涨跌幅</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> 日最大价变 最大单日涨跌幅</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> 量@价日 &nbsp;&nbsp;最大涨跌日成交量变化</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> 日最大量变 最大单日成交量变化</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> 价@量日 &nbsp;&nbsp;最大成交量日股价涨跌幅</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> 年涨幅 &nbsp;&nbsp;过去一年股价总变化</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> 日最大价涨 最大单日股价上涨</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> 量@价日 &nbsp;&nbsp;最大股价上涨日成交量变化</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> 日最大量涨 最大单日成交量上升</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> 价@量日 &nbsp;&nbsp;最大成交量上涨日股价变化</div>
           </div>
         </div>
         <!-- Demo disclaimer -->

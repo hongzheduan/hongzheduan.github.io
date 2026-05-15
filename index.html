@@ -892,7 +892,7 @@
   <div class="desktop-nav">
     <a href="index_cn.html" class="nav-btn">中文</a>
     <a href="assets/about.html" class="nav-btn">About</a>
-    <a href="billing.html" class="nav-btn">Plans</a>
+    <a href="pricing.html" class="nav-btn">Plans</a>
     <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
     <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
     <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign In</a>
@@ -908,7 +908,7 @@
   <div id="mobileAuthLinks"></div>
   <a href="account.html">Manage Subscription</a>
   <a href="index_cn.html">中文</a>
-  <a href="billing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a>
+  <a href="pricing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a>
 </div>
 
 <!-- ── HERO ── -->
@@ -928,11 +928,11 @@
       </div>
 
       <div class="hero-cta">
-        <a href="billing.html" class="btn-gold">
+        <a href="pricing.html" class="btn-gold">
           🔥 Start Free — 7 Days
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <a href="free.html" class="btn-primary">Free Preview (No Sign-up)</a>
+        <a href="baizora_main_form_free.html" class="btn-primary">Free Preview (No Sign-up)</a>
       </div>
 
       <div class="fact-bar">
@@ -990,13 +990,13 @@
           <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility and sector comparison.</div></span>
           <span class="dc" style="cursor:default; padding-left:8px;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart. ▲ Triangle = highest-volume day (green=up, red=down). ● Circle = largest price-change day (green=vol up, red=vol down).</div></span>
           <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
-          <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
-          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">MAX%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price change (%) within the past 1 year.</div></span>
+          <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">P CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">MAX P CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price increase (%) within the past 1 year.</div></span>
 
-          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@PRICE<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price move.</div></span>
-          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">VOL%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume change (%) within the past 1 year.</div></span>
+          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@P DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price increase.</div></span>
+          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">MAX V CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume increase (%) within the past 1 year.</div></span>
 
-          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@VOL<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume move.</div></span>
+          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@V DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume increase.</div></span>
 
         </div>
         <div id="mockBody"></div>
@@ -1011,11 +1011,11 @@
         <div style="padding:10px 8px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);">
           <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">Column Guide</div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> CHG% &nbsp;&nbsp;&nbsp;Total price change over 1 year</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> MAX% &nbsp;&nbsp;&nbsp;Largest single-day price move</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> V@PRICE &nbsp;Volume change on max price day</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> VOL% &nbsp;&nbsp;&nbsp;Largest single-day volume move</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> P@VOL &nbsp;&nbsp;&nbsp;Price change on max volume day</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> P CHG% &nbsp;&nbsp;Total price change over 1 year</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> MAX P CHG% Largest single-day price increase</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> V@P DAY &nbsp;&nbsp;Volume change on max price day</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> MAX V CHG% Largest single-day volume increase</div>
+            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> P@V DAY &nbsp;&nbsp;Price change on max volume day</div>
           </div>
         </div>
         <!-- Demo disclaimer -->
@@ -1169,11 +1169,11 @@
     <p>Join early access. No noise — just structured data.</p>
     <p>Full access from day one. Cancel anytime.</p>
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-      <a href="billing.html" class="btn-gold">
+      <a href=".html" class="btn-gold">
         🔥 Start Free — 7 Days
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
-      <a href="free.html" class="btn-secondary">Free Preview</a>
+      <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview</a>
     </div>
   </div>
 </section>

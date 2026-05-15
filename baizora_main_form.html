@@ -16,9 +16,9 @@
       --navy-surface: #0a1628;
       --electric: #3b82f6;
       --electric-bright: #60a5fa;
-      --white: #f8fafc;
-      --muted: #94a3b8;
-      --border: rgba(255,255,255,0.07);
+      --white: #ffffff;
+      --muted: #cbd5e1;
+      --border: rgba(255,255,255,0.09);
       --border-bright: rgba(255,255,255,0.12);
       --positive: #22c55e;
       --negative: #ef4444;
@@ -64,7 +64,7 @@
     }
 
     .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .header-left img { height: 36px; }
+    .header-left img { height: 50px; }
 
     .logo-text {
       font-family: 'DM Serif Display', serif;
@@ -91,7 +91,6 @@
       text-transform: uppercase;
       cursor: pointer;
       transition: all 0.2s;
-      white-space: nowrap;
     }
     .tab-btn:hover { color: var(--white); border-color: var(--border-bright); background: rgba(255,255,255,0.04); }
     .tab-btn.active { color: var(--electric-bright); border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.08); }
@@ -136,78 +135,6 @@
     }
     .logout-btn:hover { border-color: rgba(239,68,68,0.4); color: #fca5a5; background: rgba(239,68,68,0.06); }
 
-    /* ── HAMBURGER ── */
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      gap: 5px;
-      cursor: pointer;
-      padding: 6px 7px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: transparent;
-      flex-shrink: 0;
-    }
-    .hamburger span {
-      display: block;
-      width: 18px;
-      height: 2px;
-      background: var(--muted);
-      border-radius: 2px;
-      transition: background 0.2s;
-    }
-    .hamburger:hover span { background: var(--white); }
-
-    /* ── MOBILE NAV DRAWER ── */
-    .mobile-nav-drawer {
-      display: none;
-      position: fixed;
-      left: 0; right: 0;
-      background: rgba(6,13,31,0.98);
-      border-bottom: 1px solid var(--border-bright);
-      backdrop-filter: blur(20px);
-      z-index: 95;
-      flex-direction: column;
-      padding: 4px 0;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    }
-    .mobile-nav-drawer.open { display: flex; }
-    .mobile-nav-drawer button {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 14px 20px;
-      color: var(--muted);
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid var(--border);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: color 0.15s, background 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .mobile-nav-drawer button:last-child { border-bottom: none; }
-    .mobile-nav-drawer button:hover { color: #fca5a5; background: rgba(239,68,68,0.06); }
-
-    /* ── MOBILE TAB STRIP ── */
-    .mobile-tab-strip {
-      display: none;
-      flex-shrink: 0;
-      background: rgba(6,13,31,0.97);
-      border-bottom: 1px solid var(--border);
-      padding: 6px 10px;
-      gap: 4px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .mobile-tab-strip::-webkit-scrollbar { display: none; }
-    .mobile-tab-strip .tab-btn { font-size: 10px; padding: 5px 12px; }
-
     /* ── TOOLBAR ── */
     .toolbar {
       position: relative;
@@ -220,21 +147,17 @@
       align-items: center;
       padding: 0 20px;
       gap: 16px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
     }
-    .toolbar::-webkit-scrollbar { display: none; }
 
     .toolbar-label {
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: #475569;
-      white-space: nowrap;
+      color: #94a3b8;
     }
 
-    .window-btns { display: flex; gap: 4px; flex-shrink: 0; }
+    .window-btns { display: flex; gap: 4px; }
 
     .window-btn {
       background: transparent;
@@ -247,24 +170,22 @@
       letter-spacing: 0.06em;
       cursor: pointer;
       transition: all 0.15s;
-      white-space: nowrap;
     }
     .window-btn:hover { border-color: var(--border-bright); color: var(--white); }
     .window-btn.active { background: var(--electric); border-color: var(--electric); color: white; }
 
-    .toolbar-sep { width: 1px; height: 16px; background: var(--border); flex-shrink: 0; }
+    .toolbar-sep { width: 1px; height: 16px; background: var(--border); }
 
     .row-count {
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.08em;
-      color: #334155;
+      color: #94a3b8;
       margin-left: auto;
-      white-space: nowrap;
     }
 
     /* ── TABLE AREA ── */
-    .table-area { position: relative; z-index: 10; flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; }
+    .table-area { position: relative; z-index: 10; flex: 1; overflow: auto; }
 
     .table-area::-webkit-scrollbar { width: 6px; height: 6px; }
     .table-area::-webkit-scrollbar-track { background: transparent; }
@@ -290,7 +211,7 @@
       font-size: 10px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #475569;
+      color: #94a3b8;
       user-select: none;
       transition: color 0.15s, background 0.15s;
     }
@@ -298,7 +219,7 @@
     th.sorted { color: var(--electric-bright); }
     th:last-child { border-right: none; }
     th.no-sort { cursor: default; }
-    th.no-sort:hover { color: #475569; background: rgba(10,22,40,0.98); }
+    th.no-sort:hover { color: #94a3b8; background: rgba(10,22,40,0.98); }
 
     td {
       padding: 9px 12px;
@@ -325,6 +246,7 @@
     .ticker-cell:hover { color: var(--electric-bright); }
 
     .price-cell { font-family: 'DM Mono', monospace; color: var(--white); font-weight: 400; }
+
     .positive { color: var(--positive); font-family: 'DM Mono', monospace; }
     .negative { color: var(--negative); font-family: 'DM Mono', monospace; }
     .neutral  { color: var(--muted);    font-family: 'DM Mono', monospace; }
@@ -365,8 +287,15 @@
       cursor: default;
     }
     #readme .col-table th:hover { color: #475569; background: rgba(13,30,61,0.6); }
+
     #readme .col-table td { font-size: 12px; padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--muted); }
-    #readme .col-table td:first-child { font-family: 'DM Mono', monospace; color: var(--electric-bright); font-size: 11px; cursor: default; }
+
+    #readme .col-table td:first-child {
+      font-family: 'DM Mono', monospace;
+      color: var(--electric-bright);
+      font-size: 11px;
+      cursor: default;
+    }
 
     /* ── LOADING OVERLAY ── */
     .loading-overlay {
@@ -423,8 +352,21 @@
       box-shadow: 0 12px 40px rgba(0,0,0,0.5);
       backdrop-filter: blur(12px);
     }
-    .col-tooltip .tt-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 5px; }
-    .col-tooltip .tt-desc  { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+    .col-tooltip .tt-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 5px;
+    }
+    .col-tooltip .tt-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-weight: 300;
+    }
 
     .ticker-tooltip {
       background: rgba(10, 22, 40, 0.98);
@@ -435,55 +377,26 @@
       box-shadow: 0 16px 50px rgba(0,0,0,0.6);
       backdrop-filter: blur(16px);
     }
-    .ticker-tooltip .tt-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-    .ticker-tooltip .tt-sym    { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: var(--white); letter-spacing: 0.06em; }
+    .ticker-tooltip .tt-header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ticker-tooltip .tt-sym { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: var(--white); letter-spacing: 0.06em; }
     .ticker-tooltip .tt-sector { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); font-weight: 300; }
-    .ticker-tooltip .tt-rows   { display: flex; flex-direction: column; gap: 6px; }
-    .ticker-tooltip .tt-row    { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
-    .ticker-tooltip .tt-key    { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; flex-shrink: 0; }
-    .ticker-tooltip .tt-val    { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--white); text-align: right; }
+    .ticker-tooltip .tt-rows { display: flex; flex-direction: column; gap: 6px; }
+    .ticker-tooltip .tt-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+    .ticker-tooltip .tt-key { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; flex-shrink: 0; }
+    .ticker-tooltip .tt-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--white); text-align: right; }
     .ticker-tooltip .tt-val.positive { color: var(--positive); }
     .ticker-tooltip .tt-val.negative { color: var(--negative); }
     .ticker-tooltip .tt-val.muted    { color: var(--muted); }
     .ticker-tooltip .tt-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
     .tt-loading { font-family: 'DM Mono', monospace; font-size: 11px; color: #334155; letter-spacing: 0.08em; text-align: center; padding: 6px 0; }
-
-    /* ══════════════════════════════════════════
-       MOBILE  ≤ 640px
-    ══════════════════════════════════════════ */
-    @media (max-width: 640px) {
-      /* Hide desktop-only elements */
-      .header-divider,
-      .tab-nav,
-      .status-badge,
-      .logout-btn,
-      .header-right { display: none !important; }
-
-      /* Header */
-      header { padding: 0 14px; height: 52px; }
-      .header-left { gap: 8px; }
-      .header-left img { height: 28px; }
-      .logo-text { font-size: 17px; }
-
-      /* Show hamburger + mobile tabs */
-      .hamburger { display: flex; }
-      .mobile-tab-strip { display: flex; }
-
-      /* Toolbar */
-      .toolbar { padding: 0 10px; gap: 8px; height: 40px; }
-      .toolbar-label { display: none; }
-      .window-btn { padding: 3px 9px; font-size: 10px; }
-      .row-count { font-size: 9px; }
-
-      /* README */
-      #readme { padding: 20px 16px; }
-      #readme h2 { font-size: 22px; }
-      #readme .col-table td,
-      #readme .col-table th { padding: 7px 10px; font-size: 11px; }
-
-      /* Tooltips are hover-only — hide on touch */
-      .bz-tooltip { display: none !important; }
-    }
   </style>
 </head>
 
@@ -498,8 +411,9 @@
       </a>
       <div class="header-divider"></div>
       <nav class="tab-nav">
-        <button class="tab-btn active" onclick="show('sp500', this)">S&amp;P 500</button>
+        <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
         <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
+        <button class="tab-btn" onclick="show('readme', this)">README</button>
       </nav>
     </div>
 
@@ -513,28 +427,9 @@
         Logout
       </button>
     </div>
-
-    <!-- Mobile hamburger -->
-    <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
   </header>
 
-  <!-- Mobile nav drawer -->
-  <div class="mobile-nav-drawer" id="mobileNavDrawer">
-    <button id="mobileLogoutBtn">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Logout
-    </button>
-  </div>
-
-  <!-- Mobile tab strip -->
-  <div class="mobile-tab-strip" id="mobileTabStrip">
-    <button class="tab-btn active" onclick="showMobileTab('sp500', this)">S&amp;P 500</button>
-    <button class="tab-btn" onclick="showMobileTab('nasdaq', this)">Nasdaq 100</button>
-  </div>
-
-  <!-- Toolbar -->
+  <!-- Toolbar — NEW timeframes: 1D 2W 1M 3M 6M 9M 1Y -->
   <div class="toolbar" id="toolbar">
     <span class="toolbar-label">Window</span>
     <div class="window-btns">
@@ -570,7 +465,7 @@
       <div class="readme-label">◈ &nbsp; Documentation</div>
       <h2>Signal Reference</h2>
       <p>
-        Baizora scans S&amp;P 500 and Nasdaq-100 constituents daily after market close.
+        Baizora scans S&P 500 and Nasdaq-100 constituents daily after market close.
         Each row reflects a stock's price and volume behavior relative to recent history
         using consistent statistical comparisons over rolling windows.
       </p>
@@ -581,27 +476,27 @@
       </p>
       <table class="col-table">
         <tr><th>Column</th><th>Description</th></tr>
-        <tr><td>Ticker</td><td>Stock symbol — hover for PE, Market Cap, EPS, Volatility, and sector comparison</td></tr>
-        <tr><td>1Y Trend</td><td>1-year normalized price sparkline. <strong>&#9650; Triangle</strong> = highest-volume day (green=price up, red=price down). <strong>&#9679; Circle</strong> = highest-price-change day (green=volume up, red=volume down).</td></tr>
-        <tr><td>Price</td><td>Latest closing price (USD)</td></tr>
-        <tr><td>Vol (M)</td><td>Volume in millions of shares</td></tr>
-        <tr><td>1D%</td><td>Price change vs previous close (always shown)</td></tr>
-        <tr><td>P/MA21</td><td>Price vs 21-day moving average (ratio; &gt;1 = above MA)</td></tr>
-        <tr><td>1D Vol%</td><td>Volume change vs previous session (always shown)</td></tr>
-        <tr><td>V/MA21</td><td>Volume vs 21-day average volume (ratio; &gt;1 = elevated)</td></tr>
-        <tr><td>Chg%</td><td>Total price change (%) from start of selected window to today — only shown for 2W and longer</td></tr>
-        <tr><td>Max%</td><td>Largest single-day price change in selected window</td></tr>
-        <tr><td>P Day</td><td>Days ago when the max price change occurred</td></tr>
-        <tr><td>V@Price</td><td>Volume change on the highest-price-change day</td></tr>
-        <tr><td>Vol%</td><td>Largest single-day volume change in selected window</td></tr>
-        <tr><td>V Day</td><td>Days ago when the max volume change occurred</td></tr>
-        <tr><td>P@Vol</td><td>Price change on the highest-volume day</td></tr>
+        <tr><td>TICKER</td><td>Stock symbol — hover for PE, Market Cap, EPS, Volatility, and sector comparison</td></tr>
+        <tr><td>1Y TREND</td><td>1-year normalized price sparkline. <strong>&#9650; Triangle</strong> = highest-volume day (green=price up, red=price down). <strong>&#9679; Circle</strong> = highest-price-change day (green=volume up, red=volume down).</td></tr>
+        <tr><td>PRICE</td><td>Latest closing price (USD)</td></tr>
+        <tr><td>VOL(M)</td><td>Volume in millions of shares</td></tr>
+        <tr><td>1D P CHG%</td><td>Price change vs previous close (always shown)</td></tr>
+        <tr><td>PRICE/MA21</td><td>Price vs 21-day moving average (ratio; &gt;1 = above MA)</td></tr>
+        <tr><td>1D V CHG%</td><td>Volume change vs previous session (always shown)</td></tr>
+        <tr><td>VOL/MA21</td><td>Volume vs 21-day average volume (ratio; &gt;1 = elevated)</td></tr>
+        <tr><td>P CHG%</td><td>Total price change (%) from start of selected window to today — only shown for 2W and longer</td></tr>
+        <tr><td>MAX P CHG%</td><td>Largest single-day price increase in selected window</td></tr>
+        <tr><td>MAX P% Day</td><td>Days ago when the max price increase occurred</td></tr>
+        <tr><td>V@P Day</td><td>Volume change on the highest-price-increase day</td></tr>
+        <tr><td>MAX V CHG%</td><td>Largest single-day volume increase in selected window</td></tr>
+        <tr><td>MAX V% Day</td><td>Days ago when the max volume increase occurred</td></tr>
+        <tr><td>P@V Day</td><td>Price change on the highest-volume-increase day</td></tr>
       </table>
     </div>
 
   </div>
 
-  <!-- Tooltips (desktop only, hidden on mobile via CSS) -->
+  <!-- Tooltips -->
   <div class="bz-tooltip col-tooltip" id="colTooltip">
     <div class="tt-label" id="colTooltipLabel"></div>
     <div class="tt-desc"  id="colTooltipDesc"></div>
@@ -671,35 +566,15 @@
       rowCount.textContent   = `${rows} SYMBOLS · ${label}`;
     }
 
-    /* ── TAB (shared core) ── */
-    function _show(id) {
+    /* ── TAB ── */
+    window.show = function(id, btn) {
       document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
       document.getElementById(id).classList.add("active");
+      btn.classList.add("active");
       activeTab = id;
       toolbar.style.display = (id === "readme") ? "none" : "flex";
       updateStatus();
-    }
-
-    /* Desktop tabs */
-    window.show = function(id, btn) {
-      _show(id);
-      document.querySelectorAll(".tab-nav .tab-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      // sync mobile strip
-      document.querySelectorAll(".mobile-tab-strip .tab-btn").forEach(b => {
-        b.classList.toggle("active", (b.getAttribute("onclick") || "").includes(`'${id}'`));
-      });
-    };
-
-    /* Mobile tab strip */
-    window.showMobileTab = function(id, mobileBtn) {
-      _show(id);
-      document.querySelectorAll(".mobile-tab-strip .tab-btn").forEach(b => b.classList.remove("active"));
-      mobileBtn.classList.add("active");
-      // sync desktop tabs
-      document.querySelectorAll(".tab-nav .tab-btn").forEach(b => {
-        b.classList.toggle("active", (b.getAttribute("onclick") || "").includes(`'${id}'`));
-      });
     };
 
     /* ── WINDOW ── */
@@ -750,7 +625,10 @@
       return `<th class="${cls}" data-col="${dataCol}">${label}</th>`;
     }
 
-    /* ── SPARKLINE ── */
+    /* -- SPARKLINE (Spark1Y) with two markers --
+       Triangle (^) = max-volume day   (green=price UP, red=price DOWN)
+       Circle   (o) = max-price day    (green=volume UP, red=volume DOWN)
+    -- */
     function renderSparkline(data, maxVolDay, priceAtMaxVol, maxPriceDay, volAtMaxPrice) {
       const W = 110, H = 28, PAD = 5;
 
@@ -760,12 +638,13 @@
 
       const n = data.length;
       const stepX = W / (n - 1);
+
       const points = data.map((v, i) => ({
         x: +(i * stepX).toFixed(2),
         y: +(PAD + (1 - v) * (H - PAD * 2)).toFixed(2)
       }));
 
-      const linePath  = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x},${p.y}`).join(" ");
+      const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x},${p.y}`).join(" ");
       const lineColor = data[n - 1] >= data[0] ? "#22c55e" : "#ef4444";
 
       function idxFromDays(daysAgo) {
@@ -773,21 +652,32 @@
         return Math.max(0, Math.min(n - 1, n - 1 - d));
       }
 
+      /* MARKER 1: max-volume day — upward triangle
+         green if price was UP on that day, red if DOWN */
       let volMarker = "";
       if (maxVolDay != null && !isNaN(parseFloat(maxVolDay))) {
-        const idx = idxFromDays(maxVolDay);
-        const cx = points[idx].x, cy = points[idx].y;
-        const col = (priceAtMaxVol != null && parseFloat(priceAtMaxVol) >= 0) ? "#22c55e" : "#ef4444";
-        const s = 4.5;
-        volMarker = `<polygon points="${cx},${cy - s*1.5} ${cx-s},${cy+s*0.6} ${cx+s},${cy+s*0.6}"
+        const idx   = idxFromDays(maxVolDay);
+        const cx    = points[idx].x;
+        const cy    = points[idx].y;
+        const col   = (priceAtMaxVol != null && parseFloat(priceAtMaxVol) >= 0) ? "#22c55e" : "#ef4444";
+        const s = 4.5;  // half-base size
+        const apex = cy - s * 1.5;
+        const bL   = cx - s;
+        const bR   = cx + s;
+        const bY   = cy + s * 0.6;
+        volMarker = `<polygon points="${cx},${apex} ${bL},${bY} ${bR},${bY}"
           fill="${col}" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>`;
       }
 
+      /* MARKER 2: max-price day — filled circle with bright ring
+         green if volume was UP on that day, red if DOWN */
       let priceMarker = "";
       if (maxPriceDay != null && !isNaN(parseFloat(maxPriceDay))) {
-        const idx = idxFromDays(maxPriceDay);
-        const cx = points[idx].x, cy = points[idx].y;
-        const col = (volAtMaxPrice != null && parseFloat(volAtMaxPrice) >= 0) ? "#22c55e" : "#ef4444";
+        const idx   = idxFromDays(maxPriceDay);
+        const cx    = points[idx].x;
+        const cy    = points[idx].y;
+        const col   = (volAtMaxPrice != null && parseFloat(volAtMaxPrice) >= 0) ? "#22c55e" : "#ef4444";
+        /* outer glow ring + filled inner dot */
         priceMarker = `
           <circle cx="${cx}" cy="${cy}" r="5.5" fill="${col}" opacity="0.25"/>
           <circle cx="${cx}" cy="${cy}" r="3.2" fill="${col}" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>`;
@@ -803,41 +693,49 @@
     /* ── BUILD TABLE ── */
     function buildTable(arr, w) {
       arr = sorted(arr);
+
       const is1D = (w === "1D");
 
+      /* Window column headers */
       let windowHead = "";
-      if (!is1D) {
+      if (is1D) {
+        // 1D view: no rolling-window cols at all (1D cols already shown above)
+        windowHead = "";
+      } else {
+        // Non-1D: show window price change first, then existing rolling stats
         windowHead = `
-          ${thSort(`${w}PriceChange`,           `${w} Chg%`,    "group-start")}
-          ${thSort(`${w}MaxPriceChange`,         `${w} Max%`)}
-          ${thSort(`${w}MaxPriceChangeDay`,       `${w} P Day`)}
-          ${thSort(`${w}VolumeChangeAtMaxPrice`,  `${w} V@Price`)}
-          ${thSort(`${w}MaxVolumeChange`,         `${w} Vol%`)}
-          ${thSort(`${w}MaxVolumeChangeDay`,      `${w} V Day`)}
-          ${thSort(`${w}PriceChangeAtMaxVolume`,  `${w} P@Vol`)}`;
+          ${thSort(`${w}PriceChange`,            "P CHG%",   "group-start")}
+          ${thSort(`${w}MaxPriceChange`,         "MAX P CHG%")}
+          ${thSort(`${w}MaxPriceChangeDay`,       "MAX P% Day")}
+          ${thSort(`${w}VolumeChangeAtMaxPrice`,  "V@P Day")}
+          ${thSort(`${w}MaxVolumeChange`,         "MAX V CHG%")}
+          ${thSort(`${w}MaxVolumeChangeDay`,      "MAX V% Day")}
+          ${thSort(`${w}PriceChangeAtMaxVolume`,  "P@V Day")}`;
       }
 
+      // For 1D view: show 1D-specific cols; for other windows: show window price change + window stats only
       const oneDayCols = is1D ? `
-        ${thSort("PriceChange1D",   "1D%",         "group-start")}
-        ${thSort("PriceVsMA21_1D",  "P/MA21",      "group-start")}
-        ${thSort("VolumeChange1D",  "1D Vol%")}
-        ${thSort("VolumeVsMA21_1D", "V/MA21")}` : "";
+        ${thSort("PriceChange1D",   "1D P CHG%",  "group-start")}
+        ${thSort("PriceVsMA21_1D",  "PRICE/MA21", "group-start")}
+        ${thSort("VolumeChange1D",  "1D V CHG%")}
+        ${thSort("VolumeVsMA21_1D", "VOL/MA21")}` : "";
 
       const head = `<thead><tr>
-        ${thSort("Ticker",    "Ticker")}
-        ${thStatic("Spark1Y", "1Y Trend")}
-        ${thSort("Price",     "Price")}
-        ${thSort("VolumeM",   "Vol (M)")}
+        ${thSort("Ticker",          "Ticker")}
+        ${thStatic("Spark1Y",       "1Y Trend")}
+        ${thSort("Price",           "Price")}
+        ${thSort("VolumeM",         "Vol (M)")}
         ${oneDayCols}
         ${windowHead}
       </tr></thead>`;
 
       const rows = arr.slice(0, 200).map(r => {
-        const pc1 = r.PriceChange1D;
-        const vc1 = r.VolumeChange1D;
-        const pma = r.PriceVsMA21_1D;
-        const vma = r.VolumeVsMA21_1D;
+        const pc1  = r.PriceChange1D;
+        const vc1  = r.VolumeChange1D;
+        const pma  = r.PriceVsMA21_1D;
+        const vma  = r.VolumeVsMA21_1D;
 
+        /* Sparkline always uses Spark1Y + 1Y max-volume info */
         const sparkSVG = renderSparkline(
           r.Spark1Y,
           r["1YMaxVolumeChangeDay"],
@@ -846,16 +744,21 @@
           r["1YVolumeChangeAtMaxPrice"]
         );
 
+        /* Rolling window cells */
         let windowCells = "";
-        if (!is1D) {
-          const chgP = r[`${w}PriceChange`];
+        if (is1D) {
+          // 1D view: no rolling window cells (1D cols handled by oneDayTds above)
+          windowCells = "";
+        } else {
+          const chgP = r[`${w}PriceChange`];      // total price change over window
           const maxP = r[`${w}MaxPriceChange`];
           const pDay = r[`${w}MaxPriceChangeDay`];
           const vAtP = r[`${w}VolumeChangeAtMaxPrice`];
           const maxV = r[`${w}MaxVolumeChange`];
           const vDay = r[`${w}MaxVolumeChangeDay`];
           const pAtV = r[`${w}PriceChangeAtMaxVolume`];
-          const fmt  = v => (v ?? "—");
+
+          const fmt = v => (v ?? "—");
 
           windowCells = `
             <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
@@ -867,6 +770,7 @@
             <td class="${colorClass(pAtV)}">${fmt(pAtV)}%</td>`;
         }
 
+        // 1D-specific cells (only shown in 1D view)
         const oneDayTds = is1D ? `
           <td class="${colorClass(pc1)} group-start">${pc1}%</td>
           <td class="${colorClass(pma - 1)} group-start">${pma}</td>
@@ -894,51 +798,57 @@
     }
 
     /* ── LOGOUT ── */
-    async function doLogout() {
+    document.getElementById("logoutBtn").onclick = async () => {
       await signOut(auth);
       window.location.href = "login.html";
-    }
-    document.getElementById("logoutBtn").onclick       = doLogout;
-    document.getElementById("mobileLogoutBtn").onclick = doLogout;
+    };
 
-    /* ── TOOLTIP SYSTEM ── */
+
+    /* ══════════════════════════════════════════
+       TOOLTIP SYSTEM
+    ══════════════════════════════════════════ */
+
     const COL_DESCS = {
       "Ticker":          { label: "Ticker",    desc: "Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility, and sector comparison." },
       "Spark1Y":         { label: "1Y Trend",  desc: "1-year normalized price sparkline. ▲ Triangle = highest-volume day (green=price up, red=price down). ● Circle = highest-price-change day (green=volume up, red=volume down)." },
       "Price":           { label: "Price",     desc: "Latest closing price in USD." },
       "VolumeM":         { label: "Vol (M)",   desc: "Trading volume in millions of shares for the most recent session." },
-      "PriceChange1D":   { label: "1D%",       desc: "Price change (%) vs the previous session's closing price." },
-      "VolumeChange1D":  { label: "1D Vol%",   desc: "Volume change (%) vs the previous session's volume." },
-      "PriceVsMA21_1D":  { label: "P/MA21",    desc: "Current price as a ratio of the 21-day moving average. Values above 1 indicate price above the MA." },
-      "VolumeVsMA21_1D": { label: "V/MA21",    desc: "Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity." },
+      "PriceChange1D":   { label: "1D P CHG%",       desc: "Price change (%) vs the previous session's closing price." },
+      "VolumeChange1D":  { label: "1D V CHG%",   desc: "Volume change (%) vs the previous session's volume." },
+      "PriceVsMA21_1D":  { label: "PRICE/MA21",    desc: "Current price as a ratio of the 21-day moving average. Values above 1 indicate price above the MA." },
+      "VolumeVsMA21_1D": { label: "VOL/MA21",    desc: "Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity." },
     };
 
     function getWindowColDesc(key, w) {
-      if (key === `${w}PriceChange`)            return { label: `${w} Chg%`,    desc: `Total price change (%) from the start of the ${w} window to today.` };
-      if (key === `${w}MaxPriceChange`)         return { label: `${w} Max%`,    desc: `Largest single-day price change (%) within the ${w} window.` };
-      if (key === `${w}MaxVolumeChange`)        return { label: `${w} Vol%`,    desc: `Largest single-day volume change (%) within the ${w} window.` };
-      if (key === `${w}MaxPriceChangeDay`)      return { label: `${w} P Day`,   desc: `Days ago when the maximum price change occurred in the ${w} window.` };
-      if (key === `${w}MaxVolumeChangeDay`)     return { label: `${w} V Day`,   desc: `Days ago when the maximum volume change occurred in the ${w} window.` };
-      if (key === `${w}PriceChangeAtMaxVolume`) return { label: `${w} P@Vol`,   desc: `Price change (%) on the highest-volume day in the ${w} window.` };
-      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: `${w} V@Price`, desc: `Volume change (%) on the highest-price-change day in the ${w} window.` };
+      if (key === `${w}PriceChange`)            return { label: "P CHG%",    desc: `Total price change (%) from the start of the ${w} window to today.` };
+      if (key === `${w}MaxPriceChange`)         return { label: "MAX P CHG%",    desc: `Largest single-day price change (%) within the ${w} window.` };
+      if (key === `${w}MaxVolumeChange`)        return { label: "MAX V CHG%",    desc: `Largest single-day volume change (%) within the ${w} window.` };
+      if (key === `${w}MaxPriceChangeDay`)      return { label: "MAX P% Day",   desc: `Days ago when the maximum price change occurred in the ${w} window.` };
+      if (key === `${w}MaxVolumeChangeDay`)     return { label: "MAX V% Day",   desc: `Days ago when the maximum volume change occurred in the ${w} window.` };
+      if (key === `${w}PriceChangeAtMaxVolume`) return { label: "P@V Day",   desc: `Price change (%) on the highest-volume day in the ${w} window.` };
+      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: "V@P Day", desc: `Volume change (%) on the highest-price-change day in the ${w} window.` };
       return null;
     }
 
     function positionTooltip(el, x, y) {
       const margin = 12;
-      el.style.left = "0px"; el.style.top = "0px";
-      el.style.visibility = "hidden"; el.style.display = "block";
+      el.style.left = "0px";
+      el.style.top  = "0px";
+      el.style.visibility = "hidden";
+      el.style.display = "block";
       const tw = el.offsetWidth, th = el.offsetHeight;
-      const vw = window.innerWidth, vh = window.innerHeight;
+      const vw = window.innerWidth,  vh = window.innerHeight;
       let left = x + margin, top = y + margin;
       if (left + tw > vw - margin) left = x - tw - margin;
       if (top  + th > vh - margin) top  = y - th  - margin;
       if (left < margin) left = margin;
       if (top  < margin) top  = margin;
-      el.style.left = left + "px"; el.style.top = top + "px";
+      el.style.left = left + "px";
+      el.style.top  = top  + "px";
       el.style.visibility = "visible";
     }
 
+    /* Column header tooltip */
     const colTip   = document.getElementById("colTooltip");
     const colLabel = document.getElementById("colTooltipLabel");
     const colDesc  = document.getElementById("colTooltipDesc");
@@ -946,7 +856,7 @@
 
     document.getElementById("tableArea").addEventListener("mouseover", (e) => {
       const thEl = e.target.closest("th[data-col]");
-      if (!thEl) return;
+      if (!thEl || thEl.classList.contains("no-sort") && !thEl.dataset.col) return;
       const key = thEl.dataset.col;
       if (!key) return;
       clearTimeout(colHideTimer);
@@ -970,6 +880,7 @@
       colHideTimer = setTimeout(() => colTip.classList.remove("visible"), 80);
     });
 
+    /* Ticker tooltip */
     const tickerTip = document.getElementById("tickerTooltip");
     const ttSym     = document.getElementById("ttSym");
     const ttSector  = document.getElementById("ttSector");
@@ -1009,16 +920,16 @@
       const peVsSecN   = parseFloat(r.PE_vs_Sector);
       const peVsSecCls = isNaN(peVsSecN) ? "muted" : peVsSecN > 0 ? "positive" : "negative";
       ttRows.innerHTML = `
-        ${ttRow("Sector",        r.Sector || "—")}
+        ${ttRow("Sector",         r.Sector || "—")}
         <div class="tt-divider"></div>
-        ${ttRow("PE",            fmt(r.PE, "", 1))}
-        ${ttRow("Mkt Cap (USD)", fmtBillion(r.MarketCap))}
-        ${ttRow("EPS",           fmt(r.EPS, "", 2))}
+        ${ttRow("PE",             fmt(r.PE, "", 1))}
+        ${ttRow("Mkt Cap (USD)",  fmtBillion(r.MarketCap))}
+        ${ttRow("EPS",            fmt(r.EPS, "", 2))}
         <div class="tt-divider"></div>
-        ${ttRow("Vol 30D",       fmt(r.Volatility30D, "%", 1))}
+        ${ttRow("Vol 30D",        fmt(r.Volatility30D, "%", 1))}
         <div class="tt-divider"></div>
-        ${ttRow("Sector Avg PE", fmt(r.SectorAvgPE, "", 1))}
-        ${ttRow("PE vs Sector",  fmt(r.PE_vs_Sector, "%", 1), peVsSecCls)}
+        ${ttRow("Sector Avg PE",  fmt(r.SectorAvgPE, "", 1))}
+        ${ttRow("PE vs Sector",   fmt(r.PE_vs_Sector, "%", 1), peVsSecCls)}
       `;
     }
 
@@ -1048,27 +959,6 @@
       const td = e.target.closest("td.ticker-cell");
       if (!td) return;
       tickerHideTimer = setTimeout(() => tickerTip.classList.remove("visible"), 80);
-    });
-
-    /* ── MOBILE MENU ── */
-    window.toggleMobileMenu = function() {
-      const drawer   = document.getElementById("mobileNavDrawer");
-      const header   = document.querySelector("header");
-      const tabStrip = document.getElementById("mobileTabStrip");
-      const top = header.getBoundingClientRect().bottom
-                + (tabStrip && getComputedStyle(tabStrip).display !== "none" ? tabStrip.offsetHeight : 0);
-      drawer.style.top = top + "px";
-      drawer.classList.toggle("open");
-    };
-
-    document.addEventListener("click", (e) => {
-      const drawer = document.getElementById("mobileNavDrawer");
-      const btn    = document.getElementById("hamburgerBtn");
-      if (drawer.classList.contains("open")
-          && !drawer.contains(e.target)
-          && !btn.contains(e.target)) {
-        drawer.classList.remove("open");
-      }
     });
 
   </script>
