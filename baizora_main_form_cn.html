@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baizora | 控制台</title>
+  <link rel="icon" href="assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-surface: #0a1628;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --white: #ffffff;
+      --muted: #cbd5e1;
+      --border: rgba(255,255,255,0.09);
+      --border-bright: rgba(255,255,255,0.12);
+      --positive: #22c55e;
+      --negative: #ef4444;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      z-index: 100;
+      flex-shrink: 0;
+      height: 56px;
+      background: rgba(6, 13, 31, 0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      gap: 16px;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .header-left img { height: 50px; }
+
+    .brand-cn {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+    .logo-text span { color: var(--electric); }
+
+    .header-divider { width: 1px; height: 20px; background: var(--border-bright); margin: 0 4px; }
+
+    .tab-nav { display: flex; align-items: center; gap: 2px; }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--white); border-color: var(--border-bright); background: rgba(255,255,255,0.04); }
+    .tab-btn.active { color: var(--electric-bright); border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.08); }
+
+    .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 2s ease infinite; }
+    .status-dot.loading { background: var(--electric-bright); }
+    .status-dot.error   { background: var(--negative); animation: none; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .logout-btn:hover { border-color: rgba(239,68,68,0.4); color: #fca5a5; background: rgba(239,68,68,0.06); }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+      height: 44px;
+      background: rgba(10, 22, 40, 0.9);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+    }
+
+    .toolbar-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .window-btns { display: flex; gap: 4px; }
+
+    .window-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .window-btn:hover { border-color: var(--border-bright); color: var(--white); }
+    .window-btn.active { background: var(--electric); border-color: var(--electric); color: white; }
+
+    .toolbar-sep { width: 1px; height: 16px; background: var(--border); }
+
+    .row-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-left: auto;
+    }
+
+    /* ── TABLE AREA ── */
+    .table-area { position: relative; z-index: 10; flex: 1; overflow: auto; }
+
+    .table-area::-webkit-scrollbar { width: 6px; height: 6px; }
+    .table-area::-webkit-scrollbar-track { background: transparent; }
+    .table-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+    .table-area::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 12px; }
+
+    thead { position: sticky; top: 0; z-index: 20; }
+
+    th {
+      background: rgba(10, 22, 40, 0.98);
+      border-bottom: 1px solid var(--border-bright);
+      border-right: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      white-space: nowrap;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      user-select: none;
+      transition: color 0.15s, background 0.15s;
+    }
+    th:hover { color: var(--electric-bright); background: rgba(59,130,246,0.05); }
+    th.sorted { color: var(--electric-bright); }
+    th:last-child { border-right: none; }
+    th.no-sort { cursor: default; }
+    th.no-sort:hover { color: #94a3b8; background: rgba(10,22,40,0.98); }
+
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+      font-size: 12px;
+      color: var(--muted);
+      transition: background 0.1s;
+    }
+    td:last-child { border-right: none; }
+    tr:hover td { background: rgba(59,130,246,0.04); }
+
+    td.spark-cell { padding: 4px 12px; vertical-align: middle; }
+
+    .ticker-cell {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--white);
+      letter-spacing: 0.05em;
+      cursor: pointer;
+    }
+    .ticker-cell:hover { color: var(--electric-bright); }
+
+    .price-cell { font-family: 'DM Mono', monospace; color: var(--white); font-weight: 400; }
+
+    .positive { color: var(--positive); font-family: 'DM Mono', monospace; }
+    .negative { color: var(--negative); font-family: 'DM Mono', monospace; }
+    .neutral  { color: var(--muted);    font-family: 'DM Mono', monospace; }
+
+    th.group-start { border-left: 2px solid rgba(59,130,246,0.2); }
+    td.group-start { border-left: 2px solid rgba(59,130,246,0.1); }
+
+    /* ── README PANEL ── */
+    #readme { padding: 40px; max-width: 680px; }
+
+    #readme h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    #readme .readme-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 20px;
+    }
+
+    #readme p { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; font-weight: 300; }
+
+    #readme .col-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+
+    #readme .col-table th {
+      background: rgba(13,30,61,0.6);
+      font-size: 10px;
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-bright);
+      cursor: default;
+    }
+    #readme .col-table th:hover { color: #475569; background: rgba(13,30,61,0.6); }
+
+    #readme .col-table td { font-size: 12px; padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--muted); }
+
+    #readme .col-table td:first-child {
+      font-family: 'DM Mono', monospace;
+      color: var(--electric-bright);
+      font-size: 11px;
+      cursor: default;
+    }
+
+    /* ── LOADING OVERLAY ── */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      background: rgba(6,13,31,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      backdrop-filter: blur(4px);
+    }
+    .loading-overlay.hidden { display: none; }
+
+    .loader {
+      width: 32px; height: 32px;
+      border: 2px solid var(--border-bright);
+      border-top-color: var(--electric);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .sort-arrow { opacity: 0.5; }
+    th.sorted .sort-arrow { opacity: 1; }
+
+    /* ── TOOLTIPS ── */
+    .bz-tooltip {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .bz-tooltip.visible { opacity: 1; transform: translateY(0); }
+
+    .col-tooltip {
+      background: rgba(10, 22, 40, 0.97);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      max-width: 260px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      backdrop-filter: blur(12px);
+    }
+    .col-tooltip .tt-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 5px;
+    }
+    .col-tooltip .tt-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .ticker-tooltip {
+      background: rgba(10, 22, 40, 0.98);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      min-width: 220px;
+      box-shadow: 0 16px 50px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+    }
+    .ticker-tooltip .tt-header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ticker-tooltip .tt-sym { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: var(--white); letter-spacing: 0.06em; }
+    .ticker-tooltip .tt-sector { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); font-weight: 300; }
+    .ticker-tooltip .tt-rows { display: flex; flex-direction: column; gap: 6px; }
+    .ticker-tooltip .tt-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+    .ticker-tooltip .tt-key { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; flex-shrink: 0; }
+    .ticker-tooltip .tt-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--white); text-align: right; }
+    .ticker-tooltip .tt-val.positive { color: var(--positive); }
+    .ticker-tooltip .tt-val.negative { color: var(--negative); }
+    .ticker-tooltip .tt-val.muted    { color: var(--muted); }
+    .ticker-tooltip .tt-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+    .tt-loading { font-family: 'DM Mono', monospace; font-size: 11px; color: #334155; letter-spacing: 0.08em; text-align: center; padding: 6px 0; }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <a href="./" style="display:flex; align-items:center; text-decoration:none; gap:10px;">
+        <img src="assets/baize_favicon_v2.png" alt="Baizora">
+        <span class="brand-cn">贝佐拉</span>
+      </a>
+      <div class="header-divider"></div>
+      <nav class="tab-nav">
+        <button class="tab-btn active" onclick="show('sp500', this)">标普500</button>
+        <button class="tab-btn" onclick="show('nasdaq', this)">纳斯达克100</button>
+        <button class="tab-btn" onclick="show('readme', this)">指标详释</button>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <div class="status-badge">
+        <div class="status-dot loading" id="statusDot"></div>
+        <span id="statusText">加载中…</span>
+      </div>
+      <button class="logout-btn" id="logoutBtn">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        退出登录
+      </button>
+    </div>
+  </header>
+
+  <!-- Toolbar — NEW timeframes: 1D 2W 1M 3M 6M 9M 1Y -->
+  <div class="toolbar" id="toolbar">
+    <span class="toolbar-label">周期</span>
+    <div class="window-btns">
+      <button class="window-btn active" onclick="setWindow('1D', this)">1天</button>
+      <button class="window-btn" onclick="setWindow('2W', this)">2周</button>
+      <button class="window-btn" onclick="setWindow('1M', this)">1月</button>
+      <button class="window-btn" onclick="setWindow('3M', this)">3月</button>
+      <button class="window-btn" onclick="setWindow('6M', this)">6月</button>
+      <button class="window-btn" onclick="setWindow('9M', this)">9月</button>
+      <button class="window-btn" onclick="setWindow('1Y', this)">1年</button>
+    </div>
+    <div class="toolbar-sep"></div>
+    <span class="row-count" id="rowCount"></span>
+  </div>
+
+  <!-- Table Area -->
+  <div class="table-area" id="tableArea">
+
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loader"></div>
+      <div class="loading-text">Fetching signals…</div>
+    </div>
+
+    <div id="sp500" class="section active">
+      <table id="sp500Table"></table>
+    </div>
+
+    <div id="nasdaq" class="section">
+      <table id="nasdaqTable"></table>
+    </div>
+
+    <div id="readme" class="section">
+      <div class="readme-label">◈ &nbsp; 说明文档</div>
+      <h2>信号说明</h2>
+      <p>
+        Baizora 在美股每日收盘后扫描标普500和纳斯达克100成分股。
+        每行数据反映股票在滚动窗口内相对于近期历史的量价表现，采用一致的统计比较方法。
+      </p>
+      <p>
+        信号仅供参考，不构成买入、卖出或持有建议。
+        使用周期按钮切换时间窗口（1天至1年）。1天视图显示当日指标，其他周期显示该窗口的总价格变动及单日最大值统计。
+        悬停列标题查看说明，悬停代码查看基本面数据。
+      </p>
+      <table class="col-table">
+        <tr><th>列名</th><th>说明</th></tr>
+        <tr><td>代码</td><td>股票代码 — 悬停查看市盈率、市值、EPS、波动率及行业对比</td></tr>
+        <tr><td>年趋势线</td><td>一年标准化价格走势图。<strong>&#9650; 三角形 </strong> = 最大成交量上涨日（绿色=价格上涨，红色=价格下跌）。 <strong>&#9679; 圆圈</strong> = 价格上涨最大日（绿色=成交量上升，红色=成交量下降）。</td></tr>
+        <tr><td>价格</td><td>最新收盘价（美元）</td></tr>
+        <tr><td>成交量（百万）</td><td>以百万股为单位的成交量</td></tr>
+        <tr><td>日价格变化</td><td>与前一收盘价相比的价格变动（始终显示）</td></tr>
+        <tr><td>价格/MA21</td><td>价格与21日均线的比值（>1表示价格在均线上方）</td></tr>
+        <tr><td>日成交量变化</td><td>与前一交易日成交量相比的变动（始终显示）</td></tr>
+        <tr><td>成交量/MA21</td><td>成交量与21日均量的比值（>1表示成交量偏高）</td></tr>
+        <tr><td>总涨幅</td><td>从所选周期起始至今的总价格变动（%）— 仅在2周及以上周期显示</td></tr>
+        <tr><td>日最大价涨</td><td>所选周期内最大单日价格涨幅</td></tr>
+        <tr><td>最大价涨日</td><td>最大单日价涨发生于多少天前</td></tr>
+        <tr><td>量@价日</td><td>最大价涨当日的成交量变化</td></tr>
+        <tr><td>日最大量涨</td><td>所选周期内最大单日成交量涨幅</td></tr>
+        <tr><td>最大量涨日</td><td>最大单日量涨发生于多少天前</td></tr>
+        <tr><td>价@量日</td><td>最大量涨当日的价格变化</td></tr>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Tooltips -->
+  <div class="bz-tooltip col-tooltip" id="colTooltip">
+    <div class="tt-label" id="colTooltipLabel"></div>
+    <div class="tt-desc"  id="colTooltipDesc"></div>
+  </div>
+
+  <div class="bz-tooltip ticker-tooltip" id="tickerTooltip">
+    <div class="tt-header">
+      <span class="tt-sym"    id="ttSym"></span>
+      <span class="tt-sector" id="ttSector"></span>
+    </div>
+    <div class="tt-rows" id="ttRows"></div>
+  </div>
+
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    /* ── STATE ── */
+    let spRows = [], ndRows = [], allRows = [];
+    let activeTab     = "sp500";
+    let sortKey       = "PriceChange1D";
+    let sortAsc       = false;
+    let currentWindow = "1D";
+    let loadedDate    = "";
+
+    /* ── DOM ── */
+    const statusDot  = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const rowCount   = document.getElementById("rowCount");
+    const overlay    = document.getElementById("loadingOverlay");
+    const toolbar    = document.getElementById("toolbar");
+
+    /* ── AUTH ── */
+    onAuthStateChanged(auth, (user) => {
+      if (!user) { window.location.href = "login_cn.html"; return; }
+      loadDashboard();
+    });
+
+    /* ── LOAD ── */
+    function loadDashboard() {
+      fetch("data/latest.json")
+        .then(r => r.json())
+        .then(json => {
+          allRows    = json.data || [];
+          loadedDate = json.date || "—";
+          spRows = allRows.filter(x => x.InSP500);
+          ndRows = allRows.filter(x => x.InNASDAQ100);
+          overlay.classList.add("hidden");
+          statusDot.className = "status-dot";
+          render();
+          updateStatus();
+        })
+        .catch(err => {
+          console.error(err);
+          overlay.classList.add("hidden");
+          statusDot.className = "status-dot error";
+          statusText.textContent = "加载失败";
+        });
+    }
+
+    /* ── STATUS ── */
+    function updateStatus() {
+      const rows  = activeTab === "sp500" ? spRows.length : ndRows.length;
+      const label = activeTab === "sp500" ? "标普500" : "纳斯达克100";
+      statusText.textContent = loadedDate;
+      rowCount.textContent   = `${rows} 支股票 · ${label}`;
+    }
+
+    /* ── TAB ── */
+    window.show = function(id, btn) {
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      btn.classList.add("active");
+      activeTab = id;
+      toolbar.style.display = (id === "readme") ? "none" : "flex";
+      updateStatus();
+    };
+
+    /* ── WINDOW ── */
+    window.setWindow = function(w, btn) {
+      currentWindow = w;
+      document.querySelectorAll(".window-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      render();
+    };
+
+    /* ── SORT ── */
+    window.sortBy = function(key) {
+      if (sortKey === key) sortAsc = !sortAsc;
+      else { sortKey = key; sortAsc = false; }
+      render();
+    };
+
+    function sorted(arr) {
+      return [...arr].sort((a, b) => {
+        let A = a[sortKey] ?? 0;
+        let B = b[sortKey] ?? 0;
+        if (typeof A === "string") return sortAsc ? A.localeCompare(B) : B.localeCompare(A);
+        return sortAsc ? A - B : B - A;
+      });
+    }
+
+    /* ── HELPERS ── */
+    function colorClass(v) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return "neutral";
+      if (n > 0) return "positive";
+      if (n < 0) return "negative";
+      return "neutral";
+    }
+
+    function arrow(key) {
+      if (sortKey !== key) return `<span class="sort-arrow"> ↕</span>`;
+      return `<span class="sort-arrow">${sortAsc ? " ↑" : " ↓"}</span>`;
+    }
+
+    function thSort(key, label, extraClass = "") {
+      const cls = [sortKey === key ? "sorted" : "", extraClass].filter(Boolean).join(" ");
+      return `<th class="${cls}" onclick="sortBy('${key}')" data-col="${key}">${label}${arrow(key)}</th>`;
+    }
+
+    function thStatic(dataCol, label, extraClass = "") {
+      const cls = ["no-sort", extraClass].filter(Boolean).join(" ");
+      return `<th class="${cls}" data-col="${dataCol}">${label}</th>`;
+    }
+
+    /* -- SPARKLINE (Spark1Y) with two markers --
+       Triangle (^) = max-volume day   (green=price UP, red=price DOWN)
+       Circle   (o) = max-price day    (green=volume UP, red=volume DOWN)
+    -- */
+    function renderSparkline(data, maxVolDay, priceAtMaxVol, maxPriceDay, volAtMaxPrice) {
+      const W = 110, H = 28, PAD = 5;
+
+      if (!data || data.length < 2) {
+        return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="#1e293b" stroke-width="1"/></svg>`;
+      }
+
+      const n = data.length;
+      const stepX = W / (n - 1);
+
+      const points = data.map((v, i) => ({
+        x: +(i * stepX).toFixed(2),
+        y: +(PAD + (1 - v) * (H - PAD * 2)).toFixed(2)
+      }));
+
+      const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x},${p.y}`).join(" ");
+      const lineColor = data[n - 1] >= data[0] ? "#22c55e" : "#ef4444";
+
+      function idxFromDays(daysAgo) {
+        const d = Math.round(parseFloat(daysAgo));
+        return Math.max(0, Math.min(n - 1, n - 1 - d));
+      }
+
+      /* MARKER 1: max-volume day — upward triangle
+         green if price was UP on that day, red if DOWN */
+      let volMarker = "";
+      if (maxVolDay != null && !isNaN(parseFloat(maxVolDay))) {
+        const idx   = idxFromDays(maxVolDay);
+        const cx    = points[idx].x;
+        const cy    = points[idx].y;
+        const col   = (priceAtMaxVol != null && parseFloat(priceAtMaxVol) >= 0) ? "#22c55e" : "#ef4444";
+        const s = 4.5;  // half-base size
+        const apex = cy - s * 1.5;
+        const bL   = cx - s;
+        const bR   = cx + s;
+        const bY   = cy + s * 0.6;
+        volMarker = `<polygon points="${cx},${apex} ${bL},${bY} ${bR},${bY}"
+          fill="${col}" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>`;
+      }
+
+      /* MARKER 2: max-price day — filled circle with bright ring
+         green if volume was UP on that day, red if DOWN */
+      let priceMarker = "";
+      if (maxPriceDay != null && !isNaN(parseFloat(maxPriceDay))) {
+        const idx   = idxFromDays(maxPriceDay);
+        const cx    = points[idx].x;
+        const cy    = points[idx].y;
+        const col   = (volAtMaxPrice != null && parseFloat(volAtMaxPrice) >= 0) ? "#22c55e" : "#ef4444";
+        /* outer glow ring + filled inner dot */
+        priceMarker = `
+          <circle cx="${cx}" cy="${cy}" r="5.5" fill="${col}" opacity="0.25"/>
+          <circle cx="${cx}" cy="${cy}" r="3.2" fill="${col}" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>`;
+      }
+
+      return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none" style="display:block;">
+        <path d="${linePath}" stroke="${lineColor}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+        ${priceMarker}
+        ${volMarker}
+      </svg>`;
+    }
+
+    /* ── BUILD TABLE ── */
+    function buildTable(arr, w) {
+      arr = sorted(arr);
+
+      const is1D = (w === "1D");
+
+      /* Window column headers */
+      let windowHead = "";
+      if (is1D) {
+        // 1D view: no rolling-window cols at all (1D cols already shown above)
+        windowHead = "";
+      } else {
+        // Non-1D: show window price change first, then existing rolling stats
+        windowHead = `
+          ${thSort(`${w}PriceChange`,            "总涨幅",   "group-start")}
+          ${thSort(`${w}MaxPriceChange`,         "日最大价涨")}
+          ${thSort(`${w}MaxPriceChangeDay`,       "最大价涨日")}
+          ${thSort(`${w}VolumeChangeAtMaxPrice`,  "量@价日")}
+          ${thSort(`${w}MaxVolumeChange`,         "日最大量涨")}
+          ${thSort(`${w}MaxVolumeChangeDay`,      "最大量涨日")}
+          ${thSort(`${w}PriceChangeAtMaxVolume`,  "价@量日")}`;
+      }
+
+      // For 1D view: show 1D-specific cols; for other windows: show window price change + window stats only
+      const oneDayCols = is1D ? `
+        ${thSort("PriceChange1D",   "日价格变化",  "group-start")}
+        ${thSort("PriceVsMA21_1D",  "价格/MA21", "group-start")}
+        ${thSort("VolumeChange1D",  "日成交量变化")}
+        ${thSort("VolumeVsMA21_1D", "成交量/MA21")}` : "";
+
+      const head = `<thead><tr>
+        ${thSort("Ticker",          "代码")}
+        ${thStatic("Spark1Y",       "年趋势线")}
+        ${thSort("Price",           "价格")}
+        ${thSort("VolumeM",         "成交量(M)")}
+        ${oneDayCols}
+        ${windowHead}
+      </tr></thead>`;
+
+      const rows = arr.slice(0, 200).map(r => {
+        const pc1  = r.PriceChange1D;
+        const vc1  = r.VolumeChange1D;
+        const pma  = r.PriceVsMA21_1D;
+        const vma  = r.VolumeVsMA21_1D;
+
+        /* Sparkline always uses Spark1Y + 1Y max-volume info */
+        const sparkSVG = renderSparkline(
+          r.Spark1Y,
+          r["1YMaxVolumeChangeDay"],
+          r["1YPriceChangeAtMaxVolume"],
+          r["1YMaxPriceChangeDay"],
+          r["1YVolumeChangeAtMaxPrice"]
+        );
+
+        /* Rolling window cells */
+        let windowCells = "";
+        if (is1D) {
+          // 1D view: no rolling window cells (1D cols handled by oneDayTds above)
+          windowCells = "";
+        } else {
+          const chgP = r[`${w}PriceChange`];      // total price change over window
+          const maxP = r[`${w}MaxPriceChange`];
+          const pDay = r[`${w}MaxPriceChangeDay`];
+          const vAtP = r[`${w}VolumeChangeAtMaxPrice`];
+          const maxV = r[`${w}MaxVolumeChange`];
+          const vDay = r[`${w}MaxVolumeChangeDay`];
+          const pAtV = r[`${w}PriceChangeAtMaxVolume`];
+
+          const fmt = v => (v ?? "—");
+
+          windowCells = `
+            <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
+            <td class="${colorClass(maxP)}">${fmt(maxP)}%</td>
+            <td class="neutral">${fmt(pDay)}</td>
+            <td class="${colorClass(vAtP)}">${fmt(vAtP)}%</td>
+            <td class="${colorClass(maxV)}">${fmt(maxV)}%</td>
+            <td class="neutral">${fmt(vDay)}</td>
+            <td class="${colorClass(pAtV)}">${fmt(pAtV)}%</td>`;
+        }
+
+        // 1D-specific cells (only shown in 1D view)
+        const oneDayTds = is1D ? `
+          <td class="${colorClass(pc1)} group-start">${pc1}%</td>
+          <td class="${colorClass(pma - 1)} group-start">${pma}</td>
+          <td class="${colorClass(vc1)}">${vc1}%</td>
+          <td class="${colorClass(vma - 1)}">${vma}</td>` : "";
+
+        return `<tr>
+          <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+          <td class="spark-cell">${sparkSVG}</td>
+          <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
+          <td class="neutral">${r.VolumeM ?? "—"}</td>
+          ${oneDayTds}
+          ${windowCells}
+        </tr>`;
+      }).join("");
+
+      return head + "<tbody>" + rows + "</tbody>";
+    }
+
+    /* ── RENDER ── */
+    function render() {
+      const w = currentWindow;
+      document.getElementById("sp500Table").innerHTML  = buildTable(spRows, w);
+      document.getElementById("nasdaqTable").innerHTML = buildTable(ndRows, w);
+    }
+
+    /* ── LOGOUT ── */
+    document.getElementById("logoutBtn").onclick = async () => {
+      await signOut(auth);
+      window.location.href = "login_cn.html";
+    };
+
+
+    /* ══════════════════════════════════════════
+       TOOLTIP SYSTEM
+    ══════════════════════════════════════════ */
+
+    const COL_DESCS = {
+      "Ticker":          { label: "代码",    desc: "股票代码。悬停查看市盈率、市值、EPS、波动率及行业对比。" },
+      "Spark1Y":         { label: "年趋势线",  desc: "一年标准化价格走势图。▲ 三角形 = 成交量最高日（绿色=价格上涨，红色=价格下跌）。● 圆圈 = 价格变动最大日（绿色=成交量上升，红色=成交量下降）。" },
+      "Price":           { label: "价格",     desc: "最新收盘价（美元）。" },
+      "VolumeM":         { label: "成交量(M)",   desc: "最新交易日以百万股计的成交量。" },
+      "PriceChange1D":   { label: "日价格变化",       desc: "与前一交易日收盘价相比的价格变动（%）。" },
+      "VolumeChange1D":  { label: "日成交量变化",   desc: "与前一交易日成交量相比的变动（%）。" },
+      "PriceVsMA21_1D":  { label: "价格/MA21",    desc: "当前价格与21日均线的比值。大于1表示价格在均线上方。" },
+      "VolumeVsMA21_1D": { label: "量/MA21",    desc: "当前成交量与21日均量的比值。大于1表示成交量偏高。" },
+    };
+
+    function getWindowColDesc(key, w) {
+      if (key === `${w}PriceChange`)            return { label: "总涨幅",    desc: `从${w}周期起始至今的总价格变动（%）。` };
+      if (key === `${w}MaxPriceChange`)         return { label: "日最大价涨",    desc: `${w}周期内最大单日价格涨幅（%）。` };
+      if (key === `${w}MaxVolumeChange`)        return { label: "日最大量涨",    desc: `${w}周期内最大单日成交量涨幅（%）。` };
+      if (key === `${w}MaxPriceChangeDay`)      return { label: "最大价涨日",   desc: `${w}周期内最大价涨发生于多少天前。` };
+      if (key === `${w}MaxVolumeChangeDay`)     return { label: "最大量涨日",   desc: `${w}周期内最大量涨发生于多少天前。` };
+      if (key === `${w}PriceChangeAtMaxVolume`) return { label: "价@量日",   desc: `${w}周期内最大量涨当日的价格变化（%）。` };
+      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: "量@价日", desc: `${w}周期内最大价涨当日的成交量变化（%）。` };
+      return null;
+    }
+
+    function positionTooltip(el, x, y) {
+      const margin = 12;
+      el.style.left = "0px";
+      el.style.top  = "0px";
+      el.style.visibility = "hidden";
+      el.style.display = "block";
+      const tw = el.offsetWidth, th = el.offsetHeight;
+      const vw = window.innerWidth,  vh = window.innerHeight;
+      let left = x + margin, top = y + margin;
+      if (left + tw > vw - margin) left = x - tw - margin;
+      if (top  + th > vh - margin) top  = y - th  - margin;
+      if (left < margin) left = margin;
+      if (top  < margin) top  = margin;
+      el.style.left = left + "px";
+      el.style.top  = top  + "px";
+      el.style.visibility = "visible";
+    }
+
+    /* Column header tooltip */
+    const colTip   = document.getElementById("colTooltip");
+    const colLabel = document.getElementById("colTooltipLabel");
+    const colDesc  = document.getElementById("colTooltipDesc");
+    let colHideTimer = null;
+
+    document.getElementById("tableArea").addEventListener("mouseover", (e) => {
+      const thEl = e.target.closest("th[data-col]");
+      if (!thEl || thEl.classList.contains("no-sort") && !thEl.dataset.col) return;
+      const key = thEl.dataset.col;
+      if (!key) return;
+      clearTimeout(colHideTimer);
+      const info = COL_DESCS[key] || getWindowColDesc(key, currentWindow);
+      if (!info) return;
+      colLabel.textContent = info.label;
+      colDesc.textContent  = info.desc;
+      positionTooltip(colTip, e.clientX, e.clientY);
+      colTip.classList.add("visible");
+    });
+
+    document.getElementById("tableArea").addEventListener("mousemove", (e) => {
+      const thEl = e.target.closest("th[data-col]");
+      if (!thEl || !thEl.dataset.col) return;
+      positionTooltip(colTip, e.clientX, e.clientY);
+    });
+
+    document.getElementById("tableArea").addEventListener("mouseout", (e) => {
+      const thEl = e.target.closest("th[data-col]");
+      if (!thEl) return;
+      colHideTimer = setTimeout(() => colTip.classList.remove("visible"), 80);
+    });
+
+    /* Ticker tooltip */
+    const tickerTip = document.getElementById("tickerTooltip");
+    const ttSym     = document.getElementById("ttSym");
+    const ttSector  = document.getElementById("ttSector");
+    const ttRows    = document.getElementById("ttRows");
+    let tickerHideTimer = null;
+
+    function fmt(v, suffix = "", decimals = 2) {
+      if (v == null || v === "" || v === undefined) return "—";
+      const n = parseFloat(v);
+      if (isNaN(n)) return String(v);
+      return n.toFixed(decimals) + suffix;
+    }
+
+    function fmtBillion(v) {
+      if (v == null || v === "" || v === undefined) return "—";
+      const n = parseFloat(v);
+      if (isNaN(n)) return "—";
+      if (Math.abs(n) >= 1e12) return (n / 1e12).toFixed(2) + "T";
+      if (Math.abs(n) >= 1e9)  return (n / 1e9).toFixed(2)  + "B";
+      if (Math.abs(n) >= 1e6)  return (n / 1e6).toFixed(2)  + "M";
+      return n.toFixed(2);
+    }
+
+    function valClass(v) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return "muted";
+      return n > 0 ? "positive" : n < 0 ? "negative" : "muted";
+    }
+
+    function ttRow(key, value, valCls = "") {
+      return `<div class="tt-row"><span class="tt-key">${key}</span><span class="tt-val ${valCls}">${value}</span></div>`;
+    }
+
+    function buildTickerTooltip(r) {
+      ttSym.textContent    = r.Ticker;
+      ttSector.textContent = r.Sector || "";
+      const peVsSecN   = parseFloat(r.PE_vs_Sector);
+      const peVsSecCls = isNaN(peVsSecN) ? "muted" : peVsSecN > 0 ? "positive" : "negative";
+      ttRows.innerHTML = `
+        ${ttRow("Sector",         r.Sector || "—")}
+        <div class="tt-divider"></div>
+        ${ttRow("PE",             fmt(r.PE, "", 1))}
+        ${ttRow("Mkt Cap (USD)",  fmtBillion(r.MarketCap))}
+        ${ttRow("EPS",            fmt(r.EPS, "", 2))}
+        <div class="tt-divider"></div>
+        ${ttRow("30日波动率",        fmt(r.Volatility30D, "%", 1))}
+        <div class="tt-divider"></div>
+        ${ttRow("行业平均PE",  fmt(r.SectorAvgPE, "", 1))}
+        ${ttRow("PE vs 行业",   fmt(r.PE_vs_Sector, "%", 1), peVsSecCls)}
+      `;
+    }
+
+    document.getElementById("tableArea").addEventListener("mouseover", (e) => {
+      const td = e.target.closest("td.ticker-cell");
+      if (!td) return;
+      clearTimeout(tickerHideTimer);
+      const r = allRows.find(x => x.Ticker === td.dataset.ticker);
+      if (!r) {
+        ttSym.textContent    = td.dataset.ticker;
+        ttSector.textContent = "";
+        ttRows.innerHTML     = `<div class="tt-loading">No data available</div>`;
+      } else {
+        buildTickerTooltip(r);
+      }
+      positionTooltip(tickerTip, e.clientX, e.clientY);
+      tickerTip.classList.add("visible");
+    });
+
+    document.getElementById("tableArea").addEventListener("mousemove", (e) => {
+      const td = e.target.closest("td.ticker-cell");
+      if (!td) return;
+      positionTooltip(tickerTip, e.clientX, e.clientY);
+    });
+
+    document.getElementById("tableArea").addEventListener("mouseout", (e) => {
+      const td = e.target.closest("td.ticker-cell");
+      if (!td) return;
+      tickerHideTimer = setTimeout(() => tickerTip.classList.remove("visible"), 80);
+    });
+
+  </script>
+
+</body>
+</html>
