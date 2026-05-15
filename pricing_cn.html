@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -83,6 +83,16 @@
 
     .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .logo-wrap img { height: 32px; }
+    .brand-cn {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
     .logo-text { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--white); letter-spacing: -0.02em; }
     .logo-text span { color: var(--electric); }
 
@@ -331,91 +341,91 @@
   <header>
     <a href="./" class="logo-wrap">
       <img src="assets/baize_favicon_v2.png" alt="Baizora">
-      <span class="logo-text">Baiz<span>ora</span></span>
+      <span class="brand-cn">贝佐拉</span>
     </a>
     <div class="header-right">
-      <a href="login.html" class="nav-btn" id="navLoginBtn">Sign In</a>
-      <a href="signup.html" class="nav-btn nav-btn-primary" id="navSignupBtn">Create Account</a>
-      <a href="dashboard.html" class="nav-btn nav-btn-primary" id="navDashBtn" style="display:none;">Dashboard</a>
+      <a href="login_cn.html" class="nav-btn" id="navLoginBtn">登录</a>
+      <a href="signup_cn.html" class="nav-btn nav-btn-primary" id="navSignupBtn">免费注册</a>
+      <a href="dashboard_cn.html" class="nav-btn nav-btn-primary" id="navDashBtn" style="display:none;">控制台</a>
     </div>
   </header>
 
   <div class="container">
 
-    <div class="eyebrow">◈ &nbsp; Pricing</div>
-    <h1>Simple, <em>transparent</em> pricing</h1>
-    <p class="subtext">7-day free trial · Cancel anytime · No hidden fees · Full access from day one.</p>
+    <div class="eyebrow">◈ &nbsp; 价格方案</div>
+    <h1>清晰 <em>透明</em> 的定价</h1>
+    <p class="subtext">7天免费试用 · 随时可取消 · 无隐藏费用 · 第一天起完整访问</p>
 
     <div class="pricing-grid">
 
       <!-- Monthly -->
       <div class="plan">
-        <div class="plan-name">Monthly</div>
+        <div class="plan-name">月付</div>
         <div class="price-row">
           <span class="currency">$</span>
           <span class="amount">9.99</span>
         </div>
-        <div class="period">per month</div>
+        <div class="period">每月</div>
         <div class="plan-divider"></div>
         <ul>
-          <li><span class="check">◆</span> Full dashboard access</li>
-          <li><span class="check">◆</span> 500+ S&amp;P 500 &amp; Nasdaq-100 stocks</li>
-          <li><span class="check">◆</span> 6 rolling timeframes (2W–1Y)</li>
-          <li><span class="check">◆</span> Daily updated signals</li>
+          <li><span class="check">◆</span> 完整控制台访问</li>
+          <li><span class="check">◆</span> 500+ 标普500 &amp; 纳斯达克100成分股</li>
+          <li><span class="check">◆</span> 6个滚动周期（2周–1年）</li>
+          <li><span class="check">◆</span> 每日更新信号</li>
         </ul>
         <div class="plan-cta">
-          <a href="signup.html" class="plan-btn btn-filled" id="monthlyBtn">
-            Create Account to Start
+          <a href="signup_cn.html" class="plan-btn btn-filled" id="monthlyBtn">
+            注册账户开始使用
           </a>
-          <a href="login.html" class="plan-btn btn-outline" id="monthlyLoginBtn">
-            Already have an account? Sign in
+          <a href="login_cn.html" class="plan-btn btn-outline" id="monthlyLoginBtn">
+            已有账户？立即登录
           </a>
         </div>
       </div>
 
       <!-- Yearly -->
       <div class="plan featured">
-        <div class="tag">Recommended</div>
-        <div class="plan-name">Yearly · Save ~17%</div>
+        <div class="tag">推荐</div>
+        <div class="plan-name">年付 · 节省约17%</div>
         <div class="price-row">
           <span class="currency">$</span>
           <span class="amount">99</span>
         </div>
-        <div class="period">per year</div>
-        <div class="savings">≈ $8.25 / month</div>
+        <div class="period">每年</div>
+        <div class="savings">≈ $8.25 / 月</div>
         <div class="plan-divider"></div>
         <ul>
-          <li><span class="check">◆</span> Everything in Monthly</li>
-          <li><span class="check">◆</span> Lower long-term cost</li>
-          <li><span class="check">◆</span> Price locked for one year</li>
-          <li><span class="check">◆</span> Best for consistent daily use</li>
+          <li><span class="check">◆</span> 包含月付所有功能</li>
+          <li><span class="check">◆</span> 长期使用更划算</li>
+          <li><span class="check">◆</span> 价格锁定一年</li>
+          <li><span class="check">◆</span> 适合每日持续使用</li>
         </ul>
         <div class="plan-cta">
-          <a href="signup.html" class="plan-btn btn-filled" id="yearlyBtn">
-            Create Account to Start
+          <a href="signup_cn.html" class="plan-btn btn-filled" id="yearlyBtn">
+            注册账户开始使用
           </a>
-          <a href="login.html" class="plan-btn btn-outline" id="yearlyLoginBtn">
-            Already have an account? Sign in
+          <a href="login_cn.html" class="plan-btn btn-outline" id="yearlyLoginBtn">
+            已有账户？立即登录
           </a>
         </div>
       </div>
 
     </div>
 
-    <div class="note">Baizora provides structured market data · Payments secured by Stripe</div>
+    <div class="note">Baizora 提供结构化市场数据 · 支付由 Stripe 安全处理</div>
 
   </div>
 
   <footer>
     <div class="footer-left">
-      © 2026 Baizora — All rights reserved &nbsp;·&nbsp;
+      © 2026 Baizora — 保留所有权利 &nbsp;·&nbsp;
       <a href="mailto:support@baizora.com">support@baizora.com</a>
     </div>
     <div class="footer-links">
-      <a href="assets/privacy.html">Privacy</a>
-      <a href="assets/terms.html">Terms</a>
-      <a href="assets/disclaimer.html">Disclaimer</a>
-      <a href="assets/faq.html">FAQ</a>
+      <a href="assets/privacy_cn.html">隐私政策</a>
+      <a href="assets/terms_cn.html">服务条款</a>
+      <a href="assets/disclaimer_cn.html">免责声明</a>
+      <a href="assets/faq_cn.html">常见问题</a>
     </div>
   </footer>
 
@@ -446,9 +456,9 @@
         dashBtn.style.display   = 'inline-block';
 
         // Card buttons: go to billing.html to actually subscribe
-        mBtn.textContent = 'Go to Billing';
+        mBtn.textContent = '管理订阅';
         mBtn.href = 'billing.html';
-        yBtn.textContent = 'Go to Billing';
+        yBtn.textContent = '管理订阅';
         yBtn.href = 'billing.html';
 
         // Hide the "already have an account" secondary buttons
@@ -462,9 +472,9 @@
         dashBtn.style.display   = 'none';
 
         // Card buttons: create account to start
-        mBtn.textContent = 'Create Account to Start';
+        mBtn.textContent = '注册账户开始使用';
         mBtn.href = 'signup.html';
-        yBtn.textContent = 'Create Account to Start';
+        yBtn.textContent = '注册账户开始使用';
         yBtn.href = 'signup.html';
 
         mLBtn.style.display = 'block';

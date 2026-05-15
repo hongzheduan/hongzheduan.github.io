@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baizora | Account</title>
+  <title>Baizora | 我的账户</title>
   <link rel="icon" href="assets/baize_favicon_v2.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,6 +73,16 @@
     }
 
     .header-left img { height: 32px; }
+
+    .brand-cn {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
     .logo-text {
       font-family: 'DM Serif Display', serif;
@@ -452,12 +462,12 @@
   <header>
     <a href="./" class="header-left">
       <img src="assets/baize_favicon_v2.png" alt="Baizora">
-      <span class="logo-text">Baiz<span>ora</span></span>
+      <span class="brand-cn">贝佐拉</span>
     </a>
     <div class="header-right">
-      <a href="dashboard.html" class="nav-btn">↩ My Baizora</a>
+      <a href="dashboard_cn.html" class="nav-btn">↩ 我的贝佐拉</a>
       <span id="headerEmail" style="font-family:'DM Mono',monospace; font-size:11px; color:#94a3b8; letter-spacing:0.05em;"></span>
-      <button class="nav-btn nav-btn-danger" id="headerLogoutBtn" style="display:none;" onclick="doLogout()">↪ Logout</button>
+      <button class="nav-btn nav-btn-danger" id="headerLogoutBtn" style="display:none;" onclick="doLogout()">↪ 退出登录</button>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -466,9 +476,9 @@
 
   <!-- Mobile drawer -->
   <div class="mobile-drawer" id="mobileDrawer">
-    <a href="dashboard.html">↩ My Baizora</a>
-    <a href="billing.html">View Plans</a>
-    <button class="m-danger" onclick="doLogout(); return false;">↪ Logout</button>
+    <a href="dashboard_cn.html">↩ 我的贝佐拉</a>
+    <a href="billing_cn.html">查看方案</a>
+    <button class="m-danger" onclick="doLogout(); return false;">↪ 退出登录</button>
   </div>
 
   <!-- Alert bar -->
@@ -480,13 +490,13 @@
   <!-- Main page content (shown when logged in) -->
   <div class="page" id="mainContent" style="display:none;">
 
-    <div class="page-eyebrow">◈ &nbsp; Account Management</div>
-    <h1 class="page-title">My Account</h1>
-    <p class="page-sub" id="pageSubEmail">Manage your subscription and billing details.</p>
+    <div class="page-eyebrow">◈ &nbsp; 账户管理</div>
+    <h1 class="page-title">我的账户</h1>
+    <p class="page-sub" id="pageSubEmail">管理您的订阅和账单信息。</p>
 
     <!-- Subscription Card -->
     <div class="section-card">
-      <div class="card-label">Subscription</div>
+      <div class="card-label">订阅信息</div>
 
       <div class="status-row">
         <div class="status-left">
@@ -500,7 +510,7 @@
 
       <div class="info-rows" id="subInfoRows">
         <div class="info-row">
-          <span class="info-key">Status</span>
+          <span class="info-key">状态</span>
           <span class="info-val skeleton" style="width:80px;">&nbsp;</span>
         </div>
       </div>
@@ -508,20 +518,20 @@
       <div class="action-grid" id="actionGrid" style="display:none;">
         <button class="action-btn action-btn-primary" onclick="openPortal()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-          Manage Billing
+          管理账单
         </button>
-        <a href="dashboard.html" class="action-btn">
+        <a href="dashboard_cn.html" class="action-btn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          My Baizora
+          我的贝佐拉
         </a>
         <button class="action-btn action-btn-danger action-btn-full" id="cancelBtn" onclick="showCancelModal()" style="display:none;">
-          Cancel Subscription
+          取消订阅
         </button>
       </div>
 
       <!-- No subscription -->
       <div id="noSubActions" style="display:none; margin-top:16px;">
-        <a href="billing.html" class="action-btn action-btn-primary" style="justify-content:center;">
+        <a href="billing_cn.html" class="action-btn action-btn-primary" style="justify-content:center;">
           🔥 Start Free Trial — 7 Days Free
         </a>
       </div>
@@ -529,19 +539,19 @@
 
     <!-- Account Info Card -->
     <div class="section-card">
-      <div class="card-label">Account</div>
+      <div class="card-label">账户信息</div>
       <div class="avatar">👤</div>
       <div class="info-rows">
         <div class="info-row">
-          <span class="info-key">Email</span>
+          <span class="info-key">邮箱</span>
           <span class="info-val" id="accountEmail">—</span>
         </div>
         <div class="info-row">
-          <span class="info-key">Member Since</span>
+          <span class="info-key">注册时间</span>
           <span class="info-val" id="memberSince">—</span>
         </div>
         <div class="info-row">
-          <span class="info-key">UID</span>
+          <span class="info-key">用户ID</span>
           <span class="info-val muted" id="accountUid" style="font-size:10px;">—</span>
         </div>
       </div>
@@ -562,21 +572,21 @@
   <!-- Not logged in state -->
   <div class="page not-logged-in" id="notLoggedIn" style="display:none;">
     <div style="font-size:48px; margin-bottom:20px;">🔒</div>
-    <h2>Sign in to view your account</h2>
-    <p>You need to be logged in to manage your subscription.</p>
-    <a href="login.html" class="action-btn action-btn-primary" style="display:inline-flex; margin:0 auto;">
-      Sign In
+    <h2>请登录以查看账户</h2>
+    <p>您需要登录才能管理订阅。</p>
+    <a href="login_cn.html" class="action-btn action-btn-primary" style="display:inline-flex; margin:0 auto;">
+      登录
     </a>
   </div>
 
   <!-- Cancel confirmation modal -->
   <div class="modal-overlay" id="cancelModal">
     <div class="modal">
-      <h3>Cancel Subscription?</h3>
-      <p>Your access will continue until the end of the current billing period. After that, you'll lose access to the full dashboard.</p>
+      <h3>确认取消订阅？</h3>
+      <p>取消后，您的访问权限将持续至当前计费周期结束。之后将失去完整平台的访问权限。</p>
       <div class="modal-btns">
-        <button class="modal-btn-cancel" onclick="hideCancelModal()">Keep Plan</button>
-        <button class="modal-btn-confirm" id="confirmCancelBtn" onclick="doCancel()">Yes, Cancel</button>
+        <button class="modal-btn-cancel" onclick="hideCancelModal()">保留方案</button>
+        <button class="modal-btn-confirm" id="confirmCancelBtn" onclick="doCancel()">确认取消</button>
       </div>
     </div>
   </div>
@@ -604,13 +614,13 @@
     function fmtDate(ts) {
       if (!ts) return "—";
       const d = new Date(ts * 1000);
-      return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+      return d.toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric" });
     }
 
     function fmtJoinDate(isoStr) {
       if (!isoStr) return "—";
       const d = new Date(isoStr);
-      return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+      return d.toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric" });
     }
 
     /* ── RENDER SUBSCRIPTION ── */
@@ -627,25 +637,25 @@
       // Badge
       badge.className = `status-badge ${status}`;
       text.textContent =
-        status === "active"   ? "Active"   :
-        status === "trialing" ? "Free Trial" :
-        status === "canceled" ? "Canceled" : "No Subscription";
+        status === "active"   ? "已激活"   :
+        status === "trialing" ? "免费试用中" :
+        status === "canceled" ? "已取消" : "未订阅";
 
       // Plan label
-      plan.textContent = status === "inactive" || status === "canceled" ? "" : "Baizora Full Access";
+      plan.textContent = status === "inactive" || status === "canceled" ? "" : "贝佐拉平台完整功能";
 
       // Info rows
       let html = `
         <div class="info-row">
-          <span class="info-key">Status</span>
+          <span class="info-key">状态</span>
           <span class="info-val ${status === 'active' ? 'green' : status === 'trialing' ? 'gold' : 'red'}">
-            ${status === "active" ? "Active" : status === "trialing" ? "Trial period" : status === "canceled" ? "Canceled" : "—"}
+            ${status === "active" ? "已激活" : status === "trialing" ? "试用中" : status === "canceled" ? "已取消" : "—"}
           </span>
         </div>`;
 
       if (data.currentPeriodEnd) {
-        const label = status === "trialing" ? "Trial Ends" :
-                      data.cancelAtPeriodEnd ? "Access Until" : "Next Billing";
+        const label = status === "trialing" ? "试用到期" :
+                      data.cancelAtPeriodEnd ? "访问有效至" : "下次扣款";
         html += `
           <div class="info-row">
             <span class="info-key">${label}</span>
@@ -657,7 +667,7 @@
         html += `
           <div class="info-row">
             <span class="info-key">Auto-Renew</span>
-            <span class="info-val red">Off — cancels at period end</span>
+            <span class="info-val red">已关闭 — 将在周期结束时取消</span>
           </div>`;
       }
 
@@ -714,7 +724,7 @@
         const user = await new Promise((resolve) => {
           const unsub = auth.onAuthStateChanged(u => { unsub(); resolve(u); });
         });
-        if (!user) { window.location.href = "login.html"; return; }
+        if (!user) { window.location.href = "login_cn.html"; return; }
         const res  = await fetch(`${API}/create-portal`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -724,7 +734,7 @@
         if (!data.url) throw new Error(data.error || "Portal error");
         window.location.href = data.url;
       } catch (e) {
-        showAlert(e.message || "Could not open billing portal.", "error");
+        showAlert(e.message || "无法打开账单门户，请重试。", "error");
       }
     };
 
@@ -740,7 +750,7 @@
     window.doCancel = async function () {
       const btn = document.getElementById("confirmCancelBtn");
       btn.classList.add("loading");
-      btn.textContent = "Canceling…";
+      btn.textContent = "取消中…";
       try {
         const user = auth.currentUser;
         const res  = await fetch(`${API}/cancel-subscription`, {
@@ -751,24 +761,24 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Cancel failed");
         hideCancelModal();
-        showAlert("Subscription canceled. You'll keep access until the end of the billing period.", "success");
+        showAlert("订阅已取消。您的访问权限将持续至当前计费周期结束。", "success");
         // Refresh sub info
         const res2  = await fetch(`${API}/get-user?uid=${user.uid}`);
         const data2 = await res2.json();
         renderSub(data2, user);
       } catch (e) {
         hideCancelModal();
-        showAlert(e.message || "Cancellation failed. Please try again.", "error");
+        showAlert(e.message || "取消失败，请重试。", "error");
       } finally {
         btn.classList.remove("loading");
-        btn.textContent = "Yes, Cancel";
+        btn.textContent = "确认取消";
       }
     };
 
     /* ── LOGOUT ── */
     window.doLogout = async function () {
       await signOut(auth);
-      window.location.href = "login.html";
+      window.location.href = "login_cn.html";
     };
 
     /* ── RESET PASSWORD ── */
@@ -777,7 +787,7 @@
       if (!user) return;
       try {
         await sendPasswordResetEmail(auth, user.email);
-        showAlert("Password reset email sent. Check your inbox.", "success");
+        showAlert("密码重置邮件已发送，请查收邮件。", "success");
       } catch (e) {
         showAlert(e.message, "error");
       }

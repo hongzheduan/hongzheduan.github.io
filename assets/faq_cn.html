@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FAQ | Baizora</title>
+  <title>常见问题 | Baizora</title>
   <link rel="icon" href="baize_favicon_v2.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +18,7 @@
     header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(6,13,31,0.92);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;}
     .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
     .logo-wrap img{height:36px;}
+    .brand-cn{font-size:22px;font-weight:700;letter-spacing:4px;background:linear-gradient(90deg,var(--white),var(--electric-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
     .logo-text{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);letter-spacing:-0.02em;}
     .logo-text span{color:var(--electric);}
     nav{display:flex;align-items:center;gap:8px;}
@@ -102,13 +103,13 @@
 <header>
   <a href="../" class="logo-wrap">
     <img src="baize_favicon_v2.png" alt="Baizora">
-    <span class="logo-text">Baiz<span>ora</span></span>
+    <span class="brand-cn">贝佐拉</span>
   </a>
   <nav>
-    <!-- <a href="about.html" class="nav-btn">About</a> -->
-    <!-- <a href="../billing.html" class="nav-btn">Plans</a> -->
-    <a href="../dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">My Account</a>
-    <a href="../login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign In</a>
+    <!-- <a href="about_cn.html" class="nav-btn">关于我们</a> -->
+    <!-- <a href="../billing_cn.html" class="nav-btn">Plans</a> -->
+    <a href="../dashboard_cn.html" class="nav-btn" id="navDashBtn" style="display:none;">我的账户</a>
+    <a href="../login_cn.html" class="nav-btn nav-btn-primary" id="navLoginLogout">登录</a>
   </nav>
   <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -116,63 +117,63 @@
 </header>
 
 <div class="mobile-drawer" id="mobileDrawer">
-  <!-- <a href="about.html">About</a> -->
-  <!-- <a href="../billing.html">Plans</a> -->
+  <!-- <a href="about_cn.html">关于我们</a> -->
+  <!-- <a href="../billing_cn.html">Plans</a> -->
   <div id="mobileAuthLinks"></div>
 </div>
 
 <div class="container">
-  <div class="eyebrow">◈ &nbsp; Help Center</div>
-  <h1>Frequently asked <em>questions</em></h1>
-  <p class="intro">Everything you need to know about Baizora — how the platform works, how to manage your subscription, and how to get the most out of the data.</p>
+  <div class="eyebrow">◈ &nbsp; 帮助中心</div>
+  <h1>常见 <em>问题解答</em></h1>
+  <p class="intro">关于 Baizora 的一切 — 平台如何运作、如何管理订阅，以及如何充分利用数据。</p>
 
   <!-- Getting Started -->
   <div class="faq-section">
-    <div class="section-group-label">Getting Started</div>
+    <div class="section-group-label">快速入门</div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">How does the free preview work?</span>
+        <span class="q-text">免费预览是如何运作的？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        Baizora provides a free preview that requires no login or account creation. You can immediately access a curated set of market signals — the top 3 stocks by daily price increase — to evaluate data quality, structure, and platform usability before committing to a subscription.<br><br>
-        The preview includes live sparkline charts, multi-timeframe rolling statistics, and fundamental data (PE, market cap, EPS, sector). It's a genuine taste of the full product, not a stripped-down demo.
+        Baizora 提供免费预览，无需登录或创建账户。您可以立即查看精选市场信号——按日价格涨幅排名的前3只股票——在订阅前评估数据质量、结构和平台可用性。<br><br>
+        预览包含实时走势图、多周期滚动统计数据和基本面数据（市盈率、市值、EPS、行业）。这是完整产品的真实体验，而非简化版演示。
       </div></div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">Do I need to sign up to use Baizora?</span>
+        <span class="q-text">使用 Baizora 需要注册账户吗？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        No sign-up is required for the free preview. You can access selected market insights directly at <a href="../free.html">baizora.com/free</a>.<br><br>
-        A paid subscription is required to unlock the full dashboard — all 500+ S&amp;P 500 and Nasdaq-100 symbols, all timeframes (2W to 1Y), sortable columns, and full fundamentals.
+        免费预览无需注册。您可以直接访问 <a href="../free_cn.html">baizora.com/free</a> 查看精选市场数据。<br><br>
+        解锁完整控制台需要付费订阅——包括500+支标普500和纳斯达克100成分股、所有时间周期（2周至1年）、可排序列及完整基本面数据。
       </div></div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">How do I create an account?</span>
+        <span class="q-text">如何创建账户？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        Click <strong>Sign In</strong> on the homepage, then <strong>Create one</strong> on the login page. Enter your email and a password (minimum 6 characters, at least one uppercase letter and one number).<br><br>
-        After signing up, we send a <strong>verification email</strong> to your address. You must click the link in that email before you can log in. This ensures your account is protected and your email is valid.
-        <div class="highlight">✓ Check your spam folder if you don't see it</div>
+        点击首页的<strong>登录</strong>，然后在登录页面点击<strong>免费注册</strong>。输入您的邮箱和密码（至少6位，包含至少一个大写字母和一个数字）。<br><br>
+        注册后，我们会向您的邮箱发送一封<strong>验证邮件</strong>。您必须点击邮件中的链接才能登录，以确保账户安全和邮箱有效。
+        <div class="highlight">✓ 如未收到，请检查垃圾邮件文件夹</div>
       </div></div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">How does the 7-day free trial work?</span>
+        <span class="q-text">7天免费试用是如何运作的？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        When you subscribe for the first time, you get <strong>7 full days of unrestricted access</strong> to the complete platform — no limitations, no partial data.<br><br>
-        You may cancel at any time during the trial via <a href="../account.html">your account page</a> or the Stripe billing portal, and <strong>no charges will be applied</strong>. After 7 days, your subscription begins automatically at $9.99/month or $99/year depending on the plan you selected.<br><br>
-        <strong>The free trial is available once per email address.</strong> Re-subscribing with the same email after cancellation will start a paid subscription immediately with no trial period.
+        首次订阅时，您将获得<strong>7天完整的无限制访问权限</strong>——无任何限制，数据完整。<br><br>
+        您可以随时通过<a href="../account_cn.html">账户页面</a>或 Stripe 账单门户取消，<strong>不会产生任何费用</strong>。7天后，订阅将按您选择的方案自动续费（$9.99/月或$99/年）。<br><br>
+        <strong>免费试用每个邮箱地址仅限一次。</strong>取消后以相同邮箱重新订阅将立即开始付费订阅，不含试用期。
         <!-- <div class="highlight">✓ No charge until trial ends</div> -->
       </div></div>
     </div>
@@ -180,126 +181,126 @@
 
   <!-- Platform & Data -->
   <div class="faq-section">
-    <div class="section-group-label">Platform & Data</div>
+    <div class="section-group-label">平台与数据</div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">How is the data updated?</span>
+        <span class="q-text">数据是如何更新的？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        Market data is processed and updated daily after U.S. market close, typically between <strong>5:00–6:00 PM Eastern Time</strong>. This ensures consistent, stable daily comparisons without intraday noise.<br><br>
-        All signals — price changes, volume behavior, moving average ratios, sparklines, and fundamentals — reflect the most recent session's closing data.
+        市场数据在美股收盘后每日更新，通常在<strong>美东时间下午5:00–6:00</strong>之间。这确保了一致稳定的每日对比，不受盘中噪声干扰。<br><br>
+        所有信号——价格变化、成交量行为、移动均线比率、走势图和基本面——均反映最新交易日的收盘数据。
       </div></div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">What do the sparkline markers mean?</span>
+        <span class="q-text">走势图上的标记代表什么？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        Every stock includes a 1-year price trend sparkline with two visual event markers:<br><br>
-        <strong>▲ Triangle</strong> — marks the highest-volume trading day of the past year. Green if price was up on that day, red if price was down.<br><br>
-        <strong>● Circle (with glow)</strong> — marks the highest single-day price change of the past year. Green if volume was elevated on that day, red if volume was low.<br><br>
-        These markers let you instantly spot when unusual activity occurred — without scanning tables. Hover the "1Y Trend" column header in the dashboard for a reminder.
+        每只股票均包含一年价格走势图，带有两个视觉事件标记：<br><br>
+        <strong>▲ 三角形</strong> — 标记过去一年成交量最高的交易日。当日价格上涨为绿色，下跌为红色。<br><br>
+        <strong>● 圆圈（带光晕）</strong> — 标记过去一年单日最大价格变动日。当日成交量放大为绿色，成交量萎缩为红色。<br><br>
+        这些标记让您无需翻查数据表格，即可即时发现异常活动。悬停控制台中的"年趋势图"列标题可查看提示。
       </div></div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">What do the timeframe windows show?</span>
+        <span class="q-text">时间周期窗口显示哪些信息？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        Baizora supports six rolling timeframes: <strong>2W, 1M, 3M, 6M, 9M, and 1Y</strong>, plus a dedicated <strong>1D view</strong>.<br><br>
-        The <strong>1D view</strong> shows today's price change, volume change, and their ratios vs. 21-day moving averages — a quick daily snapshot.<br><br>
-        All other windows show the <strong>total price change</strong> over that period plus the single largest price and volume moves within the window and when they occurred.<br><br>
-        Hover any column header in the dashboard to see its exact definition.
+        Baizora 支持六个滚动时间周期：<strong>2周、1月、3月、6月、9月和1年</strong>，以及专用的<strong>1天视图</strong>。<br><br>
+        <strong>1天视图</strong>显示当日价格变动、成交量变动及其与21日移动均线的比值——快速日常概览。<br><br>
+        其他所有周期显示该期间的<strong>总价格变动</strong>，以及窗口内单日最大价格和成交量变动及其发生时间。<br><br>
+        悬停控制台中任意列标题可查看其精确定义。
       </div></div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">What stocks does Baizora cover?</span>
+        <span class="q-text">Baizora 覆盖哪些股票？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        Baizora covers all current constituents of the <strong>S&amp;P 500</strong> and <strong>Nasdaq-100</strong> — approximately 500+ large-cap US equities with consistent liquidity and institutional-grade data quality.<br><br>
-        The platform focuses exclusively on large-cap stocks to ensure data consistency and reliability across all signals.
+        Baizora 覆盖<strong>标普500</strong>和<strong>纳斯达克100</strong>的所有当前成分股——约500+支流动性稳定、具有机构级数据质量的美国大盘股。<br><br>
+        平台专注于大盘股，以确保所有信号的数据一致性和可靠性。
       </div></div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">Is Baizora a financial advisor or recommendation service?</span>
+        <span class="q-text">Baizora 是投资顾问或推荐服务吗？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        No. Baizora is a <strong>data intelligence platform</strong> — it surfaces structured statistical signals, not investment recommendations. Nothing on this platform constitutes financial, investment, trading, or professional advice.<br><br>
-        All signals are generated by automated systems and should not be interpreted as buy, sell, or hold recommendations. Always conduct your own research or consult a qualified financial advisor before making investment decisions.
+        不。Baizora 是一个<strong>数据智能平台</strong>——提供结构化统计信号，而非投资建议。本平台上的任何内容均不构成金融、投资、交易或专业建议。<br><br>
+        所有信号均由自动化系统生成，不应被解读为买入、卖出或持有建议。在做出投资决策前，请务必进行自主研究或咨询合格的金融顾问。
       </div></div>
     </div>
   </div>
 
   <!-- Subscription & Billing -->
   <div class="faq-section">
-    <div class="section-group-label">Subscription & Billing</div>
+    <div class="section-group-label">订阅与账单</div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">How do I manage or cancel my subscription?</span>
+        <span class="q-text">如何管理或取消我的订阅？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        All subscription actions are available in two places:<br><br>
-        1. Visit your account page or click <a href="../account.html"><strong>here</strong></a> to view your current subscription status, trial end date, and a <strong>Cancel Subscription</strong> button. Cancellation takes effect at the end of your current billing period — you keep full access until then.<br><br>
-        2. <strong>Manage Billing</strong> button on the <a href="../account.html"><strong>account page</strong></a> opens the <strong>Stripe Customer Portal</strong> where you can update your payment method, view invoices, switch plans, or cancel.<br><br>
-        Cancellations made during the free trial incur no charges — access continues until the trial period expires.
+        所有订阅操作均可在两处进行：<br><br>
+        1. 访问账户页面或点击<a href="../account_cn.html"><strong>此处</strong></a>，查看当前订阅状态、试用到期日期及<strong>取消订阅</strong>按钮。取消在当前计费周期结束时生效——在此之前您保留完整访问权限。<br><br>
+        2. <a href="../account_cn.html"><strong>账户页面</strong></a>上的<strong>管理账单</strong>按钮将打开 <strong>Stripe 客户门户</strong>，您可以在此更新支付方式、查看账单、切换方案或取消订阅。<br><br>
+        在免费试用期间取消不产生任何费用——访问权限持续至试用期结束。
       </div></div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">What's the difference between monthly and yearly plans?</span>
+        <span class="q-text">月付和年付方案有何区别？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        Both plans include identical features — full access to all symbols, timeframes, sparklines, and fundamentals.<br><br>
-        <strong>Monthly</strong>: $9.99/month — flexible, cancel anytime.<br>
-        <strong>Yearly</strong>: $99/year — approximately $8.25/month, saving ~17% vs monthly billing.<br><br>
-        You can switch between plans at any time via the Stripe billing portal accessible from your <a href="../account.html">account page</a>.
+        两种方案包含完全相同的功能——完整访问所有股票、时间周期、走势图和基本面数据。<br><br>
+        <strong>月付</strong>：$9.99/月 — 灵活，随时可取消。<br>
+        <strong>年付</strong>：$99/年 — 约$8.25/月，比月付节省约17%。<br><br>
+        您可以随时通过<a href="../account_cn.html">账户页面</a>的 Stripe 账单门户切换方案。
       </div></div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">What happens after the free trial ends?</span>
+        <span class="q-text">免费试用结束后会发生什么？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        After 7 days, your subscription automatically continues at the rate of the plan you selected ($9.99/month or $99/year). You will be charged via the payment method you provided at signup.<br><br>
-        If you cancel before the trial ends, no charge is made and your access continues until the trial period expires. You can always re-subscribe at any time from the <a href="../billing.html">plans page</a>.
+        7天后，订阅将按您选择的方案费率自动续费（$9.99/月或$99/年），通过您注册时提供的支付方式收费。<br><br>
+        如在试用期结束前取消，不会产生任何费用，访问权限持续至试用期到期。您可以随时从<a href="../billing_cn.html">方案页面</a>重新订阅。
       </div></div>
     </div>
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">I subscribed but can't access the dashboard — what should I do?</span>
+        <span class="q-text">我已订阅但无法访问控制台，该怎么办？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        First, make sure your email address is verified — check your inbox for a verification email and click the link. Unverified accounts cannot log in.<br><br>
-        If your email is verified but you're still redirected to the billing page after login, try signing out and signing back in. Your subscription status is checked at login.<br><br>
-        If the issue persists, contact us at <a href="mailto:support@baizora.com">support@baizora.com</a> with your email address and we'll resolve it promptly.
+        首先，请确认您的邮箱已验证——查收验证邮件并点击链接。未验证的账户无法登录。<br><br>
+        如果邮箱已验证但登录后仍被重定向到账单页面，请尝试退出登录后重新登录。登录时会检查您的订阅状态。<br><br>
+        如问题持续，请发送邮件至 <a href="mailto:support@baizora.com">support@baizora.com</a> 并附上您的邮箱地址，我们将及时处理。
       </div></div>
     </div>
   </div>
 
   <!-- Contact -->
   <div class="contact-card">
-    <div class="section-group-label">◈ &nbsp; Still have questions?</div>
-    <p>We read every message and typically respond within 1–2 business days.</p>
+    <div class="section-group-label">◈ &nbsp; 还有其他问题？</div>
+    <p>我们阅读每一封邮件，通常在1–2个工作日内回复。</p>
     <a href="mailto:support@baizora.com" class="contact-link">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
       support@baizora.com
@@ -315,13 +316,13 @@
 </div>
 
 <footer>
-  <div class="footer-left">© 2026 Baizora — All rights reserved &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
+  <div class="footer-left">© 2026 Baizora — 保留所有权利 &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
   <div class="footer-links">
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html">Terms</a>
-    <a href="disclaimer.html">Disclaimer</a>
-    <a href="faq.html">FAQ</a>
-    <a href="about.html">About</a>
+    <a href="privacy_cn.html">隐私政策</a>
+    <a href="terms_cn.html">服务条款</a>
+    <a href="disclaimer_cn.html">免责声明</a>
+    <a href="faq_cn.html">常见问题</a>
+    <a href="about_cn.html">关于我们</a>
   </div>
 </footer>
 
@@ -355,13 +356,13 @@
     const dashBtn   = document.getElementById('navDashBtn');
     const mLinks    = document.getElementById('mobileAuthLinks');
     if(user){
-      if(loginBtn){ loginBtn.textContent='Sign Out'; loginBtn.className='nav-btn nav-btn-danger'; loginBtn.href='#'; loginBtn.onclick=function(e){e.preventDefault();firebase.auth().signOut().then(()=>{window.location.href='../index.html';});}; }
+      if(loginBtn){ loginBtn.textContent='退出登录'; loginBtn.className='nav-btn nav-btn-danger'; loginBtn.href='#'; loginBtn.onclick=function(e){e.preventDefault();firebase.auth().signOut().then(()=>{window.location.href='../index_cn.html';});}; }
       if(dashBtn) dashBtn.style.display='inline-block';
-      if(mLinks) mLinks.innerHTML='<a href="../dashboard.html" style="'+mStyle+'">Dashboard</a><a href="../account.html" style="'+mStyle+'">My Account</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index.html\');" style="'+mStyle+'color:#fca5a5;">Sign Out</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../dashboard_cn.html" style="'+mStyle+'">Dashboard</a><a href="../account_cn.html" style="'+mStyle+'">我的账户</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index.html\');" style="'+mStyle+'color:#fca5a5;">Sign Out</a>';
     } else {
-      if(loginBtn){ loginBtn.textContent='Sign In'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login.html'; loginBtn.onclick=null; }
+      if(loginBtn){ loginBtn.textContent='登录'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='none';
-      if(mLinks) mLinks.innerHTML='<a href="../login.html" style="'+mStyle+'">Sign In</a><a href="../signup.html" style="'+mStyle+'">Create Account</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a><a href="../signup_cn.html" style="'+mStyle+'">Create Account</a>';
     }
   });
 </script>

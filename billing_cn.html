@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -94,6 +94,16 @@
     }
 
     .logo-wrap img { height: 36px; }
+
+    .brand-cn {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
     .logo-text {
       font-family: 'DM Serif Display', serif;
@@ -458,86 +468,86 @@
   <header>
     <a href="./" class="logo-wrap">
       <img src="assets/baize_logo_v2.png" alt="Baizora">
-      <span class="logo-text">Baiz<span>ora</span></span>
+      <span class="brand-cn">贝佐拉</span>
     </a>
     <div style="display:flex; align-items:center; gap:8px;">
       <span id="userEmail" style="font-family:'DM Mono',monospace; font-size:11px; color:#94a3b8; letter-spacing:0.05em;"></span>
-      <a href="login.html" class="nav-btn" id="loginBtn">Login</a>
-      <button class="nav-btn" id="logoutBtn" style="display:none; border-color:rgba(239,68,68,0.3); color:#fca5a5;" onclick="doLogout()">↪ Logout</button>
+      <a href="login_cn.html" class="nav-btn" id="loginBtn">登录</a>
+      <button class="nav-btn" id="logoutBtn" style="display:none; border-color:rgba(239,68,68,0.3); color:#fca5a5;" onclick="doLogout()">↪ 退出登录</button>
     </div>
   </header>
 
   <!-- Main -->
   <div class="container">
 
-    <div class="eyebrow">◈ &nbsp; Pricing</div>
-    <h1>Simple, <em>transparent</em> pricing</h1>
-    <p class="subtext">Cancel anytime. No hidden fees. Full platform access from day one.</p>
+    <div class="eyebrow">◈ &nbsp; 价格方案</div>
+    <h1>清晰 <em>透明</em> 的定价</h1>
+    <p class="subtext">随时可取消 · 无隐藏费用 · 第一天起完整访问</p>
 
     <!-- Pricing Cards -->
     <div class="pricing-grid">
 
       <!-- Monthly -->
       <div class="plan">
-        <div class="plan-name">Monthly</div>
+        <div class="plan-name">月付</div>
         <div class="price-row">
           <span class="currency">$</span>
           <span class="amount">9.99</span>
         </div>
-        <div class="period">per month</div>
+        <div class="period">每月</div>
         <div class="plan-divider"></div>
         <ul>
-          <li><span class="check">◆</span> Platform dashboard access</li>
-          <li><span class="check">◆</span> Daily updated data system</li>
-          <li><span class="check">◆</span> Short-term analysis window</li>
-          <li><span class="check">◆</span> Behavioral indicators</li>
+          <li><span class="check">◆</span> 完整控制台访问</li>
+          <li><span class="check">◆</span> 每日更新数据系统</li>
+          <li><span class="check">◆</span> 多周期分析窗口</li>
+          <li><span class="check">◆</span> 量价行为指标</li>
         </ul>
         <button class="plan-btn btn-outline" onclick="startCheckout('monthly', this)">
-          <span class="btn-label">Start Monthly</span>
+          <span class="btn-label">立即开通</span>
           <div class="spinner"></div>
         </button>
       </div>
 
       <!-- Yearly -->
       <div class="plan featured">
-        <div class="tag">Recommended</div>
-        <div class="plan-name">Yearly · Save ~17%</div>
+        <div class="tag">推荐</div>
+        <div class="plan-name">年付 · 节省约17%</div>
         <div class="price-row">
           <span class="currency">$</span>
           <span class="amount">99</span>
         </div>
-        <div class="period">per year</div>
-        <div class="savings">≈ $8.25 / month</div>
+        <div class="period">每年</div>
+        <div class="savings">≈ $8.25 / 月</div>
         <div class="plan-divider"></div>
         <ul>
-          <li><span class="check">◆</span> Everything in Monthly</li>
-          <li><span class="check">◆</span> Lower long-term cost</li>
-          <li><span class="check">◆</span> Priority updates</li>
-          <li><span class="check">◆</span> Consistent access</li>
+          <li><span class="check">◆</span> 包含月付所有功能</li>
+          <li><span class="check">◆</span> 长期使用更划算</li>
+          <li><span class="check">◆</span> 优先功能更新</li>
+          <li><span class="check">◆</span> 稳定持续访问</li>
         </ul>
         <button class="plan-btn btn-filled" onclick="startCheckout('yearly', this)">
-          <span class="btn-label">Start Yearly</span>
+          <span class="btn-label">立即开通</span>
           <div class="spinner"></div>
         </button>
       </div>
 
     </div>
 
-    <div class="note">Baizora provides structured market data access · Payments secured by Stripe</div>
+    <div class="note">Baizora 提供结构化市场数据 · 支付由 Stripe 安全处理</div>
 
   </div>
 
   <!-- Footer -->
   <footer>
     <div class="footer-left">
-      © 2026 Baizora — All rights reserved &nbsp;·&nbsp;
+      © 2026 Baizora — 保留所有权利 &nbsp;·&nbsp;
       <a href="mailto:support@baizora.com">support@baizora.com</a>
     </div>
     <div class="footer-links">
-      <a href="assets/privacy.html">Privacy</a>
-      <a href="assets/terms.html">Terms</a>
-      <a href="assets/disclaimer.html">Disclaimer</a>
-      <a href="assets/faq.html">FAQ</a>
+      <a href="assets/privacy_cn.html">隐私政策</a>
+      <a href="assets/terms_cn.html">服务条款</a>
+      <a href="assets/disclaimer_cn.html">免责声明</a>
+      <a href="assets/faq_cn.html">常见问题</a>
     </div>
   </footer>
 
@@ -568,7 +578,7 @@
 
     async function doLogout() {
       await firebase.auth().signOut();
-      window.location.href = 'login.html';
+      window.location.href = 'login_cn.html';
     }
   </script>
 
@@ -613,12 +623,12 @@
         // Already subscribed — redirect to home instead of double-charging
         if (res.status === 409 && data.error === "already_subscribed") {
           alert("您已有有效订阅，无需重复订阅。");
-          window.location.href = "index.html";
+          window.location.href = "index_cn.html";
           return;
         }
 
         if (!data.url) {
-          throw new Error(data.error || "Payment session failed.");
+          throw new Error(data.error || "支付会话失败，请重试。");
         }
 
         window.location.href = data.url;
@@ -628,7 +638,7 @@
         label.style.display = 'flex';
         spinner.style.display = 'none';
         btn.disabled = false;
-        alert(err.message || "Network error. Please try again.");
+        alert(err.message || "网络错误，请重试。");
       }
     }
   </script>

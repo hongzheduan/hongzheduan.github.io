@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baizora | Dashboard</title>
+  <title>Baizora | 控制台</title>
   <link rel="icon" href="assets/baize_favicon_v2.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,6 +71,16 @@
     }
 
     .header-left img { height: 32px; }
+
+    .brand-cn {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
     .logo-text {
       font-family: 'DM Serif Display', serif;
@@ -371,12 +381,12 @@
   <header>
     <a href="./" class="header-left">
       <img src="assets/baize_favicon_v2.png" alt="Baizora">
-      <span class="logo-text">Baiz<span>ora</span></span>
+      <span class="brand-cn">贝佐拉</span>
     </a>
     <div class="header-right">
       <span class="user-email" id="headerEmail"></span>
-      <a href="account.html" class="nav-btn">Account</a>
-      <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ Sign Out</button>
+      <a href="account_cn.html" class="nav-btn">我的账户</a>
+      <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ 退出登录</button>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -385,17 +395,17 @@
 
   <!-- Mobile drawer -->
   <div class="mobile-drawer" id="mobileDrawer">
-    <a href="account.html">Account</a>
-    <a href="billing.html">Plans &amp; Billing</a>
-    <button class="m-danger" onclick="doLogout()">↪ Sign Out</button>
+    <a href="account_cn.html">我的账户</a>
+    <a href="billing_cn.html">方案与账单</a>
+    <button class="m-danger" onclick="doLogout()">↪ 退出登录</button>
   </div>
 
   <!-- Page -->
   <div class="page">
 
-    <div class="page-eyebrow">◈ &nbsp; Dashboard</div>
-    <h1 class="page-title">Welcome back<span id="nameGreeting"></span></h1>
-    <p class="page-sub">Your Baizora tools and account at a glance.</p>
+    <div class="page-eyebrow">◈ &nbsp; 控制台</div>
+    <h1 class="page-title">欢迎回家<span id="nameGreeting"></span></h1>
+    <p class="page-sub">您的贝佐拉工具与账户一览。</p>
 
     <!-- Subscription status pill -->
     <div class="status-pill inactive" id="statusPill" style="display:none;">
@@ -404,59 +414,59 @@
     </div>
 
     <!-- ── TOOLS ── -->
-    <div class="section-label">Tools</div>
+    <div class="section-label">工具</div>
     <div class="tools-grid">
 
       <a href="baizora_main_form.html" class="tool-card">
         <div class="tool-icon">◎</div>
-        <div class="tool-name">Price &amp; Volume Scanner</div>
-        <div class="tool-desc">Daily signals across S&amp;P 500 and Nasdaq-100. Sortable by price change, volume, max moves and more across 6 timeframes.</div>
-        <div class="tool-tag tag-live">● Live</div>
+        <div class="tool-name">量价扫描仪</div>
+        <div class="tool-desc">标普500和纳斯达克100每日信号。在当日和每个时间周期都可按价格变动、成交量等自由排序。</div>
+        <div class="tool-tag tag-live">● 上线中</div>
       </a>
 
-      <a href="free.html" class="tool-card">
+      <a href="free_cn.html" class="tool-card">
         <div class="tool-icon">⬡</div>
-        <div class="tool-name">Free Preview</div>
-        <div class="tool-desc">Top 3 movers from today's data — no login required. Share with anyone.</div>
-        <div class="tool-tag tag-free">Free</div>
+        <div class="tool-name">免费预览</div>
+        <div class="tool-desc">今日股价涨幅最大前3只异动股 — 无需登录，可分享给任何人。</div>
+        <div class="tool-tag tag-free">免费</div>
       </a>
 
       <div class="tool-card locked">
         <div class="tool-icon">⟁</div>
-        <div class="tool-name">Sector Heatmap</div>
-        <div class="tool-desc">Visual breakdown of price and volume anomalies by sector, updated daily.</div>
-        <div class="tool-tag tag-soon">Coming Soon</div>
+        <div class="tool-name">行业热力图</div>
+        <div class="tool-desc">按行业分类展示每日价格与成交量异动，直观可视化。</div>
+        <div class="tool-tag tag-soon">即将上线</div>
       </div>
 
       <div class="tool-card locked">
         <div class="tool-icon">◷</div>
-        <div class="tool-name">Signal History</div>
-        <div class="tool-desc">Browse historical daily snapshots. See how signals evolved over time for any ticker.</div>
-        <div class="tool-tag tag-soon">Coming Soon</div>
+        <div class="tool-name">信号历史</div>
+        <div class="tool-desc">浏览历史每日快照，查看任意股票信号随时间的变化轨迹。</div>
+        <div class="tool-tag tag-soon">即将上线</div>
       </div>
 
     </div>
 
     <!-- ── ACCOUNT ── -->
-    <div class="section-label">Account</div>
+    <div class="section-label">我的账户</div>
     <div class="quick-links">
-      <a href="account.html" class="quick-link">
-        <span class="quick-link-icon">👤</span> My Account
+      <a href="account_cn.html" class="quick-link">
+        <span class="quick-link-icon">👤</span> 我的账户
       </a>
-      <a href="billing.html" class="quick-link">
-        <span class="quick-link-icon">💳</span> Plans &amp; Billing
+      <a href="billing_cn.html" class="quick-link">
+        <span class="quick-link-icon">💳</span> 方案与账单
       </a>
-      <a href="index.html" class="quick-link">
-        <span class="quick-link-icon">🏠</span> Homepage
+      <a href="index_cn.html" class="quick-link">
+        <span class="quick-link-icon">🏠</span> 首页
       </a>
-      <a href="free.html" class="quick-link">
-        <span class="quick-link-icon">👁</span> Free Preview
+      <a href="free_cn.html" class="quick-link">
+        <span class="quick-link-icon">👁</span> 免费预览
       </a>
-      <a href="assets/faq.html" class="quick-link">
-        <span class="quick-link-icon">❓</span> FAQ
+      <a href="assets/faq_cn.html" class="quick-link">
+        <span class="quick-link-icon">❓</span> 常见问题
       </a>
       <a href="mailto:support@baizora.com" class="quick-link">
-        <span class="quick-link-icon">✉️</span> Support
+        <span class="quick-link-icon">✉️</span> 联系客服
       </a>
     </div>
 
@@ -470,7 +480,7 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href = "login.html";
+        window.location.href = "login_cn.html";
         return;
       }
 
@@ -494,14 +504,14 @@
         pill.className = `status-pill ${status}`;
 
         if (status === "active") {
-          text.textContent = "Active Subscription";
+          text.textContent = "订阅已激活";
         } else if (status === "trialing") {
           const end = data.currentPeriodEnd
-            ? " · Trial ends " + new Date(data.currentPeriodEnd * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+            ? " · 试用结束期： " + new Date(data.currentPeriodEnd * 1000).toLocaleDateString("zh-CN", { month: "short", day: "numeric", year: "numeric" })
             : "";
-          text.textContent = "Free Trial" + end;
+          text.textContent = "免费试用中" + end;
         } else {
-          text.textContent = "No Active Subscription";
+          text.textContent = "暂无有效订阅";
           // Lock scanner card and show upgrade prompt
           const scannerCard = document.querySelector('a[href="baizora_main_form.html"]');
           if (scannerCard) {
@@ -512,14 +522,14 @@
           }
         }
       } catch(e) {
-        console.warn("Status fetch failed:", e.message);
+        console.warn("订阅状态获取失败：", e.message);
         pill.style.display = "none";
       }
     });
 
     window.doLogout = async function() {
       await signOut(auth);
-      window.location.href = "login.html";
+      window.location.href = "login_cn.html";
     };
 
     /* Mobile menu */

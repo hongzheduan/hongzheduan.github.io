@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baizora | Login</title>
+  <title>Baizora | 登录</title>
   <link rel="icon" type="image/png" sizes="32x32" href="assets/baize_favicon_v2.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -84,6 +84,16 @@
     }
 
     .logo-wrap img { height: 36px; }
+
+    .brand-cn {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
     .logo-text {
       font-family: 'DM Serif Display', serif;
@@ -356,28 +366,28 @@
 
   <a href="./" class="logo-wrap">
     <img src="assets/baize_favicon_v2.png" alt="Baizora">
-    <span class="logo-text">Baiz<span>ora</span></span>
+    <span class="brand-cn">贝佐拉</span>
   </a>
 
   <div class="card">
-    <div class="card-eyebrow">◈ &nbsp; Secure Access</div>
-    <h1 class="card-title">Welcome back</h1>
-    <p class="card-sub">Sign in to your Baizora account</p>
+    <div class="card-eyebrow">◈ &nbsp; 安全登录</div>
+    <h1 class="card-title">欢迎回来</h1>
+    <p class="card-sub">登录您的 Baizora 账户</p>
 
     <div class="error-msg" id="errorMsg"></div>
     <div class="success-msg" id="successMsg"></div>
 
     <div class="field">
-      <label for="email">Email address</label>
+      <label for="email">电子邮箱</label>
       <div class="input-wrap">
-        <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+        <input id="email" type="email" placeholder="请输入邮箱" autocomplete="email">
       </div>
     </div>
 
     <div class="field">
-      <label for="password">Password</label>
+      <label for="password">密码</label>
       <div class="input-wrap">
-        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+        <input id="password" type="password" placeholder="请输入密码" autocomplete="current-password">
         <button class="toggle-pw" onclick="togglePw()" type="button" aria-label="Toggle password">
           <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
@@ -385,25 +395,25 @@
     </div>
 
     <div class="forgot-row">
-      <a href="#" onclick="resetPassword();return false;">Forgot password?</a>
+      <a href="#" onclick="resetPassword();return false;">忘记密码？</a>
     </div>
 
     <button class="btn-login" id="loginBtn" onclick="login()">
-      <span class="btn-label">Sign In</span>
+      <span class="btn-label">登录</span>
       <div class="spinner"></div>
     </button>
 
-    <div class="divider"><span>or</span></div>
+    <div class="divider"><span>或</span></div>
 
     <div class="signup-row">
-      Don't have an account? <a href="signup.html">Create one</a>
+      还没有账户？<a href="signup_cn.html">免费注册</a>
     </div>
   </div>
 
   <div class="page-footer">
-    <a href="assets/privacy.html">Privacy</a>
-    <a href="assets/terms.html">Terms</a>
-    <a href="assets/faq.html">FAQ</a>
+    <a href="assets/privacy_cn.html">隐私政策</a>
+    <a href="assets/terms_cn.html">服务条款</a>
+    <a href="assets/faq_cn.html">常见问题</a>
   </div>
 
   <script>
@@ -456,7 +466,7 @@
       const btn      = document.getElementById("loginBtn");
 
       if (!email || !password) {
-        showError("Please enter your email and password.");
+        showError("请输入邮箱和密码。");
         return;
       }
 
@@ -471,7 +481,7 @@
           await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js")
             .then(m => m.sendEmailVerification(user));
           btn.classList.remove("loading");
-          showError("Please verify your email first. A new verification link has been sent to " + user.email + ".");
+          showError("请先验证您的邮箱，新的验证链接已发送至 " + user.email + ".");
           return;
         }
 
@@ -497,17 +507,17 @@
         // "trialing" counts as active access
         // Always go to dashboard — it handles subscription state
         // (inactive users see locked tools with a "choose a plan" prompt)
-        window.location.href = "dashboard.html";
+        window.location.href = "dashboard_cn.html";
 
       } catch (e) {
         console.error(e);
         const msg =
-          e.code === "auth/invalid-credential"  ? "Incorrect email or password."         :
-          e.code === "auth/user-not-found"       ? "No account found with this email."    :
-          e.code === "auth/wrong-password"       ? "Incorrect password."                  :
-          e.code === "auth/too-many-requests"    ? "Too many attempts. Try again later."  :
-          e.code === "auth/network-request-failed" ? "Network error. Check your connection." :
-          e.message || "Login failed. Please try again.";
+          e.code === "auth/invalid-credential"  ? "邮箱或密码不正确。"         :
+          e.code === "auth/user-not-found"       ? "该邮箱未注册账户。"    :
+          e.code === "auth/wrong-password"       ? "密码不正确。"                  :
+          e.code === "auth/too-many-requests"    ? "尝试次数过多，请稍后再试。"  :
+          e.code === "auth/network-request-failed" ? "网络错误，请检查您的网络连接。" :
+          e.message || "登录失败，请重试。";
         showError(msg);
         btn.classList.remove("loading");
       }
@@ -517,12 +527,12 @@
       clearMessages();
       const email = document.getElementById("email").value.trim();
       if (!email) {
-        showError("Enter your email address first.");
+        showError("请先输入您的邮箱地址。");
         return;
       }
       try {
         await sendPasswordResetEmail(auth, email);
-        showSuccess("Password reset email sent. Check your inbox.");
+        showSuccess("密码重置邮件已发送，请查收邮件。");
       } catch (e) {
         showError(e.message);
       }

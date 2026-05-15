@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baizora | Sign Up</title>
+  <title>Baizora | 注册账户</title>
   <link rel="icon" type="image/png" sizes="32x32" href="assets/baize_favicon_v2.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,6 +83,16 @@
 
     .header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .header-logo img { height: 36px; }
+    .brand-cn {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
     .logo-text { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--white); letter-spacing: -0.02em; }
     .logo-text span { color: var(--electric); }
 
@@ -270,7 +280,17 @@
     @media (max-width: 480px) {
       header { padding: 0 16px; height: 56px; }
       .header-logo img { height: 28px; }
-      .logo-text { font-size: 17px; }
+      .brand-cn {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-text { font-size: 17px; }
       .card { padding: 28px 20px; border-radius: 12px; }
       .card-title { font-size: 23px; }
       footer { padding: 16px 20px; flex-direction: column; text-align: center; }
@@ -285,7 +305,7 @@
   <header>
     <a href="./" class="header-logo">
       <img src="assets/baize_favicon_v2.png" alt="Baizora">
-      <span class="logo-text">Baiz<span>ora</span></span>
+      <span class="brand-cn">贝佐拉</span>
     </a>
   </header>
 
@@ -294,14 +314,14 @@
 
       <!-- ── SIGNUP PANEL ── -->
       <div class="signup-panel" id="signupPanel">
-        <div class="card-eyebrow">◈ &nbsp; Create Account</div>
-        <h1 class="card-title">Get started</h1>
+        <div class="card-eyebrow">◈ &nbsp; 创建账户</div>
+        <h1 class="card-title">开始使用</h1>
         <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:24px;">
           <div style="display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.06em; color:#94a3b8; background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.15); border-radius:7px; padding:7px 12px;">
-            <span style="color:#4ade80; font-size:13px;">✓</span> No credit card required
+            <span style="color:#4ade80; font-size:13px;">✓</span> 无需绑定信用卡
           </div>
           <div style="display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.06em; color:#94a3b8; background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.15); border-radius:7px; padding:7px 12px;">
-            <span style="color:#60a5fa; font-size:13px;">↑</span> Upgrade anytime for full access
+            <span style="color:#60a5fa; font-size:13px;">↑</span> 随时升级，解锁完整功能
           </div>
         </div>
 
@@ -309,30 +329,30 @@
 
         <div class="form-group">
           <div class="field-wrap">
-            <label class="field-label" for="email">Email</label>
-            <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+            <label class="field-label" for="email">电子邮箱</label>
+            <input type="email" id="email" placeholder="请输入电邮地址" autocomplete="email">
           </div>
           <div class="field-wrap">
-            <label class="field-label" for="password">Password</label>
-            <input type="password" id="password" placeholder="Min. 6 chars, 1 uppercase, 1 number" autocomplete="new-password">
+            <label class="field-label" for="password">自选密码</label>
+            <input type="password" id="password" placeholder="最少 6 个字符, 含至少 1 个大写字母和 1 个数字" autocomplete="new-password">
           </div>
         </div>
 
         <button class="btn-primary" id="signupBtn" onclick="signup()">
           <div class="spinner" id="spinner"></div>
-          <span id="btnLabel">Create Account</span>
+          <span id="btnLabel">注册</span>
         </button>
 
         <div class="card-divider"></div>
-        <p class="card-footer">Already have an account? <a href="login.html">Log in</a></p>
+        <p class="card-footer">已有账户？ <a href="login_cn.html">登录</a></p>
       </div>
 
       <!-- ── VERIFY PANEL (shown after signup) ── -->
       <div class="verify-panel" id="verifyPanel">
         <div class="verify-icon">📬</div>
         <div class="card-eyebrow" style="text-align:center;">◈ &nbsp; Verify Your Email</div>
-        <h2 class="card-title" style="text-align:center; font-size:24px; margin-bottom:10px;">Check your inbox</h2>
-        <p class="card-sub" style="text-align:center; margin-bottom:8px;">We sent a verification link to:</p>
+        <h2 class="card-title" style="text-align:center; font-size:24px; margin-bottom:10px;">请查收邮件</h2>
+        <p class="card-sub" style="text-align:center; margin-bottom:8px;">验证链接已发送至:</p>
         <div class="verify-email" id="verifyEmailDisplay"></div>
         <p class="card-sub" style="text-align:center;">Click the link in the email to verify your account, then come back to sign in.</p>
         <div class="verify-note" id="verifyNote">
@@ -345,7 +365,7 @@
         <div class="resend-timer" id="resendTimer"></div>
 
         <div class="card-divider"></div>
-        <p class="card-footer">Already verified? <a href="login.html">Sign in</a></p>
+        <p class="card-footer">Already verified? <a href="login_cn.html">立即登录</a></p>
       </div>
 
     </div>
@@ -354,9 +374,9 @@
   <footer>
     <div class="footer-left">© 2026 Baizora &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
     <div class="footer-links">
-      <a href="assets/privacy.html">Privacy</a>
+      <a href="assets/privacy_cn.html">隐私政策</a>
       <a href="assets/terms.html">Terms</a>
-      <a href="assets/disclaimer.html">Disclaimer</a>
+      <a href="assets/disclaimer_cn.html">免责声明</a>
     </div>
   </footer>
 
@@ -456,7 +476,7 @@
       if (!currentUser) return;
       try {
         await sendEmailVerification(currentUser);
-        document.getElementById("verifyNote").textContent = "Verification email resent! Check your inbox.";
+        document.getElementById("verifyNote").textContent = "Verification email resent! 请查收邮件.";
         startResendCooldown(60);
       } catch(e) {
         document.getElementById("verifyNote").textContent = "Could not resend. Please try again shortly.";

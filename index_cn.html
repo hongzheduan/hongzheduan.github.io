@@ -127,6 +127,7 @@
       letter-spacing: 4px;
       background: linear-gradient(90deg, var(--white), var(--electric-bright));
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
@@ -886,14 +887,14 @@
 <header>
   <a href="./" class="logo-wrap">
     <img src="assets/baize_favicon_v2.png" alt="Baizora">
-    <span class="logo-text" style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;">Baiz<span style="color:#3b82f6;">ora</span></span>
+    <span class="brand-cn">贝佐拉</span>
   </a>
 
   <div class="desktop-nav">
     <a href="index.html" class="nav-btn">English</a>
     <a href="assets/about_cn.html" class="nav-btn">平台简介</a>
     <a href="pricing_cn.html" class="nav-btn">价格方案</a>
-    <a href="signup_cn.html" class="nav-btn">免费注册</a>
+    <a href="signup_cn.html" class="nav-btn" id="navRegisterBtn">免费注册</a>
     <a href="dashboard_cn.html" class="nav-btn" id="navDashBtn" style="display:none;">我的账户</a>
     <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
     <a href="login_cn.html" class="nav-btn nav-btn-primary" id="navLoginLogout">登录</a>
@@ -905,7 +906,7 @@
 </header>
 
 <div class="mobile-drawer" id="mobileDrawer">
-  <a href="assets/about_cn.html">关于</a>
+  <a href="assets/about_cn.html">平台简介</a>
   <div id="mobileAuthLinks"></div>
   <!-- <a href="account_cn.html">订阅管理</a> -->
   <a href="index.html">English</a>
@@ -1185,7 +1186,7 @@
     <a href="assets/privacy_cn.html">隐私政策</a>
     <a href="assets/disclaimer_cn.html">免责声明</a>
     <a href="assets/faq_cn.html">常见问题</a>
-    <a href="assets/about_cn.html">关于我们</a>
+    <a href="assets/about_cn.html">平台简介</a>
   </div>
 </footer>
 
@@ -1259,6 +1260,8 @@
     if (user) {
       if (dashBtn) dashBtn.style.display = 'inline-flex';
       if (emailEl) { emailEl.textContent = user.email; emailEl.style.display = 'inline'; }
+      const regBtn = document.getElementById('navRegisterBtn');
+      if (regBtn) regBtn.style.display = 'none';
       if (btn) {
         btn.textContent = '退出登录';
         btn.style.background = 'transparent';
@@ -1274,6 +1277,8 @@
     } else {
       if (dashBtn) dashBtn.style.display = 'none';
       if (emailEl) { emailEl.textContent = ''; emailEl.style.display = 'none'; }
+      const regBtn2 = document.getElementById('navRegisterBtn');
+      if (regBtn2) regBtn2.style.display = 'inline-block';
       if (btn) {
         btn.textContent = '登录';
         btn.style.background = '';
@@ -1284,7 +1289,7 @@
       }
       mobileLinks.innerHTML =
         '<a href="login_cn.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">登录</a>' +
-        '<a href="signup_cn.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">创建账户</a>';
+        '<a href="signup_cn.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">免费注册</a>';
     }
   });
 
