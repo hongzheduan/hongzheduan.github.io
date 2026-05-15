@@ -893,9 +893,11 @@
     <a href="index_cn.html" class="nav-btn">中文</a>
     <a href="assets/about.html" class="nav-btn">About</a>
     <a href="pricing.html" class="nav-btn">Plans</a>
-    <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
+    <a href="signup.html" class="nav-btn">Register for Free</a>
+    <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">My Account</a>
     <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
     <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign In</a>
+
   </div>
 
   <button class="hamburger" id="hamburger" aria-label="Menu">
@@ -906,9 +908,9 @@
 <div class="mobile-drawer" id="mobileDrawer">
   <a href="assets/about.html">About</a>
   <div id="mobileAuthLinks"></div>
-  <a href="account.html">Manage Subscription</a>
+  <!-- <a href="account.html">Manage Subscription</a> -->
   <a href="index_cn.html">中文</a>
-  <a href="pricing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a>
+  <!-- <a href="pricing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a> -->
 </div>
 
 <!-- ── HERO ── -->
@@ -1267,8 +1269,8 @@
         btn.onclick = function(e) { e.preventDefault(); doLogout(); };
       }
       mobileLinks.innerHTML =
-        '<a href="dashboard.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Dashboard</a>' +
-        '<a href="account.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">My Account</a>' +
+        // '<a href="dashboard.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Dashboard</a>' +
+        '<a href="dashboard.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">My Account</a>' +
         '<a href="#" onclick="doLogout();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">Sign Out</a>';
     } else {
       if (dashBtn) dashBtn.style.display = 'none';
@@ -1283,7 +1285,7 @@
       }
       mobileLinks.innerHTML =
         '<a href="login.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Sign In</a>' +
-        '<a href="signup.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Create Account</a>';
+        '<a href="signup.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Register for Free</a>';
     }
   });
 

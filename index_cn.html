@@ -892,8 +892,9 @@
   <div class="desktop-nav">
     <a href="index.html" class="nav-btn">English</a>
     <a href="assets/about_cn.html" class="nav-btn">平台简介</a>
-    <a href="billing_cn.html" class="nav-btn">价格方案</a>
-    <a href="dashboard_cn.html" class="nav-btn" id="navDashBtn" style="display:none;">您的账户</a>
+    <a href="pricing_cn.html" class="nav-btn">价格方案</a>
+    <a href="signup_cn.html" class="nav-btn">免费注册</a>
+    <a href="dashboard_cn.html" class="nav-btn" id="navDashBtn" style="display:none;">我的账户</a>
     <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
     <a href="login_cn.html" class="nav-btn nav-btn-primary" id="navLoginLogout">登录</a>
   </div>
@@ -906,9 +907,9 @@
 <div class="mobile-drawer" id="mobileDrawer">
   <a href="assets/about_cn.html">关于</a>
   <div id="mobileAuthLinks"></div>
-  <a href="account_cn.html">订阅管理</a>
+  <!-- <a href="account_cn.html">订阅管理</a> -->
   <a href="index.html">English</a>
-  <a href="billing_cn.html" class="mobile-gold">🔥 免费试用 — 7天</a>
+  <!-- <a href="billing_cn.html" class="mobile-gold">🔥 免费试用 — 7天</a> -->
 </div>
 
 <!-- ── HERO ── -->
@@ -1267,8 +1268,8 @@
         btn.onclick = function(e) { e.preventDefault(); doLogout(); };
       }
       mobileLinks.innerHTML =
-        '<a href="dashboard_cn.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">控制台</a>' +
-        '<a href="account_cn.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">我的账户</a>' +
+        // '<a href="dashboard_cn.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">控制台</a>' +
+        '<a href="dashboard_cn.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">我的账户</a>' +
         '<a href="#" onclick="doLogout();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">退出登录</a>';
     } else {
       if (dashBtn) dashBtn.style.display = 'none';
