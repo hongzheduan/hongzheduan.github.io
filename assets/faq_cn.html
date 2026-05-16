@@ -148,8 +148,8 @@
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        免费预览无需注册。您可以直接访问 <a href="../free_cn.html">baizora.com/free</a> 查看精选市场数据。<br><br>
-        解锁完整控制台需要付费订阅——包括500+支标普500和纳斯达克100成分股、所有时间周期（2周至1年）、可排序列及完整基本面数据。
+        免费预览无需注册。您可以直接访问 <a href="../baizora_main_form_free_cn.html">baizora.com/baizora_main_form_free_cn.html</a> 查看精选市场数据。<br><br>
+        解锁完整平台数据需要付费订阅——包括500+支标普500和纳斯达克100成分股、所有时间周期（2周至1年）、可排序列及完整基本面数据。
       </div></div>
     </div>
 
@@ -203,7 +203,7 @@
         每只股票均包含一年价格走势图，带有两个视觉事件标记：<br><br>
         <strong>▲ 三角形</strong> — 标记过去一年成交量最高的交易日。当日价格上涨为绿色，下跌为红色。<br><br>
         <strong>● 圆圈（带光晕）</strong> — 标记过去一年单日最大价格变动日。当日成交量放大为绿色，成交量萎缩为红色。<br><br>
-        这些标记让您无需翻查数据表格，即可即时发现异常活动。悬停控制台中的"年趋势图"列标题可查看提示。
+        这些标记让您无需翻查数据表格，即可即时发现异常活动。悬停列表中的"年趋势图"列标题可查看提示。
       </div></div>
     </div>
 
@@ -216,7 +216,7 @@
         Baizora 支持六个滚动时间周期：<strong>2周、1月、3月、6月、9月和1年</strong>，以及专用的<strong>1天视图</strong>。<br><br>
         <strong>1天视图</strong>显示当日价格变动、成交量变动及其与21日移动均线的比值——快速日常概览。<br><br>
         其他所有周期显示该期间的<strong>总价格变动</strong>，以及窗口内单日最大价格和成交量变动及其发生时间。<br><br>
-        悬停控制台中任意列标题可查看其精确定义。
+        悬停列表中任意列标题可查看其精确定义。
       </div></div>
     </div>
 
@@ -286,7 +286,7 @@
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">我已订阅但无法访问控制台，该怎么办？</span>
+        <span class="q-text">我已订阅但无法访问个人主页，该怎么办？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
@@ -360,9 +360,9 @@
       if(dashBtn) dashBtn.style.display='inline-block';
       if(mLinks) mLinks.innerHTML='<a href="../dashboard_cn.html" style="'+mStyle+'">Dashboard</a><a href="../account_cn.html" style="'+mStyle+'">我的账户</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index.html\');" style="'+mStyle+'color:#fca5a5;">Sign Out</a>';
     } else {
-      if(loginBtn){ loginBtn.textContent='登录'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login.html'; loginBtn.onclick=null; }
+      if(loginBtn){ loginBtn.textContent='登录'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login_cn.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='none';
-      if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a><a href="../signup_cn.html" style="'+mStyle+'">Create Account</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a><a href="../index_cn.html" style="'+mStyle+'">Home</a>';
     }
   });
 </script>
