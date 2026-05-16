@@ -356,7 +356,7 @@
     const dashBtn   = document.getElementById('navDashBtn');
     const mLinks    = document.getElementById('mobileAuthLinks');
     if(user){
-      if(loginBtn){ loginBtn.textContent='退出登录'; loginBtn.className='nav-btn nav-btn-danger'; loginBtn.href='#'; loginBtn.onclick=function(e){e.preventDefault();firebase.auth().signOut().then(()=>{window.location.href='../index_cn.html';});}; }
+      if(loginBtn){ loginBtn.textContent='退出'; loginBtn.className='nav-btn nav-btn-danger'; loginBtn.href='#'; loginBtn.onclick=function(e){e.preventDefault();firebase.auth().signOut().then(()=>{window.location.href='../index_cn.html';});}; }
       if(dashBtn) dashBtn.style.display='inline-block';
       if(mLinks) mLinks.innerHTML='<a href="../dashboard_cn.html" style="'+mStyle+'">Dashboard</a><a href="../account_cn.html" style="'+mStyle+'">我的账户</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index_cn.html\');" style="'+mStyle+'color:#fca5a5;">Sign Out</a>';
     } else {

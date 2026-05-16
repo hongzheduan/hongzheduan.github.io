@@ -356,6 +356,7 @@
     .quick-link-icon { font-size: 16px; }
 
     @media (max-width: 640px) {
+      #headerEmail { display: none !important; }
       header { padding: 0 16px; }
       .header-right .nav-btn, .user-email { display: none; }
       .hamburger { display: flex; }
@@ -375,7 +376,7 @@
     </a>
     <div class="header-right">
       <span class="user-email" id="headerEmail"></span>
-      <a href="account.html" class="nav-btn">Account</a>
+      <!-- <a href="account.html" class="nav-btn">Account</a> -->
       <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ Sign Out</button>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">

@@ -366,6 +366,7 @@
     .quick-link-icon { font-size: 16px; }
 
     @media (max-width: 640px) {
+      #headerEmail { display: none !important; }
       header { padding: 0 16px; }
       .header-right .nav-btn, .user-email { display: none; }
       .hamburger { display: flex; }
@@ -386,7 +387,7 @@
     <div class="header-right">
       <span class="user-email" id="headerEmail"></span>
       <!-- <a href="account_cn.html" class="nav-btn">我的账户</a> -->
-      <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ 退出登录</button>
+      <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ 退出</button>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -397,7 +398,7 @@
   <div class="mobile-drawer" id="mobileDrawer">
     <!-- <a href="account_cn.html">我的账户</a> -->
     <!-- <a href="billing_cn.html">订阅方案</a> -->
-    <button class="m-danger" onclick="doLogout()">↪ 退出登录</button>
+    <button class="m-danger" onclick="doLogout()">↪ 退出</button>
   </div>
 
   <!-- Page -->
