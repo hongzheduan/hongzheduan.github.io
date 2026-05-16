@@ -358,11 +358,11 @@
     if(user){
       if(loginBtn){ loginBtn.textContent='退出登录'; loginBtn.className='nav-btn nav-btn-danger'; loginBtn.href='#'; loginBtn.onclick=function(e){e.preventDefault();firebase.auth().signOut().then(()=>{window.location.href='../index_cn.html';});}; }
       if(dashBtn) dashBtn.style.display='inline-block';
-      if(mLinks) mLinks.innerHTML='<a href="../dashboard_cn.html" style="'+mStyle+'">Dashboard</a><a href="../account_cn.html" style="'+mStyle+'">我的账户</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index.html\');" style="'+mStyle+'color:#fca5a5;">Sign Out</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../dashboard_cn.html" style="'+mStyle+'">Dashboard</a><a href="../account_cn.html" style="'+mStyle+'">我的账户</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index_cn.html\');" style="'+mStyle+'color:#fca5a5;">Sign Out</a>';
     } else {
       if(loginBtn){ loginBtn.textContent='登录'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login_cn.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='none';
-      if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a><a href="../index_cn.html" style="'+mStyle+'">Home</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a><a href="../index_cn.html" style="'+mStyle+'">返回首页</a>';
     }
   });
 </script>
