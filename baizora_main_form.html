@@ -398,17 +398,56 @@
 
     .tt-loading { font-family: 'DM Mono', monospace; font-size: 11px; color: #334155; letter-spacing: 0.08em; text-align: center; padding: 6px 0; }
 
+    /* ── MOBILE HAMBURGER ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 5px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      flex-shrink: 0;
+    }
+    .hamburger span { display: block; width: 18px; height: 2px; background: var(--muted); border-radius: 2px; }
+
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      left: 0; right: 0;
+      background: rgba(6,13,31,0.98);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      z-index: 90;
+      flex-direction: column;
+      padding: 8px;
+      gap: 4px;
+    }
+    .mobile-drawer.open { display: flex; }
+    .mobile-drawer a, .mobile-drawer button {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(59,130,246,0.08); color: var(--white); }
+    .mobile-drawer .m-danger { border-color: rgba(239,68,68,0.2); color: #fca5a5; }
+
     @media (max-width: 640px) {
-      header { padding: 0 12px; gap: 4px; }
-      .header-left { flex-shrink: 1; min-width: 0; gap: 4px; }
-      .header-left img { height: 28px; }
-      .logo-text { font-size: 15px; }
-      .header-divider { display: none; }
-      .tab-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; flex: 1; min-width: 0; }
-      .tab-nav::-webkit-scrollbar { display: none; }
-      .tab-btn { padding: 4px 8px; font-size: 9px; letter-spacing: 0.07em; white-space: nowrap; flex-shrink: 0; }
-      .status-badge { display: none; }
-      .logout-btn { padding: 4px 8px; font-size: 9px; flex-shrink: 0; }
+      header { padding: 0 16px; }
+      .header-divider, .tab-nav, .status-badge, .logout-btn { display: none !important; }
+      .hamburger { display: flex; }
       .toolbar { padding: 0 10px; gap: 6px; overflow-x: auto; }
       .toolbar::-webkit-scrollbar { display: none; }
       .toolbar-label { display: none; }
@@ -446,7 +485,18 @@
         Logout
       </button>
     </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </header>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <button onclick="show('sp500', document.querySelectorAll('.tab-btn')[0]); toggleMenu();">S&P 500</button>
+    <button onclick="show('nasdaq', document.querySelectorAll('.tab-btn')[1]); toggleMenu();">Nasdaq 100</button>
+    <button onclick="show('readme', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">README</button>
+    <button class="m-danger" id="drawerLogout">↪ Logout</button>
+  </div>
 
   <!-- Toolbar — NEW timeframes: 1D 2W 1M 3M 6M 9M 1Y -->
   <div class="toolbar" id="toolbar">
@@ -817,10 +867,24 @@
     }
 
     /* ── LOGOUT ── */
-    document.getElementById("logoutBtn").onclick = async () => {
-      await signOut(auth);
-      window.location.href = "login.html";
+    const doLogout = async () => { await signOut(auth); window.location.href = "login.html"; };
+    document.getElementById("logoutBtn").onclick = doLogout;
+
+    /* ── MOBILE MENU ── */
+    window.toggleMenu = function() {
+      const drawer = document.getElementById("mobileDrawer");
+      const header = document.querySelector("header");
+      drawer.style.top = header.getBoundingClientRect().bottom + "px";
+      drawer.classList.toggle("open");
     };
+    document.getElementById("drawerLogout").onclick = doLogout;
+    document.addEventListener("click", (e) => {
+      const drawer = document.getElementById("mobileDrawer");
+      const btn    = document.getElementById("hamburger");
+      if (drawer.classList.contains("open") && !drawer.contains(e.target) && !btn.contains(e.target)) {
+        drawer.classList.remove("open");
+      }
+    });
 
 
     /* ══════════════════════════════════════════

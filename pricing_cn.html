@@ -451,10 +451,18 @@
 
     .footer-links a:hover { color: var(--electric-bright); }
 
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px 6px; border: 1px solid var(--border); border-radius: 6px; background: transparent; flex-shrink: 0; }
+    .hamburger span { display: block; width: 18px; height: 2px; background: var(--muted); border-radius: 2px; }
+    .mobile-drawer { display: none; position: fixed; left: 0; right: 0; background: rgba(6,13,31,0.98); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); z-index: 190; flex-direction: column; padding: 8px; gap: 4px; }
+    .mobile-drawer.open { display: flex; }
+    .mobile-drawer a, .mobile-drawer button { display: block; width: 100%; padding: 12px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; background: transparent; border: 1px solid transparent; cursor: pointer; text-align: left; transition: all 0.2s; }
+    .mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(59,130,246,0.08); color: var(--white); }
+    .mobile-drawer .m-danger { border-color: rgba(239,68,68,0.2); color: #fca5a5; }
+
     @media (max-width: 768px) {
-      #userEmail { display: none !important; }
       header { padding: 0 16px; }
-      .logo-wrap img { height: 28px; }
+      .header-right { display: none; }
+      .hamburger { display: flex; }
       .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
       footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px 16px; }
       .amount { font-size: 44px; }
@@ -472,12 +480,21 @@
       <img src="assets/baize_favicon_v2.png" alt="Baizora">
       <span class="brand-cn">贝佐拉</span>
     </a>
-    <div style="display:flex; align-items:center; gap:8px;">
+    <div class="header-right" style="display:flex; align-items:center; gap:8px;">
       <span id="userEmail" style="font-family:'DM Mono',monospace; font-size:11px; color:#94a3b8; letter-spacing:0.05em;"></span>
       <a href="login_cn.html" class="nav-btn" id="loginBtn">登录</a>
-      <button class="nav-btn" id="logoutBtn" style="display:none; border-color:rgba(239,68,68,0.3); color:#fca5a5;" onclick="doLogout()">↪ 退出</button>
+      <button class="nav-btn" id="logoutBtn" style="display:none; border-color:rgba(239,68,68,0.3); color:#fca5a5;" onclick="doLogout()">↪ 退出登录</button>
     </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
   </header>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <a href="login_cn.html" id="drawerLoginLink">登录</a>
+    <button class="m-danger" id="drawerLogoutBtn" style="display:none;" onclick="doLogout()">↪ 退出登录</button>
+  </div>
 
   <!-- Main -->
   <div class="container">
@@ -564,17 +581,23 @@
 
     // Show/hide login vs logout based on auth state
     firebase.auth().onAuthStateChanged(user => {
-      const loginBtn  = document.getElementById('loginBtn');
-      const logoutBtn = document.getElementById('logoutBtn');
-      const emailEl   = document.getElementById('userEmail');
+      const loginBtn     = document.getElementById('loginBtn');
+      const logoutBtn    = document.getElementById('logoutBtn');
+      const emailEl      = document.getElementById('userEmail');
+      const drawerLogin  = document.getElementById('drawerLoginLink');
+      const drawerLogout = document.getElementById('drawerLogoutBtn');
       if (user) {
-        loginBtn.style.display  = 'none';
-        logoutBtn.style.display = 'inline-block';
-        emailEl.textContent     = user.email;
+        loginBtn.style.display      = 'none';
+        logoutBtn.style.display     = 'inline-block';
+        emailEl.textContent         = user.email;
+        if (drawerLogin)  drawerLogin.style.display  = 'none';
+        if (drawerLogout) drawerLogout.style.display = 'block';
       } else {
-        loginBtn.style.display  = 'inline-block';
-        logoutBtn.style.display = 'none';
-        emailEl.textContent     = '';
+        loginBtn.style.display      = 'inline-block';
+        logoutBtn.style.display     = 'none';
+        emailEl.textContent         = '';
+        if (drawerLogin)  drawerLogin.style.display  = 'block';
+        if (drawerLogout) drawerLogout.style.display = 'none';
       }
     });
 
@@ -582,6 +605,20 @@
       await firebase.auth().signOut();
       window.location.href = 'login_cn.html';
     }
+
+    function toggleMenu() {
+      const drawer = document.getElementById("mobileDrawer");
+      const header = document.querySelector("header");
+      drawer.style.top = header.getBoundingClientRect().bottom + "px";
+      drawer.classList.toggle("open");
+    }
+    document.addEventListener("click", function(e) {
+      const drawer = document.getElementById("mobileDrawer");
+      const btn    = document.getElementById("hamburger");
+      if (drawer.classList.contains("open") && !drawer.contains(e.target) && !btn.contains(e.target)) {
+        drawer.classList.remove("open");
+      }
+    });
   </script>
 
   <script>

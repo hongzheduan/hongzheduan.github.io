@@ -408,17 +408,56 @@
 
     .tt-loading { font-family: 'DM Mono', monospace; font-size: 11px; color: #334155; letter-spacing: 0.08em; text-align: center; padding: 6px 0; }
 
+    /* ── MOBILE HAMBURGER ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 5px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      flex-shrink: 0;
+    }
+    .hamburger span { display: block; width: 18px; height: 2px; background: var(--muted); border-radius: 2px; }
+
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      left: 0; right: 0;
+      background: rgba(6,13,31,0.98);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      z-index: 90;
+      flex-direction: column;
+      padding: 8px;
+      gap: 4px;
+    }
+    .mobile-drawer.open { display: flex; }
+    .mobile-drawer a, .mobile-drawer button {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(59,130,246,0.08); color: var(--white); }
+    .mobile-drawer .m-danger { border-color: rgba(239,68,68,0.2); color: #fca5a5; }
+
     @media (max-width: 640px) {
-      header { padding: 0 12px; gap: 4px; }
-      .header-left { flex-shrink: 1; min-width: 0; gap: 4px; }
-      .header-left img { height: 28px; }
-      .brand-cn { font-size: 14px; letter-spacing: 2px; }
-      .header-divider { display: none; }
-      .tab-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; flex: 1; min-width: 0; }
-      .tab-nav::-webkit-scrollbar { display: none; }
-      .tab-btn { padding: 4px 8px; font-size: 9px; letter-spacing: 0.07em; white-space: nowrap; flex-shrink: 0; }
-      .status-badge { display: none; }
-      .logout-btn { padding: 4px 8px; font-size: 9px; flex-shrink: 0; }
+      header { padding: 0 16px; }
+      .header-divider, .tab-nav, .status-badge, .logout-btn { display: none !important; }
+      .hamburger { display: flex; }
       .toolbar { padding: 0 10px; gap: 6px; overflow-x: auto; }
       .toolbar::-webkit-scrollbar { display: none; }
       .toolbar-label { display: none; }
@@ -453,10 +492,21 @@
       </div>
       <button class="logout-btn" id="logoutBtn">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        退出
+        退出登录
       </button>
     </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
   </header>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <button onclick="show('sp500', document.querySelectorAll('.tab-btn')[0]); toggleMenu();">标普500</button>
+    <button onclick="show('nasdaq', document.querySelectorAll('.tab-btn')[1]); toggleMenu();">纳斯达克100</button>
+    <button onclick="show('readme', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">指标详释</button>
+    <button class="m-danger" id="drawerLogout">↪ 退出登录</button>
+  </div>
 
   <!-- Toolbar — NEW timeframes: 1D 2W 1M 3M 6M 9M 1Y -->
   <div class="toolbar" id="toolbar">
@@ -826,10 +876,24 @@
     }
 
     /* ── LOGOUT ── */
-    document.getElementById("logoutBtn").onclick = async () => {
-      await signOut(auth);
-      window.location.href = "login_cn.html";
+    const doLogout = async () => { await signOut(auth); window.location.href = "login_cn.html"; };
+    document.getElementById("logoutBtn").onclick = doLogout;
+
+    /* ── MOBILE MENU ── */
+    window.toggleMenu = function() {
+      const drawer = document.getElementById("mobileDrawer");
+      const header = document.querySelector("header");
+      drawer.style.top = header.getBoundingClientRect().bottom + "px";
+      drawer.classList.toggle("open");
     };
+    document.getElementById("drawerLogout").onclick = doLogout;
+    document.addEventListener("click", (e) => {
+      const drawer = document.getElementById("mobileDrawer");
+      const btn    = document.getElementById("hamburger");
+      if (drawer.classList.contains("open") && !drawer.contains(e.target) && !btn.contains(e.target)) {
+        drawer.classList.remove("open");
+      }
+    });
 
 
     /* ══════════════════════════════════════════

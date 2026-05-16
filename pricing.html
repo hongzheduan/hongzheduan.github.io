@@ -316,10 +316,17 @@
     .footer-links a { font-family: 'DM Mono', monospace; font-size: 11px; color: #94a3b8; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
     .footer-links a:hover { color: var(--electric-bright); }
 
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px 6px; border: 1px solid var(--border); border-radius: 6px; background: transparent; flex-shrink: 0; }
+    .hamburger span { display: block; width: 18px; height: 2px; background: var(--muted); border-radius: 2px; }
+    .mobile-drawer { display: none; position: fixed; left: 0; right: 0; background: rgba(6,13,31,0.98); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); z-index: 190; flex-direction: column; padding: 8px; gap: 4px; }
+    .mobile-drawer.open { display: flex; }
+    .mobile-drawer a, .mobile-drawer button { display: block; width: 100%; padding: 12px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; background: transparent; border: 1px solid transparent; cursor: pointer; text-align: left; transition: all 0.2s; }
+    .mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(59,130,246,0.08); color: var(--white); }
+
     @media (max-width: 768px) {
-      #userEmail { display: none !important; }
       header { padding: 0 16px; }
-      .logo-wrap img { height: 28px; }
+      .header-right { display: none; }
+      .hamburger { display: flex; }
       .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
       footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px 16px; }
       .amount { font-size: 44px; }
@@ -340,7 +347,17 @@
       <a href="signup.html" class="nav-btn nav-btn-primary" id="navSignupBtn">Create Account</a>
       <a href="dashboard.html" class="nav-btn nav-btn-primary" id="navDashBtn" style="display:none;">Dashboard</a>
     </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </header>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <a href="login.html" id="drawerLoginLink">Login</a>
+    <a href="signup.html" id="drawerSignupLink">Create Account</a>
+    <a href="dashboard.html" id="drawerDashLink" style="display:none;">Dashboard</a>
+  </div>
 
   <div class="container">
 
@@ -441,11 +458,19 @@
       const yBtn  = document.getElementById('yearlyBtn');
       const yLBtn = document.getElementById('yearlyLoginBtn');
 
+      // Drawer links
+      const dLogin  = document.getElementById('drawerLoginLink');
+      const dSignup = document.getElementById('drawerSignupLink');
+      const dDash   = document.getElementById('drawerDashLink');
+
       if (user) {
         // Logged in — show Dashboard, hide Sign In / Create Account
         loginBtn.style.display  = 'none';
         signupBtn.style.display = 'none';
         dashBtn.style.display   = 'inline-block';
+        if (dLogin)  dLogin.style.display  = 'none';
+        if (dSignup) dSignup.style.display = 'none';
+        if (dDash)   dDash.style.display   = 'block';
 
         // Card buttons: go to billing.html to actually subscribe
         mBtn.textContent = 'Go to Billing';
@@ -462,6 +487,9 @@
         loginBtn.style.display  = 'inline-block';
         signupBtn.style.display = 'inline-block';
         dashBtn.style.display   = 'none';
+        if (dLogin)  dLogin.style.display  = 'block';
+        if (dSignup) dSignup.style.display = 'block';
+        if (dDash)   dDash.style.display   = 'none';
 
         // Card buttons: create account to start
         mBtn.textContent = 'Create Account to Start';
@@ -471,6 +499,20 @@
 
         mLBtn.style.display = 'block';
         yLBtn.style.display = 'block';
+      }
+    });
+
+    function toggleMenu() {
+      const drawer = document.getElementById("mobileDrawer");
+      const header = document.querySelector("header");
+      drawer.style.top = header.getBoundingClientRect().bottom + "px";
+      drawer.classList.toggle("open");
+    }
+    document.addEventListener("click", function(e) {
+      const drawer = document.getElementById("mobileDrawer");
+      const btn    = document.getElementById("hamburger");
+      if (drawer.classList.contains("open") && !drawer.contains(e.target) && !btn.contains(e.target)) {
+        drawer.classList.remove("open");
       }
     });
   </script>
