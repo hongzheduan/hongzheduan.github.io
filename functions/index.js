@@ -92,6 +92,23 @@ async function createCheckout(priceId, email, res) {
     const allSubs = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 20 });
     const hadTrialBefore = allSubs.data.some(s => s.trial_start != null);
 
+    // Block trial if a saved card fingerprint was already used for a trial
+    if (!hadTrialBefore) {
+      const paymentMethods = await stripe.paymentMethods.list({ customer: customerId, type: "card" });
+      for (const pm of paymentMethods.data) {
+        if (pm.card && pm.card.fingerprint) {
+          const fpSnap = await admin.firestore()
+            .collection("usedTrialCards")
+            .where("fingerprint", "==", pm.card.fingerprint)
+            .limit(1)
+            .get();
+          if (!fpSnap.empty) {
+            return res.status(409).json({ error: "This card has already been used for a free trial." });
+          }
+        }
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
@@ -149,6 +166,28 @@ app.post("/webhook", async (req, res) => {
           createdAt:         admin.firestore.FieldValue.serverTimestamp(),
         });
       console.log("Subscription written:", session.subscription, subscription.status);
+
+      // Save card fingerprint for trial subscriptions to prevent reuse across accounts
+      if (subscription.trial_start != null) {
+        const pmId = subscription.default_payment_method;
+        if (pmId) {
+          try {
+            const pm = await stripe.paymentMethods.retrieve(pmId);
+            if (pm.card && pm.card.fingerprint) {
+              await admin.firestore()
+                .collection("usedTrialCards")
+                .add({
+                  fingerprint: pm.card.fingerprint,
+                  email:       customer.email || "",
+                  createdAt:   admin.firestore.FieldValue.serverTimestamp(),
+                });
+              console.log("Saved trial card fingerprint:", pm.card.fingerprint);
+            }
+          } catch (fpErr) {
+            console.error("Failed to save card fingerprint:", fpErr.message);
+          }
+        }
+      }
     } catch (e) {
       console.error("checkout.session.completed error:", e.message);
       return res.json({ received: true, warning: e.message });
