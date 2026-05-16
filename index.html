@@ -896,7 +896,7 @@
     <a href="signup.html" class="nav-btn" id="navRegisterBtn">Register for Free</a>
     <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">My Account</a>
     <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
-    <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign In</a>
+    <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Login</a>
 
   </div>
 
@@ -1185,6 +1185,7 @@
   <div class="footer-links">
     <a href="assets/privacy.html">Privacy</a>
     <a href="assets/disclaimer.html">Disclaimer</a>
+    <a href="assets/terms.html">Terms</a>
     <a href="assets/faq.html">FAQ</a>
     <a href="assets/about.html">About</a>
   </div>
@@ -1280,7 +1281,7 @@
       const regBtn2 = document.getElementById('navRegisterBtn');
       if (regBtn2) regBtn2.style.display = 'inline-block';
       if (btn) {
-        btn.textContent = 'Sign In';
+        btn.textContent = 'Login';
         btn.style.background = '';
         btn.style.borderColor = '';
         btn.style.color = '';
@@ -1288,7 +1289,7 @@
         btn.onclick = null;
       }
       mobileLinks.innerHTML =
-        '<a href="login.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Sign In</a>' +
+        '<a href="login.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Login</a>' +
         '<a href="signup.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Register for Free</a>';
     }
   });

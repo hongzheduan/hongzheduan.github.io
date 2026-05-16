@@ -161,5 +161,24 @@
   function toggleMenu(){const drawer=document.getElementById('mobileDrawer');const header=document.querySelector('header');drawer.style.top=header.getBoundingClientRect().bottom+'px';drawer.classList.toggle('open');}
   document.addEventListener('click',e=>{const drawer=document.getElementById('mobileDrawer');const btn=document.getElementById('hamburgerBtn');if(drawer.classList.contains('open')&&!drawer.contains(e.target)&&!btn.contains(e.target))drawer.classList.remove('open');});
 </script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+      authDomain: "baizora.firebaseapp.com",
+      projectId: "baizora"
+    });
+
+    firebase.auth().onAuthStateChanged(function(user) {
+      const loginBtn = document.querySelector('a[href="../login.html"].nav-btn-primary');
+      const mobileLoginBtn = document.querySelector('.mobile-drawer a[href="../login.html"].primary');
+      if (user) {
+        if (loginBtn) { loginBtn.textContent = 'Dashboard'; loginBtn.href = '../dashboard.html'; }
+        if (mobileLoginBtn) { mobileLoginBtn.textContent = 'Dashboard'; mobileLoginBtn.href = '../dashboard.html'; }
+      }
+    });
+  </script>
 </body>
 </html>

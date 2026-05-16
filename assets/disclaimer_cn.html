@@ -149,7 +149,7 @@
   <div class="footer-left">© 2026 Baizora — 保留所有权利 &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
   <div class="footer-links">
     <a href="privacy_cn.html">隐私政策</a>
-    <!-- <a href="disclaimer_cn.html">免责声明</a> -->
+    <a href="terms_cn.html">服务条款</a>
     <a href="faq_cn.html">常见问题</a>
     <a href="about_cn.html">平台简介</a>
   </div>
@@ -159,5 +159,24 @@
   function toggleMenu(){const drawer=document.getElementById('mobileDrawer');const header=document.querySelector('header');drawer.style.top=header.getBoundingClientRect().bottom+'px';drawer.classList.toggle('open');}
   document.addEventListener('click',e=>{const drawer=document.getElementById('mobileDrawer');const btn=document.getElementById('hamburgerBtn');if(drawer.classList.contains('open')&&!drawer.contains(e.target)&&!btn.contains(e.target))drawer.classList.remove('open');});
 </script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+      authDomain: "baizora.firebaseapp.com",
+      projectId: "baizora"
+    });
+
+    firebase.auth().onAuthStateChanged(function(user) {
+      const loginBtn = document.querySelector('a[href="../login_cn.html"].nav-btn-primary');
+      const mobileLoginBtn = document.querySelector('.mobile-drawer a[href="../login_cn.html"].primary');
+      if (user) {
+        if (loginBtn) { loginBtn.textContent = '个人主页'; loginBtn.href = '../dashboard_cn.html'; }
+        if (mobileLoginBtn) { mobileLoginBtn.textContent = '个人主页'; mobileLoginBtn.href = '../dashboard_cn.html'; }
+      }
+    });
+  </script>
 </body>
 </html>

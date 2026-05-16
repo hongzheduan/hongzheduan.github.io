@@ -109,7 +109,7 @@
     <!-- <a href="../billing.html" class="nav-btn">Plans</a> -->
     <!-- <a href="../index.html" class="nav-btn" id="navDashBtn" style="display:none;">Home</a> -->
     <a href="../index.html" class="nav-btn">Home</a>
-    <a href="../login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign In</a>
+    <a href="../login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Login</a>
   </nav>
   <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -360,7 +360,7 @@
       if(dashBtn) dashBtn.style.display='inline-block';
       if(mLinks) mLinks.innerHTML='<a href="../dashboard.html" style="'+mStyle+'">Dashboard</a><a href="../account.html" style="'+mStyle+'">My Account</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index.html\');" style="'+mStyle+'color:#fca5a5;">Sign Out</a>';
     } else {
-      if(loginBtn){ loginBtn.textContent='Sign In'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login.html'; loginBtn.onclick=null; }
+      if(loginBtn){ loginBtn.textContent='Login'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='none';
       if(mLinks) mLinks.innerHTML='<a href="../login.html" style="'+mStyle+'">Login</a><a href="./" style="'+mStyle+'">Home</a>';
     }

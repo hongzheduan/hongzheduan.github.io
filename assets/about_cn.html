@@ -191,5 +191,24 @@
       drawer.classList.remove('open');
   });
 </script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+      authDomain: "baizora.firebaseapp.com",
+      projectId: "baizora"
+    });
+
+    firebase.auth().onAuthStateChanged(function(user) {
+      const loginBtn = document.querySelector('a[href="../login_cn.html"].nav-btn-primary');
+      const mobileLoginBtn = document.querySelector('.mobile-drawer a[href="../login_cn.html"].primary');
+      if (user) {
+        if (loginBtn) { loginBtn.textContent = '个人主页'; loginBtn.href = '../dashboard_cn.html'; }
+        if (mobileLoginBtn) { mobileLoginBtn.textContent = '个人主页'; mobileLoginBtn.href = '../dashboard_cn.html'; }
+      }
+    });
+  </script>
 </body>
 </html>
