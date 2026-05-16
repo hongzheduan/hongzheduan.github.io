@@ -909,7 +909,7 @@
   <a href="assets/about.html">About</a>
   <div id="mobileAuthLinks"></div>
   <!-- <a href="account.html">Manage Subscription</a> -->
-  <a href="index.html">中文</a>
+  <a href="index_cn.html">中文</a>
   <!-- <a href="pricing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a> -->
 </div>
 
@@ -1304,7 +1304,7 @@
   async function openPortal() {
     try {
       const user = firebase.auth().currentUser;
-      if (!user) { window.location.href = "login_cn.html"; return; }
+      if (!user) { window.location.href = "login.html"; return; }
       const res = await fetch(
         "https://us-central1-baizora.cloudfunctions.net/api/create-portal",
         { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ uid: user.uid }) }

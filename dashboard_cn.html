@@ -368,6 +368,7 @@
     @media (max-width: 640px) {
       #headerEmail { display: none !important; }
       header { padding: 0 16px; }
+      .header-left img { height: 28px; }
       .header-right .nav-btn, .user-email { display: none; }
       .hamburger { display: flex; }
       .page { padding: 28px 16px 60px; }
@@ -514,12 +515,12 @@
         } else {
           text.textContent = "暂无有效订阅";
           // Lock scanner card and show upgrade prompt
-          const scannerCard = document.querySelector('a[href="baizora_main_form.html"]');
+          const scannerCard = document.querySelector('a[href="baizora_main_form_cn.html"]');
           if (scannerCard) {
             scannerCard.classList.add("locked");
             scannerCard.removeAttribute("href");
             const tag = scannerCard.querySelector('.tool-tag');
-            if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ Please choose a plan to view'; }
+            if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ 请选择订阅方案后查看'; }
           }
         }
       } catch(e) {

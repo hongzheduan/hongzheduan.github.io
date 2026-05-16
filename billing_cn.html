@@ -452,9 +452,11 @@
     .footer-links a:hover { color: var(--electric-bright); }
 
     @media (max-width: 768px) {
-      header { padding: 0 20px; }
+      #userEmail { display: none !important; }
+      header { padding: 0 16px; }
+      .logo-wrap img { height: 28px; }
       .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
-      footer { flex-direction: column; gap: 16px; text-align: center; }
+      footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px 16px; }
       .amount { font-size: 44px; }
     }
   </style>

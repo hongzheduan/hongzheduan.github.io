@@ -397,6 +397,25 @@
     .ticker-tooltip .tt-divider { height: 1px; background: var(--border); margin: 4px 0; }
 
     .tt-loading { font-family: 'DM Mono', monospace; font-size: 11px; color: #334155; letter-spacing: 0.08em; text-align: center; padding: 6px 0; }
+
+    @media (max-width: 640px) {
+      header { padding: 0 12px; gap: 4px; }
+      .header-left { flex-shrink: 1; min-width: 0; gap: 4px; }
+      .header-left img { height: 28px; }
+      .logo-text { font-size: 15px; }
+      .header-divider { display: none; }
+      .tab-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; flex: 1; min-width: 0; }
+      .tab-nav::-webkit-scrollbar { display: none; }
+      .tab-btn { padding: 4px 8px; font-size: 9px; letter-spacing: 0.07em; white-space: nowrap; flex-shrink: 0; }
+      .status-badge { display: none; }
+      .logout-btn { padding: 4px 8px; font-size: 9px; flex-shrink: 0; }
+      .toolbar { padding: 0 10px; gap: 6px; overflow-x: auto; }
+      .toolbar::-webkit-scrollbar { display: none; }
+      .toolbar-label { display: none; }
+      .window-btn { padding: 3px 7px; font-size: 10px; white-space: nowrap; }
+      .row-count { font-size: 9px; white-space: nowrap; }
+      #readme { padding: 24px 16px; }
+    }
   </style>
 </head>
 
