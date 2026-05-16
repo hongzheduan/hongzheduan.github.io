@@ -83,21 +83,29 @@ API base: `https://us-central1-baizora.cloudfunctions.net/api/`
 
 ## Branding Rules
 
+### Logo image
+- File: `assets/baize_favicon_v2.png` — used on ALL pages
+- Height: `36px` on all pages (mobile responsive overrides may reduce to 28–32px)
+
 ### EN logo
 ```html
-<span class="logo-text" style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;">
-  Baiz<span style="color:#3b82f6;">ora</span>
-</span>
+<a href="./" class="logo-wrap">
+  <img src="assets/baize_favicon_v2.png" alt="Baizora">
+  <span class="logo-text" style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;">Baiz<span style="color:#3b82f6;">ora</span></span>
+</a>
 ```
 
 ### CN logo (贝佐拉 — ALWAYS use this in all CN pages)
 ```html
-<span class="brand-cn">贝佐拉</span>
+<a href="./" class="logo-wrap">
+  <img src="assets/baize_favicon_v2.png" alt="Baizora">
+  <span class="brand-cn">贝佐拉</span>
+</a>
 ```
 With CSS:
 ```css
 .brand-cn {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 4px;
   background: linear-gradient(90deg, var(--white), var(--electric-bright));
