@@ -117,9 +117,8 @@
 </header>
 
 <div class="mobile-drawer" id="mobileDrawer">
-  <!-- <a href="about_cn.html">关于我们</a> -->
-  <!-- <a href="../billing_cn.html">Plans</a> -->
   <div id="mobileAuthLinks"></div>
+  <a href="../index_cn.html">首页</a>
 </div>
 
 <div class="container">
@@ -411,11 +410,11 @@
     if(user){
       if(loginBtn){ loginBtn.textContent='个人主页'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../dashboard_cn.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='inline-block';
-      if(mLinks) mLinks.innerHTML='<a href="../dashboard_cn.html" style="'+mStyle+'">个人主页</a><a href="../account_cn.html" style="'+mStyle+'">我的账户</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index_cn.html\');" style="'+mStyle+'color:#fca5a5;">退出登录</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../dashboard_cn.html" style="'+mStyle+'">个人主页</a>';
     } else {
       if(loginBtn){ loginBtn.textContent='登录'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login_cn.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='none';
-      if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a><a href="../index_cn.html" style="'+mStyle+'">首页</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a>';
     }
   });
 </script>
