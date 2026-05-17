@@ -281,10 +281,10 @@
       <div class="faq-a"><div class="faq-a-inner">
         Subscribing takes less than a minute:<br><br>
         1. <a href="../signup.html"><strong>Create a free account</strong></a> if you don't have one yet, then verify your email.<br>
-        2. After logging in, you'll be taken directly to the <a href="../billing.html"><strong>subscription page</strong></a>.<br>
+        2. After logging in, you'll be taken directly to the subscription page.<br>
         3. Choose <strong>Monthly ($9.99/month)</strong> or <strong>Yearly ($99/year)</strong> and click the button — you'll be redirected to Stripe's secure checkout to enter your payment details.<br>
         4. Once payment is confirmed, you're in. Full dashboard access starts immediately with a <strong>7-day free trial</strong>.<br><br>
-        Already have an account? Go directly to the <a href="../billing.html">subscription page</a>.
+        <!-- Already have an account? Go directly to the <a href="../billing.html">subscription page</a>.c -->
       </div></div>
     </div>
 
@@ -321,7 +321,7 @@
       </div>
       <div class="faq-a"><div class="faq-a-inner">
         After 7 days, your subscription automatically continues at the rate of the plan you selected ($9.99/month or $99/year). You will be charged via the payment method you provided at signup.<br><br>
-        If you cancel before the trial ends, no charge is made and your access continues until the trial period expires. You can always re-subscribe at any time from the <a href="../billing.html">plans page</a>.
+        If you cancel before the trial ends, no charge is made and your access continues until the trial period expires. You can always re-subscribe at any time from the <a href="../pricing.html">plans page</a>.
       </div></div>
     </div>
 
@@ -410,7 +410,7 @@
     if(user){
       if(loginBtn){ loginBtn.textContent='Dashboard'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../dashboard.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='inline-block';
-      if(mLinks) mLinks.innerHTML='<a href="../dashboard.html" style="'+mStyle+'">Dashboard</a><a href="../account.html" style="'+mStyle+'">My Account</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index.html\');" style="'+mStyle+'color:#fca5a5;">Sign Out</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../dashboard.html" style="'+mStyle+'">Dashboard</a>';
     } else {
       if(loginBtn){ loginBtn.textContent='Login'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='none';

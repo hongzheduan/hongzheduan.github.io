@@ -1138,7 +1138,12 @@
       tickerHideTimer = setTimeout(() => tickerTip.classList.remove("visible"), 80);
     });
 
-
+    document.addEventListener("touchstart", (e) => {
+      if (e.target.closest("th[data-col]")) return;
+      if (e.target.closest("td.ticker-cell")) return;
+      colTip.classList.remove("visible");
+      tickerTip.classList.remove("visible");
+    }, { passive: true });
 
     /* ── Mobile menu ── */
     window.toggleFreeMenu = function() {

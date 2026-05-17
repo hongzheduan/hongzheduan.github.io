@@ -344,6 +344,14 @@
 
     .featured li { color: #cbd5e1; }
 
+    /* CTA */
+    .plan-cta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: auto;
+    }
+
     /* Buttons */
     .plan-btn {
       width: 100%;
@@ -387,6 +395,17 @@
     }
 
     .btn-filled:active, .btn-outline:active { transform: translateY(0); }
+
+    .login-link {
+      display: block;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 13px;
+      text-decoration: none;
+      padding: 4px 0;
+      transition: color 0.2s;
+    }
+    .login-link:hover { color: var(--white); }
 
     .plan-btn:disabled {
       opacity: 0.6;
@@ -482,9 +501,9 @@
       <span class="brand-cn">贝佐拉</span>
     </a>
     <div class="header-right">
-      <span id="userEmail" style="font-family:'DM Mono',monospace; font-size:11px; color:#94a3b8; letter-spacing:0.05em;"></span>
       <a href="login_cn.html" class="nav-btn" id="loginBtn">登录</a>
-      <button class="nav-btn" id="logoutBtn" style="display:none; border-color:rgba(239,68,68,0.3); color:#fca5a5;" onclick="doLogout()">↪ 退出登录</button>
+      <a href="signup_cn.html" class="nav-btn nav-btn-primary" id="signupBtn">免费注册</a>
+      <a href="dashboard_cn.html" class="nav-btn nav-btn-primary" id="dashBtn" style="display:none;">控制台</a>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="菜单">
       <span></span><span></span><span></span>
@@ -494,7 +513,8 @@
   <!-- Mobile drawer -->
   <div class="mobile-drawer" id="mobileDrawer">
     <a href="login_cn.html" id="drawerLoginLink">登录</a>
-    <button class="m-danger" id="drawerLogoutBtn" style="display:none;" onclick="doLogout()">↪ 退出登录</button>
+    <a href="signup_cn.html" id="drawerSignupLink">免费注册</a>
+    <a href="dashboard_cn.html" id="drawerDashLink" style="display:none;">控制台</a>
   </div>
 
   <!-- Main -->
@@ -522,10 +542,12 @@
           <li><span class="check">◆</span> 多周期分析窗口</li>
           <li><span class="check">◆</span> 量价行为指标</li>
         </ul>
-        <button class="plan-btn btn-outline" onclick="startCheckout('monthly', this)">
-          <span class="btn-label">立即开通</span>
-          <div class="spinner"></div>
-        </button>
+        <div class="plan-cta">
+          <a href="signup_cn.html" class="plan-btn btn-filled" id="monthlyBtn">
+            免费注册
+          </a>
+          <a href="login_cn.html" class="login-link" id="monthlyLoginBtn">已有账户？登录</a>
+        </div>
       </div>
 
       <!-- Yearly -->
@@ -545,10 +567,12 @@
           <li><span class="check">◆</span> 优先功能更新</li>
           <li><span class="check">◆</span> 稳定持续访问</li>
         </ul>
-        <button class="plan-btn btn-filled" onclick="startCheckout('yearly', this)">
-          <span class="btn-label">立即开通</span>
-          <div class="spinner"></div>
-        </button>
+        <div class="plan-cta">
+          <a href="signup_cn.html" class="plan-btn btn-filled" id="yearlyBtn">
+            免费注册
+          </a>
+          <a href="login_cn.html" class="login-link" id="yearlyLoginBtn">已有账户？登录</a>
+        </div>
       </div>
 
     </div>
@@ -581,32 +605,52 @@
       projectId: "baizora"
     });
 
-    // Show/hide login vs logout based on auth state
-    firebase.auth().onAuthStateChanged(user => {
-      const loginBtn     = document.getElementById('loginBtn');
-      const logoutBtn    = document.getElementById('logoutBtn');
-      const emailEl      = document.getElementById('userEmail');
-      const drawerLogin  = document.getElementById('drawerLoginLink');
-      const drawerLogout = document.getElementById('drawerLogoutBtn');
+    firebase.auth().onAuthStateChanged(function(user) {
+      const loginBtn  = document.getElementById('loginBtn');
+      const signupBtn = document.getElementById('signupBtn');
+      const dashBtn   = document.getElementById('dashBtn');
+
+      const mBtn  = document.getElementById('monthlyBtn');
+      const mLBtn = document.getElementById('monthlyLoginBtn');
+      const yBtn  = document.getElementById('yearlyBtn');
+      const yLBtn = document.getElementById('yearlyLoginBtn');
+
+      const dLogin  = document.getElementById('drawerLoginLink');
+      const dSignup = document.getElementById('drawerSignupLink');
+      const dDash   = document.getElementById('drawerDashLink');
+
       if (user) {
-        loginBtn.style.display      = 'none';
-        logoutBtn.style.display     = 'inline-block';
-        emailEl.textContent         = user.email;
-        if (drawerLogin)  drawerLogin.style.display  = 'none';
-        if (drawerLogout) drawerLogout.style.display = 'block';
+        loginBtn.style.display  = 'none';
+        signupBtn.style.display = 'none';
+        dashBtn.style.display   = 'inline-block';
+        if (dLogin)  dLogin.style.display  = 'none';
+        if (dSignup) dSignup.style.display = 'none';
+        if (dDash)   dDash.style.display   = 'block';
+
+        mBtn.textContent = '立即开通';
+        mBtn.href = 'billing_cn.html';
+        yBtn.textContent = '立即开通';
+        yBtn.href = 'billing_cn.html';
+
+        mLBtn.style.display = 'none';
+        yLBtn.style.display = 'none';
       } else {
-        loginBtn.style.display      = 'inline-block';
-        logoutBtn.style.display     = 'none';
-        emailEl.textContent         = '';
-        if (drawerLogin)  drawerLogin.style.display  = 'block';
-        if (drawerLogout) drawerLogout.style.display = 'none';
+        loginBtn.style.display  = 'inline-block';
+        signupBtn.style.display = 'inline-block';
+        dashBtn.style.display   = 'none';
+        if (dLogin)  dLogin.style.display  = 'block';
+        if (dSignup) dSignup.style.display = 'block';
+        if (dDash)   dDash.style.display   = 'none';
+
+        mBtn.textContent = '免费注册';
+        mBtn.href = 'signup_cn.html';
+        yBtn.textContent = '免费注册';
+        yBtn.href = 'signup_cn.html';
+
+        mLBtn.style.display = 'block';
+        yLBtn.style.display = 'block';
       }
     });
-
-    async function doLogout() {
-      await firebase.auth().signOut();
-      window.location.href = 'login_cn.html';
-    }
 
     function toggleMenu() {
       const drawer = document.getElementById("mobileDrawer");
@@ -623,66 +667,6 @@
     });
   </script>
 
-  <script>
-    const API_URL = "https://us-central1-baizora.cloudfunctions.net/api";
-
-    async function startCheckout(plan, btn) {
-      const label = btn.querySelector('.btn-label');
-      const spinner = btn.querySelector('.spinner');
-
-      label.style.display = 'none';
-      spinner.style.display = 'block';
-      btn.disabled = true;
-
-      try {
-        // Get current user email — wait for auth state, fallback to prompt
-        const user = await new Promise(resolve => {
-          const unsub = firebase.auth().onAuthStateChanged(u => { unsub(); resolve(u); });
-        });
-        let email = user ? user.email : null;
-
-        // If not logged in, ask for email so Stripe can still find/create customer
-        if (!email) {
-          email = prompt("请输入您的邮箱地址 / Please enter your email:");
-          if (!email || !email.includes("@")) {
-            label.style.display = 'flex';
-            spinner.style.display = 'none';
-            btn.disabled = false;
-            alert("请输入有效的邮箱地址。");
-            return;
-          }
-        }
-
-        const res = await fetch(`${API_URL}/create-${plan}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email })
-        });
-
-        const data = await res.json();
-
-        // Already subscribed — redirect to home instead of double-charging
-        if (res.status === 409 && data.error === "already_subscribed") {
-          alert("您已有有效订阅，无需重复订阅。");
-          window.location.href = "index_cn.html";
-          return;
-        }
-
-        if (!data.url) {
-          throw new Error(data.error || "支付会话失败，请重试。");
-        }
-
-        window.location.href = data.url;
-
-      } catch (err) {
-        console.error(err);
-        label.style.display = 'flex';
-        spinner.style.display = 'none';
-        btn.disabled = false;
-        alert(err.message || "网络错误，请重试。");
-      }
-    }
-  </script>
 
 </body>
 </html>
