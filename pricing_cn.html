@@ -451,6 +451,7 @@
 
     .footer-links a:hover { color: var(--electric-bright); }
 
+    .header-right { display: flex; align-items: center; gap: 8px; }
     .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px 6px; border: 1px solid var(--border); border-radius: 6px; background: transparent; flex-shrink: 0; }
     .hamburger span { display: block; width: 18px; height: 2px; background: var(--muted); border-radius: 2px; }
     .mobile-drawer { display: none; position: fixed; left: 0; right: 0; background: rgba(6,13,31,0.98); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); z-index: 190; flex-direction: column; padding: 8px; gap: 4px; }
@@ -480,7 +481,7 @@
       <img src="assets/baize_favicon_v2.png" alt="Baizora">
       <span class="brand-cn">贝佐拉</span>
     </a>
-    <div class="header-right" style="display:flex; align-items:center; gap:8px;">
+    <div class="header-right">
       <span id="userEmail" style="font-family:'DM Mono',monospace; font-size:11px; color:#94a3b8; letter-spacing:0.05em;"></span>
       <a href="login_cn.html" class="nav-btn" id="loginBtn">登录</a>
       <button class="nav-btn" id="logoutBtn" style="display:none; border-color:rgba(239,68,68,0.3); color:#fca5a5;" onclick="doLogout()">↪ 退出登录</button>
@@ -567,6 +568,7 @@
       <a href="assets/terms_cn.html">服务条款</a>
       <a href="assets/disclaimer_cn.html">免责声明</a>
       <a href="assets/faq_cn.html">常见问题</a>
+
     </div>
   </footer>
 

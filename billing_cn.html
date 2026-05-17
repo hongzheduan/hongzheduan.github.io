@@ -459,6 +459,8 @@
     .mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(59,130,246,0.08); color: var(--white); }
     .mobile-drawer .m-danger { border-color: rgba(239,68,68,0.2); color: #fca5a5; }
 
+    .header-right { display: flex; align-items: center; gap: 8px; }
+
     @media (max-width: 768px) {
       header { padding: 0 16px; }
       .header-right { display: none; }
@@ -480,10 +482,10 @@
       <img src="assets/baize_favicon_v2.png" alt="Baizora">
       <span class="brand-cn">贝佐拉</span>
     </a>
-    <div class="header-right" style="display:flex; align-items:center; gap:8px;">
-      <span id="userEmail" style="font-family:'DM Mono',monospace; font-size:11px; color:#94a3b8; letter-spacing:0.05em;"></span>
+    <div class="header-right">
+      <a href="index_cn.html" class="nav-btn">首页</a>
       <a href="login_cn.html" class="nav-btn" id="loginBtn">登录</a>
-      <button class="nav-btn" id="logoutBtn" style="display:none; border-color:rgba(239,68,68,0.3); color:#fca5a5;" onclick="doLogout()">↪ 退出登录</button>
+      <a href="dashboard_cn.html" class="nav-btn nav-btn-primary" id="dashBtn" style="display:none;">个人主页</a>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="菜单">
       <span></span><span></span><span></span>
@@ -492,8 +494,9 @@
 
   <!-- Mobile drawer -->
   <div class="mobile-drawer" id="mobileDrawer">
+    <a href="index_cn.html">首页</a>
     <a href="login_cn.html" id="drawerLoginLink">登录</a>
-    <button class="m-danger" id="drawerLogoutBtn" style="display:none;" onclick="doLogout()">↪ 退出登录</button>
+    <a href="dashboard_cn.html" id="drawerDashBtn" style="display:none;">个人主页</a>
   </div>
 
   <!-- Main -->
@@ -567,6 +570,7 @@
       <a href="assets/terms_cn.html">服务条款</a>
       <a href="assets/disclaimer_cn.html">免责声明</a>
       <a href="assets/faq_cn.html">常见问题</a>
+
     </div>
   </footer>
 
@@ -579,32 +583,24 @@
       projectId: "baizora"
     });
 
-    // Show/hide login vs logout based on auth state
+    // Show Dashboard when logged in, Login when logged out
     firebase.auth().onAuthStateChanged(user => {
-      const loginBtn     = document.getElementById('loginBtn');
-      const logoutBtn    = document.getElementById('logoutBtn');
-      const emailEl      = document.getElementById('userEmail');
-      const drawerLogin  = document.getElementById('drawerLoginLink');
-      const drawerLogout = document.getElementById('drawerLogoutBtn');
+      const loginBtn    = document.getElementById('loginBtn');
+      const dashBtn     = document.getElementById('dashBtn');
+      const drawerLogin = document.getElementById('drawerLoginLink');
+      const drawerDash  = document.getElementById('drawerDashBtn');
       if (user) {
-        loginBtn.style.display      = 'none';
-        logoutBtn.style.display     = 'inline-block';
-        emailEl.textContent         = user.email;
-        if (drawerLogin)  drawerLogin.style.display  = 'none';
-        if (drawerLogout) drawerLogout.style.display = 'block';
+        loginBtn.style.display  = 'none';
+        dashBtn.style.display   = 'inline-block';
+        if (drawerLogin) drawerLogin.style.display = 'none';
+        if (drawerDash)  drawerDash.style.display  = 'block';
       } else {
-        loginBtn.style.display      = 'inline-block';
-        logoutBtn.style.display     = 'none';
-        emailEl.textContent         = '';
-        if (drawerLogin)  drawerLogin.style.display  = 'block';
-        if (drawerLogout) drawerLogout.style.display = 'none';
+        loginBtn.style.display  = 'inline-block';
+        dashBtn.style.display   = 'none';
+        if (drawerLogin) drawerLogin.style.display = 'block';
+        if (drawerDash)  drawerDash.style.display  = 'none';
       }
     });
-
-    async function doLogout() {
-      await firebase.auth().signOut();
-      window.location.href = 'login_cn.html';
-    }
 
     function toggleMenu() {
       const drawer = document.getElementById("mobileDrawer");

@@ -415,7 +415,7 @@
         <div class="tool-tag tag-live">● Live</div>
       </a>
 
-      <a href="free.html" class="tool-card">
+      <a href="baizora_main_form_free.html" class="tool-card">
         <div class="tool-icon">⬡</div>
         <div class="tool-name">Free Preview</div>
         <div class="tool-desc">Top 3 movers from today's data — no login required. Share with anyone.</div>
@@ -426,13 +426,6 @@
         <div class="tool-icon">⟁</div>
         <div class="tool-name">Sector Heatmap</div>
         <div class="tool-desc">Visual breakdown of price and volume anomalies by sector, updated daily.</div>
-        <div class="tool-tag tag-soon">Coming Soon</div>
-      </div>
-
-      <div class="tool-card locked">
-        <div class="tool-icon">◷</div>
-        <div class="tool-name">Signal History</div>
-        <div class="tool-desc">Browse historical daily snapshots. See how signals evolved over time for any ticker.</div>
         <div class="tool-tag tag-soon">Coming Soon</div>
       </div>
 
@@ -450,7 +443,7 @@
       <a href="index.html" class="quick-link">
         <span class="quick-link-icon">🏠</span> Homepage
       </a>
-      <a href="free.html" class="quick-link">
+      <a href="baizora_main_form_free.html" class="quick-link">
         <span class="quick-link-icon">👁</span> Free Preview
       </a>
       <a href="assets/faq.html" class="quick-link">
@@ -480,7 +473,8 @@
 
       // Greeting
       const name = user.email.split("@")[0];
-      document.getElementById("nameGreeting").textContent = ", " + name;
+      const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+      document.getElementById("nameGreeting").textContent = ", " + displayName;
 
       // Fetch subscription status
       const pill = document.getElementById("statusPill");

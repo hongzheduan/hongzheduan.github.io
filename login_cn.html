@@ -104,6 +104,24 @@
 
     .logo-text span { color: var(--electric); }
 
+    .home-btn {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 20;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .home-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--white); background: rgba(59,130,246,0.08); }
+
     .card {
       position: relative;
       z-index: 10;
@@ -368,6 +386,7 @@
     <img src="assets/baize_favicon_v2.png" alt="Baizora">
     <span class="brand-cn">贝佐拉</span>
   </a>
+  <a href="./" class="home-btn">首页</a>
 
   <div class="card">
     <div class="card-eyebrow">◈ &nbsp; 安全登录</div>
@@ -504,10 +523,8 @@
         }
 
         // ── Redirect based on status ──
-        // "trialing" counts as active access
-        // Always go to dashboard — it handles subscription state
-        // (inactive users see locked tools with a "choose a plan" prompt)
-        window.location.href = "dashboard_cn.html";
+        const isActive = subscriptionStatus === "active" || subscriptionStatus === "trialing";
+        window.location.href = isActive ? "dashboard_cn.html" : "billing_cn.html";
 
       } catch (e) {
         console.error(e);

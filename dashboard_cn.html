@@ -387,7 +387,7 @@
     <div class="header-right">
       <span class="user-email" id="headerEmail"></span>
       <!-- <a href="account_cn.html" class="nav-btn">我的账户</a> -->
-      <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ 退出</button>
+      <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ 退出登录</button>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -398,7 +398,7 @@
   <div class="mobile-drawer" id="mobileDrawer">
     <!-- <a href="account_cn.html">我的账户</a> -->
     <!-- <a href="billing_cn.html">订阅方案</a> -->
-    <button class="m-danger" onclick="doLogout()">↪ 退出</button>
+    <button class="m-danger" onclick="doLogout()">↪ 退出登录</button>
   </div>
 
   <!-- Page -->
@@ -439,13 +439,6 @@
         <div class="tool-tag tag-soon">即将上线</div>
       </div>
 
-      <div class="tool-card locked">
-        <div class="tool-icon">◷</div>
-        <div class="tool-name">信号历史</div>
-        <div class="tool-desc">浏览历史每日快照，查看任意股票信号随时间的变化轨迹。</div>
-        <div class="tool-tag tag-soon">即将上线</div>
-      </div>
-
     </div>
 
     <!-- ── ACCOUNT ── -->
@@ -455,7 +448,7 @@
         <span class="quick-link-icon">👤</span> 我的账户
       </a>
       <a href="billing_cn.html" class="quick-link">
-        <span class="quick-link-icon">💳</span> 订阅方案
+        <span class="quick-link-icon">💳</span> 价格方案
       </a>
       <a href="index_cn.html" class="quick-link">
         <span class="quick-link-icon">🏠</span> 首页
@@ -490,7 +483,8 @@
 
       // Greeting
       const name = user.email.split("@")[0];
-      document.getElementById("nameGreeting").textContent = ", " + name;
+      const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+      document.getElementById("nameGreeting").textContent = ", " + displayName;
 
       // Fetch subscription status
       const pill = document.getElementById("statusPill");

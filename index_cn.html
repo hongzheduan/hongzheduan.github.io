@@ -671,8 +671,7 @@
       font-size: 9px;
     }
 
-    .dash-logo-text { font-family: 'DM Serif Display', serif; font-size: 13px; color: #ffffff; letter-spacing: -0.01em; }
-    .dash-logo-text span { color: #60a5fa; }
+    .dash-logo-text { font-family: 'DM Serif Display', serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(90deg, #ffffff, #60a5fa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
     .dash-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.1); margin: 0 4px; }
     .dash-tabs { display: flex; gap: 4px; }
 
@@ -893,7 +892,7 @@
   <div class="desktop-nav">
     <a href="index.html" class="nav-btn">English</a>
     <a href="assets/about_cn.html" class="nav-btn">平台简介</a>
-    <a href="pricing_cn.html" class="nav-btn">订阅方案</a>
+    <a href="pricing_cn.html" class="nav-btn">价格方案</a>
     <a href="signup_cn.html" class="nav-btn" id="navRegisterBtn">免费注册</a>
     <a href="dashboard_cn.html" class="nav-btn" id="navDashBtn" style="display:none;">个人主页</a>
     <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
@@ -952,7 +951,7 @@
         </div>
         <div class="fact-item">
           <div class="fact-num">2<span class="accent">×</span></div>
-          <div class="fact-label">订阅方案</div>
+          <div class="fact-label">价格方案</div>
         </div>
       </div>
     </div><!-- /hero-left -->
@@ -966,12 +965,12 @@
         <div class="dash-header">
           <div class="dash-logo">
             <div class="dash-logo-dot">⬡</div>
-            <span class="dash-logo-text">Baiz<span>ora</span></span>
+            <span class="dash-logo-text">贝佐拉</span>
           </div>
           <div class="dash-divider"></div>
           <div class="dash-tabs">
-            <span class="dash-tab active">S&amp;P 500</span>
-            <span class="dash-tab">NASDAQ 100</span>
+            <span class="dash-tab active">标普500</span>
+            <span class="dash-tab">纳斯达克100</span>
           </div>
         </div>
 
@@ -1184,10 +1183,9 @@
   <div class="footer-left">© 2026 Baizora — 保留所有权利 &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
   <div class="footer-links">
     <a href="assets/privacy_cn.html">隐私政策</a>
+    <a href="assets/terms_cn.html">服务条款</a>
     <a href="assets/disclaimer_cn.html">免责声明</a>
-    <a href="assets/terms_cn.html">服务条款</a>   
     <a href="assets/faq_cn.html">常见问题</a>
-    <a href="assets/about_cn.html">平台简介</a>
   </div>
 </footer>
 
@@ -1264,7 +1262,7 @@
       const regBtn = document.getElementById('navRegisterBtn');
       if (regBtn) regBtn.style.display = 'none';
       if (btn) {
-        btn.textContent = '退出';
+        btn.textContent = '退出登录';
         btn.style.background = 'transparent';
         btn.style.borderColor = 'rgba(239,68,68,0.3)';
         btn.style.color = '#fca5a5';
@@ -1274,7 +1272,7 @@
       mobileLinks.innerHTML =
         // '<a href="dashboard_cn.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">个人主页</a>' +
         '<a href="dashboard_cn.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">个人主页</a>' +
-        '<a href="#" onclick="doLogout();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">退出</a>';
+        '<a href="#" onclick="doLogout();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">退出登录</a>';
     } else {
       if (dashBtn) dashBtn.style.display = 'none';
       if (emailEl) { emailEl.textContent = ''; emailEl.style.display = 'none'; }

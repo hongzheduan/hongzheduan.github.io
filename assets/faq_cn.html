@@ -108,7 +108,7 @@
   <nav>
     <!-- <a href="about_cn.html" class="nav-btn">关于我们</a> -->
     <!-- <a href="../billing_cn.html" class="nav-btn">Plans</a> -->
-    <a href="../index_cn.html" class="nav-btn" id="navDashBtn" style="display:none;">返回首页</a>
+    <a href="../index_cn.html" class="nav-btn" id="navDashBtn" style="display:none;">首页</a>
     <a href="../login_cn.html" class="nav-btn nav-btn-primary" id="navLoginLogout">登录</a>
   </nav>
   <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">
@@ -162,6 +162,33 @@
         点击首页的<strong>登录</strong>，然后在登录页面点击<strong>免费注册</strong>。输入您的邮箱和密码（至少6位，包含至少一个大写字母和一个数字）。<br><br>
         注册后，我们会向您的邮箱发送一封<strong>验证邮件</strong>。您必须点击邮件中的链接才能登录，以确保账户安全和邮箱有效。
         <div class="highlight">✓ 如未收到，请检查垃圾邮件文件夹</div>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">如何进入个人主页？</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        拥有有效订阅后，可通过以下方式进入个人主页：<br><br>
+        — <strong>登录后</strong> — 有效订阅用户将直接跳转至个人主页。<br>
+        — <strong>任意页面</strong> — 登录状态下点击右上角导航栏中的<strong>个人主页</strong>按钮。<br>
+        — <strong>直接访问</strong> — <a href="../dashboard_cn.html">baizora.com/dashboard</a><br><br>
+        个人主页提供两个工具：<strong>完整扫描器</strong>（500+支股票，全部时间周期）和<strong>免费预览</strong>（前3大涨幅股票，无需登录，可分享给任何人）。
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">登录后会跳转到哪里？</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        登录时，贝佐拉会自动检查您的订阅状态并相应跳转：<br><br>
+        <strong>有效订阅用户</strong> → 直接进入个人主页，所有功能即时可用。<br>
+        <strong>新用户或未订阅用户</strong> → 跳转至订阅页面，选择方案即可开始。<br><br>
+        这样新用户登录后直接到达所需页面——距离开启免费试用只需一步，无需自行寻找订阅入口。
       </div></div>
     </div>
 
@@ -249,6 +276,21 @@
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">如何订阅方案？</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        订阅只需不到一分钟：<br><br>
+        1. 如尚未注册，请先<a href="../signup_cn.html"><strong>创建免费账户</strong></a>并验证邮箱。<br>
+        2. 登录后，您将直接跳转至<a href="../billing_cn.html"><strong>订阅页面</strong></a>。<br>
+        3. 选择<strong>月付（$9.99/月）</strong>或<strong>年付（$99/年）</strong>并点击按钮——您将跳转至 Stripe 安全结账页面填写支付信息。<br>
+        4. 支付确认后即可使用，完整个人主页访问权限立即生效，并享有 <strong>7天免费试用</strong>。<br><br>
+        已有账户？直接前往<a href="../billing_cn.html">订阅页面</a>即可。
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
         <span class="q-text">如何管理或取消我的订阅？</span>
         <span class="q-icon">+</span>
       </div>
@@ -286,12 +328,14 @@
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">我可以用同一张信用卡注册第二次免费试用吗？</span>
+        <span class="q-text">我可以用相同的邮箱或信用卡再次获得免费试用吗？</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        不可以。<strong>每张信用卡只能用于一次免费试用注册。</strong>如果一张卡已被用于开启过试用——无论是在同一账户还是不同账户——将不再享有试用资格。<br><br>
-        此政策旨在确保免费试用仅对真正的新用户公平开放。使用已用过的信用卡重新订阅将直接开始付费订阅，不含试用期。
+        不可以——免费试用同时受邮箱地址和信用卡双重限制：<br><br>
+        <strong>相同邮箱：</strong>每个邮箱地址仅限一次免费试用。取消后以相同邮箱重新订阅将立即开始付费订阅，不含试用期。<br><br>
+        <strong>相同信用卡：</strong>每张信用卡无论在哪个账户上使用过，均只能开启一次免费试用。已使用过的信用卡重新订阅将直接开始付费，不含试用期。<br><br>
+        此政策旨在确保免费试用仅对真正的新用户公平开放。
       </div></div>
     </div>
 
@@ -332,8 +376,6 @@
     <a href="privacy_cn.html">隐私政策</a>
     <a href="terms_cn.html">服务条款</a>
     <a href="disclaimer_cn.html">免责声明</a>
-    <!-- <a href="faq_cn.html">常见问题</a> -->
-    <a href="about_cn.html">平台简介</a>
   </div>
 </footer>
 
@@ -367,13 +409,13 @@
     const dashBtn   = document.getElementById('navDashBtn');
     const mLinks    = document.getElementById('mobileAuthLinks');
     if(user){
-      if(loginBtn){ loginBtn.textContent='退出'; loginBtn.className='nav-btn nav-btn-danger'; loginBtn.href='#'; loginBtn.onclick=function(e){e.preventDefault();firebase.auth().signOut().then(()=>{window.location.href='../index_cn.html';});}; }
+      if(loginBtn){ loginBtn.textContent='个人主页'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../dashboard_cn.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='inline-block';
-      if(mLinks) mLinks.innerHTML='<a href="../dashboard_cn.html" style="'+mStyle+'">Dashboard</a><a href="../account_cn.html" style="'+mStyle+'">我的账户</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index_cn.html\');" style="'+mStyle+'color:#fca5a5;">Sign Out</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../dashboard_cn.html" style="'+mStyle+'">个人主页</a><a href="../account_cn.html" style="'+mStyle+'">我的账户</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index_cn.html\');" style="'+mStyle+'color:#fca5a5;">退出登录</a>';
     } else {
       if(loginBtn){ loginBtn.textContent='登录'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login_cn.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='none';
-      if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a><a href="../index_cn.html" style="'+mStyle+'">返回首页</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a><a href="../index_cn.html" style="'+mStyle+'">首页</a>';
     }
   });
 </script>

@@ -167,6 +167,33 @@
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">How do I access my dashboard?</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        Once you have an active subscription, your dashboard is accessible in several ways:<br><br>
+        — <strong>After logging in</strong> — active subscribers are taken directly to the dashboard.<br>
+        — <strong>From any page</strong> — click the <strong>Dashboard</strong> button in the top-right navigation when signed in.<br>
+        — <strong>Direct link</strong> — <a href="../dashboard.html">baizora.com/dashboard</a><br><br>
+        The dashboard shows two tools: the <strong>full scanner</strong> (all 500+ symbols, all timeframes) and a <strong>free preview</strong> (top 3 movers, no login required, shareable with anyone).
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">Where do I go after logging in?</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        When you sign in, Baizora automatically checks your subscription status and routes you accordingly:<br><br>
+        <strong>Active subscriber</strong> → taken directly to your Dashboard, where all tools are available.<br>
+        <strong>New or unsubscribed user</strong> → taken to the subscription page to choose a plan and get started.<br><br>
+        This means new users land exactly where they need to be — one click from starting their free trial — without having to hunt for the billing page themselves.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
         <span class="q-text">How does the 7-day free trial work?</span>
         <span class="q-icon">+</span>
       </div>
@@ -249,6 +276,21 @@
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">How do I subscribe to a plan?</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        Subscribing takes less than a minute:<br><br>
+        1. <a href="../signup.html"><strong>Create a free account</strong></a> if you don't have one yet, then verify your email.<br>
+        2. After logging in, you'll be taken directly to the <a href="../billing.html"><strong>subscription page</strong></a>.<br>
+        3. Choose <strong>Monthly ($9.99/month)</strong> or <strong>Yearly ($99/year)</strong> and click the button — you'll be redirected to Stripe's secure checkout to enter your payment details.<br>
+        4. Once payment is confirmed, you're in. Full dashboard access starts immediately with a <strong>7-day free trial</strong>.<br><br>
+        Already have an account? Go directly to the <a href="../billing.html">subscription page</a>.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
         <span class="q-text">How do I manage or cancel my subscription?</span>
         <span class="q-icon">+</span>
       </div>
@@ -286,12 +328,14 @@
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">Can I use the same credit card to sign up for a second free trial?</span>
+        <span class="q-text">Can I use the same email address or credit card to get another free trial?</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        No. <strong>Each credit card can only be used once to start a free trial.</strong> If a card has already been used to sign up for a trial — whether on the same account or a different one — it will not be eligible for another trial period.<br><br>
-        This policy exists to ensure the free trial is fairly available to genuine new users. Re-subscribing with a previously used card will begin a paid subscription immediately with no trial.
+        No — the free trial is limited by both email address and credit card:<br><br>
+        <strong>Same email:</strong> Each email address is eligible for one free trial only. Re-subscribing with the same email after cancellation starts a paid subscription immediately with no trial period.<br><br>
+        <strong>Same credit card:</strong> Each card can only be used once to start a free trial, regardless of which account it was used on. A previously used card will begin a paid subscription immediately with no trial.<br><br>
+        This policy ensures the free trial remains fairly available to genuine new users.
       </div></div>
     </div>
 
@@ -332,8 +376,6 @@
     <a href="privacy.html">Privacy</a>
     <a href="terms.html">Terms</a>
     <a href="disclaimer.html">Disclaimer</a>
-    <!-- <a href="faq.html">FAQ</a> -->
-    <a href="about.html">About</a>
   </div>
 </footer>
 
@@ -367,7 +409,7 @@
     const dashBtn   = document.getElementById('navDashBtn');
     const mLinks    = document.getElementById('mobileAuthLinks');
     if(user){
-      if(loginBtn){ loginBtn.textContent='Sign Out'; loginBtn.className='nav-btn nav-btn-danger'; loginBtn.href='#'; loginBtn.onclick=function(e){e.preventDefault();firebase.auth().signOut().then(()=>{window.location.href='../index.html';});}; }
+      if(loginBtn){ loginBtn.textContent='Dashboard'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../dashboard.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='inline-block';
       if(mLinks) mLinks.innerHTML='<a href="../dashboard.html" style="'+mStyle+'">Dashboard</a><a href="../account.html" style="'+mStyle+'">My Account</a><a href="#" onclick="firebase.auth().signOut().then(()=>window.location.href=\'../index.html\');" style="'+mStyle+'color:#fca5a5;">Sign Out</a>';
     } else {
