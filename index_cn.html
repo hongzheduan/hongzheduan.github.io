@@ -454,7 +454,19 @@
       font-size: 11px;
       color: #94a3b8;
       letter-spacing: 0.06em;
+      white-space: nowrap;
     }
+
+    .fact-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+      margin-top: 4px;
+      white-space: nowrap;
+    }
+
+    .fact-item:last-child { flex: 1.4; }
 
     /* ── TICKER STRIP ── */
     .ticker-wrap {
@@ -952,6 +964,7 @@
         <div class="fact-item">
           <div class="fact-num">2<span class="accent">×</span></div>
           <div class="fact-label">价格方案</div>
+          <div class="fact-sub">(价格均含税)</div>
         </div>
       </div>
     </div><!-- /hero-left -->
@@ -1167,7 +1180,7 @@
 <section class="bottom-cta">
   <div class="cta-box">
     <h2>准备好发现市场中<br>真正的信号了吗？</h2>
-    <p>加入早期用户。无噪声，只有结构化数据。</p>
+    <p>无噪声，只有结构化数据。</p>
     <p>从第一天起完整访问。随时可取消。</p>
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
       <a href="pricing_cn.html" class="btn-gold">
@@ -1176,6 +1189,7 @@
       </a>
       <a href="baizora_main_form_free_cn.html" class="btn-secondary">免费预览</a>
     </div>
+    <p style="font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;letter-spacing:0.05em;margin-top:12px;">(价格均含税)</p>
   </div>
 </section>
 

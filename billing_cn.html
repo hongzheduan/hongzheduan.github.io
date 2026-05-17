@@ -288,6 +288,15 @@
       letter-spacing: -0.03em;
     }
 
+    .tax-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #64748b;
+      letter-spacing: 0.06em;
+      align-self: flex-end;
+      padding-bottom: 8px;
+    }
+
     .period {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
@@ -412,7 +421,21 @@
       letter-spacing: 0.06em;
       color: #64748b;
       margin-top: -30px;
-      margin-bottom: 60px;
+      margin-bottom: 24px;
+    }
+
+    .trial-notice {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      max-width: 520px;
+      margin: 0 auto 48px;
+      padding: 10px 20px;
+      border: 1px solid rgba(245,158,11,0.2);
+      border-radius: 8px;
+      background: rgba(245,158,11,0.04);
+      line-height: 1.5;
     }
 
     /* ── FOOTER ── */
@@ -515,6 +538,7 @@
         <div class="price-row">
           <span class="currency">$</span>
           <span class="amount">9.99</span>
+          <span class="tax-label">含税</span>
         </div>
         <div class="period">每月</div>
         <div class="plan-divider"></div>
@@ -537,6 +561,7 @@
         <div class="price-row">
           <span class="currency">$</span>
           <span class="amount">99</span>
+          <span class="tax-label">含税</span>
         </div>
         <div class="period">每年</div>
         <div class="savings">≈ $8.25 / 月</div>
@@ -555,7 +580,8 @@
 
     </div>
 
-    <div class="note">Baizora 提供结构化市场数据 · 支付由 Stripe 安全处理</div>
+    <div class="note">Baizora 提供结构化市场数据 · 支付由 Stripe 安全处理 · 价格均含税</div>
+    <div class="trial-notice">免费试用每个邮箱地址及支付方式仅限一次，均不可用于再次享受试用资格。</div>
 
   </div>
 

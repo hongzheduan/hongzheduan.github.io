@@ -278,6 +278,15 @@
       letter-spacing: -0.03em;
     }
 
+    .tax-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #64748b;
+      letter-spacing: 0.06em;
+      align-self: flex-end;
+      padding-bottom: 8px;
+    }
+
     .period {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
@@ -402,7 +411,21 @@
       letter-spacing: 0.06em;
       color: #64748b;
       margin-top: -30px;
-      margin-bottom: 60px;
+      margin-bottom: 24px;
+    }
+
+    .trial-notice {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      max-width: 520px;
+      margin: 0 auto 48px;
+      padding: 10px 20px;
+      border: 1px solid rgba(245,158,11,0.2);
+      border-radius: 8px;
+      background: rgba(245,158,11,0.04);
+      line-height: 1.5;
     }
 
     /* ── FOOTER ── */
@@ -494,7 +517,7 @@
 
     <div class="eyebrow">◈ &nbsp; Pricing</div>
     <h1>Simple, <em>transparent</em> pricing</h1>
-    <p class="subtext">Cancel anytime. No hidden fees. Full platform access from day one.</p>
+    <p class="subtext">Cancel anytime · No hidden fees · Full platform access from day one.</p>
 
     <!-- Pricing Cards -->
     <div class="pricing-grid">
@@ -505,6 +528,7 @@
         <div class="price-row">
           <span class="currency">$</span>
           <span class="amount">9.99</span>
+          <span class="tax-label">tax incl.</span>
         </div>
         <div class="period">per month</div>
         <div class="plan-divider"></div>
@@ -527,6 +551,7 @@
         <div class="price-row">
           <span class="currency">$</span>
           <span class="amount">99</span>
+          <span class="tax-label">tax incl.</span>
         </div>
         <div class="period">per year</div>
         <div class="savings">≈ $8.25 / month</div>
@@ -545,7 +570,8 @@
 
     </div>
 
-    <div class="note">Baizora provides structured market data access · Payments secured by Stripe</div>
+    <div class="note">Baizora provides structured market data access · Payments secured by Stripe · All prices tax-inclusive</div>
+    <div class="trial-notice">The free trial is available once per email address and payment method — neither can be reused to start another trial.</div>
 
   </div>
 

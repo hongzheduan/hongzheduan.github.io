@@ -217,6 +217,7 @@
     .price-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px; }
     .currency { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 600; color: var(--muted); margin-top: 4px; }
     .amount { font-family: 'DM Serif Display', serif; font-size: 56px; line-height: 1; color: var(--white); letter-spacing: -0.03em; }
+    .tax-label { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; letter-spacing: 0.06em; align-self: flex-end; padding-bottom: 8px; }
     .period { font-family: 'DM Mono', monospace; font-size: 11px; color: #94a3b8; letter-spacing: 0.08em; margin-bottom: 8px; }
 
     .savings {
@@ -373,6 +374,7 @@
         <div class="price-row">
           <span class="currency">$</span>
           <span class="amount">9.99</span>
+          <span class="tax-label">tax incl.</span>
         </div>
         <div class="period">per month</div>
         <div class="plan-divider"></div>
@@ -399,6 +401,7 @@
         <div class="price-row">
           <span class="currency">$</span>
           <span class="amount">99</span>
+          <span class="tax-label">tax incl.</span>
         </div>
         <div class="period">per year</div>
         <div class="savings">≈ $8.25 / month</div>
@@ -421,7 +424,7 @@
 
     </div>
 
-    <div class="note">Baizora provides structured market data · Payments secured by Stripe</div>
+    <div class="note">Baizora provides structured market data · Payments secured by Stripe · All prices tax-inclusive</div>
 
   </div>
 
