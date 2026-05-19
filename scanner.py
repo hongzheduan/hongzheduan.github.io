@@ -208,7 +208,7 @@ def scan():
                     except KeyError:
                         df = data[["Close", "Volume"]].dropna()
 
-                    df = df[(df["Volume"] > 0) & (df["Close"] > 0)]
+                    df = df[(df["Volume"] >= 10000) & (df["Close"] > 0)]
 
                     if len(df) < 30:
                         continue
@@ -465,4 +465,4 @@ if __name__ == "__main__":
 
     export(df)
 
-    print("✅ Done")
+    print("Done")
