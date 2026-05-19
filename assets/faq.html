@@ -109,7 +109,7 @@
     <!-- <a href="../billing.html" class="nav-btn">Plans</a> -->
     <!-- <a href="../index.html" class="nav-btn" id="navDashBtn" style="display:none;">Home</a> -->
     <a href="../index.html" class="nav-btn">Home</a>
-    <a href="../login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Login</a>
+    <a href="../login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign in</a>
   </nav>
   <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -158,7 +158,7 @@
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        Click <strong>Sign In</strong> on the homepage, then <strong>Create one</strong> on the login page. Enter your email and a password (minimum 6 characters, at least one uppercase letter and one number).<br><br>
+        Click <strong>Sign in</strong> on the homepage, then <strong>Create one</strong> on the login page. Enter your email and a password (minimum 6 characters, at least one uppercase letter and one number).<br><br>
         After signing up, we send a <strong>verification email</strong> to your address. You must click the link in that email before you can log in. This ensures your account is protected and your email is valid.
         <div class="highlight">✓ Check your spam folder if you don't see it</div>
       </div></div>
@@ -412,9 +412,9 @@
       if(dashBtn) dashBtn.style.display='inline-block';
       if(mLinks) mLinks.innerHTML='<a href="../dashboard.html" style="'+mStyle+'">Dashboard</a>';
     } else {
-      if(loginBtn){ loginBtn.textContent='Login'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login.html'; loginBtn.onclick=null; }
+      if(loginBtn){ loginBtn.textContent='Sign in'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='none';
-      if(mLinks) mLinks.innerHTML='<a href="../login.html" style="'+mStyle+'">Login</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../login.html" style="'+mStyle+'">Sign in</a>';
     }
   });
 </script>

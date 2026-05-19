@@ -298,6 +298,20 @@
     /* ghost rows */
     .ghost-rows tr { opacity: 0.3; filter: blur(3px); pointer-events: none; user-select: none; }
 
+    /* ── CARD VIEW ── */
+    #sp500Cards, #nasdaqCards { display: none; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 8px; padding: 10px; }
+    .stock-card { background: rgba(13,30,61,0.6); border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px; display: flex; flex-direction: column; gap: 7px; }
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
+    .card-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--white); letter-spacing: 0.05em; }
+    .card-price-row { display: flex; align-items: baseline; gap: 8px; }
+    .card-price { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--white); }
+    .card-chg { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+    .card-stats { display: flex; flex-direction: column; gap: 3px; border-top: 1px solid var(--border); padding-top: 6px; }
+    .card-row { display: flex; justify-content: space-between; align-items: center; }
+    .card-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; }
+    .card-val { font-family: 'DM Mono', monospace; font-size: 11px; }
+
     /* ── README PANEL ── */
     #readme { padding: 40px; max-width: 680px; }
 
@@ -541,15 +555,14 @@
       .hamburger { display: flex; }
       .mobile-tab-strip { display: flex; }
       .mobile-nav-drawer { display: flex; }
-      .toolbar { padding: 0 10px; gap: 6px; overflow-x: auto; }
-      .toolbar::-webkit-scrollbar { display: none; }
+      .toolbar { padding: 6px 10px; gap: 6px; flex-wrap: wrap; height: auto; }
       .toolbar-label { display: none; }
-      .window-btn { padding: 3px 8px; font-size: 10px; }
-      .row-count { white-space: nowrap; font-size: 9px; }
-      .blur-gate { height: 260px; padding-bottom: 20px; }
-      .blur-gate-title { font-size: 18px !important; }
-      .blur-gate-sub { font-size: 12px; margin-bottom: 14px; }
-      .gate-btn-primary { padding: 9px 18px; font-size: 12px; }
+      .window-btn { padding: 3px 8px; font-size: 10px; white-space: nowrap; }
+      .row-count { white-space: nowrap; font-size: 9px; width: 100%; margin-left: 0; padding-bottom: 2px; }
+      #sp500Table, #nasdaqTable { display: none !important; }
+      #sp500Ghost, #nasdaqGhost { display: none !important; }
+      #sp500Cards, #nasdaqCards { display: block !important; }
+      .blur-gate { display: none !important; }
       th:first-child { position: sticky; left: 0; z-index: 30; }
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
       tr:hover td.ticker-cell { background: #081229; }
@@ -669,11 +682,13 @@
     <div id="sp500" class="section active">
       <table id="sp500Table"></table>
       <table class="ghost-rows" id="sp500Ghost"><tbody></tbody></table>
+      <div id="sp500Cards"></div>
     </div>
 
     <div id="nasdaq" class="section">
       <table id="nasdaqTable"></table>
       <table class="ghost-rows" id="nasdaqGhost"><tbody></tbody></table>
+      <div id="nasdaqCards"></div>
     </div>
 
     <div id="readme" class="section">
@@ -762,6 +777,7 @@
     const toolbar    = document.getElementById("toolbar");
     const blurGate   = document.getElementById("blurGate");
 
+
     /* ── LOAD (no auth) ── */
     function loadDashboard() {
       fetch("data/latest.json")
@@ -791,7 +807,7 @@
       const total = activeTab === "sp500" ? spRows.length : ndRows.length;
       const label = activeTab === "sp500" ? "标普500" : "纳斯达克100";
       statusText.textContent = loadedDate;
-      rowCount.innerHTML = `<span class="free-row-label">预览: 3 of ${total} · ${label}</span>`;
+      rowCount.innerHTML = `<span class="free-row-label">日涨幅前3 · ${total}支股票 · ${label}</span>`;
     }
 
     /* ── TAB ── */
@@ -862,8 +878,8 @@
        ▲ Triangle = max-volume day   (green=price UP, red=price DOWN)
        ● Circle   = max-price day    (green=volume UP, red=volume DOWN)
     ── */
-    function renderSparkline(data, maxVolDay, priceAtMaxVol, maxPriceDay, volAtMaxPrice) {
-      const W = 110, H = 28, PAD = 5;
+    function renderSparkline(data, maxVolDay, priceAtMaxVol, maxPriceDay, volAtMaxPrice, W = 110, H = 28) {
+      const PAD = 5;
 
       if (!data || data.length < 2) {
         return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="#1e293b" stroke-width="1"/></svg>`;
@@ -1001,6 +1017,57 @@
       return head + "<tbody>" + rows + "</tbody>";
     }
 
+    /* ── BUILD CARDS ── */
+    function buildCards(arr, w) {
+      const top3 = topThree(arr);
+      const is1D = w === "1D";
+      const fmtP = v => v != null ? (v > 0 ? "+" : "") + v + "%" : "—";
+
+      const cards = top3.map(r => {
+        const pc1 = r.PriceChange1D;
+        const vc1 = r.VolumeChange1D;
+        const pma = r.PriceVsMA21_1D;
+        const vma = r.VolumeVsMA21_1D;
+        const spark = renderSparkline(
+          r.Spark1Y, r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+          r["1YMaxPriceChangeDay"], r["1YVolumeChangeAtMaxPrice"], 72, 22
+        );
+        const pc1Cls = parseFloat(pc1) > 0 ? "positive" : parseFloat(pc1) < 0 ? "negative" : "neutral";
+
+        let statsHTML = "";
+        if (is1D) {
+          statsHTML = `
+            <div class="card-row"><span class="card-label">成交量(M)</span><span class="card-val neutral">${r.VolumeM ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">价格/MA21</span><span class="card-val ${colorClass(pma - 1)}">${pma ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">日量变化</span><span class="card-val ${colorClass(vc1)}">${fmtP(vc1)}</span></div>
+            <div class="card-row"><span class="card-label">量/MA21</span><span class="card-val ${colorClass(vma - 1)}">${vma ?? "—"}</span></div>`;
+        } else {
+          const chgP = r[`${w}PriceChange`];
+          const maxP = r[`${w}MaxPriceChange`];
+          const maxV = r[`${w}MaxVolumeChange`];
+          statsHTML = `
+            <div class="card-row"><span class="card-label">成交量(M)</span><span class="card-val neutral">${r.VolumeM ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">总涨幅</span><span class="card-val ${colorClass(chgP)}">${fmtP(chgP)}</span></div>
+            <div class="card-row"><span class="card-label">日最大价涨</span><span class="card-val ${colorClass(maxP)}">${fmtP(maxP)}</span></div>
+            <div class="card-row"><span class="card-label">日最大量涨</span><span class="card-val ${colorClass(maxV)}">${fmtP(maxV)}</span></div>`;
+        }
+
+        return `<div class="stock-card">
+          <div class="card-header">
+            <span class="card-ticker">${r.Ticker}</span>
+            ${spark}
+          </div>
+          <div class="card-price-row">
+            <span class="card-price">$${r.Price?.toFixed(2) ?? "—"}</span>
+            <span class="card-chg ${pc1Cls}">${fmtP(pc1)}</span>
+          </div>
+          <div class="card-stats">${statsHTML}</div>
+        </div>`;
+      }).join("");
+
+      return `<div class="card-grid">${cards}</div>`;
+    }
+
     /* ── RENDER ── */
     function render() {
       const w = currentWindow;
@@ -1010,6 +1077,8 @@
       document.getElementById("nasdaqTable").innerHTML = buildTable(ndRows, w);
       document.getElementById("sp500Ghost").querySelector("tbody").innerHTML  = ghosts;
       document.getElementById("nasdaqGhost").querySelector("tbody").innerHTML = ghosts;
+      document.getElementById("sp500Cards").innerHTML  = buildCards(spRows, w);
+      document.getElementById("nasdaqCards").innerHTML = buildCards(ndRows, w);
     }
 
     /* ══════════════════════════════════════════
@@ -1101,10 +1170,9 @@
       if (v == null || v === "" || v === undefined) return "—";
       const n = parseFloat(v);
       if (isNaN(n)) return "—";
-      if (Math.abs(n) >= 1e12) return (n / 1e12).toFixed(2) + "T";
-      if (Math.abs(n) >= 1e9)  return (n / 1e9).toFixed(2)  + "B";
-      if (Math.abs(n) >= 1e6)  return (n / 1e6).toFixed(2)  + "M";
-      return n.toFixed(2);
+      if (Math.abs(n) >= 1000) return (n / 1000).toFixed(2) + "T";
+      if (Math.abs(n) >= 1)    return n.toFixed(2) + "B";
+      return (n * 1000).toFixed(0) + "M";
     }
 
     function valClass(v) {
@@ -1144,7 +1212,7 @@
       if (!r) {
         ttSym.textContent    = td.dataset.ticker;
         ttSector.textContent = "";
-        ttRows.innerHTML     = `<div class="tt-loading">No data available</div>`;
+        ttRows.innerHTML     = `<div class="tt-loading">暂无数据</div>`;
       } else {
         buildTickerTooltip(r);
       }
@@ -1214,6 +1282,7 @@
   </script>
 
   <script>
+    window.addEventListener("beforeinstallprompt", e => e.preventDefault());
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
     }

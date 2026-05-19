@@ -408,7 +408,7 @@
     </div>
 
     <button class="btn-login" id="loginBtn" onclick="login()">
-      <span class="btn-label">Login</span>
+      <span class="btn-label">Sign in</span>
       <div class="spinner"></div>
     </button>
 
@@ -548,6 +548,7 @@
   </script>
 
   <script>
+    window.addEventListener("beforeinstallprompt", e => e.preventDefault());
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
     }

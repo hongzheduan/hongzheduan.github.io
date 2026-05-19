@@ -350,22 +350,22 @@
       <!-- ── VERIFY PANEL (shown after signup) ── -->
       <div class="verify-panel" id="verifyPanel">
         <div class="verify-icon">📬</div>
-        <div class="card-eyebrow" style="text-align:center;">◈ &nbsp; Verify Your Email</div>
+        <div class="card-eyebrow" style="text-align:center;">◈ &nbsp; 验证您的邮箱</div>
         <h2 class="card-title" style="text-align:center; font-size:24px; margin-bottom:10px;">请查收邮件</h2>
         <p class="card-sub" style="text-align:center; margin-bottom:8px;">验证链接已发送至:</p>
         <div class="verify-email" id="verifyEmailDisplay"></div>
-        <p class="card-sub" style="text-align:center;">Click the link in the email to verify your account, then come back to sign in.</p>
+        <p class="card-sub" style="text-align:center;">点击邮件中的链接以验证账户，然后返回登录。</p>
         <div class="verify-note" id="verifyNote">
-          Can't find it? Check your spam folder.
+          收不到邮件？请检查垃圾邮件文件夹。
         </div>
 
         <button class="btn-resend" id="resendBtn" onclick="resendVerification()">
-          Resend verification email
+          重新发送验证邮件
         </button>
         <div class="resend-timer" id="resendTimer"></div>
 
         <div class="card-divider"></div>
-        <p class="card-footer">Already verified? <a href="login_cn.html">立即登录</a></p>
+        <p class="card-footer">已完成验证？ <a href="login_cn.html">立即登录</a></p>
       </div>
 
     </div>
@@ -400,7 +400,7 @@
     function setLoading(on) {
       signupBtn.disabled = on;
       spinner.classList.toggle("visible", on);
-      btnLabel.textContent = on ? "Creating account…" : "Create Account";
+      btnLabel.textContent = on ? "正在创建账户…" : "注册";
     }
 
     function showError(msg) {
@@ -432,10 +432,10 @@
           btn.disabled = false;
           timer.textContent = "";
         } else {
-          timer.textContent = `Resend available in ${resendCooldown}s`;
+          timer.textContent = `${resendCooldown}秒后可重新发送`;
         }
       }, 1000);
-      timer.textContent = `Resend available in ${resendCooldown}s`;
+      timer.textContent = `${resendCooldown}秒后可重新发送`;
     }
 
     document.addEventListener("keydown", (e) => {
@@ -447,11 +447,11 @@
       const email    = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
 
-      if (!email)    { showError("Please enter your email address."); return; }
-      if (!password) { showError("Please enter a password."); return; }
-      if (password.length < 6)       { showError("Password must be at least 6 characters."); return; }
-      if (!/[A-Z]/.test(password))   { showError("Password must contain at least one uppercase letter."); return; }
-      if (!/[0-9]/.test(password))   { showError("Password must contain at least one number."); return; }
+      if (!email)    { showError("请输入您的邮箱地址。"); return; }
+      if (!password) { showError("请输入密码。"); return; }
+      if (password.length < 6)       { showError("密码长度不得少于6个字符。"); return; }
+      if (!/[A-Z]/.test(password))   { showError("密码必须包含至少一个大写字母。"); return; }
+      if (!/[0-9]/.test(password))   { showError("密码必须包含至少一个数字。"); return; }
 
       setLoading(true);
       try {
@@ -463,10 +463,10 @@
         showVerifyPanel(email);
       } catch (e) {
         const map = {
-          "auth/email-already-in-use":   "An account with this email already exists.",
-          "auth/invalid-email":          "Please enter a valid email address.",
-          "auth/weak-password":          "Password is too weak. Use at least 6 characters.",
-          "auth/network-request-failed": "Network error. Check your connection and try again.",
+          "auth/email-already-in-use":   "该邮箱已注册账户。",
+          "auth/invalid-email":          "请输入有效的邮箱地址。",
+          "auth/weak-password":          "密码强度不足，请使用至少6个字符。",
+          "auth/network-request-failed": "网络错误，请检查网络连接后重试。",
         };
         showError(map[e.code] || e.message);
         setLoading(false);
@@ -477,15 +477,16 @@
       if (!currentUser) return;
       try {
         await sendEmailVerification(currentUser);
-        document.getElementById("verifyNote").textContent = "Verification email resent! 请查收邮件.";
+        document.getElementById("verifyNote").textContent = "验证邮件已重新发送！请查收邮件。";
         startResendCooldown(60);
       } catch(e) {
-        document.getElementById("verifyNote").textContent = "Could not resend. Please try again shortly.";
+        document.getElementById("verifyNote").textContent = "发送失败，请稍后重试。";
       }
     };
   </script>
 
   <script>
+    window.addEventListener("beforeinstallprompt", e => e.preventDefault());
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
     }

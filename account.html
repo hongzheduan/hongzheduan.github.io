@@ -554,7 +554,7 @@
         </button>
         <button class="action-btn nav-btn-danger" onclick="doLogout()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Sign Out
+          Sign out
         </button>
       </div>
     </div>
@@ -567,7 +567,7 @@
     <h2>Sign in to view your account</h2>
     <p>You need to be logged in to manage your subscription.</p>
     <a href="login.html" class="action-btn action-btn-primary" style="display:inline-flex; margin:0 auto;">
-      Login
+      Sign in
     </a>
   </div>
 
@@ -808,6 +808,7 @@
   </script>
 
   <script>
+    window.addEventListener("beforeinstallprompt", e => e.preventDefault());
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
     }

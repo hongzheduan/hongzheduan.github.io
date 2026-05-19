@@ -420,10 +420,10 @@ def scan():
         (df["SectorAvgPE"].notna()) &
         (df["SectorAvgPE"] != 0),
 
-        df["PE"] / df["SectorAvgPE"],
+        (df["PE"] - df["SectorAvgPE"]) / df["SectorAvgPE"] * 100,
         np.nan
     )
-    df["PE_vs_Sector"] = df["PE_vs_Sector"].round(2)
+    df["PE_vs_Sector"] = df["PE_vs_Sector"].round(1)
 
     if "VolumeChange1D" in df.columns:
         df = df.sort_values("VolumeChange1D", ascending=False)

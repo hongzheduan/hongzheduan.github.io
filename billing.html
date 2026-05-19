@@ -499,7 +499,7 @@
     </a>
     <div class="header-right">
       <a href="index.html" class="nav-btn">Home</a>
-      <a href="login.html" class="nav-btn" id="loginBtn">Login</a>
+      <a href="login.html" class="nav-btn" id="loginBtn">Sign in</a>
       <a href="dashboard.html" class="nav-btn nav-btn-primary" id="dashBtn" style="display:none;">Dashboard</a>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
@@ -510,7 +510,7 @@
   <!-- Mobile drawer -->
   <div class="mobile-drawer" id="mobileDrawer">
     <a href="index.html">Home</a>
-    <a href="login.html" id="drawerLoginLink">Login</a>
+    <a href="login.html" id="drawerLoginLink">Sign in</a>
     <a href="dashboard.html" id="drawerDashBtn" style="display:none;">Dashboard</a>
   </div>
 
@@ -700,6 +700,7 @@
   </script>
 
   <script>
+    window.addEventListener("beforeinstallprompt", e => e.preventDefault());
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
     }

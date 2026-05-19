@@ -379,7 +379,7 @@
     <div class="header-right">
       <span class="user-email" id="headerEmail"></span>
       <!-- <a href="account.html" class="nav-btn">Account</a> -->
-      <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ Sign Out</button>
+      <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ Sign out</button>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -388,7 +388,7 @@
 
   <!-- Mobile drawer -->
   <div class="mobile-drawer" id="mobileDrawer">
-    <button class="m-danger" onclick="doLogout()">↪ Sign Out</button>
+    <button class="m-danger" onclick="doLogout()">↪ Sign out</button>
   </div>
 
   <!-- Page -->
@@ -535,6 +535,7 @@
   </script>
 
   <script>
+    window.addEventListener("beforeinstallprompt", e => e.preventDefault());
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
     }

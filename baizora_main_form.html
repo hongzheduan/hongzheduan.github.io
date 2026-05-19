@@ -509,12 +509,11 @@
       header { padding: 0 16px; }
       .header-divider, .tab-nav, .status-badge, .logout-btn { display: none !important; }
       .hamburger { display: flex; }
-      .toolbar { padding: 0 10px; gap: 6px; overflow-x: auto; }
-      .toolbar::-webkit-scrollbar { display: none; }
+      .toolbar { padding: 6px 10px; gap: 6px; flex-wrap: wrap; height: auto; }
       .toolbar-label { display: none; }
       .window-btn { padding: 3px 7px; font-size: 10px; white-space: nowrap; }
       .toolbar-search { display: none; }
-      .row-count { font-size: 9px; white-space: nowrap; margin-left: auto; }
+      .row-count { font-size: 9px; white-space: nowrap; width: 100%; margin-left: 0; padding-bottom: 2px; }
       #readme { padding: 24px 16px; }
       th:first-child { position: sticky; left: 0; z-index: 30; }
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
@@ -1256,10 +1255,9 @@
       if (v == null || v === "" || v === undefined) return "—";
       const n = parseFloat(v);
       if (isNaN(n)) return "—";
-      if (Math.abs(n) >= 1e12) return (n / 1e12).toFixed(2) + "T";
-      if (Math.abs(n) >= 1e9)  return (n / 1e9).toFixed(2)  + "B";
-      if (Math.abs(n) >= 1e6)  return (n / 1e6).toFixed(2)  + "M";
-      return n.toFixed(2);
+      if (Math.abs(n) >= 1000) return (n / 1000).toFixed(2) + "T";
+      if (Math.abs(n) >= 1)    return n.toFixed(2) + "B";
+      return (n * 1000).toFixed(0) + "M";
     }
 
     function valClass(v) {
@@ -1333,6 +1331,7 @@
   </script>
 
   <script>
+    window.addEventListener("beforeinstallprompt", e => e.preventDefault());
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
     }

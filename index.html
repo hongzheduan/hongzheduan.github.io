@@ -906,7 +906,7 @@
     <a href="signup.html" class="nav-btn" id="navRegisterBtn">Register for Free</a>
     <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
     <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
-    <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Login</a>
+    <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign in</a>
 
   </div>
 
@@ -1278,7 +1278,7 @@
       const regBtn = document.getElementById('navRegisterBtn');
       if (regBtn) regBtn.style.display = 'none';
       if (btn) {
-        btn.textContent = 'Sign Out';
+        btn.textContent = 'Sign out';
         btn.style.background = 'transparent';
         btn.style.borderColor = 'rgba(239,68,68,0.3)';
         btn.style.color = '#fca5a5';
@@ -1288,14 +1288,14 @@
       mobileLinks.innerHTML =
         // '<a href="dashboard.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Dashboard</a>' +
         '<a href="dashboard.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Dashboard</a>' +
-        '<a href="#" onclick="doLogout();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">Sign Out</a>';
+        '<a href="#" onclick="doLogout();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">Sign out</a>';
     } else {
       if (dashBtn) dashBtn.style.display = 'none';
       if (emailEl) { emailEl.textContent = ''; emailEl.style.display = 'none'; }
       const regBtn2 = document.getElementById('navRegisterBtn');
       if (regBtn2) regBtn2.style.display = 'inline-block';
       if (btn) {
-        btn.textContent = 'Login';
+        btn.textContent = 'Sign in';
         btn.style.background = '';
         btn.style.borderColor = '';
         btn.style.color = '';
@@ -1303,7 +1303,7 @@
         btn.onclick = null;
       }
       mobileLinks.innerHTML =
-        '<a href="login.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Login</a>' +
+        '<a href="login.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Sign in</a>' +
         '<a href="signup.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Register for Free</a>';
     }
   });
@@ -1475,6 +1475,7 @@ document.addEventListener('DOMContentLoaded', renderMock);
 </script>
 
   <script>
+    window.addEventListener("beforeinstallprompt", e => e.preventDefault());
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
     }

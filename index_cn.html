@@ -1422,13 +1422,13 @@ function renderMock() {
           <div class="tk-popup-head"><span class="tk-sym">${r.tk}</span><span class="tk-sector">${r.sector}</span></div>
           <div class="tk-rows">
             <div class="tk-row"><span class="tk-key">PE</span><span class="tk-val">${r.pe}</span></div>
-            <div class="tk-row"><span class="tk-key">Mkt Cap</span><span class="tk-val">${r.mc}</span></div>
+            <div class="tk-row"><span class="tk-key">市值</span><span class="tk-val">${r.mc}</span></div>
             <div class="tk-row"><span class="tk-key">EPS</span><span class="tk-val">${r.eps}</span></div>
             <div class="tk-div"></div>
-            <div class="tk-row"><span class="tk-key">Vol 30D</span><span class="tk-val">${r.vol30}</span></div>
+            <div class="tk-row"><span class="tk-key">30日波动率</span><span class="tk-val">${r.vol30}</span></div>
             <div class="tk-div"></div>
-            <div class="tk-row"><span class="tk-key">Sector Avg PE</span><span class="tk-val">${r.secpe}</span></div>
-            <div class="tk-row"><span class="tk-key">PE vs Sector</span><span class="tk-val ${r.pevsec.startsWith('+') ? 'tk-pos' : 'tk-neg'}">${r.pevsec}</span></div>
+            <div class="tk-row"><span class="tk-key">行业平均PE</span><span class="tk-val">${r.secpe}</span></div>
+            <div class="tk-row"><span class="tk-key">PE vs 行业</span><span class="tk-val ${r.pevsec.startsWith('+') ? 'tk-pos' : 'tk-neg'}">${r.pevsec}</span></div>
           </div>
         </div>
       </span>
@@ -1478,6 +1478,7 @@ document.addEventListener('DOMContentLoaded', renderMock);
 </script>
 
   <script>
+    window.addEventListener("beforeinstallprompt", e => e.preventDefault());
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js");
     }
