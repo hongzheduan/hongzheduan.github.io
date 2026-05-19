@@ -658,12 +658,12 @@
 
         // If not logged in, ask for email so Stripe can still find/create customer
         if (!email) {
-          email = prompt("请输入您的邮箱地址 / Please enter your email:");
+          email = prompt("Please enter your email address:");
           if (!email || !email.includes("@")) {
             label.style.display = 'flex';
             spinner.style.display = 'none';
             btn.disabled = false;
-            alert("请输入有效的邮箱地址。");
+            alert("Please enter a valid email address.");
             return;
           }
         }
@@ -678,7 +678,7 @@
 
         // Already subscribed — redirect to home instead of double-charging
         if (res.status === 409 && data.error === "already_subscribed") {
-          alert("您已有有效订阅，无需重复订阅。");
+          alert("You already have an active subscription.");
           window.location.href = "index.html";
           return;
         }

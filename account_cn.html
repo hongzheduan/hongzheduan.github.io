@@ -468,7 +468,6 @@
     </a>
     <div class="header-right">
       <a href="dashboard_cn.html" class="nav-btn">↩ 个人主页</a>
-      <span id="headerEmail" style="font-family:'DM Mono',monospace; font-size:11px; color:#94a3b8; letter-spacing:0.05em;"></span>
       <button class="nav-btn nav-btn-danger" id="headerLogoutBtn" style="display:none;" onclick="doLogout()">↪ 退出登录</button>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
@@ -558,9 +557,9 @@
         </div>
       </div>
       <div class="action-grid" style="margin-top:20px;">
-        <button class="action-btn" onclick="sendReset()">
+        <button class="action-btn" id="resetBtn" onclick="sendReset()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-          重置密码
+          <span>重置密码</span>
         </button>
         <button class="action-btn nav-btn-danger" onclick="doLogout()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -700,7 +699,6 @@
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("notLoggedIn").style.display = "none";
       document.getElementById("headerLogoutBtn").style.display = "inline-flex";
-      document.getElementById("headerEmail").textContent = user.email;
 
       // Fill account info
       document.getElementById("accountEmail").textContent  = user.email;
@@ -787,11 +785,20 @@
     window.sendReset = async function () {
       const user = auth.currentUser;
       if (!user) return;
+      const btn = document.getElementById("resetBtn");
+      const label = btn.querySelector("span");
+      btn.disabled = true;
+      label.textContent = "发送中…";
       try {
         await sendPasswordResetEmail(auth, user.email);
         showAlert("密码重置邮件已发送，请查收邮件。", "success");
+        document.getElementById("alertSuccess").scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (e) {
-        showAlert(e.message, "error");
+        showAlert(e.message || "发送失败，请重试。", "error");
+        document.getElementById("alertError").scrollIntoView({ behavior: "smooth", block: "center" });
+      } finally {
+        btn.disabled = false;
+        label.textContent = "重置密码";
       }
     };
 
