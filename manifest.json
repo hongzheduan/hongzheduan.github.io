@@ -1,0 +1,26 @@
+{
+  "name": "Baizora — Stock Analytics",
+  "short_name": "Baizora",
+  "description": "Daily price & volume analytics for S&P 500 and Nasdaq-100 stocks.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#060d1f",
+  "theme_color": "#060d1f",
+  "categories": ["finance", "business"],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

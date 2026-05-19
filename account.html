@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baizora | Account</title>
   <link rel="icon" href="assets/baize_favicon_v2.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#060d1f">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -803,6 +805,12 @@
     document.getElementById("cancelModal").addEventListener("click", (e) => {
       if (e.target === e.currentTarget) hideCancelModal();
     });
+  </script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js");
+    }
   </script>
 
 </body>
