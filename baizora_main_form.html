@@ -240,7 +240,7 @@
       user-select: none;
       transition: color 0.15s, background 0.15s;
     }
-    th:hover { color: var(--electric-bright); background: rgba(59,130,246,0.05); }
+    th:hover { color: var(--electric-bright); background: rgba(10,22,40,1); }
     th.sorted { color: var(--electric-bright); }
     th:last-child { border-right: none; }
     th.no-sort { cursor: default; }
@@ -502,6 +502,9 @@
       pointer-events: none;
     }
 
+    /* Cards hidden on desktop; table hidden on mobile */
+    #sp500Cards, #nasdaqCards { display: none; }
+
     @media (max-width: 640px) {
       header { padding: 0 16px; }
       .header-divider, .tab-nav, .status-badge, .logout-btn { display: none !important; }
@@ -517,6 +520,86 @@
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
       tr:hover td.ticker-cell { background: #081229; }
       .mobile-search-bar { display: block; }
+      #sp500Table, #nasdaqTable { display: none !important; }
+      #sp500Cards, #nasdaqCards { display: block !important; }
+    }
+
+    /* ── CARD GRID (mobile) ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .stock-card {
+      background: rgba(13, 30, 61, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .card-ticker {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--white);
+      letter-spacing: 0.05em;
+    }
+
+    .card-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .card-price {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--white);
+    }
+
+    .card-chg {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .card-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      border-top: 1px solid var(--border);
+      padding-top: 6px;
+    }
+
+    .card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    .card-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
     }
   </style>
 </head>
@@ -601,10 +684,12 @@
 
     <div id="sp500" class="section active">
       <table id="sp500Table"></table>
+      <div id="sp500Cards"></div>
     </div>
 
     <div id="nasdaq" class="section">
       <table id="nasdaqTable"></table>
+      <div id="nasdaqCards"></div>
     </div>
 
     <div id="readme" class="section">
@@ -777,8 +862,8 @@
        Triangle (^) = max-volume day   (green=price UP, red=price DOWN)
        Circle   (o) = max-price day    (green=volume UP, red=volume DOWN)
     -- */
-    function renderSparkline(data, maxVolDay, priceAtMaxVol, maxPriceDay, volAtMaxPrice) {
-      const W = 110, H = 28, PAD = 5;
+    function renderSparkline(data, maxVolDay, priceAtMaxVol, maxPriceDay, volAtMaxPrice, W = 110, H = 28) {
+      const PAD = 5;
 
       if (!data || data.length < 2) {
         return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="#1e293b" stroke-width="1"/></svg>`;
@@ -938,12 +1023,71 @@
       return head + "<tbody>" + rows + "</tbody>";
     }
 
+    /* ── BUILD CARDS (mobile) ── */
+    function buildCards(arr, w) {
+      arr = sorted(arr);
+      const is1D = w === "1D";
+      const fmtP = v => v != null ? (v > 0 ? "+" : "") + v + "%" : "—";
+      const fmtV = v => v != null ? v : "—";
+
+      const cards = arr.slice(0, 200).map(r => {
+        const pc1 = r.PriceChange1D;
+        const vc1 = r.VolumeChange1D;
+        const pma = r.PriceVsMA21_1D;
+        const vma = r.VolumeVsMA21_1D;
+
+        const spark = renderSparkline(
+          r.Spark1Y,
+          r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+          r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"],
+          72, 22
+        );
+
+        let priceChgDisplay, statsHTML;
+
+        if (is1D) {
+          priceChgDisplay = `<span class="card-chg ${colorClass(pc1)}">${fmtP(pc1)}</span>`;
+          statsHTML = `
+            <div class="card-row"><span class="card-label">Vol Chg</span><span class="card-val ${colorClass(vc1)}">${fmtP(vc1)}</span></div>
+            <div class="card-row"><span class="card-label">P/MA21</span><span class="card-val ${colorClass(pma - 1)}">${fmtV(pma)}</span></div>
+            <div class="card-row"><span class="card-label">V/MA21</span><span class="card-val ${colorClass(vma - 1)}">${fmtV(vma)}</span></div>`;
+        } else {
+          const chgP = r[`${w}PriceChange`];
+          const maxP = r[`${w}MaxPriceChange`];
+          const maxV = r[`${w}MaxVolumeChange`];
+          priceChgDisplay = `<span class="card-chg ${colorClass(chgP)}">${fmtP(chgP)}</span>`;
+          statsHTML = `
+            <div class="card-row"><span class="card-label">Max P</span><span class="card-val ${colorClass(maxP)}">${fmtP(maxP)}</span></div>
+            <div class="card-row"><span class="card-label">Max V</span><span class="card-val ${colorClass(maxV)}">${fmtP(maxV)}</span></div>
+            <div class="card-row"><span class="card-label">1D P</span><span class="card-val ${colorClass(pc1)}">${fmtP(pc1)}</span></div>`;
+        }
+
+        return `<div class="stock-card">
+          <div class="card-header">
+            <span class="card-ticker">${r.Ticker}</span>
+            ${spark}
+          </div>
+          <div class="card-price-row">
+            <span class="card-price">$${r.Price?.toFixed(2) ?? "—"}</span>
+            ${priceChgDisplay}
+          </div>
+          <div class="card-stats">${statsHTML}</div>
+        </div>`;
+      }).join("");
+
+      return `<div class="card-grid">${cards}</div>`;
+    }
+
     /* ── RENDER ── */
     function render() {
       const w = currentWindow;
       const filter = r => !searchQuery || r.Ticker.includes(searchQuery);
-      document.getElementById("sp500Table").innerHTML  = buildTable(spRows.filter(filter), w);
-      document.getElementById("nasdaqTable").innerHTML = buildTable(ndRows.filter(filter), w);
+      const sp = spRows.filter(filter);
+      const nd = ndRows.filter(filter);
+      document.getElementById("sp500Table").innerHTML  = buildTable(sp, w);
+      document.getElementById("nasdaqTable").innerHTML = buildTable(nd, w);
+      document.getElementById("sp500Cards").innerHTML  = buildCards(sp, w);
+      document.getElementById("nasdaqCards").innerHTML = buildCards(nd, w);
     }
 
     /* ── SEARCH ── */
@@ -1001,17 +1145,20 @@
       return null;
     }
 
-    function positionTooltip(el, x, y) {
+    function positionTooltip(el, x, y, above = false) {
+      if (el.style.display === "none") return;
       const margin = 12;
       el.style.left = "0px";
       el.style.top  = "0px";
       el.style.visibility = "hidden";
       el.style.display = "block";
-      const tw = el.offsetWidth, th = el.offsetHeight;
+      const tw = el.offsetWidth, elh = el.offsetHeight;
       const vw = window.innerWidth,  vh = window.innerHeight;
-      let left = x + margin, top = y + margin;
+      let left = x + margin;
+      let top = above ? y - elh - margin : y + margin;
+      if (above && top < margin) top = y + margin;
+      if (!above && top + elh > vh - margin) top = y - elh - margin;
       if (left + tw > vw - margin) left = x - tw - margin;
-      if (top  + th > vh - margin) top  = y - th  - margin;
       if (left < margin) left = margin;
       if (top  < margin) top  = margin;
       el.style.left = left + "px";
@@ -1025,24 +1172,54 @@
     const colDesc  = document.getElementById("colTooltipDesc");
     let colHideTimer = null;
 
+    function positionColTooltip(el, thEl) {
+      const margin = 6;
+      el.style.left = "0px";
+      el.style.top  = "0px";
+      el.style.visibility = "hidden";
+      el.style.display = "block";
+      const tw = el.offsetWidth, th = el.offsetHeight;
+      const rect = thEl.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      // Show just below the header, aligned to its left edge
+      let left = rect.left;
+      let top  = rect.bottom + margin;
+      // Clamp horizontally
+      if (left + tw > vw - margin) left = vw - tw - margin;
+      if (left < margin) left = margin;
+      // If no room below, show above
+      if (top + th > vh - margin) top = rect.top - th - margin;
+      if (top < margin) top = margin;
+      el.style.left = left + "px";
+      el.style.top  = top  + "px";
+      el.style.visibility = "visible";
+    }
+
     document.getElementById("tableArea").addEventListener("mouseover", (e) => {
       const thEl = e.target.closest("th[data-col]");
       if (!thEl || thEl.classList.contains("no-sort") && !thEl.dataset.col) return;
       const key = thEl.dataset.col;
       if (!key) return;
       clearTimeout(colHideTimer);
+      clearTimeout(tickerHideTimer); tickerTip.classList.remove("visible"); tickerTip.style.display = "none";
       const info = COL_DESCS[key] || getWindowColDesc(key, currentWindow);
       if (!info) return;
       colLabel.textContent = info.label;
       colDesc.textContent  = info.desc;
-      positionTooltip(colTip, e.clientX, e.clientY);
+      colTip.style.display = "";
+      positionColTooltip(colTip, thEl);
       colTip.classList.add("visible");
     });
 
     document.getElementById("tableArea").addEventListener("mousemove", (e) => {
       const thEl = e.target.closest("th[data-col]");
       if (!thEl || !thEl.dataset.col) return;
-      positionTooltip(colTip, e.clientX, e.clientY);
+      clearTimeout(tickerHideTimer);
+      tickerTip.classList.remove("visible");
+      tickerTip.style.display = "none";
+      colTip.style.display = "";
+      positionColTooltip(colTip, thEl);
     });
 
     document.getElementById("tableArea").addEventListener("mouseout", (e) => {
@@ -1057,6 +1234,16 @@
     const ttSector  = document.getElementById("ttSector");
     const ttRows    = document.getElementById("ttRows");
     let tickerHideTimer = null;
+
+    /* Suppress ticker tooltip for any event target inside thead */
+    ["mouseover", "mousemove"].forEach(type => {
+      document.getElementById("tableArea").addEventListener(type, (e) => {
+        if (!e.target.closest("thead")) return;
+        clearTimeout(tickerHideTimer);
+        tickerTip.classList.remove("visible");
+        tickerTip.style.display = "none";
+      });
+    });
 
     function fmt(v, suffix = "", decimals = 2) {
       if (v == null || v === "" || v === undefined) return "—";
@@ -1107,7 +1294,9 @@
     document.getElementById("tableArea").addEventListener("mouseover", (e) => {
       const td = e.target.closest("td.ticker-cell");
       if (!td) return;
+      if (document.elementsFromPoint(e.clientX, e.clientY).some(el => el.tagName === "TH")) return;
       clearTimeout(tickerHideTimer);
+      clearTimeout(colHideTimer); colTip.classList.remove("visible"); colTip.style.display = "none";
       const r = allRows.find(x => x.Ticker === td.dataset.ticker);
       if (!r) {
         ttSym.textContent    = td.dataset.ticker;
@@ -1116,6 +1305,7 @@
       } else {
         buildTickerTooltip(r);
       }
+      tickerTip.style.display = "";
       positionTooltip(tickerTip, e.clientX, e.clientY);
       tickerTip.classList.add("visible");
     });
@@ -1123,6 +1313,7 @@
     document.getElementById("tableArea").addEventListener("mousemove", (e) => {
       const td = e.target.closest("td.ticker-cell");
       if (!td) return;
+      if (document.elementsFromPoint(e.clientX, e.clientY).some(el => el.tagName === "TH")) return;
       positionTooltip(tickerTip, e.clientX, e.clientY);
     });
 

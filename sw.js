@@ -1,4 +1,4 @@
-const CACHE = 'baizora-v1';
+const CACHE = 'baizora-v2';
 
 const APP_SHELL = [
   '/',
@@ -30,14 +30,18 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // Always fetch fresh for scanner data and Firebase/Stripe
+  // Always fetch fresh for scanner data, Firebase/Stripe, and HTML pages
   if (
     url.pathname.includes('latest.json') ||
     url.hostname.includes('firebase') ||
     url.hostname.includes('stripe') ||
-    url.hostname.includes('cloudfunctions')
+    url.hostname.includes('cloudfunctions') ||
+    url.pathname.endsWith('.html') ||
+    url.pathname === '/'
   ) {
-    e.respondWith(fetch(e.request));
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match('/index.html'))
+    );
     return;
   }
 
