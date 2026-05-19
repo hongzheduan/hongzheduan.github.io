@@ -286,7 +286,7 @@
     td.group-start { border-left: 2px solid rgba(59,130,246,0.1); }
 
     /* ghost rows */
-    .ghost-rows tr { opacity: 0.3; filter: blur(3px); pointer-events: none; user-select: none; }
+    #sp500Ghost, #nasdaqGhost { display: none !important; }
 
     /* ── CARD VIEW ── */
     #sp500Cards, #nasdaqCards { display: none; }
@@ -465,6 +465,7 @@
       th:first-child { position: sticky; left: 0; z-index: 30; }
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
       tr:hover td.ticker-cell { background: #081229; }
+      .blur-gate { display: none !important; }
     }
     /* Mobile-only elements hidden by default */
     .mobile-tab-strip {
