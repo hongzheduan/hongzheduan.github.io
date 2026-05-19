@@ -139,6 +139,9 @@ def calculate_period_metrics(df, label, days):
     recent["price_change"] = recent["Close"].pct_change()
     recent["volume_change"] = recent["Volume"].pct_change()
 
+    recent["price_change"] = recent["price_change"].replace([np.inf, -np.inf], np.nan)
+    recent["volume_change"] = recent["volume_change"].replace([np.inf, -np.inf], np.nan)
+
     if recent["price_change"].dropna().empty or recent["volume_change"].dropna().empty:
         return {}
 
@@ -151,8 +154,9 @@ def calculate_period_metrics(df, label, days):
     price_at_max_vol = recent["price_change"].iloc[max_vol_idx]
     vol_at_max_price = recent["volume_change"].iloc[max_price_idx]
 
-    price_day = (days - 1 - max_price_idx)
-    volume_day = (days - 1 - max_vol_idx)
+    n = len(recent)
+    price_day = (n - 1 - max_price_idx)
+    volume_day = (n - 1 - max_vol_idx)
 
     return {
         f"{label}PriceChange": round(period_price_change * 100, 2) if period_price_change is not None else None,
@@ -199,11 +203,12 @@ def scan():
             for ticker in batch:
 
                 try:
-                    if ticker not in data:
-                        continue
+                    try:
+                        df = data[ticker][["Close", "Volume"]].dropna()
+                    except KeyError:
+                        df = data[["Close", "Volume"]].dropna()
 
-                    df = data[ticker][["Close", "Volume"]].dropna()
-                    df = df[df["Volume"] > 0]
+                    df = df[(df["Volume"] > 0) & (df["Close"] > 0)]
 
                     if len(df) < 30:
                         continue
@@ -431,7 +436,7 @@ def scan():
 # =========================
 def export(df):
 
-    df = df.replace({np.nan: None})  # IMPORTANT for JSON frontend
+    df = df.replace({np.nan: None, np.inf: None, -np.inf: None})  # IMPORTANT for JSON frontend
 
     df.to_csv(OUTPUT_CSV, index=False)
 
