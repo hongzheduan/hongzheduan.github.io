@@ -562,7 +562,15 @@
       #sp500Table, #nasdaqTable { display: none !important; }
       #sp500Ghost, #nasdaqGhost { display: none !important; }
       #sp500Cards, #nasdaqCards { display: block !important; }
-      .blur-gate { display: none !important; }
+      .blur-gate { height: 240px; padding-bottom: 16px; }
+      .blur-gate-title { font-size: 18px !important; }
+      .blur-gate-sub { display: none; }
+      .gate-btn-primary { padding: 9px 18px; font-size: 12px; }
+      th:first-child { position: sticky; left: 0; z-index: 30; }
+      td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
+      tr:hover td.ticker-cell { background: #081229; }
+    }
+    @media (max-width: 960px) and (orientation: landscape) {
       th:first-child { position: sticky; left: 0; z-index: 30; }
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
       tr:hover td.ticker-cell { background: #081229; }
@@ -808,7 +816,14 @@
       const label = activeTab === "sp500" ? "标普500" : "纳斯达克100";
       statusText.textContent = loadedDate;
       rowCount.innerHTML = `<span class="free-row-label">日涨幅前3 · ${total}支股票 · ${label}</span>`;
+      const eyebrow = document.querySelector(".blur-gate-eyebrow");
+      if (eyebrow) {
+        eyebrow.textContent = window.innerWidth <= 640
+          ? "↻ 横屏查看完整数据表格"
+          : "◈  免费预览 — 500+ 支股票中的 3 支";
+      }
     }
+    window.addEventListener("resize", updateStatus);
 
     /* ── TAB ── */
     window.show = function(id, btn) {

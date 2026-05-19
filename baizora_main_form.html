@@ -522,6 +522,11 @@
       #sp500Table, #nasdaqTable { display: none !important; }
       #sp500Cards, #nasdaqCards { display: block !important; }
     }
+    @media (max-width: 960px) and (orientation: landscape) {
+      th:first-child { position: sticky; left: 0; z-index: 30; }
+      td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
+      tr:hover td.ticker-cell { background: #081229; }
+    }
 
     /* ── CARD GRID (mobile) ── */
     .card-grid {
@@ -794,8 +799,11 @@
       const rows  = activeTab === "sp500" ? spRows.length : ndRows.length;
       const label = activeTab === "sp500" ? "S&P 500" : "Nasdaq 100";
       statusText.textContent = loadedDate;
-      rowCount.textContent   = `${rows} SYMBOLS · ${label}`;
+      rowCount.textContent = window.innerWidth <= 640
+        ? "↻ Rotate to landscape for full table"
+        : `${rows} SYMBOLS · ${label}`;
     }
+    window.addEventListener("resize", updateStatus);
 
     /* ── TAB ── */
     window.show = function(id, btn) {

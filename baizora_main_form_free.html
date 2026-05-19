@@ -453,7 +453,15 @@
       #sp500Table, #nasdaqTable { display: none !important; }
       #sp500Ghost, #nasdaqGhost { display: none !important; }
       #sp500Cards, #nasdaqCards { display: block !important; }
-      .blur-gate { display: none !important; }
+      .blur-gate { height: 240px; padding-bottom: 16px; }
+      .blur-gate-title { font-size: 18px !important; }
+      .blur-gate-sub { display: none; }
+      .gate-btn-primary { padding: 9px 18px; font-size: 12px; }
+      th:first-child { position: sticky; left: 0; z-index: 30; }
+      td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
+      tr:hover td.ticker-cell { background: #081229; }
+    }
+    @media (max-width: 960px) and (orientation: landscape) {
       th:first-child { position: sticky; left: 0; z-index: 30; }
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
       tr:hover td.ticker-cell { background: #081229; }
@@ -696,7 +704,14 @@
       const label = activeTab === "sp500" ? "S&P 500" : "Nasdaq 100";
       statusText.textContent = loadedDate;
       rowCount.innerHTML = `<span class="free-row-label">Top 3 by 1-day price change · ${total} symbols · ${label}</span>`;
+      const eyebrow = document.querySelector(".blur-gate-eyebrow");
+      if (eyebrow) {
+        eyebrow.textContent = window.innerWidth <= 640
+          ? "↻ Rotate to landscape for the full data table"
+          : "◈  Free Preview — 3 of 500+ Symbols";
+      }
     }
+    window.addEventListener("resize", updateStatus);
 
     /* ── TAB ── */
     window.show = function(id, btn) {
