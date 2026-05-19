@@ -203,6 +203,7 @@ def scan():
                         continue
 
                     df = data[ticker][["Close", "Volume"]].dropna()
+                    df = df[df["Volume"] > 0]
 
                     if len(df) < 30:
                         continue
@@ -444,7 +445,7 @@ def export(df):
     with open(OUTPUT_JSON, "w") as f:
         json.dump(payload, f, indent=2)
 
-    print("✅ Export complete:", len(df))
+    print("Export complete:", len(df))
 
 # =========================
 # MAIN
