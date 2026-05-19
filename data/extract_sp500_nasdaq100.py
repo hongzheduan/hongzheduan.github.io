@@ -43,12 +43,12 @@ nasdaq100_symbols = get_symbols(nasdaq100_url)
 
 # Save S&P 500
 with open("sp500_symbols.txt", "w") as f:
-    for symbol in sp500_symbols:
+    for symbol in sorted(sp500_symbols):
         f.write(symbol + "\n")
 
 # Save Nasdaq-100
 with open("nasdaq100_symbols.txt", "w") as f:
-    for symbol in nasdaq100_symbols:
+    for symbol in sorted(nasdaq100_symbols):
         f.write(symbol + "\n")
 
 print(f"Saved {len(sp500_symbols)} S&P 500 symbols")
