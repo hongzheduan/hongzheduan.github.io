@@ -454,6 +454,39 @@
     .mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(59,130,246,0.08); color: var(--white); }
     .mobile-drawer .m-danger { border-color: rgba(239,68,68,0.2); color: #fca5a5; }
 
+    /* ── MOBILE SEARCH ── */
+    .mobile-search-bar {
+      display: none;
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+      padding: 7px 10px;
+      background: rgba(10, 22, 40, 0.9);
+      border-bottom: 1px solid var(--border);
+    }
+    .mobile-search-bar input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      padding: 8px 12px 8px 34px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .mobile-search-bar input::placeholder { color: #475569; }
+    .mobile-search-bar input:focus { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.04); }
+    .mobile-search-icon {
+      position: absolute;
+      left: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #475569;
+      pointer-events: none;
+    }
+
     @media (max-width: 640px) {
       header { padding: 0 16px; }
       .header-divider, .tab-nav, .status-badge, .logout-btn { display: none !important; }
@@ -467,6 +500,7 @@
       th:first-child { position: sticky; left: 0; z-index: 30; }
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
       tr:hover td.ticker-cell { background: #081229; }
+      .mobile-search-bar { display: block; }
     }
   </style>
 </head>
@@ -525,6 +559,14 @@
     </div>
     <div class="toolbar-sep"></div>
     <span class="row-count" id="rowCount"></span>
+  </div>
+
+  <!-- Mobile Search Bar -->
+  <div class="mobile-search-bar" id="mobileSearchBar">
+    <svg class="mobile-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="tickerSearch" placeholder="搜索代码…" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
   </div>
 
   <!-- Table Area -->
@@ -603,6 +645,7 @@
     let sortAsc       = false;
     let currentWindow = "1D";
     let loadedDate    = "";
+    let searchQuery   = "";
 
     /* ── DOM ── */
     const statusDot  = document.getElementById("statusDot");
@@ -655,6 +698,7 @@
       btn.classList.add("active");
       activeTab = id;
       toolbar.style.display = (id === "readme") ? "none" : "flex";
+      document.getElementById("mobileSearchBar").style.display = (id === "readme") ? "none" : "";
       updateStatus();
     };
 
@@ -874,9 +918,16 @@
     /* ── RENDER ── */
     function render() {
       const w = currentWindow;
-      document.getElementById("sp500Table").innerHTML  = buildTable(spRows, w);
-      document.getElementById("nasdaqTable").innerHTML = buildTable(ndRows, w);
+      const filter = r => !searchQuery || r.Ticker.includes(searchQuery);
+      document.getElementById("sp500Table").innerHTML  = buildTable(spRows.filter(filter), w);
+      document.getElementById("nasdaqTable").innerHTML = buildTable(ndRows.filter(filter), w);
     }
+
+    /* ── SEARCH ── */
+    document.getElementById("tickerSearch").addEventListener("input", (e) => {
+      searchQuery = e.target.value.trim().toUpperCase();
+      render();
+    });
 
     /* ── LOGOUT ── */
     const doLogout = async () => { await signOut(auth); window.location.href = "login_cn.html"; };
