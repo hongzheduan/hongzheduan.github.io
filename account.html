@@ -458,8 +458,7 @@
     </a>
     <div class="header-right">
       <a href="dashboard.html" class="nav-btn">↩ Dashboard</a>
-      <span id="headerEmail" style="font-family:'DM Mono',monospace; font-size:11px; color:#94a3b8; letter-spacing:0.05em;"></span>
-      <button class="nav-btn nav-btn-danger" id="headerLogoutBtn" style="display:none;" onclick="doLogout()">↪ Logout</button>
+      <button class="nav-btn nav-btn-danger" id="headerLogoutBtn" style="display:none;" onclick="doLogout()">↪ Sign out</button>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -470,7 +469,7 @@
   <div class="mobile-drawer" id="mobileDrawer">
     <a href="dashboard.html">↩ Dashboard</a>
     <a href="billing.html">View Plans</a>
-    <button class="m-danger" onclick="doLogout(); return false;">↪ Logout</button>
+    <button class="m-danger" onclick="doLogout(); return false;">↪ Sign out</button>
   </div>
 
   <!-- Alert bar -->
@@ -690,7 +689,6 @@
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("notLoggedIn").style.display = "none";
       document.getElementById("headerLogoutBtn").style.display = "inline-flex";
-      document.getElementById("headerEmail").textContent = user.email;
 
       // Fill account info
       document.getElementById("accountEmail").textContent  = user.email;
