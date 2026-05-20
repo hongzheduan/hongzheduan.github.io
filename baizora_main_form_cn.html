@@ -220,7 +220,7 @@
     }
 
     /* ── TABLE AREA ── */
-    .table-area { position: relative; z-index: 10; flex: 1; overflow: auto; }
+    .table-area { position: relative; z-index: 10; flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; transform: translateZ(0); -webkit-transform: translateZ(0); isolation: isolate; }
 
     .table-area::-webkit-scrollbar { width: 6px; height: 6px; }
     .table-area::-webkit-scrollbar-track { background: transparent; }
@@ -516,7 +516,7 @@
     #sp500Cards, #nasdaqCards { display: none; }
 
     @media (max-width: 640px) {
-      header { padding: 0 16px; }
+      header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
       .header-divider, .tab-nav, .status-badge, .logout-btn { display: none !important; }
       .hamburger { display: flex; }
       .toolbar { padding: 6px 10px; gap: 6px; flex-wrap: wrap; height: auto; }
@@ -554,6 +554,9 @@
       display: flex;
       flex-direction: column;
       gap: 7px;
+      will-change: transform;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
 
     .card-header {
