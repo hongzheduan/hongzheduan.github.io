@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.baizora.twa",
+    "sha256_cert_fingerprints": [
+      "18:C1:24:B5:03:B1:9E:55:AC:1F:A6:57:78:01:B4:9D:70:C5:49:BB:69:F7:DD:7C:0D:29:61:DD:09:82:F6:ED"
+    ]
+  }
+}]
