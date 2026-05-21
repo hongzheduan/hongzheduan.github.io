@@ -27,7 +27,7 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { min-height: 100%; }
+    html, body { height: 100%; overflow: hidden; }
 
     body {
       font-family: 'DM Sans', sans-serif;
@@ -147,7 +147,7 @@
       z-index: 50;
       flex-shrink: 0;
       height: 44px;
-      background: rgba(10, 22, 40, 0.9);
+      background: rgba(10, 22, 40, 1);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
@@ -214,7 +214,7 @@
     }
 
     /* ── TABLE AREA ── */
-    .table-area { position: relative; z-index: 10; overflow-x: auto; -webkit-overflow-scrolling: touch; transform: translateZ(0); -webkit-transform: translateZ(0); isolation: isolate; }
+    .table-area { position: relative; z-index: 10; overflow: auto; -webkit-overflow-scrolling: touch; transform: translateZ(0); -webkit-transform: translateZ(0); isolation: isolate; flex: 1; min-height: 0; }
 
     .table-area::-webkit-scrollbar { width: 6px; height: 6px; }
     .table-area::-webkit-scrollbar-track { background: transparent; }
@@ -284,10 +284,9 @@
     td.group-start { border-left: 2px solid rgba(59,130,246,0.1); }
 
     /* ── INFO PANEL ── */
-    #readme { padding: 40px; }
-    .info-panels { display: flex; gap: 48px; align-items: flex-start; }
-    .info-left { flex: 0 0 600px; max-width: 600px; }
-    .info-right { flex: 1; min-width: 260px; }
+    #readme { padding: 32px 40px; }
+    .info-panels { display: flex; gap: 20px; align-items: flex-start; }
+    .info-left, .info-right { flex: 1; min-width: 0; background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 28px; overflow-x: hidden; overflow-wrap: break-word; word-break: break-word; }
 
     #readme h2 {
       font-family: 'DM Serif Display', serif;
@@ -308,7 +307,7 @@
 
     #readme p { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; font-weight: 300; }
 
-    #readme .col-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    #readme .col-table { width: 100%; border-collapse: collapse; margin-top: 16px; table-layout: fixed; }
 
     #readme .col-table th {
       background: rgba(13,30,61,0.6);
@@ -321,13 +320,8 @@
     #readme .col-table th:hover { color: #475569; background: rgba(13,30,61,0.6); }
 
     #readme .col-table td { font-size: 12px; padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--muted); }
-
-    #readme .col-table td:first-child {
-      font-family: 'DM Mono', monospace;
-      color: var(--electric-bright);
-      font-size: 11px;
-      cursor: default;
-    }
+    #readme .col-table td:first-child { font-family: 'DM Mono', monospace; color: var(--electric-bright); font-size: 11px; cursor: default; }
+    #readme .col-table td:last-child { white-space: normal; overflow-wrap: break-word; word-break: break-word; }
 
     /* ── INDEX CHANGES ── */
     .change-entry { margin-bottom: 12px; padding: 12px 14px; background: rgba(13,30,61,0.6); border: 1px solid var(--border); border-radius: 8px; }
@@ -336,7 +330,15 @@
     .change-row { font-family: 'DM Mono', monospace; font-size: 12px; margin-left: 6px; line-height: 1.6; }
     .change-row.added { color: var(--green); }
     .change-row.removed { color: var(--red); }
+    .change-name { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 300; color: #94a3b8; margin-left: 8px; }
     .no-changes-msg { font-size: 12px; color: #64748b; font-style: italic; }
+
+    /* ── MEMBERSHIP CHANGE PANEL ── */
+    #membership { padding: 32px 40px; }
+    .membership-wrap { max-width: 700px; background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
+    #membership h2 { font-family: 'DM Serif Display', serif; font-size: 28px; letter-spacing: -0.02em; color: var(--white); margin-bottom: 8px; }
+    #membership .readme-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 20px; }
+    #membership p { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 20px; font-weight: 300; }
 
     /* ── LOADING OVERLAY ── */
     .loading-overlay {
@@ -414,7 +416,8 @@
       border: 1px solid rgba(59,130,246,0.25);
       border-radius: 10px;
       padding: 14px 16px;
-      min-width: 220px;
+      min-width: 240px;
+      max-width: 300px;
       box-shadow: 0 16px 50px rgba(0,0,0,0.6);
       backdrop-filter: blur(16px);
     }
@@ -430,7 +433,7 @@
     .ticker-tooltip .tt-sector { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); font-weight: 300; }
     .ticker-tooltip .tt-rows { display: flex; flex-direction: column; gap: 6px; }
     .ticker-tooltip .tt-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
-    .ticker-tooltip .tt-key { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; flex-shrink: 0; }
+    .ticker-tooltip .tt-key { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; flex-shrink: 0; }
     .ticker-tooltip .tt-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--white); text-align: right; }
     .ticker-tooltip .tt-val.positive { color: var(--positive); }
     .ticker-tooltip .tt-val.negative { color: var(--negative); }
@@ -530,9 +533,10 @@
       .window-btn { padding: 3px 7px; font-size: 10px; white-space: nowrap; }
       .toolbar-search { display: none; }
       .row-count { font-size: 9px; white-space: nowrap; width: 100%; margin-left: 0; padding-bottom: 2px; }
-      #readme { padding: 24px 16px; }
-      .info-panels { flex-direction: column; gap: 32px; }
-      .info-left { flex: none; max-width: 100%; }
+      #readme, #membership { padding: 24px 16px; }
+      .info-panels { flex-direction: column; gap: 16px; }
+      .info-left, .info-right { flex: none; width: 100%; }
+      .membership-wrap { max-width: none; width: 100%; box-sizing: border-box; }
       th:first-child { position: sticky; left: 0; z-index: 30; }
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
       tr:hover td.ticker-cell { background: #081229; }
@@ -642,7 +646,8 @@
       <nav class="tab-nav">
         <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
         <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
-        <button class="tab-btn" onclick="show('readme', this)">INFO</button>
+        <button class="tab-btn" onclick="show('readme', this)">README</button>
+        <button class="tab-btn" onclick="show('membership', this)">MEMBERSHIP CHANGE</button>
       </nav>
     </div>
 
@@ -666,7 +671,8 @@
   <div class="mobile-drawer" id="mobileDrawer">
     <button onclick="show('sp500', document.querySelectorAll('.tab-btn')[0]); toggleMenu();">S&P 500</button>
     <button onclick="show('nasdaq', document.querySelectorAll('.tab-btn')[1]); toggleMenu();">Nasdaq 100</button>
-    <button onclick="show('readme', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">INFO</button>
+    <button onclick="show('readme', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">README</button>
+    <button onclick="show('membership', document.querySelectorAll('.tab-btn')[3]); toggleMenu();">MEMBERSHIP CHANGE</button>
     <a href="dashboard.html">Dashboard</a>
     <button class="m-danger" id="drawerLogout">↪ Sign out</button>
   </div>
@@ -737,6 +743,7 @@
             Hover any column header to see its description. Hover a ticker for fundamentals.
           </p>
           <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
             <tr><th>Column</th><th>Description</th></tr>
             <tr><td>TICKER</td><td>Stock symbol — hover for PE, Market Cap, EPS, Volatility, and sector comparison</td></tr>
             <tr><td>1Y TREND</td><td>1-year normalized price sparkline. <strong>&#9650; Triangle</strong> = highest-volume day (green=price up, red=price down). <strong>&#9679; Circle</strong> = highest-price-change day (green=volume up, red=volume down).</td></tr>
@@ -756,14 +763,15 @@
           </table>
         </div>
 
-        <!-- Right: Index Membership Changes -->
-        <div class="info-right">
-          <div class="readme-label">◈ &nbsp; Index Changes</div>
-          <h2>Membership Changes</h2>
-          <p>Additions and removals from the S&P 500 and Nasdaq-100, tracked daily. Up to 1 year of history.</p>
-          <div id="indexChangesPanel"><span class="no-changes-msg">Loading…</span></div>
-        </div>
+      </div>
+    </div>
 
+    <div id="membership" class="section">
+      <div class="membership-wrap">
+        <div class="readme-label">◈ &nbsp; Index Changes</div>
+        <h2>Membership Changes</h2>
+        <p>Additions and removals from the S&P 500 and Nasdaq-100, tracked daily. Up to 1 year of history.</p>
+        <div id="indexChangesPanel"><span class="no-changes-msg">Loading…</span></div>
       </div>
     </div>
 
@@ -811,31 +819,50 @@
     });
 
     /* ── INDEX CHANGES ── */
-    function renderIndexChanges(changes) {
+    function renderIndexChanges(entries, trackedSince) {
       const panel = document.getElementById("indexChangesPanel");
       if (!panel) return;
-      if (!changes || changes.length === 0) {
-        panel.innerHTML = '<span class="no-changes-msg">No membership changes recorded in the past year.</span>';
+      if (!entries || entries.length === 0) {
+        const since = trackedSince ? `since ${trackedSince}` : 'since we began tracking';
+        panel.innerHTML = `<span class="no-changes-msg">No membership changes recorded ${since}.</span>`;
         return;
       }
+      const nameMap = {};
+      allRows.forEach(r => { if (r.Ticker && r.CompanyName) nameMap[r.Ticker] = r.CompanyName; });
+
+      function fmtTicker(sym, cls) {
+        const name = nameMap[sym];
+        return `<div class="change-row ${cls}">${cls === 'added' ? '+' : '−'} ${sym}${name ? `<span class="change-name">${name}</span>` : ''}</div>`;
+      }
+
       let html = '';
-      for (const entry of changes) {
+      for (const entry of entries) {
         const sp = entry.sp500 || {};
         const nd = entry.nasdaq100 || {};
         html += `<div class="change-entry"><div class="change-date">${entry.date}</div>`;
         if ((sp.added || []).length || (sp.removed || []).length) {
           html += `<div class="change-index-label">S&amp;P 500</div>`;
-          if ((sp.added || []).length) html += `<div class="change-row added">+ ${sp.added.join(', ')}</div>`;
-          if ((sp.removed || []).length) html += `<div class="change-row removed">− ${sp.removed.join(', ')}</div>`;
+          (sp.added || []).forEach(s => { html += fmtTicker(s, 'added'); });
+          (sp.removed || []).forEach(s => { html += fmtTicker(s, 'removed'); });
         }
         if ((nd.added || []).length || (nd.removed || []).length) {
           html += `<div class="change-index-label">Nasdaq-100</div>`;
-          if ((nd.added || []).length) html += `<div class="change-row added">+ ${nd.added.join(', ')}</div>`;
-          if ((nd.removed || []).length) html += `<div class="change-row removed">− ${nd.removed.join(', ')}</div>`;
+          (nd.added || []).forEach(s => { html += fmtTicker(s, 'added'); });
+          (nd.removed || []).forEach(s => { html += fmtTicker(s, 'removed'); });
         }
         html += '</div>';
       }
       panel.innerHTML = html;
+    }
+
+    function loadIndexChanges() {
+      fetch("data/index_changes.json")
+        .then(r => r.json())
+        .then(data => renderIndexChanges(data.entries || [], data.trackedSince || ""))
+        .catch(() => {
+          const panel = document.getElementById("indexChangesPanel");
+          if (panel) panel.innerHTML = '<span class="no-changes-msg">Change history not yet available.</span>';
+        });
     }
 
     /* ── LOAD ── */
@@ -847,11 +874,11 @@
           loadedDate = json.date || "—";
           spRows = allRows.filter(x => x.InSP500);
           ndRows = allRows.filter(x => x.InNASDAQ100);
-          renderIndexChanges(json.indexChanges || []);
           overlay.classList.add("hidden");
           statusDot.className = "status-dot";
           render();
           updateStatus();
+          loadIndexChanges();
         })
         .catch(err => {
           console.error(err);
@@ -879,8 +906,8 @@
       document.getElementById(id).classList.add("active");
       btn.classList.add("active");
       activeTab = id;
-      toolbar.style.display = (id === "readme") ? "none" : "flex";
-      document.getElementById("mobileSearchBar").style.display = (id === "readme") ? "none" : "";
+      toolbar.style.display = (id === "readme" || id === "membership") ? "none" : "flex";
+      document.getElementById("mobileSearchBar").style.display = (id === "readme" || id === "membership") ? "none" : "";
       updateStatus();
     };
 
@@ -1347,7 +1374,7 @@
 
     function buildTickerTooltip(r) {
       ttSym.textContent    = r.Ticker;
-      ttSector.textContent = r.Sector || "";
+      ttSector.textContent = r.CompanyName || r.Sector || "";
       const peVsSecN   = parseFloat(r.PE_vs_Sector);
       const peVsSecCls = isNaN(peVsSecN) ? "muted" : peVsSecN > 0 ? "positive" : "negative";
       ttRows.innerHTML = `

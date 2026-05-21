@@ -140,31 +140,32 @@ def update_and_detect_changes():
 
 def load_update_index_changes(changes_entry):
     """
-    Prepend changes_entry (if any) to index_changes.json,
-    prune entries older than 1 year, save, and return full list.
+    Prepend changes_entry (if any) to index_changes.json.
+    Keeps full history (no pruning). Stores trackedSince on first run.
     """
     path = os.path.join(DATA_DIR, "index_changes.json")
 
-    existing = []
+    existing = {}
     if os.path.exists(path):
         try:
             with open(path) as f:
                 existing = json.load(f)
         except Exception:
-            existing = []
+            existing = {}
+
+    entries = existing.get("entries", [])
+    tracked_since = existing.get("trackedSince", DATE_STR)
 
     if changes_entry is not None:
-        existing.insert(0, changes_entry)
+        entries.insert(0, changes_entry)
         print(f"Index change recorded: {changes_entry}")
 
-    # Prune entries older than 1 year
-    cutoff = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
-    existing = [e for e in existing if e.get("date", "") >= cutoff]
+    data = {"trackedSince": tracked_since, "entries": entries}
 
     with open(path, "w") as f:
-        json.dump(existing, f, indent=2)
+        json.dump(data, f, indent=2)
 
-    return existing
+    return data
 
 
 def cleanup_old_archives():
@@ -237,7 +238,8 @@ def get_fundamentals(ticker):
             "MarketCap": info.get("marketCap"),
             "EPS": info.get("trailingEps"),
             "Sector": info.get("sector"),
-            "Volatility30D": info.get("beta")
+            "Volatility30D": info.get("beta"),
+            "CompanyName": info.get("longName") or info.get("shortName"),
         }
 
     except Exception:
@@ -246,7 +248,8 @@ def get_fundamentals(ticker):
             "MarketCap": None,
             "EPS": None,
             "Sector": None,
-            "Volatility30D": None
+            "Volatility30D": None,
+            "CompanyName": None,
         }
 
     _fund_cache[ticker] = result
@@ -456,6 +459,7 @@ def scan():
                         "EPS": fund["EPS"],
                         "Sector": fund["Sector"],
                         "Volatility30D": fund["Volatility30D"],
+                        "CompanyName": fund["CompanyName"],
                         "Spark6M": spark_6m,
                         "Spark1Y": spark_1y,
                     })
@@ -508,7 +512,7 @@ def scan():
 # =========================
 # EXPORT
 # =========================
-def export(df, index_changes=None):
+def export(df):
 
     df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
 
@@ -518,8 +522,7 @@ def export(df, index_changes=None):
         "date": DATE_STR,
         "status": "Updated",
         "count": len(df),
-        "data": df.to_dict(orient="records"),
-        "indexChanges": index_changes or []
+        "data": df.to_dict(orient="records")
     }
 
     with open(OUTPUT_JSON, "w") as f:
@@ -537,8 +540,8 @@ if __name__ == "__main__":
     # 1. Fetch fresh index lists and detect membership changes
     _, _, changes_entry = update_and_detect_changes()
 
-    # 2. Update index_changes.json (append if changed, prune entries > 1 year old)
-    all_changes = load_update_index_changes(changes_entry)
+    # 2. Update index_changes.json (append if changed, keep full history)
+    load_update_index_changes(changes_entry)
 
     # 3. Delete archive CSVs older than 7 days
     cleanup_old_archives()
@@ -548,7 +551,7 @@ if __name__ == "__main__":
 
     print(df.head(10))
 
-    # 5. Export with full index change history
-    export(df, all_changes)
+    # 5. Export results
+    export(df)
 
     print("Done")

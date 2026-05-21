@@ -943,6 +943,7 @@
       <div class="hero-bullets">
         <div class="hero-bullet">All metrics in one view — no tab-switching</div>
         <div class="hero-bullet">1-year price trend with max volume &amp; price-change dates marked</div>
+        <div class="hero-bullet">S&amp;P 500 &amp; Nasdaq-100 index membership changes tracked daily</div>
         <div class="hero-bullet">Sort any timeframe to discover price & volume changes instantly</div>
         <div class="hero-bullet">Fundamentals at a glance: PE, Market Cap, EPS, Volatility</div>
       </div>
@@ -989,8 +990,9 @@
           </div>
           <div class="dash-divider"></div>
           <div class="dash-tabs">
-            <span class="dash-tab active">S&amp;P 500</span>
-            <span class="dash-tab">NASDAQ 100</span>
+            <span class="dash-tab active" onclick="showDemoTab('data',this)">S&amp;P 500</span>
+            <span class="dash-tab" onclick="showDemoTab('data',this)">NASDAQ 100</span>
+            <span class="dash-tab" onclick="showDemoTab('chgs',this)">INDEX CHGS</span>
           </div>
         </div>
 
@@ -1021,6 +1023,34 @@
 
         </div>
         <div id="mockBody"></div>
+
+        <div id="mockChanges" style="display:none; padding:12px 10px; font-family:'DM Mono',monospace; font-size:11px; line-height:2.0;">
+          <div style="color:#64748b; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px;">Recent index membership changes</div>
+
+          <div style="margin-bottom:12px;">
+            <div style="color:#94a3b8; font-size:9px; letter-spacing:0.1em; margin-bottom:4px;">2026-05-18 &nbsp;·&nbsp; NASDAQ 100</div>
+            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">LITE</span> <span style="color:#64748b; font-size:10px;">Insteel Industries</span></div>
+            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">CSGP</span> <span style="color:#64748b; font-size:10px;">CoStar Group</span></div>
+          </div>
+
+          <div style="margin-bottom:12px;">
+            <div style="color:#94a3b8; font-size:9px; letter-spacing:0.1em; margin-bottom:4px;">2026-04-20 &nbsp;·&nbsp; NASDAQ 100</div>
+            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">SNDK</span> <span style="color:#64748b; font-size:10px;">SanDisk</span></div>
+            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">TEAM</span> <span style="color:#64748b; font-size:10px;">Atlassian</span></div>
+          </div>
+
+          <div style="margin-bottom:12px;">
+            <div style="color:#94a3b8; font-size:9px; letter-spacing:0.1em; margin-bottom:4px;">2026-03-23 &nbsp;·&nbsp; S&amp;P 500</div>
+            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">VRT</span> <span style="color:#64748b; font-size:10px;">Vertiv Holdings</span></div>
+            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">LITE</span> <span style="color:#64748b; font-size:10px;">Insteel Industries</span></div>
+            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MTCH</span> <span style="color:#64748b; font-size:10px;">Match Group</span></div>
+            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MOH</span> <span style="color:#64748b; font-size:10px;">Molina Healthcare</span></div>
+          </div>
+
+          <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:8px; color:#475569; font-size:9px; letter-spacing:0.08em;">
+            Full history available in dashboard &nbsp;·&nbsp; Tracked since 2026-01-20
+          </div>
+        </div>
 
         <!-- Hint bar -->
         <div style="padding:8px 8px; background:rgba(29,78,216,0.06); border-top:1px solid rgba(29,78,216,0.15); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -1385,6 +1415,16 @@ const MOCK_DATA = [
 
 let mockSortCol = 'chg';
 let mockSortAsc = false;
+
+window.showDemoTab = function(mode, el) {
+  document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const isChgs = mode === 'chgs';
+  document.getElementById('mockThead').style.display = isChgs ? 'none' : '';
+  document.getElementById('mockBody').style.display = isChgs ? 'none' : '';
+  document.getElementById('mockChanges').style.display = isChgs ? 'block' : 'none';
+  document.querySelector('.dash-toolbar').style.display = isChgs ? 'none' : '';
+};
 
 function cc(v) {
   const n = parseFloat(v);
