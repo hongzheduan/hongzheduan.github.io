@@ -293,8 +293,11 @@
     th.group-start { border-left: 2px solid rgba(59,130,246,0.2); }
     td.group-start { border-left: 2px solid rgba(59,130,246,0.1); }
 
-    /* ── README PANEL ── */
-    #readme { padding: 40px; max-width: 680px; }
+    /* ── INFO PANEL ── */
+    #readme { padding: 40px; }
+    .info-panels { display: flex; gap: 48px; align-items: flex-start; }
+    .info-left { flex: 0 0 600px; max-width: 600px; }
+    .info-right { flex: 1; min-width: 260px; }
 
     #readme h2 {
       font-family: 'DM Serif Display', serif;
@@ -335,6 +338,15 @@
       font-size: 11px;
       cursor: default;
     }
+
+    /* ── INDEX CHANGES ── */
+    .change-entry { margin-bottom: 12px; padding: 12px 14px; background: rgba(13,30,61,0.6); border: 1px solid var(--border); border-radius: 8px; }
+    .change-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); margin-bottom: 6px; }
+    .change-index-label { font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin: 6px 0 3px; }
+    .change-row { font-family: 'DM Mono', monospace; font-size: 12px; margin-left: 6px; line-height: 1.6; }
+    .change-row.added { color: var(--green); }
+    .change-row.removed { color: var(--red); }
+    .no-changes-msg { font-size: 12px; color: #64748b; font-style: italic; }
 
     /* ── LOADING OVERLAY ── */
     .loading-overlay {
@@ -529,6 +541,8 @@
       .toolbar-search { display: none; }
       .row-count { font-size: 9px; white-space: nowrap; width: 100%; margin-left: 0; padding-bottom: 2px; }
       #readme { padding: 24px 16px; }
+      .info-panels { flex-direction: column; gap: 32px; }
+      .info-left { flex: none; max-width: 100%; }
       th:first-child { position: sticky; left: 0; z-index: 30; }
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
       tr:hover td.ticker-cell { background: #081229; }
@@ -638,7 +652,7 @@
       <nav class="tab-nav">
         <button class="tab-btn active" onclick="show('sp500', this)">标普500</button>
         <button class="tab-btn" onclick="show('nasdaq', this)">纳斯达克100</button>
-        <button class="tab-btn" onclick="show('readme', this)">指标详释</button>
+        <button class="tab-btn" onclick="show('readme', this)">信息</button>
       </nav>
     </div>
 
@@ -662,7 +676,7 @@
   <div class="mobile-drawer" id="mobileDrawer">
     <button onclick="show('sp500', document.querySelectorAll('.tab-btn')[0]); toggleMenu();">标普500</button>
     <button onclick="show('nasdaq', document.querySelectorAll('.tab-btn')[1]); toggleMenu();">纳斯达克100</button>
-    <button onclick="show('readme', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">指标详释</button>
+    <button onclick="show('readme', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">信息</button>
     <a href="dashboard_cn.html">个人主页</a>
     <button class="m-danger" id="drawerLogout">↪ 退出登录</button>
   </div>
@@ -716,35 +730,50 @@
     </div>
 
     <div id="readme" class="section">
-      <div class="readme-label">◈ &nbsp; 说明文档</div>
-      <h2>信号说明</h2>
-      <p>
-        Baizora 在美股每日收盘后扫描标普500和纳斯达克100成分股。
-        每行数据反映股票在滚动窗口内相对于近期历史的量价表现，采用一致的统计比较方法。
-      </p>
-      <p>
-        信号仅供参考，不构成买入、卖出或持有建议。
-        使用周期按钮切换时间窗口（1天至1年）。1天视图显示当日指标，其他周期显示该窗口的总价格变动及单日最大值统计。
-        悬停列标题查看说明，悬停代码查看基本面数据。
-      </p>
-      <table class="col-table">
-        <tr><th>列名</th><th>说明</th></tr>
-        <tr><td>代码</td><td>股票代码 — 悬停查看市盈率、市值、EPS、波动率及行业对比</td></tr>
-        <tr><td>年趋势线</td><td>一年标准化价格走势图。<strong>&#9650; 三角形 </strong> = 最大成交量上涨日（绿色=价格上涨，红色=价格下跌）。 <strong>&#9679; 圆圈</strong> = 价格上涨最大日（绿色=成交量上升，红色=成交量下降）。</td></tr>
-        <tr><td>价格</td><td>最新收盘价（美元）</td></tr>
-        <tr><td>成交量（百万）</td><td>以百万股为单位的成交量</td></tr>
-        <tr><td>日价格变化</td><td>与前一收盘价相比的价格变动（始终显示）</td></tr>
-        <tr><td>价格/MA21</td><td>价格与21日均线的比值（>1表示价格在均线上方）</td></tr>
-        <tr><td>日成交量变化</td><td>与前一交易日成交量相比的变动（始终显示）</td></tr>
-        <tr><td>成交量/MA21</td><td>成交量与21日均量的比值（>1表示成交量偏高）</td></tr>
-        <tr><td>总涨幅</td><td>从所选周期起始至今的总价格变动（%）— 仅在2周及以上周期显示</td></tr>
-        <tr><td>日最大价涨</td><td>所选周期内最大单日价格涨幅</td></tr>
-        <tr><td>最大价涨日</td><td>最大单日价涨发生于多少天前</td></tr>
-        <tr><td>量@价日</td><td>最大价涨当日的成交量变化</td></tr>
-        <tr><td>日最大量涨</td><td>所选周期内最大单日成交量涨幅</td></tr>
-        <tr><td>最大量涨日</td><td>最大单日量涨发生于多少天前</td></tr>
-        <tr><td>价@量日</td><td>最大量涨当日的价格变化</td></tr>
-      </table>
+      <div class="info-panels">
+
+        <!-- 左侧：信号说明 -->
+        <div class="info-left">
+          <div class="readme-label">◈ &nbsp; 说明文档</div>
+          <h2>信号说明</h2>
+          <p>
+            Baizora 在美股每日收盘后扫描标普500和纳斯达克100成分股。
+            每行数据反映股票在滚动窗口内相对于近期历史的量价表现，采用一致的统计比较方法。
+          </p>
+          <p>
+            信号仅供参考，不构成买入、卖出或持有建议。
+            使用周期按钮切换时间窗口（1天至1年）。1天视图显示当日指标，其他周期显示该窗口的总价格变动及单日最大值统计。
+            悬停列标题查看说明，悬停代码查看基本面数据。
+          </p>
+          <table class="col-table">
+            <tr><th>列名</th><th>说明</th></tr>
+            <tr><td>代码</td><td>股票代码 — 悬停查看市盈率、市值、EPS、波动率及行业对比</td></tr>
+            <tr><td>年趋势线</td><td>一年标准化价格走势图。<strong>&#9650; 三角形 </strong> = 最大成交量上涨日（绿色=价格上涨，红色=价格下跌）。 <strong>&#9679; 圆圈</strong> = 价格上涨最大日（绿色=成交量上升，红色=成交量下降）。</td></tr>
+            <tr><td>价格</td><td>最新收盘价（美元）</td></tr>
+            <tr><td>成交量（百万）</td><td>以百万股为单位的成交量</td></tr>
+            <tr><td>日价格变化</td><td>与前一收盘价相比的价格变动（始终显示）</td></tr>
+            <tr><td>价格/MA21</td><td>价格与21日均线的比值（>1表示价格在均线上方）</td></tr>
+            <tr><td>日成交量变化</td><td>与前一交易日成交量相比的变动（始终显示）</td></tr>
+            <tr><td>成交量/MA21</td><td>成交量与21日均量的比值（>1表示成交量偏高）</td></tr>
+            <tr><td>总涨幅</td><td>从所选周期起始至今的总价格变动（%）— 仅在2周及以上周期显示</td></tr>
+            <tr><td>日最大价涨</td><td>所选周期内最大单日价格涨幅</td></tr>
+            <tr><td>最大价涨日</td><td>最大单日价涨发生于多少天前</td></tr>
+            <tr><td>量@价日</td><td>最大价涨当日的成交量变化</td></tr>
+            <tr><td>日最大量涨</td><td>所选周期内最大单日成交量涨幅</td></tr>
+            <tr><td>最大量涨日</td><td>最大单日量涨发生于多少天前</td></tr>
+            <tr><td>价@量日</td><td>最大量涨当日的价格变化</td></tr>
+          </table>
+        </div>
+
+        <!-- 右侧：指数成分变动 -->
+        <div class="info-right">
+          <div class="readme-label">◈ &nbsp; 指数变动</div>
+          <h2>成分股变动</h2>
+          <p>标普500与纳斯达克100每日成分股新增与移除记录，保留最近一年历史。</p>
+          <div id="indexChangesPanel"><span class="no-changes-msg">加载中…</span></div>
+        </div>
+
+      </div>
     </div>
 
   </div>
@@ -790,6 +819,34 @@
       loadDashboard();
     });
 
+    /* ── INDEX CHANGES ── */
+    function renderIndexChanges(changes) {
+      const panel = document.getElementById("indexChangesPanel");
+      if (!panel) return;
+      if (!changes || changes.length === 0) {
+        panel.innerHTML = '<span class="no-changes-msg">近一年内暂无成分股变动记录。</span>';
+        return;
+      }
+      let html = '';
+      for (const entry of changes) {
+        const sp = entry.sp500 || {};
+        const nd = entry.nasdaq100 || {};
+        html += `<div class="change-entry"><div class="change-date">${entry.date}</div>`;
+        if ((sp.added || []).length || (sp.removed || []).length) {
+          html += `<div class="change-index-label">标普500</div>`;
+          if ((sp.added || []).length) html += `<div class="change-row added">+ ${sp.added.join(', ')}</div>`;
+          if ((sp.removed || []).length) html += `<div class="change-row removed">− ${sp.removed.join(', ')}</div>`;
+        }
+        if ((nd.added || []).length || (nd.removed || []).length) {
+          html += `<div class="change-index-label">纳斯达克100</div>`;
+          if ((nd.added || []).length) html += `<div class="change-row added">+ ${nd.added.join(', ')}</div>`;
+          if ((nd.removed || []).length) html += `<div class="change-row removed">− ${nd.removed.join(', ')}</div>`;
+        }
+        html += '</div>';
+      }
+      panel.innerHTML = html;
+    }
+
     /* ── LOAD ── */
     function loadDashboard() {
       fetch("data/latest.json")
@@ -799,6 +856,7 @@
           loadedDate = json.date || "—";
           spRows = allRows.filter(x => x.InSP500);
           ndRows = allRows.filter(x => x.InNASDAQ100);
+          renderIndexChanges(json.indexChanges || []);
           overlay.classList.add("hidden");
           statusDot.className = "status-dot";
           render();

@@ -42,6 +42,8 @@ jobs:
           git stash pop
 
           git add data/latest.json || echo "data/latest.json not found, skipping"
+          git add data/index_changes.json 2>/dev/null || echo "data/index_changes.json not found, skipping"
+          git add data/sp500_symbols.txt data/nasdaq100_symbols.txt 2>/dev/null || echo "Symbol files not found, skipping"
           git add archive/*.csv 2>/dev/null || echo "No archive csv files found, skipping"
 
           if git diff --cached --quiet; then
