@@ -96,10 +96,16 @@
       50% { opacity: 0.5; transform: scale(0.75); }
     }
 
-    /* ── HEADER ── */
-    header {
+    /* ── SITE TOP (sticky wrapper for announcement + header) ── */
+    .site-top {
       position: sticky;
       top: 0;
+      z-index: 200;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
       z-index: 200;
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -892,6 +898,7 @@
 </head>
 <body>
 
+<div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
   &nbsp; 完全免费试用七天 &nbsp;·&nbsp; 联系我们：support@baizora.com
@@ -917,6 +924,7 @@
     <span></span><span></span><span></span>
   </button>
 </header>
+</div><!-- /.site-top -->
 
 <div class="mobile-drawer" id="mobileDrawer">
   <a href="assets/about_cn.html">平台简介</a>

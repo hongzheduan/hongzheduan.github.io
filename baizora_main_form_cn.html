@@ -27,7 +27,7 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; overflow: hidden; }
+    html, body { min-height: 100%; }
 
     body {
       font-family: 'DM Sans', sans-serif;
@@ -51,7 +51,8 @@
 
     /* ── HEADER ── */
     header {
-      position: relative;
+      position: sticky;
+      top: 0;
       z-index: 100;
       flex-shrink: 0;
       height: 56px;
@@ -149,8 +150,9 @@
 
     /* ── TOOLBAR ── */
     .toolbar {
-      position: relative;
-      z-index: 10;
+      position: sticky;
+      top: 56px;
+      z-index: 50;
       flex-shrink: 0;
       height: 44px;
       background: rgba(10, 22, 40, 0.9);
@@ -220,7 +222,7 @@
     }
 
     /* ── TABLE AREA ── */
-    .table-area { position: relative; z-index: 10; flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; transform: translateZ(0); -webkit-transform: translateZ(0); isolation: isolate; }
+    .table-area { position: relative; z-index: 10; overflow-x: auto; -webkit-overflow-scrolling: touch; transform: translateZ(0); -webkit-transform: translateZ(0); isolation: isolate; }
 
     .table-area::-webkit-scrollbar { width: 6px; height: 6px; }
     .table-area::-webkit-scrollbar-track { background: transparent; }
@@ -232,7 +234,7 @@
 
     table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 12px; }
 
-    thead { position: sticky; top: 0; z-index: 20; }
+    thead { position: sticky; top: 100px; z-index: 20; }
 
     th {
       background: rgba(10, 22, 40, 0.98);
