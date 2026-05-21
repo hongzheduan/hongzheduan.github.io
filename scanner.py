@@ -160,7 +160,7 @@ def load_update_index_changes(changes_entry):
         entries.insert(0, changes_entry)
         print(f"Index change recorded: {changes_entry}")
 
-    data = {"trackedSince": tracked_since, "entries": entries}
+    data = {"trackedSince": tracked_since, "lastChecked": DATE_STR, "entries": entries}
 
     with open(path, "w") as f:
         json.dump(data, f, indent=2)

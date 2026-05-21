@@ -1,4 +1,4 @@
-const CACHE = 'baizora-v2';
+const CACHE = 'baizora-v3';
 
 const APP_SHELL = [
   '/',
@@ -32,7 +32,7 @@ self.addEventListener('fetch', e => {
 
   // Always fetch fresh for scanner data, Firebase/Stripe, and HTML pages
   if (
-    url.pathname.includes('latest.json') ||
+    url.pathname.startsWith('/data/') ||
     url.hostname.includes('firebase') ||
     url.hostname.includes('stripe') ||
     url.hostname.includes('cloudfunctions') ||

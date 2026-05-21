@@ -332,6 +332,7 @@
     .change-row.removed { color: var(--red); }
     .change-name { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 300; color: #94a3b8; margin-left: 8px; }
     .no-changes-msg { font-size: 12px; color: #64748b; font-style: italic; }
+    .changes-checked { margin-bottom: 14px; font-family: 'DM Mono', monospace; font-size: 10px; color: #94a3b8; }
 
     /* ── MEMBERSHIP CHANGE PANEL ── */
     #membership { padding: 32px 40px; }
@@ -819,12 +820,13 @@
     });
 
     /* ── INDEX CHANGES ── */
-    function renderIndexChanges(entries, trackedSince) {
+    function renderIndexChanges(entries, trackedSince, lastChecked) {
       const panel = document.getElementById("indexChangesPanel");
       if (!panel) return;
+      const checkedLine = lastChecked ? `<div class="changes-checked">Last checked: ${lastChecked}</div>` : '';
       if (!entries || entries.length === 0) {
         const since = trackedSince ? `since ${trackedSince}` : 'since we began tracking';
-        panel.innerHTML = `<span class="no-changes-msg">No membership changes recorded ${since}.</span>`;
+        panel.innerHTML = `${checkedLine}<span class="no-changes-msg">No membership changes recorded ${since}.</span>`;
         return;
       }
       const nameMap = {};
@@ -835,7 +837,7 @@
         return `<div class="change-row ${cls}">${cls === 'added' ? '+' : '−'} ${sym}${name ? `<span class="change-name">${name}</span>` : ''}</div>`;
       }
 
-      let html = '';
+      let html = checkedLine;
       for (const entry of entries) {
         const sp = entry.sp500 || {};
         const nd = entry.nasdaq100 || {};
@@ -858,7 +860,7 @@
     function loadIndexChanges() {
       fetch("data/index_changes.json")
         .then(r => r.json())
-        .then(data => renderIndexChanges(data.entries || [], data.trackedSince || ""))
+        .then(data => renderIndexChanges(data.entries || [], data.trackedSince || "", data.lastChecked || ""))
         .catch(() => {
           const panel = document.getElementById("indexChangesPanel");
           if (panel) panel.innerHTML = '<span class="no-changes-msg">Change history not yet available.</span>';
