@@ -752,11 +752,11 @@
             <tr><td>代码</td><td>股票代码 — 悬停查看市盈率、市值、EPS、波动率及行业对比</td></tr>
             <tr><td>年趋势线</td><td>一年标准化价格走势图。<strong>&#9650; 三角形 </strong> = 最大成交量上涨日（绿色=价格上涨，红色=价格下跌）。 <strong>&#9679; 圆圈</strong> = 价格上涨最大日（绿色=成交量上升，红色=成交量下降）。</td></tr>
             <tr><td>价格</td><td>最新收盘价（美元）</td></tr>
-            <tr><td>成交量（百万）</td><td>以百万股为单位的成交量</td></tr>
-            <tr><td>日价格变化</td><td>与前一收盘价相比的价格变动（始终显示）</td></tr>
-            <tr><td>价格/MA21</td><td>价格与21日均线的比值（>1表示价格在均线上方）</td></tr>
-            <tr><td>日成交量变化</td><td>与前一交易日成交量相比的变动（始终显示）</td></tr>
-            <tr><td>成交量/MA21</td><td>成交量与21日均量的比值（>1表示成交量偏高）</td></tr>
+            <tr><td>成交量（百万）</td><td>最近交易日以百万股为单位的成交量</td></tr>
+            <tr><td>日价格变化</td><td>与前一交易日收盘价相比的价格变动（%）</td></tr>
+            <tr><td>价格/MA21</td><td>最新收盘价与21日均线的比值（>1表示价格在均线上方）</td></tr>
+            <tr><td>日成交量变化</td><td>与前一交易日相比成交量的变动</td></tr>
+            <tr><td>成交量/MA21</td><td>最近交易日成交量与21日均量的比值（>1表示成交量偏高）</td></tr>
             <tr><td>总涨幅</td><td>从所选周期起始至今的总价格变动（%）— 仅在2周及以上周期显示</td></tr>
             <tr><td>日最大价涨</td><td>所选周期内最大单日价格涨幅</td></tr>
             <tr><td>最大价涨日</td><td>最大单日价涨发生于多少天前</td></tr>
@@ -1002,7 +1002,7 @@
       let windowHead = "";
       if (!is1D) {
         windowHead = `
-          ${thSort(`${w}PriceChange`,            "年涨幅",   "group-start")}
+          ${thSort(`${w}PriceChange`,            "总涨幅",   "group-start")}
           ${thSort(`${w}MaxPriceChange`,          "日最大价涨")}
           ${thSort(`${w}MaxPriceChangeDay`,        "最大价涨日")}
           ${thSort(`${w}VolumeChangeAtMaxPrice`,   "量@价日")}
@@ -1152,21 +1152,24 @@
       "Ticker":          { label: "代码",    desc: "股票代码。悬停查看市盈率、市值、EPS、波动率及行业对比。" },
       "Spark1Y":         { label: "年趋势线",  desc: "一年标准化价格走势图。▲ 三角形 = 成交量最高日（绿色=价格上涨，红色=价格下跌）。● 圆圈 = 价格变动最大日（绿色=成交量上升，红色=成交量下降）。" },
       "Price":           { label: "价格",     desc: "最新收盘价（美元）。" },
-      "VolumeM":         { label: "成交量(M)",   desc: "最新交易日以百万股计的成交量。" },
+      "VolumeM":         { label: "成交量(M)",   desc: "最近交易日以百万股为单位的成交量" },
       "PriceChange1D":   { label: "日价格变化",       desc: "与前一交易日收盘价相比的价格变动（%）。" },
-      "VolumeChange1D":  { label: "日成交量变化",   desc: "与前一交易日成交量相比的变动（%）。" },
-      "PriceVsMA21_1D":  { label: "价格/MA21",    desc: "当前价格与21日均线的比值。大于1表示价格在均线上方。" },
-      "VolumeVsMA21_1D": { label: "量/MA21",    desc: "当前成交量与21日均量的比值。大于1表示成交量偏高。" },
+      "VolumeChange1D":  { label: "日成交量变化",   desc: "与前一交易日相比成交量的变动（%）。" },
+      "PriceVsMA21_1D":  { label: "价格/MA21",    desc: "最新收盘价与21日均线的比值（>1表示价格在均线上方）。" },
+      "VolumeVsMA21_1D": { label: "量/MA21",    desc: "最近交易日成交量与21日均量的比值（>1表示成交量偏高）。" },
     };
 
+    const WIN_CN = { "1D": "1天", "2W": "2周", "1M": "1月", "3M": "3月", "6M": "6月", "9M": "9月", "1Y": "1年" };
+
     function getWindowColDesc(key, w) {
-      if (key === `${w}PriceChange`)            return { label: "总涨幅",    desc: `从${w}周期起始至今的总价格变动（%）。` };
-      if (key === `${w}MaxPriceChange`)         return { label: "日最大价涨",    desc: `${w}周期内最大单日价格涨幅（%）。` };
-      if (key === `${w}MaxVolumeChange`)        return { label: "日最大量涨",    desc: `${w}周期内最大单日成交量涨幅（%）。` };
-      if (key === `${w}MaxPriceChangeDay`)      return { label: "最大价涨日",   desc: `${w}周期内最大价涨发生于多少天前。` };
-      if (key === `${w}MaxVolumeChangeDay`)     return { label: "最大量涨日",   desc: `${w}周期内最大量涨发生于多少天前。` };
-      if (key === `${w}PriceChangeAtMaxVolume`) return { label: "价@量日",   desc: `${w}周期内最大量涨当日的价格变化（%）。` };
-      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: "量@价日", desc: `${w}周期内最大价涨当日的成交量变化（%）。` };
+      const wl = WIN_CN[w] || w;
+      if (key === `${w}PriceChange`)            return { label: "总涨幅",    desc: `从${wl}周期起始至今的总价格变动（%）。` };
+      if (key === `${w}MaxPriceChange`)         return { label: "日最大价涨",    desc: `${wl}周期内最大单日价格涨幅（%）。` };
+      if (key === `${w}MaxVolumeChange`)        return { label: "日最大量涨",    desc: `${wl}周期内最大单日成交量涨幅（%）。` };
+      if (key === `${w}MaxPriceChangeDay`)      return { label: "最大价涨日",   desc: `${wl}周期内最大价涨发生于多少天前。` };
+      if (key === `${w}MaxVolumeChangeDay`)     return { label: "最大量涨日",   desc: `${wl}周期内最大量涨发生于多少天前。` };
+      if (key === `${w}PriceChangeAtMaxVolume`) return { label: "价@量日",   desc: `${wl}周期内最大量涨当日的价格变化（%）。` };
+      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: "量@价日", desc: `${wl}周期内最大价涨当日的成交量变化（%）。` };
       return null;
     }
 
