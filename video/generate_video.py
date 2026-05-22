@@ -1127,8 +1127,8 @@ def scene_screenshot(path):
     return img
 
 
-_SS_EN = "C:/Users/hongz/Desktop/baizora_homepage_Screenshot.png"
-_SS_CN = "C:/Users/hongz/Desktop/baizora_homepage_Screenshot_cn.png"
+_SS_EN = str(SCRIPT_DIR / "baizora_homepage_Screenshot.png")
+_SS_CN = str(SCRIPT_DIR / "baizora_homepage_Screenshot_cn.png")
 
 
 # ── Sparklines scene ─────────────────────────────────────────────────────────
