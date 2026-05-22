@@ -75,9 +75,26 @@ jobs:
             python video/generate_video.py --type $type
           done
 
-      - name: Upload videos as artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: videos-${{ github.run_id }}
-          path: video/*.mp4
-          retention-days: 7
+      - name: Upload weekday videos to YouTube
+        if: github.event.schedule != '0 12 * * 6'
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
+          for type in sp500_movers nasdaq_movers volume_spikes extreme_1y volume_spikes_cn; do
+            python video/upload_youtube.py --file video/${type}.mp4 --type $type --date $DATE
+          done
+
+      - name: Upload weekend videos to YouTube
+        if: github.event.schedule == '0 12 * * 6'
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
+          for type in platform_intro platform_intro_cn; do
+            python video/upload_youtube.py --file video/${type}.mp4 --type $type --date $DATE
+          done
