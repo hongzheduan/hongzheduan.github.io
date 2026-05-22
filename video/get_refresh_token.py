@@ -32,7 +32,7 @@ def main():
 
     print("\n" + "=" * 60)
     print("Add these three values as GitHub repository secrets:")
-    print("  Settings → Secrets and variables → Actions → New secret")
+    print("  Settings > Secrets and variables > Actions > New secret")
     print("=" * 60)
     print(f"\nYOUTUBE_CLIENT_ID\n{creds.client_id}")
     print(f"\nYOUTUBE_CLIENT_SECRET\n{creds.client_secret}")
