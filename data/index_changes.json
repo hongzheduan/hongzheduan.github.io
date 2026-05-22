@@ -1,12 +1,16 @@
 {
   "trackedSince": "2026-01-20",
-  "lastChecked": "2026-05-21",
+  "lastChecked": "2026-05-22",
   "entries": [
     {
       "date": "2026-05-18",
       "nasdaq100": {
-        "added": ["LITE"],
-        "removed": ["CSGP"]
+        "added": [
+          "LITE"
+        ],
+        "removed": [
+          "CSGP"
+        ]
       },
       "sp500": {
         "added": [],
@@ -16,8 +20,12 @@
     {
       "date": "2026-04-20",
       "nasdaq100": {
-        "added": ["SNDK"],
-        "removed": ["TEAM"]
+        "added": [
+          "SNDK"
+        ],
+        "removed": [
+          "TEAM"
+        ]
       },
       "sp500": {
         "added": [],
@@ -31,15 +39,29 @@
         "removed": []
       },
       "sp500": {
-        "added": ["VRT", "LITE", "COHR", "SATS"],
-        "removed": ["MTCH", "MOH", "LW", "PAYC"]
+        "added": [
+          "VRT",
+          "LITE",
+          "COHR",
+          "SATS"
+        ],
+        "removed": [
+          "MTCH",
+          "MOH",
+          "LW",
+          "PAYC"
+        ]
       }
     },
     {
       "date": "2026-01-20",
       "nasdaq100": {
-        "added": ["WMT"],
-        "removed": ["AZN"]
+        "added": [
+          "WMT"
+        ],
+        "removed": [
+          "AZN"
+        ]
       },
       "sp500": {
         "added": [],
