@@ -654,6 +654,18 @@
             <tr><td>MAX V% Day</td><td>Days ago when the max volume increase occurred within the selected window</td></tr>
             <tr><td>P@V Day</td><td>Price change on the highest-volume-increase day within the selected window</td></tr>
           </table>
+
+          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; Fundamentals (FUND Tab)</div>
+          <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
+            <tr><th>Column</th><th>Description</th></tr>
+            <tr><td>Mkt Cap ($B)</td><td>Market capitalisation in billions of USD</td></tr>
+            <tr><td>P/E</td><td>Trailing price-to-earnings ratio. Blank if earnings are negative or unavailable</td></tr>
+            <tr><td>Sector Avg PE</td><td>Average P/E of all stocks in the same sector within the S&amp;P 500 and Nasdaq-100 universe. Shown in the ticker hover tooltip</td></tr>
+            <tr><td>EPS</td><td>Trailing twelve-month earnings per share in USD. Positive = profitable</td></tr>
+            <tr><td>Beta</td><td>30-day beta — sensitivity of the stock's price to broad market moves. Beta &gt; 1 means higher volatility than the market</td></tr>
+            <tr><td>PE vs Sector</td><td>This stock's P/E relative to its sector average, as a percentage difference. Positive = premium; negative = discount. Sector average is calculated from S&amp;P 500 and Nasdaq-100 members only</td></tr>
+          </table>
         </div>
 
       </div>
@@ -663,7 +675,7 @@
       <div class="membership-wrap">
         <div class="readme-label">◈ &nbsp; Index Changes</div>
         <h2>Membership Changes</h2>
-        <p>Additions and removals from the S&P 500 and Nasdaq-100, tracked daily. Up to 1 year of history.</p>
+        <p>Additions and removals from the S&P 500 and Nasdaq-100, tracked daily. Full history kept since 2026.</p>
         <div id="indexChangesPanel"><span class="no-changes-msg">Index membership change history is available with a paid subscription.</span></div>
       </div>
     </div>
@@ -898,6 +910,7 @@
           ${thSort("Price",         "Price")}
           ${thSort("MarketCap",     "Mkt Cap ($B)")}
           ${thSort("PE",            "P/E")}
+          ${thSort("SectorAvgPE",   "Sector Avg PE")}
           ${thSort("EPS",           "EPS")}
           ${thSort("Volatility30D", "Beta")}
           ${thSort("PE_vs_Sector",  "PE vs Sector")}
@@ -916,6 +929,7 @@
             <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
             <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
             <td class="${colorClass(0)}">${r.PE != null ? r.PE.toFixed(1) : "—"}</td>
+            <td class="neutral">${r.SectorAvgPE != null ? r.SectorAvgPE.toFixed(1) : "—"}</td>
             <td class="${colorClass(r.EPS)}">${r.EPS != null ? r.EPS.toFixed(2) : "—"}</td>
             <td class="neutral">${r.Volatility30D != null ? r.Volatility30D.toFixed(2) : "—"}</td>
             <td class="${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</td>
@@ -1027,7 +1041,17 @@
         const pc1Cls = parseFloat(pc1) > 0 ? "positive" : parseFloat(pc1) < 0 ? "negative" : "neutral";
 
         let statsHTML = "";
-        if (is1D) {
+        if (w === "FUND") {
+          const pe   = r.PE;
+          const eps  = r.EPS;
+          const mcap = r.MarketCap;
+          const peVs = r.PE_vs_Sector;
+          statsHTML = `
+            <div class="card-row"><span class="card-label">P/E</span><span class="card-val">${pe != null ? pe.toFixed(1) : "—"}</span></div>
+            <div class="card-row"><span class="card-label">EPS</span><span class="card-val ${colorClass(eps)}">${eps != null ? eps.toFixed(2) : "—"}</span></div>
+            <div class="card-row"><span class="card-label">Mkt Cap</span><span class="card-val">${mcap != null ? mcap.toFixed(1) + "B" : "—"}</span></div>
+            <div class="card-row"><span class="card-label">PE/Sec</span><span class="card-val ${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</span></div>`;
+        } else if (is1D) {
           statsHTML = `
             <div class="card-row"><span class="card-label">VOL (M)</span><span class="card-val neutral">${r.VolumeM ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">P/MA21</span><span class="card-val ${colorClass(pma - 1)}">${pma ?? "—"}</span></div>
@@ -1086,6 +1110,13 @@
       "VolumeChange1D":  { label: "1D V CHG%",   desc: "Volume change (%) vs the previous session's volume." },
       "PriceVsMA21_1D":  { label: "PRICE/MA21",    desc: "Current price as a ratio of the 21-day moving average. Values above 1 indicate price above the MA." },
       "VolumeVsMA21_1D": { label: "VOL/MA21",    desc: "Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity." },
+      "MarketCap":       { label: "Mkt Cap ($B)", desc: "Market capitalisation in billions of USD." },
+      "PE":              { label: "P/E",           desc: "Trailing price-to-earnings ratio. Blank if earnings are negative or unavailable." },
+      "SectorAvgPE":     { label: "Sector Avg PE", desc: "Average P/E of all stocks in the same sector within the S&P 500 and Nasdaq-100 universe." },
+      "EPS":             { label: "EPS",           desc: "Trailing twelve-month earnings per share in USD." },
+      "Volatility30D":   { label: "Beta",          desc: "30-day beta — sensitivity of the stock's price to broad market moves. Beta > 1 means higher volatility than the market." },
+      "PE_vs_Sector":    { label: "PE vs Sector",  desc: "This stock's P/E relative to its sector average, expressed as a percentage. Positive = premium; negative = discount. Sector average is calculated from S&P 500 and Nasdaq-100 members only." },
+      "Sector":          { label: "Sector",        desc: "GICS sector classification." },
     };
 
     function getWindowColDesc(key, w) {

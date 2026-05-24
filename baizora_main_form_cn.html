@@ -773,6 +773,18 @@
             <tr><td>最大量涨日</td><td>所选周期内最大单日量涨发生于多少天前</td></tr>
             <tr><td>价@量日</td><td>所选周期内最大量涨当日的价格变化</td></tr>
           </table>
+
+          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; 基本面指标（基本面标签页）</div>
+          <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
+            <tr><th>列名</th><th>说明</th></tr>
+            <tr><td>市值</td><td>市值（十亿美元）</td></tr>
+            <tr><td>市盈率（P/E）</td><td>滚动市盈率（过去12个月）。若盈利为负或数据缺失则显示"—"</td></tr>
+            <tr><td>每股收益（EPS）</td><td>过去12个月每股收益（美元）。正值表示盈利</td></tr>
+            <tr><td>Beta（波动率）</td><td>30日Beta值，反映股票对大盘涨跌的敏感程度。Beta &gt; 1表示波动高于市场</td></tr>
+            <tr><td>市盈/行业</td><td>该股市盈率相对所在行业均值的偏差（百分比）。正值 = 溢价；负值 = 折价。行业均值仅基于标普500和纳斯达克100成分股计算</td></tr>
+            <tr><td>行业平均PE</td><td>同行业内所有标普500和纳斯达克100成分股的平均市盈率，可在代码悬停提示中查看</td></tr>
+          </table>
         </div>
 
       </div>
@@ -782,8 +794,8 @@
       <div class="membership-wrap">
         <div class="readme-label">◈ &nbsp; 指数变动</div>
         <h2>成分股变动</h2>
-        <p>标普500与纳斯达克100每日成分股新增与移除记录，保留最近一年历史。</p>
-        <p style="font-size:12px;color:#64748b;margin-top:-10px;">数据来源：slickcharts.com，每个交易日收盘后更新。若数据源出现临时错误并在3天内自动修正，相关记录将被自动撤销。</p>
+        <p>标普500与纳斯达克100每日成分股新增与移除记录，保留2026年起完整历史。</p>
+        <p style="font-size:12px;color:#64748b;margin-top:-10px;">数据来源于第三方平台，每个交易日收盘后更新。若数据源出现临时错误并在3天内自动修正，相关记录将被自动撤销。</p>
         <div id="indexChangesPanel"><span class="no-changes-msg">加载中…</span></div>
       </div>
     </div>
@@ -1055,6 +1067,7 @@
           ${thSort("Price",         "价格")}
           ${thSort("MarketCap",     "市值($B)")}
           ${thSort("PE",            "市盈率")}
+          ${thSort("SectorAvgPE",   "行业平均PE")}
           ${thSort("EPS",           "每股收益")}
           ${thSort("Volatility30D", "贝塔")}
           ${thSort("PE_vs_Sector",  "PE vs 行业")}
@@ -1073,6 +1086,7 @@
             <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
             <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
             <td class="${colorClass(0)}">${r.PE != null ? r.PE.toFixed(1) : "—"}</td>
+            <td class="neutral">${r.SectorAvgPE != null ? r.SectorAvgPE.toFixed(1) : "—"}</td>
             <td class="${colorClass(r.EPS)}">${r.EPS != null ? r.EPS.toFixed(2) : "—"}</td>
             <td class="neutral">${r.Volatility30D != null ? r.Volatility30D.toFixed(2) : "—"}</td>
             <td class="${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</td>
@@ -1200,7 +1214,18 @@
 
         let priceChgDisplay, statsHTML;
 
-        if (is1D) {
+        if (w === "FUND") {
+          const pe    = r.PE;
+          const eps   = r.EPS;
+          const mcap  = r.MarketCap;
+          const peVs  = r.PE_vs_Sector;
+          priceChgDisplay = `<span class="card-chg ${colorClass(pc1)}">${fmtP(pc1)}</span>`;
+          statsHTML = `
+            <div class="card-row"><span class="card-label">市盈率</span><span class="card-val">${pe != null ? pe.toFixed(1) : "—"}</span></div>
+            <div class="card-row"><span class="card-label">每股收益</span><span class="card-val ${colorClass(eps)}">${eps != null ? eps.toFixed(2) : "—"}</span></div>
+            <div class="card-row"><span class="card-label">市值</span><span class="card-val">${mcap != null ? mcap.toFixed(1) + "B" : "—"}</span></div>
+            <div class="card-row"><span class="card-label">市盈/行业</span><span class="card-val ${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</span></div>`;
+        } else if (is1D) {
           priceChgDisplay = `<span class="card-chg ${colorClass(pc1)}">${fmtP(pc1)}</span>`;
           statsHTML = `
             <div class="card-row"><span class="card-label">量变化</span><span class="card-val ${colorClass(vc1)}">${fmtP(vc1)}</span></div>
@@ -1289,9 +1314,10 @@
       "VolumeVsMA21_1D": { label: "量/MA21",    desc: "最近交易日成交量与21日均量的比值（>1表示成交量偏高）。" },
       "MarketCap":       { label: "市值($B)",   desc: "市值，单位：十亿美元。" },
       "PE":              { label: "市盈率",      desc: "过去十二个月市盈率（PE）。若盈利为负或数据缺失则显示为 — 。" },
+      "SectorAvgPE":     { label: "行业平均PE",  desc: "同行业内所有标普500和纳斯达克100成分股的平均市盈率。" },
       "EPS":             { label: "每股收益",    desc: "过去十二个月每股收益（美元）。" },
       "Volatility30D":   { label: "贝塔",        desc: "贝塔系数，衡量股价相对大盘的波动程度。贝塔 > 1 表示波动高于大盘。" },
-      "PE_vs_Sector":    { label: "PE vs 行业",  desc: "该股市盈率相对所在行业均值的偏差（百分比）。正值 = 溢价；负值 = 折价。" },
+      "PE_vs_Sector":    { label: "PE vs 行业",  desc: "该股市盈率相对所在行业均值的偏差（百分比）。正值 = 溢价；负值 = 折价。行业均值仅基于标普500和纳斯达克100成分股计算。" },
       "Sector":          { label: "行业",        desc: "GICS行业分类。" },
     };
 
