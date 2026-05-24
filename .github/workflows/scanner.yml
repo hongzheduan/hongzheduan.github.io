@@ -60,19 +60,26 @@ jobs:
 
       - name: Select daily video types
         run: |
-          DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
-          if [ "$DOW" = "1" ]; then
-            echo "VIDEO_TYPES=volume_spikes volume_spikes_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "2" ]; then
-            echo "VIDEO_TYPES=extreme_1y extreme_1y_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "3" ]; then
-            echo "VIDEO_TYPES=6m_breakout 6m_breakout_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "4" ]; then
-            echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "5" ]; then
-            echo "VIDEO_TYPES=index_spotlight index_spotlight_cn" >> $GITHUB_ENV
-          else
+          # Skip videos on NYSE market holidays
+          IS_HOLIDAY=$(python -c "from scanner import is_market_holiday; print(is_market_holiday())")
+          if [ "$IS_HOLIDAY" = "True" ]; then
+            echo "Market holiday — skipping video generation."
             echo "VIDEO_TYPES=" >> $GITHUB_ENV
+          else
+            DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
+            if [ "$DOW" = "1" ]; then
+              echo "VIDEO_TYPES=volume_spikes volume_spikes_cn" >> $GITHUB_ENV
+            elif [ "$DOW" = "2" ]; then
+              echo "VIDEO_TYPES=extreme_1y extreme_1y_cn" >> $GITHUB_ENV
+            elif [ "$DOW" = "3" ]; then
+              echo "VIDEO_TYPES=6m_breakout 6m_breakout_cn" >> $GITHUB_ENV
+            elif [ "$DOW" = "4" ]; then
+              echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
+            elif [ "$DOW" = "5" ]; then
+              echo "VIDEO_TYPES=index_spotlight index_spotlight_cn" >> $GITHUB_ENV
+            else
+              echo "VIDEO_TYPES=" >> $GITHUB_ENV
+            fi
           fi
 
       - name: Generate daily videos
