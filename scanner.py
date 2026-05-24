@@ -7,7 +7,8 @@ import os
 import glob
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+import sys
+from datetime import date, datetime, timedelta
 
 # =========================
 # CONFIG
@@ -602,9 +603,74 @@ def export(df):
     print("Export complete:", len(df))
 
 # =========================
+# NYSE HOLIDAY DETECTION
+# =========================
+
+def _easter(year):
+    """Easter Sunday via the Anonymous Gregorian algorithm."""
+    a = year % 19
+    b, c = divmod(year, 100)
+    d, e = divmod(b, 4)
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i, k = divmod(c, 4)
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    month, day = divmod(114 + h + l - 7 * m, 31)
+    return date(year, month, day + 1)
+
+def _observed(d):
+    """Shift a weekend holiday to its observed weekday."""
+    if d.weekday() == 5:   # Saturday → Friday
+        return d - timedelta(days=1)
+    if d.weekday() == 6:   # Sunday → Monday
+        return d + timedelta(days=1)
+    return d
+
+def _nth_weekday(year, month, weekday, n):
+    """nth occurrence (1-based) of weekday (0=Mon) in given month."""
+    first = date(year, month, 1)
+    first += timedelta(days=(weekday - first.weekday()) % 7)
+    return first + timedelta(weeks=n - 1)
+
+def _last_weekday(year, month, weekday):
+    """Last occurrence of weekday (0=Mon) in given month."""
+    next_month = date(year + 1, 1, 1) if month == 12 else date(year, month + 1, 1)
+    last = next_month - timedelta(days=1)
+    return last - timedelta(days=(last.weekday() - weekday) % 7)
+
+def nyse_holidays(year):
+    """Return the set of NYSE market-close holidays for the given year."""
+    h = set()
+    h.add(_observed(date(year, 1, 1)))           # New Year's Day
+    h.add(_nth_weekday(year, 1, 0, 3))            # MLK Day (3rd Mon Jan)
+    h.add(_nth_weekday(year, 2, 0, 3))            # Presidents' Day (3rd Mon Feb)
+    h.add(_easter(year) - timedelta(days=2))      # Good Friday
+    h.add(_last_weekday(year, 5, 0))              # Memorial Day (last Mon May)
+    if year >= 2022:
+        h.add(_observed(date(year, 6, 19)))       # Juneteenth
+    h.add(_observed(date(year, 7, 4)))            # Independence Day
+    h.add(_nth_weekday(year, 9, 0, 1))            # Labor Day (1st Mon Sep)
+    h.add(_nth_weekday(year, 11, 3, 4))           # Thanksgiving (4th Thu Nov)
+    h.add(_observed(date(year, 12, 25)))          # Christmas
+    return h
+
+def is_market_holiday(d=None):
+    if d is None:
+        d = date.today()
+    return d in nyse_holidays(d.year)
+
+
+# =========================
 # MAIN
 # =========================
 if __name__ == "__main__":
+
+    today = date.today()
+    if is_market_holiday(today):
+        print(f"Market holiday ({today}) — skipping scan.")
+        sys.exit(0)
 
     print("Running Baizora scanner...")
 
