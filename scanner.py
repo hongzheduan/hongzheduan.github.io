@@ -138,9 +138,77 @@ def update_and_detect_changes():
     return new_sp500_raw, new_nasdaq100_raw, (changes if has_changes else None)
 
 
+ROUNDTRIP_LOOKBACK_DAYS = 3
+
+
+def _cancel_roundtrips(changes_entry, entries):
+    """
+    Detect glitches: if a ticker was added/removed in a recent entry and
+    now shows the opposite move, treat it as a data error.
+    - Remove those tickers from changes_entry (suppress the 'correction').
+    - Clean the original wrong entry (remove the bad tickers).
+    - Drop any historical entries that become fully empty after cleaning.
+    Returns (cleaned_changes_entry_or_None, cleaned_entries).
+    """
+    cutoff = datetime.now() - timedelta(days=ROUNDTRIP_LOOKBACK_DAYS)
+
+    for idx_name in ("sp500", "nasdaq100"):
+        new_added   = set(changes_entry[idx_name].get("added",   []))
+        new_removed = set(changes_entry[idx_name].get("removed", []))
+
+        for entry in entries:
+            try:
+                entry_date = datetime.strptime(entry["date"], "%Y-%m-%d")
+            except Exception:
+                continue
+            if entry_date < cutoff:
+                continue
+
+            prev_added   = set(entry[idx_name].get("added",   []))
+            prev_removed = set(entry[idx_name].get("removed", []))
+
+            # Tickers that flip back within the lookback window
+            flip_back_add    = new_added   & prev_removed   # was removed, now added back
+            flip_back_remove = new_removed & prev_added     # was added, now removed again
+
+            if flip_back_add or flip_back_remove:
+                print(
+                    f"Round-trip glitch detected in {idx_name} "
+                    f"(original entry {entry['date']}): "
+                    f"suppressing {sorted(flip_back_add | flip_back_remove)}"
+                )
+                # Suppress from the incoming change
+                new_added   -= flip_back_add
+                new_removed -= flip_back_remove
+                # Clean the historical entry
+                entry[idx_name]["added"]   = sorted(prev_added   - flip_back_remove)
+                entry[idx_name]["removed"] = sorted(prev_removed - flip_back_add)
+
+        changes_entry[idx_name]["added"]   = sorted(new_added)
+        changes_entry[idx_name]["removed"] = sorted(new_removed)
+
+    # Drop historical entries that are now fully empty
+    entries = [
+        e for e in entries
+        if any(
+            e[k].get("added") or e[k].get("removed")
+            for k in ("sp500", "nasdaq100")
+        )
+    ]
+
+    # If changes_entry itself has nothing left, treat as no change
+    has_content = any(
+        changes_entry[k].get("added") or changes_entry[k].get("removed")
+        for k in ("sp500", "nasdaq100")
+    )
+
+    return (changes_entry if has_content else None), entries
+
+
 def load_update_index_changes(changes_entry):
     """
     Prepend changes_entry (if any) to index_changes.json.
+    Runs round-trip glitch detection before recording.
     Keeps full history (no pruning). Stores trackedSince on first run.
     """
     path = os.path.join(DATA_DIR, "index_changes.json")
@@ -155,6 +223,9 @@ def load_update_index_changes(changes_entry):
 
     entries = existing.get("entries", [])
     tracked_since = existing.get("trackedSince", DATE_STR)
+
+    if changes_entry is not None:
+        changes_entry, entries = _cancel_roundtrips(changes_entry, entries)
 
     if changes_entry is not None:
         entries.insert(0, changes_entry)
