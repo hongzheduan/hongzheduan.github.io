@@ -24,7 +24,13 @@
       "Bash(py video/generate_video.py --type 1y_vol_peak_cn)",
       "Bash(py -c \"import json; d=json.load\\(open\\('data/index_changes.json'\\)\\); print\\(json.dumps\\(d, indent=2\\)\\)\")",
       "Bash(py -c \"import json; d=json.load\\(open\\('data/latest.json'\\)\\); r=d['data'][0]; print\\(list\\(r.keys\\(\\)\\)\\)\")",
-      "Bash(py video/generate_video.py --type index_spotlight)"
+      "Bash(py video/generate_video.py --type index_spotlight)",
+      "Bash(python video/generate_video.py --type index_spotlight)",
+      "Bash(py video/generate_video.py --type index_spotlight_cn)",
+      "Bash(py generate_video.py index_spotlight)",
+      "Bash(py generate_video.py index_spotlight_cn)",
+      "Bash(py generate_video.py --type index_spotlight)",
+      "Bash(py generate_video.py --type index_spotlight_cn)"
     ]
   }
 }
