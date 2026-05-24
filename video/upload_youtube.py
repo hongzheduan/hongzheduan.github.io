@@ -237,6 +237,17 @@ def make_meta(video_type, date):
             title,
             f"A look at how a recent S&P 500 or Nasdaq-100 addition has performed since joining the index, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
         )
+    if video_type == "index_spotlight_cn":
+        title = random.choice([
+            f"指数聚焦 — 标普500/纳斯达克100新成员表现 — {date}",
+            f"这只新晋指数成员表现如何？ — {date}",
+            f"加入标普500或纳斯达克100后的走势追踪 — {date}",
+            f"指数新成员观察 — 纳入后涨幅回顾 — {date}",
+        ])
+        return (
+            title,
+            f"追踪一只近期加入标普500或纳斯达克100的成分股，截至{date}的完整表现。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+        )
     raise ValueError(f"Unknown video type: {video_type}")
 
 
