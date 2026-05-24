@@ -70,7 +70,7 @@ jobs:
           elif [ "$DOW" = "4" ]; then
             echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
           elif [ "$DOW" = "5" ]; then
-            echo "VIDEO_TYPES=index_spotlight" >> $GITHUB_ENV
+            echo "VIDEO_TYPES=index_spotlight index_spotlight_cn" >> $GITHUB_ENV
           else
             echo "VIDEO_TYPES=" >> $GITHUB_ENV
           fi
