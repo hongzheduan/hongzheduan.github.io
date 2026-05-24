@@ -3,7 +3,6 @@ name: Baizora Scanner
 on:
   schedule:
     - cron: "30 20 * * 1-5"   # weekdays 8:30 PM UTC – scan + daily videos
-    - cron: "0 12 * * 6"       # Saturday noon UTC – weekend videos
   workflow_dispatch:
 
 permissions:
@@ -29,11 +28,9 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run scanner
-        if: github.event.schedule != '0 12 * * 6'
         run: python scanner.py
 
       - name: Commit updated latest.json
-        if: github.event.schedule != '0 12 * * 6'
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
@@ -61,40 +58,42 @@ jobs:
           pip install -r video/requirements.txt
           sudo apt-get install -y fonts-noto-cjk
 
-      - name: Generate weekday videos
-        if: github.event.schedule != '0 12 * * 6'
+      - name: Select daily video types
         run: |
-          for type in sp500_movers nasdaq_movers volume_spikes extreme_1y volume_spikes_cn; do
+          DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
+          if [ "$DOW" = "1" ]; then
+            echo "VIDEO_TYPES=volume_spikes volume_spikes_cn" >> $GITHUB_ENV
+          elif [ "$DOW" = "2" ]; then
+            echo "VIDEO_TYPES=extreme_1y extreme_1y_cn" >> $GITHUB_ENV
+          elif [ "$DOW" = "3" ]; then
+            echo "VIDEO_TYPES=6m_breakout 6m_breakout_cn" >> $GITHUB_ENV
+          elif [ "$DOW" = "4" ]; then
+            echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
+          elif [ "$DOW" = "5" ]; then
+            echo "VIDEO_TYPES=index_spotlight" >> $GITHUB_ENV
+          else
+            echo "VIDEO_TYPES=" >> $GITHUB_ENV
+          fi
+
+      - name: Generate daily videos
+        if: env.VIDEO_TYPES != ''
+        run: |
+          for type in $VIDEO_TYPES; do
             python video/generate_video.py --type $type
           done
 
-      - name: Generate weekend videos
-        if: github.event.schedule == '0 12 * * 6'
-        run: |
-          for type in platform_intro platform_intro_cn; do
-            python video/generate_video.py --type $type
-          done
-
-      - name: Upload weekday videos to YouTube
-        if: github.event.schedule != '0 12 * * 6'
+      - name: Upload daily videos to YouTube
+        if: env.VIDEO_TYPES != ''
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
         run: |
           DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
-          for type in sp500_movers nasdaq_movers volume_spikes extreme_1y volume_spikes_cn; do
-            python video/upload_youtube.py --file video/${type}.mp4 --type $type --date $DATE
-          done
-
-      - name: Upload weekend videos to YouTube
-        if: github.event.schedule == '0 12 * * 6'
-        env:
-          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
-          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
-          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
-        run: |
-          DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
-          for type in platform_intro platform_intro_cn; do
-            python video/upload_youtube.py --file video/${type}.mp4 --type $type --date $DATE
+          for type in $VIDEO_TYPES; do
+            if [ -f "video/${type}.mp4" ]; then
+              python video/upload_youtube.py --file video/${type}.mp4 --type $type --date $DATE
+            else
+              echo "Skipping $type — no qualifying stocks today"
+            fi
           done

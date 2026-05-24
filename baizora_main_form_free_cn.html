@@ -706,6 +706,7 @@
       <button class="window-btn" onclick="setWindow('6M', this)">6月</button>
       <button class="window-btn" onclick="setWindow('9M', this)">9月</button>
       <button class="window-btn" onclick="setWindow('1Y', this)">1年</button>
+      <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:8px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">基本面</button>
     </div>
     <div class="toolbar-sep"></div>
     <span class="row-count" id="rowCount"></span>
@@ -891,6 +892,11 @@
       currentWindow = w;
       document.querySelectorAll(".window-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
+      if (w === "FUND") { sortKey = "MarketCap"; sortAsc = false; }
+      else if (sortKey === "MarketCap" || sortKey === "PE" || sortKey === "EPS" ||
+               sortKey === "Volatility30D" || sortKey === "PE_vs_Sector" || sortKey === "Sector") {
+        sortKey = "PriceChange1D"; sortAsc = false;
+      }
       render();
     };
 
@@ -996,6 +1002,42 @@
     /* ── BUILD TABLE ── */
     function buildTable(arr, w) {
       const top3 = topThree(arr);
+
+      /* ── FUNDAMENTALS VIEW ── */
+      if (w === "FUND") {
+        const head = `<thead><tr>
+          ${thSort("Ticker",        "代码")}
+          ${thStatic("Spark1Y",     "年趋势线")}
+          ${thSort("Price",         "价格")}
+          ${thSort("MarketCap",     "市值($B)")}
+          ${thSort("PE",            "市盈率")}
+          ${thSort("EPS",           "每股收益")}
+          ${thSort("Volatility30D", "贝塔")}
+          ${thSort("PE_vs_Sector",  "PE vs 行业")}
+          ${thSort("Sector",        "行业")}
+        </tr></thead>`;
+        const rows = top3.map(r => {
+          const sparkSVG = renderSparkline(
+            r.Spark1Y,
+            r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+            r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
+          );
+          const peVs = r.PE_vs_Sector;
+          return `<tr>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+            <td class="spark-cell">${sparkSVG}</td>
+            <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
+            <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
+            <td class="${colorClass(0)}">${r.PE != null ? r.PE.toFixed(1) : "—"}</td>
+            <td class="${colorClass(r.EPS)}">${r.EPS != null ? r.EPS.toFixed(2) : "—"}</td>
+            <td class="neutral">${r.Volatility30D != null ? r.Volatility30D.toFixed(2) : "—"}</td>
+            <td class="${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</td>
+            <td class="neutral" style="font-size:11px;color:#94a3b8;">${r.Sector || "—"}</td>
+          </tr>`;
+        }).join("");
+        return head + "<tbody>" + rows + "</tbody>";
+      }
+
       const is1D = (w === "1D");
 
       // Window column headers
@@ -1149,14 +1191,20 @@
     ══════════════════════════════════════════ */
 
     const COL_DESCS = {
-      "Ticker":          { label: "代码",    desc: "股票代码。悬停查看市盈率、市值、EPS、波动率及行业对比。" },
-      "Spark1Y":         { label: "年趋势线",  desc: "一年标准化价格走势图。▲ 三角形 = 成交量最高日（绿色=价格上涨，红色=价格下跌）。● 圆圈 = 价格变动最大日（绿色=成交量上升，红色=成交量下降）。" },
-      "Price":           { label: "价格",     desc: "最新收盘价（美元）。" },
-      "VolumeM":         { label: "成交量(M)",   desc: "最近交易日以百万股为单位的成交量" },
-      "PriceChange1D":   { label: "日价格变化",       desc: "与前一交易日收盘价相比的价格变动（%）。" },
-      "VolumeChange1D":  { label: "日成交量变化",   desc: "与前一交易日相比成交量的变动（%）。" },
+      "Ticker":          { label: "代码",         desc: "股票代码。悬停查看市盈率、市值、EPS、波动率及行业对比。" },
+      "Spark1Y":         { label: "年趋势线",      desc: "一年标准化价格走势图。▲ 三角形 = 成交量最高日（绿色=价格上涨，红色=价格下跌）。● 圆圈 = 价格变动最大日（绿色=成交量上升，红色=成交量下降）。" },
+      "Price":           { label: "价格",          desc: "最新收盘价（美元）。" },
+      "VolumeM":         { label: "成交量(M)",     desc: "最近交易日以百万股为单位的成交量。" },
+      "PriceChange1D":   { label: "日价格变化",    desc: "与前一交易日收盘价相比的价格变动（%）。" },
+      "VolumeChange1D":  { label: "日成交量变化",  desc: "与前一交易日相比成交量的变动（%）。" },
       "PriceVsMA21_1D":  { label: "价格/MA21",    desc: "最新收盘价与21日均线的比值（>1表示价格在均线上方）。" },
-      "VolumeVsMA21_1D": { label: "量/MA21",    desc: "最近交易日成交量与21日均量的比值（>1表示成交量偏高）。" },
+      "VolumeVsMA21_1D": { label: "量/MA21",      desc: "最近交易日成交量与21日均量的比值（>1表示成交量偏高）。" },
+      "MarketCap":       { label: "市值($B)",      desc: "流通市值，单位为十亿美元。" },
+      "PE":              { label: "市盈率",         desc: "市盈率（P/E）= 股价 / 每股收益（过去12个月）。" },
+      "EPS":             { label: "每股收益",       desc: "每股盈利（过去12个月，美元）。" },
+      "Volatility30D":   { label: "贝塔",           desc: "30日年化波动率（%），衡量近期价格波动幅度。" },
+      "PE_vs_Sector":    { label: "PE vs 行业",    desc: "该股市盈率与所在行业平均市盈率的差值（%）。正值表示溢价，负值表示折价。" },
+      "Sector":          { label: "行业",           desc: "GICS行业分类。" },
     };
 
     const WIN_CN = { "1D": "1天", "2W": "2周", "1M": "1月", "3M": "3月", "6M": "6月", "9M": "9月", "1Y": "1年" };

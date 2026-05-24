@@ -689,6 +689,7 @@
       <button class="window-btn" onclick="setWindow('6M', this)">6M</button>
       <button class="window-btn" onclick="setWindow('9M', this)">9M</button>
       <button class="window-btn" onclick="setWindow('1Y', this)">1Y</button>
+      <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:8px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">FUND</button>
     </div>
     <div class="toolbar-sep"></div>
     <div class="toolbar-search">
@@ -919,6 +920,11 @@
       currentWindow = w;
       document.querySelectorAll(".window-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
+      if (w === "FUND") { sortKey = "MarketCap"; sortAsc = false; }
+      else if (sortKey === "MarketCap" || sortKey === "PE" || sortKey === "EPS" ||
+               sortKey === "Volatility30D" || sortKey === "PE_vs_Sector" || sortKey === "Sector") {
+        sortKey = "PriceChange1D"; sortAsc = false;
+      }
       render();
     };
 
@@ -1030,6 +1036,41 @@
     /* ── BUILD TABLE ── */
     function buildTable(arr, w) {
       arr = sorted(arr);
+
+      /* ── FUNDAMENTALS VIEW ── */
+      if (w === "FUND") {
+        const head = `<thead><tr>
+          ${thSort("Ticker",        "Ticker")}
+          ${thStatic("Spark1Y",     "1Y Trend")}
+          ${thSort("Price",         "Price")}
+          ${thSort("MarketCap",     "Mkt Cap ($B)")}
+          ${thSort("PE",            "P/E")}
+          ${thSort("EPS",           "EPS")}
+          ${thSort("Volatility30D", "Beta")}
+          ${thSort("PE_vs_Sector",  "PE vs Sector")}
+          ${thSort("Sector",        "Sector")}
+        </tr></thead>`;
+        const rows = arr.slice(0, 200).map(r => {
+          const sparkSVG = renderSparkline(
+            r.Spark1Y,
+            r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+            r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
+          );
+          const peVs = r.PE_vs_Sector;
+          return `<tr>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+            <td class="spark-cell">${sparkSVG}</td>
+            <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
+            <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
+            <td class="${colorClass(0)}">${r.PE != null ? r.PE.toFixed(1) : "—"}</td>
+            <td class="${colorClass(r.EPS)}">${r.EPS != null ? r.EPS.toFixed(2) : "—"}</td>
+            <td class="neutral">${r.Volatility30D != null ? r.Volatility30D.toFixed(2) : "—"}</td>
+            <td class="${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</td>
+            <td class="neutral" style="font-size:11px;color:#94a3b8;">${r.Sector || "—"}</td>
+          </tr>`;
+        }).join("");
+        return head + "<tbody>" + rows + "</tbody>";
+      }
 
       const is1D = (w === "1D");
 
@@ -1236,6 +1277,12 @@
       "VolumeChange1D":  { label: "1D V CHG%",   desc: "Volume change (%) vs the previous session's volume." },
       "PriceVsMA21_1D":  { label: "PRICE/MA21",    desc: "Current price as a ratio of the 21-day moving average. Values above 1 indicate price above the MA." },
       "VolumeVsMA21_1D": { label: "VOL/MA21",    desc: "Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity." },
+      "MarketCap":       { label: "Mkt Cap ($B)", desc: "Market capitalisation in billions of USD." },
+      "PE":              { label: "P/E",           desc: "Trailing price-to-earnings ratio. Blank if earnings are negative or unavailable." },
+      "EPS":             { label: "EPS",           desc: "Trailing twelve-month earnings per share in USD." },
+      "Volatility30D":   { label: "Beta",          desc: "30-day beta — sensitivity of the stock's price to broad market moves. Beta > 1 means higher volatility than the market." },
+      "PE_vs_Sector":    { label: "PE vs Sector",  desc: "This stock's P/E relative to its sector average, expressed as a percentage. Positive = trading at a premium to sector peers; negative = discount." },
+      "Sector":          { label: "Sector",        desc: "GICS sector classification." },
     };
 
     function getWindowColDesc(key, w) {

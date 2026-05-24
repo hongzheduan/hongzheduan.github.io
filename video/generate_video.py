@@ -11,7 +11,9 @@ Video types: sp500_movers, nasdaq_movers, volume_spikes, extreme_1y, platform_in
 """
 
 import argparse
+import datetime
 import json
+import random
 import subprocess
 import tempfile
 from pathlib import Path
@@ -32,6 +34,8 @@ GOLD        = (245, 158,  11)
 GOLD_LIGHT  = (252, 211,  77)
 GREEN       = (34,  197,  94)
 RED         = (239,  68,  68)
+BRIGHT_GREEN = (74,  255, 128)
+BRIGHT_RED   = (255,  80,  80)
 WHITE       = (255, 255, 255)
 MUTED       = (203, 213, 225)
 DIM         = (148, 163, 184)
@@ -166,7 +170,9 @@ def footer(draw):
 def top_bar(draw, title, scan_date):
     draw.rectangle([0, 0, W, 96], fill=NAVY_MID)
     hline(draw, 96, x0=0, x1=W)
-    draw.text((72, 28), title, font=load_font(36, bold=True), fill=WHITE)
+    has_cjk = any('一' <= c <= '鿿' for c in title)
+    f_title = load_font_cn(32, bold=True) if has_cjk else load_font(36, bold=True)
+    draw.text((72, 28), title, font=f_title, fill=WHITE)
     f_d = load_font(20, mono=True)
     dw  = tw(draw, scan_date, f_d)
     draw.text((W - 72 - dw, 38), scan_date, font=f_d, fill=MUTED)
@@ -293,58 +299,85 @@ def _draw_promo_panel(draw, px):
     draw.text((px + (pw - trw) // 2, py + ph - 24), tr, font=f_tr, fill=GOLD_LIGHT)
 
 
-def scene_movers_table(title, rows, scan_date):
+def scene_movers_table(title, rows, scan_date, max_rows=10, cta_text=""):
     img, draw = new_frame()
     top_bar(draw, title, scan_date)
 
-    # columns: (header, data_key, width)
-    COLS = [
-        ("#",         None,              70),
-        ("TICKER",    "Ticker",         130),
-        ("COMPANY",   "CompanyName",    310),
-        ("PRICE",     "Price",          130),
-        ("1D CHG%",   "PriceChange1D",  145),
-        ("VOL(M)",    "VolumeM",        140),
-        ("1D VOL%",   "VolumeChange1D", 165),
-        ("1Y CHG%",   "1YPriceChange",  150),
-    ]
-
-    f_hdr = load_font(17, mono=True)
-    f_tkr = load_font(23, mono=True)
-    f_coy = load_font(19)
-    f_val = load_font(22, mono=True)
+    if max_rows == 3:
+        COLS = [
+            ("#",         None,              80),
+            ("TICKER",    "Ticker",         155),
+            ("COMPANY",   "CompanyName",    360),
+            ("PRICE",     "Price",          175),
+            ("1D CHG%",   "PriceChange1D",  215),
+            ("VOL(M)",    "VolumeM",        195),
+            ("1D VOL%",   "VolumeChange1D", 215),
+            ("1Y CHG%",   "1YPriceChange",  345),
+        ]
+        f_hdr = load_font(20, mono=True)
+        f_tkr = load_font(40, mono=True)
+        f_coy = load_font(26)
+        f_val = load_font(36, mono=True)
+        row_h = 250
+        dy    = 90
+    else:
+        COLS = [
+            ("#",         None,              70),
+            ("TICKER",    "Ticker",         130),
+            ("COMPANY",   "CompanyName",    310),
+            ("PRICE",     "Price",          130),
+            ("1D CHG%",   "PriceChange1D",  145),
+            ("VOL(M)",    "VolumeM",        140),
+            ("1D VOL%",   "VolumeChange1D", 165),
+            ("1Y CHG%",   "1YPriceChange",  150),
+        ]
+        f_hdr = load_font(17, mono=True)
+        f_tkr = load_font(27, mono=True)
+        f_coy = load_font(21)
+        f_val = load_font(26, mono=True)
+        row_h = 70
+        dy    = 0
 
     x = 60
     for hdr, _, cw in COLS:
         draw.text((x, 110), hdr, font=f_hdr, fill=DIM)
         x += cw
-    hline(draw, 143)
+    hline(draw, 148)
 
-    for idx, row in enumerate(rows[:10]):
-        y = 152 + idx * 70
+    for idx, row in enumerate(rows[:max_rows]):
+        y = 152 + idx * row_h
+        bg_h = row_h - 8 if max_rows == 3 else 62
         if idx % 2 == 0:
-            draw.rectangle([60, y - 4, W - 60, y + 62], fill=NAVY_MID)
+            draw.rectangle([60, y - 4, W - 60, y + bg_h], fill=NAVY_MID)
         x = 60
         for hdr, key, cw in COLS:
             if key is None:
-                draw.text((x + 10, y + 4), str(idx + 1), font=f_hdr, fill=VERY_DIM)
+                draw.text((x + 10, y + dy + 4), str(idx + 1), font=f_hdr, fill=VERY_DIM)
             elif key == "Ticker":
-                draw.text((x, y), row.get(key, ""), font=f_tkr, fill=WHITE)
+                off = -4 if max_rows == 3 else 0
+                draw.text((x, y + dy + off), row.get(key, ""), font=f_tkr, fill=WHITE)
             elif key == "CompanyName":
                 name = row.get(key) or ""
-                if len(name) > 28:
-                    name = name[:25] + "..."
-                draw.text((x, y + 2), name, font=f_coy, fill=MUTED)
+                max_len = 22 if max_rows == 3 else 28
+                if len(name) > max_len:
+                    name = name[:max_len - 3] + "..."
+                off = 4 if max_rows == 3 else 2
+                draw.text((x, y + dy + off), name, font=f_coy, fill=MUTED)
             elif key == "Price":
                 v = row.get(key)
-                draw.text((x, y), f"${v:.2f}" if v else "—", font=f_val, fill=WHITE)
+                draw.text((x, y + dy), f"${v:.2f}" if v else "—", font=f_val, fill=WHITE)
             elif key == "VolumeM":
                 v = row.get(key)
-                draw.text((x, y), f"{v:.2f}M" if v else "—", font=f_val, fill=WHITE)
+                draw.text((x, y + dy), f"{v:.2f}M" if v else "—", font=f_val, fill=WHITE)
             else:
                 v = row.get(key)
-                draw.text((x, y), pct_str(v), font=f_val, fill=pct_color(v))
+                draw.text((x, y + dy), pct_str(v), font=f_val, fill=pct_color(v))
             x += cw
+
+    if max_rows == 3 and cta_text:
+        cta_y = 152 + 3 * row_h + 20
+        hline(draw, cta_y, x0=60, x1=W - 60, color=ELECTRIC)
+        centered(draw, cta_y + 18, cta_text, load_font(26, bold=True), ELEC_BRIGHT)
 
     footer(draw)
     return img
@@ -355,60 +388,69 @@ def scene_volume_spikes(rows, scan_date):
     top_bar(draw, "Volume Spikes — Unusual Activity", scan_date)
 
     COLS = [
-        ("#",          None,               70),
-        ("TICKER",     "Ticker",          130),
-        ("COMPANY",    "CompanyName",     290),
-        ("PRICE",      "Price",           130),
-        ("1D P CHG%",  "PriceChange1D",   148),
-        ("VOL(M)",     "VolumeM",         138),
-        ("1D V CHG%",  "VolumeChange1D",  165),
-        ("VOL/MA21",   "VolumeVsMA21_1D", 160),
+        ("#",          None,               80),
+        ("TICKER",     "Ticker",          155),
+        ("COMPANY",    "CompanyName",     350),
+        ("PRICE",      "Price",           175),
+        ("1D P CHG%",  "PriceChange1D",   215),
+        ("VOL(M)",     "VolumeM",         195),
+        ("1D V CHG%",  "VolumeChange1D",  225),
+        ("VOL/MA21",   "VolumeVsMA21_1D", 345),
     ]
 
-    f_hdr = load_font(17, mono=True)
-    f_tkr = load_font(23, mono=True)
-    f_coy = load_font(19)
-    f_val = load_font(22, mono=True)
+    f_hdr = load_font(20, mono=True)
+    f_tkr = load_font(40, mono=True)
+    f_coy = load_font(26)
+    f_val = load_font(36, mono=True)
 
     x = 60
     for hdr, _, cw in COLS:
         draw.text((x, 110), hdr, font=f_hdr, fill=DIM)
         x += cw
-    hline(draw, 143)
+    hline(draw, 148)
 
-    for idx, row in enumerate(rows[:10]):
-        y = 152 + idx * 70
+    row_h = 250
+    dy    = 90   # vertical offset — centers text in the row
+
+    for idx, row in enumerate(rows[:3]):
+        y = 152 + idx * row_h
         if idx % 2 == 0:
-            draw.rectangle([60, y - 4, W - 60, y + 62], fill=NAVY_MID)
+            draw.rectangle([60, y - 4, W - 60, y + row_h - 8], fill=NAVY_MID)
         x = 60
         for hdr, key, cw in COLS:
             if key is None:
-                draw.text((x + 10, y + 4), str(idx + 1), font=f_hdr, fill=VERY_DIM)
+                draw.text((x + 10, y + dy + 4), str(idx + 1), font=f_hdr, fill=VERY_DIM)
             elif key == "Ticker":
-                draw.text((x, y), row.get(key, ""), font=f_tkr, fill=WHITE)
+                draw.text((x, y + dy - 4), row.get(key, ""), font=f_tkr, fill=WHITE)
             elif key == "CompanyName":
                 name = row.get(key) or ""
-                if len(name) > 26:
-                    name = name[:23] + "..."
-                draw.text((x, y + 2), name, font=f_coy, fill=MUTED)
+                if len(name) > 22:
+                    name = name[:19] + "..."
+                draw.text((x, y + dy + 4), name, font=f_coy, fill=MUTED)
             elif key == "Price":
                 v = row.get(key)
-                draw.text((x, y), f"${v:.2f}" if v else "—", font=f_val, fill=WHITE)
+                draw.text((x, y + dy), f"${v:.2f}" if v else "—", font=f_val, fill=WHITE)
             elif key == "VolumeM":
                 v = row.get(key)
-                draw.text((x, y), f"{v:.2f}M" if v else "—", font=f_val, fill=WHITE)
+                draw.text((x, y + dy), f"{v:.2f}M" if v else "—", font=f_val, fill=WHITE)
             elif key == "VolumeVsMA21_1D":
                 v = row.get(key)
                 c = GOLD if (v and v >= 3) else (GREEN if (v and v >= 1.5) else WHITE)
-                draw.text((x, y), f"{v:.2f}x" if v else "—", font=f_val, fill=c)
+                draw.text((x, y + dy), f"{v:.2f}x" if v else "—", font=f_val, fill=c)
             elif key == "VolumeChange1D":
                 v = row.get(key)
                 c = GOLD if (v and v > 200) else pct_color(v)
-                draw.text((x, y), pct_str(v), font=f_val, fill=c)
+                draw.text((x, y + dy), pct_str(v), font=f_val, fill=c)
             else:
                 v = row.get(key)
-                draw.text((x, y), pct_str(v), font=f_val, fill=pct_color(v))
+                draw.text((x, y + dy), pct_str(v), font=f_val, fill=pct_color(v))
             x += cw
+
+    cta_y = 152 + 3 * row_h + 20
+    hline(draw, cta_y, x0=60, x1=W - 60, color=ELECTRIC)
+    centered(draw, cta_y + 18,
+             "Want to see the full list? Visit baizora.com — Free 7-day trial available.",
+             load_font(26, bold=True), ELEC_BRIGHT)
 
     footer(draw)
     return img
@@ -417,7 +459,6 @@ def scene_volume_spikes(rows, scan_date):
 def scene_volume_spikes_cn(rows, scan_date):
     img, draw = new_frame()
 
-    # CN top bar
     draw.rectangle([0, 0, W, 96], fill=NAVY_MID)
     hline(draw, 96, x0=0, x1=W)
     draw.text((72, 22), "成交量异动 — 异常交易活动", font=load_font_cn(28, bold=True), fill=WHITE)
@@ -426,60 +467,69 @@ def scene_volume_spikes_cn(rows, scan_date):
     draw.text((W - 72 - dw, 38), scan_date, font=f_d, fill=MUTED)
 
     COLS = [
-        ("#",       None,               70),
-        ("代码",    "Ticker",          130),
-        ("公司",    "CompanyName",     280),
-        ("价格",    "Price",           130),
-        ("日价涨",  "PriceChange1D",   148),
-        ("成交量M", "VolumeM",         148),
-        ("日量涨",  "VolumeChange1D",  165),
-        ("量/MA21", "VolumeVsMA21_1D", 160),
+        ("#",       None,               80),
+        ("代码",    "Ticker",          155),
+        ("公司",    "CompanyName",     350),
+        ("价格",    "Price",           175),
+        ("日价涨",  "PriceChange1D",   215),
+        ("成交量M", "VolumeM",         195),
+        ("日量涨",  "VolumeChange1D",  225),
+        ("量/MA21", "VolumeVsMA21_1D", 345),
     ]
 
-    f_hdr = load_font_cn(16)
-    f_tkr = load_font(23, mono=True)
-    f_coy = load_font_cn(17)
-    f_val = load_font(22, mono=True)
+    f_hdr = load_font_cn(20)
+    f_tkr = load_font(40, mono=True)
+    f_coy = load_font_cn(26)
+    f_val = load_font(36, mono=True)
 
     x = 60
     for hdr, _, cw in COLS:
         draw.text((x, 108), hdr, font=f_hdr, fill=DIM)
         x += cw
-    hline(draw, 141)
+    hline(draw, 148)
 
-    for idx, row in enumerate(rows[:10]):
-        y = 150 + idx * 70
+    row_h = 250
+    dy    = 90
+
+    for idx, row in enumerate(rows[:3]):
+        y = 152 + idx * row_h
         if idx % 2 == 0:
-            draw.rectangle([60, y - 4, W - 60, y + 62], fill=NAVY_MID)
+            draw.rectangle([60, y - 4, W - 60, y + row_h - 8], fill=NAVY_MID)
         x = 60
         for hdr, key, cw in COLS:
             if key is None:
-                draw.text((x + 10, y + 4), str(idx + 1), font=f_hdr, fill=VERY_DIM)
+                draw.text((x + 10, y + dy + 4), str(idx + 1), font=f_hdr, fill=VERY_DIM)
             elif key == "Ticker":
-                draw.text((x, y), row.get(key, ""), font=f_tkr, fill=WHITE)
+                draw.text((x, y + dy - 4), row.get(key, ""), font=f_tkr, fill=WHITE)
             elif key == "CompanyName":
                 name = row.get(key) or ""
-                if len(name) > 24:
-                    name = name[:21] + "..."
-                draw.text((x, y + 2), name, font=f_coy, fill=MUTED)
+                if len(name) > 22:
+                    name = name[:19] + "..."
+                draw.text((x, y + dy + 4), name, font=f_coy, fill=MUTED)
             elif key == "Price":
                 v = row.get(key)
-                draw.text((x, y), f"${v:.2f}" if v else "—", font=f_val, fill=WHITE)
+                draw.text((x, y + dy), f"${v:.2f}" if v else "—", font=f_val, fill=WHITE)
             elif key == "VolumeM":
                 v = row.get(key)
-                draw.text((x, y), f"{v:.2f}M" if v else "—", font=f_val, fill=WHITE)
+                draw.text((x, y + dy), f"{v:.2f}M" if v else "—", font=f_val, fill=WHITE)
             elif key == "VolumeVsMA21_1D":
                 v = row.get(key)
                 c = GOLD if (v and v >= 3) else (GREEN if (v and v >= 1.5) else WHITE)
-                draw.text((x, y), f"{v:.2f}x" if v else "—", font=f_val, fill=c)
+                draw.text((x, y + dy), f"{v:.2f}x" if v else "—", font=f_val, fill=c)
             elif key == "VolumeChange1D":
                 v = row.get(key)
                 c = GOLD if (v and v > 200) else pct_color(v)
-                draw.text((x, y), pct_str(v), font=f_val, fill=c)
+                draw.text((x, y + dy), pct_str(v), font=f_val, fill=c)
             else:
                 v = row.get(key)
-                draw.text((x, y), pct_str(v), font=f_val, fill=pct_color(v))
+                draw.text((x, y + dy), pct_str(v), font=f_val, fill=pct_color(v))
             x += cw
+
+    cta_y = 152 + 3 * row_h + 20
+    hline(draw, cta_y, x0=60, x1=W - 60, color=ELECTRIC)
+    centered(draw, cta_y + 18,
+             "想查看完整榜单？访问贝佐拉.com — 提供七天免费试用。",
+             load_font_cn(26, bold=True), ELEC_BRIGHT)
 
     footer(draw)
     return img
@@ -959,6 +1009,742 @@ _VISUAL_FNS = {
 }
 
 
+def _visual_vol_sort(img, draw, data):
+    """Multi-period volume table sorted by VOL/MA21 — used in volume spikes promo scene."""
+    rows = sorted(data["data"],
+                  key=lambda r: r.get("VolumeVsMA21_1D") or -9999, reverse=True)[:7]
+    rx, ry = _RP_X, _RP_Y
+
+    COLS = [
+        ("TICKER",      "Ticker",              110),
+        ("VOL/MA21 ▼", "VolumeVsMA21_1D",     196),
+        ("1D V%",       "VolumeChange1D",       160),
+        ("2W MAX V%",   "2WMaxVolumeChange",    175),
+        ("1M MAX V%",   "1MMaxVolumeChange",    175),
+        ("3M MAX V%",   "3MMaxVolumeChange",    175),
+        ("6M MAX V%",   "6MMaxVolumeChange",    205),
+    ]
+
+    f_hdr = load_font(18, mono=True)
+    f_tkr = load_font(24, mono=True)
+    f_val = load_font(22, mono=True)
+
+    hdr_y = ry + 16
+    x = rx
+    for hdr, _, cw in COLS:
+        if "▼" in hdr:
+            draw.rectangle([x - 2, hdr_y - 4, x + cw - 6, hdr_y + 26],
+                           fill=NAVY_LIGHT, outline=GOLD)
+            draw.text((x + 4, hdr_y), hdr, font=f_hdr, fill=GOLD)
+        else:
+            draw.text((x + 4, hdr_y), hdr, font=f_hdr, fill=DIM)
+        x += cw
+
+    line_y = hdr_y + 34
+    draw.line([(rx, line_y), (rx + _RP_W, line_y)], fill=BORDER)
+
+    row_h = (_RP_BOT - line_y - 20) // 7
+    for idx, row in enumerate(rows):
+        row_y = line_y + 8 + idx * row_h
+        if idx % 2 == 0:
+            draw.rectangle([rx, row_y - 4, rx + _RP_W, row_y + row_h - 8], fill=NAVY_LIGHT)
+        x = rx
+        for hdr, key, cw in COLS:
+            if key == "Ticker":
+                draw.text((x + 4, row_y + 4), row.get(key, ""), font=f_tkr, fill=WHITE)
+            elif key == "VolumeVsMA21_1D":
+                v = row.get(key)
+                c = GOLD if (v and v >= 3) else (GREEN if (v and v >= 1.5) else WHITE)
+                draw.text((x + 4, row_y + 4), f"{v:.2f}x" if v else "—", font=f_val, fill=c)
+            else:
+                v = row.get(key)
+                draw.text((x + 4, row_y + 4), pct_str(v), font=f_val, fill=pct_color(v))
+            x += cw
+    return img, draw
+
+
+def scene_top3_sparklines(title, rows, scan_date, more_text=""):
+    """3-column full-height sparkline scene showing top 3 rows with large fonts."""
+    img, draw = new_frame()
+    top_bar(draw, title, scan_date)
+
+    NCOLS   = 3
+    margin  = 30
+    gap     = 16
+    top     = 102
+    bot     = H - 80         # reserve bottom strip for "more" message
+    cell_w  = (W - 2*margin - (NCOLS - 1)*gap) // NCOLS   # ≈ 609 px
+    cell_h  = bot - top                                     # ≈ 898 px
+    info_h  = 170            # info block height at top of each cell
+
+    f_tkr = load_font(38, mono=True)
+    f_co  = load_font(26)
+    f_val = load_font(26, mono=True)
+
+    spark_polys = []   # (points, fill_color)
+
+    for idx, row in enumerate(rows[:3]):
+        x0 = margin + idx * (cell_w + gap)
+        y0 = top
+        x1 = x0 + cell_w
+        y1 = y0 + cell_h
+
+        draw.rectangle([x0, y0, x1, y1], fill=NAVY_MID)
+
+        ticker = row.get("Ticker", "")
+        draw.text((x0 + 16, y0 + 14), ticker, font=f_tkr, fill=WHITE)
+
+        cname = _short_name(row.get("CompanyName", ""), ticker)
+        if len(cname) > 26:
+            cname = cname[:23] + "..."
+        draw.text((x0 + 16, y0 + 62), cname, font=f_co, fill=MUTED)
+
+        pc1d = row.get("PriceChange1D")
+        pc1y = row.get("1YPriceChange")
+        draw.text((x0 + 16, y0 + 100),
+                  f"Today   {pct_str(pc1d)}", font=f_val, fill=pct_color(pc1d))
+        draw.text((x0 + 16, y0 + 134),
+                  f"1 Year  {pct_str(pc1y)}", font=f_val, fill=pct_color(pc1y))
+
+        draw.line([(x0 + 8, y0 + info_h), (x1 - 8, y0 + info_h)], fill=BORDER)
+
+        # Sparkline area
+        sx0 = x0 + 16
+        sy0 = y0 + info_h + 12
+        sw  = cell_w - 32
+        sh  = cell_h - info_h - 24
+
+        spark = row.get("Spark1Y") or []
+        if len(spark) >= 2:
+            mn_v, mx_v = min(spark), max(spark)
+            if mx_v > mn_v:
+                n_pts = len(spark)
+                pad   = 0.06
+
+                def spark_pt(i, v, _sx0=sx0, _sy0=sy0, _sw=sw, _sh=sh,
+                             _mn=mn_v, _mx=mx_v, _n=n_pts, _p=pad):
+                    px = _sx0 + round(i / (_n - 1) * _sw)
+                    py = _sy0 + _sh - round(
+                        ((v - _mn) / (_mx - _mn)) * _sh * (1 - 2*_p) + _sh*_p
+                    )
+                    return (px, py)
+
+                pts = [spark_pt(i, v) for i, v in enumerate(spark)]
+                lc  = BRIGHT_GREEN if (pc1y or 0) >= 0 else BRIGHT_RED
+                fc  = (*lc, 30)
+
+                spark_polys.append(
+                    (pts + [(pts[-1][0], sy0 + sh), (pts[0][0], sy0 + sh)], fc)
+                )
+
+                for j in range(len(pts) - 1):
+                    draw.line([pts[j], pts[j + 1]], fill=lc, width=3)
+
+                draw.ellipse([pts[-1][0]-6, pts[-1][1]-6,
+                               pts[-1][0]+6, pts[-1][1]+6], fill=ELEC_BRIGHT)
+
+    if spark_polys:
+        ov  = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        ovd = ImageDraw.Draw(ov)
+        for poly, fc in spark_polys:
+            ovd.polygon(poly, fill=fc)
+        img  = Image.alpha_composite(img.convert("RGBA"), ov).convert("RGB")
+        draw = ImageDraw.Draw(img)
+
+    if more_text:
+        hline(draw, H - 68)
+        has_cjk = any('一' <= c <= '鿿' for c in more_text)
+        f_more  = load_font_cn(24, bold=True) if has_cjk else load_font(24, bold=True)
+        centered(draw, H - 56, more_text, f_more, ELEC_BRIGHT)
+
+    return img
+
+
+def scene_breakout_table(breakouts, scan_date):
+    """Table for 1-year high breakout stocks with custom computed columns."""
+    img, draw = new_frame()
+    n = len(breakouts)
+    top_bar(draw, f"1-Year High Breakouts — Top {n}  ({scan_date})", scan_date)
+
+    COLS = [
+        ("#",        None,              80),
+        ("TICKER",   "Ticker",         155),
+        ("COMPANY",  "CompanyName",    290),
+        ("PRICE",    "Price",          175),
+        ("1D CHG%",  "PriceChange1D",  215),
+        ("PULLBACK", "_drawdown",      210),
+        ("6M HIGH",  "_peak_price",    215),
+        ("PEAK AGO", "_months_ago",    200),
+    ]
+
+    f_hdr = load_font(20, mono=True)
+    f_tkr = load_font(40, mono=True)
+    f_coy = load_font(26)
+    f_val = load_font(36, mono=True)
+    row_h = 250
+    dy    = 90
+
+    x = 60
+    for hdr, _, cw in COLS:
+        draw.text((x, 110), hdr, font=f_hdr, fill=DIM)
+        x += cw
+    hline(draw, 148)
+
+    for idx, row in enumerate(breakouts[:3]):
+        y    = 152 + idx * row_h
+        bg_h = row_h - 8
+        if idx % 2 == 0:
+            draw.rectangle([60, y - 4, W - 60, y + bg_h], fill=NAVY_MID)
+        x = 60
+        for hdr, key, cw in COLS:
+            if key is None:
+                draw.text((x + 10, y + dy + 4), str(idx + 1), font=f_hdr, fill=VERY_DIM)
+            elif key == "Ticker":
+                draw.text((x, y + dy - 4), row.get(key, ""), font=f_tkr, fill=WHITE)
+            elif key == "CompanyName":
+                name = row.get(key) or ""
+                if len(name) > 20:
+                    name = name[:19] + "…"
+                draw.text((x, y + dy), name, font=f_coy, fill=MUTED)
+            elif key == "Price":
+                v = row.get(key)
+                draw.text((x, y + dy - 4), f"${v:.2f}" if v else "—",
+                          font=f_val, fill=WHITE)
+            elif key == "PriceChange1D":
+                v = row.get(key)
+                draw.text((x, y + dy - 4), pct_str(v),
+                          font=f_val, fill=pct_color(v))
+            elif key == "_drawdown":
+                v = row.get(key, 0)
+                draw.text((x, y + dy - 4), f"-{v:.1f}%",
+                          font=f_val, fill=GOLD_LIGHT)
+            elif key == "_peak_price":
+                v = row.get(key, 0)
+                draw.text((x, y + dy - 4), f"${v:.2f}",
+                          font=f_val, fill=MUTED)
+            elif key == "_months_ago":
+                v = row.get(key, 0)
+                draw.text((x, y + dy - 4), f"~{v:.1f}mo",
+                          font=f_val, fill=DIM)
+            x += cw
+
+    hline(draw, H - 60)
+    f_cta = load_font(22, bold=True)
+    centered(draw, H - 50,
+             "See all breakout candidates at baizora.com — Free 7-day trial.",
+             f_cta, ELEC_BRIGHT)
+    return img
+
+
+def scene_breakout_sparklines(breakouts, scan_date, peak_label="1Y HIGH", title=None):
+    """3-column sparklines with gold markers showing the 1-year high just crossed."""
+    img, draw = new_frame()
+    top_bar(draw,
+            title or f"1-Year High Breakouts — Price Trend  ({scan_date})", scan_date)
+
+    NCOLS  = 3
+    margin = 30
+    gap    = 16
+    top    = 102
+    bot    = H - 80
+    cell_w = (W - 2*margin - (NCOLS - 1)*gap) // NCOLS
+    cell_h = bot - top
+    info_h = 170
+
+    f_tkr = load_font(38, mono=True)
+    f_co  = load_font(26)
+    f_val = load_font(26, mono=True)
+    f_lbl = load_font(15, mono=True)
+
+    spark_polys = []
+    post_dots   = []   # (x, y, color, r) drawn after composite
+
+    for idx, row in enumerate(breakouts[:3]):
+        x0 = margin + idx * (cell_w + gap)
+        y0 = top
+        x1 = x0 + cell_w
+        y1 = y0 + cell_h
+
+        draw.rectangle([x0, y0, x1, y1], fill=NAVY_MID)
+
+        ticker = row.get("Ticker", "")
+        draw.text((x0 + 16, y0 + 14), ticker, font=f_tkr, fill=WHITE)
+
+        cname = _short_name(row.get("CompanyName", ""), ticker)
+        if len(cname) > 26:
+            cname = cname[:23] + "..."
+        draw.text((x0 + 16, y0 + 62), cname, font=f_co, fill=MUTED)
+
+        pc1d     = row.get("PriceChange1D")
+        drawdown = row.get("_drawdown", 0)
+        draw.text((x0 + 16, y0 + 100),
+                  f"Today    {pct_str(pc1d)}", font=f_val, fill=pct_color(pc1d))
+        draw.text((x0 + 16, y0 + 134),
+                  f"Pullback -{drawdown:.1f}%", font=f_val, fill=GOLD_LIGHT)
+
+        draw.line([(x0 + 8, y0 + info_h), (x1 - 8, y0 + info_h)], fill=BORDER)
+
+        sx0      = x0 + 16
+        sy0      = y0 + info_h + 12
+        sw       = cell_w - 32
+        sh       = cell_h - info_h - 24
+        spark    = row.get("Spark1Y") or []
+        peak_idx = row.get("_peak_idx", 0)
+
+        if len(spark) >= 2:
+            mn_v, mx_v = min(spark), max(spark)
+            if mx_v > mn_v:
+                n_pts = len(spark)
+                pad   = 0.06
+
+                def spark_pt(i, v, _sx0=sx0, _sy0=sy0, _sw=sw, _sh=sh,
+                             _mn=mn_v, _mx=mx_v, _n=n_pts, _p=pad):
+                    px = _sx0 + round(i / (_n - 1) * _sw)
+                    py = _sy0 + _sh - round(
+                        ((v - _mn) / (_mx - _mn)) * _sh * (1 - 2*_p) + _sh*_p
+                    )
+                    return (px, py)
+
+                pts  = [spark_pt(i, v) for i, v in enumerate(spark)]
+                pk_x, pk_y = spark_pt(peak_idx, spark[peak_idx])
+
+                # Gold vertical line at peak day
+                draw.line([(pk_x, sy0), (pk_x, sy0 + sh)], fill=GOLD, width=1)
+                # Gold dashed horizontal line at peak price level
+                for ddx in range(0, sw, 8):
+                    lx0 = sx0 + ddx
+                    lx1 = min(sx0 + ddx + 4, sx0 + sw)
+                    draw.line([(lx0, pk_y), (lx1, pk_y)], fill=GOLD, width=1)
+                # "PREV HIGH" label
+                lbl_x = x1 - tw(draw, peak_label, f_lbl) - 10
+                draw.text((lbl_x, pk_y - 20), peak_label, font=f_lbl, fill=GOLD)
+
+                pc1y = row.get("1YPriceChange")
+                lc   = BRIGHT_GREEN if (pc1y or 0) >= 0 else BRIGHT_RED
+                fc   = (*lc, 30)
+                spark_polys.append(
+                    (pts + [(pts[-1][0], sy0 + sh), (pts[0][0], sy0 + sh)], fc)
+                )
+                for j in range(len(pts) - 1):
+                    draw.line([pts[j], pts[j + 1]], fill=lc, width=3)
+
+                # Draw dots after composite
+                post_dots.append((pk_x, pk_y, GOLD, 6))
+                post_dots.append((pts[-1][0], pts[-1][1], ELEC_BRIGHT, 6))
+
+    if spark_polys:
+        ov  = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        ovd = ImageDraw.Draw(ov)
+        for poly, fc in spark_polys:
+            ovd.polygon(poly, fill=fc)
+        img  = Image.alpha_composite(img.convert("RGBA"), ov).convert("RGB")
+        draw = ImageDraw.Draw(img)
+
+    for (dx, dy, dc, dr) in post_dots:
+        draw.ellipse([dx - dr, dy - dr, dx + dr, dy + dr], fill=dc)
+
+    hline(draw, H - 68)
+    f_more = load_font(24, bold=True)
+    centered(draw, H - 56,
+             "Want to see more? Visit baizora.com for the full S&P 500 & Nasdaq-100 analysis.",
+             f_more, ELEC_BRIGHT)
+    return img
+
+
+def scene_breakout_table_cn(breakouts, scan_date):
+    """CN table for 1-year high breakout stocks."""
+    img, draw = new_frame()
+    n = len(breakouts)
+    top_bar(draw, f"一年新高突破 — 前{n}名  ({scan_date})", scan_date)
+
+    COLS = [
+        ("#",     None,             80),
+        ("代码",  "Ticker",        155),
+        ("公司",  "CompanyName",   290),
+        ("价格",  "Price",         175),
+        ("日涨幅","PriceChange1D", 215),
+        ("回调幅度","_drawdown",   210),
+        ("年高价","_peak_price",   215),
+        ("高点时间","_months_ago", 200),
+    ]
+
+    f_hdr = load_font_cn(18)
+    f_tkr = load_font(40, mono=True)
+    f_coy = load_font_cn(24)
+    f_val = load_font(36, mono=True)
+    row_h = 250
+    dy    = 90
+
+    x = 60
+    for hdr, _, cw in COLS:
+        draw.text((x, 110), hdr, font=f_hdr, fill=DIM)
+        x += cw
+    hline(draw, 148)
+
+    for idx, row in enumerate(breakouts[:3]):
+        y    = 152 + idx * row_h
+        bg_h = row_h - 8
+        if idx % 2 == 0:
+            draw.rectangle([60, y - 4, W - 60, y + bg_h], fill=NAVY_MID)
+        x = 60
+        for hdr, key, cw in COLS:
+            if key is None:
+                draw.text((x + 10, y + dy + 4), str(idx + 1), font=f_hdr, fill=VERY_DIM)
+            elif key == "Ticker":
+                draw.text((x, y + dy - 4), row.get(key, ""), font=f_tkr, fill=WHITE)
+            elif key == "CompanyName":
+                name = row.get(key) or ""
+                if len(name) > 20:
+                    name = name[:19] + "…"
+                draw.text((x, y + dy), name, font=f_coy, fill=MUTED)
+            elif key == "Price":
+                v = row.get(key)
+                draw.text((x, y + dy - 4), f"${v:.2f}" if v else "—",
+                          font=f_val, fill=WHITE)
+            elif key == "PriceChange1D":
+                v = row.get(key)
+                draw.text((x, y + dy - 4), pct_str(v),
+                          font=f_val, fill=pct_color(v))
+            elif key == "_drawdown":
+                v = row.get(key, 0)
+                draw.text((x, y + dy - 4), f"-{v:.1f}%",
+                          font=f_val, fill=GOLD_LIGHT)
+            elif key == "_peak_price":
+                v = row.get(key, 0)
+                draw.text((x, y + dy - 4), f"${v:.2f}",
+                          font=f_val, fill=MUTED)
+            elif key == "_months_ago":
+                v = row.get(key, 0)
+                draw.text((x, y + dy - 4), f"~{v:.1f}月前",
+                          font=f_val, fill=DIM)
+            x += cw
+
+    hline(draw, H - 60)
+    f_cta = load_font_cn(20, bold=True)
+    centered(draw, H - 50,
+             "访问贝佐拉.com查看所有符合条件的突破股票 — 提供七天免费试用。",
+             f_cta, ELEC_BRIGHT)
+    return img
+
+
+def _visual_1y_sort(img, draw, data):
+    """Multi-timeframe price table sorted by 1Y change — used in extreme_1y promo scene."""
+    rows = sorted(data["data"],
+                  key=lambda r: r.get("1YPriceChange") or -9999, reverse=True)[:7]
+    rx, ry = _RP_X, _RP_Y
+
+    COLS = [
+        ("TICKER",      "Ticker",          110),
+        ("1Y P CHG% ▼", "1YPriceChange",   200),
+        ("9M P CHG%",   "9MPriceChange",   172),
+        ("6M P CHG%",   "6MPriceChange",   172),
+        ("3M P CHG%",   "3MPriceChange",   172),
+        ("1M P CHG%",   "1MPriceChange",   172),
+        ("2W P CHG%",   "2WPriceChange",   198),
+    ]
+
+    f_hdr = load_font(18, mono=True)
+    f_tkr = load_font(24, mono=True)
+    f_val = load_font(22, mono=True)
+
+    hdr_y = ry + 16
+    x = rx
+    for hdr, _, cw in COLS:
+        if "▼" in hdr:
+            draw.rectangle([x - 2, hdr_y - 4, x + cw - 6, hdr_y + 26],
+                           fill=NAVY_LIGHT, outline=GREEN)
+            draw.text((x + 4, hdr_y), hdr, font=f_hdr, fill=GREEN)
+        else:
+            draw.text((x + 4, hdr_y), hdr, font=f_hdr, fill=DIM)
+        x += cw
+
+    line_y = hdr_y + 34
+    draw.line([(rx, line_y), (rx + _RP_W, line_y)], fill=BORDER)
+
+    row_h = (_RP_BOT - line_y - 20) // 7
+    for idx, row in enumerate(rows):
+        row_y = line_y + 8 + idx * row_h
+        if idx % 2 == 0:
+            draw.rectangle([rx, row_y - 4, rx + _RP_W, row_y + row_h - 8], fill=NAVY_LIGHT)
+        x = rx
+        for hdr, key, cw in COLS:
+            if key == "Ticker":
+                draw.text((x + 4, row_y + 4), row.get(key, ""), font=f_tkr, fill=WHITE)
+            else:
+                v = row.get(key)
+                draw.text((x + 4, row_y + 4), pct_str(v), font=f_val, fill=pct_color(v))
+            x += cw
+    return img, draw
+
+
+def scene_1y_sort_promo(data, date):
+    """10-second promo scene for extreme_1y: multi-timeframe 1Y price sort table."""
+    img, draw = new_frame()
+    accent = GREEN
+
+    f_wm  = load_font(200, bold=True)
+    wm_w  = tw(draw, "04", f_wm)
+    wm_h  = th(draw, "04", f_wm)
+    blend = tuple(int(NAVY[c] * 0.93 + accent[c] * 0.07) for c in range(3))
+    draw.text((_DIV_X - wm_w - 24, (H - wm_h) // 2), "04", font=f_wm, fill=blend)
+
+    draw.text((_LP_X, 70), "◈   BAIZORA PLATFORM", font=load_font(16, mono=True), fill=accent)
+    draw.line([(_LP_X, 106), (_DIV_X, 106)], fill=BORDER)
+
+    f_title     = load_font(40, bold=True)
+    title_lines = _wrap_text(draw, "1-Year Leaders Across Every Timeframe", f_title, _LP_MAXW)
+    ty          = 132
+    lh_title    = th(draw, "Ag", f_title) + 10
+    for line in title_lines:
+        draw.text((_LP_X, ty), line, font=f_title, fill=WHITE)
+        ty += lh_title
+
+    bar_y = ty + 14
+    draw.rectangle([_LP_X, bar_y, _LP_X + 80, bar_y + 5], fill=accent)
+
+    body = (
+        "On Baizora, see how the top 1-year performers stack up across every timeframe — "
+        "from 2 weeks to 9 months. Sort by any column to instantly find the leaders "
+        "across the full S&P 500 and Nasdaq-100 universe."
+    )
+    f_body     = load_font(26)
+    body_lines = _wrap_text(draw, body, f_body, _LP_MAXW)
+    by         = bar_y + 22
+    lh_body    = th(draw, "Ag", f_body) + 8
+    for line in body_lines:
+        draw.text((_LP_X, by), line, font=f_body, fill=MUTED)
+        by += lh_body
+
+    draw.line([(_DIV_X, 70), (_DIV_X, H - 68)], fill=BORDER)
+    draw.line([(_LP_X, H - 96), (_DIV_X, H - 96)], fill=BORDER)
+    logo_text(draw, _LP_X, H - 74, 26)
+
+    draw.rectangle([_RP_X - 4, _RP_Y - 8, W - 60, _RP_BOT + 8],
+                   fill=NAVY_MID, outline=BORDER)
+    img, draw = _visual_1y_sort(img, draw, data)
+
+    return img
+
+
+def scene_movers_table_cn(title, rows, scan_date, cta_text=""):
+    """CN 3-row movers table with CJK headers and large fonts."""
+    img, draw = new_frame()
+    top_bar(draw, title, scan_date)
+
+    COLS = [
+        ("#",       None,              80),
+        ("代码",    "Ticker",         155),
+        ("公司",    "CompanyName",    360),
+        ("价格",    "Price",          175),
+        ("日涨幅",  "PriceChange1D",  215),
+        ("成交量M", "VolumeM",        195),
+        ("日量涨",  "VolumeChange1D", 215),
+        ("年涨幅",  "1YPriceChange",  345),
+    ]
+
+    f_hdr = load_font_cn(20)
+    f_tkr = load_font(40, mono=True)
+    f_coy = load_font_cn(24)
+    f_val = load_font(36, mono=True)
+    row_h = 250
+    dy    = 90
+
+    x = 60
+    for hdr, _, cw in COLS:
+        draw.text((x, 110), hdr, font=f_hdr, fill=DIM)
+        x += cw
+    hline(draw, 148)
+
+    for idx, row in enumerate(rows[:3]):
+        y = 152 + idx * row_h
+        if idx % 2 == 0:
+            draw.rectangle([60, y - 4, W - 60, y + row_h - 8], fill=NAVY_MID)
+        x = 60
+        for hdr, key, cw in COLS:
+            if key is None:
+                draw.text((x + 10, y + dy + 4), str(idx + 1), font=f_hdr, fill=VERY_DIM)
+            elif key == "Ticker":
+                draw.text((x, y + dy - 4), row.get(key, ""), font=f_tkr, fill=WHITE)
+            elif key == "CompanyName":
+                name = row.get(key) or ""
+                if len(name) > 22:
+                    name = name[:19] + "..."
+                draw.text((x, y + dy + 4), name, font=f_coy, fill=MUTED)
+            elif key == "Price":
+                v = row.get(key)
+                draw.text((x, y + dy), f"${v:.2f}" if v else "—", font=f_val, fill=WHITE)
+            elif key == "VolumeM":
+                v = row.get(key)
+                draw.text((x, y + dy), f"{v:.2f}M" if v else "—", font=f_val, fill=WHITE)
+            else:
+                v = row.get(key)
+                draw.text((x, y + dy), pct_str(v), font=f_val, fill=pct_color(v))
+            x += cw
+
+    if cta_text:
+        cta_y = 152 + 3 * row_h + 20
+        hline(draw, cta_y, x0=60, x1=W - 60, color=ELECTRIC)
+        centered(draw, cta_y + 18, cta_text, load_font_cn(26, bold=True), ELEC_BRIGHT)
+
+    footer(draw)
+    return img
+
+
+def scene_1y_sort_promo_cn(data, date):
+    """CN 10-second promo scene for extreme_1y_cn: multi-timeframe 1Y price sort table."""
+    img, draw = new_frame()
+    accent = GREEN
+
+    f_wm  = load_font(200, bold=True)
+    wm_w  = tw(draw, "04", f_wm)
+    wm_h  = th(draw, "04", f_wm)
+    blend = tuple(int(NAVY[c] * 0.93 + accent[c] * 0.07) for c in range(3))
+    draw.text((_DIV_X - wm_w - 24, (H - wm_h) // 2), "04", font=f_wm, fill=blend)
+
+    draw.text((_LP_X, 70), "◈   贝佐拉平台", font=load_font_cn(16), fill=accent)
+    draw.line([(_LP_X, 106), (_DIV_X, 106)], fill=BORDER)
+
+    f_title     = load_font_cn(40, bold=True)
+    title_lines = _wrap_text_cn(draw, "各时间维度的一年领涨表现", f_title, _LP_MAXW)
+    ty          = 132
+    lh_title    = th(draw, "贝", f_title) + 10
+    for line in title_lines:
+        draw.text((_LP_X, ty), line, font=f_title, fill=WHITE)
+        ty += lh_title
+
+    bar_y = ty + 14
+    draw.rectangle([_LP_X, bar_y, _LP_X + 80, bar_y + 5], fill=accent)
+
+    body = (
+        "在贝佐拉，可查看一年领涨股在每个时间维度的表现——从两周到一年。"
+        "按任意列排序，即时发现S&P 500和纳斯达克100全市场的领涨股。"
+    )
+    f_body     = load_font_cn(26)
+    body_lines = _wrap_text_cn(draw, body, f_body, _LP_MAXW)
+    by         = bar_y + 22
+    lh_body    = th(draw, "贝", f_body) + 8
+    for line in body_lines:
+        draw.text((_LP_X, by), line, font=f_body, fill=MUTED)
+        by += lh_body
+
+    draw.line([(_DIV_X, 70), (_DIV_X, H - 68)], fill=BORDER)
+    draw.line([(_LP_X, H - 96), (_DIV_X, H - 96)], fill=BORDER)
+    draw.text((_LP_X, H - 74), "贝佐拉", font=load_font_cn(26, bold=True), fill=ELEC_BRIGHT)
+
+    draw.rectangle([_RP_X - 4, _RP_Y - 8, W - 60, _RP_BOT + 8],
+                   fill=NAVY_MID, outline=BORDER)
+    img, draw = _visual_1y_sort(img, draw, data)
+
+    return img
+
+
+def scene_vol_sort_promo_cn(data, date):
+    """CN 10-second promo scene for volume_spikes_cn: multi-period volume sort table."""
+    img, draw = new_frame()
+    accent = GOLD
+
+    f_wm  = load_font(200, bold=True)
+    wm_w  = tw(draw, "04", f_wm)
+    wm_h  = th(draw, "04", f_wm)
+    blend = tuple(int(NAVY[c] * 0.93 + accent[c] * 0.07) for c in range(3))
+    draw.text((_DIV_X - wm_w - 24, (H - wm_h) // 2), "04", font=f_wm, fill=blend)
+
+    draw.text((_LP_X, 70), "◈   贝佐拉平台", font=load_font_cn(16), fill=accent)
+    draw.line([(_LP_X, 106), (_DIV_X, 106)], fill=BORDER)
+
+    f_title     = load_font_cn(40, bold=True)
+    title_lines = _wrap_text_cn(draw, "各时间维度的成交量异动", f_title, _LP_MAXW)
+    ty          = 132
+    lh_title    = th(draw, "贝", f_title) + 10
+    for line in title_lines:
+        draw.text((_LP_X, ty), line, font=f_title, fill=WHITE)
+        ty += lh_title
+
+    bar_y = ty + 14
+    draw.rectangle([_LP_X, bar_y, _LP_X + 80, bar_y + 5], fill=accent)
+
+    body = (
+        "在贝佐拉，可轻松查看每个时间维度的成交量数据——从一天到一年。"
+        "按任意列排序，即时发现S&P 500和纳斯达克100全市场最大成交量异动。"
+    )
+    f_body     = load_font_cn(26)
+    body_lines = _wrap_text_cn(draw, body, f_body, _LP_MAXW)
+    by         = bar_y + 22
+    lh_body    = th(draw, "贝", f_body) + 8
+    for line in body_lines:
+        draw.text((_LP_X, by), line, font=f_body, fill=MUTED)
+        by += lh_body
+
+    draw.line([(_DIV_X, 70), (_DIV_X, H - 68)], fill=BORDER)
+
+    draw.line([(_LP_X, H - 96), (_DIV_X, H - 96)], fill=BORDER)
+    draw.text((_LP_X, H - 74), "贝佐拉", font=load_font_cn(26, bold=True), fill=ELEC_BRIGHT)
+
+    draw.rectangle([_RP_X - 4, _RP_Y - 8, W - 60, _RP_BOT + 8],
+                   fill=NAVY_MID, outline=BORDER)
+    img, draw = _visual_vol_sort(img, draw, data)
+
+    return img
+
+
+def scene_vol_sort_promo(data, date):
+    """10-second promo scene for volume_spikes: multi-period volume sort table."""
+    img, draw = new_frame()
+
+    accent = GOLD
+
+    # Left panel watermark
+    f_wm  = load_font(200, bold=True)
+    wm_w  = tw(draw, "04", f_wm)
+    wm_h  = th(draw, "04", f_wm)
+    blend = tuple(int(NAVY[c] * 0.93 + accent[c] * 0.07) for c in range(3))
+    draw.text((_DIV_X - wm_w - 24, (H - wm_h) // 2), "04", font=f_wm, fill=blend)
+
+    # Left panel header
+    draw.text((_LP_X, 70), "◈   BAIZORA PLATFORM", font=load_font(16, mono=True), fill=accent)
+    draw.line([(_LP_X, 106), (_DIV_X, 106)], fill=BORDER)
+
+    # Title
+    f_title     = load_font(40, bold=True)
+    title_lines = _wrap_text(draw, "Volume Spikes Across All Timeframes", f_title, _LP_MAXW)
+    ty          = 132
+    lh_title    = th(draw, "Ag", f_title) + 10
+    for line in title_lines:
+        draw.text((_LP_X, ty), line, font=f_title, fill=WHITE)
+        ty += lh_title
+
+    bar_y = ty + 14
+    draw.rectangle([_LP_X, bar_y, _LP_X + 80, bar_y + 5], fill=accent)
+
+    # Body
+    body = (
+        "On Baizora, access volume spike data for every timeframe — "
+        "from 1 day to 1 year. Sort by any column to instantly find "
+        "the biggest volume spikes across the full S&P 500 and Nasdaq-100 universe."
+    )
+    f_body     = load_font(26)
+    body_lines = _wrap_text(draw, body, f_body, _LP_MAXW)
+    by         = bar_y + 22
+    lh_body    = th(draw, "Ag", f_body) + 8
+    for line in body_lines:
+        draw.text((_LP_X, by), line, font=f_body, fill=MUTED)
+        by += lh_body
+
+    # Vertical divider
+    draw.line([(_DIV_X, 70), (_DIV_X, H - 68)], fill=BORDER)
+
+    # Bottom logo
+    draw.line([(_LP_X, H - 96), (_DIV_X, H - 96)], fill=BORDER)
+    logo_text(draw, _LP_X, H - 74, 26)
+
+    # Right panel
+    draw.rectangle([_RP_X - 4, _RP_Y - 8, W - 60, _RP_BOT + 8],
+                   fill=NAVY_MID, outline=BORDER)
+    img, draw = _visual_vol_sort(img, draw, data)
+
+    return img
+
+
 def scene_platform_feature_v2(feat, data):
     img, draw = new_frame()
     accent = feat["accent"]
@@ -1133,25 +1919,28 @@ _SS_CN = str(SCRIPT_DIR / "baizora_homepage_Screenshot_cn.png")
 
 # ── Sparklines scene ─────────────────────────────────────────────────────────
 
-def scene_sparklines(title, rows, scan_date):
-    """5×2 grid: ticker info on the left, 1-year sparkline on the right."""
+def scene_sparklines(title, rows, scan_date, line_color=None):
+    """5×2 grid: ticker info on the left, 1-year sparkline on the right.
+
+    line_color: optional RGB tuple to override the default green/red coloring.
+    """
     img, draw = new_frame()
     top_bar(draw, title, scan_date)
 
     NCOLS, NROWS = 2, 5
-    mgx  = 14          # horizontal margin / gap
-    mgy  = 6           # vertical gap between rows
+    mgx  = 14
+    mgy  = 6
     content_top = 102
     content_bot = H - 65
-    cw   = (W - 3 * mgx) // NCOLS        # cell width  ≈ 943 px
-    ch   = (content_bot - content_top - (NROWS - 1) * mgy) // NROWS   # ≈ 174 px
-    info_w = 220       # left info column width
+    cw   = (W - 3 * mgx) // NCOLS
+    ch   = (content_bot - content_top - (NROWS - 1) * mgy) // NROWS
+    info_w = 220
 
     f_tkr = load_font(22, mono=True)
     f_co  = load_font(16)
     f_val = load_font(17, mono=True)
 
-    spark_polys = []   # filled areas, composited via RGBA at the end
+    spark_polys = []   # list of (points, fill_color)
 
     for idx, row in enumerate(rows[:10]):
         ci = idx % NCOLS
@@ -1163,7 +1952,6 @@ def scene_sparklines(title, rows, scan_date):
 
         draw.rectangle([x0, y0, x1, y1], fill=NAVY_MID)
 
-        # ── Info section ──────────────────────────────────────────────────
         ticker = row.get("Ticker", "")
         draw.text((x0 + 10, y0 + 8),  ticker, font=f_tkr, fill=WHITE)
 
@@ -1180,11 +1968,9 @@ def scene_sparklines(title, rows, scan_date):
         draw.text((x0 + 10, y1 - 24),
                   f"1 Year  {pct_str(pc1y)}", font=f_val, fill=pct_color(pc1y))
 
-        # Divider
         draw.line([(x0 + info_w, y0 + 8), (x0 + info_w, y1 - 8)],
                   fill=BORDER, width=1)
 
-        # ── Sparkline ─────────────────────────────────────────────────────
         sx0 = x0 + info_w + 8
         sy0 = y0 + 10
         sw  = x1 - sx0 - 8
@@ -1206,26 +1992,28 @@ def scene_sparklines(title, rows, scan_date):
 
                 pts = [spark_pt(i, v) for i, v in enumerate(spark)]
 
-                # Fill polygon (composited later)
+                if line_color:
+                    lc = line_color
+                    fc = (*line_color, 35)
+                else:
+                    lc = GREEN if (pc1y or 0) >= 0 else RED
+                    fc = (59, 130, 246, 28)
+
                 spark_polys.append(
-                    pts + [(pts[-1][0], sy0 + sh), (pts[0][0], sy0 + sh)]
+                    (pts + [(pts[-1][0], sy0 + sh), (pts[0][0], sy0 + sh)], fc)
                 )
 
-                # Line
-                line_c = GREEN if (pc1y or 0) >= 0 else RED
                 for j in range(len(pts) - 1):
-                    draw.line([pts[j], pts[j+1]], fill=line_c, width=2)
+                    draw.line([pts[j], pts[j+1]], fill=lc, width=2)
 
-                # Today dot
                 draw.ellipse([pts[-1][0]-4, pts[-1][1]-4,
                                pts[-1][0]+4, pts[-1][1]+4], fill=ELEC_BRIGHT)
 
-    # Composite sparkline fills
     if spark_polys:
         ov  = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         ovd = ImageDraw.Draw(ov)
-        for poly in spark_polys:
-            ovd.polygon(poly, fill=(59, 130, 246, 28))
+        for poly, fc in spark_polys:
+            ovd.polygon(poly, fill=fc)
         img = Image.alpha_composite(img.convert("RGBA"), ov).convert("RGB")
 
     draw = ImageDraw.Draw(img)
@@ -1651,6 +2439,237 @@ def build_nasdaq_movers(data, output):
     ], output)
 
 
+_VOLUME_OPENERS_EN = [
+    "Something caught the market's attention today — and volume was the tell.",
+    "When volume spikes this sharply, it usually means something is happening. Here's what stood out today.",
+    "Which large-cap stocks saw trading activity far outside the norm today? Let's find out.",
+    "Unusual volume is often the first clue before a major move. Today's biggest spikes across the S&P 500 and Nasdaq-100.",
+    "Every day the market leaves clues in the volume data. Today, these stocks stood out.",
+    "Is smart money moving? Today's largest volume surges in large-cap stocks might offer a hint.",
+    "What was the market reacting to today? Here are the stocks where volume told the story.",
+    "Volume doesn't lie. Today, these S&P 500 and Nasdaq-100 stocks saw trading activity well above their 21-day average.",
+    "When a stock's volume spikes beyond three times its average, something is usually going on. Today's standouts, from Baizora.",
+    "The quietest stocks can suddenly roar — today, these large-cap names made noise in the volume data.",
+]
+
+_VOLUME_OPENERS_CN = [
+    "今天，哪些股票的成交量让市场侧目？",
+    "当成交量突然暴增，往往意味着有事情正在发生。今天，这些股票引发了关注。",
+    "今天的大盘里，有几只股票的成交量远超寻常——背后究竟发生了什么？",
+    "是什么让这些股票今天的交易量远超平均水平？让我们来看看。",
+    "聪明的资金在悄悄移动吗？今天成交量最异常的大盘股就是这些。",
+    "市场上有些信号，只有看成交量才能发现。今天，这些股票的数据值得关注。",
+    "今日盘后，有几只大盘股的成交量异常突出——这是偶然，还是有所预兆？",
+    "成交量的背后，往往藏着市场情绪的变化。今天这些股票告诉了我们什么？",
+    "如果市场在说话，今天说话最响亮的，是这几只股票的成交量。",
+    "今天的S&P 500和纳斯达克100中，出现了一些不寻常的交易量信号。",
+]
+
+_BREAKOUT_OPENERS_EN = [
+    "These stocks spent months under pressure — and today, they finally broke through their one-year high.",
+    "Breaking a one-year high after a real pullback is one of the cleanest signals in the market.",
+    "What happens when a stock corrects over twenty percent, then climbs back to a new one-year high? You're looking at it.",
+    "These stocks peaked, pulled back hard, and today they crossed above their one-year high for the first time.",
+    "The setup: a peak, a twenty-percent pullback, and then a breakout to a new one-year high. Here are today's names.",
+    "Not all breakouts are equal. These stocks had a real correction first — then came back to set a one-year high.",
+    "Some traders wait all year for exactly this setup. Here are the large-caps triggering it right now.",
+    "If a stock can fall over twenty percent and still come back to a new one-year high, the market is saying something.",
+    "Months of selling pressure, then today — a one-year high breakout. Here are the names making the move.",
+    "Today's rare signal: large-cap stocks crossing a one-year high after a twenty-percent-plus pullback.",
+]
+
+_BREAKOUT_OPENERS_CN = [
+    "这些股票在年内高点受压已久——今天，它们终于突破了。",
+    "一年新高突破，叠加真实的回调，是市场中最清晰的信号之一。",
+    "一只股票回调超过二十个百分点，又重新创下一年新高，这意味着什么？答案就在眼前。",
+    "这些股票曾经历大幅回调，如今在过去两周内首次突破了一年高点。",
+    "模式很简单：高点，回调，然后突破。今天触发这个信号的大盘股就是它们。",
+    "不是所有突破都一样。这些股票经历了真实的深度回调，然后强势回归。",
+    "有些交易者等待这种信号等了整整一年。今天，大盘股中出现了。",
+    "一只股票能跌超二十个百分点后重创一年新高，市场在告诉我们一些事情。",
+    "多个月的抛压，然后今天——一年新高突破。这就是今日的名单。",
+    "今日罕见信号：大盘股在经历二十个百分点以上的真实回调后，突破一年高点。",
+]
+
+
+def _compute_6m_breakouts(all_rows):
+    """Return enriched rows for stocks whose 6-month-old peak was first crossed in the past 2 weeks.
+
+    Criteria:
+      - Previous high set ≥6 months ago (first half of Spark1Y)
+      - From that peak day until 2 weeks ago: no day reached 98% of the peak (true resistance)
+      - Today's price is at or above the previous peak
+      - Pullback from peak to trough ≥20% (meaningful correction)
+    """
+    seen, out = set(), []
+    for row in all_rows:
+        ticker = row.get("Ticker", "")
+        if ticker in seen:
+            continue
+        seen.add(ticker)
+        spark = row.get("Spark1Y")
+        if not spark or len(spark) < 200:
+            continue
+        price     = row.get("Price") or 0
+        change_1y = row.get("1YPriceChange") or 0
+        s0, s1    = spark[0], spark[-1]
+        if abs(s0 - s1) < 0.001:
+            continue
+        price_1y_ago = price / (1 + change_1y / 100)
+        R            = (price_1y_ago - price) / (s0 - s1)
+        min_price    = price - s1 * R
+
+        def actual(s): return min_price + s * R
+
+        n, half  = len(spark), len(spark) // 2
+        peak_val = max(spark[:half])
+        peak_idx = spark[:half].index(peak_val)
+
+        # Strict: from peak until 2 weeks ago, no day hit 98% of peak
+        before_2w = spark[peak_idx + 1 : -10]
+        if before_2w and max(before_2w) >= peak_val * 0.98:
+            continue
+
+        # Today must be at or above the previous peak
+        if spark[-1] < peak_val * 0.98:
+            continue
+
+        peak_price = actual(peak_val)
+        months_ago = (n - 1 - peak_idx) / (n / 12)
+        post_peak  = spark[peak_idx:-10]
+        trough_val = min(post_peak) if post_peak else peak_val
+        drawdown   = (peak_price - actual(trough_val)) / peak_price * 100 if peak_price else 0
+
+        if drawdown >= 20:
+            enriched = dict(row)
+            enriched["_peak_price"] = peak_price
+            enriched["_drawdown"]   = drawdown
+            enriched["_months_ago"] = months_ago
+            enriched["_peak_idx"]   = peak_idx
+            out.append(enriched)
+    return out
+
+
+def _narrate_breakout(breakouts):
+    parts = []
+    for b in breakouts[:3]:
+        ticker   = b.get("Ticker", "")
+        chg      = b.get("PriceChange1D") or 0
+        pullback = b.get("_drawdown", 0)
+        direction = "up" if chg >= 0 else "down"
+        parts.append(f"{ticker} {direction} {abs(chg):.1f} percent today, after a {pullback:.0f} percent pullback")
+    n = len(parts)
+    if n >= 3:
+        return (f"Recent one-year high breakouts — all first crossed within the past two weeks: "
+                f"{parts[0]}. {parts[1]}. And {parts[2]}.")
+    elif n == 2:
+        return (f"Recent one-year high breakouts — both first crossed within the past two weeks: "
+                f"{parts[0]}. And {parts[1]}.")
+    elif n == 1:
+        return (f"A recent one-year high breakout, first crossed within the past two weeks: {parts[0]}.")
+    return ""
+
+
+def build_6m_breakout(data, output):
+    date      = data["date"]
+    breakouts = _compute_6m_breakouts(data["data"])
+    breakouts.sort(key=lambda x: x.get("PriceChange1D") or -9999, reverse=True)
+    top       = breakouts[:3]
+
+    if not top:
+        print("No 6-month breakout stocks found today, skipping.")
+        return
+
+    n       = len(top)
+    subtitle = (f"Top {n}" if n > 1 else "Today's") + " — Sorted by 1D Price Change"
+    spark_narr = (
+        f"Here {'are' if n > 1 else 'is'} the one-year price chart{'s' if n > 1 else ''} "
+        f"for {'these' if n > 1 else 'this'} recent breakout{'s' if n > 1 else ''}. "
+        "The gold marker shows the one-year high that was crossed in the past two weeks, "
+        "and the blue dot marks today's price."
+    )
+
+    encode([
+        (scene_title("1-Year High Breakouts", "S&P 500  ·  Nasdaq-100", date,
+                     "First crossed in the past 2 weeks · 20%+ real pullback"), 4,
+         "Large-cap stocks breaking above their 1-year high for the first time in the past 2 weeks, after a 20%+ correction",
+         random.choice(_BREAKOUT_OPENERS_EN)),
+        (scene_breakout_table(top, date), 14,
+         subtitle,
+         _narrate_breakout(top)),
+        (scene_breakout_sparklines(top, date), 7,
+         "1-year price trend — gold marker shows the 1-year high just crossed | baizora.com",
+         spark_narr),
+        (scene_1y_sort_promo(data, date), 10,
+         "Sort by any timeframe — 2W through 1Y — to find price leaders across S&P 500 & Nasdaq-100",
+         "On Baizora, you can see how today's breakout stocks compare across every timeframe — "
+         "from two weeks to one year. Sort by any column to find the leaders instantly. "
+         "Visit baizora dot com."),
+        (scene_screenshot(_SS_EN), 2),
+        (scene_outro(date), 5,
+         "For informational purposes only. Not financial advice. | baizora.com"),
+    ], output)
+
+
+def _narrate_breakout_cn(breakouts):
+    parts = []
+    for b in breakouts[:3]:
+        ticker   = b.get("Ticker", "")
+        chg      = b.get("PriceChange1D") or 0
+        pullback = b.get("_drawdown", 0)
+        direction = "今日上涨" if chg >= 0 else "今日下跌"
+        parts.append(f"{ticker}{direction}{abs(chg):.1f}%，此前回调{pullback:.0f}%")
+    n = len(parts)
+    if n >= 3:
+        return (f"近期一年新高突破——均在过去两周内首次突破："
+                f"{parts[0]}。{parts[1]}。{parts[2]}。")
+    elif n == 2:
+        return (f"近期一年新高突破——均在过去两周内首次突破："
+                f"{parts[0]}。{parts[1]}。")
+    elif n == 1:
+        return f"近期一年新高突破，过去两周内首次突破：{parts[0]}。"
+    return ""
+
+
+def build_6m_breakout_cn(data, output):
+    date      = data["date"]
+    breakouts = _compute_6m_breakouts(data["data"])
+    breakouts.sort(key=lambda x: x.get("PriceChange1D") or -9999, reverse=True)
+    top       = breakouts[:3]
+
+    if not top:
+        print("今日无一年新高突破股票，跳过。")
+        return
+
+    n         = len(top)
+    spark_narr = (
+        f"以下是今日{'前' + str(n) + '只' if n > 1 else ''}突破一年新高的股票年度走势图。"
+        "金色标记为此前一年高点，蓝色圆点为今日价格。"
+    )
+
+    encode([
+        (scene_title_cn("一年新高突破", "S&P 500  ·  纳斯达克100", date,
+                        "过去两周内首次突破 · 真实回调超20%"), 4,
+         "大盘股在经历20%以上真实回调后，过去两周内首次突破一年高点",
+         random.choice(_BREAKOUT_OPENERS_CN)),
+        (scene_breakout_table_cn(top, date), 17,
+         "按今日涨幅排序——在过去两周内突破一年高点",
+         _narrate_breakout_cn(top)),
+        (scene_breakout_sparklines(top, date,
+                                   peak_label="年高点",
+                                   title=f"一年新高突破 — 年度走势  ({date})"), 7,
+         "年度价格走势 — 金色标记为突破的一年高点 | 贝佐拉.com",
+         spark_narr),
+        (scene_1y_sort_promo_cn(data, date), 10,
+         "按任意时间维度排序 — 2周至1年 — 即时筛选S&P 500和纳斯达克100领涨股",
+         "在贝佐拉，可查看这些突破股票在每个时间维度的表现——从两周到一年。"
+         "按任意列排序，即时发现全市场领涨股。访问贝佐拉点com。"),
+        (scene_screenshot(_SS_CN), 2),
+        (scene_outro_cn(date), 5,
+         "仅供参考，不构成投资建议 | baizora.com"),
+    ], output, tts_voice="zh-CN-YunxiNeural")
+
+
 def build_volume_spikes(data, output):
     date   = data["date"]
     spikes = sorted(data["data"],
@@ -1660,17 +2679,628 @@ def build_volume_spikes(data, output):
         (scene_title("Volume Spikes", "S&P 500  ·  Nasdaq-100", date,
                      "Unusual Activity — Highest 1-Day Volume Surge vs 21-Day Average"), 4,
          "Unusual volume can signal institutional activity, earnings reactions, or breaking news",
-         f"Volume spike report for S&P 500 and Nasdaq-100 stocks, {date}, from Baizora."),
+         random.choice(_VOLUME_OPENERS_EN)),
         (scene_volume_spikes(spikes, date), 14,
          "VOL/MA21 = today's volume vs 21-day average  |  values above 3x highlighted in gold",
-         f"{_narrate_volume(spikes)} "
-         "Want to know more about short and mid term price and volume data "
-         "for S&P 500 and Nasdaq-100 stocks? "
+         f"{_narrate_volume(spikes)}"),
+        (scene_top3_sparklines(
+            f"Volume Spike Leaders — 1-Year Trend  ({date})", spikes, date,
+            "Want to see more? Visit baizora.com for the full S&P 500 & Nasdaq-100 analysis."), 5,
+         "Top 3 volume spike leaders — 1-year trend | baizora.com for the full list",
+         "Here are the one-year price trends for the top three volume spike stocks today."),
+        (scene_vol_sort_promo(data, date), 10,
+         "Sort by any period — 1D through 1Y — to find volume spikes across S&P 500 & Nasdaq-100",
+         "On Baizora, you can easily access this data for every timeframe — "
+         "from one day to one year. Sort by any column to instantly find the biggest volume spikes "
+         "across the full S&P 500 and Nasdaq-100 universe. Visit baizora dot com."),
+        (scene_screenshot(_SS_EN), 2),
+        (scene_outro(date), 5,
+         "For informational purposes only. Not financial advice. | baizora.com"),
+    ], output)
+
+
+_VOL_PEAK_OPENERS_EN = [
+    "When a stock records its biggest trading day of the entire past year, the market is paying attention.",
+    "Volume is the market's heartbeat — and today, these stocks are beating harder than any day in the past year.",
+    "What does it look like when a stock sees its highest trading volume of the year? This.",
+    "Today these large-caps aren't just busy — they're having their busiest trading day in twelve months.",
+    "Unusual volume is interesting. Record-breaking annual volume is something else entirely.",
+    "Something happened today that hasn't happened all year for these stocks — their volume broke the annual record.",
+    "The biggest trading days tell stories. Today's record annual volumes in the S&P 500 and Nasdaq-100.",
+    "Not every high-volume day is equal. These are the stocks setting their 1-year volume record right now.",
+    "When volume breaks a year-long record, institutions are moving. Here are today's examples.",
+    "Today's standout signal: large-cap stocks recording their highest single-day volume of the past twelve months.",
+]
+
+
+def _narrate_vol_peak(rows):
+    top = rows[:3]
+    parts = []
+    for r in top:
+        ticker = r.get("Ticker", "")
+        vol_chg = r.get("1YMaxVolumeChange") or 0
+        parts.append(f"{ticker} with a volume surge of {abs(vol_chg):.0f} percent")
+    n = len(parts)
+    if n >= 3:
+        return (f"Today's 1-year volume records: {parts[0]}, {parts[1]}, and {parts[2]}. "
+                f"Each is recording its single largest trading day of the past twelve months.")
+    elif n == 2:
+        return (f"Today's 1-year volume records: {parts[0]} and {parts[1]}. "
+                f"Both are recording their largest trading day of the past twelve months.")
+    elif n == 1:
+        return (f"Today's 1-year volume record: {parts[0]}. "
+                f"Its single largest trading day of the past twelve months.")
+    return ""
+
+
+def build_1y_vol_peak(data, output):
+    date  = data["date"]
+    seen  = set()
+    peaks = []
+    for r in data["data"]:
+        t = r.get("Ticker", "")
+        if t in seen:
+            continue
+        seen.add(t)
+        if r.get("1YMaxVolumeChangeDay") == 0:
+            peaks.append(r)
+    peaks.sort(key=lambda r: r.get("1YMaxVolumeChange") or 0, reverse=True)
+    top = peaks[:3]
+
+    if not top:
+        print("No 1-year volume peak stocks found today, skipping.")
+        return
+
+    n = len(top)
+    encode([
+        (scene_title("1-Year Volume Records", "S&P 500  ·  Nasdaq-100", date,
+                     "Stocks recording their highest single-day volume of the past year"), 4,
+         "Large-cap stocks setting a new 1-year volume record today",
+         random.choice(_VOL_PEAK_OPENERS_EN)),
+        (scene_volume_spikes(top, date), 14,
+         "VOL/MA21 = today's volume vs 21-day average  |  values above 3x highlighted in gold",
+         _narrate_vol_peak(top)),
+        (scene_top3_sparklines(
+            f"1-Year Volume Records — Price Trend  ({date})", top, date,
+            "Want to see more? Visit baizora.com for the full S&P 500 & Nasdaq-100 analysis."), 5,
+         "1-year price trend for today's record-volume stocks | baizora.com",
+         "Here are the one-year price trends for today's record-volume stocks."),
+        (scene_vol_sort_promo(data, date), 10,
+         "Sort by any period — 1D through 1Y — to find volume spikes across S&P 500 & Nasdaq-100",
+         "On Baizora, you can track volume data across every timeframe — from one day to one year. "
+         "Sort by any column to instantly find the biggest volume moves in the S&P 500 and Nasdaq-100. "
          "Visit baizora dot com."),
         (scene_screenshot(_SS_EN), 2),
         (scene_outro(date), 5,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
+
+
+_VOL_PEAK_OPENERS_CN = [
+    "当一只股票创下过去一年最大单日成交量，市场正在释放重要信号。",
+    "成交量是市场的心跳——今天，这些股票的心跳比过去整整一年都要强劲。",
+    "什么样的成交量算是真正的异动？突破全年记录，就是答案。",
+    "今天，这些大盘股不只是交易活跃——而是创下了过去十二个月的最高成交量。",
+    "普通的大成交量值得关注，创年内纪录的成交量则意味着完全不同的事情。",
+    "今天发生了一件今年从未有过的事——这些股票的成交量突破了年内历史记录。",
+    "最大的成交日往往在讲述一个故事。今天，这些S&P 500和纳斯达克100股票刷新了年内成交量。",
+    "不是所有的大成交量都相同。这些股票正在创下过去一年的成交量记录。",
+    "当成交量打破年度纪录，机构资金正在行动。今天的案例就在这里。",
+    "今日最值得关注的信号：这些大盘股正在创下过去十二个月的最大单日成交量。",
+]
+
+
+def _narrate_vol_peak_cn(rows):
+    top = rows[:3]
+    parts = []
+    for r in top:
+        ticker = r.get("Ticker", "")
+        vol_chg = r.get("1YMaxVolumeChange") or 0
+        parts.append(f"{ticker}，成交量放大{abs(vol_chg):.0f}%")
+    n = len(parts)
+    if n >= 3:
+        return (f"今日年度成交量记录：{parts[0]}；{parts[1]}；{parts[2]}。"
+                f"这三只股票均创下过去十二个月的最大单日成交量。")
+    elif n == 2:
+        return (f"今日年度成交量记录：{parts[0]}；{parts[1]}。"
+                f"两只股票均创下过去十二个月的最大单日成交量。")
+    elif n == 1:
+        return (f"今日年度成交量记录：{parts[0]}。"
+                f"创下过去十二个月的最大单日成交量。")
+    return ""
+
+
+def build_1y_vol_peak_cn(data, output):
+    date  = data["date"]
+    seen  = set()
+    peaks = []
+    for r in data["data"]:
+        t = r.get("Ticker", "")
+        if t in seen:
+            continue
+        seen.add(t)
+        if r.get("1YMaxVolumeChangeDay") == 0:
+            peaks.append(r)
+    peaks.sort(key=lambda r: r.get("1YMaxVolumeChange") or 0, reverse=True)
+    top = peaks[:3]
+
+    if not top:
+        print("No 1-year volume peak stocks found today, skipping.")
+        return
+
+    encode([
+        (scene_title_cn("年度成交量记录", "S&P 500  ·  纳斯达克100", date,
+                        "大盘股创下过去一年最大单日成交量 — 贝佐拉"), 6,
+         "S&P 500 + 纳斯达克100 大盘股创年度成交量记录 — 贝佐拉",
+         random.choice(_VOL_PEAK_OPENERS_CN)),
+        (scene_volume_spikes_cn(top, date), 19,
+         "量/MA21 = 今日成交量 / 21日均量  |  超过3倍的用金色高亮显示",
+         f"{_narrate_vol_peak_cn(top)}"
+         "量除以MA21超过三倍的用金色高亮显示，代表极度异常的交易活动。"
+         "年内最大成交量往往预示着机构资金的大规模进出或重大事件的发生。"),
+        (scene_top3_sparklines(
+            f"年度成交量记录 — 年度价格走势  ({date})", top, date,
+            "想了解更多？访问贝佐拉.com获取S&P 500和纳斯达克100完整分析。"), 7,
+         "年度成交量记录前三股票的一年走势 | 更多数据请访问贝佐拉.com",
+         "这是今日创年度成交量记录的前三名股票的年度走势图。"
+         "每条曲线展示了过去一年的完整价格轨迹，帮助您判断成交量异动背后的价格趋势。"),
+        (scene_vol_sort_promo_cn(data, date), 10,
+         "按任意时间维度排序 — 1天至1年 — 即时筛选S&P 500和纳斯达克100成交量异动",
+         "在贝佐拉，可轻松查看每个时间维度的成交量数据——从一天到一年。"
+         "按任意列排序，即时发现S&P 500和纳斯达克100全市场最大成交量异动。访问贝佐拉点com。"),
+        (scene_screenshot(_SS_CN), 2),
+        (scene_outro_cn(date), 5,
+         "仅供参考，不构成投资建议 | baizora.com"),
+    ], output, tts_voice="zh-CN-YunxiNeural")
+
+
+# ── Index Spotlight (new member performance) ──────────────────────────────────
+
+_SPOTLIGHT_OPENERS_EN = [
+    "When a stock joins the S&P 500 or Nasdaq-100, something shifts — and not just in the portfolio.",
+    "Index membership doesn't just recognize the past. It can shape what comes next.",
+    "A new index member isn't just a label — it's a guarantee that trillions in passive money need to own this stock.",
+    "The moment a stock joins a major index, every fund that tracks it has to buy. That's not speculation — that's scheduled demand.",
+    "Joining the S&P 500 or Nasdaq-100 is more than a milestone. Here's how this one is writing its next chapter.",
+    "What happens after a large-cap stock earns its place in the index? The data might surprise you.",
+    "Index additions are often signals before the market has fully priced in what comes next.",
+    "Passive funds don't predict the future — but when they all buy the same stock, they can help create it.",
+    "There's a reason investors pay attention when a stock joins the S&P 500 or Nasdaq-100. Here's one to watch.",
+    "Not every index addition plays out the same way. Here's how this recent member has done since joining.",
+]
+
+
+def _price_from_spark(row, spark_idx):
+    spark = row.get("Spark1Y") or []
+    if len(spark) < 2:
+        return None
+    price = row.get("Price") or 0
+    pc1y  = row.get("1YPriceChange") or 0
+    denom = 1 + pc1y / 100
+    if abs(denom) < 1e-9:
+        return price
+    price_1y_ago = price / denom
+    sd = spark[0] - spark[-1]
+    if abs(sd) < 1e-9:
+        return price
+    R         = (price_1y_ago - price) / sd
+    min_price = price - spark[-1] * R
+    return min_price + spark[spark_idx] * R
+
+
+def _get_new_members(data):
+    changes_file = ROOT_DIR / "data" / "index_changes.json"
+    if not changes_file.exists():
+        return []
+    ic         = json.load(open(changes_file))
+    scan_date  = data["date"]
+    ticker_map = {r["Ticker"]: r for r in data["data"]}
+
+    seen = {}
+    for entry in ic["entries"]:
+        jdate = entry["date"]
+        for idx_key in ("nasdaq100", "sp500"):
+            for t in entry[idx_key].get("added", []):
+                if t not in seen or jdate > seen[t]["join_date"]:
+                    seen[t] = {"ticker": t, "join_date": jdate, "index": idx_key}
+
+    members = []
+    for t, info in seen.items():
+        if t not in ticker_map:
+            continue
+        row   = ticker_map[t]
+        spark = row.get("Spark1Y") or []
+        if len(spark) < 2:
+            continue
+        d1    = datetime.date.fromisoformat(info["join_date"])
+        d2    = datetime.date.fromisoformat(scan_date)
+        bdays = 0
+        cur   = d1
+        while cur < d2:
+            cur += datetime.timedelta(days=1)
+            if cur.weekday() < 5:
+                bdays += 1
+        spark_idx = max(0, min(len(spark) - 1, len(spark) - 1 - bdays))
+        jpr       = _price_from_spark(row, spark_idx)
+        if not jpr or jpr <= 0:
+            continue
+        cpr  = row.get("Price") or 0
+        perf = (cpr - jpr) / jpr * 100
+        members.append({
+            "ticker":           t,
+            "row":              row,
+            "join_date":        info["join_date"],
+            "index_name":       "Nasdaq-100" if info["index"] == "nasdaq100" else "S&P 500",
+            "bdays_since_join": bdays,
+            "spark_idx":        spark_idx,
+            "join_price":       jpr,
+            "perf_since_join":  perf,
+        })
+    return members
+
+
+def scene_index_spotlight(member, scan_date):
+    img, draw = new_frame()
+    row    = member["row"]
+    ticker = member["ticker"]
+    cname  = row.get("CompanyName", ticker)
+    idx    = member["index_name"]
+    jdate  = member["join_date"]
+    bdays  = member["bdays_since_join"]
+    perf   = member["perf_since_join"]
+    jp     = member["join_price"]
+    cp     = row.get("Price") or 0
+    pc1d   = row.get("PriceChange1D")
+    sector = row.get("Sector", "")
+
+    top_bar(draw, f"Index Spotlight — {ticker}  ({scan_date})", scan_date)
+
+    LP_X = 72
+    f_lbl  = load_font(17, mono=True)
+    f_sml  = load_font(22)
+    f_med  = load_font(30)
+    f_cname = load_font(44, bold=True)
+    f_tkr  = load_font(68, mono=True)
+
+    # Company name (truncated)
+    cname_s = cname if len(cname) <= 28 else cname[:25] + "..."
+    draw.text((LP_X, 114), "COMPANY", font=f_lbl, fill=DIM)
+    draw.text((LP_X, 138), cname_s, font=f_cname, fill=WHITE)
+
+    draw.text((LP_X, 200), ticker, font=f_tkr, fill=WHITE)
+
+    # Index badge pill
+    f_badge   = load_font(20, mono=True)
+    badge_txt = idx
+    bw        = tw(draw, badge_txt, f_badge) + 24
+    draw.rectangle([LP_X, 286, LP_X + bw, 318], fill=ELECTRIC)
+    draw.text((LP_X + 12, 293), badge_txt, font=f_badge, fill=WHITE)
+
+    if sector:
+        draw.text((LP_X, 342), "SECTOR", font=f_lbl, fill=DIM)
+        draw.text((LP_X, 364), sector, font=f_med, fill=MUTED)
+
+    draw.text((LP_X, 416), "JOINED", font=f_lbl, fill=DIM)
+    draw.text((LP_X, 438), jdate, font=f_med, fill=WHITE)
+    draw.text((LP_X, 476), f"{bdays} trading days ago", font=f_sml, fill=DIM)
+
+    # Vertical divider
+    draw.line([(960, 110), (960, H - 68)], fill=BORDER)
+
+    # Right panel — performance hero
+    RP_X = 1000
+    draw.text((RP_X, 114), "PERFORMANCE SINCE JOINING", font=f_lbl, fill=DIM)
+
+    perf_color = GREEN if perf >= 0 else RED
+    sign       = "+" if perf >= 0 else ""
+    # Scale font for very large numbers
+    perf_str   = f"{sign}{perf:.1f}%"
+    f_perf     = load_font(90 if abs(perf) < 1000 else 60, bold=True)
+    draw.text((RP_X, 142), perf_str, font=f_perf, fill=perf_color)
+
+    hline(draw, 308, x0=RP_X, x1=W - 60)
+
+    f_mv = load_font(30, mono=True)
+    draw.text((RP_X, 326), "PRICE AT JOIN", font=f_lbl, fill=DIM)
+    draw.text((RP_X, 348), f"${jp:,.2f}", font=f_mv, fill=MUTED)
+
+    draw.text((RP_X, 402), "CURRENT PRICE", font=f_lbl, fill=DIM)
+    draw.text((RP_X, 424), f"${cp:,.2f}", font=f_mv, fill=WHITE)
+
+    draw.text((RP_X, 478), "TODAY", font=f_lbl, fill=DIM)
+    draw.text((RP_X, 500), pct_str(pc1d), font=f_mv, fill=pct_color(pc1d))
+
+    hline(draw, H - 68)
+    centered(draw, H - 56,
+             "Track all S&P 500 & Nasdaq-100 index changes at baizora.com",
+             load_font(22, bold=True), ELEC_BRIGHT)
+    return img
+
+
+def scene_spotlight_sparkline(member, scan_date):
+    """Full-width sparkline with gold triangle at join date and ELEC_BRIGHT circle at today."""
+    img, draw = new_frame()
+    row       = member["row"]
+    ticker    = member["ticker"]
+    idx       = member["index_name"]
+    jdate     = member["join_date"]
+    spark_idx = member["spark_idx"]
+    perf      = member["perf_since_join"]
+    jp        = member["join_price"]
+    cp        = row.get("Price") or 0
+
+    top_bar(draw,
+            f"Index Spotlight — {ticker} — Price Since Joining  ({scan_date})", scan_date)
+
+    spark = row.get("Spark1Y") or []
+    if len(spark) < 2:
+        return img
+
+    margin = 90
+    sx0    = margin
+    sy0    = 120
+    sw     = W - 2 * margin
+    sh     = H - sy0 - 110
+    pad    = 0.08
+    n_pts  = len(spark)
+    mn_v, mx_v = min(spark), max(spark)
+    if mx_v <= mn_v:
+        return img
+
+    def spark_pt(i, v):
+        px = sx0 + round(i / (n_pts - 1) * sw)
+        py = sy0 + sh - round(((v - mn_v) / (mx_v - mn_v)) * sh * (1 - 2*pad) + sh*pad)
+        return (px, py)
+
+    pts      = [spark_pt(i, v) for i, v in enumerate(spark)]
+    join_pt  = pts[spark_idx]
+    today_pt = pts[-1]
+
+    # Gold vertical line at join date
+    draw.line([(join_pt[0], sy0), (join_pt[0], sy0 + sh)], fill=GOLD, width=1)
+
+    # Pre-join sparkline (muted gray)
+    pre_pts = pts[:spark_idx + 1]
+    for j in range(len(pre_pts) - 1):
+        draw.line([pre_pts[j], pre_pts[j + 1]], fill=VERY_DIM, width=2)
+
+    # Post-join sparkline (colored)
+    post_color = BRIGHT_GREEN if perf >= 0 else BRIGHT_RED
+    post_pts   = pts[spark_idx:]
+
+    # Fill polygon under post-join portion
+    fill_col = (*post_color, 28)
+    fill_poly = post_pts + [(today_pt[0], sy0 + sh), (join_pt[0], sy0 + sh)]
+    ov  = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ovd = ImageDraw.Draw(ov)
+    ovd.polygon(fill_poly, fill=fill_col)
+    img  = Image.alpha_composite(img.convert("RGBA"), ov).convert("RGB")
+    draw = ImageDraw.Draw(img)
+
+    for j in range(len(post_pts) - 1):
+        draw.line([post_pts[j], post_pts[j + 1]], fill=post_color, width=3)
+
+    f_lbl = load_font(18, mono=True)
+
+    # Gold upward triangle at join date
+    tx, ty = join_pt
+    r = 13
+    draw.polygon([(tx, ty - r), (tx - r, ty + r), (tx + r, ty + r)], fill=GOLD)
+    # Join price label (above triangle)
+    jp_lbl = f"${jp:,.2f}  {jdate}"
+    jlw    = tw(draw, jp_lbl, f_lbl)
+    lx     = max(sx0, min(tx - jlw // 2, sx0 + sw - jlw))
+    label_y = ty + r + 6
+    draw.text((lx, label_y), jp_lbl, font=f_lbl, fill=GOLD)
+
+    # ELEC_BRIGHT circle at today
+    cx, cy = today_pt
+    cr     = 10
+    draw.ellipse([cx - cr, cy - cr, cx + cr, cy + cr], fill=ELEC_BRIGHT)
+    # Today label (left of circle to avoid right edge)
+    td_lbl = f"TODAY  ${cp:,.2f}"
+    tlw    = tw(draw, td_lbl, f_lbl)
+    draw.text((cx - tlw - 14, cy - 12), td_lbl, font=f_lbl, fill=ELEC_BRIGHT)
+
+    # Performance annotation top-center
+    sign     = "+" if perf >= 0 else ""
+    perf_str = f"{sign}{perf:.1f}% since joining {idx}"
+    f_ann    = load_font(26, bold=True)
+    ann_col  = GREEN if perf >= 0 else RED
+    centered(draw, sy0 + 10, perf_str, f_ann, ann_col)
+
+    hline(draw, H - 68)
+    centered(draw, H - 56,
+             f"Triangle = join date  ·  Circle = today  ·  baizora.com",
+             load_font(20, bold=True), ELEC_BRIGHT)
+    return img
+
+
+def scene_index_changes_promo(date):
+    """Promo scene advertising index membership tracking — new member list is paid content."""
+    img, draw = new_frame()
+    accent = ELECTRIC
+
+    # Large dim watermark numeral
+    f_wm  = load_font(200, bold=True)
+    wm_w  = tw(draw, "05", f_wm)
+    wm_h  = th(draw, "05", f_wm)
+    blend = tuple(int(NAVY[c] * 0.93 + accent[c] * 0.07) for c in range(3))
+    draw.text((_DIV_X - wm_w - 24, (H - wm_h) // 2), "05", font=f_wm, fill=blend)
+
+    # Left panel text
+    draw.text((_LP_X, 70), "◈   BAIZORA PLATFORM", font=load_font(16, mono=True), fill=accent)
+    draw.line([(_LP_X, 106), (_DIV_X, 106)], fill=BORDER)
+
+    f_title     = load_font(40, bold=True)
+    title_lines = _wrap_text(draw, "Track Every Index Addition & Removal", f_title, _LP_MAXW)
+    ty          = 132
+    lh_title    = th(draw, "Ag", f_title) + 10
+    for line in title_lines:
+        draw.text((_LP_X, ty), line, font=f_title, fill=WHITE)
+        ty += lh_title
+
+    bar_y = ty + 14
+    draw.rectangle([_LP_X, bar_y, _LP_X + 80, bar_y + 5], fill=accent)
+
+    body = (
+        "When a stock joins the S&P 500 or Nasdaq-100, passive funds are required to own it. "
+        "That's not a forecast — it's a guarantee. Baizora tracks every addition and removal "
+        "in real time, with full price history since the move. "
+        "See who just earned a seat at the table."
+    )
+    f_body     = load_font(26)
+    body_lines = _wrap_text(draw, body, f_body, _LP_MAXW)
+    by         = bar_y + 22
+    lh_body    = th(draw, "Ag", f_body) + 8
+    for line in body_lines:
+        draw.text((_LP_X, by), line, font=f_body, fill=MUTED)
+        by += lh_body
+
+    draw.line([(_DIV_X, 70), (_DIV_X, H - 68)], fill=BORDER)
+    draw.line([(_LP_X, H - 96), (_DIV_X, H - 96)], fill=BORDER)
+    logo_text(draw, _LP_X, H - 74, 26)
+
+    # Right panel — stylized redacted new-member list
+    rx0  = _RP_X - 4
+    ry0  = _RP_Y - 8
+    rx1  = W - 60
+    ry1  = _RP_BOT + 8
+    draw.rectangle([rx0, ry0, rx1, ry1], fill=NAVY_MID, outline=BORDER)
+
+    f_hdr  = load_font(17, mono=True)
+    f_idx  = load_font(14, mono=True)
+    px     = _RP_X + 16
+    py     = _RP_Y + 12
+
+    draw.text((px, py), "RECENT INDEX ADDITIONS", font=f_hdr, fill=DIM)
+    py += 30
+
+    # S&P 500 / Nasdaq-100 badges
+    for badge, col in [("S&P 500", GREEN), ("NASDAQ-100", ELECTRIC)]:
+        bw = tw(draw, badge, f_idx) + 16
+        draw.rectangle([px, py, px + bw, py + 20], fill=col)
+        draw.text((px + 8, py + 3), badge, font=f_idx, fill=WHITE)
+        px += bw + 10
+    px = _RP_X + 16
+    py += 28
+
+    draw.line([(px, py), (rx1 - 16, py)], fill=BORDER)
+    py += 14
+
+    # 4 redacted rows representing locked new-member data
+    row_h  = 68
+    col_w  = [90, 240, 110, 160]   # ticker, company, perf, date
+    col_rx = [7,  5,   7,  5]      # corner radii
+    for ri in range(4):
+        cx_ = px
+        for wi, crx in zip(col_w, col_rx):
+            bar_col = NAVY_LIGHT if ri % 2 == 0 else BORDER
+            draw.rounded_rectangle([cx_, py + 14, cx_ + wi, py + 44],
+                                   radius=crx, fill=bar_col)
+            cx_ += wi + 14
+        py += row_h
+
+    draw.line([(px, py + 4), (rx1 - 16, py + 4)], fill=BORDER)
+
+    f_cta = load_font(18, bold=True)
+    cta   = "Full list unlocked at baizora.com"
+    draw.text((px, py + 16), cta, font=f_cta, fill=ELEC_BRIGHT)
+    f_sub = load_font(15)
+    draw.text((px, py + 44), "Free 7-day trial · No credit card required", font=f_sub, fill=DIM)
+
+    return img
+
+
+def _narrate_spotlight_spark(member):
+    """Short narration for the 7s sparkline scene."""
+    idx  = member["index_name"]
+    perf = member["perf_since_join"]
+    sign = "+" if perf >= 0 else ""
+    return (
+        f"Here's the one-year price chart. "
+        f"The gray portion is before joining the {idx}. "
+        f"The gold triangle marks the join date — the price has moved {sign}{perf:.1f}% since. "
+        f"The circle marks today."
+    )
+
+
+def _narrate_spotlight(member):
+    """~55-word narration for the 16s spotlight card scene."""
+    row       = member["row"]
+    ticker    = member["ticker"]
+    cname     = row.get("CompanyName", ticker)
+    idx       = member["index_name"]
+    bdays     = member["bdays_since_join"]
+    perf      = member["perf_since_join"]
+    jp        = member["join_price"]
+    cp        = row.get("Price") or 0
+    pc1d      = row.get("PriceChange1D") or 0
+    direction = "gained" if perf >= 0 else "fallen"
+    sign      = "+" if perf >= 0 else ""
+    today_dir = "up" if pc1d >= 0 else "down"
+    return (
+        f"{cname} joined the {idx} {bdays} trading days ago. "
+        f"Since then, the stock has {direction} {sign}{perf:.1f}%, "
+        f"from ${jp:,.2f} to ${cp:,.2f}. "
+        f"Today, {ticker} is {today_dir} {abs(pc1d):.1f}%. "
+        f"Index inclusion doesn't just mark the past — passive funds must own every member, "
+        f"and that buying pressure started the moment {ticker} joined."
+    )
+
+
+def _narrate_spotlight_promo():
+    """~34-word narration for the 10s promo scene."""
+    return (
+        "Baizora tracks every S&P 500 and Nasdaq-100 addition and removal in real time, "
+        "with full performance history since the move. "
+        "Visit baizora dot com — seven-day free trial, no credit card required."
+    )
+
+
+def build_index_spotlight(data, output):
+    members = _get_new_members(data)
+    if not members:
+        print("No new index members found, skipping.")
+        return
+
+    member = random.choice(members)
+    date   = data["date"]
+    ticker = member["ticker"]
+    idx    = member["index_name"]
+
+    encode([
+        (scene_title("Index Spotlight", idx, date,
+                     f"New member performance — {ticker}"), 4,
+         f"Tracking {ticker} since joining the {idx}",
+         random.choice(_SPOTLIGHT_OPENERS_EN)),
+        (scene_spotlight_sparkline(member, date), 7,
+         "One-year price chart — triangle = join date, circle = today",
+         _narrate_spotlight_spark(member)),
+        (scene_index_spotlight(member, date), 16,
+         f"{ticker} — joined {idx} on {member['join_date']}",
+         _narrate_spotlight(member)),
+        (scene_index_changes_promo(date), 10,
+         "Track all S&P 500 & Nasdaq-100 index changes at baizora.com",
+         _narrate_spotlight_promo()),
+        (scene_screenshot(_SS_EN), 2),
+        (scene_outro(date), 5,
+         "For informational purposes only. Not financial advice. | baizora.com"),
+    ], output)
+
+
+_1Y_OPENERS_EN = [
+    "Which large-cap stocks have delivered the strongest returns over the past year? The answer might surprise you.",
+    "A lot can happen in twelve months. Here are the stocks that made the most of it.",
+    "Past performance doesn't predict the future — but it does reveal who's been winning. Today's top 1-year performers.",
+    "If you had bought these stocks a year ago, here's where you'd be today.",
+    "The market always has winners. Over the last twelve months, these large-cap stocks led the pack.",
+    "Momentum leaves a trail. Here are the S&P 500 and Nasdaq-100 stocks with the strongest trailing-year gains.",
+    "What does a year of outperformance look like? These stocks have the answer.",
+    "Not all large-caps are created equal. Over the past year, these names stood far above the rest.",
+    "Sometimes the best signal is simply who has been winning — consistently, over time. Today's 1-year leaders.",
+    "The market rewards some stocks more than others. Here's who's been at the top over the last twelve months.",
+]
 
 
 def build_extreme_1y(data, output):
@@ -1685,7 +3315,7 @@ def build_extreme_1y(data, output):
         return f"{v:.0f} percent"
 
     def _narrate_1y(rows):
-        top = rows[:5]
+        top = rows[:3]
         parts = []
         for r in top:
             ticker = r.get("Ticker", "")
@@ -1702,17 +3332,21 @@ def build_extreme_1y(data, output):
         (scene_title("1-Year Best Performers", "S&P 500  ·  Nasdaq-100", date,
                      "Large-Cap Leaders — Trailing 12 Months"), 4,
          "Best large-cap stocks over the past 12 months — S&P 500 + Nasdaq-100",
-         f"One-year performance leaders among S&P 500 and Nasdaq-100 stocks, as of {date}, from Baizora."),
-        (scene_movers_table(f"Top 10 Gainers — 1 Year  ({date})", gainers, date), 12,
+         random.choice(_1Y_OPENERS_EN)),
+        (scene_movers_table(f"Top 3 Gainers — 1 Year  ({date})", gainers, date,
+                            max_rows=3,
+                            cta_text="Want to see all top 1-year performers? Visit baizora.com — Free 7-day trial."), 12,
          "S&P 500 + Nasdaq-100 stocks — highest trailing 12-month price appreciation",
          f"{_narrate_1y(gainers)}"),
-        (scene_sparklines(f"1-Year Leaders — Price Trend  ({date})", gainers, date), 12,
-         "1-year price trend for each top performer — bright dot marks today",
-         "Here are the one-year price charts for the top performers "
-         "across S&P 500 and Nasdaq-100 stocks. "
-         "Each line covers the full trailing year of price action. "
-         "Bright dot marks today's price. "
-         "Want to know more about short and mid term price and volume data? "
+        (scene_top3_sparklines(
+            f"1-Year Leaders — Price Trend  ({date})", gainers, date,
+            "Want to see more? Visit baizora.com for the full S&P 500 & Nasdaq-100 analysis."), 5,
+         "Top 3 one-year leaders — trailing 12-month price trend",
+         "Here are the one-year price charts for today's top three performers."),
+        (scene_1y_sort_promo(data, date), 10,
+         "Sort by any timeframe — 2W through 1Y — to find price leaders across S&P 500 & Nasdaq-100",
+         "On Baizora, you can see how the top 1-year performers stack up across every timeframe — "
+         "from two weeks to nine months. Sort by any column to find the leaders instantly. "
          "Visit baizora dot com."),
         (scene_screenshot(_SS_EN), 2),
         (scene_outro(date), 5,
@@ -1812,6 +3446,71 @@ def build_platform_intro(data, output):
     encode(frames, output)
 
 
+_1Y_OPENERS_CN = [
+    "过去一年，哪些大盘股的涨幅最为惊人？",
+    "如果一年前买入这些股票，今天的收益会让你惊讶。",
+    "市场总是在奖励赢家——过去十二个月，这些股票遥遥领先。",
+    "在S&P 500和纳斯达克100中，谁是过去一年真正的赢家？",
+    "强势的股票会持续强势吗？先来看看过去一年的领涨榜。",
+    "一年的时间能发生很多事。这些大盘股把握住了机会。",
+    "动能会留下痕迹。这是S&P 500和纳斯达克100过去一年涨幅最大的股票。",
+    "不是所有大盘股都一样。过去一年，这些名字远超其他股票。",
+    "今天，让我们来看看十二个月里表现最突出的大盘股。",
+    "有时候，最好的信号就是谁一直在赢。以下是今天的一年领涨榜。",
+]
+
+
+def build_extreme_1y_cn(data, output):
+    date    = data["date"]
+    gainers = sorted(data["data"],
+                     key=lambda r: r.get("1YPriceChange") or -9999, reverse=True)[:10]
+
+    def _fmt_gain_cn(v):
+        v = abs(v)
+        if v >= 200:
+            return f"{round(v / 100):.0f}倍"
+        return f"{v:.0f}%"
+
+    def _narrate_1y_cn(rows):
+        top = rows[:3]
+        parts = []
+        for r in top:
+            ticker = r.get("Ticker", "")
+            v      = r.get("1YPriceChange") or 0
+            parts.append(f"{ticker}上涨{_fmt_gain_cn(v)}")
+        if len(parts) >= 2:
+            return "一年领涨榜前三名：" + "，".join(parts) + "。"
+        elif parts:
+            return f"一年领涨榜第一名：{parts[0]}。"
+        return ""
+
+    encode([
+        (scene_title_cn("一年最强大盘股", "S&P 500  ·  纳斯达克100", date,
+                        "大盘股一年领涨榜 — 贝佐拉"), 4,
+         "S&P 500 + 纳斯达克100 大盘股一年领涨榜 — 贝佐拉",
+         random.choice(_1Y_OPENERS_CN)),
+        (scene_movers_table_cn(f"一年涨幅前三  ({date})", gainers, date,
+                               cta_text="想查看完整榜单？访问贝佐拉.com — 提供七天免费试用。"), 17,
+         "S&P 500 + 纳斯达克100 — 过去十二个月涨幅最大的大盘股",
+         f"{_narrate_1y_cn(gainers)}"
+         "这些大盘股来自S&P 500和纳斯达克100，过去十二个月涨幅遥遥领先全市场。"
+         "想查看完整榜单，访问贝佐拉点com，提供七天免费试用。"),
+        (scene_top3_sparklines(
+            f"一年领涨股 — 年度走势  ({date})", gainers, date,
+            "想了解更多？访问贝佐拉.com获取S&P 500和纳斯达克100完整分析。"), 7,
+         "一年涨幅前三股票的走势 | 更多数据请访问贝佐拉.com",
+         "这是今日一年涨幅前三名股票的年度走势图。"
+         "绿色曲线代表上涨趋势，红色代表下跌趋势。"),
+        (scene_1y_sort_promo_cn(data, date), 10,
+         "按任意时间维度排序 — 2周至1年 — 即时筛选S&P 500和纳斯达克100领涨股",
+         "在贝佐拉，可查看一年领涨股在每个时间维度的表现——从两周到一年。"
+         "按任意列排序，即时发现全市场领涨股。访问贝佐拉点com。"),
+        (scene_screenshot(_SS_CN), 2),
+        (scene_outro_cn(date), 5,
+         "仅供参考，不构成投资建议 | baizora.com"),
+    ], output, tts_voice="zh-CN-YunxiNeural")
+
+
 def build_volume_spikes_cn(data, output):
     date   = data["date"]
     spikes = sorted(data["data"],
@@ -1821,12 +3520,22 @@ def build_volume_spikes_cn(data, output):
         (scene_title_cn("今日成交量异动", "S&P 500  ·  纳斯达克100", date,
                         "大盘股异常交易活动 — 贝佐拉"), 6,
          "S&P 500 + 纳斯达克100 大盘股异常交易活动 — 贝佐拉",
-         "贝佐拉追踪S&P 500和纳斯达克100全部大盘股的每日成交量异动。"),
-        (scene_volume_spikes_cn(spikes, date), 14,
+         random.choice(_VOLUME_OPENERS_CN)),
+        (scene_volume_spikes_cn(spikes, date), 19,
          "量/MA21 = 今日成交量 / 21日均量  |  超过3倍的用金色高亮显示",
          f"{_narrate_volume_cn(spikes)}"
          "量除以MA21超过三倍的用金色高亮显示，代表异常活跃的交易活动。"
-         "想了解更多S&P 500和纳斯达克100的价量分析数据？访问贝佐拉点com。"),
+         "成交量异常放大，往往是资金大规模流入或重大消息的重要信号。"),
+        (scene_top3_sparklines(
+            f"成交量异动领涨股 — 年度走势  ({date})", spikes, date,
+            "想了解更多？访问贝佐拉.com获取S&P 500和纳斯达克100完整分析。"), 7,
+         "成交量异动前三股票的一年走势 | 更多数据请访问贝佐拉.com",
+         "这是今日成交量异动前三名股票的年度走势图。"
+         "每条曲线展示了过去一年的完整价格轨迹，帮助您判断成交量异动背后的价格趋势。"),
+        (scene_vol_sort_promo_cn(data, date), 10,
+         "按任意时间维度排序 — 1天至1年 — 即时筛选S&P 500和纳斯达克100成交量异动",
+         "在贝佐拉，可轻松查看每个时间维度的成交量数据——从一天到一年。"
+         "按任意列排序，即时发现S&P 500和纳斯达克100全市场最大成交量异动。访问贝佐拉点com。"),
         (scene_screenshot(_SS_CN), 2),
         (scene_outro_cn(date), 5,
          "仅供参考，不构成投资建议 | baizora.com"),
@@ -1859,9 +3568,15 @@ BUILDERS = {
     "nasdaq_movers":      build_nasdaq_movers,
     "volume_spikes":      build_volume_spikes,
     "extreme_1y":         build_extreme_1y,
+    "extreme_1y_cn":      build_extreme_1y_cn,
     "platform_intro":     build_platform_intro,
     "platform_intro_cn":  build_platform_intro_cn,
     "volume_spikes_cn":   build_volume_spikes_cn,
+    "6m_breakout":        build_6m_breakout,
+    "6m_breakout_cn":     build_6m_breakout_cn,
+    "1y_vol_peak":        build_1y_vol_peak,
+    "1y_vol_peak_cn":     build_1y_vol_peak_cn,
+    "index_spotlight":    build_index_spotlight,
 }
 
 
