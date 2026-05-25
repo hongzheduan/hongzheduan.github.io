@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>贝佐拉 | 指数成分动态</title>
+  <link rel="icon" href="assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-light: #162847;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --gold: #f59e0b;
+      --gold-light: #fcd34d;
+      --green: #22c55e;
+      --red: #ef4444;
+      --white: #ffffff;
+      --muted: #cbd5e1;
+      --border: rgba(255,255,255,0.09);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: rgba(6,13,31,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      gap: 12px;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .logo-wrap img { height: 36px; }
+
+    .brand-cn {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-email {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--white); background: rgba(59,130,246,0.08); }
+    .nav-btn-danger { border-color: rgba(239,68,68,0.2); color: #fca5a5; }
+    .nav-btn-danger:hover { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); }
+
+    .page {
+      position: relative;
+      z-index: 10;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .page-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 8px;
+    }
+
+    .page-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(26px, 4vw, 36px);
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .page-sub {
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: 300;
+      margin-bottom: 24px;
+      line-height: 1.7;
+    }
+
+    .testing-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(251,146,60,0.08);
+      border: 1px solid rgba(251,146,60,0.25);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 32px;
+      font-size: 13px;
+      color: #fdba74;
+      line-height: 1.5;
+    }
+
+    .testing-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: rgba(251,146,60,0.15);
+      border: 1px solid rgba(251,146,60,0.3);
+      color: #fb923c;
+      padding: 2px 7px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .last-updated {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    /* category tab buttons */
+    .cat-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .cat-tab {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+
+    .cat-tab:hover { color: var(--white); border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+
+    .cat-tab.active-add { background: rgba(34,197,94,0.1);  border-color: rgba(34,197,94,0.35);  color: #86efac; }
+    .cat-tab.active-rem { background: rgba(239,68,68,0.1);  border-color: rgba(239,68,68,0.35);  color: #fca5a5; }
+
+    .cat-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 16px;
+    }
+
+    .news-item {
+      display: flex;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      align-items: flex-start;
+    }
+
+    .news-item:last-child { border-bottom: none; }
+
+    .news-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #64748b;
+      white-space: nowrap;
+      padding-top: 2px;
+      min-width: 76px;
+    }
+
+    .news-body { flex: 1; min-width: 0; }
+
+    .news-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--white);
+      text-decoration: none;
+      line-height: 1.5;
+      display: block;
+      margin-bottom: 4px;
+      transition: color 0.15s;
+    }
+
+    .news-title:hover { color: var(--electric-bright); }
+
+    .news-source {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    .state-msg {
+      font-size: 13px;
+      color: #64748b;
+      padding: 32px 0;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      header { padding: 0 16px; }
+      .user-email { display: none; }
+      .page { padding: 28px 16px 60px; }
+      .news-date { min-width: 60px; font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="./" class="logo-wrap">
+      <img src="assets/baize_favicon_v2.png" alt="贝佐拉">
+      <span class="brand-cn">贝佐拉</span>
+    </a>
+    <div class="header-right">
+      <span class="user-email" id="headerEmail"></span>
+      <a href="dashboard_cn.html" class="nav-btn">个人主页</a>
+      <button class="nav-btn nav-btn-danger" onclick="doLogout()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        退出登录
+      </button>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <div class="page-eyebrow">◈ &nbsp; 指数资讯</div>
+    <h1 class="page-title">指数成分动态</h1>
+    <p class="page-sub">标普500与纳斯达克100的近期及预告成分股增减变动，来源于金融新闻媒体，每个交易日收盘后更新。</p>
+
+    <div class="testing-banner">
+      <span class="testing-badge">测试中</span>
+      本功能正在测试阶段。新闻通过 Google News RSS 抓取，可能包含预告文章与事后回顾报道。点击标题可跳转至原文来源。
+    </div>
+
+    <div class="meta-row">
+      <div class="section-label">◈ &nbsp; 近90天</div>
+      <div class="last-updated" id="lastUpdated">加载中…</div>
+    </div>
+
+    <div class="cat-tabs" id="catTabs"></div>
+    <div class="cat-count" id="catCount"></div>
+    <div id="newsContainer"><div class="state-msg">加载中…</div></div>
+
+  </div>
+
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) { window.location.href = "login_cn.html"; return; }
+      document.getElementById("headerEmail").textContent = user.email;
+      loadNews();
+    });
+
+    window.doLogout = async function() {
+      await signOut(auth);
+      window.location.href = "index_cn.html";
+    };
+
+    const CATEGORIES = [
+      { key: "S&P 500 addition",    label: "S&P 500 — 新加入",       cls: "active-add" },
+      { key: "S&P 500 removal",     label: "S&P 500 — 移除",         cls: "active-rem" },
+      { key: "Nasdaq-100 addition", label: "NASDAQ-100 — 新加入",    cls: "active-add" },
+      { key: "Nasdaq-100 removal",  label: "NASDAQ-100 — 移除",      cls: "active-rem" },
+    ];
+
+    let allItems = [];
+    let activeKey = CATEGORIES[0].key;
+
+    async function loadNews() {
+      const container = document.getElementById("newsContainer");
+      try {
+        const res = await fetch("data/index_news.json?t=" + Date.now());
+        if (!res.ok) throw new Error("fetch failed");
+        const data = await res.json();
+
+        document.getElementById("lastUpdated").textContent = "更新于：" + data.fetched;
+
+        if (!data.items || data.items.length === 0) {
+          container.innerHTML = '<div class="state-msg">近90天暂无相关新闻。</div>';
+          return;
+        }
+
+        allItems = data.items;
+        buildTabs();
+        renderCategory(activeKey);
+
+      } catch (e) {
+        container.innerHTML = '<div class="state-msg">新闻加载失败，请稍后重试。</div>';
+      }
+    }
+
+    function buildTabs() {
+      const tabsEl = document.getElementById("catTabs");
+      tabsEl.innerHTML = CATEGORIES.map(cat => {
+        const count = allItems.filter(it => it.category === cat.key).length;
+        return `<button class="cat-tab" data-key="${cat.key}" data-cls="${cat.cls}" onclick="selectTab('${cat.key}')">${cat.label} (${count})</button>`;
+      }).join("");
+      document.querySelector(`.cat-tab[data-key="${activeKey}"]`)?.classList.add(CATEGORIES.find(c => c.key === activeKey).cls);
+    }
+
+    window.selectTab = function(key) {
+      activeKey = key;
+      document.querySelectorAll(".cat-tab").forEach(btn => {
+        btn.classList.remove("active-add", "active-rem");
+        if (btn.dataset.key === key) btn.classList.add(btn.dataset.cls);
+      });
+      renderCategory(key);
+    };
+
+    function renderCategory(key) {
+      const container = document.getElementById("newsContainer");
+      const countEl   = document.getElementById("catCount");
+      const items = allItems.filter(it => it.category === key);
+
+      if (items.length === 0) {
+        countEl.textContent = "";
+        container.innerHTML = '<div class="state-msg">该分类暂无相关新闻。</div>';
+        return;
+      }
+
+      countEl.textContent = items.length + " 篇";
+
+      container.innerHTML = items.map(it => {
+        const suffix = " - " + it.source;
+        const titleEn = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title;
+        const title = it.title_cn || titleEn;
+        return `<div class="news-item">
+          <div class="news-date">${it.date}</div>
+          <div class="news-body">
+            <a class="news-title" href="${it.link}" target="_blank" rel="noopener noreferrer">${escHtml(title)}</a>
+            <div class="news-source">${escHtml(it.source)}</div>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    function escHtml(s) {
+      return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+  </script>
+
+</body>
+</html>

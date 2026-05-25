@@ -8,7 +8,8 @@ import glob
 import requests
 from bs4 import BeautifulSoup
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
+import xml.etree.ElementTree as ET
 
 # =========================
 # CONFIG
@@ -665,6 +666,120 @@ def is_market_holiday(d=None):
 # =========================
 # MAIN
 # =========================
+# =========================
+# INDEX MEMBERSHIP NEWS
+# =========================
+
+_NEWS_QUERIES = [
+    ("S&P 500 addition",
+     '"added to S&P 500" OR "will join S&P 500" OR "joins S&P 500" OR "joining S&P 500"'
+     ' OR "entering S&P 500" OR "S&P 500 index addition" OR "S&P 500 inclusion"'),
+    ("S&P 500 removal",
+     '"removed from S&P 500" OR "dropped from S&P 500" OR "leaving S&P 500"'
+     ' OR "exits S&P 500" OR "S&P 500 index removal" OR "S&P 500 exclusion"'),
+    ("Nasdaq-100 addition",
+     '"added to Nasdaq-100" OR "will join Nasdaq-100" OR "joins Nasdaq-100" OR "joining Nasdaq-100"'
+     ' OR "entering Nasdaq-100" OR "Nasdaq-100 index addition" OR "Nasdaq-100 inclusion"'),
+    ("Nasdaq-100 removal",
+     '"removed from Nasdaq-100" OR "dropped from Nasdaq-100" OR "leaving Nasdaq-100"'
+     ' OR "exits Nasdaq-100" OR "Nasdaq-100 index removal" OR "Nasdaq-100 exclusion"'),
+]
+
+_NEWS_SKIP_PHRASES = [
+    "within a year", "within a month", "within months",
+    "since joining", "since being added", "since addition",
+    "year after joining", "months after joining", "a year of joining",
+    "years after", "year later", "months later", "one year", "look back",
+]
+
+def _is_retrospective(title):
+    t = title.lower()
+    return any(p in t for p in _NEWS_SKIP_PHRASES)
+
+def _translate_to_zh(text):
+    """Translate text to Simplified Chinese via unofficial Google Translate endpoint."""
+    try:
+        resp = requests.get(
+            "https://translate.googleapis.com/translate_a/single",
+            params={"client": "gtx", "sl": "en", "tl": "zh-CN", "dt": "t", "q": text},
+            headers=SCRAPE_HEADERS,
+            timeout=10,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        return "".join(part[0] for part in data[0] if part[0])
+    except Exception:
+        return ""
+
+def fetch_and_save_index_news(lookback_days=90):
+    """Fetch Google News RSS for S&P 500 / Nasdaq-100 membership announcements."""
+    print("Fetching index membership news...")
+    cutoff = datetime.now(timezone.utc) - timedelta(days=lookback_days)
+    all_items = []
+
+    for label, query in _NEWS_QUERIES:
+        url = (
+            "https://news.google.com/rss/search"
+            f"?q={requests.utils.quote(query)}&hl=en-US&gl=US&ceid=US:en"
+        )
+        try:
+            resp = requests.get(url, headers=SCRAPE_HEADERS, timeout=10)
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            print(f"  [news] {label}: {e}")
+            continue
+
+        try:
+            root = ET.fromstring(resp.content)
+        except ET.ParseError as e:
+            print(f"  [news] XML parse error for {label}: {e}")
+            continue
+
+        for item in root.findall(".//item"):
+            title   = (item.findtext("title") or "").strip()
+            pub_raw = (item.findtext("pubDate") or "").strip()
+            source  = (item.findtext("source") or "").strip()
+            link    = (item.findtext("link") or "").strip()
+
+            try:
+                pub_dt = datetime.strptime(pub_raw, "%a, %d %b %Y %H:%M:%S %Z").replace(tzinfo=timezone.utc)
+            except ValueError:
+                continue
+
+            if pub_dt < cutoff or _is_retrospective(title):
+                continue
+
+            all_items.append({
+                "category": label,
+                "date":     pub_dt.strftime("%Y-%m-%d"),
+                "title":    title,
+                "source":   source,
+                "link":     link,
+            })
+
+    all_items.sort(key=lambda x: x["date"], reverse=True)
+
+    # Translate titles to Chinese (strip source suffix before translating)
+    print(f"  [news] translating {len(all_items)} titles to Chinese...")
+    for item in all_items:
+        suffix = " - " + item["source"]
+        clean  = item["title"][:-len(suffix)] if item["title"].endswith(suffix) else item["title"]
+        item["title_cn"] = _translate_to_zh(clean)
+        time.sleep(0.2)   # stay well under rate limits
+
+    out = {
+        "fetched":       datetime.now().strftime("%Y-%m-%d"),
+        "lookback_days": lookback_days,
+        "items":         all_items,
+    }
+
+    path = os.path.join(DATA_DIR, "index_news.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False, indent=2)
+
+    print(f"  [news] saved {len(all_items)} articles to {path}")
+
+
 if __name__ == "__main__":
 
     today = date.today()
@@ -690,5 +805,8 @@ if __name__ == "__main__":
 
     # 5. Export results
     export(df)
+
+    # 6. Fetch index membership news
+    fetch_and_save_index_news()
 
     print("Done")

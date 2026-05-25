@@ -1,6 +1,6 @@
 {
   "trackedSince": "2026-01-20",
-  "lastChecked": "2026-05-22",
+  "lastChecked": "2026-05-24",
   "entries": [
     {
       "date": "2026-05-18",
@@ -18,6 +18,21 @@
       }
     },
     {
+      "date": "2026-05-07",
+      "nasdaq100": {
+        "added": [],
+        "removed": []
+      },
+      "sp500": {
+        "added": [
+          "VEEV"
+        ],
+        "removed": [
+          "CTRA"
+        ]
+      }
+    },
+    {
       "date": "2026-04-20",
       "nasdaq100": {
         "added": [
@@ -30,6 +45,21 @@
       "sp500": {
         "added": [],
         "removed": []
+      }
+    },
+    {
+      "date": "2026-04-09",
+      "nasdaq100": {
+        "added": [],
+        "removed": []
+      },
+      "sp500": {
+        "added": [
+          "CASY"
+        ],
+        "removed": [
+          "HOLX"
+        ]
       }
     },
     {
