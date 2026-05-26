@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   run-scanner:
     runs-on: ubuntu-latest
@@ -27,10 +30,20 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Check market holiday
+        run: |
+          IS_HOLIDAY=$(python -c "from scanner import is_market_holiday; print(is_market_holiday())")
+          echo "IS_HOLIDAY=$IS_HOLIDAY" >> $GITHUB_ENV
+          if [ "$IS_HOLIDAY" = "True" ]; then
+            echo "Today is a NYSE market holiday — skipping scan and video generation."
+          fi
+
       - name: Run scanner
+        if: env.IS_HOLIDAY != 'True'
         run: python scanner.py
 
       - name: Commit updated latest.json
+        if: env.IS_HOLIDAY != 'True'
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
@@ -55,43 +68,38 @@ jobs:
           fi
 
       - name: Install video dependencies
+        if: env.IS_HOLIDAY != 'True'
         run: |
           pip install -r video/requirements.txt
           sudo apt-get install -y fonts-noto-cjk
 
       - name: Select daily video types
+        if: env.IS_HOLIDAY != 'True'
         run: |
-          # Skip videos on NYSE market holidays
-          IS_HOLIDAY=$(python -c "from scanner import is_market_holiday; print(is_market_holiday())")
-          if [ "$IS_HOLIDAY" = "True" ]; then
-            echo "Market holiday — skipping video generation."
-            echo "VIDEO_TYPES=" >> $GITHUB_ENV
+          DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
+          if [ "$DOW" = "1" ]; then
+            echo "VIDEO_TYPES=volume_spikes volume_spikes_cn" >> $GITHUB_ENV
+          elif [ "$DOW" = "2" ]; then
+            echo "VIDEO_TYPES=best_performer best_performer_cn" >> $GITHUB_ENV
+          elif [ "$DOW" = "3" ]; then
+            echo "VIDEO_TYPES=6m_breakout 6m_breakout_cn" >> $GITHUB_ENV
+          elif [ "$DOW" = "4" ]; then
+            echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
+          elif [ "$DOW" = "5" ]; then
+            echo "VIDEO_TYPES=index_spotlight index_spotlight_cn" >> $GITHUB_ENV
           else
-            DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
-            if [ "$DOW" = "1" ]; then
-              echo "VIDEO_TYPES=volume_spikes volume_spikes_cn" >> $GITHUB_ENV
-            elif [ "$DOW" = "2" ]; then
-              echo "VIDEO_TYPES=extreme_1y extreme_1y_cn" >> $GITHUB_ENV
-            elif [ "$DOW" = "3" ]; then
-              echo "VIDEO_TYPES=6m_breakout 6m_breakout_cn" >> $GITHUB_ENV
-            elif [ "$DOW" = "4" ]; then
-              echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
-            elif [ "$DOW" = "5" ]; then
-              echo "VIDEO_TYPES=index_spotlight index_spotlight_cn" >> $GITHUB_ENV
-            else
-              echo "VIDEO_TYPES=" >> $GITHUB_ENV
-            fi
+            echo "VIDEO_TYPES=" >> $GITHUB_ENV
           fi
 
       - name: Generate daily videos
-        if: env.VIDEO_TYPES != ''
+        if: env.IS_HOLIDAY != 'True' && env.VIDEO_TYPES != ''
         run: |
           for type in $VIDEO_TYPES; do
             python video/generate_video.py --type $type
           done
 
       - name: Upload daily videos to YouTube
-        if: env.VIDEO_TYPES != ''
+        if: env.IS_HOLIDAY != 'True' && env.VIDEO_TYPES != ''
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}

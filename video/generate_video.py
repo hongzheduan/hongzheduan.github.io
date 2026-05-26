@@ -7,7 +7,7 @@ Usage:
     py generate_video.py --type sp500_movers
     py generate_video.py --type platform_intro --output my_intro.mp4
 
-Video types: sp500_movers, nasdaq_movers, volume_spikes, extreme_1y, platform_intro
+Video types: sp500_movers, nasdaq_movers, volume_spikes, best_performer, platform_intro
 """
 
 import argparse
@@ -299,9 +299,12 @@ def _draw_promo_panel(draw, px):
     draw.text((px + (pw - trw) // 2, py + ph - 24), tr, font=f_tr, fill=GOLD_LIGHT)
 
 
-def scene_movers_table(title, rows, scan_date, max_rows=10, cta_text=""):
+def scene_movers_table(title, rows, scan_date, max_rows=10, cta_text="", tf=None):
     img, draw = new_frame()
     top_bar(draw, title, scan_date)
+
+    tf_hdr = f"{tf['label_short']} CHG%" if tf else "1Y CHG%"
+    tf_key = tf["key"] if tf else "1YPriceChange"
 
     if max_rows == 3:
         COLS = [
@@ -312,7 +315,7 @@ def scene_movers_table(title, rows, scan_date, max_rows=10, cta_text=""):
             ("1D CHG%",   "PriceChange1D",  215),
             ("VOL(M)",    "VolumeM",        195),
             ("1D VOL%",   "VolumeChange1D", 215),
-            ("1Y CHG%",   "1YPriceChange",  345),
+            (tf_hdr,      tf_key,           345),
         ]
         f_hdr = load_font(20, mono=True)
         f_tkr = load_font(40, mono=True)
@@ -329,7 +332,7 @@ def scene_movers_table(title, rows, scan_date, max_rows=10, cta_text=""):
             ("1D CHG%",   "PriceChange1D",  145),
             ("VOL(M)",    "VolumeM",        140),
             ("1D VOL%",   "VolumeChange1D", 165),
-            ("1Y CHG%",   "1YPriceChange",  150),
+            (tf_hdr,      tf_key,           150),
         ]
         f_hdr = load_font(17, mono=True)
         f_tkr = load_font(27, mono=True)
@@ -1009,21 +1012,39 @@ _VISUAL_FNS = {
 }
 
 
-def _visual_vol_sort(img, draw, data):
-    """Multi-period volume table sorted by VOL/MA21 — used in volume spikes promo scene."""
-    rows = sorted(data["data"],
-                  key=lambda r: r.get("VolumeVsMA21_1D") or -9999, reverse=True)[:7]
-    rx, ry = _RP_X, _RP_Y
+def _visual_vol_sort(img, draw, data, tf=None):
+    """Multi-period volume table — used in volume spikes promo scene.
 
-    COLS = [
-        ("TICKER",      "Ticker",              110),
-        ("VOL/MA21 ▼", "VolumeVsMA21_1D",     196),
-        ("1D V%",       "VolumeChange1D",       160),
-        ("2W MAX V%",   "2WMaxVolumeChange",    175),
-        ("1M MAX V%",   "1MMaxVolumeChange",    175),
-        ("3M MAX V%",   "3MMaxVolumeChange",    175),
-        ("6M MAX V%",   "6MMaxVolumeChange",    205),
-    ]
+    When tf is None: sort by VOL/MA21, show 1D + 2W–6M columns (volume_spikes).
+    When tf is provided: sort by tf's vol_chg_key, show all 5 Thursday TF columns
+    with the current one highlighted (1y_vol_peak).
+    """
+    if tf is None:
+        rows = sorted(data["data"],
+                      key=lambda r: r.get("VolumeVsMA21_1D") or -9999, reverse=True)[:7]
+        COLS = [
+            ("TICKER",      "Ticker",              110),
+            ("VOL/MA21 ▼", "VolumeVsMA21_1D",     196),
+            ("1D V%",       "VolumeChange1D",       160),
+            ("2W MAX V%",   "2WMaxVolumeChange",    175),
+            ("1M MAX V%",   "1MMaxVolumeChange",    175),
+            ("3M MAX V%",   "3MMaxVolumeChange",    175),
+            ("6M MAX V%",   "6MMaxVolumeChange",    205),
+        ]
+    else:
+        chg_key = tf["vol_chg_key"]
+        rows = sorted(data["data"],
+                      key=lambda r: r.get(chg_key) or -9999, reverse=True)[:7]
+        cw = (1196 - 110) // 5  # 217 per TF column
+        COLS = [("TICKER", "Ticker", 110)]
+        for i, t in enumerate(THURSDAY_TF_ROTATION):
+            lbl = f"{t['label_short']} MAX V%"
+            if t["vol_chg_key"] == chg_key:
+                lbl += " ▼"
+            w = cw if i < 4 else (1196 - 110 - cw * 4)
+            COLS.append((lbl, t["vol_chg_key"], w))
+
+    rx, ry = _RP_X, _RP_Y
 
     f_hdr = load_font(18, mono=True)
     f_tkr = load_font(24, mono=True)
@@ -1063,7 +1084,7 @@ def _visual_vol_sort(img, draw, data):
     return img, draw
 
 
-def scene_top3_sparklines(title, rows, scan_date, more_text=""):
+def scene_top3_sparklines(title, rows, scan_date, more_text="", tf=None):
     """3-column full-height sparkline scene showing top 3 rows with large fonts."""
     img, draw = new_frame()
     top_bar(draw, title, scan_date)
@@ -1080,6 +1101,10 @@ def scene_top3_sparklines(title, rows, scan_date, more_text=""):
     f_tkr = load_font(38, mono=True)
     f_co  = load_font(26)
     f_val = load_font(26, mono=True)
+
+    tf_key        = tf["key"]        if tf else "1YPriceChange"
+    tf_label      = tf["label_en"]   if tf else "1 Year"
+    tf_spark_days = tf["spark_days"] if tf else None
 
     spark_polys = []   # (points, fill_color)
 
@@ -1099,12 +1124,12 @@ def scene_top3_sparklines(title, rows, scan_date, more_text=""):
             cname = cname[:23] + "..."
         draw.text((x0 + 16, y0 + 62), cname, font=f_co, fill=MUTED)
 
-        pc1d = row.get("PriceChange1D")
-        pc1y = row.get("1YPriceChange")
+        pc1d  = row.get("PriceChange1D")
+        pc_tf = row.get(tf_key)
         draw.text((x0 + 16, y0 + 100),
                   f"Today   {pct_str(pc1d)}", font=f_val, fill=pct_color(pc1d))
         draw.text((x0 + 16, y0 + 134),
-                  f"1 Year  {pct_str(pc1y)}", font=f_val, fill=pct_color(pc1y))
+                  f"{tf_label:<8}{pct_str(pc_tf)}", font=f_val, fill=pct_color(pc_tf))
 
         draw.line([(x0 + 8, y0 + info_h), (x1 - 8, y0 + info_h)], fill=BORDER)
 
@@ -1114,7 +1139,8 @@ def scene_top3_sparklines(title, rows, scan_date, more_text=""):
         sw  = cell_w - 32
         sh  = cell_h - info_h - 24
 
-        spark = row.get("Spark1Y") or []
+        full_spark = row.get("Spark1Y") or []
+        spark = full_spark[-tf_spark_days:] if tf_spark_days and len(full_spark) > tf_spark_days else full_spark
         if len(spark) >= 2:
             mn_v, mx_v = min(spark), max(spark)
             if mx_v > mn_v:
@@ -1130,7 +1156,7 @@ def scene_top3_sparklines(title, rows, scan_date, more_text=""):
                     return (px, py)
 
                 pts = [spark_pt(i, v) for i, v in enumerate(spark)]
-                lc  = BRIGHT_GREEN if (pc1y or 0) >= 0 else BRIGHT_RED
+                lc  = BRIGHT_GREEN if (pc_tf or 0) >= 0 else BRIGHT_RED
                 fc  = (*lc, 30)
 
                 spark_polys.append(
@@ -1160,11 +1186,13 @@ def scene_top3_sparklines(title, rows, scan_date, more_text=""):
     return img
 
 
-def scene_breakout_table(breakouts, scan_date):
-    """Table for 1-year high breakout stocks with custom computed columns."""
+def scene_breakout_table(breakouts, scan_date, tf=None):
+    """Table for N-month high breakout stocks with custom computed columns."""
     img, draw = new_frame()
-    n = len(breakouts)
-    top_bar(draw, f"1-Year High Breakouts — Top {n}  ({scan_date})", scan_date)
+    n       = len(breakouts)
+    label   = tf["label_en"] if tf else "1-Year"
+    high_hdr = tf["high_hdr"] if tf else "1Y HIGH"
+    top_bar(draw, f"{label} High Breakouts — Top {n}  ({scan_date})", scan_date)
 
     COLS = [
         ("#",        None,              80),
@@ -1173,7 +1201,7 @@ def scene_breakout_table(breakouts, scan_date):
         ("PRICE",    "Price",          175),
         ("1D CHG%",  "PriceChange1D",  215),
         ("PULLBACK", "_drawdown",      210),
-        ("6M HIGH",  "_peak_price",    215),
+        (high_hdr,   "_peak_price",    215),
         ("PEAK AGO", "_months_ago",    200),
     ]
 
@@ -1351,21 +1379,23 @@ def scene_breakout_sparklines(breakouts, scan_date, peak_label="1Y HIGH", title=
     return img
 
 
-def scene_breakout_table_cn(breakouts, scan_date):
-    """CN table for 1-year high breakout stocks."""
+def scene_breakout_table_cn(breakouts, scan_date, tf=None):
+    """CN table for N-month high breakout stocks."""
     img, draw = new_frame()
-    n = len(breakouts)
-    top_bar(draw, f"一年新高突破 — 前{n}名  ({scan_date})", scan_date)
+    n        = len(breakouts)
+    title_cn = tf["title_cn"]    if tf else "一年新高突破"
+    high_hdr = tf["high_hdr_cn"] if tf else "年高价"
+    top_bar(draw, f"{title_cn} — 前{n}名  ({scan_date})", scan_date)
 
     COLS = [
-        ("#",     None,             80),
-        ("代码",  "Ticker",        155),
-        ("公司",  "CompanyName",   290),
-        ("价格",  "Price",         175),
-        ("日涨幅","PriceChange1D", 215),
-        ("回调幅度","_drawdown",   210),
-        ("年高价","_peak_price",   215),
-        ("高点时间","_months_ago", 200),
+        ("#",       None,             80),
+        ("代码",    "Ticker",        155),
+        ("公司",    "CompanyName",   290),
+        ("价格",    "Price",         175),
+        ("日涨幅",  "PriceChange1D", 215),
+        ("回调幅度","_drawdown",     210),
+        (high_hdr,  "_peak_price",   215),
+        ("距高点",  "_months_ago",   200),
     ]
 
     f_hdr = load_font_cn(18)
@@ -1415,8 +1445,8 @@ def scene_breakout_table_cn(breakouts, scan_date):
                           font=f_val, fill=MUTED)
             elif key == "_months_ago":
                 v = row.get(key, 0)
-                draw.text((x, y + dy - 4), f"~{v:.1f}月前",
-                          font=f_val, fill=DIM)
+                draw.text((x, y + dy - 4), f"约{round(v)}个月前",
+                          font=load_font_cn(32), fill=DIM)
             x += cw
 
     hline(draw, H - 60)
@@ -1427,20 +1457,23 @@ def scene_breakout_table_cn(breakouts, scan_date):
     return img
 
 
-def _visual_1y_sort(img, draw, data):
-    """Multi-timeframe price table sorted by 1Y change — used in extreme_1y promo scene."""
+def _visual_1y_sort(img, draw, data, tf):
+    """Multi-timeframe price table sorted by tf's key — used in extreme_1y promo scene."""
     rows = sorted(data["data"],
-                  key=lambda r: r.get("1YPriceChange") or -9999, reverse=True)[:7]
+                  key=lambda r: r.get(tf["key"]) or -9999, reverse=True)[:7]
     rx, ry = _RP_X, _RP_Y
 
-    COLS = [
-        ("TICKER",      "Ticker",          110),
-        ("1Y P CHG% ▼", "1YPriceChange",   200),
-        ("9M P CHG%",   "9MPriceChange",   172),
-        ("6M P CHG%",   "6MPriceChange",   172),
-        ("3M P CHG%",   "3MPriceChange",   172),
-        ("1M P CHG%",   "1MPriceChange",   172),
-        ("2W P CHG%",   "2WPriceChange",   198),
+    _PRICE_COLS = [
+        ("1Y P CHG%", "1YPriceChange", 200),
+        ("9M P CHG%", "9MPriceChange", 172),
+        ("6M P CHG%", "6MPriceChange", 172),
+        ("3M P CHG%", "3MPriceChange", 172),
+        ("1M P CHG%", "1MPriceChange", 172),
+        ("2W P CHG%", "2WPriceChange", 198),
+    ]
+    COLS = [("TICKER", "Ticker", 110)] + [
+        (hdr + " ▼" if key == tf["key"] else hdr, key, cw)
+        for hdr, key, cw in _PRICE_COLS
     ]
 
     f_hdr = load_font(18, mono=True)
@@ -1477,8 +1510,11 @@ def _visual_1y_sort(img, draw, data):
     return img, draw
 
 
-def scene_1y_sort_promo(data, date):
-    """10-second promo scene for extreme_1y: multi-timeframe 1Y price sort table."""
+def scene_1y_sort_promo(data, date, tf=None):
+    """10-second promo scene for best_performer: multi-timeframe price sort table."""
+    explicit_tf = tf is not None
+    if not explicit_tf:
+        tf = TUESDAY_TF_ROTATION[-1]  # default to 1Y for sort; title stays generic
     img, draw = new_frame()
     accent = GREEN
 
@@ -1491,8 +1527,10 @@ def scene_1y_sort_promo(data, date):
     draw.text((_LP_X, 70), "◈   BAIZORA PLATFORM", font=load_font(20, mono=True), fill=accent)
     draw.line([(_LP_X, 106), (_DIV_X, 106)], fill=BORDER)
 
-    f_title     = load_font(40, bold=True)
-    title_lines = _wrap_text(draw, "1-Year Leaders Across Every Timeframe", f_title, _LP_MAXW)
+    f_title    = load_font(40, bold=True)
+    title_text = (f"Best {tf['label_en']} Performers — Every Timeframe"
+                  if explicit_tf else "Best Performers — Every Timeframe")
+    title_lines = _wrap_text(draw, title_text, f_title, _LP_MAXW)
     ty          = 132
     lh_title    = th(draw, "Ag", f_title) + 10
     for line in title_lines:
@@ -1502,9 +1540,11 @@ def scene_1y_sort_promo(data, date):
     bar_y = ty + 14
     draw.rectangle([_LP_X, bar_y, _LP_X + 80, bar_y + 5], fill=accent)
 
+    body_subject = (f"today's best {tf['label_en'].lower()} performers"
+                    if explicit_tf else "today's best performers")
     body = (
-        "On Baizora, see how the top 1-year performers stack up across every timeframe — "
-        "from 2 weeks to 9 months. Sort by any column to instantly find the leaders "
+        f"On Baizora, see how {body_subject} compare across every timeframe — "
+        "from 2 weeks to 1 year. Sort by any column to instantly find the leaders "
         "across the full S&P 500 and Nasdaq-100 universe."
     )
     f_body     = load_font(26)
@@ -1521,15 +1561,18 @@ def scene_1y_sort_promo(data, date):
 
     draw.rectangle([_RP_X - 4, _RP_Y - 8, W - 60, _RP_BOT + 8],
                    fill=NAVY_MID, outline=BORDER)
-    img, draw = _visual_1y_sort(img, draw, data)
+    img, draw = _visual_1y_sort(img, draw, data, tf)
 
     return img
 
 
-def scene_movers_table_cn(title, rows, scan_date, cta_text=""):
+def scene_movers_table_cn(title, rows, scan_date, cta_text="", tf=None):
     """CN 3-row movers table with CJK headers and large fonts."""
     img, draw = new_frame()
     top_bar(draw, title, scan_date)
+
+    tf_hdr = f"{tf['label_cn']}涨幅" if tf else "年涨幅"
+    tf_key = tf["key"] if tf else "1YPriceChange"
 
     COLS = [
         ("#",       None,              80),
@@ -1539,7 +1582,7 @@ def scene_movers_table_cn(title, rows, scan_date, cta_text=""):
         ("日涨幅",  "PriceChange1D",  215),
         ("成交量M", "VolumeM",        195),
         ("日量涨",  "VolumeChange1D", 215),
-        ("年涨幅",  "1YPriceChange",  345),
+        (tf_hdr,    tf_key,           345),
     ]
 
     f_hdr = load_font_cn(20)
@@ -1590,8 +1633,11 @@ def scene_movers_table_cn(title, rows, scan_date, cta_text=""):
     return img
 
 
-def scene_1y_sort_promo_cn(data, date):
-    """CN 10-second promo scene for extreme_1y_cn: multi-timeframe 1Y price sort table."""
+def scene_1y_sort_promo_cn(data, date, tf=None):
+    """CN 10-second promo scene for best_performer_cn: multi-timeframe price sort table."""
+    explicit_tf = tf is not None
+    if not explicit_tf:
+        tf = TUESDAY_TF_ROTATION[-1]  # default to 1Y for sort; title stays generic
     img, draw = new_frame()
     accent = GREEN
 
@@ -1604,8 +1650,10 @@ def scene_1y_sort_promo_cn(data, date):
     draw.text((_LP_X, 70), "◈   贝佐拉平台", font=load_font_cn(26), fill=accent)
     draw.line([(_LP_X, 106), (_DIV_X, 106)], fill=BORDER)
 
-    f_title     = load_font_cn(40, bold=True)
-    title_lines = _wrap_text_cn(draw, "各时间维度的一年领涨表现", f_title, _LP_MAXW)
+    f_title    = load_font_cn(40, bold=True)
+    title_text = (f"{tf['label_cn']}领涨股 — 各时间维度表现"
+                  if explicit_tf else "各时间维度的领涨表现")
+    title_lines = _wrap_text_cn(draw, title_text, f_title, _LP_MAXW)
     ty          = 132
     lh_title    = th(draw, "贝", f_title) + 10
     for line in title_lines:
@@ -1615,8 +1663,9 @@ def scene_1y_sort_promo_cn(data, date):
     bar_y = ty + 14
     draw.rectangle([_LP_X, bar_y, _LP_X + 80, bar_y + 5], fill=accent)
 
+    body_subject = f"{tf['label_cn']}领涨股" if explicit_tf else "领涨股"
     body = (
-        "在贝佐拉，可查看一年领涨股在每个时间维度的表现——从两周到一年。"
+        f"在贝佐拉，可查看{body_subject}在各时间维度的表现——从两周到一年。"
         "按任意列排序，即时发现S&P 500和纳斯达克100全市场的领涨股。"
     )
     f_body     = load_font_cn(26)
@@ -1633,13 +1682,13 @@ def scene_1y_sort_promo_cn(data, date):
 
     draw.rectangle([_RP_X - 4, _RP_Y - 8, W - 60, _RP_BOT + 8],
                    fill=NAVY_MID, outline=BORDER)
-    img, draw = _visual_1y_sort(img, draw, data)
+    img, draw = _visual_1y_sort(img, draw, data, tf)
 
     return img
 
 
-def scene_vol_sort_promo_cn(data, date):
-    """CN 10-second promo scene for volume_spikes_cn: multi-period volume sort table."""
+def scene_vol_sort_promo_cn(data, date, tf=None):
+    """CN promo scene for volume_spikes_cn / 1y_vol_peak_cn: multi-period volume sort table."""
     img, draw = new_frame()
     accent = GOLD
 
@@ -1652,8 +1701,20 @@ def scene_vol_sort_promo_cn(data, date):
     draw.text((_LP_X, 70), "◈   贝佐拉平台", font=load_font_cn(26), fill=accent)
     draw.line([(_LP_X, 106), (_DIV_X, 106)], fill=BORDER)
 
-    f_title     = load_font_cn(40, bold=True)
-    title_lines = _wrap_text_cn(draw, "各时间维度的成交量异动", f_title, _LP_MAXW)
+    f_title = load_font_cn(40, bold=True)
+    if tf:
+        title_text = "成交量记录 — 各时间维度"
+        body = (
+            "在贝佐拉，可查看股票在各时间维度的成交量表现——从一个月到一年。"
+            "按任意列排序，即时发现S&P 500和纳斯达克100全市场最大成交量异动。"
+        )
+    else:
+        title_text = "各时间维度的成交量异动"
+        body = (
+            "在贝佐拉，可轻松查看每个时间维度的成交量数据——从一天到一年。"
+            "按任意列排序，即时发现S&P 500和纳斯达克100全市场最大成交量异动。"
+        )
+    title_lines = _wrap_text_cn(draw, title_text, f_title, _LP_MAXW)
     ty          = 132
     lh_title    = th(draw, "贝", f_title) + 10
     for line in title_lines:
@@ -1663,10 +1724,6 @@ def scene_vol_sort_promo_cn(data, date):
     bar_y = ty + 14
     draw.rectangle([_LP_X, bar_y, _LP_X + 80, bar_y + 5], fill=accent)
 
-    body = (
-        "在贝佐拉，可轻松查看每个时间维度的成交量数据——从一天到一年。"
-        "按任意列排序，即时发现S&P 500和纳斯达克100全市场最大成交量异动。"
-    )
     f_body     = load_font_cn(26)
     body_lines = _wrap_text_cn(draw, body, f_body, _LP_MAXW)
     by         = bar_y + 22
@@ -1682,13 +1739,13 @@ def scene_vol_sort_promo_cn(data, date):
 
     draw.rectangle([_RP_X - 4, _RP_Y - 8, W - 60, _RP_BOT + 8],
                    fill=NAVY_MID, outline=BORDER)
-    img, draw = _visual_vol_sort(img, draw, data)
+    img, draw = _visual_vol_sort(img, draw, data, tf)
 
     return img
 
 
-def scene_vol_sort_promo(data, date):
-    """10-second promo scene for volume_spikes: multi-period volume sort table."""
+def scene_vol_sort_promo(data, date, tf=None):
+    """Promo scene for volume_spikes / 1y_vol_peak: multi-period volume sort table."""
     img, draw = new_frame()
 
     accent = GOLD
@@ -1704,9 +1761,23 @@ def scene_vol_sort_promo(data, date):
     draw.text((_LP_X, 70), "◈   BAIZORA PLATFORM", font=load_font(20, mono=True), fill=accent)
     draw.line([(_LP_X, 106), (_DIV_X, 106)], fill=BORDER)
 
-    # Title
-    f_title     = load_font(40, bold=True)
-    title_lines = _wrap_text(draw, "Volume Spikes Across All Timeframes", f_title, _LP_MAXW)
+    # Title + body vary by context
+    f_title = load_font(40, bold=True)
+    if tf:
+        title_text = "Volume Records — Across All Timeframes"
+        body = (
+            "On Baizora, see how today's volume record stocks compare "
+            "across every timeframe — from 1 month to 1 year. Sort by any column to find "
+            "the biggest volume movers in the S&P 500 and Nasdaq-100."
+        )
+    else:
+        title_text = "Volume Spikes Across All Timeframes"
+        body = (
+            "On Baizora, access volume spike data for every timeframe — "
+            "from 1 day to 1 year. Sort by any column to instantly find "
+            "the biggest volume spikes across the full S&P 500 and Nasdaq-100 universe."
+        )
+    title_lines = _wrap_text(draw, title_text, f_title, _LP_MAXW)
     ty          = 132
     lh_title    = th(draw, "Ag", f_title) + 10
     for line in title_lines:
@@ -1716,12 +1787,6 @@ def scene_vol_sort_promo(data, date):
     bar_y = ty + 14
     draw.rectangle([_LP_X, bar_y, _LP_X + 80, bar_y + 5], fill=accent)
 
-    # Body
-    body = (
-        "On Baizora, access volume spike data for every timeframe — "
-        "from 1 day to 1 year. Sort by any column to instantly find "
-        "the biggest volume spikes across the full S&P 500 and Nasdaq-100 universe."
-    )
     f_body     = load_font(26)
     body_lines = _wrap_text(draw, body, f_body, _LP_MAXW)
     by         = bar_y + 22
@@ -1740,7 +1805,7 @@ def scene_vol_sort_promo(data, date):
     # Right panel
     draw.rectangle([_RP_X - 4, _RP_Y - 8, W - 60, _RP_BOT + 8],
                    fill=NAVY_MID, outline=BORDER)
-    img, draw = _visual_vol_sort(img, draw, data)
+    img, draw = _visual_vol_sort(img, draw, data, tf)
 
     return img
 
@@ -1915,6 +1980,8 @@ def scene_screenshot(path):
 
 _SS_EN = str(SCRIPT_DIR / "baizora_homepage_Screenshot.png")
 _SS_CN = str(SCRIPT_DIR / "baizora_homepage_Screenshot_cn.png")
+_SS_MEMBERSHIP_NEWS   = str(SCRIPT_DIR / "membership_news_screenshot.png")
+_SS_MEMBERSHIP_CHANGE = str(SCRIPT_DIR / "membership_change_screenshot.png")
 
 
 # ── Sparklines scene ─────────────────────────────────────────────────────────
@@ -2082,9 +2149,11 @@ def _narrate_volume(rows):
         parts.append(f"{ticker}, volume up {abs(v):.0f} percent")
     if len(parts) >= 3:
         return (f"The three biggest volume spikes today: "
-                f"{parts[0]}, {parts[1]}, and {parts[2]}.")
+                f"{parts[0]}, {parts[1]}, and {parts[2]}. "
+                f"Now let's look at their price charts.")
     elif parts:
-        return "Today's top volume spikes: " + " and ".join(parts) + "."
+        return ("Today's top volume spikes: " + " and ".join(parts) + ". "
+                "Now let's look at their price charts.")
     return ""
 
 
@@ -2096,9 +2165,9 @@ def _narrate_volume_cn(rows):
         v      = r.get("VolumeChange1D") or 0
         parts.append(f"{ticker}成交量上涨{abs(v):.0f}%")
     if len(parts) >= 3:
-        return f"今日成交量异动前三名：{parts[0]}，{parts[1]}，以及{parts[2]}。"
+        return f"今日成交量异动前三名：{parts[0]}，{parts[1]}，以及{parts[2]}。下面来看它们的价格走势。"
     elif parts:
-        return "今日成交量异动：" + "，".join(parts) + "。"
+        return "今日成交量异动：" + "，".join(parts) + "。下面来看价格走势。"
     return ""
 
 
@@ -2492,27 +2561,36 @@ _BREAKOUT_OPENERS_CN = [
 ]
 
 
-def _compute_6m_breakouts(all_rows):
-    """Return enriched rows for stocks whose 6-month-old peak was first crossed in the past 2 weeks.
+def _compute_breakouts(all_rows, tf):
+    """Return enriched rows for stocks whose N-month peak was first crossed in the past 2 weeks.
 
     Criteria:
-      - Previous high set ≥6 months ago (first half of Spark1Y)
-      - From that peak day until 2 weeks ago: no day reached 98% of the peak (true resistance)
-      - Today's price is at or above the previous peak
-      - Pullback from peak to trough ≥20% (meaningful correction)
+      - Previous high set in the older half of the target spark window
+      - From that peak until 2 weeks ago: no day reached 98% of peak (true resistance)
+      - Today's price at or above the previous peak
+      - Pullback from peak to trough >= tf["min_drawdown"]
     """
+    spark_days   = tf.get("spark_days")   # None = full 1Y
+    min_drawdown = tf.get("min_drawdown", 10)
     seen, out = set(), []
     for row in all_rows:
         ticker = row.get("Ticker", "")
         if ticker in seen:
             continue
         seen.add(ticker)
-        spark = row.get("Spark1Y")
-        if not spark or len(spark) < 200:
+        full_spark = row.get("Spark1Y")
+        if not full_spark or len(full_spark) < 30:
             continue
+
+        # Slice to target window; keep full_spark for price calibration
+        spark  = full_spark[-spark_days:] if spark_days and len(full_spark) > spark_days else full_spark
+        offset = len(full_spark) - len(spark)   # days trimmed from start
+        if len(spark) < 15:
+            continue
+
         price     = row.get("Price") or 0
         change_1y = row.get("1YPriceChange") or 0
-        s0, s1    = spark[0], spark[-1]
+        s0, s1    = full_spark[0], full_spark[-1]
         if abs(s0 - s1) < 0.001:
             continue
         price_1y_ago = price / (1 + change_1y / 100)
@@ -2534,138 +2612,157 @@ def _compute_6m_breakouts(all_rows):
         if spark[-1] < peak_val * 0.98:
             continue
 
-        peak_price = actual(peak_val)
-        months_ago = (n - 1 - peak_idx) / (n / 12)
-        post_peak  = spark[peak_idx:-10]
-        trough_val = min(post_peak) if post_peak else peak_val
-        drawdown   = (peak_price - actual(trough_val)) / peak_price * 100 if peak_price else 0
+        peak_price      = actual(peak_val)
+        full_peak_idx   = offset + peak_idx
+        months_ago      = (len(full_spark) - 1 - full_peak_idx) / 21
+        post_peak       = spark[peak_idx:-10]
+        trough_val      = min(post_peak) if post_peak else peak_val
+        drawdown        = (peak_price - actual(trough_val)) / peak_price * 100 if peak_price else 0
 
-        if drawdown >= 20:
+        if drawdown >= min_drawdown:
             enriched = dict(row)
             enriched["_peak_price"] = peak_price
             enriched["_drawdown"]   = drawdown
             enriched["_months_ago"] = months_ago
-            enriched["_peak_idx"]   = peak_idx
+            enriched["_peak_idx"]   = full_peak_idx   # index into full Spark1Y for sparkline
             out.append(enriched)
     return out
 
 
-def _narrate_breakout(breakouts):
+def _compute_6m_breakouts(all_rows):
+    """Legacy wrapper — uses 1Y window with 20% drawdown (original Wednesday behaviour)."""
+    return _compute_breakouts(all_rows, WEDNESDAY_TF_ROTATION[-1])
+
+
+def _narrate_breakout(breakouts, tf=None):
+    label = tf["label_en"].lower() if tf else "one-year"
     parts = []
     for b in breakouts[:3]:
-        ticker   = b.get("Ticker", "")
-        chg      = b.get("PriceChange1D") or 0
-        pullback = b.get("_drawdown", 0)
+        ticker    = b.get("Ticker", "")
+        chg       = b.get("PriceChange1D") or 0
+        pullback  = b.get("_drawdown", 0)
         direction = "up" if chg >= 0 else "down"
         parts.append(f"{ticker} {direction} {abs(chg):.1f} percent today, after a {pullback:.0f} percent pullback")
     n = len(parts)
     if n >= 3:
-        return (f"Recent one-year high breakouts — all first crossed within the past two weeks: "
+        return (f"Recent {label} high breakouts — all first crossed within the past two weeks: "
                 f"{parts[0]}. {parts[1]}. And {parts[2]}.")
     elif n == 2:
-        return (f"Recent one-year high breakouts — both first crossed within the past two weeks: "
+        return (f"Recent {label} high breakouts — both first crossed within the past two weeks: "
                 f"{parts[0]}. And {parts[1]}.")
     elif n == 1:
-        return (f"A recent one-year high breakout, first crossed within the past two weeks: {parts[0]}.")
+        return (f"A recent {label} high breakout, first crossed within the past two weeks: {parts[0]}.")
     return ""
 
 
 def build_6m_breakout(data, output):
     date      = data["date"]
-    breakouts = _compute_6m_breakouts(data["data"])
+    tf        = _wednesday_tf(date)
+    breakouts = _compute_breakouts(data["data"], tf)
     breakouts.sort(key=lambda x: x.get("PriceChange1D") or -9999, reverse=True)
     top       = breakouts[:3]
 
     if not top:
-        print("No 6-month breakout stocks found today, skipping.")
+        print(f"No {tf['label_en']} breakout stocks found today, skipping.")
         return
 
-    n       = len(top)
+    label    = tf["label_en"]
+    window   = tf["window_en"]
+    n        = len(top)
     subtitle = (f"Top {n}" if n > 1 else "Today's") + " — Sorted by 1D Price Change"
     spark_narr = (
         f"Here {'are' if n > 1 else 'is'} the one-year price chart{'s' if n > 1 else ''} "
         f"for {'these' if n > 1 else 'this'} recent breakout{'s' if n > 1 else ''}. "
-        "The gold marker shows the one-year high that was crossed in the past two weeks, "
+        f"The gold marker shows the {label.lower()} high that was crossed in the past two weeks, "
         "and the blue dot marks today's price."
     )
 
     encode([
-        (scene_title("1-Year High Breakouts", "S&P 500  ·  Nasdaq-100", date,
-                     "First crossed in the past 2 weeks · 20%+ real pullback"), 4,
-         "Large-cap stocks breaking above their 1-year high for the first time in the past 2 weeks, after a 20%+ correction",
-         random.choice(_BREAKOUT_OPENERS_EN)),
-        (scene_breakout_table(top, date), 14,
+        (scene_title(f"{label} High Breakouts", "S&P 500  ·  Nasdaq-100", date,
+                     f"First crossed in the past 2 weeks · {tf['min_drawdown']}%+ real pullback"), 4,
+         f"Large-cap stocks breaking above their {label.lower()} high for the first time in the past 2 weeks",
+         random.choice(_BREAKOUT_OPENERS_EN) +
+         " Every Wednesday on this channel, we track large-caps breaking above their multi-month highs."
+         " Subscribe to follow these breakouts every week."),
+        (scene_breakout_table(top, date, tf=tf), 24,
          subtitle,
-         _narrate_breakout(top)),
-        (scene_breakout_sparklines(top, date), 7,
-         "1-year price trend — gold marker shows the 1-year high just crossed | baizora.com",
+         _narrate_breakout(top, tf=tf)),
+        (scene_breakout_sparklines(top, date,
+                                   peak_label=tf["high_hdr"]), 12,
+         f"1-year price trend — gold marker shows the {label.lower()} high just crossed | baizora.com",
          spark_narr),
-        (scene_1y_sort_promo(data, date), 10,
+        (scene_1y_sort_promo(data, date), 5,
          "Sort by any timeframe — 2W through 1Y — to find price leaders across S&P 500 & Nasdaq-100",
          "On Baizora, you can see how today's breakout stocks compare across every timeframe — "
          "from two weeks to one year. Sort by any column to find the leaders instantly. "
          "Visit baizora dot com."),
         (scene_screenshot(_SS_EN), 2),
-        (scene_outro(date), 5,
+        (scene_outro(date), 3,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
 
 
-def _narrate_breakout_cn(breakouts):
+def _narrate_breakout_cn(breakouts, tf=None):
+    label_cn = tf["label_cn"] if tf else "一年"
     parts = []
     for b in breakouts[:3]:
-        ticker   = b.get("Ticker", "")
-        chg      = b.get("PriceChange1D") or 0
-        pullback = b.get("_drawdown", 0)
+        ticker    = b.get("Ticker", "")
+        chg       = b.get("PriceChange1D") or 0
+        pullback  = b.get("_drawdown", 0)
         direction = "今日上涨" if chg >= 0 else "今日下跌"
         parts.append(f"{ticker}{direction}{abs(chg):.1f}%，此前回调{pullback:.0f}%")
     n = len(parts)
     if n >= 3:
-        return (f"近期一年新高突破——均在过去两周内首次突破："
+        return (f"近期{label_cn}新高突破——均在过去两周内首次突破："
                 f"{parts[0]}。{parts[1]}。{parts[2]}。")
     elif n == 2:
-        return (f"近期一年新高突破——均在过去两周内首次突破："
+        return (f"近期{label_cn}新高突破——均在过去两周内首次突破："
                 f"{parts[0]}。{parts[1]}。")
     elif n == 1:
-        return f"近期一年新高突破，过去两周内首次突破：{parts[0]}。"
+        return f"近期{label_cn}新高突破，过去两周内首次突破：{parts[0]}。"
     return ""
 
 
 def build_6m_breakout_cn(data, output):
     date      = data["date"]
-    breakouts = _compute_6m_breakouts(data["data"])
+    tf        = _wednesday_tf(date)
+    breakouts = _compute_breakouts(data["data"], tf)
     breakouts.sort(key=lambda x: x.get("PriceChange1D") or -9999, reverse=True)
     top       = breakouts[:3]
 
     if not top:
-        print("今日无一年新高突破股票，跳过。")
+        print(f"今日无{tf['label_cn']}新高突破股票，跳过。")
         return
 
-    n         = len(top)
+    label_cn   = tf["label_cn"]
+    window_cn  = tf["window_cn"]
+    title_cn   = tf["title_cn"]
+    n          = len(top)
     spark_narr = (
-        f"以下是今日{'前' + str(n) + '只' if n > 1 else ''}突破一年新高的股票年度走势图。"
-        "金色标记为此前一年高点，蓝色圆点为今日价格。"
+        f"以下是今日{'前' + str(n) + '只' if n > 1 else ''}突破{label_cn}新高的股票年度走势图。"
+        f"金色标记为此前{label_cn}高点，蓝色圆点为今日价格。"
     )
 
     encode([
-        (scene_title_cn("一年新高突破", "S&P 500  ·  纳斯达克100", date,
-                        "过去两周内首次突破 · 真实回调超20%"), 4,
-         "大盘股在经历20%以上真实回调后，过去两周内首次突破一年高点",
-         random.choice(_BREAKOUT_OPENERS_CN)),
-        (scene_breakout_table_cn(top, date), 17,
-         "按今日涨幅排序——在过去两周内突破一年高点",
-         _narrate_breakout_cn(top)),
+        (scene_title_cn(title_cn, "S&P 500  ·  纳斯达克100", date,
+                        f"过去两周内首次突破 · 真实回调超{tf['min_drawdown']}%"), 4,
+         f"大盘股在经历{tf['min_drawdown']}%以上真实回调后，过去两周内首次突破{label_cn}高点",
+         random.choice(_BREAKOUT_OPENERS_CN) +
+         "本频道每周三追踪突破多月高点的大盘股。订阅我们，每周跟进突破机会。"),
+        (scene_breakout_table_cn(top, date, tf=tf), 27,
+         f"按今日涨幅排序——在过去两周内突破{label_cn}高点",
+         _narrate_breakout_cn(top, tf=tf)),
         (scene_breakout_sparklines(top, date,
-                                   peak_label="年高点",
-                                   title=f"一年新高突破 — 年度走势  ({date})"), 7,
-         "年度价格走势 — 金色标记为突破的一年高点 | baizora.com",
+                                   peak_label=tf["peak_label_cn"],
+                                   title=f"{title_cn} — 年度走势  ({date})"), 12,
+         f"年度价格走势 — 金色标记为突破的{label_cn}高点 | baizora.com",
          spark_narr),
-        (scene_1y_sort_promo_cn(data, date), 10,
+        (scene_1y_sort_promo_cn(data, date), 5,
          "按任意时间维度排序 — 2周至1年 — 即时筛选S&P 500和纳斯达克100领涨股",
-         "在贝佐拉，可查看这些突破股票在每个时间维度的表现——从两周到一年。"
+         f"在贝佐拉，可查看这些突破股票在每个时间维度的表现——从两周到一年。"
          "按任意列排序，即时发现全市场领涨股。访问baizora.com。"),
         (scene_screenshot(_SS_CN), 2),
-        (scene_outro_cn(date), 5,
+        (scene_outro_cn(date), 3,
          "仅供参考，不构成投资建议 | baizora.com"),
     ], output, tts_voice="zh-CN-YunxiNeural")
 
@@ -2679,8 +2776,10 @@ def build_volume_spikes(data, output):
         (scene_title("Volume Spikes", "S&P 500  ·  Nasdaq-100", date,
                      "Unusual Activity — Highest 1-Day Volume Surge vs 21-Day Average"), 4,
          "Unusual volume can signal institutional activity, earnings reactions, or breaking news",
-         random.choice(_VOLUME_OPENERS_EN)),
-        (scene_volume_spikes(spikes, date), 14,
+         random.choice(_VOLUME_OPENERS_EN) +
+         " Every Monday on this channel, we cover unusual volume activity across the S&P 500 and Nasdaq-100."
+         " Subscribe so you never miss a week."),
+        (scene_volume_spikes(spikes, date), 24,
          "VOL/MA21 = today's volume vs 21-day average  |  values above 3x highlighted in gold",
          f"{_narrate_volume(spikes)}"),
         (scene_top3_sparklines(
@@ -2688,53 +2787,56 @@ def build_volume_spikes(data, output):
             "Want to see more? Visit baizora.com for the full S&P 500 & Nasdaq-100 analysis."), 5,
          "Top 3 volume spike leaders — 1-year trend | baizora.com for the full list",
          "Here are the one-year price trends for the top three volume spike stocks today."),
-        (scene_vol_sort_promo(data, date), 10,
+        (scene_vol_sort_promo(data, date), 5,
          "Sort by any period — 1D through 1Y — to find volume spikes across S&P 500 & Nasdaq-100",
-         "On Baizora, you can easily access this data for every timeframe — "
-         "from one day to one year. Sort by any column to instantly find the biggest volume spikes "
-         "across the full S&P 500 and Nasdaq-100 universe. Visit baizora dot com."),
+         "On Baizora, access volume spike data across every timeframe — sort by any column. "
+         "Visit baizora dot com."),
         (scene_screenshot(_SS_EN), 2),
-        (scene_outro(date), 5,
+        (scene_outro(date), 3,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
 
 
 _VOL_PEAK_OPENERS_EN = [
-    "When a stock records its biggest trading day of the entire past year, the market is paying attention.",
-    "Volume is the market's heartbeat — and today, these stocks are beating harder than any day in the past year.",
-    "What does it look like when a stock sees its highest trading volume of the year? This.",
-    "Today these large-caps aren't just busy — they're having their busiest trading day in twelve months.",
-    "Unusual volume is interesting. Record-breaking annual volume is something else entirely.",
-    "Something happened today that hasn't happened all year for these stocks — their volume broke the annual record.",
-    "The biggest trading days tell stories. Today's record annual volumes in the S&P 500 and Nasdaq-100.",
-    "Not every high-volume day is equal. These are the stocks setting their 1-year volume record right now.",
-    "When volume breaks a year-long record, institutions are moving. Here are today's examples.",
-    "Today's standout signal: large-cap stocks recording their highest single-day volume of the past twelve months.",
+    "When a stock records its biggest trading day of the past {window}, the market is paying attention.",
+    "Volume is the market's heartbeat — and today, these stocks are beating harder than any day in the past {window}.",
+    "What does it look like when a stock sees its highest trading volume in {window}? This.",
+    "Today these large-caps aren't just busy — they're having their busiest trading day in {window}.",
+    "Unusual volume is interesting. Record-breaking volume over {window} is something else entirely.",
+    "Something happened today that hasn't happened in {window} for these stocks — their volume broke the record.",
+    "The biggest trading days tell stories. Today's {window} volume records in the S&P 500 and Nasdaq-100.",
+    "Not every high-volume day is equal. These are the stocks setting their {window} volume record right now.",
+    "When volume breaks a {window} record, institutions are moving. Here are today's examples.",
+    "Today's standout signal: large-cap stocks recording their highest single-day volume of the past {window}.",
 ]
 
 
-def _narrate_vol_peak(rows):
+def _narrate_vol_peak(rows, tf=None):
+    key    = tf["vol_chg_key"] if tf else "1YMaxVolumeChange"
+    label  = tf["label_en"].lower() if tf else "1-year"
+    window = tf["window_en"] if tf else "twelve months"
     top = rows[:3]
     parts = []
     for r in top:
-        ticker = r.get("Ticker", "")
-        vol_chg = r.get("1YMaxVolumeChange") or 0
+        ticker  = r.get("Ticker", "")
+        vol_chg = r.get(key) or 0
         parts.append(f"{ticker} with a volume surge of {abs(vol_chg):.0f} percent")
     n = len(parts)
     if n >= 3:
-        return (f"Today's 1-year volume records: {parts[0]}, {parts[1]}, and {parts[2]}. "
-                f"Each is recording its single largest trading day of the past twelve months.")
+        return (f"Today's {label} volume records: {parts[0]}, {parts[1]}, and {parts[2]}. "
+                f"Now let's look at their price charts.")
     elif n == 2:
-        return (f"Today's 1-year volume records: {parts[0]} and {parts[1]}. "
-                f"Both are recording their largest trading day of the past twelve months.")
+        return (f"Today's {label} volume records: {parts[0]} and {parts[1]}. "
+                f"Now let's look at their price charts.")
     elif n == 1:
-        return (f"Today's 1-year volume record: {parts[0]}. "
-                f"Its single largest trading day of the past twelve months.")
+        return (f"Today's {label} volume record: {parts[0]}. "
+                f"Now let's look at the price chart.")
     return ""
 
 
 def build_1y_vol_peak(data, output):
     date  = data["date"]
+    tf    = _thursday_tf(date)
     seen  = set()
     peaks = []
     for r in data["data"]:
@@ -2742,76 +2844,84 @@ def build_1y_vol_peak(data, output):
         if t in seen:
             continue
         seen.add(t)
-        if r.get("1YMaxVolumeChangeDay") == 0:
+        if r.get(tf["vol_day_key"]) == 0:
             peaks.append(r)
-    peaks.sort(key=lambda r: r.get("1YMaxVolumeChange") or 0, reverse=True)
+    peaks.sort(key=lambda r: r.get(tf["vol_chg_key"]) or 0, reverse=True)
     top = peaks[:3]
 
     if not top:
-        print("No 1-year volume peak stocks found today, skipping.")
+        print(f"No {tf['label_en']} volume peak stocks found today, skipping.")
         return
 
-    n = len(top)
+    label  = tf["label_en"]
+    window = tf["window_en"]
     encode([
-        (scene_title("1-Year Volume Records", "S&P 500  ·  Nasdaq-100", date,
-                     "Stocks recording their highest single-day volume of the past year"), 4,
-         "Large-cap stocks setting a new 1-year volume record today",
-         random.choice(_VOL_PEAK_OPENERS_EN)),
-        (scene_volume_spikes(top, date), 14,
+        (scene_title(tf["title_en"], "S&P 500  ·  Nasdaq-100", date,
+                     tf["subtitle_en"]), 4,
+         f"Large-cap stocks setting a new {label.lower()} volume record today",
+         random.choice(_VOL_PEAK_OPENERS_EN).format(window=window) +
+         f" Every Thursday on this channel, we rotate through different timeframes to find"
+         f" stocks recording their biggest single-day volume — this week, the past {window}."
+         " Subscribe so you never miss this signal."),
+        (scene_volume_spikes(top, date), 24,
          "VOL/MA21 = today's volume vs 21-day average  |  values above 3x highlighted in gold",
-         _narrate_vol_peak(top)),
+         _narrate_vol_peak(top, tf)),
         (scene_top3_sparklines(
-            f"1-Year Volume Records — Price Trend  ({date})", top, date,
+            f"{label} Volume Records — Price Trend  ({date})", top, date,
             "Want to see more? Visit baizora.com for the full S&P 500 & Nasdaq-100 analysis."), 5,
-         "1-year price trend for today's record-volume stocks | baizora.com",
-         "Here are the one-year price trends for today's record-volume stocks."),
-        (scene_vol_sort_promo(data, date), 10,
-         "Sort by any period — 1D through 1Y — to find volume spikes across S&P 500 & Nasdaq-100",
-         "On Baizora, you can track volume data across every timeframe — from one day to one year. "
-         "Sort by any column to instantly find the biggest volume moves in the S&P 500 and Nasdaq-100. "
+         f"{label} volume record stocks — 1-year price trend | baizora.com",
+         f"Here are the one-year price trends for today's {label.lower()} record-volume stocks."),
+        (scene_vol_sort_promo(data, date, tf), 5,
+         f"Sort by any period — 1M through 1Y — to compare {label} volume records across S&P 500 & Nasdaq-100",
+         f"On Baizora, see how today's {label.lower()} volume record stocks compare across every timeframe — "
+         "from 1 month to 1 year. Sort by any column to find the biggest volume movers. "
          "Visit baizora dot com."),
         (scene_screenshot(_SS_EN), 2),
-        (scene_outro(date), 5,
+        (scene_outro(date), 3,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
 
 
 _VOL_PEAK_OPENERS_CN = [
-    "当一只股票创下过去一年最大单日成交量，市场正在释放重要信号。",
-    "成交量是市场的心跳——今天，这些股票的心跳比过去整整一年都要强劲。",
-    "什么样的成交量算是真正的异动？突破全年记录，就是答案。",
-    "今天，这些大盘股不只是交易活跃——而是创下了过去十二个月的最高成交量。",
-    "普通的大成交量值得关注，创年内纪录的成交量则意味着完全不同的事情。",
-    "今天发生了一件今年从未有过的事——这些股票的成交量突破了年内历史记录。",
-    "最大的成交日往往在讲述一个故事。今天，这些S&P 500和纳斯达克100股票刷新了年内成交量。",
-    "不是所有的大成交量都相同。这些股票正在创下过去一年的成交量记录。",
-    "当成交量打破年度纪录，机构资金正在行动。今天的案例就在这里。",
-    "今日最值得关注的信号：这些大盘股正在创下过去十二个月的最大单日成交量。",
+    "当一只股票创下过去{window}最大单日成交量，市场正在释放重要信号。",
+    "成交量是市场的心跳——今天，这些股票的心跳比过去{window}都要强劲。",
+    "什么样的成交量算是真正的异动？突破{window}记录，就是答案。",
+    "今天，这些大盘股不只是交易活跃——而是创下了过去{window}的最高成交量。",
+    "普通的大成交量值得关注，创{window}纪录的成交量则意味着完全不同的事情。",
+    "今天发生了一件{window}以来从未有过的事——这些股票的成交量突破了历史记录。",
+    "最大的成交日往往在讲述一个故事。今天，这些S&P 500和纳斯达克100股票刷新了{window}成交量记录。",
+    "不是所有的大成交量都相同。这些股票正在创下过去{window}的成交量记录。",
+    "当成交量打破{window}纪录，机构资金正在行动。今天的案例就在这里。",
+    "今日最值得关注的信号：这些大盘股正在创下过去{window}的最大单日成交量。",
 ]
 
 
-def _narrate_vol_peak_cn(rows):
+def _narrate_vol_peak_cn(rows, tf=None):
+    key      = tf["vol_chg_key"] if tf else "1YMaxVolumeChange"
+    label_cn = tf["label_cn"] if tf else "年度"
+    window_cn = tf["window_cn"] if tf else "十二个月"
     top = rows[:3]
     parts = []
     for r in top:
-        ticker = r.get("Ticker", "")
-        vol_chg = r.get("1YMaxVolumeChange") or 0
+        ticker  = r.get("Ticker", "")
+        vol_chg = r.get(key) or 0
         parts.append(f"{ticker}，成交量放大{abs(vol_chg):.0f}%")
     n = len(parts)
     if n >= 3:
-        return (f"今日年度成交量记录：{parts[0]}；{parts[1]}；{parts[2]}。"
-                f"这三只股票均创下过去十二个月的最大单日成交量。")
+        return (f"今日{label_cn}成交量记录：{parts[0]}；{parts[1]}；{parts[2]}。"
+                f"下面来看它们的价格走势。")
     elif n == 2:
-        return (f"今日年度成交量记录：{parts[0]}；{parts[1]}。"
-                f"两只股票均创下过去十二个月的最大单日成交量。")
+        return (f"今日{label_cn}成交量记录：{parts[0]}；{parts[1]}。"
+                f"下面来看它们的价格走势。")
     elif n == 1:
-        return (f"今日年度成交量记录：{parts[0]}。"
-                f"创下过去十二个月的最大单日成交量。")
+        return (f"今日{label_cn}成交量记录：{parts[0]}。"
+                f"下面来看价格走势。")
     return ""
 
 
 def build_1y_vol_peak_cn(data, output):
     date  = data["date"]
+    tf    = _thursday_tf(date)
     seen  = set()
     peaks = []
     for r in data["data"]:
@@ -2819,37 +2929,38 @@ def build_1y_vol_peak_cn(data, output):
         if t in seen:
             continue
         seen.add(t)
-        if r.get("1YMaxVolumeChangeDay") == 0:
+        if r.get(tf["vol_day_key"]) == 0:
             peaks.append(r)
-    peaks.sort(key=lambda r: r.get("1YMaxVolumeChange") or 0, reverse=True)
+    peaks.sort(key=lambda r: r.get(tf["vol_chg_key"]) or 0, reverse=True)
     top = peaks[:3]
 
     if not top:
-        print("No 1-year volume peak stocks found today, skipping.")
+        print(f"今日无{tf['label_cn']}成交量记录股票，跳过。")
         return
 
+    label_cn  = tf["label_cn"]
+    window_cn = tf["window_cn"]
     encode([
-        (scene_title_cn("年度成交量记录", "S&P 500  ·  纳斯达克100", date,
-                        "大盘股创下过去一年最大单日成交量 — 贝佐拉"), 6,
-         "S&P 500 + 纳斯达克100 大盘股创年度成交量记录 — 贝佐拉",
-         random.choice(_VOL_PEAK_OPENERS_CN)),
-        (scene_volume_spikes_cn(top, date), 19,
+        (scene_title_cn(tf["title_cn"], "S&P 500  ·  纳斯达克100", date,
+                        tf["subtitle_cn"]), 6,
+         f"S&P 500 + 纳斯达克100 大盘股创{label_cn}成交量记录 — 贝佐拉",
+         random.choice(_VOL_PEAK_OPENERS_CN).format(window=window_cn) +
+         f"本频道每周四轮换不同时间维度，报道创下阶段最大单日成交量的大盘股——本周聚焦过去{window_cn}。"
+         "订阅我们，不错过任何重要信号。"),
+        (scene_volume_spikes_cn(top, date), 24,
          "量/MA21 = 今日成交量 / 21日均量  |  超过3倍的用金色高亮显示",
-         f"{_narrate_vol_peak_cn(top)}"
-         "量除以MA21超过三倍的用金色高亮显示，代表极度异常的交易活动。"
-         "年内最大成交量往往预示着机构资金的大规模进出或重大事件的发生。"),
+         _narrate_vol_peak_cn(top, tf)),
         (scene_top3_sparklines(
-            f"年度成交量记录 — 年度价格走势  ({date})", top, date,
-            "想了解更多？访问baizora.com获取S&P 500和纳斯达克100完整分析。"), 7,
-         "年度成交量记录前三股票的一年走势 | 更多数据请访问baizora.com",
-         "这是今日创年度成交量记录的前三名股票的年度走势图。"
+            f"{label_cn}成交量记录 — 年度价格走势  ({date})", top, date,
+            "想了解更多？访问baizora.com获取S&P 500和纳斯达克100完整分析。"), 12,
+         f"{label_cn}成交量记录前三股票的一年走势 | 更多数据请访问baizora.com",
+         f"这是今日创{label_cn}成交量记录的前三名股票的年度走势图。"
          "每条曲线展示了过去一年的完整价格轨迹，帮助您判断成交量异动背后的价格趋势。"),
-        (scene_vol_sort_promo_cn(data, date), 10,
-         "按任意时间维度排序 — 1天至1年 — 即时筛选S&P 500和纳斯达克100成交量异动",
-         "在贝佐拉，可轻松查看每个时间维度的成交量数据——从一天到一年。"
-         "按任意列排序，即时发现S&P 500和纳斯达克100全市场最大成交量异动。访问baizora.com。"),
+        (scene_vol_sort_promo_cn(data, date, tf), 5,
+         "按任意时间维度排序 — 1月至1年 — 即时发现S&P 500和纳斯达克100全市场最大成交量异动",
+         "在贝佐拉，可查看股票在各时间维度的成交量表现——从一个月到一年。按任意列排序。访问baizora.com。"),
         (scene_screenshot(_SS_CN), 2),
-        (scene_outro_cn(date), 5,
+        (scene_outro_cn(date), 3,
          "仅供参考，不构成投资建议 | baizora.com"),
     ], output, tts_voice="zh-CN-YunxiNeural")
 
@@ -3215,11 +3326,11 @@ def scene_spotlight_sparkline(member, scan_date):
 
 
 def scene_index_changes_promo(date):
-    """Promo scene — centered text layout, no table."""
+    """Promo scene — centered text layout, emphasizes membership news & history."""
     img, draw = new_frame()
     accent = ELECTRIC
 
-    top_bar(draw, f"Track Index Membership Changes  ({date})", date)
+    top_bar(draw, f"Index Membership News & History  ({date})", date)
 
     cx = W // 2
     y  = 180
@@ -3230,23 +3341,21 @@ def scene_index_changes_promo(date):
     y += 44
 
     f_title = load_font(52, bold=True)
-    for line in _wrap_text(draw, "Track Every Index Addition & Removal", f_title, W - 240):
+    for line in _wrap_text(draw, "Index Changes — News & Price History", f_title, W - 240):
         draw.text((cx - tw(draw, line, f_title) // 2, y), line, font=f_title, fill=WHITE)
         y += th(draw, "Ag", f_title) + 12
-    y += 10
+    y += 46
 
-    y += 36
-
-    body = (
-        "When a stock joins the S&P 500 or Nasdaq-100, passive funds are required to own it. "
-        "Baizora tracks every addition and removal with full price history since the move."
-    )
-    f_body = load_font(28)
-    max_w  = W - 320
-    for line in _wrap_text(draw, body, f_body, max_w):
-        draw.text((cx - tw(draw, line, f_body) // 2, y), line, font=f_body, fill=MUTED)
-        y += th(draw, "Ag", f_body) + 10
-    y += 30
+    bullets = [
+        "◆  Announcements typically come 1+ week before actual inclusion",
+        "◆  Curated feed — no noise, only what matters",
+        "◆  Full price history tracked from the day they join",
+    ]
+    f_bullet = load_font(26)
+    for b in bullets:
+        draw.text((_LP_X + 80, y), b, font=f_bullet, fill=MUTED)
+        y += th(draw, "Ag", f_bullet) + 14
+    y += 24
 
     f_cta = load_font(32, bold=True)
     cta   = "baizora.com — 7-day free trial, totally free to start"
@@ -3296,11 +3405,10 @@ def _narrate_spotlight(member):
 
 
 def _narrate_spotlight_promo():
-    """~34-word narration for the 10s promo scene."""
     return (
-        "Baizora tracks every S&P 500 and Nasdaq-100 addition and removal in real time, "
-        "with full performance history since the move. "
-        "Visit baizora dot com — seven-day free trial, totally free to start."
+        "Index changes are typically announced a week before they happen. "
+        "Baizora's curated feed cuts through the noise — so you can act early. "
+        "Visit baizora dot com."
     )
 
 
@@ -3414,18 +3522,21 @@ def build_index_spotlight(data, output):
         (scene_title("Index Spotlight", idx, date,
                      f"New member performance — {ticker}"), 4,
          f"Tracking {ticker} since joining the {idx}",
-         random.choice(_SPOTLIGHT_OPENERS_EN)),
-        (scene_index_spotlight(member, date), 16,
+         random.choice(_SPOTLIGHT_OPENERS_EN) +
+         " Every Friday on this channel, we spotlight a new S&P 500 or Nasdaq-100 member"
+         " and track how it has performed since joining. Subscribe to follow along each week."),
+        (scene_index_spotlight(member, date), 21,
          f"{ticker} — joined {idx} on {member['join_date']}",
          _narrate_spotlight(member)),
         (scene_spotlight_sparkline(member, date), 12,
          "One-year price chart — triangle = join date, circle = today",
          _narrate_spotlight_spark(member)),
-        (scene_index_changes_promo(date), 10,
-         "Track all S&P 500 & Nasdaq-100 index changes at baizora.com",
+        (scene_index_changes_promo(date), 6,
+         "Index membership news & full price history — baizora.com",
          _narrate_spotlight_promo()),
-        (scene_screenshot(_SS_EN), 2),
-        (scene_outro(date), 5,
+        (scene_screenshot(_SS_MEMBERSHIP_NEWS), 2),
+        (scene_screenshot(_SS_MEMBERSHIP_CHANGE), 2),
+        (scene_outro(date), 3,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
 
@@ -3479,11 +3590,10 @@ def _narrate_spotlight_cn(member):
 
 
 def _narrate_spotlight_promo_cn():
-    """~30字旁白，适配10秒推广场景。"""
     return (
-        "贝佐拉实时追踪标普500和纳斯达克100每一次成分股变动，"
-        "并记录纳入后的完整价格走势。"
-        "访问baizora.com，免费体验七天。"
+        "成分股变动通常提前一周以上公告。"
+        "贝佐拉精选资讯，过滤噪音，让您提前掌握动向。"
+        "访问baizora.com。"
     )
 
 
@@ -3492,7 +3602,7 @@ def scene_index_changes_promo_cn(date):
     img, draw = new_frame()
     accent = ELECTRIC
 
-    top_bar(draw, f"追踪指数成分股变动  ({date})", date)
+    top_bar(draw, f"成分股变动资讯与价格走势  ({date})", date)
 
     cx = W // 2
     y  = 180
@@ -3503,21 +3613,21 @@ def scene_index_changes_promo_cn(date):
     y += 44
 
     f_title = load_font_cn(52, bold=True)
-    for line in _wrap_text(draw, "实时追踪每一次指数成分股变动", f_title, W - 240):
+    for line in _wrap_text(draw, "成分股变动 — 资讯与价格走势", f_title, W - 240):
         draw.text((cx - tw(draw, line, f_title) // 2, y), line, font=f_title, fill=WHITE)
         y += th(draw, "一", f_title) + 18
     y += 36
 
-    body = (
-        "当股票加入标普500或纳斯达克100，被动基金必须买入。"
-        "贝佐拉追踪每次成分股变动，并提供完整的纳入后价格走势记录。"
-    )
-    f_body = load_font_cn(28)
-    max_w  = W - 320
-    for line in _wrap_text(draw, body, f_body, max_w):
-        draw.text((cx - tw(draw, line, f_body) // 2, y), line, font=f_body, fill=MUTED)
-        y += th(draw, "一", f_body) + 10
-    y += 30
+    bullets_cn = [
+        "◆  成分股变动通常提前一周以上公告",
+        "◆  精选资讯，过滤噪音，只保留关键信息",
+        "◆  从纳入之日起完整追踪价格走势",
+    ]
+    f_bullet = load_font_cn(26)
+    for b in bullets_cn:
+        draw.text((_LP_X + 80, y), b, font=f_bullet, fill=MUTED)
+        y += th(draw, "一", f_bullet) + 14
+    y += 24
 
     f_cta = load_font_cn(32, bold=True)
     cta   = "baizora.com — 七天免费体验"
@@ -3545,40 +3655,183 @@ def build_index_spotlight_cn(data, output):
         (scene_title_cn("指数聚焦", idx_cn, date,
                         f"新成员表现追踪 — {ticker}"), 4,
          f"追踪{ticker}自加入{idx_cn}后的表现",
-         random.choice(_SPOTLIGHT_OPENERS_CN)),
-        (scene_index_spotlight_cn(member, date), 16,
+         random.choice(_SPOTLIGHT_OPENERS_CN) +
+         "本频道每周五聚焦一只新晋指数成员，追踪其纳入后的完整表现。订阅我们，每周跟进。"),
+        (scene_index_spotlight_cn(member, date), 21,
          f"{ticker} — 于{member['join_date']}加入{idx_cn}",
          _narrate_spotlight_cn(member)),
         (scene_spotlight_sparkline(member, date), 12,
          "一年期价格走势图 — 金色三角为纳入日期，圆点为今日 | baizora.com",
          _narrate_spotlight_spark_cn(member)),
-        (scene_index_changes_promo_cn(date), 10,
-         "在贝佐拉追踪标普500和纳斯达克100全部成分股变动",
+        (scene_index_changes_promo_cn(date), 6,
+         "成分股变动资讯与完整价格走势 — baizora.com",
          _narrate_spotlight_promo_cn()),
-        (scene_screenshot(_SS_CN), 2),
-        (scene_outro_cn(date), 5,
+        (scene_screenshot(_SS_MEMBERSHIP_NEWS), 2),
+        (scene_screenshot(_SS_MEMBERSHIP_CHANGE), 2),
+        (scene_outro_cn(date), 3,
          "仅供参考，不构成投资建议 | baizora.com"),
     ], output, tts_voice="zh-CN-YunxiNeural")
 
 
-_1Y_OPENERS_EN = [
-    "Which large-cap stocks have delivered the strongest returns over the past year? The answer might surprise you.",
-    "A lot can happen in twelve months. Here are the stocks that made the most of it.",
-    "Past performance doesn't predict the future — but it does reveal who's been winning. Today's top 1-year performers.",
-    "If you had bought these stocks a year ago, here's where you'd be today.",
-    "The market always has winners. Over the last twelve months, these large-cap stocks led the pack.",
-    "Momentum leaves a trail. Here are the S&P 500 and Nasdaq-100 stocks with the strongest trailing-year gains.",
-    "What does a year of outperformance look like? These stocks have the answer.",
-    "Not all large-caps are created equal. Over the past year, these names stood far above the rest.",
-    "Sometimes the best signal is simply who has been winning — consistently, over time. Today's 1-year leaders.",
-    "The market rewards some stocks more than others. Here's who's been at the top over the last twelve months.",
+TUESDAY_TF_ROTATION = [
+    {
+        "key": "2WPriceChange",  "label_en": "2-Week",    "label_short": "2W",
+        "window_en": "two weeks",     "label_cn": "两周",   "window_cn": "两周",
+        "title_cn": "两周最强大盘股",   "rank_cn": "两周涨幅前三",  "spark_days": 10,
+    },
+    {
+        "key": "1MPriceChange",  "label_en": "1-Month",   "label_short": "1M",
+        "window_en": "one month",     "label_cn": "一个月", "window_cn": "一个月",
+        "title_cn": "一个月最强大盘股", "rank_cn": "一个月涨幅前三", "spark_days": 21,
+    },
+    {
+        "key": "3MPriceChange",  "label_en": "3-Month",   "label_short": "3M",
+        "window_en": "three months",  "label_cn": "三个月", "window_cn": "三个月",
+        "title_cn": "三个月最强大盘股", "rank_cn": "三个月涨幅前三", "spark_days": 63,
+    },
+    {
+        "key": "6MPriceChange",  "label_en": "6-Month",   "label_short": "6M",
+        "window_en": "six months",    "label_cn": "六个月", "window_cn": "六个月",
+        "title_cn": "六个月最强大盘股", "rank_cn": "六个月涨幅前三", "spark_days": 126,
+    },
+    {
+        "key": "9MPriceChange",  "label_en": "9-Month",   "label_short": "9M",
+        "window_en": "nine months",   "label_cn": "九个月", "window_cn": "九个月",
+        "title_cn": "九个月最强大盘股", "rank_cn": "九个月涨幅前三", "spark_days": 189,
+    },
+    {
+        "key": "1YPriceChange",  "label_en": "1-Year",    "label_short": "1Y",
+        "window_en": "twelve months", "label_cn": "一年",  "window_cn": "十二个月",
+        "title_cn": "一年最强大盘股",  "rank_cn": "一年涨幅前三",  "spark_days": None,
+    },
+]
+
+
+def _tuesday_tf(date_str):
+    """Pick Tuesday TF rotation slot: 2W->1M->3M->6M->9M->1Y, cycling by ISO week number."""
+    d = datetime.date.fromisoformat(date_str)
+    return TUESDAY_TF_ROTATION[d.isocalendar()[1] % 6]
+
+
+WEDNESDAY_TF_ROTATION = [
+    {
+        "label_en": "1-Month",  "label_short": "1M",  "window_en": "one month",
+        "label_cn": "一个月",    "window_cn": "一个月",   "spark_days": 21,
+        "high_hdr": "1M HIGH",  "high_hdr_cn": "月高价",    "peak_label_cn": "月高点",
+        "title_cn": "一月新高突破",  "min_drawdown": 10,
+    },
+    {
+        "label_en": "3-Month",  "label_short": "3M",  "window_en": "three months",
+        "label_cn": "三个月",    "window_cn": "三个月",   "spark_days": 63,
+        "high_hdr": "3M HIGH",  "high_hdr_cn": "三月高价",  "peak_label_cn": "三月高点",
+        "title_cn": "三月新高突破",  "min_drawdown": 10,
+    },
+    {
+        "label_en": "6-Month",  "label_short": "6M",  "window_en": "six months",
+        "label_cn": "六个月",    "window_cn": "六个月",   "spark_days": 126,
+        "high_hdr": "6M HIGH",  "high_hdr_cn": "六月高价",  "peak_label_cn": "六月高点",
+        "title_cn": "六月新高突破",  "min_drawdown": 10,
+    },
+    {
+        "label_en": "9-Month",  "label_short": "9M",  "window_en": "nine months",
+        "label_cn": "九个月",    "window_cn": "九个月",   "spark_days": 189,
+        "high_hdr": "9M HIGH",  "high_hdr_cn": "九月高价",  "peak_label_cn": "九月高点",
+        "title_cn": "九月新高突破",  "min_drawdown": 10,
+    },
+    {
+        "label_en": "1-Year",   "label_short": "1Y",  "window_en": "twelve months",
+        "label_cn": "一年",      "window_cn": "十二个月", "spark_days": None,
+        "high_hdr": "1Y HIGH",  "high_hdr_cn": "年高价",    "peak_label_cn": "年高点",
+        "title_cn": "一年新高突破",  "min_drawdown": 10,
+    },
+]
+
+
+def _wednesday_tf(date_str):
+    """Pick Wednesday TF rotation: 1M->3M->6M->9M->1Y, cycling by ISO week number."""
+    d = datetime.date.fromisoformat(date_str)
+    return WEDNESDAY_TF_ROTATION[d.isocalendar()[1] % 5]
+
+
+THURSDAY_TF_ROTATION = [
+    {
+        "label_en": "1-Month",  "label_short": "1M",  "window_en": "one month",
+        "label_cn": "一个月",    "window_cn": "一个月",
+        "vol_day_key": "1MMaxVolumeChangeDay",  "vol_chg_key": "1MMaxVolumeChange",
+        "spark_days": 21,
+        "title_en": "1-Month Volume Records",
+        "title_cn": "月度成交量记录",
+        "subtitle_en": "Stocks recording their highest single-day volume of the past month",
+        "subtitle_cn": "大盘股创下过去一个月最大单日成交量 — 贝佐拉",
+    },
+    {
+        "label_en": "3-Month",  "label_short": "3M",  "window_en": "three months",
+        "label_cn": "三个月",    "window_cn": "三个月",
+        "vol_day_key": "3MMaxVolumeChangeDay",  "vol_chg_key": "3MMaxVolumeChange",
+        "spark_days": 63,
+        "title_en": "3-Month Volume Records",
+        "title_cn": "三月成交量记录",
+        "subtitle_en": "Stocks recording their highest single-day volume of the past 3 months",
+        "subtitle_cn": "大盘股创下过去三个月最大单日成交量 — 贝佐拉",
+    },
+    {
+        "label_en": "6-Month",  "label_short": "6M",  "window_en": "six months",
+        "label_cn": "六个月",    "window_cn": "六个月",
+        "vol_day_key": "6MMaxVolumeChangeDay",  "vol_chg_key": "6MMaxVolumeChange",
+        "spark_days": 126,
+        "title_en": "6-Month Volume Records",
+        "title_cn": "半年成交量记录",
+        "subtitle_en": "Stocks recording their highest single-day volume of the past 6 months",
+        "subtitle_cn": "大盘股创下过去六个月最大单日成交量 — 贝佐拉",
+    },
+    {
+        "label_en": "9-Month",  "label_short": "9M",  "window_en": "nine months",
+        "label_cn": "九个月",    "window_cn": "九个月",
+        "vol_day_key": "9MMaxVolumeChangeDay",  "vol_chg_key": "9MMaxVolumeChange",
+        "spark_days": 189,
+        "title_en": "9-Month Volume Records",
+        "title_cn": "九月成交量记录",
+        "subtitle_en": "Stocks recording their highest single-day volume of the past 9 months",
+        "subtitle_cn": "大盘股创下过去九个月最大单日成交量 — 贝佐拉",
+    },
+    {
+        "label_en": "1-Year",   "label_short": "1Y",  "window_en": "twelve months",
+        "label_cn": "一年",      "window_cn": "十二个月",
+        "vol_day_key": "1YMaxVolumeChangeDay",  "vol_chg_key": "1YMaxVolumeChange",
+        "spark_days": None,
+        "title_en": "1-Year Volume Records",
+        "title_cn": "年度成交量记录",
+        "subtitle_en": "Stocks recording their highest single-day volume of the past year",
+        "subtitle_cn": "大盘股创下过去一年最大单日成交量 — 贝佐拉",
+    },
+]
+
+
+def _thursday_tf(date_str):
+    """Pick Thursday TF rotation: 1M->3M->6M->9M->1Y, cycling by ISO week number."""
+    d = datetime.date.fromisoformat(date_str)
+    return THURSDAY_TF_ROTATION[d.isocalendar()[1] % 5]
+
+
+_TF_OPENERS_EN = [
+    "Which large-cap stocks have delivered the strongest returns over the past {window}? The answer might surprise you.",
+    "A lot can happen in {window}. Here are the stocks that made the most of it.",
+    "Past performance doesn't predict the future — but it does reveal who's been winning. Today's top {window} performers.",
+    "If you had bought these stocks {window} ago, here's where you'd be today.",
+    "The market always has winners. Over the last {window}, these large-cap stocks led the pack.",
+    "Momentum leaves a trail. Here are the S&P 500 and Nasdaq-100 stocks with the strongest trailing-{window} gains.",
+    "What does {window} of outperformance look like? These stocks have the answer.",
+    "Not all large-caps are created equal. Over the past {window}, these names stood far above the rest.",
+    "Sometimes the best signal is simply who has been winning — consistently, over time. Today's {window} leaders.",
+    "The market rewards some stocks more than others. Here's who's been at the top over the last {window}.",
 ]
 
 
 def build_extreme_1y(data, output):
     date    = data["date"]
+    tf      = _tuesday_tf(date)
     gainers = sorted(data["data"],
-                     key=lambda r: r.get("1YPriceChange") or -9999, reverse=True)[:10]
+                     key=lambda r: r.get(tf["key"]) or -9999, reverse=True)[:10]
 
     def _fmt_gain(v):
         v = abs(v)
@@ -3586,42 +3839,49 @@ def build_extreme_1y(data, output):
             return f"{round(v / 100):.0f} times"
         return f"{v:.0f} percent"
 
-    def _narrate_1y(rows):
+    def _narrate_tf(rows):
         top = rows[:3]
         parts = []
         for r in top:
             ticker = r.get("Ticker", "")
-            v      = r.get("1YPriceChange") or 0
+            v      = r.get(tf["key"]) or 0
             parts.append(f"{ticker} up {_fmt_gain(v)}")
         if len(parts) >= 2:
-            return ("Top twelve-month performers: "
+            return (f"Top {tf['label_en'].lower()} performers: "
                     + ", ".join(parts[:-1]) + f", and {parts[-1]}.")
         elif parts:
-            return f"Top twelve-month performer: {parts[0]}."
+            return f"Top {tf['label_en'].lower()} performer: {parts[0]}."
         return ""
 
+    label  = tf["label_en"]
+    window = tf["window_en"]
+    opener = (random.choice(_TF_OPENERS_EN).format(window=window) +
+              " On this channel, every Tuesday, we cover the best performers across different timeframes. "
+              "Subscribe so you never miss an update.")
+
     encode([
-        (scene_title("1-Year Best Performers", "S&P 500  ·  Nasdaq-100", date,
-                     "Large-Cap Leaders — Trailing 12 Months"), 4,
-         "Best large-cap stocks over the past 12 months — S&P 500 + Nasdaq-100",
-         random.choice(_1Y_OPENERS_EN)),
-        (scene_movers_table(f"Top 3 Gainers — 1 Year  ({date})", gainers, date,
+        (scene_title(f"{label} Best Performers", "S&P 500  ·  Nasdaq-100", date,
+                     f"Large-Cap Leaders — Trailing {label}"), 4,
+         f"Best large-cap stocks over the past {window} — S&P 500 + Nasdaq-100",
+         opener),
+        (scene_movers_table(f"Top 3 Gainers — {label}  ({date})", gainers, date,
                             max_rows=3,
-                            cta_text="Want to see all top 1-year performers? Visit baizora.com — Free 7-day trial."), 12,
-         "S&P 500 + Nasdaq-100 stocks — highest trailing 12-month price appreciation",
-         f"{_narrate_1y(gainers)}"),
+                            cta_text=f"Want to see all top {label.lower()} performers? Visit baizora.com — Free 7-day trial.",
+                            tf=tf), 17,
+         f"S&P 500 + Nasdaq-100 stocks — highest trailing {window} price appreciation",
+         f"{_narrate_tf(gainers)}"),
         (scene_top3_sparklines(
-            f"1-Year Leaders — Price Trend  ({date})", gainers, date,
-            "Want to see more? Visit baizora.com for the full S&P 500 & Nasdaq-100 analysis."), 5,
-         "Top 3 one-year leaders — trailing 12-month price trend",
-         "Here are the one-year price charts for today's top three performers."),
-        (scene_1y_sort_promo(data, date), 10,
+            f"{label} Leaders — Price Trend  ({date})", gainers, date,
+            "Want to see more? Visit baizora.com for the full S&P 500 & Nasdaq-100 analysis.", tf=tf), 5,
+         f"Top 3 {label.lower()} leaders — trailing {window} price trend",
+         f"Here are the {window} price charts for today's top three performers."),
+        (scene_1y_sort_promo(data, date, tf), 5,
          "Sort by any timeframe — 2W through 1Y — to find price leaders across S&P 500 & Nasdaq-100",
-         "On Baizora, you can see how the top 1-year performers stack up across every timeframe — "
-         "from two weeks to nine months. Sort by any column to find the leaders instantly. "
+         f"On Baizora, you can see how the top {label.lower()} performers compare across every timeframe — "
+         "from two weeks to one year. Sort by any column to find the leaders instantly. "
          "Visit baizora dot com."),
         (scene_screenshot(_SS_EN), 2),
-        (scene_outro(date), 5,
+        (scene_outro(date), 3,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
 
@@ -3718,24 +3978,25 @@ def build_platform_intro(data, output):
     encode(frames, output)
 
 
-_1Y_OPENERS_CN = [
-    "过去一年，哪些大盘股的涨幅最为惊人？",
-    "如果一年前买入这些股票，今天的收益会让你惊讶。",
-    "市场总是在奖励赢家——过去十二个月，这些股票遥遥领先。",
-    "在S&P 500和纳斯达克100中，谁是过去一年真正的赢家？",
-    "强势的股票会持续强势吗？先来看看过去一年的领涨榜。",
-    "一年的时间能发生很多事。这些大盘股把握住了机会。",
-    "动能会留下痕迹。这是S&P 500和纳斯达克100过去一年涨幅最大的股票。",
-    "不是所有大盘股都一样。过去一年，这些名字远超其他股票。",
-    "今天，让我们来看看十二个月里表现最突出的大盘股。",
-    "有时候，最好的信号就是谁一直在赢。以下是今天的一年领涨榜。",
+_TF_OPENERS_CN = [
+    "过去{window}，哪些大盘股的涨幅最为惊人？",
+    "如果{window}前买入这些股票，今天的收益会让你惊讶。",
+    "市场总是在奖励赢家——过去{window}，这些股票遥遥领先。",
+    "在S&P 500和纳斯达克100中，谁是过去{window}真正的赢家？",
+    "强势的股票会持续强势吗？先来看看过去{window}的领涨榜。",
+    "{window}的时间能发生很多事。这些大盘股把握住了机会。",
+    "动能会留下痕迹。这是S&P 500和纳斯达克100过去{window}涨幅最大的股票。",
+    "不是所有大盘股都一样。过去{window}，这些名字远超其他股票。",
+    "今天，让我们来看看{window}里表现最突出的大盘股。",
+    "有时候，最好的信号就是谁一直在赢。以下是今天的{window}领涨榜。",
 ]
 
 
 def build_extreme_1y_cn(data, output):
     date    = data["date"]
+    tf      = _tuesday_tf(date)
     gainers = sorted(data["data"],
-                     key=lambda r: r.get("1YPriceChange") or -9999, reverse=True)[:10]
+                     key=lambda r: r.get(tf["key"]) or -9999, reverse=True)[:10]
 
     def _fmt_gain_cn(v):
         v = abs(v)
@@ -3743,42 +4004,49 @@ def build_extreme_1y_cn(data, output):
             return f"{round(v / 100):.0f}倍"
         return f"{v:.0f}%"
 
-    def _narrate_1y_cn(rows):
+    def _narrate_tf_cn(rows):
         top = rows[:3]
         parts = []
         for r in top:
             ticker = r.get("Ticker", "")
-            v      = r.get("1YPriceChange") or 0
+            v      = r.get(tf["key"]) or 0
             parts.append(f"{ticker}上涨{_fmt_gain_cn(v)}")
+        label_cn = tf["label_cn"]
         if len(parts) >= 2:
-            return "一年领涨榜前三名：" + "，".join(parts) + "。"
+            return f"{label_cn}领涨榜前三名：" + "，".join(parts) + "。"
         elif parts:
-            return f"一年领涨榜第一名：{parts[0]}。"
+            return f"{label_cn}领涨榜第一名：{parts[0]}。"
         return ""
 
+    label_cn  = tf["label_cn"]
+    window_cn = tf["window_cn"]
+    opener_cn = (random.choice(_TF_OPENERS_CN).format(window=window_cn) +
+                 "本频道每周二都会报道不同时间维度下表现最强的大盘股。订阅我们，每周不错过。")
+
     encode([
-        (scene_title_cn("一年最强大盘股", "S&P 500  ·  纳斯达克100", date,
-                        "大盘股一年领涨榜 — 贝佐拉"), 4,
-         "S&P 500 + 纳斯达克100 大盘股一年领涨榜 — 贝佐拉",
-         random.choice(_1Y_OPENERS_CN)),
-        (scene_movers_table_cn(f"一年涨幅前三  ({date})", gainers, date,
-                               cta_text="想查看完整榜单？访问baizora.com — 提供七天免费试用。"), 17,
-         "S&P 500 + 纳斯达克100 — 过去十二个月涨幅最大的大盘股",
-         f"{_narrate_1y_cn(gainers)}"
-         "这些大盘股来自S&P 500和纳斯达克100，过去十二个月涨幅遥遥领先全市场。"
+        (scene_title_cn(tf["title_cn"], "S&P 500  ·  纳斯达克100", date,
+                        f"大盘股{label_cn}领涨榜 — 贝佐拉"), 4,
+         f"S&P 500 + 纳斯达克100 大盘股{label_cn}领涨榜 — 贝佐拉",
+         opener_cn),
+        (scene_movers_table_cn(f"{tf['rank_cn']}  ({date})", gainers, date,
+                               cta_text="想查看完整榜单？访问baizora.com — 提供七天免费试用。",
+                               tf=tf), 22,
+         f"S&P 500 + 纳斯达克100 — 过去{window_cn}涨幅最大的大盘股",
+         f"{_narrate_tf_cn(gainers)}"
+         f"这些大盘股来自S&P 500和纳斯达克100，过去{window_cn}涨幅遥遥领先全市场。"
          "想查看完整榜单，访问baizora.com，提供七天免费试用。"),
         (scene_top3_sparklines(
-            f"一年领涨股 — 年度走势  ({date})", gainers, date,
-            "想了解更多？访问baizora.com获取S&P 500和纳斯达克100完整分析。"), 7,
-         "一年涨幅前三股票的走势 | 更多数据请访问baizora.com",
-         "这是今日一年涨幅前三名股票的年度走势图。"
+            f"{label_cn}领涨股 — 走势图  ({date})", gainers, date,
+            "想了解更多？访问baizora.com获取S&P 500和纳斯达克100完整分析。", tf=tf), 7,
+         f"{label_cn}涨幅前三股票的走势 | 更多数据请访问baizora.com",
+         f"这是今日{label_cn}涨幅前三名股票的年度走势图。"
          "绿色曲线代表上涨趋势，红色代表下跌趋势。"),
-        (scene_1y_sort_promo_cn(data, date), 10,
+        (scene_1y_sort_promo_cn(data, date, tf), 6,
          "按任意时间维度排序 — 2周至1年 — 即时筛选S&P 500和纳斯达克100领涨股",
-         "在贝佐拉，可查看一年领涨股在每个时间维度的表现——从两周到一年。"
+         "在贝佐拉，可查看领涨股在一年内各时间维度的表现——从两周到一年。"
          "按任意列排序，即时发现全市场领涨股。访问baizora.com。"),
         (scene_screenshot(_SS_CN), 2),
-        (scene_outro_cn(date), 5,
+        (scene_outro_cn(date), 3,
          "仅供参考，不构成投资建议 | baizora.com"),
     ], output, tts_voice="zh-CN-YunxiNeural")
 
@@ -3792,24 +4060,22 @@ def build_volume_spikes_cn(data, output):
         (scene_title_cn("今日成交量异动", "S&P 500  ·  纳斯达克100", date,
                         "大盘股异常交易活动 — 贝佐拉"), 6,
          "S&P 500 + 纳斯达克100 大盘股异常交易活动 — 贝佐拉",
-         random.choice(_VOLUME_OPENERS_CN)),
-        (scene_volume_spikes_cn(spikes, date), 19,
+         random.choice(_VOLUME_OPENERS_CN) +
+         "本频道每周一都会报道S&P 500和纳斯达克100的成交量异动。订阅我们，每周不错过。"),
+        (scene_volume_spikes_cn(spikes, date), 16,
          "量/MA21 = 今日成交量 / 21日均量  |  超过3倍的用金色高亮显示",
-         f"{_narrate_volume_cn(spikes)}"
-         "量除以MA21超过三倍的用金色高亮显示，代表异常活跃的交易活动。"
-         "成交量异常放大，往往是资金大规模流入或重大消息的重要信号。"),
+         _narrate_volume_cn(spikes)),
         (scene_top3_sparklines(
             f"成交量异动领涨股 — 年度走势  ({date})", spikes, date,
             "想了解更多？访问baizora.com获取S&P 500和纳斯达克100完整分析。"), 7,
          "成交量异动前三股票的一年走势 | 更多数据请访问baizora.com",
          "这是今日成交量异动前三名股票的年度走势图。"
          "每条曲线展示了过去一年的完整价格轨迹，帮助您判断成交量异动背后的价格趋势。"),
-        (scene_vol_sort_promo_cn(data, date), 10,
+        (scene_vol_sort_promo_cn(data, date), 5,
          "按任意时间维度排序 — 1天至1年 — 即时筛选S&P 500和纳斯达克100成交量异动",
-         "在贝佐拉，可轻松查看每个时间维度的成交量数据——从一天到一年。"
-         "按任意列排序，即时发现S&P 500和纳斯达克100全市场最大成交量异动。访问baizora.com。"),
+         "在贝佐拉，可查看各时间维度的成交量数据——按任意列排序。访问baizora.com。"),
         (scene_screenshot(_SS_CN), 2),
-        (scene_outro_cn(date), 5,
+        (scene_outro_cn(date), 3,
          "仅供参考，不构成投资建议 | baizora.com"),
     ], output, tts_voice="zh-CN-YunxiNeural")
 
@@ -3839,8 +4105,8 @@ BUILDERS = {
     "sp500_movers":       build_sp500_movers,
     "nasdaq_movers":      build_nasdaq_movers,
     "volume_spikes":      build_volume_spikes,
-    "extreme_1y":         build_extreme_1y,
-    "extreme_1y_cn":      build_extreme_1y_cn,
+    "best_performer":     build_extreme_1y,
+    "best_performer_cn":  build_extreme_1y_cn,
     "platform_intro":     build_platform_intro,
     "platform_intro_cn":  build_platform_intro_cn,
     "volume_spikes_cn":   build_volume_spikes_cn,

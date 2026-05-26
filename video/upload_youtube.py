@@ -15,12 +15,56 @@ Credentials are read from environment variables:
 """
 
 import argparse
+import datetime
 import json
 import os
 import random
 import sys
 import time
 from pathlib import Path
+
+
+_TUESDAY_TF_ROTATION = [
+    {"label_en": "2-Week",   "label_short": "2W", "window_en": "two weeks",     "label_cn": "两周",   "window_cn": "两周"},
+    {"label_en": "1-Month",  "label_short": "1M", "window_en": "one month",     "label_cn": "一个月", "window_cn": "一个月"},
+    {"label_en": "3-Month",  "label_short": "3M", "window_en": "three months",  "label_cn": "三个月", "window_cn": "三个月"},
+    {"label_en": "6-Month",  "label_short": "6M", "window_en": "six months",    "label_cn": "六个月", "window_cn": "六个月"},
+    {"label_en": "9-Month",  "label_short": "9M", "window_en": "nine months",   "label_cn": "九个月", "window_cn": "九个月"},
+    {"label_en": "1-Year",   "label_short": "1Y", "window_en": "twelve months", "label_cn": "一年",  "window_cn": "十二个月"},
+]
+
+
+def _tuesday_tf(date_str):
+    d = datetime.date.fromisoformat(date_str)
+    return _TUESDAY_TF_ROTATION[d.isocalendar()[1] % 6]
+
+
+_WEDNESDAY_TF_ROTATION = [
+    {"label_en": "1-Month", "label_cn": "一个月", "min_drawdown": 10},
+    {"label_en": "3-Month", "label_cn": "三个月", "min_drawdown": 10},
+    {"label_en": "6-Month", "label_cn": "六个月", "min_drawdown": 10},
+    {"label_en": "9-Month", "label_cn": "九个月", "min_drawdown": 10},
+    {"label_en": "1-Year",  "label_cn": "一年",   "min_drawdown": 10},
+]
+
+
+def _wednesday_tf(date_str):
+    d = datetime.date.fromisoformat(date_str)
+    return _WEDNESDAY_TF_ROTATION[d.isocalendar()[1] % 5]
+
+
+_THURSDAY_TF_ROTATION = [
+    {"label_en": "1-Month", "label_cn": "一个月", "window_en": "one month",     "window_cn": "一个月"},
+    {"label_en": "3-Month", "label_cn": "三个月", "window_en": "three months",  "window_cn": "三个月"},
+    {"label_en": "6-Month", "label_cn": "六个月", "window_en": "six months",    "window_cn": "六个月"},
+    {"label_en": "9-Month", "label_cn": "九个月", "window_en": "nine months",   "window_cn": "九个月"},
+    {"label_en": "1-Year",  "label_cn": "一年",   "window_en": "twelve months", "window_cn": "十二个月"},
+]
+
+
+def _thursday_tf(date_str):
+    d = datetime.date.fromisoformat(date_str)
+    return _THURSDAY_TF_ROTATION[d.isocalendar()[1] % 5]
 
 
 def build_credentials():
@@ -149,16 +193,20 @@ def make_meta(video_type, date):
             title,
             f"Large-cap stocks with unusual trading volume today ({date}), across S&P 500 and Nasdaq-100.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
         )
-    if video_type == "extreme_1y":
+    if video_type == "best_performer":
+        tf    = _tuesday_tf(date)
+        label = tf["label_en"]
+        short = tf["label_short"]
+        window = tf["window_en"]
         title = random.choice([
-            f"1-Year Best Performers — S&P 500 & Nasdaq-100 — {date}",
-            f"Top 12-Month Gainers — Large-Cap Stocks — {date}",
-            f"Best Large-Cap Returns — Trailing 1 Year — {date}",
-            f"1-Year Price Leaders — S&P 500 & Nasdaq-100 — {date}",
+            f"{label} Best Performers — S&P 500 & Nasdaq-100 — {date}",
+            f"Top {label} Gainers — Large-Cap Stocks — {date}",
+            f"Best Large-Cap Returns — Trailing {label} — {date}",
+            f"{label} Price Leaders — S&P 500 & Nasdaq-100 — {date}",
         ])
         return (
             title,
-            f"Top large-cap stocks by trailing 12-month price appreciation, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Top large-cap stocks by trailing {window} price appreciation, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "volume_spikes_cn":
         title = random.choice([
@@ -171,60 +219,73 @@ def make_meta(video_type, date):
             title,
             f"S&P 500和纳斯达克100中今日出现异常交易量的大盘股（{date}）。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
         )
-    if video_type == "extreme_1y_cn":
+    if video_type == "best_performer_cn":
+        tf       = _tuesday_tf(date)
+        label_cn = tf["label_cn"]
+        window_cn = tf["window_cn"]
         title = random.choice([
-            f"过去一年最佳表现股票 — S&P 500 & 纳斯达克100 — {date}",
-            f"大盘股年度领涨榜 — {date}",
-            f"过去12个月涨幅最大的大盘股 — {date}",
-            f"一年期价格领跑者 — S&P 500 & 纳斯达克100 — {date}",
+            f"过去{label_cn}最佳表现股票 — S&P 500 & 纳斯达克100 — {date}",
+            f"大盘股{label_cn}领涨榜 — {date}",
+            f"过去{window_cn}涨幅最大的大盘股 — {date}",
+            f"{label_cn}价格领跑者 — S&P 500 & 纳斯达克100 — {date}",
         ])
         return (
             title,
-            f"截至{date}，S&P 500和纳斯达克100中过去12个月涨幅最大的大盘股。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"截至{date}，S&P 500和纳斯达克100中过去{window_cn}涨幅最大的大盘股。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "6m_breakout":
+        wtf   = _wednesday_tf(date)
+        label = wtf["label_en"]
         title = random.choice([
-            f"1-Year High Breakouts — S&P 500 & Nasdaq-100 — {date}",
-            f"Large-Caps Reclaiming Their 1-Year High — {date}",
-            f"New 1-Year High After 20%+ Pullback — {date}",
-            f"Breakout Alert: 1-Year Highs Crossed — {date}",
+            f"{label} High Breakouts — S&P 500 & Nasdaq-100 — {date}",
+            f"Large-Caps Reclaiming Their {label} High — {date}",
+            f"New {label} High After {wtf['min_drawdown']}%+ Pullback — {date}",
+            f"Breakout Alert: {label} Highs Crossed — {date}",
         ])
         return (
             title,
-            f"Large-cap stocks from S&P 500 and Nasdaq-100 that crossed their 1-year high for the first time in the past 2 weeks, after a 20%+ real pullback, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Large-cap stocks from S&P 500 and Nasdaq-100 that crossed their {label.lower()} high for the first time in the past 2 weeks, after a {wtf['min_drawdown']}%+ real pullback, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "6m_breakout_cn":
+        wtf      = _wednesday_tf(date)
+        label_cn = wtf["label_cn"]
         title = random.choice([
-            f"一年新高突破 — S&P 500 & 纳斯达克100 — {date}",
-            f"大盘股突破一年高点 — {date}",
-            f"20%回调后创一年新高 — {date}",
-            f"突破警报：一年高点首次被突破 — {date}",
+            f"{label_cn}新高突破 — S&P 500 & 纳斯达克100 — {date}",
+            f"大盘股突破{label_cn}高点 — {date}",
+            f"{wtf['min_drawdown']}%回调后创{label_cn}新高 — {date}",
+            f"突破警报：{label_cn}高点首次被突破 — {date}",
         ])
         return (
             title,
-            f"S&P 500和纳斯达克100中，在经历20%以上真实回调后，过去两周内首次突破一年高点的大盘股（{date}）。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"S&P 500和纳斯达克100中，在经历{wtf['min_drawdown']}%以上真实回调后，过去两周内首次突破{label_cn}高点的大盘股（{date}）。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "1y_vol_peak":
+        ttf   = _thursday_tf(date)
+        label = ttf["label_en"]
+        window = ttf["window_en"]
         title = random.choice([
-            f"1-Year Volume Record Stocks — S&P 500 & Nasdaq-100 — {date}",
-            f"Biggest Annual Trading Days — Large Caps — {date}",
+            f"{label} Volume Record Stocks — S&P 500 & Nasdaq-100 — {date}",
+            f"Biggest {label} Trading Days — Large Caps — {date}",
             f"Today's Record Volume Movers — S&P 500 & Nasdaq-100 — {date}",
-            f"Stocks Hitting Their 1-Year Volume Peak — {date}",
+            f"Stocks Hitting Their {label} Volume Peak — {date}",
         ])
         return (
             title,
-            f"Large-cap stocks from S&P 500 and Nasdaq-100 recording their biggest single-day volume in the past year, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Large-cap stocks from S&P 500 and Nasdaq-100 recording their biggest single-day volume in the past {window}, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "1y_vol_peak_cn":
+        ttf      = _thursday_tf(date)
+        label_cn = ttf["label_cn"]
+        window_cn = ttf["window_cn"]
         title = random.choice([
-            f"年度成交量记录股票 — S&P 500 & 纳斯达克100 — {date}",
-            f"大盘股年内最大单日成交量 — {date}",
-            f"今日年度成交量记录 — S&P 500 & 纳斯达克100 — {date}",
-            f"创下一年成交量峰值的大盘股 — {date}",
+            f"{label_cn}成交量记录股票 — S&P 500 & 纳斯达克100 — {date}",
+            f"大盘股过去{label_cn}最大单日成交量 — {date}",
+            f"今日{label_cn}成交量记录 — S&P 500 & 纳斯达克100 — {date}",
+            f"创下{label_cn}成交量峰值的大盘股 — {date}",
         ])
         return (
             title,
-            f"S&P 500和纳斯达克100中，今日创下过去一年最大单日成交量的大盘股（{date}）。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"S&P 500和纳斯达克100中，今日创下过去{window_cn}最大单日成交量的大盘股（{date}）。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "index_spotlight":
         title = random.choice([
