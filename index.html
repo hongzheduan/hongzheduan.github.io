@@ -1115,28 +1115,7 @@
 </section>
 
 <div class="ticker-wrap">
-  <div class="ticker-track">
-    <div class="ticker-item"><span class="sym">AAPL</span> 213.42 <span class="up">▲ 1.2%</span></div>
-    <div class="ticker-item"><span class="sym">MSFT</span> 418.67 <span class="up">▲ 0.8%</span></div>
-    <div class="ticker-item"><span class="sym">NVDA</span> 892.31 <span class="dn">▼ 0.4%</span></div>
-    <div class="ticker-item"><span class="sym">AMZN</span> 198.55 <span class="up">▲ 1.5%</span></div>
-    <div class="ticker-item"><span class="sym">GOOGL</span> 171.84 <span class="up">▲ 0.3%</span></div>
-    <div class="ticker-item"><span class="sym">META</span> 503.21 <span class="dn">▼ 0.7%</span></div>
-    <div class="ticker-item"><span class="sym">TSLA</span> 174.12 <span class="up">▲ 2.1%</span></div>
-    <div class="ticker-item"><span class="sym">NFLX</span> 647.90 <span class="up">▲ 0.6%</span></div>
-    <div class="ticker-item"><span class="sym">JPM</span> 218.33 <span class="dn">▼ 0.2%</span></div>
-    <div class="ticker-item"><span class="sym">V</span> 284.10 <span class="up">▲ 0.9%</span></div>
-    <div class="ticker-item"><span class="sym">AAPL</span> 213.42 <span class="up">▲ 1.2%</span></div>
-    <div class="ticker-item"><span class="sym">MSFT</span> 418.67 <span class="up">▲ 0.8%</span></div>
-    <div class="ticker-item"><span class="sym">NVDA</span> 892.31 <span class="dn">▼ 0.4%</span></div>
-    <div class="ticker-item"><span class="sym">AMZN</span> 198.55 <span class="up">▲ 1.5%</span></div>
-    <div class="ticker-item"><span class="sym">GOOGL</span> 171.84 <span class="up">▲ 0.3%</span></div>
-    <div class="ticker-item"><span class="sym">META</span> 503.21 <span class="dn">▼ 0.7%</span></div>
-    <div class="ticker-item"><span class="sym">TSLA</span> 174.12 <span class="up">▲ 2.1%</span></div>
-    <div class="ticker-item"><span class="sym">NFLX</span> 647.90 <span class="up">▲ 0.6%</span></div>
-    <div class="ticker-item"><span class="sym">JPM</span> 218.33 <span class="dn">▼ 0.2%</span></div>
-    <div class="ticker-item"><span class="sym">V</span> 284.10 <span class="up">▲ 0.9%</span></div>
-  </div>
+  <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
 <section class="features">
@@ -1558,6 +1537,27 @@ window.mockSort = function(col, el) {
 };
 
 document.addEventListener('DOMContentLoaded', renderMock);
+
+// Ticker bar
+(function() {
+  const TOP10 = ["NVDA","GOOGL","AAPL","MSFT","AMZN","AVGO","TSLA","META","WMT","MU"];
+  fetch('data/latest.json').then(r => r.json()).then(data => {
+    const map = {};
+    data.data.forEach(r => { map[r.Ticker] = r; });
+    const track = document.getElementById('tickerTrack');
+    if (!track) return;
+    const item = t => {
+      const r = map[t]; if (!r) return '';
+      const pc  = r.PriceChange1D || 0;
+      const cls = pc >= 0 ? 'up' : 'dn';
+      const arr = pc >= 0 ? '▲' : '▼';
+      const s   = pc >= 0 ? '+' : '';
+      return `<div class="ticker-item"><span class="sym">${t}</span> $${(r.Price||0).toFixed(2)} <span class="${cls}">${arr} ${s}${pc.toFixed(1)}%</span></div>`;
+    };
+    const html = TOP10.map(item).join('');
+    track.innerHTML = html + html; // duplicate for seamless loop
+  }).catch(() => {});
+})();
 
 // Popular stocks section
 (function() {
