@@ -1552,7 +1552,7 @@ document.addEventListener('DOMContentLoaded', renderMock);
       const cls = pc >= 0 ? 'up' : 'dn';
       const arr = pc >= 0 ? '▲' : '▼';
       const s   = pc >= 0 ? '+' : '';
-      return `<div class="ticker-item"><span class="sym">${t}</span> $${(r.Price||0).toFixed(2)} <span class="${cls}">${arr} ${s}${pc.toFixed(1)}%</span></div>`;
+      return `<a href="stocks/${t}.html" class="ticker-item" style="text-decoration:none;cursor:pointer;"><span class="sym">${t}</span> $${(r.Price||0).toFixed(2)} <span class="${cls}">${arr} ${s}${pc.toFixed(1)}%</span></a>`;
     };
     const html = TOP10.map(item).join('');
     track.innerHTML = html + html; // duplicate for seamless loop
