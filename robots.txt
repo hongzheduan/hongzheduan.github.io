@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Block authenticated / post-payment pages
+Disallow: /dashboard.html
+Disallow: /dashboard_cn.html
+Disallow: /account.html
+Disallow: /account_cn.html
+Disallow: /billing.html
+Disallow: /billing_cn.html
+Disallow: /baizora_main_form.html
+Disallow: /baizora_main_form_cn.html
+Disallow: /success.html
+Disallow: /success_cn.html
+
+Sitemap: https://baizora.com/sitemap.xml
