@@ -42,6 +42,10 @@ jobs:
         if: env.IS_HOLIDAY != 'True'
         run: python scanner.py
 
+      - name: Generate stock pages
+        if: env.IS_HOLIDAY != 'True'
+        run: python generate_stock_pages.py NVDA GOOGL AAPL MSFT AMZN AVGO TSLA META WMT MU
+
       - name: Commit updated latest.json
         if: env.IS_HOLIDAY != 'True'
         run: |
@@ -55,6 +59,7 @@ jobs:
           git stash pop
 
           git add data/latest.json || echo "data/latest.json not found, skipping"
+          git add stocks/ 2>/dev/null || echo "No stock pages found, skipping"
           git add data/index_changes.json 2>/dev/null || echo "data/index_changes.json not found, skipping"
           git add data/index_news.json 2>/dev/null || echo "data/index_news.json not found, skipping"
           git add data/sp500_symbols.txt data/nasdaq100_symbols.txt 2>/dev/null || echo "Symbol files not found, skipping"
