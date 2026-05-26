@@ -602,6 +602,20 @@
     .tf-btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: default; }
     .tf-btn.active { background: var(--electric); border-color: var(--electric); color: white; }
 
+    /* ── POPULAR STOCKS ── */
+    .popular-stocks { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 20px 60px 70px; }
+    .stocks-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 0; }
+    .stock-card { background: rgba(13,30,61,0.6); border: 1px solid var(--border); border-radius: 14px; padding: 18px 16px; text-decoration: none; transition: border-color 0.15s, background 0.15s; display: block; }
+    .stock-card:hover { border-color: rgba(59,130,246,0.4); background: rgba(13,30,61,0.9); text-decoration: none; }
+    .stock-card .sc-ticker { font-family: 'DM Mono', monospace; font-size: 17px; font-weight: 600; color: #f8fafc; margin-bottom: 2px; }
+    .stock-card .sc-name { font-size: 11px; color: #64748b; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stock-card .sc-price { font-size: 18px; font-weight: 600; color: #f8fafc; margin-bottom: 4px; }
+    .stock-card .sc-row { display: flex; justify-content: space-between; align-items: center; }
+    .stock-card .sc-chg { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 600; }
+    .stock-card .sc-1y { font-family: 'DM Mono', monospace; font-size: 11px; color: #64748b; }
+    .stock-card .up { color: #22c55e; }
+    .stock-card .dn { color: #ef4444; }
+
     /* ── BOTTOM CTA ── */
     .bottom-cta { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 40px 40px 90px; text-align: center; }
     .cta-box { background: linear-gradient(135deg, rgba(13,30,61,0.9) 0%, rgba(22,40,71,0.9) 100%); border: 1px solid rgba(59,130,246,0.2); border-radius: 24px; padding: 70px 60px; position: relative; overflow: hidden; }
@@ -637,6 +651,8 @@
       .hero-bullet { justify-content: center; }
       .features { padding: 60px 20px; }
       .cards { grid-template-columns: 1fr; }
+      .popular-stocks { padding: 20px 20px 50px; }
+      .stocks-grid { grid-template-columns: repeat(2, 1fr); }
       .cta-box { padding: 40px 24px; }
       footer { padding: 24px 20px; flex-direction: column; text-align: center; }
       .footer-links { justify-content: center; }
@@ -1239,6 +1255,14 @@
   </div>
 </section>
 
+<section class="popular-stocks">
+  <div class="section-label">Popular Stocks</div>
+  <h2 class="section-title">Top Nasdaq-100 <em>at a glance</em></h2>
+  <div class="stocks-grid" id="popularStocksGrid">
+    <!-- rendered by JS -->
+  </div>
+</section>
+
 <section class="bottom-cta">
   <div class="cta-box">
     <h2>Every price move. Every volume spike.<br>Organized.</h2>
@@ -1545,6 +1569,38 @@ window.mockSort = function(col, el) {
 };
 
 document.addEventListener('DOMContentLoaded', renderMock);
+
+// Popular stocks section
+(function() {
+  const TOP10 = ["NVDA","GOOGL","AAPL","MSFT","AMZN","AVGO","TSLA","META","WMT","MU"];
+  const SHORT = {NVDA:"NVIDIA",GOOGL:"Alphabet",AAPL:"Apple",MSFT:"Microsoft",AMZN:"Amazon",
+                 AVGO:"Broadcom",TSLA:"Tesla",META:"Meta",WMT:"Walmart",MU:"Micron"};
+  fetch('data/latest.json').then(r => r.json()).then(data => {
+    const map = {};
+    data.data.forEach(r => { map[r.Ticker] = r; });
+    const grid = document.getElementById('popularStocksGrid');
+    if (!grid) return;
+    grid.innerHTML = TOP10.map(t => {
+      const r = map[t]; if (!r) return '';
+      const price = (r.Price || 0).toFixed(2);
+      const pc1d  = r.PriceChange1D || 0;
+      const pc1y  = r['1YPriceChange'] || 0;
+      const cls1d = pc1d >= 0 ? 'up' : 'dn';
+      const cls1y = pc1y >= 0 ? 'up' : 'dn';
+      const s1d   = pc1d >= 0 ? '+' : '';
+      const s1y   = pc1y >= 0 ? '+' : '';
+      return `<a href="stocks/${t}.html" class="stock-card">
+        <div class="sc-ticker">${t}</div>
+        <div class="sc-name">${SHORT[t] || t}</div>
+        <div class="sc-price">$${parseFloat(price).toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+        <div class="sc-row">
+          <span class="sc-chg ${cls1d}">${s1d}${pc1d.toFixed(1)}%</span>
+          <span class="sc-1y ${cls1y}">${s1y}${pc1y.toFixed(1)}% 1Y</span>
+        </div>
+      </a>`;
+    }).join('');
+  }).catch(() => {});
+})();
 </script>
 
   <script>

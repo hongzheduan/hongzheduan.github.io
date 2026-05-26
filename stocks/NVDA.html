@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NVDA Stock Analysis | NVIDIA Corporation Price &amp; Volume Trends | Baizora</title>
+  <meta name="description" content="NVIDIA Corporation (NVDA) stock analysis: $215.33 today (-1.9%), 1-year trend, volume spikes, MA21 ratios, and multi-timeframe performance. Updated daily.">
+  <link rel="canonical" href="https://baizora.com/stocks/NVDA.html">
+  <link rel="alternate" hreflang="en" href="https://baizora.com/stocks/NVDA.html">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://baizora.com/stocks/NVDA.html">
+  <meta property="og:title" content="NVDA — NVIDIA Corporation Price &amp; Volume Analysis | Baizora">
+  <meta property="og:description" content="NVIDIA Corporation (NVDA) stock analysis: $215.33 today (-1.9%), 1-year trend, volume spikes, MA21 ratios, and multi-timeframe performance. Updated daily.">
+  <meta property="og:image" content="https://baizora.com/assets/baize_favicon_v2.png">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebPage","name":"NVDA Stock Analysis — NVIDIA Corporation","description":"NVIDIA Corporation (NVDA) is declining -1.9% today, trading at $215.33. Over the past year the stock is +62.1%, with a +11.7% move over the last three months. I","url":"https://baizora.com/stocks/NVDA.html","isPartOf":{"@type":"WebSite","name":"Baizora","url":"https://baizora.com"}}
+  </script>
+  <link rel="icon" href="../assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:#060d1f; --navy-mid:#0d1e3d; --navy-light:#162847;
+      --electric:#3b82f6; --electric-bright:#60a5fa;
+      --gold:#f59e0b; --green:#22c55e; --red:#ef4444;
+      --white:#ffffff; --muted:#cbd5e1; --border:rgba(255,255,255,0.09);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;}
+    a{color:var(--electric-bright);text-decoration:none;}
+    a:hover{text-decoration:underline;}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border);}
+    .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-wrap img{height:32px;}
+    .logo-text{font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;}
+    .nav-links{display:flex;gap:12px;align-items:center;}
+    .nav-btn{padding:6px 16px;border-radius:8px;border:1px solid var(--border);font-size:14px;color:var(--muted);background:transparent;text-decoration:none;}
+    .nav-btn-primary{background:var(--electric);color:white;border-color:var(--electric);}
+
+    .page{max-width:1000px;margin:0 auto;padding:48px 24px 80px;}
+    .breadcrumb{font-size:13px;color:#64748b;margin-bottom:28px;}
+    .breadcrumb a{color:#64748b;}
+    .breadcrumb span{margin:0 6px;}
+
+    .hero{margin-bottom:36px;}
+    .company-name{font-size:15px;color:var(--muted);margin-bottom:6px;font-family:'DM Mono',monospace;letter-spacing:0.04em;}
+    .ticker-price{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap;margin-bottom:12px;}
+    .ticker{font-family:'DM Serif Display',serif;font-size:52px;color:var(--white);letter-spacing:-0.02em;}
+    .price{font-size:36px;font-weight:600;}
+    .change{font-size:22px;font-weight:600;}
+    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+    .badge{font-family:'DM Mono',monospace;font-size:12px;padding:4px 12px;border-radius:20px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:var(--electric-bright);}
+    .scan-date{font-size:13px;color:#64748b;}
+
+    .summary-box{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;padding:24px 28px;margin-bottom:32px;line-height:1.75;color:var(--muted);font-size:15px;}
+
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:32px;}
+    .stat-card{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:12px;padding:16px 20px;}
+    .stat-label{font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;}
+    .stat-value{font-size:20px;font-weight:600;}
+    .stat-sub{font-size:12px;color:#64748b;margin-top:2px;}
+
+    .section-title{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:14px;}
+
+    .spark-box{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:32px;overflow:hidden;}
+    .spark-box svg{width:100%;height:auto;display:block;}
+
+    .tf-box{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:32px;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;padding:14px 20px;text-align:left;border-bottom:1px solid var(--border);}
+    tbody tr{border-bottom:1px solid var(--border);}
+    tbody tr:last-child{border-bottom:none;}
+    tbody td{padding:14px 20px;font-size:15px;}
+    .tf-label{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);}
+    .dim{color:#94a3b8;}
+
+    .peers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:32px;}
+    .peer-card{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-decoration:none;transition:border-color 0.15s,background 0.15s;}
+    .peer-card:hover{border-color:rgba(59,130,246,0.4);background:rgba(13,30,61,0.9);text-decoration:none;}
+    .peer-ticker{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:var(--white);margin-bottom:3px;}
+    .peer-name{font-size:12px;color:#64748b;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .peer-chg{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;}
+
+    .cta-box{background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(245,158,11,0.08));border:1px solid rgba(59,130,246,0.2);border-radius:16px;padding:32px;text-align:center;}
+    .cta-box h3{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:10px;}
+    .cta-box p{color:var(--muted);margin-bottom:20px;font-size:15px;}
+    .btn-gold{display:inline-block;padding:12px 32px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;font-weight:600;font-size:15px;text-decoration:none;}
+
+    footer{border-top:1px solid var(--border);padding:24px 40px;text-align:center;font-size:13px;color:#475569;line-height:2;}
+
+    @media(max-width:600px){
+      nav{padding:14px 20px;}
+      .page{padding:32px 16px 60px;}
+      .ticker{font-size:38px;} .price{font-size:26px;}
+      .peers-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../" class="logo-wrap">
+    <img src="../assets/baize_favicon_v2.png" alt="Baizora">
+    <span class="logo-text">Baiz<span style="color:#3b82f6;">ora</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="../baizora_main_form_free.html" class="nav-btn">Free Preview</a>
+    <a href="../pricing.html" class="nav-btn nav-btn-primary">Start Free Trial</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="breadcrumb">
+    <a href="../">Home</a><span>›</span>Stocks<span>›</span>NVDA
+  </div>
+
+  <div class="hero">
+    <div class="company-name">NVIDIA Corporation</div>
+    <div class="ticker-price">
+      <div class="ticker">NVDA</div>
+      <div class="price">$215.33</div>
+      <div class="change" style="color:#ef4444">-1.9%</div>
+    </div>
+    <div class="badges"><span class="badge">S&amp;P 500</span><span class="badge">Nasdaq-100</span></div>
+    <div class="scan-date">Data as of 2026-05-22 &nbsp;·&nbsp; Updated daily after market close</div>
+  </div>
+
+  <div class="summary-box">NVIDIA Corporation (NVDA) is declining -1.9% today, trading at $215.33. Over the past year the stock is +62.1%, with a +11.7% move over the last three months. Its largest single-day price surge in the past year reached +7.9%, while its peak volume day ran +113.2% above the 21-day average. With a market cap of $5,216B, NVDA is a member of both the S&P 500 and Nasdaq-100. At a P/E of 33.0, it trades at a notable discount to the Technology sector average of 64.6.</div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Market Cap</div>
+      <div class="stat-value">$5,216B</div>
+      <div class="stat-sub">Technology</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">P/E Ratio</div>
+      <div class="stat-value">33.0</div>
+      <div class="stat-sub">Sector avg 64.6</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">EPS (TTM)</div>
+      <div class="stat-value">$6.52</div>
+      <div class="stat-sub">Trailing twelve months</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Volume</div>
+      <div class="stat-value">166.9M</div>
+      <div class="stat-sub">Vol / MA21: 1.01x</div>
+    </div>
+  </div>
+
+  <div class="section-title">1-Year Price Trend</div>
+  <div class="spark-box">
+    <svg viewBox="0 0 900 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <polyline points="0.0,195.1 3.6,198.0 7.2,190.1 10.8,191.4 14.3,183.2 17.9,190.8 21.5,186.6 25.1,179.4 28.7,178.1 32.3,181.7 35.9,178.4 39.4,176.7 43.0,174.2 46.6,176.3 50.2,172.3 53.8,178.0 57.4,172.8 61.0,173.9 64.5,171.4 68.1,174.4 71.7,173.8 75.3,166.8 78.9,154.8 82.5,153.5 86.1,148.4 89.6,147.9 93.2,156.7 96.8,149.3 100.4,145.4 104.0,147.4 107.6,144.1 111.2,138.7 114.7,136.4 118.3,134.9 121.9,136.5 125.5,124.1 129.1,122.8 132.7,119.8 136.3,120.9 139.8,122.8 143.4,130.9 147.0,123.9 150.6,118.4 154.2,118.8 157.8,112.7 161.4,115.0 164.9,108.0 168.5,110.6 172.1,118.4 175.7,106.6 179.3,109.9 182.9,107.7 186.5,105.2 190.0,101.6 193.6,102.8 197.2,100.7 200.8,103.6 204.4,102.8 208.0,105.8 211.6,102.9 215.1,114.8 218.7,115.2 222.3,116.0 225.9,110.4 229.5,107.0 233.1,103.3 236.7,103.6 240.2,106.3 243.8,117.5 247.4,123.9 251.0,124.2 254.6,122.3 258.2,131.0 261.8,128.5 265.3,124.0 268.9,111.6 272.5,111.9 276.1,110.7 279.7,110.8 283.3,116.2 286.9,124.8 290.4,113.7 294.0,112.8 297.6,99.8 301.2,109.5 304.8,112.3 308.4,110.9 312.0,110.0 315.5,103.1 319.1,94.3 322.7,93.0 326.3,89.9 329.9,92.3 333.5,96.2 337.1,97.1 340.6,89.5 344.2,83.0 347.8,100.7 351.4,91.0 355.0,106.5 358.6,106.9 362.2,103.2 365.7,100.6 369.3,101.7 372.9,104.4 376.5,106.1 380.1,102.6 383.7,94.9 387.3,85.0 390.8,67.2 394.4,55.9 398.0,63.7 401.6,64.4 405.2,56.2 408.8,71.5 412.4,78.1 415.9,91.4 419.5,91.3 423.1,70.9 426.7,81.9 430.3,80.7 433.9,93.7 437.5,87.5 441.0,94.2 444.6,104.1 448.2,94.4 451.8,105.4 455.4,108.7 459.0,101.8 462.5,110.7 466.1,106.1 469.7,112.2 473.3,106.8 476.9,103.9 480.5,107.4 484.1,100.2 487.6,102.1 491.2,96.2 494.8,97.3 498.4,99.5 502.0,104.8 505.6,115.9 509.2,113.5 512.7,110.9 516.3,123.6 519.9,117.6 523.5,104.7 527.1,99.7 530.7,89.3 534.3,90.4 537.8,86.8 541.4,91.2 545.0,92.4 548.6,94.4 552.2,90.0 555.8,91.4 559.4,93.0 562.9,89.5 566.5,97.1 570.1,97.5 573.7,97.3 577.3,95.7 580.9,100.7 584.5,93.4 588.0,94.9 591.6,110.2 595.2,100.4 598.8,97.5 602.4,92.2 606.0,94.4 609.6,90.6 613.1,85.0 616.7,83.1 620.3,85.7 623.9,96.1 627.5,105.9 631.1,117.5 634.7,121.8 638.2,96.4 641.8,87.7 645.4,90.6 649.0,87.7 652.6,93.6 656.2,101.3 659.8,97.3 663.3,91.6 666.9,91.8 670.5,88.2 674.1,84.9 677.7,82.5 681.3,77.4 684.9,97.4 688.4,111.9 692.0,101.9 695.6,106.5 699.2,100.9 702.8,100.3 706.4,110.7 710.0,101.6 713.5,97.6 717.1,95.3 720.7,100.7 724.3,106.1 727.9,100.5 731.5,102.9 735.1,105.8 738.6,109.3 742.2,120.3 745.8,114.7 749.4,115.6 753.0,109.0 756.6,123.0 760.2,130.0 763.7,134.4 767.3,117.1 770.9,114.5 774.5,111.5 778.1,111.0 781.7,110.1 785.3,102.7 788.8,99.2 792.4,90.4 796.0,89.1 799.6,75.6 803.2,71.2 806.8,72.1 810.4,65.9 813.9,65.2 817.5,69.3 821.1,64.4 824.7,69.7 828.3,53.5 831.9,37.9 835.5,44.3 839.0,51.7 842.6,69.9 846.2,72.0 849.8,71.9 853.4,75.6 857.0,54.4 860.6,47.5 864.1,40.5 867.7,32.6 871.3,30.1 874.9,20.6 878.5,2.0 882.1,21.5 885.7,27.2 889.2,30.4 892.8,25.0 896.4,32.4 900.0,40.3" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="section-title">Multi-Timeframe Performance</div>
+  <div class="tf-box">
+    <table>
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Price Change</th>
+          <th>Peak Day Gain</th>
+          <th>Peak Vol Spike</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="tf-label">2 Weeks</td>
+          <td style="color:#ef4444;font-weight:600">-1.9%</td>
+          <td class="dim">+4.4%</td>
+          <td class="dim">+30.7%</td>
+        </tr>
+        <tr>
+          <td class="tf-label">1 Month</td>
+          <td style="color:#22c55e;font-weight:600">+3.4%</td>
+          <td class="dim">+5.8%</td>
+          <td class="dim">+82.1%</td>
+        </tr>
+        <tr>
+          <td class="tf-label">3 Months</td>
+          <td style="color:#22c55e;font-weight:600">+11.7%</td>
+          <td class="dim">+5.8%</td>
+          <td class="dim">+88.6%</td>
+        </tr>
+        <tr>
+          <td class="tf-label">6 Months</td>
+          <td style="color:#22c55e;font-weight:600">+19.2%</td>
+          <td class="dim">+7.9%</td>
+          <td class="dim">+113.2%</td>
+        </tr>
+        <tr>
+          <td class="tf-label">9 Months</td>
+          <td style="color:#22c55e;font-weight:600">+21.0%</td>
+          <td class="dim">+7.9%</td>
+          <td class="dim">+113.2%</td>
+        </tr>
+        <tr>
+          <td class="tf-label">1 Year</td>
+          <td style="color:#22c55e;font-weight:600">+62.1%</td>
+          <td class="dim">+7.9%</td>
+          <td class="dim">+113.2%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  
+  <div class="section-title">Top Nasdaq-100 Stocks</div>
+  <div class="peers-grid">
+        <a href="GOOGL.html" class="peer-card">
+          <div class="peer-ticker">GOOGL</div>
+          <div class="peer-name">Alphabet</div>
+          <div class="peer-chg" style="color:#ef4444">-1.2%</div>
+        </a>
+        <a href="AAPL.html" class="peer-card">
+          <div class="peer-ticker">AAPL</div>
+          <div class="peer-name">Apple</div>
+          <div class="peer-chg" style="color:#22c55e">+1.3%</div>
+        </a>
+        <a href="MSFT.html" class="peer-card">
+          <div class="peer-ticker">MSFT</div>
+          <div class="peer-name">Microsoft</div>
+          <div class="peer-chg" style="color:#ef4444">-0.1%</div>
+        </a>
+        <a href="AMZN.html" class="peer-card">
+          <div class="peer-ticker">AMZN</div>
+          <div class="peer-name">Amazon.com,</div>
+          <div class="peer-chg" style="color:#ef4444">-0.8%</div>
+        </a>
+        <a href="AVGO.html" class="peer-card">
+          <div class="peer-ticker">AVGO</div>
+          <div class="peer-name">Broadcom</div>
+          <div class="peer-chg" style="color:#ef4444">-0.1%</div>
+        </a>
+        <a href="TSLA.html" class="peer-card">
+          <div class="peer-ticker">TSLA</div>
+          <div class="peer-name">Tesla,</div>
+          <div class="peer-chg" style="color:#22c55e">+1.9%</div>
+        </a>
+        <a href="META.html" class="peer-card">
+          <div class="peer-ticker">META</div>
+          <div class="peer-name">Meta</div>
+          <div class="peer-chg" style="color:#22c55e">+0.5%</div>
+        </a>
+        <a href="WMT.html" class="peer-card">
+          <div class="peer-ticker">WMT</div>
+          <div class="peer-name">Walmart</div>
+          <div class="peer-chg" style="color:#ef4444">-0.9%</div>
+        </a>
+        <a href="MU.html" class="peer-card">
+          <div class="peer-ticker">MU</div>
+          <div class="peer-name">Micron</div>
+          <div class="peer-chg" style="color:#ef4444">-1.5%</div>
+        </a>
+  </div>
+
+
+  <div class="cta-box">
+    <h3>See all 500+ stocks</h3>
+    <p>Sort by any signal across 7 timeframes. Full S&amp;P 500 and Nasdaq-100 coverage, updated daily.</p>
+    <a href="../pricing.html" class="btn-gold">Start 7-Day Free Trial</a>
+  </div>
+
+</div>
+
+<footer>
+  <a href="../">Baizora</a> &nbsp;·&nbsp;
+  <a href="../assets/about.html">About</a> &nbsp;·&nbsp;
+  <a href="../assets/faq.html">FAQ</a> &nbsp;·&nbsp;
+  <a href="../assets/privacy.html">Privacy</a> &nbsp;·&nbsp;
+  <a href="../assets/disclaimer.html">Disclaimer</a>
+  <br>
+  For informational purposes only. Not financial advice. Data updated daily after US market close.
+</footer>
+
+</body>
+</html>

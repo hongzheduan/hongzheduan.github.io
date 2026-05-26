@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WMT Stock Analysis | Walmart Inc. Price &amp; Volume Trends | Baizora</title>
+  <meta name="description" content="Walmart Inc. (WMT) stock analysis: $120.27 today (-0.9%), 1-year trend, volume spikes, MA21 ratios, and multi-timeframe performance. Updated daily.">
+  <link rel="canonical" href="https://baizora.com/stocks/WMT.html">
+  <link rel="alternate" hreflang="en" href="https://baizora.com/stocks/WMT.html">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://baizora.com/stocks/WMT.html">
+  <meta property="og:title" content="WMT — Walmart Inc. Price &amp; Volume Analysis | Baizora">
+  <meta property="og:description" content="Walmart Inc. (WMT) stock analysis: $120.27 today (-0.9%), 1-year trend, volume spikes, MA21 ratios, and multi-timeframe performance. Updated daily.">
+  <meta property="og:image" content="https://baizora.com/assets/baize_favicon_v2.png">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebPage","name":"WMT Stock Analysis — Walmart Inc.","description":"Walmart Inc. (WMT) is declining -0.9% today, trading at $120.27. Over the past year the stock is +26.4%, with a -4.7% move over the last three months. Its large","url":"https://baizora.com/stocks/WMT.html","isPartOf":{"@type":"WebSite","name":"Baizora","url":"https://baizora.com"}}
+  </script>
+  <link rel="icon" href="../assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:#060d1f; --navy-mid:#0d1e3d; --navy-light:#162847;
+      --electric:#3b82f6; --electric-bright:#60a5fa;
+      --gold:#f59e0b; --green:#22c55e; --red:#ef4444;
+      --white:#ffffff; --muted:#cbd5e1; --border:rgba(255,255,255,0.09);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;}
+    a{color:var(--electric-bright);text-decoration:none;}
+    a:hover{text-decoration:underline;}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border);}
+    .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-wrap img{height:32px;}
+    .logo-text{font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;}
+    .nav-links{display:flex;gap:12px;align-items:center;}
+    .nav-btn{padding:6px 16px;border-radius:8px;border:1px solid var(--border);font-size:14px;color:var(--muted);background:transparent;text-decoration:none;}
+    .nav-btn-primary{background:var(--electric);color:white;border-color:var(--electric);}
+
+    .page{max-width:1000px;margin:0 auto;padding:48px 24px 80px;}
+    .breadcrumb{font-size:13px;color:#64748b;margin-bottom:28px;}
+    .breadcrumb a{color:#64748b;}
+    .breadcrumb span{margin:0 6px;}
+
+    .hero{margin-bottom:36px;}
+    .company-name{font-size:15px;color:var(--muted);margin-bottom:6px;font-family:'DM Mono',monospace;letter-spacing:0.04em;}
+    .ticker-price{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap;margin-bottom:12px;}
+    .ticker{font-family:'DM Serif Display',serif;font-size:52px;color:var(--white);letter-spacing:-0.02em;}
+    .price{font-size:36px;font-weight:600;}
+    .change{font-size:22px;font-weight:600;}
+    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+    .badge{font-family:'DM Mono',monospace;font-size:12px;padding:4px 12px;border-radius:20px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:var(--electric-bright);}
+    .scan-date{font-size:13px;color:#64748b;}
+
+    .summary-box{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;padding:24px 28px;margin-bottom:32px;line-height:1.75;color:var(--muted);font-size:15px;}
+
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:32px;}
+    .stat-card{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:12px;padding:16px 20px;}
+    .stat-label{font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;}
+    .stat-value{font-size:20px;font-weight:600;}
+    .stat-sub{font-size:12px;color:#64748b;margin-top:2px;}
+
+    .section-title{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:14px;}
+
+    .spark-box{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:32px;overflow:hidden;}
+    .spark-box svg{width:100%;height:auto;display:block;}
+
+    .tf-box{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:32px;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;padding:14px 20px;text-align:left;border-bottom:1px solid var(--border);}
+    tbody tr{border-bottom:1px solid var(--border);}
+    tbody tr:last-child{border-bottom:none;}
+    tbody td{padding:14px 20px;font-size:15px;}
+    .tf-label{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);}
+    .dim{color:#94a3b8;}
+
+    .peers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:32px;}
+    .peer-card{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-decoration:none;transition:border-color 0.15s,background 0.15s;}
+    .peer-card:hover{border-color:rgba(59,130,246,0.4);background:rgba(13,30,61,0.9);text-decoration:none;}
+    .peer-ticker{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:var(--white);margin-bottom:3px;}
+    .peer-name{font-size:12px;color:#64748b;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .peer-chg{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;}
+
+    .cta-box{background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(245,158,11,0.08));border:1px solid rgba(59,130,246,0.2);border-radius:16px;padding:32px;text-align:center;}
+    .cta-box h3{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:10px;}
+    .cta-box p{color:var(--muted);margin-bottom:20px;font-size:15px;}
+    .btn-gold{display:inline-block;padding:12px 32px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;font-weight:600;font-size:15px;text-decoration:none;}
+
+    footer{border-top:1px solid var(--border);padding:24px 40px;text-align:center;font-size:13px;color:#475569;line-height:2;}
+
+    @media(max-width:600px){
+      nav{padding:14px 20px;}
+      .page{padding:32px 16px 60px;}
+      .ticker{font-size:38px;} .price{font-size:26px;}
+      .peers-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../" class="logo-wrap">
+    <img src="../assets/baize_favicon_v2.png" alt="Baizora">
+    <span class="logo-text">Baiz<span style="color:#3b82f6;">ora</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="../baizora_main_form_free.html" class="nav-btn">Free Preview</a>
+    <a href="../pricing.html" class="nav-btn nav-btn-primary">Start Free Trial</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="breadcrumb">
+    <a href="../">Home</a><span>›</span>Stocks<span>›</span>WMT
+  </div>
+
+  <div class="hero">
+    <div class="company-name">Walmart Inc.</div>
+    <div class="ticker-price">
+      <div class="ticker">WMT</div>
+      <div class="price">$120.27</div>
+      <div class="change" style="color:#ef4444">-0.9%</div>
+    </div>
+    <div class="badges"><span class="badge">S&amp;P 500</span><span class="badge">Nasdaq-100</span></div>
+    <div class="scan-date">Data as of 2026-05-22 &nbsp;·&nbsp; Updated daily after market close</div>
+  </div>
+
+  <div class="summary-box">Walmart Inc. (WMT) is declining -0.9% today, trading at $120.27. Over the past year the stock is +26.4%, with a -4.7% move over the last three months. Its largest single-day price surge in the past year reached +6.5%, while its peak volume day ran +1101.2% above the 21-day average. With a market cap of $959B, WMT is a member of both the S&P 500 and Nasdaq-100. At a P/E of 42.3, it carries a premium to the Consumer Defensive sector average of 25.6.</div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Market Cap</div>
+      <div class="stat-value">$959B</div>
+      <div class="stat-sub">Consumer Defensive</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">P/E Ratio</div>
+      <div class="stat-value">42.3</div>
+      <div class="stat-sub">Sector avg 25.6</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">EPS (TTM)</div>
+      <div class="stat-value">$2.84</div>
+      <div class="stat-sub">Trailing twelve months</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Volume</div>
+      <div class="stat-value">30.3M</div>
+      <div class="stat-sub">Vol / MA21: 1.59x</div>
+    </div>
+  </div>
+
+  <div class="section-title">1-Year Price Trend</div>
+  <div class="spark-box">
+    <svg viewBox="0 0 900 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <polyline points="0.0,190.0 3.6,188.0 7.2,182.1 10.8,183.7 14.3,184.4 17.9,176.7 21.5,171.7 25.1,170.7 28.7,173.7 32.3,180.3 35.9,182.6 39.4,182.7 43.0,183.3 46.6,190.6 50.2,195.2 53.8,197.1 57.4,197.8 61.0,198.0 64.5,194.0 68.1,189.1 71.7,180.7 75.3,180.1 78.9,183.6 82.5,189.6 86.1,183.6 89.6,181.2 93.2,179.0 96.8,182.0 100.4,178.4 104.0,173.7 107.6,184.4 111.2,185.8 114.7,195.1 118.3,197.3 121.9,190.7 125.5,192.6 129.1,193.7 132.7,194.0 136.3,194.2 139.8,191.2 143.4,190.4 147.0,191.2 150.6,186.8 154.2,182.6 157.8,182.0 161.4,178.5 164.9,182.1 168.5,180.2 172.1,177.8 175.7,172.5 179.3,173.9 182.9,154.5 186.5,155.7 190.0,152.8 193.6,151.8 197.2,153.3 200.8,165.8 204.4,166.5 208.0,169.4 211.6,166.1 215.1,163.3 218.7,157.2 222.3,179.2 225.9,184.6 229.5,188.2 233.1,188.3 236.7,188.2 240.2,188.1 243.8,183.9 247.4,179.7 251.0,172.1 254.6,165.0 258.2,167.0 261.8,158.5 265.3,158.5 268.9,167.5 272.5,156.8 276.1,152.8 279.7,151.8 283.3,153.1 286.9,149.0 290.4,152.2 294.0,158.3 297.6,156.0 301.2,157.4 304.8,156.4 308.4,154.9 312.0,154.3 315.5,154.7 319.1,154.8 322.7,160.1 326.3,161.3 329.9,159.5 333.5,156.5 337.1,153.9 340.6,155.6 344.2,161.0 347.8,160.6 351.4,159.3 355.0,135.0 358.6,126.3 362.2,138.5 365.7,132.5 369.3,135.7 372.9,139.7 376.5,135.3 380.1,136.6 383.7,139.9 387.3,148.1 390.8,154.3 394.4,157.7 398.0,158.8 401.6,163.8 405.2,161.8 408.8,158.6 412.4,162.4 415.9,161.4 419.5,157.1 423.1,157.9 426.7,153.0 430.3,153.0 433.9,157.3 437.5,157.6 441.0,155.3 444.6,162.8 448.2,166.5 451.8,135.4 455.4,144.0 459.0,150.0 462.5,136.0 466.1,125.9 469.7,119.2 473.3,114.3 476.9,110.1 480.5,100.5 484.1,98.5 487.6,97.2 491.2,104.6 494.8,97.4 498.4,106.4 502.0,95.2 505.6,88.4 509.2,88.0 512.7,94.6 516.3,93.4 519.9,97.4 523.5,99.6 527.1,108.1 530.7,116.2 534.3,112.8 537.8,112.2 541.4,108.4 545.0,111.3 548.6,113.8 552.2,107.3 555.8,107.6 559.4,99.7 562.9,107.5 566.5,105.8 570.1,98.8 573.7,82.3 577.3,70.9 580.9,72.4 584.5,76.4 588.0,74.0 591.6,78.8 595.2,75.7 598.8,83.0 602.4,83.5 606.0,83.9 609.6,87.3 613.1,89.1 616.7,85.0 620.3,76.7 623.9,53.2 627.5,35.7 631.1,34.3 634.7,39.3 638.2,19.0 641.8,29.4 645.4,40.5 649.0,30.6 652.6,7.2 656.2,6.0 659.8,30.2 663.3,40.9 666.9,49.3 670.5,58.3 674.1,44.8 677.7,40.3 681.3,45.1 684.9,51.4 688.4,34.5 692.0,38.6 695.6,34.7 699.2,35.2 702.8,56.7 706.4,54.4 710.0,51.8 713.5,48.1 717.1,55.9 720.7,47.1 724.3,41.4 727.9,43.9 731.5,48.3 735.1,63.1 738.6,67.4 742.2,76.1 745.8,68.0 749.4,61.6 753.0,56.7 756.6,61.0 760.2,57.6 763.7,54.6 767.3,50.9 770.9,48.7 774.5,43.6 778.1,38.8 781.7,59.5 785.3,36.6 788.8,27.6 792.4,38.9 796.0,49.5 799.6,47.2 803.2,48.6 806.8,48.3 810.4,35.4 813.9,33.4 817.5,25.3 821.1,23.5 824.7,13.7 828.3,23.8 831.9,35.0 835.5,35.0 839.0,33.0 842.6,14.1 846.2,15.7 849.8,21.8 853.4,19.6 857.0,23.0 860.6,22.4 864.1,20.1 867.7,33.8 871.3,20.5 874.9,15.1 878.5,10.4 882.1,15.2 885.7,6.1 889.2,2.0 892.8,18.1 896.4,63.9 900.0,69.0" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="section-title">Multi-Timeframe Performance</div>
+  <div class="tf-box">
+    <table>
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Price Change</th>
+          <th>Peak Day Gain</th>
+          <th>Peak Vol Spike</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="tf-label">2 Weeks</td>
+          <td style="color:#ef4444;font-weight:600">-5.7%</td>
+          <td class="dim">+2.2%</td>
+          <td class="dim">+86.2%</td>
+        </tr>
+        <tr>
+          <td class="tf-label">1 Month</td>
+          <td style="color:#ef4444;font-weight:600">-7.2%</td>
+          <td class="dim">+3.1%</td>
+          <td class="dim">+86.2%</td>
+        </tr>
+        <tr>
+          <td class="tf-label">3 Months</td>
+          <td style="color:#ef4444;font-weight:600">-4.7%</td>
+          <td class="dim">+3.9%</td>
+          <td class="dim">+221.0%</td>
+        </tr>
+        <tr>
+          <td class="tf-label">6 Months</td>
+          <td style="color:#22c55e;font-weight:600">+13.0%</td>
+          <td class="dim">+4.1%</td>
+          <td class="dim">+1101.2%</td>
+        </tr>
+        <tr>
+          <td class="tf-label">9 Months</td>
+          <td style="color:#22c55e;font-weight:600">+24.9%</td>
+          <td class="dim">+6.5%</td>
+          <td class="dim">+1101.2%</td>
+        </tr>
+        <tr>
+          <td class="tf-label">1 Year</td>
+          <td style="color:#22c55e;font-weight:600">+26.4%</td>
+          <td class="dim">+6.5%</td>
+          <td class="dim">+1101.2%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  
+  <div class="section-title">Top Nasdaq-100 Stocks</div>
+  <div class="peers-grid">
+        <a href="NVDA.html" class="peer-card">
+          <div class="peer-ticker">NVDA</div>
+          <div class="peer-name">NVIDIA</div>
+          <div class="peer-chg" style="color:#ef4444">-1.9%</div>
+        </a>
+        <a href="GOOGL.html" class="peer-card">
+          <div class="peer-ticker">GOOGL</div>
+          <div class="peer-name">Alphabet</div>
+          <div class="peer-chg" style="color:#ef4444">-1.2%</div>
+        </a>
+        <a href="AAPL.html" class="peer-card">
+          <div class="peer-ticker">AAPL</div>
+          <div class="peer-name">Apple</div>
+          <div class="peer-chg" style="color:#22c55e">+1.3%</div>
+        </a>
+        <a href="MSFT.html" class="peer-card">
+          <div class="peer-ticker">MSFT</div>
+          <div class="peer-name">Microsoft</div>
+          <div class="peer-chg" style="color:#ef4444">-0.1%</div>
+        </a>
+        <a href="AMZN.html" class="peer-card">
+          <div class="peer-ticker">AMZN</div>
+          <div class="peer-name">Amazon.com,</div>
+          <div class="peer-chg" style="color:#ef4444">-0.8%</div>
+        </a>
+        <a href="AVGO.html" class="peer-card">
+          <div class="peer-ticker">AVGO</div>
+          <div class="peer-name">Broadcom</div>
+          <div class="peer-chg" style="color:#ef4444">-0.1%</div>
+        </a>
+        <a href="TSLA.html" class="peer-card">
+          <div class="peer-ticker">TSLA</div>
+          <div class="peer-name">Tesla,</div>
+          <div class="peer-chg" style="color:#22c55e">+1.9%</div>
+        </a>
+        <a href="META.html" class="peer-card">
+          <div class="peer-ticker">META</div>
+          <div class="peer-name">Meta</div>
+          <div class="peer-chg" style="color:#22c55e">+0.5%</div>
+        </a>
+        <a href="MU.html" class="peer-card">
+          <div class="peer-ticker">MU</div>
+          <div class="peer-name">Micron</div>
+          <div class="peer-chg" style="color:#ef4444">-1.5%</div>
+        </a>
+  </div>
+
+
+  <div class="cta-box">
+    <h3>See all 500+ stocks</h3>
+    <p>Sort by any signal across 7 timeframes. Full S&amp;P 500 and Nasdaq-100 coverage, updated daily.</p>
+    <a href="../pricing.html" class="btn-gold">Start 7-Day Free Trial</a>
+  </div>
+
+</div>
+
+<footer>
+  <a href="../">Baizora</a> &nbsp;·&nbsp;
+  <a href="../assets/about.html">About</a> &nbsp;·&nbsp;
+  <a href="../assets/faq.html">FAQ</a> &nbsp;·&nbsp;
+  <a href="../assets/privacy.html">Privacy</a> &nbsp;·&nbsp;
+  <a href="../assets/disclaimer.html">Disclaimer</a>
+  <br>
+  For informational purposes only. Not financial advice. Data updated daily after US market close.
+</footer>
+
+</body>
+</html>
