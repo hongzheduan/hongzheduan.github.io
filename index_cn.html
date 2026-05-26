@@ -610,16 +610,6 @@
     .tf-btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: default; }
     .tf-btn.active { background: var(--electric); border-color: var(--electric); color: white; }
 
-    /* ── POPULAR STOCKS ── */
-    .popular-stocks { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 20px 60px 70px; }
-    .stocks-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-    .stock-card { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: rgba(13,30,61,0.6); text-decoration: none; transition: border-color 0.15s, background 0.15s; }
-    .stock-card:hover { border-color: rgba(59,130,246,0.4); background: rgba(13,30,61,0.9); text-decoration: none; }
-    .stock-card .sc-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: #f8fafc; }
-    .stock-card .sc-chg { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 600; }
-    .stock-card .up { color: #22c55e; }
-    .stock-card .dn { color: #ef4444; }
-
     /* ── BOTTOM CTA ── */
     .bottom-cta { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 40px 40px 90px; text-align: center; }
     .cta-box { background: linear-gradient(135deg, rgba(13,30,61,0.9) 0%, rgba(22,40,71,0.9) 100%); border: 1px solid rgba(59,130,246,0.2); border-radius: 24px; padding: 70px 60px; position: relative; overflow: hidden; }
@@ -655,7 +645,7 @@
       .hero-bullet { justify-content: center; }
       .features { padding: 60px 20px; }
       .cards { grid-template-columns: 1fr; }
-      .popular-stocks { padding: 20px 20px 50px; }
+
       .cta-box { padding: 40px 24px; }
       footer { padding: 24px 20px; flex-direction: column; text-align: center; }
       .footer-links { justify-content: center; }
@@ -1230,12 +1220,7 @@
   </div>
 </section>
 
-<section class="popular-stocks">
-  <div class="section-label" style="margin-bottom:12px;">热门个股</div>
-  <div class="stocks-grid" id="popularStocksGrid">
-    <!-- rendered by JS -->
-  </div>
-</section>
+
 
 <section class="bottom-cta">
   <div class="cta-box">
@@ -1565,28 +1550,6 @@ document.addEventListener('DOMContentLoaded', renderMock);
   }).catch(() => {});
 })();
 
-// Popular stocks section
-(function() {
-  const TOP10 = ["NVDA","GOOGL","AAPL","MSFT","AMZN","AVGO","TSLA","META","WMT","MU"];
-  const SHORT = {NVDA:"英伟达",GOOGL:"谷歌",AAPL:"苹果",MSFT:"微软",AMZN:"亚马逊",
-                 AVGO:"博通",TSLA:"特斯拉",META:"Meta",WMT:"沃尔玛",MU:"美光"};
-  fetch('data/latest.json').then(r => r.json()).then(data => {
-    const map = {};
-    data.data.forEach(r => { map[r.Ticker] = r; });
-    const grid = document.getElementById('popularStocksGrid');
-    if (!grid) return;
-    grid.innerHTML = TOP10.map(t => {
-      const r = map[t]; if (!r) return '';
-      const pc1d = r.PriceChange1D || 0;
-      const cls  = pc1d >= 0 ? 'up' : 'dn';
-      const s    = pc1d >= 0 ? '+' : '';
-      return `<a href="stocks/${t}.html" class="stock-card">
-        <span class="sc-ticker">${t}</span>
-        <span class="sc-chg ${cls}">${s}${pc1d.toFixed(1)}%</span>
-      </a>`;
-    }).join('');
-  }).catch(() => {});
-})();
 </script>
 
   <script>
