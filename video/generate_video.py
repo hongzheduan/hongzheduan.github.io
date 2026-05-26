@@ -2981,6 +2981,17 @@ _SPOTLIGHT_OPENERS_EN = [
 ]
 
 
+def _parse_date(s):
+    """Parse a date string in YYYY-MM-DD or MM/DD/YYYY format."""
+    s = s.strip()
+    if '/' in s:
+        try:
+            return datetime.datetime.strptime(s, "%m/%d/%Y").date()
+        except ValueError:
+            pass
+    return datetime.date.fromisoformat(s)
+
+
 def _price_from_spark(row, spark_idx):
     spark = row.get("Spark1Y") or []
     if len(spark) < 2:
@@ -3023,8 +3034,15 @@ def _get_new_members(data):
         spark = row.get("Spark1Y") or []
         if len(spark) < 2:
             continue
-        d1    = datetime.date.fromisoformat(info["join_date"])
-        d2    = datetime.date.fromisoformat(scan_date)
+        try:
+            d1 = _parse_date(info["join_date"])
+        except ValueError:
+            print(f"  [skip] bad join date for {t}: {info['join_date']!r}")
+            continue
+        d2 = datetime.date.fromisoformat(scan_date)
+        if not (0 < (d2 - d1).days <= 730):
+            print(f"  [skip] {t} join date out of range: {info['join_date']} ({(d2-d1).days}d)")
+            continue
         bdays = 0
         cur   = d1
         while cur < d2:
@@ -3105,9 +3123,10 @@ def scene_index_spotlight(member, scan_date):
         draw.text((LP_X, 342), "SECTOR", font=f_lbl, fill=DIM)
         draw.text((LP_X, 364), sector, font=f_med, fill=MUTED)
 
+    jdate_fmt = datetime.date.fromisoformat(jdate).strftime("%b %d, %Y")
     draw.text((LP_X, 416), "JOINED", font=f_lbl, fill=DIM)
-    draw.text((LP_X, 438), jdate, font=f_med, fill=WHITE)
-    draw.text((LP_X, 476), f"{bdays} trading days ago", font=f_sml, fill=DIM)
+    draw.text((LP_X, 438), f"{bdays} trading days ago joined {idx}", font=f_sml, fill=WHITE)
+    draw.text((LP_X, 476), jdate_fmt, font=load_font(20), fill=DIM)
 
     # Vertical divider
     draw.line([(960, 110), (960, H - 68)], fill=BORDER)
@@ -3167,11 +3186,12 @@ def scene_index_spotlight_cn(member, scan_date):
     top_bar(draw, f"指数聚焦 — {ticker}  ({scan_date})", scan_date)
 
     LP_X   = 72
-    f_lbl  = load_font_cn(17)
-    f_sml  = load_font_cn(22)
-    f_med  = load_font(30)
-    f_cname = load_font(44, bold=True)
-    f_tkr  = load_font(68, mono=True)
+    f_lbl    = load_font_cn(17)
+    f_sml    = load_font_cn(22)
+    f_med    = load_font(30)
+    f_med_cn = load_font_cn(30)
+    f_cname  = load_font(44, bold=True)
+    f_tkr    = load_font(68, mono=True)
 
     cname_s = cname if len(cname) <= 28 else cname[:25] + "..."
     draw.text((LP_X, 114), "公司", font=f_lbl, fill=DIM)
@@ -3188,9 +3208,11 @@ def scene_index_spotlight_cn(member, scan_date):
         draw.text((LP_X, 342), "行业", font=f_lbl, fill=DIM)
         draw.text((LP_X, 364), sector, font=f_med, fill=MUTED)
 
+    _d = datetime.date.fromisoformat(jdate)
+    jdate_fmt = f"{_d.year}年{_d.month:02d}月{_d.day:02d}日"
     draw.text((LP_X, 416), "纳入日期", font=f_lbl, fill=DIM)
-    draw.text((LP_X, 438), jdate, font=f_med, fill=WHITE)
-    draw.text((LP_X, 476), f"{bdays}个交易日前", font=f_sml, fill=DIM)
+    draw.text((LP_X, 438), jdate_fmt, font=f_med_cn, fill=WHITE)
+    draw.text((LP_X, 496), f"{bdays}个交易日前", font=f_sml, fill=DIM)
 
     draw.line([(960, 110), (960, H - 68)], fill=BORDER)
 
@@ -3223,6 +3245,43 @@ def scene_index_spotlight_cn(member, scan_date):
     hline(draw, H - 68)
     centered(draw, H - 56, "在baizora.com追踪标普500和纳斯达克100全部成分股变动",
              load_font_cn(20, bold=True), ELEC_BRIGHT)
+    return img
+
+
+def scene_sparkline_intro(member, scan_date):
+    """Hold frame shown before the chart appears — narration plays here, chart follows silently."""
+    img, draw = new_frame()
+    row    = member["row"]
+    ticker = member["ticker"]
+    cname  = row.get("CompanyName", ticker)
+    idx    = member["index_name"]
+    perf   = member["perf_since_join"]
+
+    top_bar(draw, f"Index Spotlight — {ticker} — Price Since Joining  ({scan_date})", scan_date)
+
+    f_lbl  = load_font(20, mono=True)
+    f_sub  = load_font(26)
+    f_ann  = load_font(32, bold=True)
+
+    cname_s = cname if len(cname) <= 32 else cname[:29] + "..."
+    centered(draw, H // 2 - 80, cname_s, f_sub, MUTED)
+    centered(draw, H // 2 - 36, ticker, load_font(52, mono=True), WHITE)
+
+    sign    = "+" if perf >= 0 else ""
+    if perf > 0:
+        perf_label = f"{sign}{perf:.1f}% since joining {idx}"
+        ann_col = GREEN
+    else:
+        perf_label = f"Has not gained since joining {idx}"
+        ann_col = RED
+    centered(draw, H // 2 + 44, perf_label, f_ann, ann_col)
+
+    centered(draw, H // 2 + 100, "ONE-YEAR PRICE CHART", load_font(18, mono=True), DIM)
+
+    hline(draw, H - 68)
+    centered(draw, H - 56,
+             "Triangle = join date  ·  Circle = today  ·  baizora.com",
+             load_font(20, bold=True), ELEC_BRIGHT)
     return img
 
 
@@ -3368,14 +3427,108 @@ def scene_index_changes_promo(date):
     return img
 
 
+def scene_promo_with_change_ss(date):
+    """Left half: promo text. Right half: membership_change screenshot."""
+    img, draw = new_frame()
+    divx = 940
+
+    top_bar(draw, f"Index Membership Change Tracker  ({date})", date)
+
+    cx_left = divx // 2
+    y = 180
+
+    f_eyebrow = load_font(18, mono=True)
+    eyebrow = "◈   BAIZORA PLATFORM"
+    draw.text((cx_left - tw(draw, eyebrow, f_eyebrow) // 2, y),
+              eyebrow, font=f_eyebrow, fill=ELECTRIC)
+    y += 44
+
+    f_title = load_font(44, bold=True)
+    for line in _wrap_text(draw, "Daily Index Membership Tracking", f_title, divx - 80):
+        draw.text((cx_left - tw(draw, line, f_title) // 2, y), line, font=f_title, fill=WHITE)
+        y += th(draw, "Ag", f_title) + 12
+    y += 36
+
+    bullets = [
+        "◆  Every S&P 500 & Nasdaq-100 change logged daily",
+        "◆  Price history tracked from day of inclusion",
+        "◆  See how each new member performs over time",
+    ]
+    f_bullet = load_font(22)
+    for b in bullets:
+        draw.text((cx_left - tw(draw, b, f_bullet) // 2, y), b, font=f_bullet, fill=MUTED)
+        y += th(draw, "Ag", f_bullet) + 14
+    y += 20
+
+    f_cta = load_font(26, bold=True)
+    cta = "baizora.com — 7-day free trial"
+    draw.text((cx_left - tw(draw, cta, f_cta) // 2, y), cta, font=f_cta, fill=ELEC_BRIGHT)
+
+    draw.line([(divx, 90), (divx, H - 48)], fill=BORDER)
+
+    p = Path(_SS_MEMBERSHIP_CHANGE)
+    if p.exists():
+        ss = Image.open(str(p)).convert("RGB")
+        iw, ih = ss.size
+        max_w, max_h = W - divx - 20, H - 120
+        scale = min(max_w / iw, max_h / ih)
+        nw, nh = int(iw * scale), int(ih * scale)
+        ss = ss.resize((nw, nh), Image.LANCZOS)
+        img.paste(ss, (divx + (W - divx - nw) // 2, (H - nh) // 2))
+
+    hline(draw, H - 68)
+    centered(draw, H - 56, "For informational purposes only. Not financial advice.",
+             load_font(18), DIM)
+    return img
+
+
+def scene_outro_with_homepage(scan_date):
+    """Left half: homepage screenshot. Right half: outro branding."""
+    img, draw = new_frame()
+    divx = 960
+
+    p = Path(_SS_EN)
+    if p.exists():
+        ss = Image.open(str(p)).convert("RGB")
+        iw, ih = ss.size
+        scale = min(divx / iw, H / ih)
+        nw, nh = int(iw * scale), int(ih * scale)
+        ss = ss.resize((nw, nh), Image.LANCZOS)
+        img.paste(ss, ((divx - nw) // 2, (H - nh) // 2))
+
+    draw.line([(divx, 80), (divx, H - 40)], fill=BORDER)
+
+    rx_cx = divx + (W - divx) // 2
+    f_big = load_font(80, serif=True)
+    baiz_w = tw(draw, "Baiz", f_big)
+    ora_w  = tw(draw, "ora",  f_big)
+    lx = divx + ((W - divx) - baiz_w - ora_w) // 2
+    draw.text((lx,          310), "Baiz", font=f_big, fill=WHITE)
+    draw.text((lx + baiz_w, 310), "ora",  font=f_big, fill=ELECTRIC)
+
+    f_sub = load_font(22)
+    for label, y, col in [
+        ("US Large-Cap Price & Volume Analytics", 418, MUTED),
+        ("Start your free 7-day trial",           470, GOLD_LIGHT),
+        ("baizora.com",                            516, ELECTRIC),
+        (f"Daily Scan: {scan_date}",               560, DIM),
+    ]:
+        draw.text((rx_cx - tw(draw, label, f_sub) // 2, y), label, font=f_sub, fill=col)
+
+    return img
+
+
 def _narrate_spotlight_spark(member):
-    """Short narration for the 7s sparkline scene — keep to ~15 words."""
+    """Short narration for the sparkline intro scene."""
     perf = member["perf_since_join"]
-    sign = "+" if perf >= 0 else ""
-    direction = "up" if perf >= 0 else "down"
+    if perf > 0:
+        sign = "+"
+        perf_part = f"up {sign}{perf:.1f}% since then"
+    else:
+        perf_part = "has not gained yet since joining"
     return (
-        f"Here's the one-year chart. "
-        f"The gold triangle marks the join date — {direction} {sign}{perf:.1f}% since then."
+        f"Here's the one-year price chart. "
+        f"The gold triangle marks the join date — {perf_part}."
     )
 
 
@@ -3391,24 +3544,40 @@ def _narrate_spotlight(member):
     jp        = member["join_price"]
     cp        = row.get("Price") or 0
     pc1d      = row.get("PriceChange1D") or 0
-    direction = "gained" if perf >= 0 else "fallen"
-    sign      = "+" if perf >= 0 else ""
     mg_sign   = "+" if max_gain >= 0 else ""
     today_dir = "up" if pc1d >= 0 else "down"
+    if perf > 0:
+        sign = "+"
+        perf_part = f"currently up {sign}{perf:.1f}% from ${jp:,.2f} to ${cp:,.2f}."
+        extra = ""
+    else:
+        perf_part = f"has not gained yet — currently at ${cp:,.2f}, from the join price of ${jp:,.2f}."
+        extra = (
+            " Interestingly, unlike most index additions, it hasn't moved up —"
+            " could this be an early entry opportunity?"
+        )
     return (
-        f"Index inclusion means passive funds must buy immediately. "
         f"{cname} joined the {idx} {bdays} trading days ago. "
         f"At its peak, it surged {mg_sign}{max_gain:.1f}% since joining — "
-        f"currently {direction} {sign}{perf:.1f}% from ${jp:,.2f} to ${cp:,.2f}. "
-        f"Today, {ticker} is {today_dir} {abs(pc1d):.1f}%."
+        f"{perf_part}"
+        f" Today, {ticker} is {today_dir} {abs(pc1d):.1f}%."
+        + extra
     )
 
 
-def _narrate_spotlight_promo():
+def _narrate_spotlight_change_log():
     return (
-        "Index changes are typically announced a week before they happen. "
-        "Baizora's curated feed cuts through the noise — so you can act early. "
-        "Visit baizora dot com."
+        "Baizora tracks every S&P 500 and Nasdaq-100 membership change "
+        "and records the complete price history for every new member."
+    )
+
+
+def _narrate_spotlight_news():
+    return (
+        "Index changes are typically announced more than a week before they happen. "
+        "Baizora's curated news feed cuts through the noise, "
+        "so you can act before the crowd. "
+        "Start your free seven-day trial at baizora dot com."
     )
 
 
@@ -3427,7 +3596,7 @@ def _get_verified_members(data):
         + VRT Vertiv Holdings Co
         + COHR Coherent Corp.
     """
-    verified_file = ROOT_DIR / "data" / "verified_new_member.txt"
+    verified_file = SCRIPT_DIR / "verified_new_member.txt"
 
     if not verified_file.exists():
         return _get_new_members(data)
@@ -3468,8 +3637,15 @@ def _get_verified_members(data):
         if len(spark) < 2:
             continue
         index_name = "Nasdaq-100" if idx_key == "nasdaq100" else "S&P 500"
-        d1 = datetime.date.fromisoformat(jdate_str)
+        try:
+            d1 = _parse_date(jdate_str)
+        except ValueError:
+            print(f"  [skip] bad join date for {t}: {jdate_str!r}")
+            continue
         d2 = datetime.date.fromisoformat(scan_date)
+        if not (0 < (d2 - d1).days <= 730):
+            print(f"  [skip] {t} join date out of range: {jdate_str} ({(d2-d1).days}d)")
+            continue
         bdays, cur = 0, d1
         while cur < d2:
             cur += datetime.timedelta(days=1)
@@ -3518,6 +3694,8 @@ def build_index_spotlight(data, output):
     ticker = member["ticker"]
     idx    = member["index_name"]
 
+    card_dur = 36 if member["perf_since_join"] <= 0 else 28
+
     encode([
         (scene_title("Index Spotlight", idx, date,
                      f"New member performance — {ticker}"), 4,
@@ -3525,18 +3703,17 @@ def build_index_spotlight(data, output):
          random.choice(_SPOTLIGHT_OPENERS_EN) +
          " Every Friday on this channel, we spotlight a new S&P 500 or Nasdaq-100 member"
          " and track how it has performed since joining. Subscribe to follow along each week."),
-        (scene_index_spotlight(member, date), 21,
+        (scene_index_spotlight(member, date), card_dur,
          f"{ticker} — joined {idx} on {member['join_date']}",
-         _narrate_spotlight(member)),
-        (scene_spotlight_sparkline(member, date), 12,
-         "One-year price chart — triangle = join date, circle = today",
-         _narrate_spotlight_spark(member)),
-        (scene_index_changes_promo(date), 6,
-         "Index membership news & full price history — baizora.com",
-         _narrate_spotlight_promo()),
-        (scene_screenshot(_SS_MEMBERSHIP_NEWS), 2),
-        (scene_screenshot(_SS_MEMBERSHIP_CHANGE), 2),
-        (scene_outro(date), 3,
+         _narrate_spotlight(member) + " " + _narrate_spotlight_spark(member)),
+        (scene_spotlight_sparkline(member, date), 9 if member["perf_since_join"] <= 0 else 8),
+        (scene_promo_with_change_ss(date), 10,
+         "Index membership changes — full price history — baizora.com",
+         _narrate_spotlight_change_log()),
+        (scene_screenshot(_SS_MEMBERSHIP_NEWS), 10,
+         "Index membership news feed — baizora.com",
+         _narrate_spotlight_news()),
+        (scene_outro_with_homepage(date), 3,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
 
@@ -3556,11 +3733,14 @@ _SPOTLIGHT_OPENERS_CN = [
 
 
 def _narrate_spotlight_spark_cn(member):
-    """短旁白，适配7秒走势图场景。"""
-    perf      = member["perf_since_join"]
-    sign      = "+" if perf >= 0 else ""
-    direction = "上涨" if perf >= 0 else "下跌"
-    return f"这是一年期价格走势图。金色三角标记纳入日期——自加入以来{direction}{sign}{perf:.1f}%。"
+    """短旁白，适配走势图前置等待帧场景。"""
+    perf = member["perf_since_join"]
+    if perf > 0:
+        sign = "+"
+        perf_part = f"自加入以来上涨{sign}{perf:.1f}%"
+    else:
+        perf_part = "自加入以来尚未上涨"
+    return f"这是一年期价格走势图。金色三角标记纳入日期——{perf_part}。"
 
 
 def _narrate_spotlight_cn(member):
@@ -3575,25 +3755,36 @@ def _narrate_spotlight_cn(member):
     jp        = member["join_price"]
     cp        = row.get("Price") or 0
     pc1d      = row.get("PriceChange1D") or 0
-    direction = "上涨" if perf >= 0 else "下跌"
-    sign      = "+" if perf >= 0 else ""
     mg_sign   = "+" if max_gain >= 0 else ""
     today_dir = "上涨" if pc1d >= 0 else "下跌"
+    if perf > 0:
+        sign = "+"
+        perf_part = f"目前上涨{sign}{perf:.1f}%，从{jp:,.2f}到{cp:,.2f}美元。"
+        extra = ""
+    else:
+        perf_part = f"目前尚未上涨——当前价格{cp:,.2f}美元，纳入价格为{jp:,.2f}美元。"
+        extra = "有趣的是，与多数指数新成员不同，它加入后尚未上涨——这或许是个提前布局的机会？"
     return (
-        f"纳入指数意味着被动基金必须立即买入。"
         f"{cname}于{bdays}个交易日前加入{idx_cn}。"
         f"加入后最高涨幅达{mg_sign}{max_gain:.1f}%，"
-        f"目前{direction}{sign}{perf:.1f}%，"
-        f"从{jp:,.2f}到{cp:,.2f}美元。"
+        f"{perf_part}"
         f"今日{ticker}{today_dir}{abs(pc1d):.1f}%。"
+        + extra
     )
 
 
-def _narrate_spotlight_promo_cn():
+def _narrate_spotlight_change_log_cn():
+    return (
+        "贝佐拉追踪标普500和纳斯达克100的每一次成分股变动，"
+        "完整记录每只新成员的价格走势。"
+    )
+
+
+def _narrate_spotlight_news_cn():
     return (
         "成分股变动通常提前一周以上公告。"
-        "贝佐拉精选资讯，过滤噪音，让您提前掌握动向。"
-        "访问baizora.com。"
+        "贝佐拉精选资讯，过滤噪音，让您抢先掌握动向。"
+        "立即前往baizora.com，开始七天免费体验。"
     )
 
 
@@ -3640,6 +3831,93 @@ def scene_index_changes_promo_cn(date):
     return img
 
 
+def scene_promo_with_change_ss_cn(date):
+    """左半部分：中文推广文字。右半部分：membership_change 截图。"""
+    img, draw = new_frame()
+    divx = 940
+
+    top_bar(draw, f"成分股变动日常追踪  ({date})", date)
+
+    cx_left = divx // 2
+    y = 180
+
+    label = "◈   贝佐拉平台"
+    f_label = load_font_cn(18)
+    draw.text((cx_left - tw(draw, label, f_label) // 2, y), label, font=f_label, fill=ELECTRIC)
+    y += 44
+
+    f_title = load_font_cn(44, bold=True)
+    for line in _wrap_text(draw, "每日指数成分股变动追踪", f_title, divx - 80):
+        draw.text((cx_left - tw(draw, line, f_title) // 2, y), line, font=f_title, fill=WHITE)
+        y += th(draw, "一", f_title) + 18
+    y += 30
+
+    bullets_cn = [
+        "◆  标普500和纳斯达克100每日变动全记录",
+        "◆  从纳入之日起完整追踪价格走势",
+        "◆  清晰查看每只新成员纳入后的表现",
+    ]
+    f_bullet = load_font_cn(20)
+    for b in bullets_cn:
+        draw.text((cx_left - tw(draw, b, f_bullet) // 2, y), b, font=f_bullet, fill=MUTED)
+        y += th(draw, "一", f_bullet) + 14
+    y += 20
+
+    f_cta = load_font_cn(26, bold=True)
+    cta = "baizora.com — 七天免费体验"
+    draw.text((cx_left - tw(draw, cta, f_cta) // 2, y), cta, font=f_cta, fill=ELEC_BRIGHT)
+
+    draw.line([(divx, 90), (divx, H - 48)], fill=BORDER)
+
+    p = Path(_SS_MEMBERSHIP_CHANGE)
+    if p.exists():
+        ss = Image.open(str(p)).convert("RGB")
+        iw, ih = ss.size
+        max_w, max_h = W - divx - 20, H - 120
+        scale = min(max_w / iw, max_h / ih)
+        nw, nh = int(iw * scale), int(ih * scale)
+        ss = ss.resize((nw, nh), Image.LANCZOS)
+        img.paste(ss, (divx + (W - divx - nw) // 2, (H - nh) // 2))
+
+    hline(draw, H - 68)
+    centered(draw, H - 56, "仅供参考，不构成投资建议 | baizora.com",
+             load_font_cn(18), DIM)
+    return img
+
+
+def scene_outro_cn_with_homepage(scan_date):
+    """左半部分：中文主页截图。右半部分：中文结尾品牌。"""
+    img, draw = new_frame()
+    divx = 960
+
+    p = Path(_SS_CN)
+    if p.exists():
+        ss = Image.open(str(p)).convert("RGB")
+        iw, ih = ss.size
+        scale = min(divx / iw, H / ih)
+        nw, nh = int(iw * scale), int(ih * scale)
+        ss = ss.resize((nw, nh), Image.LANCZOS)
+        img.paste(ss, ((divx - nw) // 2, (H - nh) // 2))
+
+    draw.line([(divx, 80), (divx, H - 40)], fill=BORDER)
+
+    rx_cx = divx + (W - divx) // 2
+    f_big = load_font_cn(72, bold=True)
+    brand_w = tw(draw, "贝佐拉", f_big)
+    draw.text((divx + ((W - divx) - brand_w) // 2, 310), "贝佐拉", font=f_big, fill=ELEC_BRIGHT)
+
+    f_sub = load_font_cn(20)
+    for label, y, col in [
+        ("美股大盘价格与成交量分析平台", 418, MUTED),
+        ("开始七天免费试用",              468, GOLD_LIGHT),
+        ("baizora.com",                  514, ELECTRIC),
+        (f"每日扫描：{scan_date}",         558, DIM),
+    ]:
+        draw.text((rx_cx - tw(draw, label, f_sub) // 2, y), label, font=f_sub, fill=col)
+
+    return img
+
+
 def build_index_spotlight_cn(data, output):
     members = _get_verified_members(data)
     if not members:
@@ -3657,18 +3935,17 @@ def build_index_spotlight_cn(data, output):
          f"追踪{ticker}自加入{idx_cn}后的表现",
          random.choice(_SPOTLIGHT_OPENERS_CN) +
          "本频道每周五聚焦一只新晋指数成员，追踪其纳入后的完整表现。订阅我们，每周跟进。"),
-        (scene_index_spotlight_cn(member, date), 21,
+        (scene_index_spotlight_cn(member, date), 30 if member["perf_since_join"] <= 0 else 20,
          f"{ticker} — 于{member['join_date']}加入{idx_cn}",
-         _narrate_spotlight_cn(member)),
-        (scene_spotlight_sparkline(member, date), 12,
-         "一年期价格走势图 — 金色三角为纳入日期，圆点为今日 | baizora.com",
-         _narrate_spotlight_spark_cn(member)),
-        (scene_index_changes_promo_cn(date), 6,
-         "成分股变动资讯与完整价格走势 — baizora.com",
-         _narrate_spotlight_promo_cn()),
-        (scene_screenshot(_SS_MEMBERSHIP_NEWS), 2),
-        (scene_screenshot(_SS_MEMBERSHIP_CHANGE), 2),
-        (scene_outro_cn(date), 3,
+         _narrate_spotlight_cn(member) + " " + _narrate_spotlight_spark_cn(member)),
+        (scene_spotlight_sparkline(member, date), 9),
+        (scene_promo_with_change_ss_cn(date), 10,
+         "成分股变动记录与完整价格走势 — baizora.com",
+         _narrate_spotlight_change_log_cn()),
+        (scene_screenshot(_SS_MEMBERSHIP_NEWS), 10,
+         "成分股变动资讯 — baizora.com",
+         _narrate_spotlight_news_cn()),
+        (scene_outro_cn_with_homepage(date), 3,
          "仅供参考，不构成投资建议 | baizora.com"),
     ], output, tts_voice="zh-CN-YunxiNeural")
 
