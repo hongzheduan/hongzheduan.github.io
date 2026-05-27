@@ -653,6 +653,27 @@
     .cta-box h2 { font-family: 'DM Serif Display', serif; font-size: clamp(22px, 2.8vw, 36px); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 12px; color: #60a5fa; }
     .cta-box p { font-size: 16px; color: #cbd5e1; margin-bottom: 16px; font-weight: 400; }
     .cta-box p:last-of-type { margin-bottom: 32px; }
+    .cta-two-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
+    .hp-news-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 32px 28px; display: flex; flex-direction: column; text-align: left; }
+    .hp-news-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
+    .hp-news-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); margin-bottom: 4px; letter-spacing: -0.01em; }
+    .hp-news-sub { font-size: 12px; color: #64748b; margin-bottom: 16px; }
+    .hp-news-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .hp-cat-tab { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: #94a3b8; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
+    .hp-cat-tab:hover { color: var(--white); border-color: rgba(255,255,255,0.2); }
+    .hp-cat-tab.hp-add { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.35); color: #86efac; }
+    .hp-cat-tab.hp-rem { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.35); color: #fca5a5; }
+    .hp-news-list { flex: 1; }
+    .hp-news-item { padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .hp-news-item:last-child { border-bottom: none; }
+    .hp-news-item-date { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; margin-bottom: 2px; }
+    .hp-news-item-title { font-size: 12px; font-weight: 500; color: var(--white); text-decoration: none; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.15s; }
+    .hp-news-item-title:hover { color: var(--electric-bright); }
+    .hp-news-item-source { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; margin-top: 2px; }
+    .hp-news-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
+    .hp-news-viewall { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: var(--electric-bright); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s; }
+    .hp-news-viewall:hover { opacity: 0.75; }
+    .hp-news-msg { font-size: 12px; color: #64748b; padding: 20px 0; text-align: center; }
 
     /* ── FOOTER ── */
     footer { position: relative; z-index: 10; border-top: 1px solid var(--border); padding: 28px 40px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -687,6 +708,7 @@
       .features { padding: 60px 20px; }
       .cards { grid-template-columns: 1fr; }
 
+      .cta-two-panel { grid-template-columns: 1fr; }
       .cta-box { padding: 40px 24px; }
       footer { padding: 24px 20px; }
       .footer-row { flex-direction: column; align-items: center; text-align: center; }
@@ -1012,7 +1034,7 @@
     <!-- LEFT -->
     <div class="hero-left">
       <div class="hero-eyebrow" style="margin-bottom:18px;">◈ &nbsp; US Equities Price & Volume Intelligence</div>
-      <h1 class="hero-title">US Index Stock Analytics</h1>
+      <h1 class="hero-title" style="font-size:clamp(22px,2.8vw,34px);">The pulse of the market — price, volume, trend at a glance.</h1>
 
       <div class="hero-bullets">
         <div class="hero-bullet">All metrics in one view — no tab-switching</div>
@@ -1176,8 +1198,8 @@
     </div>
     <div class="card fade-up delay-2">
       <div class="card-icon" style="background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.2);">◈</div>
-      <h3>Index Membership News</h3>
-      <p>Tracks news on pending S&amp;P 500 and Nasdaq-100 additions and removals — so you can spot index-driven moves before they happen.</p>
+      <h3>Index Membership News & Records</h3>
+      <p>Tracks news on pending S&amp;P 500 and Nasdaq-100 additions and removals, plus a detailed historical record of every past membership change — <strong style="color:var(--white);">checked daily</strong> so you can spot index-driven moves before they happen.</p>
     </div>
     <div class="card fade-up delay-3">
       <div class="card-icon">◷</div>
@@ -1223,7 +1245,7 @@
       </div>
     </div>
 
-    <div class="spark-row">
+    <div class="spark-row" id="sparkRow-NVDA">
       <div class="spark-ticker">NVDA</div>
       <div class="spark-svg-wrap">
         <svg width="200" height="28" viewBox="0 0 200 28" fill="none">
@@ -1236,7 +1258,7 @@
       <div class="spark-price">892.31</div>
       <div class="spark-change dn-c">▼ 0.4%</div>
     </div>
-    <div class="spark-row">
+    <div class="spark-row" id="sparkRow-META">
       <div class="spark-ticker">META</div>
       <div class="spark-svg-wrap">
         <svg width="200" height="28" viewBox="0 0 200 28" fill="none">
@@ -1249,7 +1271,7 @@
       <div class="spark-price">503.21</div>
       <div class="spark-change dn-c">▼ 0.7%</div>
     </div>
-    <div class="spark-row">
+    <div class="spark-row" id="sparkRow-TSLA">
       <div class="spark-ticker">TSLA</div>
       <div class="spark-svg-wrap">
         <svg width="200" height="28" viewBox="0 0 200 28" fill="none">
@@ -1266,18 +1288,39 @@
 </section>
 
 <section class="bottom-cta">
-  <div class="cta-box">
-    <h2>Every price move. Every volume spike.<br>Organized.</h2>
-    <p>No noise — just structured data.</p>
-    <p>Full access from day one. Cancel anytime.</p>
-    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-      <a href="pricing.html" class="btn-gold">
-        🔥 Start Free — 7 Days
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview</a>
+  <div class="cta-two-panel">
+
+    <!-- Left: Index Membership News -->
+    <div class="hp-news-panel">
+      <div class="hp-news-eyebrow">◈ &nbsp; Index News</div>
+      <div class="hp-news-heading">Index Membership News & Records</div>
+      <div class="hp-news-sub">S&amp;P 500 &amp; Nasdaq-100 — pending additions &amp; removals</div>
+      <div class="hp-news-tabs" id="hpCatTabs"></div>
+      <div class="hp-news-list" id="hpNewsList"><div class="hp-news-msg">Loading…</div></div>
+      <div class="hp-news-footer">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;color:#64748b;" id="hpLastUpdated"></span>
+        <a href="index_news.html" class="hp-news-viewall">
+          View all
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
     </div>
-    <p style="font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;letter-spacing:0.05em;margin-top:12px;">From $9.99/mo · No extra fees · Tax included</p>
+
+    <!-- Right: CTA -->
+    <div class="cta-box">
+      <h2>Every price move. Every volume spike.<br>Organized.</h2>
+      <p>No noise — just structured data.</p>
+      <p>Full access from day one. Cancel anytime.</p>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a href="pricing.html" class="btn-gold">
+          🔥 Start Free — 7 Days
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview</a>
+      </div>
+      <p style="font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;letter-spacing:0.05em;margin-top:12px;">From $9.99/mo · No extra fees · Tax included</p>
+    </div>
+
   </div>
 </section>
 
@@ -1627,6 +1670,129 @@ window.mockSort = function(col, el) {
   const link2 = `<a href="top-price-movers.html" class="promo-ticker-item"><span class="promo-arrow">🚀</span> <span class="promo-label">Today's Top Price Movers</span> <span class="promo-arrow">→</span></a>`;
   const chunk = link1 + sep + link2 + sep;
   track.innerHTML = chunk.repeat(8);
+})();
+
+// Spark demo: real data
+(function() {
+  const TICKERS = ["NVDA", "META", "TSLA"];
+
+  function buildSparkSvg(spark, triIdx, dotIdx, triColor, dotColor) {
+    if (!spark || spark.length < 2) return '';
+    const n = spark.length - 1 || 1;
+    const mn = Math.min(...spark), mx = Math.max(...spark);
+    const rng = mx - mn || 1;
+    const px = i => +((i / n) * 196).toFixed(1);
+    const py = i => +(24 - ((spark[i] - mn) / rng) * 20).toFixed(1);
+    const pathD = 'M' + spark.map((_, i) => `${px(i)},${py(i)}`).join(' L');
+    const lineColor = spark[n] >= spark[0] ? '#22c55e' : '#ef4444';
+
+    const tX = px(triIdx), tY = py(triIdx);
+    const tipY = Math.max(tY - 5, 1).toFixed(1);
+    const tri = `<polygon points="${tX},${tipY} ${(tX-4.5).toFixed(1)},${(+tipY+8.6).toFixed(1)} ${(tX+4.5).toFixed(1)},${(+tipY+8.6).toFixed(1)}" fill="${triColor}" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>`;
+
+    const dX = px(dotIdx), dY = py(dotIdx);
+    const dot = `<circle cx="${dX}" cy="${dY}" r="5.5" fill="${dotColor}" opacity="0.25"/><circle cx="${dX}" cy="${dY}" r="3.2" fill="${dotColor}" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>`;
+
+    return `<path d="${pathD}" stroke="${lineColor}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>${tri}${dot}`;
+  }
+
+  fetch('data/latest.json').then(r => r.json()).then(data => {
+    const map = {};
+    data.data.forEach(r => { map[r.Ticker] = r; });
+
+    TICKERS.forEach(t => {
+      const row = document.getElementById('sparkRow-' + t);
+      if (!row) return;
+      const r = map[t]; if (!r) return;
+
+      const spark = r.Spark1Y || [];
+      const n = Math.max(spark.length - 1, 1);
+      const triIdx = Math.min(r['1YMaxVolumeChangeDay'] || 0, n);
+      const dotIdx = Math.min(r['1YMaxPriceChangeDay']  || 0, n);
+      const triColor = (r['1YPriceChangeAtMaxVolume'] || 0) >= 0 ? '#22c55e' : '#ef4444';
+      const dotColor = (r['1YVolumeChangeAtMaxPrice']  || 0) >  0 ? '#22c55e' : '#ef4444';
+
+      const svg = row.querySelector('.spark-svg-wrap svg');
+      if (svg) svg.innerHTML = buildSparkSvg(spark, triIdx, dotIdx, triColor, dotColor);
+
+      const pc1d = r.PriceChange1D || 0;
+      const priceEl = row.querySelector('.spark-price');
+      const chgEl   = row.querySelector('.spark-change');
+      if (priceEl) priceEl.textContent = (r.Price || 0).toFixed(2);
+      if (chgEl) {
+        chgEl.textContent = (pc1d >= 0 ? '▲ +' : '▼ ') + pc1d.toFixed(1) + '%';
+        chgEl.className = 'spark-change ' + (pc1d >= 0 ? 'up-c' : 'dn-c');
+      }
+    });
+  }).catch(() => {});
+})();
+
+// Homepage news panel
+(function() {
+  const CATS = [
+    { key: "S&P 500 addition",    label: "S&P 500 ADD",  cls: "hp-add" },
+    { key: "S&P 500 removal",     label: "S&P 500 REM",  cls: "hp-rem" },
+    { key: "Nasdaq-100 addition", label: "NDX-100 ADD",  cls: "hp-add" },
+    { key: "Nasdaq-100 removal",  label: "NDX-100 REM",  cls: "hp-rem" },
+  ];
+  let allItems = [], activeKey = CATS[0].key;
+
+  function escHtml(s) {
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function renderList(key) {
+    const list = document.getElementById("hpNewsList");
+    if (!list) return;
+    const items = allItems.filter(it => it.category === key).slice(0, 6);
+    if (!items.length) { list.innerHTML = '<div class="hp-news-msg">No articles found.</div>'; return; }
+    list.innerHTML = items.map(it => {
+      const suffix = " - " + it.source;
+      const title = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title;
+      return `<div class="hp-news-item">
+        <div class="hp-news-item-date">${it.date}</div>
+        <a class="hp-news-item-title" href="${it.link}" target="_blank" rel="noopener noreferrer">${escHtml(title)}</a>
+        <div class="hp-news-item-source">${escHtml(it.source)}</div>
+      </div>`;
+    }).join("");
+  }
+
+  function buildTabs() {
+    const tabsEl = document.getElementById("hpCatTabs");
+    if (!tabsEl) return;
+    tabsEl.innerHTML = CATS.map(cat => {
+      const count = allItems.filter(it => it.category === cat.key).length;
+      return `<button class="hp-cat-tab${cat.key === activeKey ? ' ' + cat.cls : ''}" data-key="${cat.key}" data-cls="${cat.cls}" onclick="hpSelectTab('${cat.key}')">${cat.label} (${count})</button>`;
+    }).join("");
+  }
+
+  window.hpSelectTab = function(key) {
+    activeKey = key;
+    document.querySelectorAll(".hp-cat-tab").forEach(btn => {
+      btn.classList.remove("hp-add", "hp-rem");
+      if (btn.dataset.key === key) btn.classList.add(btn.dataset.cls);
+    });
+    renderList(key);
+  };
+
+  fetch("data/index_news.json?t=" + Date.now())
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => {
+      const upd = document.getElementById("hpLastUpdated");
+      if (upd && data.fetched) upd.textContent = data.fetched;
+      if (data.items && data.items.length) {
+        allItems = data.items;
+        buildTabs();
+        renderList(activeKey);
+      } else {
+        const list = document.getElementById("hpNewsList");
+        if (list) list.innerHTML = '<div class="hp-news-msg">No news available.</div>';
+      }
+    })
+    .catch(() => {
+      const list = document.getElementById("hpNewsList");
+      if (list) list.innerHTML = '<div class="hp-news-msg">Could not load news.</div>';
+    });
 })();
 
 </script>
