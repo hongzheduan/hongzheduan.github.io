@@ -545,6 +545,39 @@
     .ticker-item .up { color: #22c55e; }
     .ticker-item .dn { color: #ef4444; }
 
+    /* ── PROMO TICKER STRIP ── */
+    .promo-ticker-wrap {
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid rgba(59,130,246,0.18);
+      background: rgba(59,130,246,0.06);
+      overflow: hidden;
+      padding: 9px 0;
+    }
+    .promo-ticker-track {
+      display: flex;
+      animation: ticker 55s linear infinite;
+      white-space: nowrap;
+    }
+    .promo-ticker-wrap:hover .promo-ticker-track { animation-play-state: paused; }
+    .promo-ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 36px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      color: #94a3b8;
+      border-right: 1px solid rgba(59,130,246,0.15);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .promo-ticker-item:hover { color: #ffffff; }
+    .promo-ticker-item .promo-label { color: #60a5fa; font-weight: 500; }
+    .promo-ticker-item .promo-arrow { color: #60a5fa; font-size: 13px; }
+
     /* ── FEATURES ── */
     .features {
       position: relative;
@@ -1124,6 +1157,10 @@
   <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
+<div class="promo-ticker-wrap">
+  <div class="promo-ticker-track" id="promoTrack"></div>
+</div>
+
 <section class="features">
   <div class="section-label">平台功能</div>
   <h2 class="section-title">为精准分析而构建<br><em>为高效发现而设计</em></h2>
@@ -1582,6 +1619,17 @@ window.mockSort = function(col, el) {
     const html = TOP10.map(item).join('');
     track.innerHTML = html + html; // duplicate for seamless loop
   }).catch(() => {});
+})();
+
+// Promo bar: static links (CN)
+(function() {
+  const track = document.getElementById('promoTrack');
+  if (!track) return;
+  const sep = `<span class="promo-ticker-item" style="cursor:default;color:#334155;">·</span>`;
+  const link1 = `<a href="unusual-volume.html" class="promo-ticker-item"><span class="promo-arrow">📊</span> <span class="promo-label">今日异常放量股票</span> <span class="promo-arrow">→</span></a>`;
+  const link2 = `<a href="top-price-movers.html" class="promo-ticker-item"><span class="promo-arrow">🚀</span> <span class="promo-label">今日涨跌幅最大股票</span> <span class="promo-arrow">→</span></a>`;
+  const chunk = link1 + sep + link2 + sep;
+  track.innerHTML = chunk.repeat(8);
 })();
 
 </script>
