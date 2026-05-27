@@ -1516,7 +1516,7 @@ window.mockSort = function(col, el) {
 
 // Load real data into demo table
 (function() {
-  const TOP10 = ["NVDA","GOOGL","AAPL","MSFT","AMZN","AVGO","TSLA","META","WMT","MU"];
+  const TOP10 = ["NVDA","GOOGL","AAPL","MSFT","AMZN","TSLA","META","MU"];
   fetch('data/latest.json').then(r => r.json()).then(data => {
     const tm = {};
     data.data.forEach(r => { tm[r.Ticker] = r; });
