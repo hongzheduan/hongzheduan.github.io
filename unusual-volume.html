@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DWEPM8KFM9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-DWEPM8KFM9');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top Unusual Volume Stocks Today | S&P 500 & Nasdaq-100 | Baizora</title>
+  <!-- SEO -->
+  <meta name="description" content="Which S&P 500 and Nasdaq-100 stocks had the biggest volume spikes today? Ranked by 1-day volume change %. Updated after market close every trading day. Free, no login required.">
+  <link rel="canonical" href="https://baizora.com/unusual-volume.html">
+  <link rel="alternate" hreflang="en" href="https://baizora.com/unusual-volume.html">
+  <link rel="alternate" hreflang="x-default" href="https://baizora.com/unusual-volume.html">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://baizora.com/unusual-volume.html">
+  <meta property="og:title" content="Top Unusual Volume Stocks Today | S&P 500 & Nasdaq-100 | Baizora">
+  <meta property="og:description" content="S&P 500 & Nasdaq-100 stocks with the biggest volume spikes today. Ranked by 1-day volume change. Updated after market close each trading day.">
+  <meta property="og:image" content="https://baizora.com/assets/baize_favicon_v2.png">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Top Unusual Volume Stocks Today | S&P 500 & Nasdaq-100 | Baizora">
+  <meta name="twitter:description" content="S&P 500 & Nasdaq-100 stocks with the biggest volume spikes today. Ranked by 1-day volume change.">
+  <meta name="twitter:image" content="https://baizora.com/assets/baize_favicon_v2.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "Top Unusual Volume Stocks Today",
+    "description": "S&P 500 and Nasdaq-100 stocks ranked by 1-day volume change percentage. Covers stocks with the largest single-day volume spikes relative to the prior close. Updated after US market close each trading day.",
+    "url": "https://baizora.com/unusual-volume.html",
+    "creator": {
+      "@type": "Organization",
+      "name": "Baizora",
+      "url": "https://baizora.com",
+      "logo": "https://baizora.com/assets/baize_favicon_v2.png",
+      "email": "support@baizora.com"
+    },
+    "variableMeasured": ["1-Day Volume Change %", "Price", "1-Day Price Change %", "Volume vs MA21"],
+    "license": "https://baizora.com/assets/terms.html"
+  }
+  </script>
+  <link rel="icon" href="assets/baize_favicon_v2.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#060d1f">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-light: #162847;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --gold: #f59e0b;
+      --green: #22c55e;
+      --red: #ef4444;
+      --white: #ffffff;
+      --muted: #cbd5e1;
+      --border: rgba(255,255,255,0.09);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── ANNOUNCEMENT ── */
+    .announcement {
+      background: linear-gradient(90deg, #7c2d12, #92400e, #7c2d12);
+      color: #fcd34d;
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      padding: 7px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .dot { width: 6px; height: 6px; background: #fcd34d; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── HEADER ── */
+    .site-top { position: sticky; top: 0; z-index: 100; }
+    header {
+      height: 56px;
+      background: rgba(6,13,31,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      gap: 16px;
+    }
+
+    .logo-wrap { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .logo-wrap img { height: 36px; }
+
+    .desktop-nav { display: flex; align-items: center; gap: 6px; }
+    .nav-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      color: var(--muted);
+      text-decoration: none;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .nav-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--white); background: rgba(59,130,246,0.08); }
+    .nav-btn-primary { background: var(--electric); border-color: var(--electric); color: white; }
+    .nav-btn-primary:hover { background: #2563eb; }
+    .nav-btn-active { color: var(--electric-bright) !important; border-color: rgba(59,130,246,0.3) !important; background: rgba(59,130,246,0.08) !important; }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--muted); border-radius: 2px; transition: 0.2s; }
+    @media (max-width: 768px) {
+      .desktop-nav { display: none; }
+      .hamburger { display: flex; }
+      header { padding: 0 16px; }
+    }
+
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      left: 0; right: 0;
+      background: rgba(6,13,31,0.98);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      padding: 16px;
+      z-index: 99;
+      overflow-y: auto;
+    }
+    .mobile-drawer.open { display: block; }
+    .mobile-drawer a {
+      display: block;
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      color: #94a3b8;
+      border: 1px solid rgba(255,255,255,0.07);
+      margin-bottom: 8px;
+      transition: all 0.18s;
+    }
+    .mobile-drawer a:hover { background: rgba(59,130,246,0.08); color: var(--white); }
+
+    /* ── MAIN ── */
+    main { flex: 1; position: relative; z-index: 1; }
+
+    /* ── PAGE HERO ── */
+    .page-hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 56px 24px 32px;
+      text-align: center;
+    }
+
+    .page-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--white);
+      margin-bottom: 14px;
+    }
+
+    .page-sub {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 620px;
+      margin: 0 auto 20px;
+    }
+
+    .data-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #94a3b8;
+      letter-spacing: 0.07em;
+      background: rgba(13,30,61,0.7);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .data-meta-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; }
+
+    /* ── TABLE SECTION ── */
+    .table-section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 16px 48px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid rgba(59,130,246,0.18);
+      background: rgba(13,30,61,0.5);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      min-width: 640px;
+    }
+
+    thead th {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      background: rgba(6,13,31,0.9);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s;
+    }
+    thead th:hover { color: var(--electric-bright); }
+    thead th.sorted { color: var(--electric-bright); }
+    th.right, td.right { text-align: right; }
+    th.center, td.center { text-align: center; }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: background 0.12s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(59,130,246,0.05); }
+
+    td {
+      padding: 9px 12px;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .rank { color: #475569; font-size: 10px; text-align: center; width: 32px; }
+    .tk-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--electric-bright);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.15s;
+    }
+    .tk-link:hover { color: var(--white); }
+    .company-name { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #94a3b8; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+    .index-badge {
+      display: inline-block;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid rgba(59,130,246,0.25);
+      background: rgba(59,130,246,0.08);
+      color: #94a3b8;
+    }
+    .index-badge.both { border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.07); color: #fcd34d; }
+
+    .pos { color: #4ade80; }
+    .neg { color: #f87171; }
+    .neu { color: var(--muted); }
+
+    .vol-bar-wrap { display: flex; align-items: center; gap: 6px; }
+    .vol-bar-bg { flex: 1; height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; max-width: 70px; }
+    .vol-bar-fill { height: 100%; border-radius: 2px; background: var(--electric); }
+
+    .table-footer {
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #64748b;
+      text-align: center;
+    }
+
+    /* ── EXPLAINER ── */
+    .explainer {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px 56px;
+    }
+
+    .explainer h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--white);
+      margin-bottom: 14px;
+    }
+
+    .explainer p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 14px;
+    }
+
+    .explainer a { color: var(--electric-bright); text-decoration: none; }
+    .explainer a:hover { text-decoration: underline; }
+
+    /* ── BOTTOM CTA ── */
+    .bottom-cta {
+      background: rgba(13,30,61,0.5);
+      border-top: 1px solid var(--border);
+      padding: 48px 24px;
+      text-align: center;
+    }
+
+    .bottom-cta h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 400;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .bottom-cta p { font-size: 15px; color: var(--muted); margin-bottom: 6px; }
+
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+
+    .btn-gold {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-gold:hover { background: linear-gradient(135deg, #d97706, #dc2626); transform: translateY(-1px); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: rgba(59,130,246,0.3); color: var(--white); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: rgba(6,13,31,0.8);
+      border-top: 1px solid var(--border);
+      padding: 32px 32px 24px;
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+    }
+    .footer-disclaimer { color: #475569; margin-bottom: 6px; font-size: 11px; }
+    .footer-copy { color: #475569; margin-bottom: 20px; font-size: 11px; }
+    .footer-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a, .footer-email { font-size: 12px; color: #94a3b8; text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover, .footer-email:hover { color: var(--electric-bright); }
+    .footer-yt { display: inline-flex; align-items: center; gap: 5px; color: #94a3b8; text-decoration: none; transition: color 0.2s; }
+    .footer-yt:hover { color: var(--electric-bright); }
+
+    /* ── LOADING STATE ── */
+    .loading-state {
+      text-align: center;
+      padding: 60px 24px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: #475569;
+      letter-spacing: 0.08em;
+    }
+
+    @media (max-width: 600px) {
+      .page-hero { padding: 36px 16px 24px; }
+      .company-name { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="site-top">
+<div class="announcement">
+  <span class="dot"></span>
+  &nbsp; First 7 Days Free &nbsp;·&nbsp; Contact: support@baizora.com
+</div>
+
+<header>
+  <a href="./" class="logo-wrap">
+    <img src="assets/baize_favicon_v2.png" alt="Baizora">
+    <span style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;text-decoration:none;">Baiz<span style="color:#3b82f6;">ora</span></span>
+  </a>
+
+  <div class="desktop-nav">
+    <a href="top-price-movers.html" class="nav-btn">Price Movers</a>
+    <a href="index_cn.html" class="nav-btn">中文</a>
+    <a href="assets/about.html" class="nav-btn">About</a>
+    <a href="pricing.html" class="nav-btn">Plans</a>
+    <a href="signup.html" class="nav-btn" id="navRegisterBtn">Register for Free</a>
+    <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
+    <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
+    <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign in</a>
+  </div>
+
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+</div>
+
+<div class="mobile-drawer" id="mobileDrawer">
+  <a href="top-price-movers.html">Price Movers</a>
+  <a href="assets/about.html">About</a>
+  <div id="mobileAuthLinks"></div>
+  <a href="index_cn.html">中文</a>
+</div>
+
+<main>
+
+  <section class="page-hero">
+    <div class="page-eyebrow">◈ &nbsp; Daily Volume Intelligence</div>
+    <h1>Top Unusual Volume Stocks Today</h1>
+    <p class="page-sub">S&amp;P 500 &amp; Nasdaq-100 stocks with the biggest single-day volume spikes, ranked by 1-day volume change. Updated after market close each trading day.</p>
+    <div class="data-meta" id="dataMeta">
+      <div class="data-meta-dot"></div>
+      <span id="dataDateLabel">Loading data…</span>
+    </div>
+  </section>
+
+  <section class="table-section">
+    <div class="table-wrap" id="tableWrap">
+      <div class="loading-state">Loading latest data…</div>
+    </div>
+  </section>
+
+  <section class="explainer">
+    <h2>What is unusual volume?</h2>
+    <p>Unusual volume occurs when a stock trades significantly more shares than its historical average — often a sign of institutional activity, breaking news, or an earnings catalyst. A sudden spike in volume, especially when accompanied by a notable price move, can indicate the start of a meaningful trend.</p>
+    <p>This page ranks <strong>S&amp;P 500</strong> and <strong>Nasdaq-100</strong> constituents by their 1-day volume change versus the prior trading day's close. A reading of +150% means the stock traded 2.5× its previous day's volume. The <strong>Vol/MA21</strong> column compares today's volume to the 21-day moving average — a ratio above 1.0 means above-average activity.</p>
+    <p>Baizora tracks 500+ large-cap US stocks across both indices daily. For deeper analysis — multi-timeframe volume trends, max volume days, price-at-volume correlations, and sparklines — see the <a href="baizora_main_form_free.html">free preview</a> or <a href="signup.html">start a free trial</a>.</p>
+  </section>
+
+  <section class="bottom-cta">
+    <h2>More than just today's spike.<br><em style="font-style:italic;color:#94a3b8;">Track the full volume story.</em></h2>
+    <p>Multi-timeframe volume analytics. Max volume days. Price-at-volume correlations. All 500+ stocks.</p>
+    <div class="cta-btns">
+      <a href="signup.html" class="btn-gold">
+        🔥 Start Free — 7 Days
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview (No Sign-up)</a>
+    </div>
+    <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.05em;margin-top:14px;">From $9.99/mo · No extra fees · Cancel anytime</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-disclaimer">Baizora provides market data for informational purposes only. Not financial advice.</div>
+  <div class="footer-copy">© 2026 Baizora — All rights reserved</div>
+  <div class="footer-row">
+    <div style="display:flex;flex-direction:column;gap:5px;text-align:left;">
+      <span class="footer-email">Contact us: <a href="mailto:support@baizora.com" class="footer-email">support@baizora.com</a></span>
+      <span class="footer-email">Follow us: <a href="https://www.youtube.com/@baizorastock" target="_blank" rel="noopener" class="footer-yt">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#ef4444"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+        YouTube
+      </a></span>
+    </div>
+    <div class="footer-links">
+      <a href="assets/privacy.html">Privacy</a>
+      <a href="assets/terms.html">Terms</a>
+      <a href="assets/disclaimer.html">Disclaimer</a>
+      <a href="assets/faq.html">FAQ</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+    authDomain: "baizora.firebaseapp.com",
+    projectId: "baizora"
+  });
+</script>
+
+<script>
+  /* Mobile menu */
+  function toggleMenu() {
+    const drawer = document.getElementById('mobileDrawer');
+    const header = document.querySelector('header');
+    const bottom = header.getBoundingClientRect().bottom;
+    drawer.style.top = bottom + 'px';
+    drawer.style.maxHeight = (window.innerHeight - bottom) + 'px';
+    drawer.classList.toggle('open');
+  }
+  const hamburgerBtn = document.getElementById('hamburger');
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('click', toggleMenu);
+    hamburgerBtn.addEventListener('touchend', function(e) { e.preventDefault(); toggleMenu(); });
+  }
+  document.addEventListener('click', (e) => {
+    const drawer = document.getElementById('mobileDrawer');
+    const hb = document.getElementById('hamburger');
+    if (drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && !hb.contains(e.target))
+      drawer.classList.remove('open');
+  });
+
+  /* Auth */
+  firebase.auth().onAuthStateChanged(function(user) {
+    const btn      = document.getElementById('navLoginLogout');
+    const dashBtn  = document.getElementById('navDashBtn');
+    const emailEl  = document.getElementById('navUserEmail');
+    const mLinks   = document.getElementById('mobileAuthLinks');
+    const mStyle   = 'display:block;width:100%;padding:13px 16px;border-radius:8px;font-family:\'DM Sans\',sans-serif;font-size:14px;font-weight:500;text-decoration:none;background:transparent;margin-bottom:8px;';
+
+    if (user) {
+      if (dashBtn) dashBtn.style.display = 'inline-flex';
+      if (emailEl) { emailEl.textContent = user.email; emailEl.style.display = 'inline'; }
+      const regBtn = document.getElementById('navRegisterBtn');
+      if (regBtn) regBtn.style.display = 'none';
+      if (btn) {
+        btn.textContent = 'Sign out';
+        btn.style.background = 'transparent';
+        btn.style.borderColor = 'rgba(239,68,68,0.3)';
+        btn.style.color = '#fca5a5';
+        btn.href = '#';
+        btn.onclick = function(e) { e.preventDefault(); doLogout(); };
+      }
+      mLinks.innerHTML =
+        '<a href="dashboard.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Dashboard</a>' +
+        '<a href="#" onclick="doLogout();return false;" style="' + mStyle + 'color:#fca5a5;border:1px solid rgba(239,68,68,0.2);">Sign out</a>';
+    } else {
+      if (dashBtn) dashBtn.style.display = 'none';
+      if (emailEl) { emailEl.textContent = ''; emailEl.style.display = 'none'; }
+      const regBtn2 = document.getElementById('navRegisterBtn');
+      if (regBtn2) regBtn2.style.display = 'inline-block';
+      if (btn) {
+        btn.textContent = 'Sign in';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        btn.href = 'login.html';
+        btn.onclick = null;
+      }
+      mLinks.innerHTML =
+        '<a href="login.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Sign in</a>' +
+        '<a href="signup.html" style="' + mStyle + 'color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">Register for Free</a>';
+    }
+  });
+
+  async function doLogout() {
+    await firebase.auth().signOut();
+    window.location.href = 'index.html';
+  }
+
+  /* ── Load & render table ── */
+  const TOP = 20;
+
+  function fmt(v, decimals, sign) {
+    if (v == null || isNaN(v)) return '<span style="color:#475569;">—</span>';
+    const s = (sign && v > 0 ? '+' : '') + v.toFixed(decimals) + '%';
+    const cls = v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu';
+    return `<span class="${cls}">${s}</span>`;
+  }
+
+  function fmtVol(v) {
+    if (v == null || isNaN(v)) return '<span style="color:#475569;">—</span>';
+    const sign = v > 0 ? '+' : '';
+    const cls  = v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu';
+    const pct  = `<span class="${cls}">${sign}${v.toFixed(1)}%</span>`;
+    const capPct = Math.min(Math.abs(v), 300) / 300;
+    const bar = `<div class="vol-bar-wrap">
+      <div class="vol-bar-bg"><div class="vol-bar-fill" style="width:${(capPct*100).toFixed(0)}%"></div></div>
+      ${pct}
+    </div>`;
+    return bar;
+  }
+
+  function fmtMA(v) {
+    if (v == null || isNaN(v)) return '<span style="color:#475569;">—</span>';
+    const cls = v > 1 ? 'pos' : v < 1 ? 'neg' : 'neu';
+    return `<span class="${cls}">${v.toFixed(2)}×</span>`;
+  }
+
+  function indexBadge(row) {
+    const sp  = row.InSP500;
+    const ndq = row.InNASDAQ100;
+    if (sp && ndq) return '<span class="index-badge both">SP500 + NDQ</span>';
+    if (sp)        return '<span class="index-badge">S&amp;P 500</span>';
+    if (ndq)       return '<span class="index-badge">NDQ 100</span>';
+    return '';
+  }
+
+  fetch('data/latest.json')
+    .then(r => r.json())
+    .then(json => {
+      const rows = (json.data || [])
+        .filter(r => r.VolumeChange1D != null)
+        .sort((a, b) => b.VolumeChange1D - a.VolumeChange1D)
+        .slice(0, TOP);
+
+      const date = json.date || '';
+      if (date) {
+        document.getElementById('dataDateLabel').textContent =
+          'As of ' + date + ' · ' + rows.length + ' stocks shown · S&P 500 & Nasdaq-100';
+      }
+
+      const tbody = rows.map((r, i) => {
+        const tkLink = `<a href="stocks/${r.Ticker}.html" class="tk-link">${r.Ticker}</a>`;
+        const price  = r.Price != null ? `$${r.Price.toFixed(2)}` : '—';
+        return `<tr>
+          <td class="rank">${i + 1}</td>
+          <td>${tkLink}</td>
+          <td class="company-name" title="${r.CompanyName || ''}">${(r.CompanyName || '').slice(0, 28)}${(r.CompanyName || '').length > 28 ? '…' : ''}</td>
+          <td class="center">${indexBadge(r)}</td>
+          <td class="right" style="color:var(--white);">${price}</td>
+          <td class="right">${fmt(r.PriceChange1D, 1, true)}</td>
+          <td>${fmtVol(r.VolumeChange1D)}</td>
+          <td class="right">${fmtMA(r.VolumeVsMA21_1D)}</td>
+        </tr>`;
+      }).join('');
+
+      document.getElementById('tableWrap').innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th class="center">#</th>
+              <th>TICKER</th>
+              <th class="company-name">COMPANY</th>
+              <th class="center">INDEX</th>
+              <th class="right">PRICE</th>
+              <th class="right">1D P CHG%</th>
+              <th>1D VOL CHG%</th>
+              <th class="right">VOL/MA21</th>
+            </tr>
+          </thead>
+          <tbody>${tbody}</tbody>
+        </table>
+        <div class="table-footer">Sorted by 1-day volume change · Data as of ${date} · For informational purposes only</div>
+      `;
+    })
+    .catch(() => {
+      document.getElementById('tableWrap').innerHTML =
+        '<div class="loading-state">Could not load data. Please try again later.</div>';
+    });
+</script>
+</body>
+</html>

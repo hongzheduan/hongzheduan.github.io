@@ -540,6 +540,39 @@
     .ticker-item .up { color: #22c55e; }
     .ticker-item .dn { color: #ef4444; }
 
+    /* ── PROMO TICKER STRIP ── */
+    .promo-ticker-wrap {
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid rgba(59,130,246,0.18);
+      background: rgba(59,130,246,0.06);
+      overflow: hidden;
+      padding: 9px 0;
+    }
+    .promo-ticker-track {
+      display: flex;
+      animation: ticker 55s linear infinite;
+      white-space: nowrap;
+    }
+    .promo-ticker-wrap:hover .promo-ticker-track { animation-play-state: paused; }
+    .promo-ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 36px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      color: #94a3b8;
+      border-right: 1px solid rgba(59,130,246,0.15);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .promo-ticker-item:hover { color: #ffffff; }
+    .promo-ticker-item .promo-label { color: #60a5fa; font-weight: 500; }
+    .promo-ticker-item .promo-arrow { color: #60a5fa; font-size: 13px; }
+
     /* ── FEATURES ── */
     .features {
       position: relative;
@@ -946,6 +979,8 @@
   </a>
 
   <div class="desktop-nav">
+    <a href="top-price-movers.html" class="nav-btn">Price Movers</a>
+    <a href="unusual-volume.html" class="nav-btn">Volume Movers</a>
     <a href="index_cn.html" class="nav-btn">中文</a>
     <a href="assets/about.html" class="nav-btn">About</a>
     <a href="pricing.html" class="nav-btn">Plans</a>
@@ -994,7 +1029,6 @@
         </a>
         <a href="baizora_main_form_free.html" class="btn-primary">Free Preview (No Sign-up)</a>
       </div>
-
       <div class="fact-bar">
         <div class="fact-item">
           <div class="fact-num">500<span class="accent">+</span></div>
@@ -1119,6 +1153,10 @@
 
 <div class="ticker-wrap">
   <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<div class="promo-ticker-wrap">
+  <div class="promo-ticker-track" id="promoTrack"></div>
 </div>
 
 <section class="features">
@@ -1576,7 +1614,19 @@ window.mockSort = function(col, el) {
     };
     const html = TOP10.map(item).join('');
     track.innerHTML = html + html; // duplicate for seamless loop
+
   }).catch(() => {});
+})();
+
+// Promo bar: static links
+(function() {
+  const track = document.getElementById('promoTrack');
+  if (!track) return;
+  const sep = `<span class="promo-ticker-item" style="cursor:default;color:#334155;">·</span>`;
+  const link1 = `<a href="unusual-volume.html" class="promo-ticker-item"><span class="promo-arrow">📊</span> <span class="promo-label">Today's Top Unusual Volume Stocks</span> <span class="promo-arrow">→</span></a>`;
+  const link2 = `<a href="top-price-movers.html" class="promo-ticker-item"><span class="promo-arrow">🚀</span> <span class="promo-label">Today's Top Price Movers</span> <span class="promo-arrow">→</span></a>`;
+  const chunk = link1 + sep + link2 + sep;
+  track.innerHTML = chunk.repeat(8);
 })();
 
 </script>
