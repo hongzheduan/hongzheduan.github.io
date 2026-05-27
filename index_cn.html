@@ -917,6 +917,7 @@
       .hero-split .hero-bullet   { justify-content: flex-start; text-align: left; }
       .hero-split .hero-cta      { justify-content: center; }
       .hero-split .fact-bar      { margin: 16px auto 0; }
+      .col-legend-grid { grid-template-columns: 1fr !important; }
     }
   </style>
 </head>
@@ -1087,7 +1088,7 @@
         <!-- Column legend -->
         <div style="padding:10px 8px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);">
           <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">列说明</div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
+          <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
             <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> 年涨幅 &nbsp;&nbsp;过去一年股价总变化</div>
             <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> 日最大价涨 最大单日股价上涨</div>
             <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> 量@价日 &nbsp;&nbsp;最大股价上涨日成交量变化</div>
