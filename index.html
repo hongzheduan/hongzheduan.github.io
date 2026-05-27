@@ -1376,45 +1376,17 @@
 
 <script>
 /* ── Mock table: data + sort ── */
-const MOCK_DATA = [
-  { tk:'NVDA', sector:'Technology',     pe:'45.2', mc:'2.78T', eps:'2.53', vol30:'3.2%',  secpe:'38.1', pevsec:'+18.6%',
-    sc:'#22c55e', triC:'#22c55e', dotC:'#22c55e',
-    spark:'M0,18 L8,16 L16,13 L24,9 L32,7 L40,8 L48,5 L56,3 L64,5 L72,3 L84,2 L94,1',
-    triX:48,triY:5,dotX:64,dotY:5,
-    pr:114.23, chg:8.85,  mx:16.98, pday:215, vatpr:208.59, vol:228.73, vday:109, pvol:3.18,  volm:3.98  },
-  { tk:'AAPL', sector:'Technology',     pe:'31.4', mc:'3.21T', eps:'6.43', vol30:'1.8%',  secpe:'38.1', pevsec:'-17.5%',
-    sc:'#ef4444', triC:'#ef4444', dotC:'#22c55e',
-    spark:'M0,8 L8,10 L16,7 L24,9 L32,12 L40,10 L48,14 L56,12 L64,15 L72,14 L84,17 L94,16',
-    triX:40,triY:10,dotX:72,dotY:14,
-    pr:213.42, chg:-4.22, mx:7.44,  pday:189, vatpr:156,    vol:184,    vday:95,  pvol:-1.82, volm:52.3  },
-  { tk:'META', sector:'Comm. Services', pe:'22.8', mc:'1.27T', eps:'22.1', vol30:'2.4%',  secpe:'24.5', pevsec:'-7.0%',
-    sc:'#22c55e', triC:'#22c55e', dotC:'#ef4444',
-    spark:'M0,14 L8,12 L16,13 L24,10 L32,11 L40,8 L48,9 L56,6 L64,7 L72,5 L84,4 L94,3',
-    triX:32,triY:9,dotX:56,dotY:6,
-    pr:503.21, chg:18.41, mx:6.98,  pday:14,  vatpr:50.5,   vol:286.83, vday:203, pvol:-8.43, volm:2.39  },
-  { tk:'TSLA', sector:'Consumer Cycl.', pe:'92.3', mc:'558B',  eps:'1.88', vol30:'4.1%',  secpe:'19.2', pevsec:'+381%',
-    sc:'#ef4444', triC:'#22c55e', dotC:'#22c55e',
-    spark:'M0,4 L8,7 L16,12 L24,16 L32,19 L40,15 L48,18 L56,14 L64,17 L72,14 L84,16 L94,15',
-    triX:24,triY:16,dotX:48,dotY:18,
-    pr:174.12, chg:-15.43,mx:8.85,  pday:196, vatpr:45.5,   vol:267.17, vday:109, pvol:1.99,  volm:6.72  },
-  { tk:'MSFT', sector:'Technology',     pe:'33.6', mc:'3.11T', eps:'12.43',vol30:'1.6%',  secpe:'38.1', pevsec:'-11.8%',
-    sc:'#22c55e', triC:'#22c55e', dotC:'#22c55e',
-    spark:'M0,16 L8,14 L16,11 L24,12 L32,9 L40,7 L48,8 L56,5 L64,6 L72,4 L84,3 L94,2',
-    triX:56,triY:5,dotX:40,dotY:7,
-    pr:418.67, chg:12.33, mx:5.55,  pday:153, vatpr:33.3,   vol:410.37, vday:219, pvol:-2.40, volm:21.5  },
+let MOCK_DATA = [];
 
-  { tk:'GOOGL',sector:'Comm. Services', pe:'20.4', mc:'2.09T', eps:'8.41', vol30:'1.9%',  secpe:'24.5', pevsec:'-16.7%',
-    sc:'#22c55e', triC:'#ef4444', dotC:'#22c55e',
-    spark:'M0,10 L10,8 L20,10 L30,7 L40,9 L50,6 L60,8 L70,5 L80,6 L94,4',
-    triX:30,triY:7,dotX:60,dotY:8,
-    pr:171.84, chg:3.07,  mx:8.31,  pday:44,  vatpr:185.09, vol:425.89, vday:97,  pvol:1.97,  volm:0.58  },
-  { tk:'JPM',  sector:'Financial',      pe:'13.8', mc:'741B',  eps:'15.82',vol30:'1.4%',  secpe:'12.1', pevsec:'+14.0%',
-    sc:'#22c55e', triC:'#22c55e', dotC:'#ef4444',
-    spark:'M0,16 L10,14 L20,15 L30,12 L40,13 L50,10 L60,11 L70,8 L80,9 L94,7',
-    triX:50,triY:10,dotX:30,dotY:12,
-    pr:218.33, chg:-23.94,mx:5.05,  pday:87,  vatpr:17.63,  vol:185.46, vday:43,  pvol:-3.59, volm:0.72  },
-
-];
+function buildSparkPath(arr) {
+  if (!arr || arr.length < 2) return 'M0,10 L94,10';
+  const n = arr.length - 1 || 1;
+  const mn = Math.min(...arr), mx = Math.max(...arr);
+  const rng = mx - mn || 1;
+  return 'M' + arr.map((v, i) =>
+    `${((i/n)*94).toFixed(1)},${(20-((v-mn)/rng)*18).toFixed(1)}`
+  ).join(' L');
+}
 
 let mockSortCol = 'chg';
 let mockSortAsc = false;
@@ -1522,7 +1494,52 @@ window.mockSort = function(col, el) {
   renderMock();
 };
 
-document.addEventListener('DOMContentLoaded', renderMock);
+// Load real data into demo table
+(function() {
+  const TOP10 = ["NVDA","GOOGL","AAPL","MSFT","AMZN","AVGO","TSLA","META","WMT","MU"];
+  fetch('data/latest.json').then(r => r.json()).then(data => {
+    const tm = {};
+    data.data.forEach(r => { tm[r.Ticker] = r; });
+    MOCK_DATA = TOP10.map(t => {
+      const r = tm[t]; if (!r) return null;
+      const spark = r.Spark1Y || [];
+      const n = Math.max(spark.length - 1, 1);
+      const mn = spark.length ? Math.min(...spark) : 0;
+      const mx2 = spark.length ? Math.max(...spark) : 1;
+      const rng = mx2 - mn || 1;
+      const posX = i => +((i / n) * 94).toFixed(1);
+      const posY = i => +(20 - ((spark[i] - mn) / rng) * 18).toFixed(1);
+      const dotIdx = Math.min(r['1YMaxPriceChangeDay'] || 0, spark.length - 1);
+      const triIdx = Math.min(r['1YMaxVolumeChangeDay'] || 0, spark.length - 1);
+      const pc1y  = r['1YPriceChange'] || 0;
+      const pvol  = r['1YPriceChangeAtMaxVolume'] || 0;
+      const peVs  = r['PE_vs_Sector'] || 0;
+      const mcap  = r.MarketCap || 0;
+      return {
+        tk: t, sector: r.Sector || '',
+        pe:    (r.PE || 0).toFixed(1),
+        mc:    mcap >= 1000 ? (mcap / 1000).toFixed(2) + 'T' : Math.round(mcap) + 'B',
+        eps:   (r.EPS || 0).toFixed(2),
+        vol30: (r.VolumeVsMA21_1D || 0).toFixed(2) + 'x',
+        secpe: (r.SectorAvgPE || 0).toFixed(1),
+        pevsec:(peVs >= 0 ? '+' : '') + peVs.toFixed(1) + '%',
+        sc:    pc1y >= 0 ? '#22c55e' : '#ef4444',
+        triC:  pvol >= 0 ? '#22c55e' : '#ef4444',
+        dotC:  '#22c55e',
+        spark: buildSparkPath(spark),
+        triX: posX(triIdx), triY: posY(triIdx),
+        dotX: posX(dotIdx), dotY: posY(dotIdx),
+        pr:    r.Price || 0,
+        chg:   pc1y,
+        mx:    r['1YMaxPriceChange'] || 0,
+        vatpr: r['1YVolumeChangeAtMaxPrice'] || 0,
+        vol:   r['1YMaxVolumeChange'] || 0,
+        pvol,
+      };
+    }).filter(Boolean);
+    renderMock();
+  }).catch(() => {});
+})();
 
 // Ticker bar
 (function() {
