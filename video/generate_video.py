@@ -2697,7 +2697,7 @@ def build_6m_breakout(data, output):
          "from two weeks to one year. Sort by any column to find the leaders instantly. "
          "Visit baizora dot com."),
         (scene_screenshot(_SS_EN), 2),
-        (scene_outro(date), 3,
+        (scene_outro(date), 5,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
 
@@ -2762,7 +2762,7 @@ def build_6m_breakout_cn(data, output):
          f"在贝佐拉，可查看这些突破股票在每个时间维度的表现——从两周到一年。"
          "按任意列排序，即时发现全市场领涨股。访问baizora.com。"),
         (scene_screenshot(_SS_CN), 2),
-        (scene_outro_cn(date), 3,
+        (scene_outro_cn(date), 5,
          "仅供参考，不构成投资建议 | baizora.com"),
     ], output, tts_voice="zh-CN-YunxiNeural")
 
@@ -2792,7 +2792,7 @@ def build_volume_spikes(data, output):
          "On Baizora, access volume spike data across every timeframe — sort by any column. "
          "Visit baizora dot com."),
         (scene_screenshot(_SS_EN), 2),
-        (scene_outro(date), 3,
+        (scene_outro(date), 5,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
 
@@ -2877,7 +2877,7 @@ def build_1y_vol_peak(data, output):
          "from 1 month to 1 year. Sort by any column to find the biggest volume movers. "
          "Visit baizora dot com."),
         (scene_screenshot(_SS_EN), 2),
-        (scene_outro(date), 3,
+        (scene_outro(date), 5,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
 
@@ -2960,7 +2960,7 @@ def build_1y_vol_peak_cn(data, output):
          "按任意时间维度排序 — 1月至1年 — 即时发现S&P 500和纳斯达克100全市场最大成交量异动",
          "在贝佐拉，可查看股票在各时间维度的成交量表现——从一个月到一年。按任意列排序。访问baizora.com。"),
         (scene_screenshot(_SS_CN), 2),
-        (scene_outro_cn(date), 3,
+        (scene_outro_cn(date), 5,
          "仅供参考，不构成投资建议 | baizora.com"),
     ], output, tts_voice="zh-CN-YunxiNeural")
 
@@ -3713,7 +3713,7 @@ def build_index_spotlight(data, output):
         (scene_screenshot(_SS_MEMBERSHIP_NEWS), 10,
          "Index membership news feed — baizora.com",
          _narrate_spotlight_news()),
-        (scene_outro_with_homepage(date), 3,
+        (scene_outro_with_homepage(date), 5,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
 
@@ -3945,7 +3945,7 @@ def build_index_spotlight_cn(data, output):
         (scene_screenshot(_SS_MEMBERSHIP_NEWS), 10,
          "成分股变动资讯 — baizora.com",
          _narrate_spotlight_news_cn()),
-        (scene_outro_cn_with_homepage(date), 3,
+        (scene_outro_cn_with_homepage(date), 5,
          "仅供参考，不构成投资建议 | baizora.com"),
     ], output, tts_voice="zh-CN-YunxiNeural")
 
@@ -4158,7 +4158,7 @@ def build_extreme_1y(data, output):
          "from two weeks to one year. Sort by any column to find the leaders instantly. "
          "Visit baizora dot com."),
         (scene_screenshot(_SS_EN), 2),
-        (scene_outro(date), 3,
+        (scene_outro(date), 5,
          "For informational purposes only. Not financial advice. | baizora.com"),
     ], output)
 
@@ -4323,7 +4323,7 @@ def build_extreme_1y_cn(data, output):
          "在贝佐拉，可查看领涨股在一年内各时间维度的表现——从两周到一年。"
          "按任意列排序，即时发现全市场领涨股。访问baizora.com。"),
         (scene_screenshot(_SS_CN), 2),
-        (scene_outro_cn(date), 3,
+        (scene_outro_cn(date), 5,
          "仅供参考，不构成投资建议 | baizora.com"),
     ], output, tts_voice="zh-CN-YunxiNeural")
 
@@ -4352,7 +4352,7 @@ def build_volume_spikes_cn(data, output):
          "按任意时间维度排序 — 1天至1年 — 即时筛选S&P 500和纳斯达克100成交量异动",
          "在贝佐拉，可查看各时间维度的成交量数据——按任意列排序。访问baizora.com。"),
         (scene_screenshot(_SS_CN), 2),
-        (scene_outro_cn(date), 3,
+        (scene_outro_cn(date), 5,
          "仅供参考，不构成投资建议 | baizora.com"),
     ], output, tts_voice="zh-CN-YunxiNeural")
 
