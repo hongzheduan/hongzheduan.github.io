@@ -44,6 +44,7 @@ jobs:
 
       - name: Generate stock pages
         if: env.IS_HOLIDAY != 'True'
+        continue-on-error: true
         run: python generate_stock_pages.py NVDA GOOGL AAPL MSFT AMZN AVGO TSLA META WMT MU
 
       - name: Commit updated latest.json

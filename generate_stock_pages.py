@@ -171,7 +171,7 @@ def generate_page(row, scan_date, peer_rows=None):
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-DWEPM8KFM9"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag(){{dataLayer.push(arguments);}}
     gtag('js', new Date());
     gtag('config', 'G-DWEPM8KFM9');
   </script>

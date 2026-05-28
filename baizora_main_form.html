@@ -940,11 +940,6 @@
       currentWindow = w;
       document.querySelectorAll(".window-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      if (w === "FUND") { sortKey = "MarketCap"; sortAsc = false; }
-      else if (sortKey === "MarketCap" || sortKey === "PE" || sortKey === "EPS" ||
-               sortKey === "Volatility30D" || sortKey === "PE_vs_Sector" || sortKey === "Sector") {
-        sortKey = "PriceChange1D"; sortAsc = false;
-      }
       render();
     };
 
