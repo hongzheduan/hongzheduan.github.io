@@ -773,6 +773,18 @@
             <tr><td>P@V Day</td><td>Price change on the highest-volume-increase day within the selected window</td></tr>
           </table>
 
+          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; Scores (SCORES Tab)</div>
+          <p>Five composite scores calculated daily from the same price and volume data. All scores are recalculated after every market close. Scores above 50 are highlighted green; below 50 are red. Vol Pressure uses 0 as its midpoint.</p>
+          <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
+            <tr><th>Score</th><th>Calculation &amp; Interpretation</th></tr>
+            <tr><td>RS (1–99)</td><td>Relative Strength — percentile rank across all 500+ stocks. Formula: <strong>40% × 3M + 20% × 6M + 20% × 9M + 20% × 1Y</strong> price change, then ranked. 99 = top 1% of performers; 1 = bottom 1%.</td></tr>
+            <tr><td>Breakout (0–100)</td><td>Three signals combined: <strong>price above MA21</strong> (0–33 pts, scaled by distance above the average) + <strong>today's price gain</strong> (0–33 pts) + <strong>volume above MA21</strong> (0–34 pts). 100 = all three firing at full strength simultaneously.</td></tr>
+            <tr><td>Momentum (0–100)</td><td>Percentile rank of weighted cross-timeframe price change: <strong>35% × 1M + 25% × 3M + 20% × 6M + 20% × 1Y</strong>. Favours stocks with consistent strength across every window, not just one-day pops. 100 = strongest sustained momentum in the universe.</td></tr>
+            <tr><td>Vol Pressure (−100 to 100)</td><td>Accumulation vs distribution: <strong>(Vol/MA21 − 1) × price direction × 100</strong>. Positive = elevated volume on an up day (buying pressure). Negative = elevated volume on a down day (distribution). Near 0 = low volume or mixed signal.</td></tr>
+            <tr><td>Trend (0–100)</td><td>Trend Consistency — percentage of the <strong>6 timeframes (2W, 1M, 3M, 6M, 9M, 1Y)</strong> showing a positive price change. 100 = all 6 pointing up; 0 = all pointing down. Separates stocks in genuine sustained uptrends from choppy or reversing ones.</td></tr>
+          </table>
+
           <div class="readme-label" style="margin-top:28px;">◈ &nbsp; Fundamentals (FUND Tab)</div>
           <table class="col-table">
             <colgroup><col style="width:160px"><col></colgroup>
@@ -1357,6 +1369,11 @@
       "Volatility30D":   { label: "Beta",          desc: "30-day beta — sensitivity of the stock's price to broad market moves. Beta > 1 means higher volatility than the market." },
       "PE_vs_Sector":    { label: "PE vs Sector",  desc: "This stock's P/E relative to its sector average, expressed as a percentage. Positive = trading at a premium to sector peers; negative = discount. Sector average is calculated from S&P 500 and Nasdaq-100 members only." },
       "Sector":          { label: "Sector",        desc: "GICS sector classification." },
+      "RSScore":         { label: "RS",            desc: "Relative Strength (1–99): percentile rank of weighted price performance vs all 500+ stocks in the universe. Formula: 40% × 3M + 20% × 6M + 20% × 9M + 20% × 1Y price change. 99 = top 1%, 1 = bottom 1%. Recalculated daily." },
+      "BreakoutScore":   { label: "Breakout",      desc: "Breakout Score (0–100): composite of three signals — price above MA21 (0–33 pts, scaled by how far above), today's price gain (0–33 pts), and volume elevation above MA21 (0–34 pts). High score = classic breakout setup with price, momentum, and volume all confirming." },
+      "MomentumScore":   { label: "Momentum",      desc: "Momentum Score (0–100): percentile rank of weighted cross-timeframe price change. Formula: 35% × 1M + 25% × 3M + 20% × 6M + 20% × 1Y. 100 = strongest multi-timeframe momentum in the universe. Favours stocks with consistent strength across all windows." },
+      "VolPressureScore":{ label: "Vol Pressure",  desc: "Volume Pressure (−100 to 100): measures accumulation vs distribution. Formula: (Vol/MA21 − 1) × price direction × 100. Positive = elevated volume on an up day (buying pressure). Negative = elevated volume on a down day (selling pressure). Near 0 = neutral or low-volume session." },
+      "TrendScore":      { label: "Trend",         desc: "Trend Consistency (0–100): percentage of timeframes (2W, 1M, 3M, 6M, 9M, 1Y) showing a positive price change. 100 = all 6 timeframes pointing up. 0 = all pointing down. Rewards stocks with broad, sustained uptrends across every window." },
     };
 
     function getWindowColDesc(key, w) {
