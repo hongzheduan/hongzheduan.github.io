@@ -553,6 +553,22 @@
     .mobile-nav-drawer a:last-child { border-bottom: none; }
     .mobile-nav-drawer a:hover { color: var(--white); background: rgba(255,255,255,0.04); }
     .mobile-nav-drawer .m-upgrade { color: #f59e0b; font-weight: 600; }
+    .drawer-section-btn {
+      display: block; width: 100%; text-align: left;
+      padding: 14px 20px;
+      color: var(--muted);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+    }
+    .drawer-section-btn:hover { color: var(--white); background: rgba(255,255,255,0.04); }
+    .drawer-section-btn.active { color: var(--electric-bright); background: rgba(59,130,246,0.06); }
+    .drawer-divider { height: 1px; background: rgba(255,255,255,0.15); margin: 4px 0; }
   </style>
 </head>
 
@@ -592,14 +608,16 @@
     </button>
   </header>
 
-  <!-- Mobile tab strip -->
-  <div class="mobile-tab-strip" id="mobileTabStrip">
-    <button class="tab-btn active" onclick="showMobileTab('sp500', this)">S&P 500</button>
-    <button class="tab-btn" onclick="showMobileTab('nasdaq', this)">Nasdaq 100</button>
-  </div>
+  <!-- Mobile tab strip (hidden — navigation is in the drawer) -->
+  <div class="mobile-tab-strip" id="mobileTabStrip" style="display:none!important;"></div>
 
   <!-- Mobile nav drawer -->
   <div class="mobile-nav-drawer" id="mobileDrawer">
+    <button class="drawer-section-btn active" id="drawerBtnSp500"      onclick="drawerSection('sp500',      this)">S&amp;P 500</button>
+    <button class="drawer-section-btn"        id="drawerBtnNasdaq"     onclick="drawerSection('nasdaq',     this)">Nasdaq 100</button>
+    <button class="drawer-section-btn"        id="drawerBtnReadme"     onclick="drawerSection('readme',     this)">README</button>
+    <button class="drawer-section-btn"        id="drawerBtnMembership" onclick="drawerSection('membership', this)">Membership Changes</button>
+    <div class="drawer-divider"></div>
     <a href="assets/about.html">About</a>
     <a href="dashboard.html">Dashboard</a>
     <a href="login.html">Sign in</a>
@@ -617,7 +635,8 @@
       <button class="window-btn" onclick="setWindow('6M', this)">6M</button>
       <button class="window-btn" onclick="setWindow('9M', this)">9M</button>
       <button class="window-btn" onclick="setWindow('1Y', this)">1Y</button>
-      <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:8px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">FUND</button>
+      <button class="window-btn" onclick="setWindow('SCORES', this)" style="margin-left:8px;border-color:rgba(96,165,250,0.35);color:#60a5fa;">SCORES</button>
+      <button class="window-btn" onclick="setWindow('FUND', this)" style="border-color:rgba(245,158,11,0.35);color:#f59e0b;">FUND</button>
     </div>
     <div class="toolbar-sep"></div>
     <span class="row-count" id="rowCount"></span>
@@ -677,6 +696,17 @@
             <tr><td>MAX V CHG%</td><td>Largest single-day volume increase within the selected window</td></tr>
             <tr><td>MAX V% Day</td><td>Days ago when the max volume increase occurred within the selected window</td></tr>
             <tr><td>P@V Day</td><td>Price change on the highest-volume-increase day within the selected window</td></tr>
+          </table>
+
+          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; Scores (SCORES Tab)</div>
+          <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
+            <tr><th>Column</th><th>Description</th></tr>
+            <tr><td>RS (1–99)</td><td>Relative Strength — percentile rank across all 500+ stocks. Formula: 40% × 3M + 20% × 6M + 20% × 9M + 20% × 1Y price change. 99 = top 1%; 1 = bottom 1%.</td></tr>
+            <tr><td>Breakout (0–100)</td><td>Price above MA21 (0–33 pts) + today's price gain (0–33 pts) + volume above MA21 (0–34 pts). 100 = all three signals at full strength.</td></tr>
+            <tr><td>Momentum (0–100)</td><td>Percentile rank of weighted cross-timeframe price change: 35% × 1M + 25% × 3M + 20% × 6M + 20% × 1Y. Favours stocks with consistent strength across every window.</td></tr>
+            <tr><td>Vol Pressure (±100)</td><td>Accumulation vs distribution. Positive = elevated volume on an up day (buying pressure). Negative = elevated volume on a down day (selling pressure).</td></tr>
+            <tr><td>Trend (0–100)</td><td>Percentage of timeframes (2W, 1M, 3M, 6M, 9M, 1Y) showing positive price change. 100 = all 6 timeframes pointing up.</td></tr>
           </table>
 
           <div class="readme-label" style="margin-top:28px;">◈ &nbsp; Fundamentals (FUND Tab)</div>
@@ -815,9 +845,12 @@
       currentWindow = w;
       document.querySelectorAll(".window-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      if (w === "FUND") { sortKey = "MarketCap"; sortAsc = false; }
+      if (w === "SCORES") { sortKey = "RSScore"; sortAsc = false; }
+      else if (w === "FUND") { sortKey = "MarketCap"; sortAsc = false; }
       else if (sortKey === "MarketCap" || sortKey === "PE" || sortKey === "EPS" ||
-               sortKey === "Volatility30D" || sortKey === "PE_vs_Sector" || sortKey === "Sector") {
+               sortKey === "Volatility30D" || sortKey === "PE_vs_Sector" || sortKey === "Sector" ||
+               sortKey === "RSScore" || sortKey === "BreakoutScore" || sortKey === "MomentumScore" ||
+               sortKey === "VolPressureScore" || sortKey === "TrendScore") {
         sortKey = "PriceChange1D"; sortAsc = false;
       }
       render();
@@ -850,6 +883,12 @@
       const n = parseFloat(v);
       if (isNaN(n)) return "neutral";
       return n > 0 ? "positive" : n < 0 ? "negative" : "neutral";
+    }
+
+    function scoreClass(v, mid) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return "neutral";
+      return n >= mid ? "positive" : "negative";
     }
 
     function arrow(key) {
@@ -925,6 +964,38 @@
     /* ── BUILD TABLE ── */
     function buildTable(arr, w) {
       const top3 = topThree(arr);
+
+      /* ── SCORES VIEW ── */
+      if (w === "SCORES") {
+        const head = `<thead><tr>
+          ${thSort("Ticker",            "Ticker")}
+          ${thStatic("Spark1Y",         "1Y Trend")}
+          ${thSort("Price",             "Price")}
+          ${thSort("RSScore",           "RS")}
+          ${thSort("BreakoutScore",     "Breakout")}
+          ${thSort("MomentumScore",     "Momentum")}
+          ${thSort("VolPressureScore",  "Vol Pressure")}
+          ${thSort("TrendScore",        "Trend")}
+        </tr></thead>`;
+        const rows = top3.map(r => {
+          const sparkSVG = renderSparkline(
+            r.Spark1Y,
+            r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+            r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
+          );
+          return `<tr>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+            <td class="spark-cell">${sparkSVG}</td>
+            <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
+            <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
+            <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
+            <td class="${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</td>
+            <td class="${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</td>
+            <td class="${scoreClass(r.TrendScore, 50)}">${r.TrendScore ?? "—"}</td>
+          </tr>`;
+        }).join("");
+        return head + "<tbody>" + rows + "</tbody>";
+      }
 
       /* ── FUNDAMENTALS VIEW ── */
       if (w === "FUND") {
@@ -1065,7 +1136,13 @@
         const pc1Cls = parseFloat(pc1) > 0 ? "positive" : parseFloat(pc1) < 0 ? "negative" : "neutral";
 
         let statsHTML = "";
-        if (w === "FUND") {
+        if (w === "SCORES") {
+          statsHTML = `
+            <div class="card-row"><span class="card-label">RS</span><span class="card-val ${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">Breakout</span><span class="card-val ${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">Momentum</span><span class="card-val ${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">Vol Press</span><span class="card-val ${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</span></div>`;
+        } else if (w === "FUND") {
           const pe   = r.PE;
           const eps  = r.EPS;
           const mcap = r.MarketCap;
@@ -1141,6 +1218,11 @@
       "Volatility30D":   { label: "Beta",          desc: "30-day beta — sensitivity of the stock's price to broad market moves. Beta > 1 means higher volatility than the market." },
       "PE_vs_Sector":    { label: "PE vs Sector",  desc: "This stock's P/E relative to its sector average, expressed as a percentage. Positive = premium; negative = discount. Sector average is calculated from S&P 500 and Nasdaq-100 members only." },
       "Sector":          { label: "Sector",        desc: "GICS sector classification." },
+      "RSScore":         { label: "RS",            desc: "Relative Strength (1–99): percentile rank of weighted price performance vs all 500+ stocks. Formula: 40% × 3M + 20% × 6M + 20% × 9M + 20% × 1Y. 99 = top 1%, 1 = bottom 1%." },
+      "BreakoutScore":   { label: "Breakout",      desc: "Breakout Score (0–100): price above MA21 (0–33 pts) + today's price gain (0–33 pts) + volume above MA21 (0–34 pts). High score = classic breakout setup." },
+      "MomentumScore":   { label: "Momentum",      desc: "Momentum Score (0–100): percentile rank of weighted cross-timeframe price change. Formula: 35% × 1M + 25% × 3M + 20% × 6M + 20% × 1Y." },
+      "VolPressureScore":{ label: "Vol Pressure",  desc: "Volume Pressure (−100 to 100): accumulation vs distribution. Positive = elevated volume on an up day. Negative = elevated volume on a down day." },
+      "TrendScore":      { label: "Trend",         desc: "Trend Consistency (0–100): percentage of timeframes (2W, 1M, 3M, 6M, 9M, 1Y) showing positive price change. 100 = all 6 timeframes pointing up." },
     };
 
     function getWindowColDesc(key, w) {
@@ -1307,23 +1389,33 @@
       }
     });
 
-    /* Keep desktop + mobile tab strips in sync */
+    /* Keep desktop tab nav and drawer in sync */
     const _origShow = window.show;
     window.show = function(id, btn) {
       _origShow(id, btn);
-      document.querySelectorAll(".mobile-tab-strip .tab-btn").forEach(b => {
-        b.classList.toggle("active",
-          (b.getAttribute("onclick") || "").includes("'" + id + "'"));
+      syncDrawerActive(id);
+    };
+
+    function syncDrawerActive(id) {
+      ["sp500","nasdaq","readme","membership"].forEach(sec => {
+        const b = document.getElementById("drawerBtn" + sec.charAt(0).toUpperCase() + sec.slice(1));
+        if (b) b.classList.toggle("active", sec === id);
       });
+    }
+
+    window.drawerSection = function(id, btn) {
+      const desktopBtn = [...document.querySelectorAll(".tab-nav .tab-btn")]
+        .find(b => (b.getAttribute("onclick") || "").includes("'" + id + "'"));
+      if (desktopBtn) _origShow(id, desktopBtn);
+      syncDrawerActive(id);
+      document.getElementById("mobileDrawer").classList.remove("open");
     };
 
     window.showMobileTab = function(id, mobileBtn) {
       const desktopBtn = [...document.querySelectorAll(".tab-nav .tab-btn")]
         .find(b => (b.getAttribute("onclick") || "").includes("'" + id + "'"));
       if (desktopBtn) _origShow(id, desktopBtn);
-      document.querySelectorAll(".mobile-tab-strip .tab-btn")
-        .forEach(b => b.classList.remove("active"));
-      mobileBtn.classList.add("active");
+      syncDrawerActive(id);
     };
 
   </script>

@@ -664,6 +664,22 @@
     .mobile-nav-drawer a:last-child { border-bottom: none; }
     .mobile-nav-drawer a:hover { color: var(--white); background: rgba(255,255,255,0.04); }
     .mobile-nav-drawer .m-upgrade { color: #f59e0b; font-weight: 600; }
+    .drawer-section-btn {
+      display: block; width: 100%; text-align: left;
+      padding: 14px 20px;
+      color: var(--muted);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+    }
+    .drawer-section-btn:hover { color: var(--white); background: rgba(255,255,255,0.04); }
+    .drawer-section-btn.active { color: var(--electric-bright); background: rgba(59,130,246,0.06); }
+    .drawer-divider { height: 1px; background: rgba(255,255,255,0.15); margin: 4px 0; }
   </style>
 </head>
 
@@ -703,16 +719,16 @@
     </button>
   </header>
 
-  <!-- Mobile tab strip -->
-  <div class="mobile-tab-strip" id="mobileTabStrip">
-    <button class="tab-btn active" onclick="showMobileTab('sp500', this)">S&P 500</button>
-    <button class="tab-btn" onclick="showMobileTab('nasdaq', this)">Nasdaq 100</button>
-    <button class="tab-btn" onclick="showMobileTab('readme', this)">说明</button>
-    <button class="tab-btn" onclick="showMobileTab('membership', this)">成分股变动</button>
-  </div>
+  <!-- Mobile tab strip (hidden — navigation is in the drawer) -->
+  <div class="mobile-tab-strip" id="mobileTabStrip" style="display:none!important;"></div>
 
   <!-- Mobile nav drawer -->
   <div class="mobile-nav-drawer" id="mobileDrawer">
+    <button class="drawer-section-btn active" id="drawerBtnSp500"      onclick="drawerSection('sp500',      this)">标普500</button>
+    <button class="drawer-section-btn"        id="drawerBtnNasdaq"     onclick="drawerSection('nasdaq',     this)">纳斯达克100</button>
+    <button class="drawer-section-btn"        id="drawerBtnReadme"     onclick="drawerSection('readme',     this)">说明</button>
+    <button class="drawer-section-btn"        id="drawerBtnMembership" onclick="drawerSection('membership', this)">成分股变动</button>
+    <div class="drawer-divider"></div>
     <a href="index_cn.html">首页</a>
     <a href="dashboard_cn.html">个人主页</a>
     <a href="login_cn.html">登录</a>
@@ -730,7 +746,8 @@
       <button class="window-btn" onclick="setWindow('6M', this)">6月</button>
       <button class="window-btn" onclick="setWindow('9M', this)">9月</button>
       <button class="window-btn" onclick="setWindow('1Y', this)">1年</button>
-      <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:8px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">基本面</button>
+      <button class="window-btn" onclick="setWindow('SCORES', this)" style="margin-left:8px;border-color:rgba(96,165,250,0.35);color:#60a5fa;">评分</button>
+      <button class="window-btn" onclick="setWindow('FUND', this)" style="border-color:rgba(245,158,11,0.35);color:#f59e0b;">基本面</button>
     </div>
     <div class="toolbar-sep"></div>
     <span class="row-count" id="rowCount"></span>
@@ -789,6 +806,17 @@
             <tr><td>日最大量涨</td><td>所选周期内最大单日成交量涨幅</td></tr>
             <tr><td>最大量涨日</td><td>最大单日量涨发生于多少天前</td></tr>
             <tr><td>价@量日</td><td>最大量涨当日的价格变化</td></tr>
+          </table>
+
+          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; 评分系统（评分标签页）</div>
+          <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
+            <tr><th>评分</th><th>说明</th></tr>
+            <tr><td>RS评分（1–99）</td><td>相对强度——全市场百分位排名。算法：40%×3月 + 20%×6月 + 20%×9月 + 20%×1年涨幅。99=前1%；1=末1%。</td></tr>
+            <tr><td>突破评分（0–100）</td><td>价格高于MA21（0–33分）+ 当日涨幅（0–33分）+ 成交量高于MA21（0–34分）。满分100=三项信号全力触发。</td></tr>
+            <tr><td>动能评分（0–100）</td><td>跨周期加权涨幅百分位排名：35%×1月 + 25%×3月 + 20%×6月 + 20%×1年。奖励在所有窗口持续强势的股票。</td></tr>
+            <tr><td>量压评分（±100）</td><td>正值=上涨日放量（买盘压力）；负值=下跌日放量（派发压力）；趋近0=低量或信号中性。</td></tr>
+            <tr><td>趋势评分（0–100）</td><td>6个周期（2周/1月/3月/6月/9月/1年）中价格为正的比例。100=全部6个周期均上涨；0=全部下跌。</td></tr>
           </table>
 
           <div class="readme-label" style="margin-top:28px;">◈ &nbsp; 基本面指标（基本面标签页）</div>
@@ -928,9 +956,12 @@
       currentWindow = w;
       document.querySelectorAll(".window-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      if (w === "FUND") { sortKey = "MarketCap"; sortAsc = false; }
+      if (w === "SCORES") { sortKey = "RSScore"; sortAsc = false; }
+      else if (w === "FUND") { sortKey = "MarketCap"; sortAsc = false; }
       else if (sortKey === "MarketCap" || sortKey === "PE" || sortKey === "EPS" ||
-               sortKey === "Volatility30D" || sortKey === "PE_vs_Sector" || sortKey === "Sector") {
+               sortKey === "Volatility30D" || sortKey === "PE_vs_Sector" || sortKey === "Sector" ||
+               sortKey === "RSScore" || sortKey === "BreakoutScore" || sortKey === "MomentumScore" ||
+               sortKey === "VolPressureScore" || sortKey === "TrendScore") {
         sortKey = "PriceChange1D"; sortAsc = false;
       }
       render();
@@ -963,6 +994,12 @@
       const n = parseFloat(v);
       if (isNaN(n)) return "neutral";
       return n > 0 ? "positive" : n < 0 ? "negative" : "neutral";
+    }
+
+    function scoreClass(v, mid) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return "neutral";
+      return n >= mid ? "positive" : "negative";
     }
 
     function arrow(key) {
@@ -1038,6 +1075,38 @@
     /* ── BUILD TABLE ── */
     function buildTable(arr, w) {
       const top3 = topThree(arr);
+
+      /* ── 评分视图 ── */
+      if (w === "SCORES") {
+        const head = `<thead><tr>
+          ${thSort("Ticker",            "代码")}
+          ${thStatic("Spark1Y",         "年趋势线")}
+          ${thSort("Price",             "价格")}
+          ${thSort("RSScore",           "RS评分")}
+          ${thSort("BreakoutScore",     "突破评分")}
+          ${thSort("MomentumScore",     "动能评分")}
+          ${thSort("VolPressureScore",  "量压评分")}
+          ${thSort("TrendScore",        "趋势评分")}
+        </tr></thead>`;
+        const rows = top3.map(r => {
+          const sparkSVG = renderSparkline(
+            r.Spark1Y,
+            r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+            r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
+          );
+          return `<tr>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+            <td class="spark-cell">${sparkSVG}</td>
+            <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
+            <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
+            <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
+            <td class="${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</td>
+            <td class="${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</td>
+            <td class="${scoreClass(r.TrendScore, 50)}">${r.TrendScore ?? "—"}</td>
+          </tr>`;
+        }).join("");
+        return head + "<tbody>" + rows + "</tbody>";
+      }
 
       /* ── FUNDAMENTALS VIEW ── */
       if (w === "FUND") {
@@ -1178,7 +1247,13 @@
         const pc1Cls = parseFloat(pc1) > 0 ? "positive" : parseFloat(pc1) < 0 ? "negative" : "neutral";
 
         let statsHTML = "";
-        if (w === "FUND") {
+        if (w === "SCORES") {
+          statsHTML = `
+            <div class="card-row"><span class="card-label">RS评分</span><span class="card-val ${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">突破</span><span class="card-val ${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">动能</span><span class="card-val ${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">量压</span><span class="card-val ${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</span></div>`;
+        } else if (w === "FUND") {
           const pe   = r.PE;
           const eps  = r.EPS;
           const mcap = r.MarketCap;
@@ -1254,6 +1329,11 @@
       "Volatility30D":   { label: "贝塔",           desc: "30日年化波动率（%），衡量近期价格波动幅度。" },
       "PE_vs_Sector":    { label: "PE vs 行业",    desc: "该股市盈率与所在行业平均市盈率的差值（%）。正值表示溢价，负值表示折价。" },
       "Sector":          { label: "行业",           desc: "GICS行业分类。" },
+      "RSScore":         { label: "RS评分",      desc: "相对强度评分（1–99）：基于加权价格涨幅在全体500+股票中的百分位排名。算法：40%×3月 + 20%×6月 + 20%×9月 + 20%×1年涨幅，再进行全市场排名。99=前1%，1=末1%。" },
+      "BreakoutScore":   { label: "突破评分",    desc: "突破评分（0–100）：价格高于MA21（0–33分）+ 当日价格涨幅（0–33分）+ 成交量高于MA21（0–34分）。满分100=三项信号全力触发。" },
+      "MomentumScore":   { label: "动能评分",    desc: "动能评分（0–100）：跨周期加权涨幅百分位排名。算法：35%×1月 + 25%×3月 + 20%×6月 + 20%×1年。100=全市场多周期动能最强。" },
+      "VolPressureScore":{ label: "量压评分",    desc: "量压评分（−100至100）：正值=上涨日放量（买盘压力）；负值=下跌日放量（派发压力）；趋近0=低量或信号中性。" },
+      "TrendScore":      { label: "趋势评分",    desc: "趋势一致性评分（0–100）：6个周期（2周/1月/3月/6月/9月/1年）中价格为正的比例。100=全部6个周期均上涨；0=全部下跌。" },
     };
 
     const WIN_CN = { "1D": "1天", "2W": "2周", "1M": "1月", "3M": "3月", "6M": "6月", "9M": "9月", "1Y": "1年" };
@@ -1423,23 +1503,33 @@
       }
     });
 
-    /* Keep desktop + mobile tab strips in sync */
+    /* Keep desktop tab nav and drawer in sync */
     const _origShow = window.show;
     window.show = function(id, btn) {
       _origShow(id, btn);
-      document.querySelectorAll(".mobile-tab-strip .tab-btn").forEach(b => {
-        b.classList.toggle("active",
-          (b.getAttribute("onclick") || "").includes("'" + id + "'"));
+      syncDrawerActive(id);
+    };
+
+    function syncDrawerActive(id) {
+      ["sp500","nasdaq","readme","membership"].forEach(sec => {
+        const b = document.getElementById("drawerBtn" + sec.charAt(0).toUpperCase() + sec.slice(1));
+        if (b) b.classList.toggle("active", sec === id);
       });
+    }
+
+    window.drawerSection = function(id, btn) {
+      const desktopBtn = [...document.querySelectorAll(".tab-nav .tab-btn")]
+        .find(b => (b.getAttribute("onclick") || "").includes("'" + id + "'"));
+      if (desktopBtn) _origShow(id, desktopBtn);
+      syncDrawerActive(id);
+      document.getElementById("mobileDrawer").classList.remove("open");
     };
 
     window.showMobileTab = function(id, mobileBtn) {
       const desktopBtn = [...document.querySelectorAll(".tab-nav .tab-btn")]
         .find(b => (b.getAttribute("onclick") || "").includes("'" + id + "'"));
       if (desktopBtn) _origShow(id, desktopBtn);
-      document.querySelectorAll(".mobile-tab-strip .tab-btn")
-        .forEach(b => b.classList.remove("active"));
-      mobileBtn.classList.add("active");
+      syncDrawerActive(id);
     };
 
   </script>
