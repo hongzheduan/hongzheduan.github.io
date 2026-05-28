@@ -1153,23 +1153,12 @@
             <span class="dash-win">3M</span>
             <span class="dash-win">6M</span>
             <span class="dash-win">9M</span>
-            <span class="dash-win active">1Y</span>
+            <span class="dash-win active" id="mockWin1Y" onclick="switchMockView('normal',this)">1Y</span>
+            <span class="dash-win" id="mockWinScores" onclick="switchMockView('scores',this)" style="margin-left:6px;border-color:rgba(96,165,250,0.4);color:#60a5fa;">SCORES</span>
           </div>
         </div>
 
-        <div class="dash-thead" id="mockThead">
-          <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility and sector comparison.</div></span>
-          <span class="dc" style="cursor:default; padding-left:8px;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart. ▲ Triangle = highest-volume day (green=up, red=down). ● Circle = largest price-change day (green=vol up, red=vol down).</div></span>
-          <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
-          <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">P CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
-          <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">MAX P CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price increase (%) within the past 1 year.</div></span>
-
-          <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@P DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price increase.</div></span>
-          <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">MAX V CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume increase (%) within the past 1 year.</div></span>
-
-          <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@V DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume increase.</div></span>
-
-        </div>
+        <div class="dash-thead" id="mockThead"></div>
         <div id="mockBody"></div>
 
         <div id="mockChanges" style="display:none; padding:12px 10px; font-family:'DM Mono',monospace; font-size:11px; line-height:2.0; text-align:left;">
@@ -1206,16 +1195,7 @@
           </span>
         </div>
         <!-- Column legend -->
-        <div style="padding:10px 8px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);">
-          <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">Column Guide</div>
-          <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> P CHG% &nbsp;&nbsp;Total price change over 1 year</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> MAX P CHG% Largest single-day price increase</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> V@P DAY &nbsp;&nbsp;Volume change on max price day</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> MAX V CHG% Largest single-day volume increase</div>
-            <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> P@V DAY &nbsp;&nbsp;Price change on max volume day</div>
-          </div>
-        </div>
+        <div id="mockLegend" style="padding:10px 8px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);"></div>
 
       </div><!-- /dash-mock -->
       </div><!-- /dash-mock-wrap -->
@@ -1535,6 +1515,7 @@
 <script>
 /* ── Mock table: data + sort ── */
 let MOCK_DATA = [];
+let mockView  = 'normal'; // 'normal' | 'scores'
 
 function buildSparkPath(arr) {
   if (!arr || arr.length < 2) return 'M0,10 L94,10';
@@ -1564,6 +1545,24 @@ function cc(v) {
   if (isNaN(n) || n === 0) return 'dr-neu';
   return n > 0 ? 'dr-pos' : 'dr-neg';
 }
+function scClass(v, mid) {
+  const n = parseFloat(v);
+  if (isNaN(n)) return 'dr-neu';
+  return n > mid ? 'dr-pos' : n < mid ? 'dr-neg' : 'dr-neu';
+}
+window.switchMockView = function(view, el) {
+  mockView = view;
+  document.getElementById('mockWin1Y').classList.toggle('active', view === 'normal');
+  document.getElementById('mockWinScores').classList.toggle('active', view === 'scores');
+  if (view === 'scores') {
+    mockSortCol = 'rs';
+    mockSortAsc = false;
+  } else {
+    mockSortCol = 'chg';
+    mockSortAsc = false;
+  }
+  renderMock();
+};
 
 function fmt(v, digits=2) {
   const n = parseFloat(v);
@@ -1582,7 +1581,54 @@ function sparkSVG(r) {
   </svg>`;
 }
 
+const NORMAL_HEAD = `
+  <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility and sector comparison.</div></span>
+  <span class="dc" style="cursor:default; padding-left:8px;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart. ▲ Triangle = highest-volume day (green=up, red=down). ● Circle = largest price-change day (green=vol up, red=vol down).</div></span>
+  <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
+  <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">P CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
+  <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">MAX P CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price increase (%) within the past 1 year.</div></span>
+  <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@P DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price increase.</div></span>
+  <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">MAX V CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume increase (%) within the past 1 year.</div></span>
+  <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@V DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume increase.</div></span>`;
+
+const SCORES_HEAD = `
+  <span class="dc dk-sort" data-col="tk"       onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol.</div></span>
+  <span class="dc" style="cursor:default; padding-left:8px;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart.</div></span>
+  <span class="dc dk-sort" data-col="pr"        onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
+  <span class="dc dk-sort gstart" data-col="rs" onclick="mockSort('rs',this)">RS <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">RS Score (1–99)</div>Relative Strength: percentile rank of weighted price performance vs all 500+ stocks. Formula: 40% × 3M + 20% × 6M + 20% × 9M + 20% × 1Y price change. 99 = top 1%.</div></span>
+  <span class="dc dk-sort" data-col="breakout"  onclick="mockSort('breakout',this)">BREAKOUT <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">Breakout Score (0–100)</div>Composite of three signals: price above MA21 (0–33 pts), today's price gain (0–33 pts), and volume elevation above MA21 (0–34 pts). High score = classic breakout setup.</div></span>
+  <span class="dc dk-sort" data-col="momentum"  onclick="mockSort('momentum',this)">MOMENTUM <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">Momentum Score (0–100)</div>Percentile rank of weighted cross-timeframe price change: 35% × 1M + 25% × 3M + 20% × 6M + 20% × 1Y. 100 = strongest momentum in the universe.</div></span>
+  <span class="dc dk-sort" data-col="volpress"  onclick="mockSort('volpress',this)">VOL PRESS <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">Volume Pressure (−100 to 100)</div>Accumulation vs distribution. Formula: (Vol/MA21 − 1) × price direction × 100. Positive = volume buying pressure, negative = distribution. Near 0 = neutral.</div></span>
+  <span class="dc dk-sort" data-col="trend"     onclick="mockSort('trend',this)">TREND <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">Trend Consistency (0–100)</div>% of timeframes (2W, 1M, 3M, 6M, 9M, 1Y) showing positive price change. 100 = all 6 timeframes pointing up. 0 = all down.</div></span>`;
+
+const NORMAL_LEGEND = `
+  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">Column Guide</div>
+  <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> P CHG% &nbsp;&nbsp;Total price change over 1 year</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> MAX P CHG% Largest single-day price increase</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> V@P DAY &nbsp;&nbsp;Volume change on max price day</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> MAX V CHG% Largest single-day volume increase</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> P@V DAY &nbsp;&nbsp;Price change on max volume day</div>
+  </div>`;
+
+const SCORES_LEGEND = `
+  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">Score Guide</div>
+  <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">RS</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1–99 · Relative strength vs all stocks</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">BREAKOUT</span> 0–100 · Price above MA + vol surge today</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">MOMENTUM</span> 0–100 · Weighted multi-timeframe strength</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">VOL PRESS</span> ±100 · Accumulation vs distribution</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">TREND</span> &nbsp;&nbsp;&nbsp;0–100 · % of timeframes pointing up</div>
+  </div>`;
+
 function renderMock() {
+  const isScores = mockView === 'scores';
+
+  const thead = document.getElementById('mockThead');
+  const legend = document.getElementById('mockLegend');
+  if (thead) thead.innerHTML = isScores ? SCORES_HEAD : NORMAL_HEAD;
+  if (legend) legend.innerHTML = isScores ? SCORES_LEGEND : NORMAL_LEGEND;
+
   const data = [...MOCK_DATA].sort((a, b) => {
     const A = typeof a[mockSortCol] === 'string' ? a[mockSortCol] : parseFloat(a[mockSortCol]);
     const B = typeof b[mockSortCol] === 'string' ? b[mockSortCol] : parseFloat(b[mockSortCol]);
@@ -1593,40 +1639,51 @@ function renderMock() {
   const body = document.getElementById('mockBody');
   if (!body) return;
 
-  body.innerHTML = data.map(r => `
-    <div class="dash-row">
-      <span class="dr-tk">${r.tk}
-        <div class="tk-popup">
-          <div class="tk-popup-head"><span class="tk-sym">${r.tk}</span><span class="tk-sector">${r.sector}</span></div>
-          <div class="tk-rows">
-            <div class="tk-row"><span class="tk-key">PE</span><span class="tk-val">${r.pe}</span></div>
-            <div class="tk-row"><span class="tk-key">Mkt Cap</span><span class="tk-val">${r.mc}</span></div>
-            <div class="tk-row"><span class="tk-key">EPS</span><span class="tk-val">${r.eps}</span></div>
-            <div class="tk-div"></div>
-            <div class="tk-row"><span class="tk-key">Vol 30D</span><span class="tk-val">${r.vol30}</span></div>
-            <div class="tk-div"></div>
-            <div class="tk-row"><span class="tk-key">Sector Avg PE</span><span class="tk-val">${r.secpe}</span></div>
-            <div class="tk-row"><span class="tk-key">PE vs Sector</span><span class="tk-val ${r.pevsec.startsWith('+') ? 'tk-pos' : 'tk-neg'}">${r.pevsec}</span></div>
-          </div>
-        </div>
-      </span>
-      <span class="dr-sp">${sparkSVG(r)}
-        <div class="sp-tip">
-          <div class="sp-tip-title">1Y TREND</div>
-          <div class="sp-tip-desc">1-year normalized price chart</div>
-          <div class="sp-legend">
-            <div class="sp-legend-row"><svg width="10" height="9" viewBox="0 0 10 9"><polygon points="5,0 0,9 10,9" fill="${r.triC}"/></svg>Highest-volume day</div>
-            <div class="sp-legend-row"><svg width="10" height="9" viewBox="0 0 10 9"><circle cx="5" cy="5" r="3.5" fill="${r.dotC}" opacity="0.3"/><circle cx="5" cy="5" r="2" fill="${r.dotC}"/></svg>Largest price-change day</div>
-          </div>
-        </div>
-      </span>
-      <span class="dr-pr">${fmtN(r.pr)}</span>
-      <span class="${cc(r.chg)} dr-gs">${fmt(r.chg)}</span>
-      <span class="${cc(r.mx)}">${fmt(r.mx)}</span>
-      <span class="${cc(r.vatpr)}">${fmt(r.vatpr)}</span>
-      <span class="${cc(r.vol)}">${fmt(r.vol)}</span>
-      <span class="${cc(r.pvol)}">${fmt(r.pvol)}</span>
-    </div>`).join('');
+  const tkCell = r => `<span class="dr-tk">${r.tk}
+    <div class="tk-popup">
+      <div class="tk-popup-head"><span class="tk-sym">${r.tk}</span><span class="tk-sector">${r.sector}</span></div>
+      <div class="tk-rows">
+        <div class="tk-row"><span class="tk-key">PE</span><span class="tk-val">${r.pe}</span></div>
+        <div class="tk-row"><span class="tk-key">Mkt Cap</span><span class="tk-val">${r.mc}</span></div>
+        <div class="tk-row"><span class="tk-key">EPS</span><span class="tk-val">${r.eps}</span></div>
+        <div class="tk-div"></div>
+        <div class="tk-row"><span class="tk-key">Vol 30D</span><span class="tk-val">${r.vol30}</span></div>
+        <div class="tk-div"></div>
+        <div class="tk-row"><span class="tk-key">Sector Avg PE</span><span class="tk-val">${r.secpe}</span></div>
+        <div class="tk-row"><span class="tk-key">PE vs Sector</span><span class="tk-val ${r.pevsec.startsWith('+') ? 'tk-pos' : 'tk-neg'}">${r.pevsec}</span></div>
+      </div>
+    </div>
+  </span>`;
+
+  const spCell = r => `<span class="dr-sp">${sparkSVG(r)}
+    <div class="sp-tip">
+      <div class="sp-tip-title">1Y TREND</div>
+      <div class="sp-tip-desc">1-year normalized price chart</div>
+      <div class="sp-legend">
+        <div class="sp-legend-row"><svg width="10" height="9" viewBox="0 0 10 9"><polygon points="5,0 0,9 10,9" fill="${r.triC}"/></svg>Highest-volume day</div>
+        <div class="sp-legend-row"><svg width="10" height="9" viewBox="0 0 10 9"><circle cx="5" cy="5" r="3.5" fill="${r.dotC}" opacity="0.3"/><circle cx="5" cy="5" r="2" fill="${r.dotC}"/></svg>Largest price-change day</div>
+      </div>
+    </div>
+  </span>`;
+
+  body.innerHTML = data.map(r => {
+    const cells = isScores
+      ? `${tkCell(r)}${spCell(r)}
+         <span class="dr-pr">${fmtN(r.pr)}</span>
+         <span class="${scClass(r.rs, 50)} dr-gs">${r.rs ?? '—'}</span>
+         <span class="${scClass(r.breakout, 50)}">${r.breakout ?? '—'}</span>
+         <span class="${scClass(r.momentum, 50)}">${r.momentum ?? '—'}</span>
+         <span class="${cc(r.volpress)}">${r.volpress ?? '—'}</span>
+         <span class="${scClass(r.trend, 50)}">${r.trend ?? '—'}</span>`
+      : `${tkCell(r)}${spCell(r)}
+         <span class="dr-pr">${fmtN(r.pr)}</span>
+         <span class="${cc(r.chg)} dr-gs">${fmt(r.chg)}</span>
+         <span class="${cc(r.mx)}">${fmt(r.mx)}</span>
+         <span class="${cc(r.vatpr)}">${fmt(r.vatpr)}</span>
+         <span class="${cc(r.vol)}">${fmt(r.vol)}</span>
+         <span class="${cc(r.pvol)}">${fmt(r.pvol)}</span>`;
+    return `<div class="dash-row">${cells}</div>`;
+  }).join('');
 
   document.querySelectorAll('#mockThead .dk-sort').forEach(el => {
     const arr = el.querySelector('.dk-arr');
@@ -1687,12 +1744,17 @@ window.mockSort = function(col, el) {
         spark: buildSparkPath(spark),
         triX: posX(triIdx), triY: posY(triIdx),
         dotX: posX(dotIdx), dotY: posY(dotIdx),
-        pr:    r.Price || 0,
-        chg:   pc1y,
-        mx:    r['1YMaxPriceChange'] || 0,
-        vatpr: r['1YVolumeChangeAtMaxPrice'] || 0,
-        vol:   r['1YMaxVolumeChange'] || 0,
+        pr:       r.Price || 0,
+        chg:      pc1y,
+        mx:       r['1YMaxPriceChange'] || 0,
+        vatpr:    r['1YVolumeChangeAtMaxPrice'] || 0,
+        vol:      r['1YMaxVolumeChange'] || 0,
         pvol,
+        rs:       r.RSScore ?? null,
+        breakout: r.BreakoutScore ?? null,
+        momentum: r.MomentumScore ?? null,
+        volpress: r.VolPressureScore ?? null,
+        trend:    r.TrendScore ?? null,
       };
     }).filter(Boolean);
     renderMock();
