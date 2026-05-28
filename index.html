@@ -875,7 +875,7 @@
 
     .dash-thead {
       display: grid;
-      grid-template-columns: 54px 118px 80px 76px 72px 72px 70px 76px;
+      grid-template-columns: var(--mock-grid, 54px 118px 80px 76px 72px 72px 70px 76px);
       padding: 6px 4px;
       background: rgba(10,22,40,0.98);
       border-bottom: 1px solid rgba(255,255,255,0.09);
@@ -939,7 +939,7 @@
 
     .dash-row {
       display: grid;
-      grid-template-columns: 54px 118px 80px 76px 72px 72px 70px 76px;
+      grid-template-columns: var(--mock-grid, 54px 118px 80px 76px 72px 72px 70px 76px);
       padding: 6px 4px;
       border-bottom: 1px solid rgba(255,255,255,0.03);
       align-items: center;
@@ -1155,6 +1155,7 @@
             <span class="dash-win">9M</span>
             <span class="dash-win active" id="mockWin1Y" onclick="switchMockView('normal',this)">1Y</span>
             <span class="dash-win" id="mockWinScores" onclick="switchMockView('scores',this)" style="margin-left:6px;border-color:rgba(96,165,250,0.4);color:#60a5fa;">SCORES</span>
+            <span class="dash-win" id="mockWinFund"   onclick="switchMockView('fund',this)"   style="margin-left:4px;border-color:rgba(245,158,11,0.4);color:#f59e0b;">FUND</span>
           </div>
         </div>
 
@@ -1550,17 +1551,23 @@ function scClass(v, mid) {
   if (isNaN(n)) return 'dr-neu';
   return n > mid ? 'dr-pos' : n < mid ? 'dr-neg' : 'dr-neu';
 }
+const MOCK_GRIDS = {
+  normal: '54px 118px 80px 76px 72px 72px 70px 76px',
+  scores: '54px 118px 80px 56px 74px 82px 84px 60px',
+  fund:   '54px 118px 80px 70px 54px 58px 54px 90px',
+};
+const MOCK_SORT_DEFAULTS = { normal: 'chg', scores: 'rs', fund: 'mcapNum' };
+
 window.switchMockView = function(view, el) {
   mockView = view;
-  document.getElementById('mockWin1Y').classList.toggle('active', view === 'normal');
-  document.getElementById('mockWinScores').classList.toggle('active', view === 'scores');
-  if (view === 'scores') {
-    mockSortCol = 'rs';
-    mockSortAsc = false;
-  } else {
-    mockSortCol = 'chg';
-    mockSortAsc = false;
-  }
+  ['mockWin1Y','mockWinScores','mockWinFund'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.remove('active');
+  });
+  el.classList.add('active');
+  mockSortCol = MOCK_SORT_DEFAULTS[view] || 'chg';
+  mockSortAsc = false;
+  document.querySelector('.dash-mock').style.setProperty('--mock-grid', MOCK_GRIDS[view]);
   renderMock();
 };
 
@@ -1611,6 +1618,26 @@ const NORMAL_LEGEND = `
     <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> P@V DAY &nbsp;&nbsp;Price change on max volume day</div>
   </div>`;
 
+const FUND_HEAD = `
+  <span class="dc dk-sort" data-col="tk"      onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol. Hover for full fundamentals breakdown.</div></span>
+  <span class="dc" style="cursor:default; padding-left:8px;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart.</div></span>
+  <span class="dc dk-sort" data-col="pr"      onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
+  <span class="dc dk-sort gstart" data-col="mcapNum" onclick="mockSort('mcapNum',this)">MKT CAP <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">Market Cap</div>Market capitalisation in billions (B) or trillions (T) of USD.</div></span>
+  <span class="dc dk-sort" data-col="pe"      onclick="mockSort('pe',this)">P/E <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P/E Ratio</div>Trailing price-to-earnings ratio. Blank if earnings are negative or unavailable.</div></span>
+  <span class="dc dk-sort" data-col="eps"     onclick="mockSort('eps',this)">EPS <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">EPS</div>Trailing twelve-month earnings per share in USD. Positive = profitable.</div></span>
+  <span class="dc dk-sort" data-col="beta"    onclick="mockSort('beta',this)">BETA <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">Beta (30D)</div>30-day beta — sensitivity to broad market moves. Beta > 1 = more volatile than market.</div></span>
+  <span class="dc dk-sort" data-col="pevsec"  onclick="mockSort('pevsec',this)">PE VS SECTOR <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PE vs Sector</div>This stock's P/E relative to its sector average (%). Positive = trading at a premium; negative = discount.</div></span>`;
+
+const FUND_LEGEND = `
+  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#f59e0b; margin-bottom:7px;">Fundamentals Guide</div>
+  <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">MKT CAP</span> &nbsp;Market cap in B (billions) or T (trillions)</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">P/E</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Trailing price-to-earnings ratio</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">EPS</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Trailing 12-month earnings per share (USD)</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">BETA</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;30-day sensitivity to market moves</div>
+    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">PE VS SECTOR</span> P/E premium (+) or discount (−) vs sector avg</div>
+  </div>`;
+
 const SCORES_LEGEND = `
   <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">Score Guide</div>
   <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
@@ -1623,11 +1650,12 @@ const SCORES_LEGEND = `
 
 function renderMock() {
   const isScores = mockView === 'scores';
+  const isFund   = mockView === 'fund';
 
   const thead = document.getElementById('mockThead');
   const legend = document.getElementById('mockLegend');
-  if (thead) thead.innerHTML = isScores ? SCORES_HEAD : NORMAL_HEAD;
-  if (legend) legend.innerHTML = isScores ? SCORES_LEGEND : NORMAL_LEGEND;
+  if (thead)  thead.innerHTML  = isFund ? FUND_HEAD   : isScores ? SCORES_HEAD  : NORMAL_HEAD;
+  if (legend) legend.innerHTML = isFund ? FUND_LEGEND : isScores ? SCORES_LEGEND : NORMAL_LEGEND;
 
   const data = [...MOCK_DATA].sort((a, b) => {
     const A = typeof a[mockSortCol] === 'string' ? a[mockSortCol] : parseFloat(a[mockSortCol]);
@@ -1667,7 +1695,15 @@ function renderMock() {
   </span>`;
 
   body.innerHTML = data.map(r => {
-    const cells = isScores
+    const cells = isFund
+      ? `${tkCell(r)}${spCell(r)}
+         <span class="dr-pr">${fmtN(r.pr)}</span>
+         <span class="dr-neu dr-gs">${r.mc}</span>
+         <span class="dr-neu">${r.pe}</span>
+         <span class="${cc(r.eps)}">${r.eps}</span>
+         <span class="dr-neu">${r.beta != null ? parseFloat(r.beta).toFixed(2) : '—'}</span>
+         <span class="${cc(r.pevsec)}">${r.pevsec}</span>`
+      : isScores
       ? `${tkCell(r)}${spCell(r)}
          <span class="dr-pr">${fmtN(r.pr)}</span>
          <span class="${scClass(r.rs, 50)} dr-gs">${r.rs ?? '—'}</span>
@@ -1755,6 +1791,8 @@ window.mockSort = function(col, el) {
         momentum: r.MomentumScore ?? null,
         volpress: r.VolPressureScore ?? null,
         trend:    r.TrendScore ?? null,
+        beta:     r.Volatility30D ?? null,
+        mcapNum:  mcap,
       };
     }).filter(Boolean);
     renderMock();
