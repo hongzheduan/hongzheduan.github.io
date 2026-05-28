@@ -508,6 +508,37 @@ def scan():
                         spark_1y = None
 
                     # =========================
+                    # SCORES (per-stock)
+                    # =========================
+                    pc_2w = metrics.get("2WPriceChange") or 0.0
+                    pc_1m = metrics.get("1MPriceChange") or 0.0
+                    pc_3m = metrics.get("3MPriceChange") or 0.0
+                    pc_6m = metrics.get("6MPriceChange") or 0.0
+                    pc_9m = metrics.get("9MPriceChange") or 0.0
+                    pc_1y = metrics.get("1YPriceChange") or 0.0
+
+                    pv_ma     = float(price_vs_ma21_1d) if pd.notna(price_vs_ma21_1d) else 1.0
+                    vv_ma     = float(volume_vs_ma21_1d) if pd.notna(volume_vs_ma21_1d) else 1.0
+                    pc_1d_pct = float(price_change_1d * 100) if price_change_1d is not None else 0.0
+
+                    # Breakout Score (0–100)
+                    bs  = min(33, max(0, (pv_ma - 1) * 200))
+                    bs += min(33, max(0, pc_1d_pct * 3))
+                    bs += min(34, max(0, (vv_ma - 1) * 25))
+                    breakout_score = round(min(100, max(0, bs)))
+
+                    # Volume Pressure Score (-100–100)
+                    p_dir = 1 if pc_1d_pct > 0 else (-1 if pc_1d_pct < 0 else 0)
+                    vol_pressure_score = round(max(-100, min(100, (vv_ma - 1) * p_dir * 100)))
+
+                    # Trend Consistency Score (0–100)
+                    trend_score = round(sum(1 for v in [pc_2w, pc_1m, pc_3m, pc_6m, pc_9m, pc_1y] if v > 0) / 6 * 100)
+
+                    # Raw values for cross-stock percentile ranking (post-processing)
+                    raw_rs       = 0.40*pc_3m + 0.20*pc_6m + 0.20*pc_9m + 0.20*pc_1y
+                    raw_momentum = 0.35*pc_1m + 0.25*pc_3m + 0.20*pc_6m + 0.20*pc_1y
+
+                    # =========================
                     # OUTPUT
                     # =========================
                     actual_date = df.index[-1].strftime("%Y-%m-%d")
@@ -537,6 +568,12 @@ def scan():
                         "CompanyName": fund["CompanyName"],
                         "Spark6M": spark_6m,
                         "Spark1Y": spark_1y,
+
+                        "BreakoutScore":   breakout_score,
+                        "VolPressureScore": vol_pressure_score,
+                        "TrendScore":      trend_score,
+                        "_RawRS":          raw_rs,
+                        "_RawMomentum":    raw_momentum,
                     })
 
                 except Exception as e:
@@ -577,6 +614,16 @@ def scan():
         np.nan
     )
     df["PE_vs_Sector"] = df["PE_vs_Sector"].round(1)
+
+    # RS Score (1–99): percentile rank of weighted multi-timeframe performance
+    if "_RawRS" in df.columns:
+        df["RSScore"] = (df["_RawRS"].rank(pct=True) * 98 + 1).round().clip(1, 99).astype(int)
+        df.drop(columns=["_RawRS"], inplace=True)
+
+    # Momentum Score (0–100): percentile rank of weighted momentum
+    if "_RawMomentum" in df.columns:
+        df["MomentumScore"] = (df["_RawMomentum"].rank(pct=True) * 100).round().clip(0, 100).astype(int)
+        df.drop(columns=["_RawMomentum"], inplace=True)
 
     if "VolumeChange1D" in df.columns:
         df = df.sort_values("VolumeChange1D", ascending=False)

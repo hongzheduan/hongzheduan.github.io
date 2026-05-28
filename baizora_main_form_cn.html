@@ -708,7 +708,8 @@
       <button class="window-btn" onclick="setWindow('6M', this)">6月</button>
       <button class="window-btn" onclick="setWindow('9M', this)">9月</button>
       <button class="window-btn" onclick="setWindow('1Y', this)">1年</button>
-      <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:8px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">基本面</button>
+      <button class="window-btn" onclick="setWindow('SCORES', this)" style="margin-left:8px;border-color:rgba(96,165,250,0.35);color:#60a5fa;">评分</button>
+      <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:4px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">基本面</button>
     </div>
     <div class="toolbar-sep"></div>
     <div class="toolbar-search">
@@ -977,6 +978,11 @@
       if (n < 0) return "negative";
       return "neutral";
     }
+    function scoreClass(v, mid) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return "neutral";
+      return n > mid ? "positive" : n < mid ? "negative" : "neutral";
+    }
 
     function arrow(key) {
       if (sortKey !== key) return `<span class="sort-arrow"> ↕</span>`;
@@ -1061,6 +1067,38 @@
     /* ── BUILD TABLE ── */
     function buildTable(arr, w) {
       arr = sorted(arr);
+
+      /* ── 评分视图 ── */
+      if (w === "SCORES") {
+        const head = `<thead><tr>
+          ${thSort("Ticker",          "代码")}
+          ${thStatic("Spark1Y",       "年趋势线")}
+          ${thSort("Price",           "价格")}
+          ${thSort("RSScore",         "RS评分")}
+          ${thSort("BreakoutScore",   "突破评分")}
+          ${thSort("MomentumScore",   "动能评分")}
+          ${thSort("VolPressureScore","量压评分")}
+          ${thSort("TrendScore",      "趋势评分")}
+        </tr></thead>`;
+        const rows = arr.slice(0, 200).map(r => {
+          const sparkSVG = renderSparkline(
+            r.Spark1Y,
+            r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+            r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
+          );
+          return `<tr>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+            <td class="spark-cell">${sparkSVG}</td>
+            <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
+            <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
+            <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
+            <td class="${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</td>
+            <td class="${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</td>
+            <td class="${scoreClass(r.TrendScore, 50)}">${r.TrendScore ?? "—"}</td>
+          </tr>`;
+        }).join("");
+        return head + "<tbody>" + rows + "</tbody>";
+      }
 
       /* ── 基本面视图 ── */
       if (w === "FUND") {
@@ -1217,7 +1255,14 @@
 
         let priceChgDisplay, statsHTML;
 
-        if (w === "FUND") {
+        if (w === "SCORES") {
+          priceChgDisplay = `<span class="card-chg ${colorClass(pc1)}">${fmtP(pc1)}</span>`;
+          statsHTML = `
+            <div class="card-row"><span class="card-label">RS评分</span><span class="card-val ${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">突破</span><span class="card-val ${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">动能</span><span class="card-val ${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">量压</span><span class="card-val ${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</span></div>`;
+        } else if (w === "FUND") {
           const pe    = r.PE;
           const eps   = r.EPS;
           const mcap  = r.MarketCap;

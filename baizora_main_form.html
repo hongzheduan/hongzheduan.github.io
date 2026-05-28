@@ -697,7 +697,8 @@
       <button class="window-btn" onclick="setWindow('6M', this)">6M</button>
       <button class="window-btn" onclick="setWindow('9M', this)">9M</button>
       <button class="window-btn" onclick="setWindow('1Y', this)">1Y</button>
-      <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:8px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">FUND</button>
+      <button class="window-btn" onclick="setWindow('SCORES', this)" style="margin-left:8px;border-color:rgba(96,165,250,0.35);color:#60a5fa;">SCORES</button>
+      <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:4px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">FUND</button>
     </div>
     <div class="toolbar-sep"></div>
     <div class="toolbar-search">
@@ -967,6 +968,11 @@
       if (n < 0) return "negative";
       return "neutral";
     }
+    function scoreClass(v, mid) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return "neutral";
+      return n > mid ? "positive" : n < mid ? "negative" : "neutral";
+    }
 
     function arrow(key) {
       if (sortKey !== key) return `<span class="sort-arrow"> ↕</span>`;
@@ -1051,6 +1057,38 @@
     /* ── BUILD TABLE ── */
     function buildTable(arr, w) {
       arr = sorted(arr);
+
+      /* ── SCORES VIEW ── */
+      if (w === "SCORES") {
+        const head = `<thead><tr>
+          ${thSort("Ticker",          "Ticker")}
+          ${thStatic("Spark1Y",       "1Y Trend")}
+          ${thSort("Price",           "Price")}
+          ${thSort("RSScore",         "RS")}
+          ${thSort("BreakoutScore",   "Breakout")}
+          ${thSort("MomentumScore",   "Momentum")}
+          ${thSort("VolPressureScore","Vol Pressure")}
+          ${thSort("TrendScore",      "Trend")}
+        </tr></thead>`;
+        const rows = arr.slice(0, 200).map(r => {
+          const sparkSVG = renderSparkline(
+            r.Spark1Y,
+            r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+            r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
+          );
+          return `<tr>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+            <td class="spark-cell">${sparkSVG}</td>
+            <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
+            <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
+            <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
+            <td class="${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</td>
+            <td class="${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</td>
+            <td class="${scoreClass(r.TrendScore, 50)}">${r.TrendScore ?? "—"}</td>
+          </tr>`;
+        }).join("");
+        return head + "<tbody>" + rows + "</tbody>";
+      }
 
       /* ── FUNDAMENTALS VIEW ── */
       if (w === "FUND") {
@@ -1207,7 +1245,14 @@
 
         let priceChgDisplay, statsHTML;
 
-        if (w === "FUND") {
+        if (w === "SCORES") {
+          priceChgDisplay = `<span class="card-chg ${colorClass(pc1)}">${fmtP(pc1)}</span>`;
+          statsHTML = `
+            <div class="card-row"><span class="card-label">RS</span><span class="card-val ${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">Breakout</span><span class="card-val ${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">Momentum</span><span class="card-val ${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">Vol Press</span><span class="card-val ${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</span></div>`;
+        } else if (w === "FUND") {
           const pe    = r.PE;
           const eps   = r.EPS;
           const mcap  = r.MarketCap;
