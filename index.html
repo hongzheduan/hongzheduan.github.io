@@ -589,6 +589,56 @@
 
     .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
+    /* ── HOW IT WORKS ── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-bottom: 16px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .step {
+      background: rgba(13,30,61,0.6);
+      padding: 32px 28px;
+      position: relative;
+    }
+    .step-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--electric-bright);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .step-num::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(96,165,250,0.35), transparent);
+    }
+    .step h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    .step p {
+      font-size: 13.5px;
+      color: #cbd5e1;
+      line-height: 1.7;
+    }
+    @media (max-width: 768px) {
+      .steps { grid-template-columns: 1fr; }
+      .step-num::after { display: none; }
+    }
+
     .card {
       background: rgba(13, 30, 61, 0.6);
       border: 1px solid var(--border);
@@ -1182,43 +1232,43 @@
 </div>
 
 <section class="features">
-  <div class="section-label">Platform Features</div>
+  <div class="section-label">Quick Strategies</div>
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">Built for precision analysis<br><em>designed for smarter discovery</em></h2>
 
   <div class="cards">
     <div class="card fade-up">
-      <div class="card-icon">◎</div>
-      <h3>S&amp;P 500 &amp; Nasdaq-100, updated daily</h3>
-      <p>Full coverage of all constituents — high-quality data processed each trading day after US market close.</p>
+      <div class="card-icon">⟁</div>
+      <h3>Volume Spike Breakout</h3>
+      <p>Sort the <strong style="color:var(--white);">1D V CHG%</strong> column highest to lowest. Focus on stocks with volume surging over 100% alongside a positive price move — that combination often signals institutional buying before a larger trend develops.</p>
     </div>
     <div class="card fade-up delay-1">
-      <div class="card-icon">⟁</div>
-      <h3>Anomaly Detection</h3>
-      <p>Identifies unusual price and volume changes against historical baselines — no subjective guesswork.</p>
+      <div class="card-icon">◎</div>
+      <h3>Quiet Accumulation</h3>
+      <p>Filter for high <strong style="color:var(--white);">1D V CHG%</strong> but a flat or small <strong style="color:var(--white);">1D P CHG%</strong>. Big volume with little price movement is a pattern that often precedes a breakout — worth watching closely before the price reacts.</p>
     </div>
     <div class="card fade-up delay-2">
-      <div class="card-icon" style="background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.2);">◈</div>
-      <h3>Index Membership News & Records</h3>
-      <p>Tracks news on pending S&amp;P 500 and Nasdaq-100 additions and removals, plus a detailed historical record of every past membership change — <strong style="color:var(--white);">checked daily</strong> so you can spot index-driven moves before they happen.</p>
-    </div>
-    <div class="card fade-up delay-3">
       <div class="card-icon">◷</div>
-      <h3>Multi-Timeframe Analysis</h3>
-      <p>Switch between 2W, 1M, 3M, 6M, 9M, and 1Y rolling windows with a single click.</p>
-      <div class="timeframe-demo">
-        <span class="tf-btn active">2W</span>
+      <h3>Multi-Week Momentum</h3>
+      <p>Switch to the <strong style="color:var(--white);">3M</strong> or <strong style="color:var(--white);">6M</strong> window and sort by <strong style="color:var(--white);">P CHG%</strong>. This surfaces stocks in a sustained uptrend — not just a one-day pop — giving you a cleaner signal of durable strength.</p>
+      <div class="timeframe-demo" style="margin-top:12px;">
+        <span class="tf-btn">2W</span>
         <span class="tf-btn">1M</span>
-        <span class="tf-btn">3M</span>
-        <span class="tf-btn">6M</span>
+        <span class="tf-btn active">3M</span>
+        <span class="tf-btn active">6M</span>
         <span class="tf-btn">9M</span>
         <span class="tf-btn">1Y</span>
       </div>
     </div>
+    <div class="card fade-up delay-3">
+      <div class="card-icon" style="background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.2);">◈</div>
+      <h3>Index Rebalancing Play</h3>
+      <p>Check the <strong style="color:var(--white);">Index Membership</strong> tab for pending S&amp;P 500 or Nasdaq-100 additions. Stocks about to join a major index get systematically bought by index funds ahead of the rebalance date — a well-documented, news-driven pattern.</p>
+    </div>
   </div>
 
   <div class="spark-demo fade-up">
-    <h3>📈 1-Year Price Trend with Key Event Markers</h3>
-    <p>Every stock includes a 1-year normalized price sparkline with two visual markers that <strong style="color:var(--white);">instantly pinpoint the most significant events of the past year</strong>. Spot anomalies in seconds — no digging through tables.</p>
+    <h3>📈 Spot the Inflection Point</h3>
+    <p>Scan the <strong style="color:var(--white);">1Y TREND</strong> column for sparklines with a clear upward slope and a volume marker (▲) near the right edge. That combination — a rising trend backed by a recent high-volume event — often marks the moment a stock shifted character. The closer the marker to today, the fresher the signal.</p>
 
     <div class="spark-legend">
       <div class="spark-legend-item">
