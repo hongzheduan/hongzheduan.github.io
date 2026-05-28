@@ -15,7 +15,8 @@ import xml.etree.ElementTree as ET
 # CONFIG
 # =========================
 
-DATE_STR = datetime.now().strftime("%Y-%m-%d")
+# Derived from actual market data after download; fallback to UTC date
+DATE_STR = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 DATA_DIR = "data"
 ARCHIVE_DIR = "archive"
@@ -509,8 +510,9 @@ def scan():
                     # =========================
                     # OUTPUT
                     # =========================
+                    actual_date = df.index[-1].strftime("%Y-%m-%d")
                     results.append({
-                        "Date": DATE_STR,
+                        "Date": actual_date,
                         "Ticker": ticker,
 
                         "InSP500": in_sp500,
@@ -591,8 +593,9 @@ def export(df):
 
     df.to_csv(OUTPUT_CSV, index=False)
 
+    market_date = df["Date"].iloc[0] if len(df) and "Date" in df.columns else DATE_STR
     payload = {
-        "date": DATE_STR,
+        "date": market_date,
         "status": "Updated",
         "count": len(df),
         "data": df.to_dict(orient="records")
