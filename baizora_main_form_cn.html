@@ -487,6 +487,8 @@
       flex-direction: column;
       padding: 8px;
       gap: 4px;
+      overflow-y: auto;
+      max-height: calc(100vh - 56px);
     }
     .mobile-drawer.open { display: flex; }
     .mobile-drawer a, .mobile-drawer button {
@@ -568,6 +570,9 @@
       #sp500Cards, #nasdaqCards { display: block !important; }
     }
     @media (max-width: 960px) and (orientation: landscape) {
+      header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
+      .header-divider, .tab-nav, .status-badge, .logout-btn, .dash-btn { display: none !important; }
+      .hamburger { display: flex; }
       th:first-child { position: sticky; left: 0; z-index: 30; }
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
       tr:hover td.ticker-cell { background: #081229; }
