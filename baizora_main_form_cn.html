@@ -544,15 +544,18 @@
     /* Cards hidden on desktop; table hidden on mobile */
     #sp500Cards, #nasdaqCards { display: none; }
 
+    @media (max-width: 768px) {
+      .toolbar { flex-wrap: wrap; height: auto; }
+      .toolbar-label { display: none; }
+      .row-count { font-size: 9px; white-space: nowrap; width: 100%; margin-left: 0; padding-bottom: 2px; }
+    }
     @media (max-width: 640px) {
       header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
       .header-divider, .tab-nav, .status-badge, .logout-btn, .dash-btn { display: none !important; }
       .hamburger { display: flex; }
-      .toolbar { padding: 6px 10px; gap: 6px; flex-wrap: wrap; height: auto; }
-      .toolbar-label { display: none; }
+      .toolbar { padding: 6px 10px; gap: 6px; }
       .window-btn { padding: 3px 7px; font-size: 10px; white-space: nowrap; }
       .toolbar-search { display: none; }
-      .row-count { font-size: 9px; white-space: nowrap; width: 100%; margin-left: 0; padding-bottom: 2px; }
       #readme, #membership { padding: 24px 16px; }
       .info-panels { flex-direction: column; gap: 16px; }
       .membership-wrap { max-width: none; width: 100%; box-sizing: border-box; }
@@ -940,11 +943,8 @@
       const rows  = activeTab === "sp500" ? spRows.length : ndRows.length;
       const label = activeTab === "sp500" ? "标普500" : "纳斯达克100";
       statusText.textContent = loadedDate;
-      rowCount.textContent = window.innerWidth <= 640
-        ? "↻ 横屏查看完整数据表格"
-        : `${rows} 支股票 · ${label}`;
+      rowCount.textContent = `${rows} 支股票 · ${label}`;
     }
-    window.addEventListener("resize", updateStatus);
 
     /* ── TAB ── */
     window.show = function(id, btn) {
