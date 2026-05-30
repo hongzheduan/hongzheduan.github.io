@@ -658,6 +658,34 @@
       font-family: 'DM Mono', monospace;
       font-size: 11px;
     }
+    /* ── TICKER MODAL ── */
+    #tickerModal {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(6,13,31,0.88);
+      display: none; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    #modalCard {
+      background: #0d1e3d;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      width: min(820px,100%); max-height: 90vh;
+      overflow-y: auto; padding: 28px; position: relative;
+    }
+    #modalClose {
+      position: absolute; top: 16px; right: 18px;
+      background: none; border: none;
+      color: #64748b; font-size: 20px; cursor: pointer; line-height: 1;
+    }
+    #modalClose:hover { color: #fff; }
+    #candleCanvas { width: 100%; height: 280px; display: block; border-radius: 8px; }
+    #candleNoData {
+      width: 100%; height: 280px; display: none;
+      align-items: center; justify-content: center;
+      color: #64748b; font-size: 14px;
+      background: rgba(255,255,255,0.02); border-radius: 8px;
+    }
+    .ticker-cell:hover::after { content: " ↗"; color: var(--electric-bright); font-size: 10px; }
   </style>
 </head>
 
@@ -837,13 +865,6 @@
     <div class="tt-desc"  id="colTooltipDesc"></div>
   </div>
 
-  <div class="bz-tooltip ticker-tooltip" id="tickerTooltip">
-    <div class="tt-header">
-      <span class="tt-sym"    id="ttSym"></span>
-      <span class="tt-sector" id="ttSector"></span>
-    </div>
-    <div class="tt-rows" id="ttRows"></div>
-  </div>
 
   <script type="module">
     import { auth } from "./firebase.js";
@@ -1122,12 +1143,12 @@
         const head = `<thead><tr>
           ${thSort("Ticker",        "代码")}
           ${thStatic("Spark1Y",     "年趋势线")}
-          ${thSort("Price",         "价格")}
           ${thSort("MarketCap",     "市值($B)")}
           ${thSort("PE",            "市盈率")}
           ${thSort("SectorAvgPE",   "行业平均PE")}
           ${thSort("EPS",           "每股收益")}
-          ${thSort("Volatility30D", "贝塔")}
+          ${thSort("Beta",          "贝塔")}
+          ${thSort("Volatility30D", "30日波动率")}
           ${thSort("PE_vs_Sector",  "PE vs 行业")}
           ${thSort("Sector",        "行业")}
         </tr></thead>`;
@@ -1141,12 +1162,12 @@
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
             <td class="spark-cell">${sparkSVG}</td>
-            <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
             <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
             <td class="${colorClass(0)}">${r.PE != null ? r.PE.toFixed(1) : "—"}</td>
             <td class="neutral">${r.SectorAvgPE != null ? r.SectorAvgPE.toFixed(1) : "—"}</td>
             <td class="${colorClass(r.EPS)}">${r.EPS != null ? r.EPS.toFixed(2) : "—"}</td>
-            <td class="neutral">${r.Volatility30D != null ? r.Volatility30D.toFixed(2) : "—"}</td>
+            <td class="neutral">${r.Beta != null ? r.Beta.toFixed(2) : "—"}</td>
+            <td class="neutral">${r.Volatility30D != null ? (r.Volatility30D * 100).toFixed(1) + "%" : "—"}</td>
             <td class="${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</td>
             <td class="neutral" style="font-size:11px;color:#94a3b8;">${r.Sector || "—"}</td>
           </tr>`;
@@ -1369,7 +1390,7 @@
     ══════════════════════════════════════════ */
 
     const COL_DESCS = {
-      "Ticker":          { label: "代码",    desc: "股票代码。悬停查看市盈率、市值、EPS、波动率及行业对比。" },
+      "Ticker":          { label: "代码",    desc: "股票代码。点击可查看1年K线图，以及市盈率、每股收益、贝塔、波动率和行业信息。" },
       "Spark1Y":         { label: "年趋势线",  desc: "一年标准化价格走势图。▲ 三角形 = 成交量最高日（绿色=价格上涨，红色=价格下跌）。● 圆圈 = 价格变动最大日（绿色=成交量上升，红色=成交量下降）。" },
       "Price":           { label: "价格",     desc: "最新收盘价（美元）。" },
       "VolumeM":         { label: "成交量(M)",   desc: "最近交易日以百万股为单位的成交量" },
@@ -1381,7 +1402,8 @@
       "PE":              { label: "市盈率",      desc: "过去十二个月市盈率（PE）。若盈利为负或数据缺失则显示为 — 。" },
       "SectorAvgPE":     { label: "行业平均PE",  desc: "同行业内所有标普500和纳斯达克100成分股的平均市盈率。" },
       "EPS":             { label: "每股收益",    desc: "过去十二个月每股收益（美元）。" },
-      "Volatility30D":   { label: "贝塔",        desc: "贝塔系数，衡量股价相对大盘的波动程度。贝塔 > 1 表示波动高于大盘。" },
+      "Beta":            { label: "贝塔",        desc: "一年期日度贝塔（对标SPY）。衡量股价相对标普500的涨跌幅度。贝塔 > 1 = 放大市场波动；贝塔 < 1 = 比市场更稳定。" },
+      "Volatility30D":   { label: "30日波动率",  desc: "30日年化价格波动率。衡量股价自身的波动幅度，与市场方向无关。数值越高，日内价格振幅越大。" },
       "PE_vs_Sector":    { label: "PE vs 行业",  desc: "该股市盈率相对所在行业均值的偏差（百分比）。正值 = 溢价；负值 = 折价。行业均值仅基于标普500和纳斯达克100成分股计算。" },
       "Sector":          { label: "行业",        desc: "GICS行业分类。" },
       "RSScore":         { label: "RS评分",      desc: "相对强度评分（1–99）。与全体500+股票相比，本股近期价格表现的强弱排名。绿色（>50）= 跑赢大多数；红色（<50）= 表现落后。99 = 全市场最强1%，1 = 最弱。" },
@@ -1459,7 +1481,6 @@
       const key = thEl.dataset.col;
       if (!key) return;
       clearTimeout(colHideTimer);
-      clearTimeout(tickerHideTimer); tickerTip.classList.remove("visible"); tickerTip.style.display = "none";
       const info = COL_DESCS[key] || getWindowColDesc(key, currentWindow);
       if (!info) return;
       colLabel.textContent = info.label;
@@ -1472,9 +1493,6 @@
     document.getElementById("tableArea").addEventListener("mousemove", (e) => {
       const thEl = e.target.closest("th[data-col]");
       if (!thEl || !thEl.dataset.col) return;
-      clearTimeout(tickerHideTimer);
-      tickerTip.classList.remove("visible");
-      tickerTip.style.display = "none";
       colTip.style.display = "";
       positionColTooltip(colTip, thEl);
     });
@@ -1485,22 +1503,6 @@
       colHideTimer = setTimeout(() => colTip.classList.remove("visible"), 80);
     });
 
-    /* Ticker tooltip */
-    const tickerTip = document.getElementById("tickerTooltip");
-    const ttSym     = document.getElementById("ttSym");
-    const ttSector  = document.getElementById("ttSector");
-    const ttRows    = document.getElementById("ttRows");
-    let tickerHideTimer = null;
-
-    /* Suppress ticker tooltip for any event target inside thead */
-    ["mouseover", "mousemove"].forEach(type => {
-      document.getElementById("tableArea").addEventListener(type, (e) => {
-        if (!e.target.closest("thead")) return;
-        clearTimeout(tickerHideTimer);
-        tickerTip.classList.remove("visible");
-        tickerTip.style.display = "none";
-      });
-    });
 
     function fmt(v, suffix = "", decimals = 2) {
       if (v == null || v === "" || v === undefined) return "—";
@@ -1528,72 +1530,140 @@
       return `<div class="tt-row"><span class="tt-key">${key}</span><span class="tt-val ${valCls}">${value}</span></div>`;
     }
 
-    function buildTickerTooltip(r) {
-      ttSym.textContent    = r.Ticker;
-      ttSector.textContent = r.CompanyName || r.Sector || "";
-      const peVsSecN   = parseFloat(r.PE_vs_Sector);
-      const peVsSecCls = isNaN(peVsSecN) ? "muted" : peVsSecN > 0 ? "positive" : "negative";
-      ttRows.innerHTML = `
-        ${ttRow("Sector",         r.Sector || "—")}
-        <div class="tt-divider"></div>
-        ${ttRow("PE",             fmt(r.PE, "", 1))}
-        ${ttRow("Mkt Cap (USD)",  fmtBillion(r.MarketCap))}
-        ${ttRow("EPS",            fmt(r.EPS, "", 2))}
-        <div class="tt-divider"></div>
-        ${ttRow("30日波动率",        fmt(r.Volatility30D, "%", 1))}
-        <div class="tt-divider"></div>
-        ${ttRow("行业平均PE",  fmt(r.SectorAvgPE, "", 1))}
-        ${ttRow("PE vs 行业",   fmt(r.PE_vs_Sector, "%", 1), peVsSecCls)}
-      `;
-    }
-
-    document.getElementById("tableArea").addEventListener("mouseover", (e) => {
-      const td = e.target.closest("td.ticker-cell");
-      if (!td) return;
-      if (document.elementsFromPoint(e.clientX, e.clientY).some(el => el.tagName === "TH")) return;
-      clearTimeout(tickerHideTimer);
-      clearTimeout(colHideTimer); colTip.classList.remove("visible"); colTip.style.display = "none";
-      const r = allRows.find(x => x.Ticker === td.dataset.ticker);
-      if (!r) {
-        ttSym.textContent    = td.dataset.ticker;
-        ttSector.textContent = "";
-        ttRows.innerHTML     = `<div class="tt-loading">暂无数据</div>`;
-      } else {
-        buildTickerTooltip(r);
-      }
-      tickerTip.style.display = "";
-      positionTooltip(tickerTip, e.clientX, e.clientY);
-      tickerTip.classList.add("visible");
-    });
-
-    document.getElementById("tableArea").addEventListener("mousemove", (e) => {
-      const td = e.target.closest("td.ticker-cell");
-      if (!td) return;
-      if (document.elementsFromPoint(e.clientX, e.clientY).some(el => el.tagName === "TH")) return;
-      positionTooltip(tickerTip, e.clientX, e.clientY);
-    });
-
-    document.getElementById("tableArea").addEventListener("mouseout", (e) => {
-      const td = e.target.closest("td.ticker-cell");
-      if (!td) return;
-      tickerHideTimer = setTimeout(() => tickerTip.classList.remove("visible"), 80);
-    });
-
     document.addEventListener("touchstart", (e) => {
       if (e.target.closest("th[data-col]")) return;
-      if (e.target.closest("td.ticker-cell")) return;
       colTip.classList.remove("visible");
-      tickerTip.classList.remove("visible");
     }, { passive: true });
+
+    /* ── CANDLES DATA ── */
+    let candleData = null;
+    fetch("data/candles.json")
+      .then(r => r.json())
+      .then(d => { candleData = d; })
+      .catch(() => {});
+
+    /* ── CANDLESTICK RENDERER ── */
+    function renderCandleChart(canvas, candles, dates) {
+      const dpr  = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width  = rect.width  * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext("2d");
+      ctx.scale(dpr, dpr);
+      const W = rect.width, H = rect.height;
+      const pad = { top: 20, right: 16, bottom: 32, left: 58 };
+      const cW = W - pad.left - pad.right, cH = H - pad.top - pad.bottom;
+      const n  = candles.length;
+      let minP = Infinity, maxP = -Infinity;
+      candles.forEach(([o,h,l,c]) => { if(h>maxP) maxP=h; if(l<minP) minP=l; });
+      const buf = (maxP - minP) * 0.05 || 1;
+      const lo = minP - buf, hi = maxP + buf;
+      const toY = p => pad.top + cH * (1 - (p - lo) / (hi - lo));
+      const slotW = cW / n, cndW = Math.max(1, slotW * 0.65);
+      const toX = i => pad.left + i * slotW + (slotW - cndW) / 2;
+      ctx.clearRect(0, 0, W, H);
+      ctx.font = `11px 'DM Mono', monospace`;
+      ctx.textAlign = "right";
+      for (let i = 0; i <= 4; i++) {
+        const p = lo + (hi - lo) * (i / 4), y = toY(p);
+        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+        ctx.fillStyle = "#64748b";
+        ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 5, y + 4);
+      }
+      ctx.textAlign = "center"; let lastMo = -1;
+      dates.forEach((d, i) => {
+        const mo = new Date(d).getMonth();
+        if (mo !== lastMo) {
+          lastMo = mo; ctx.fillStyle = "#64748b";
+          ctx.fillText(new Date(d).toLocaleDateString("zh-CN", { month: "short" }),
+                       toX(i) + cndW / 2, H - 8);
+        }
+      });
+      candles.forEach(([o, h, l, c], i) => {
+        const green = c >= o, x = toX(i), mid = x + cndW / 2;
+        ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
+        ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
+        ctx.lineWidth   = 1;
+        ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
+        const bTop = toY(Math.max(o, c)), bH = Math.max(1, toY(Math.min(o, c)) - bTop);
+        ctx.fillRect(x, bTop, cndW, bH); ctx.strokeRect(x, bTop, cndW, bH);
+      });
+    }
+
+    /* ── TICKER MODAL ── */
+    function openTickerModal(ticker) {
+      const r = allRows.find(x => x.Ticker === ticker);
+      if (!r) return;
+      document.getElementById("modalTicker").textContent = ticker;
+      document.getElementById("modalName").textContent   = r.CompanyName || "";
+      document.getElementById("modalPrice").textContent  = r.Price != null ? "$" + r.Price.toFixed(2) : "";
+      const stats = [
+        ["市盈率",     r.PE     != null ? r.PE.toFixed(1)                              : "—"],
+        ["每股收益",   r.EPS    != null ? r.EPS.toFixed(2)                             : "—"],
+        ["贝塔",       r.Beta   != null ? r.Beta.toFixed(2)                            : "—"],
+        ["30日波动率", r.Volatility30D != null ? (r.Volatility30D*100).toFixed(1)+"%" : "—"],
+        ["市值",       r.MarketCap != null ? "$"+r.MarketCap.toFixed(1)+"B"            : "—"],
+        ["行业",       r.Sector || "—"],
+      ];
+      document.getElementById("modalStats").innerHTML = stats.map(([k,v]) =>
+        `<div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 14px;">
+          <div style="color:#64748b;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:.06em;">${k}</div>
+          <div style="color:#fff;font-size:14px;margin-top:4px;">${v}</div>
+        </div>`
+      ).join("");
+      document.getElementById("tickerModal").style.display = "flex";
+      document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => {
+        const candles = candleData?.data?.[ticker];
+        const dates   = candleData?.dates;
+        const canvas  = document.getElementById("candleCanvas");
+        const noData  = document.getElementById("candleNoData");
+        if (candles && candles.length > 0 && dates) {
+          canvas.style.display = "block"; noData.style.display = "none";
+          renderCandleChart(canvas, candles, dates.slice(-candles.length));
+        } else {
+          canvas.style.display = "none"; noData.style.display = "flex";
+        }
+      });
+    }
+
+    function closeTickerModal() {
+      document.getElementById("tickerModal").style.display = "none";
+      document.body.style.overflow = "";
+    }
+
+    document.getElementById("modalClose").addEventListener("click", closeTickerModal);
+    document.getElementById("tickerModal").addEventListener("click", e => {
+      if (e.target === document.getElementById("tickerModal")) closeTickerModal();
+    });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeTickerModal(); });
+    document.getElementById("tableArea").addEventListener("click", e => {
+      const td = e.target.closest("td.ticker-cell");
+      if (td) openTickerModal(td.dataset.ticker);
+    });
 
   </script>
 
   <script>
     window.addEventListener("beforeinstallprompt", e => e.preventDefault());
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js");
-    }
+    if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); }
   </script>
+
+  <!-- TICKER MODAL -->
+  <div id="tickerModal">
+    <div id="modalCard">
+      <button id="modalClose">✕</button>
+      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
+        <span id="modalTicker" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:#fff;letter-spacing:.05em;"></span>
+        <span id="modalPrice"  style="font-size:18px;color:#60a5fa;font-weight:600;"></span>
+      </div>
+      <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
+      <canvas id="candleCanvas"></canvas>
+      <div id="candleNoData">暂无图表数据</div>
+      <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:18px;"></div>
+    </div>
+  </div>
 
 </body>
 </html>

@@ -3,6 +3,7 @@ name: Baizora Scanner
 on:
   schedule:
     - cron: "30 20 * * 1-5"   # weekdays 8:30 PM UTC – scan + daily videos
+    - cron: "0 0 * * 6"        # Saturday midnight UTC – full cache rebuild for data integrity
   workflow_dispatch:
 
 permissions:
@@ -32,18 +33,31 @@ jobs:
 
       - name: Check market holiday
         run: |
-          IS_HOLIDAY=$(python -c "from scanner import is_market_holiday; print(is_market_holiday())")
+          IS_HOLIDAY=$(python -c "from scanner_massive import is_market_holiday; print(is_market_holiday())")
           echo "IS_HOLIDAY=$IS_HOLIDAY" >> $GITHUB_ENV
-          if [ "$IS_HOLIDAY" = "True" ]; then
-            echo "Today is a NYSE market holiday — skipping scan and video generation."
+          DOW=$(date +%u)   # 1=Mon … 5=Fri, 6=Sat, 7=Sun
+          if [ "$DOW" = "6" ] || [ "$DOW" = "7" ]; then
+            echo "IS_WEEKEND=True" >> $GITHUB_ENV
+            echo "Weekend run — fundamentals refresh only, no videos."
+          else
+            echo "IS_WEEKEND=False" >> $GITHUB_ENV
           fi
+
+      - name: Clear cache for Saturday full rebuild
+        if: env.IS_WEEKEND == 'True'
+        run: |
+          rm -rf data/ohlcv_cache
+          rm -f data/fundamentals_cache.json
+          echo "Cache cleared — full rebuild will run."
 
       - name: Run scanner
         if: env.IS_HOLIDAY != 'True'
-        run: python scanner.py
+        env:
+          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
+        run: python scanner_massive.py
 
       - name: Generate stock pages
-        if: env.IS_HOLIDAY != 'True'
+        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True'
         continue-on-error: true
         run: python generate_stock_pages.py NVDA GOOGL AAPL MSFT AMZN AVGO TSLA META WMT MU
 
@@ -64,6 +78,9 @@ jobs:
           git add data/index_changes.json 2>/dev/null || echo "data/index_changes.json not found, skipping"
           git add data/index_news.json 2>/dev/null || echo "data/index_news.json not found, skipping"
           git add data/sp500_symbols.txt data/nasdaq100_symbols.txt 2>/dev/null || echo "Symbol files not found, skipping"
+          git add data/fundamentals_cache.json 2>/dev/null || echo "fundamentals_cache.json not found, skipping"
+          git add data/candles.json 2>/dev/null || echo "candles.json not found, skipping"
+          git add data/ohlcv_cache/ 2>/dev/null || echo "No ohlcv_cache files found, skipping"
           git add archive/*.csv 2>/dev/null || echo "No archive csv files found, skipping"
 
           if git diff --cached --quiet; then
@@ -74,13 +91,13 @@ jobs:
           fi
 
       - name: Install video dependencies
-        if: env.IS_HOLIDAY != 'True'
+        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True'
         run: |
           pip install -r video/requirements.txt
           sudo apt-get install -y fonts-noto-cjk
 
       - name: Select daily video types
-        if: env.IS_HOLIDAY != 'True'
+        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True'
         run: |
           DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
           if [ "$DOW" = "1" ]; then
@@ -98,14 +115,14 @@ jobs:
           fi
 
       - name: Generate daily videos
-        if: env.IS_HOLIDAY != 'True' && env.VIDEO_TYPES != ''
+        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True' && env.VIDEO_TYPES != ''
         run: |
           for type in $VIDEO_TYPES; do
             python video/generate_video.py --type $type
           done
 
       - name: Upload daily videos to YouTube
-        if: env.IS_HOLIDAY != 'True' && env.VIDEO_TYPES != ''
+        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True' && env.VIDEO_TYPES != ''
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
