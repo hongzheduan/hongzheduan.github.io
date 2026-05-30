@@ -814,10 +814,17 @@ def build_ohlcv_cache(universe_set, from_date, to_date, sleep_time=0.2):
     Returns the full list of trading days.
     """
     trading_days = get_trading_days(from_date, to_date)
-    missing = [
-        d for d in trading_days
-        if not os.path.exists(os.path.join(OHLCV_CACHE_DIR, f"{d}.json"))
-    ]
+    missing = []
+    for d in trading_days:
+        path = os.path.join(OHLCV_CACHE_DIR, f"{d}.json")
+        if not os.path.exists(path):
+            missing.append(d)
+        else:
+            try:
+                if os.path.getsize(path) < 5:   # empty or "{}" file
+                    missing.append(d)
+            except OSError:
+                missing.append(d)
 
     cached_count = len(trading_days) - len(missing)
     print(f"OHLCV cache: {cached_count} days cached, {len(missing)} to fetch …")
@@ -1441,6 +1448,46 @@ def scan():
 
 
 # =========================
+# DATA QUALITY CHECK
+# =========================
+
+def check_data_quality(df, candles_out, trading_days):
+    """
+    Post-scan sanity checks. Prints warnings for anomalies that suggest
+    missing cache days or bad API data rather than real market moves.
+    """
+    issues = []
+
+    # 1. Tickers with large 1D price change (>25%) — likely a multi-day gap
+    if "PriceChange1D" in df.columns:
+        big_1d = df[df["PriceChange1D"].abs() > 25][["Ticker", "PriceChange1D", "Price"]].copy()
+        for _, row in big_1d.iterrows():
+            issues.append(f"  {row['Ticker']}: 1D price change {row['PriceChange1D']:.1f}% (price ${row['Price']}) -- possible gap in cache")
+
+    # 2. Tickers whose candle series has fewer bars than expected (< 200 of 252)
+    expected = min(252, len(trading_days))
+    for ticker, candles in candles_out.items():
+        if len(candles) < 200:
+            issues.append(f"  {ticker}: only {len(candles)} candle bars (expected ~{expected}) -- missing OHLCV data")
+
+    # 3. Check how many cache days are empty (0 tickers)
+    empty_days = sum(
+        1 for d in trading_days
+        if os.path.getsize(os.path.join(OHLCV_CACHE_DIR, f"{d}.json")) < 5
+    )
+    if empty_days > 0:
+        issues.append(f"  {empty_days} OHLCV cache files are empty -- will be re-fetched next run")
+
+    if issues:
+        print(f"\nDATA QUALITY WARNINGS ({len(issues)} issues):")
+        for msg in issues:
+            print(msg)
+        print()
+    else:
+        print("Data quality check passed.")
+
+
+# =========================
 # EXPORT
 # =========================
 
@@ -1627,13 +1674,18 @@ if __name__ == "__main__":
 
     print(df.head(10))
 
-    # 5. Export results
+    trading_days_full = get_trading_days(
+        (datetime.now() - timedelta(days=730)).strftime("%Y-%m-%d"), DATE_STR
+    )
+
+    # 5. Data quality check — warns about gaps, bad 1D jumps, empty cache files
+    check_data_quality(df, candles_out, trading_days_full)
+
+    # 6. Export results
     export(df)
 
-    # 6. Export candle data (separate file, does not affect latest.json size)
-    export_candles(candles_out, get_trading_days(
-        (datetime.now() - timedelta(days=730)).strftime("%Y-%m-%d"), DATE_STR
-    ))
+    # 7. Export candle data (separate file, does not affect latest.json size)
+    export_candles(candles_out, trading_days_full)
 
     # 7. Fetch index membership news
     fetch_and_save_index_news()
