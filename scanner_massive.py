@@ -359,6 +359,7 @@ _SIC_TO_SECTOR = {
     # ── Massive API returns SIC descriptions in ALL CAPS with abbreviations ──
     # Technology
     "COMMUNICATIONS EQUIPMENT, NEC":                                    "Technology",
+    "ELECTRONIC COMPONENTS, NEC":                                        "Technology",
     "ELECTRONIC CONNECTORS":                                             "Technology",
     "INSTRUMENTS FOR MEAS & TESTING OF ELECTRICITY & ELEC SIGNALS":    "Technology",
     "OPTICAL INSTRUMENTS & LENSES":                                     "Technology",
