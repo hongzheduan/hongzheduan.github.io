@@ -1127,6 +1127,11 @@ def get_fundamentals(ticker):
     if ticker == "BRK-B" and eps is not None:
         eps = round(eps / 1500, 4)
 
+    # BKNG: 25-for-1 stock split April 2026. EDGAR filings pre-split show EPS ~$150+.
+    # Guard (eps > 25) auto-disables once EDGAR reports post-split EPS after Q2 2026 10-Q.
+    if ticker == "BKNG" and eps is not None and eps > 25:
+        eps = round(eps / 25, 4)
+
     result = {
         "MarketCap":     market_cap,
         "EPS":           eps,
