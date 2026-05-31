@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baizora — Data & Methodology</title>
+  <link rel="icon" href="baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:#060d1f; --navy-mid:#0d1e3d; --navy-light:#162847;
+      --electric:#3b82f6; --electric-bright:#60a5fa;
+      --gold:#f59e0b; --gold-light:#fcd34d;
+      --green:#22c55e; --red:#ef4444;
+      --white:#f8fafc; --muted:#94a3b8;
+      --dim:#64748b; --border:rgba(255,255,255,0.07);
+      --border-bright:rgba(255,255,255,0.12);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+    .glow{position:fixed;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse at center,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+    /* HEADER */
+    header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);background:rgba(6,13,31,0.92);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+    .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-wrap img{height:36px;}
+    .logo-text{font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;}
+    .logo-text span{color:var(--electric);}
+    .back-btn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);text-decoration:none;border:1px solid var(--border);padding:6px 14px;border-radius:7px;transition:all 0.2s;}
+    .back-btn:hover{color:var(--electric-bright);border-color:rgba(59,130,246,0.4);}
+
+    /* LAYOUT */
+    .wrapper{position:relative;z-index:10;display:grid;grid-template-columns:220px 1fr;max-width:1100px;margin:0 auto;padding:48px 32px 100px;gap:56px;}
+    @media(max-width:820px){.wrapper{grid-template-columns:1fr;padding:32px 20px 80px;} .toc{display:none;}}
+
+    /* TABLE OF CONTENTS */
+    .toc{position:sticky;top:80px;align-self:start;}
+    .toc-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);margin-bottom:16px;}
+    .toc a{display:block;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--dim);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid var(--border);transition:all 0.15s;line-height:1.4;}
+    .toc a:hover,.toc a.active{color:var(--electric-bright);border-left-color:var(--electric);}
+    .toc a.sub{padding-left:22px;font-size:11.5px;}
+
+    /* CONTENT */
+    .content{}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);border:1px solid rgba(59,130,246,0.25);background:rgba(59,130,246,0.06);padding:6px 14px;border-radius:999px;margin-bottom:20px;}
+    h1{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,48px);line-height:1.1;letter-spacing:-0.02em;color:var(--white);margin-bottom:8px;}
+    .doc-meta{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--dim);margin-bottom:52px;}
+
+    .divider{height:1px;background:var(--border);margin:48px 0;}
+
+    /* SECTIONS */
+    .doc-section{margin-bottom:48px;scroll-margin-top:80px;}
+    .section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);margin-bottom:14px;}
+    h2{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-0.02em;color:var(--white);margin-bottom:18px;}
+    h3{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;color:var(--white);margin:24px 0 10px;}
+    p{font-size:14.5px;color:var(--muted);line-height:1.8;margin-bottom:14px;}
+    p:last-child{margin-bottom:0;}
+    ul,ol{padding-left:20px;margin-bottom:14px;}
+    li{font-size:14px;color:var(--muted);line-height:1.75;margin-bottom:4px;}
+    strong{color:var(--white);font-weight:600;}
+    code{font-family:'DM Mono',monospace;font-size:12px;background:rgba(59,130,246,0.1);color:var(--electric-bright);padding:2px 7px;border-radius:4px;}
+
+    /* CARD */
+    .card{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:14px;padding:22px 26px;margin:16px 0;position:relative;overflow:hidden;}
+    .card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.3),transparent);}
+
+    /* FORMULA */
+    .formula{background:rgba(6,13,31,0.8);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:16px 20px;margin:14px 0;font-family:'DM Mono',monospace;font-size:13px;color:var(--electric-bright);line-height:1.7;}
+    .formula .comment{color:var(--dim);}
+
+    /* TABLE */
+    .data-table{width:100%;border-collapse:collapse;margin:16px 0;}
+    .data-table th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);padding:8px 14px;border-bottom:1px solid var(--border);text-align:left;}
+    .data-table td{font-size:13px;color:var(--muted);padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.04);}
+    .data-table td:first-child{font-family:'DM Mono',monospace;font-size:12px;color:var(--electric-bright);}
+    .data-table tr:last-child td{border-bottom:none;}
+
+    /* BADGE */
+    .badge{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;padding:3px 9px;border-radius:999px;margin:2px 3px;}
+    .badge-blue{background:rgba(59,130,246,0.12);color:var(--electric-bright);border:1px solid rgba(59,130,246,0.25);}
+    .badge-gold{background:rgba(245,158,11,0.1);color:var(--gold-light);border:1px solid rgba(245,158,11,0.25);}
+    .badge-green{background:rgba(34,197,94,0.1);color:#86efac;border:1px solid rgba(34,197,94,0.25);}
+    .badge-red{background:rgba(239,68,68,0.1);color:#fca5a5;border:1px solid rgba(239,68,68,0.25);}
+
+    /* NOTE */
+    .note{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13px;color:#fcd34d;line-height:1.7;}
+    .note strong{color:#fcd34d;}
+
+    /* FOOTER */
+    footer{position:relative;z-index:10;border-top:1px solid var(--border);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+    .footer-left{font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);}
+    .footer-links{display:flex;gap:20px;}
+    .footer-links a{font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);text-decoration:none;transition:color 0.2s;}
+    .footer-links a:hover{color:var(--electric-bright);}
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+
+<header>
+  <a href="../" class="logo-wrap">
+    <img src="baize_favicon_v2.png" alt="Baizora">
+    <span class="logo-text">Baiz<span>ora</span></span>
+  </a>
+  <a href="../" class="back-btn">← Back to Home</a>
+</header>
+
+<div class="wrapper">
+
+  <!-- TABLE OF CONTENTS -->
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#overview">Overview</a>
+    <a href="#universe">Data Universe</a>
+    <a href="#sources">Data Sources</a>
+    <a href="#pipeline">Scan Pipeline</a>
+    <a href="#ohlcv">Price &amp; Volume</a>
+    <a class="sub" href="#ohlcv-cache">OHLCV Cache</a>
+    <a class="sub" href="#volume-note">Volume Definition</a>
+    <a href="#metrics">Calculated Metrics</a>
+    <a class="sub" href="#timeframes">Timeframe Windows</a>
+    <a class="sub" href="#1d">1D Metrics</a>
+    <a class="sub" href="#period">Period Metrics</a>
+    <a href="#fundamentals">Fundamentals</a>
+    <a class="sub" href="#eps">EPS (TTM)</a>
+    <a class="sub" href="#pe">P/E Ratio</a>
+    <a class="sub" href="#beta">Beta &amp; Volatility</a>
+    <a href="#sectors">Sector Classification</a>
+    <a class="sub" href="#sector-avg">Sector Avg P/E</a>
+    <a href="#scores">Scoring System</a>
+    <a href="#output">Output Format</a>
+    <a href="#limitations">Known Limitations</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <div class="eyebrow">◈ &nbsp; Internal Documentation</div>
+    <h1>Data &amp; Methodology</h1>
+    <div class="doc-meta">BAIZORA &nbsp;·&nbsp; VERSION 2026-05-31 &nbsp;·&nbsp; CONFIDENTIAL</div>
+
+    <!-- ── OVERVIEW ── -->
+    <div class="doc-section" id="overview">
+      <div class="section-label">01 — Overview</div>
+      <h2>What Baizora Does</h2>
+      <p>Baizora is a daily equity analytics platform covering US large-cap stocks. Each weekday after market close, an automated scanner fetches price, volume, and fundamental data for every ticker in the S&amp;P 500 and Nasdaq-100, computes a standardised set of metrics, and publishes the results to a public JSON feed consumed by the dashboard.</p>
+      <p>The platform surfaces <strong>price momentum</strong>, <strong>volume activity</strong>, and <strong>relative valuation</strong> signals across seven timeframes — from 1 day to 1 year — allowing users to identify breakouts, trend changes, and sector-relative value at a glance.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── UNIVERSE ── -->
+    <div class="doc-section" id="universe">
+      <div class="section-label">02 — Data Universe</div>
+      <h2>Covered Securities</h2>
+      <p>The scanner covers the <strong>union</strong> of the S&amp;P 500 and Nasdaq-100 constituent lists, deduplicated. As of May 2026 this produces <strong>516 tickers</strong>.</p>
+
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>Index</th><th>Approx. Count</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>S&P 500</td><td>503</td><td>Largest US companies by float-adjusted market cap</td></tr>
+            <tr><td>Nasdaq-100</td><td>101</td><td>100 largest non-financial Nasdaq-listed companies</td></tr>
+            <tr><td>Union (deduplicated)</td><td>516</td><td>Tickers in either or both indices</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>All securities are US-listed equities (common stock, some foreign-incorporated companies with US listings such as ASML, BKNG, CCEP). The scanner does not cover ETFs, preferred shares, warrants, or fixed income.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SOURCES ── -->
+    <div class="doc-section" id="sources">
+      <div class="section-label">03 — Data Sources</div>
+      <h2>Where the Data Comes From</h2>
+
+      <h3>Polygon.io (Market Data)</h3>
+      <p>All price, volume, and company fundamental data (name, market cap, SIC code) is sourced from <strong>Polygon.io</strong> via a commercial API licence. Polygon aggregates data from all US exchanges and dark pools, reporting consolidated tape volume.</p>
+      <ul>
+        <li><strong>Grouped daily endpoint</strong> — one API call per trading day returns OHLCV bars for the entire universe.</li>
+        <li><strong>Ticker details endpoint</strong> — provides company name, market cap, SIC description.</li>
+        <li><strong>Adjusted prices</strong> — all OHLCV data is split- and dividend-adjusted (<code>adjusted=true</code>).</li>
+      </ul>
+
+      <h3>SEC EDGAR (EPS Data)</h3>
+      <p>Earnings per share is sourced directly from the <strong>SEC EDGAR XBRL API</strong> — a free, public, unlimited-rate API provided by the US Securities and Exchange Commission. No third-party data vendor is used for EPS.</p>
+      <ul>
+        <li>Endpoint: <code>data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json</code></li>
+        <li>XBRL concept: <code>us-gaap/EarningsPerShareBasic</code> (with fallbacks — see EPS section)</li>
+        <li>All figures are as reported under US GAAP.</li>
+      </ul>
+
+      <h3>Firebase &amp; Stripe</h3>
+      <p>User authentication is handled by <strong>Firebase Auth</strong>. Subscription billing uses <strong>Stripe</strong>. Neither service is involved in market data processing.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── PIPELINE ── -->
+    <div class="doc-section" id="pipeline">
+      <div class="section-label">04 — Scan Pipeline</div>
+      <h2>Daily Processing Flow</h2>
+
+      <h3>Schedule</h3>
+      <p>The scanner runs as a <strong>GitHub Actions workflow</strong> on a cron schedule:</p>
+      <ul>
+        <li><strong>Weekdays at 20:30 UTC</strong> — approximately 30 minutes after NYSE close (16:00 ET), allowing final trade prints to settle.</li>
+        <li><strong>Saturday at 00:00 UTC</strong> — redundant run in case a weekday run fails.</li>
+      </ul>
+
+      <h3>Market Closure Detection</h3>
+      <p>Before scanning, the pipeline probes the Polygon grouped endpoint for the current date. If it returns zero results on what should be a trading day, the run aborts and the existing <code>latest.json</code> is left unchanged. This handles unexpected market closures (e.g. the January 2025 Jimmy Carter state funeral holiday).</p>
+      <p>Regular NYSE holidays (New Year's Day, MLK Day, Presidents' Day, Good Friday, Memorial Day, Juneteenth, Independence Day, Labor Day, Thanksgiving, Christmas) are computed algorithmically and skipped without an API probe.</p>
+
+      <h3>Steps per Run</h3>
+      <ol>
+        <li><strong>Build OHLCV cache</strong> — identify missing trading-day cache files and fetch them via one grouped API call each.</li>
+        <li><strong>Load fundamentals</strong> — read from disk cache (8-day TTL). Fetch any missing tickers from Polygon + EDGAR.</li>
+        <li><strong>Load OHLCV into memory</strong> — all cache files loaded once; each ticker reads from this in-memory dict (avoids 500+ disk reads per ticker).</li>
+        <li><strong>Compute metrics</strong> — for each of 516 tickers: reconstruct price/volume series, calculate all timeframe metrics, fundamentals, scores.</li>
+        <li><strong>Post-process</strong> — compute sector average P/E (market-cap weighted), percentile-rank RSScore and MomentumScore across the full universe.</li>
+        <li><strong>Data quality check</strong> — flag any ticker with &gt;25% 1D price change (likely a cache gap), &lt;200 candle bars, or empty cache files.</li>
+        <li><strong>Export</strong> — write <code>data/latest.json</code>, <code>data/candles.json</code>, and a dated CSV to <code>archive/</code>.</li>
+      </ol>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── OHLCV ── -->
+    <div class="doc-section" id="ohlcv">
+      <div class="section-label">05 — Price &amp; Volume Data</div>
+      <h2>OHLCV Cache</h2>
+
+      <div id="ohlcv-cache">
+        <h3>Cache Structure</h3>
+        <p>One JSON file per trading day: <code>data/ohlcv_cache/YYYY-MM-DD.json</code>. Each file is a flat dict mapping ticker → <code>{o, h, l, c, v}</code>. Files are written once and never overwritten (except for files &lt;5 bytes, which are treated as failed writes and retried).</p>
+        <p>The cache currently holds <strong>up to 730 calendar days</strong> (~504 trading days) of history. Older files are not proactively deleted but are outside the calculation window.</p>
+
+        <h3>Ticker Aliases</h3>
+        <p>Polygon uses dot notation for dual-class shares; the scanner's internal list uses hyphens (matching index provider conventions). A static alias map translates at fetch time:</p>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>Internal Ticker</th><th>Polygon Symbol</th><th>Reason</th></tr></thead>
+            <tbody>
+              <tr><td>BRK-B</td><td>BRK.B</td><td>Berkshire Hathaway Class B</td></tr>
+              <tr><td>BF-B</td><td>BF.B</td><td>Brown-Forman Class B</td></tr>
+              <tr><td>BNY</td><td>BK</td><td>Bank of New York Mellon (ticker changed from BK to BNY in 2025)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="volume-note">
+        <h3>Volume Definition</h3>
+        <p>Polygon's grouped daily endpoint reports <strong>consolidated tape volume</strong> — the total number of shares traded across all US venues: primary exchanges (NYSE, Nasdaq, CBOE, BATS), regional exchanges, dark pools, and off-exchange (OTC) prints.</p>
+        <p>Yahoo Finance and most retail data providers typically show only primary-exchange volume. For liquid large-caps, <strong>30–45% of daily volume is executed off-exchange</strong>, so Baizora's reported volume is systematically 25–60% higher than Yahoo Finance. This is not an error — it is a more complete measure of actual market activity.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── METRICS ── -->
+    <div class="doc-section" id="metrics">
+      <div class="section-label">06 — Calculated Metrics</div>
+      <h2>Price &amp; Volume Calculations</h2>
+
+      <div id="timeframes">
+        <h3>Timeframe Windows</h3>
+        <p>All multi-day metrics are computed over a fixed number of <strong>trading days</strong> (not calendar days):</p>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>Label</th><th>Trading Days</th><th>Approx. Calendar</th></tr></thead>
+            <tbody>
+              <tr><td>2W</td><td>10</td><td>2 weeks</td></tr>
+              <tr><td>1M</td><td>21</td><td>1 month</td></tr>
+              <tr><td>3M</td><td>63</td><td>3 months</td></tr>
+              <tr><td>6M</td><td>126</td><td>6 months</td></tr>
+              <tr><td>9M</td><td>189</td><td>9 months</td></tr>
+              <tr><td>1Y</td><td>252</td><td>1 year</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>A metric for a given window is only computed if the ticker has at least that many trading days of cache data. If not enough history exists, the field is <code>null</code>.</p>
+      </div>
+
+      <div id="1d">
+        <h3>1D (Single-Day) Metrics</h3>
+        <div class="formula">
+PriceChange1D  = (Close[t] − Close[t-1]) / Close[t-1] × 100   <span class="comment">(%)</span>
+VolumeChange1D = (Volume[t] − Volume[t-1]) / Volume[t-1] × 100 <span class="comment">(%)</span>
+PriceVsMA21    = Close[t] / mean(Close[t-20 … t])
+VolumeVsMA21   = Volume[t] / mean(Volume[t-20 … t])
+        </div>
+        <p><code>PriceVsMA21</code> and <code>VolumeVsMA21</code> are ratios (1.0 = exactly at the 21-day moving average). Values above 1.0 indicate the current day is above the recent average.</p>
+      </div>
+
+      <div id="period">
+        <h3>Period Metrics (per Timeframe Window)</h3>
+        <p>For each window <em>W</em> (e.g. 3M = last 63 trading days), the following are computed from the slice <code>df.iloc[-W:]</code>:</p>
+        <div class="formula">
+{W}PriceChange  = (Close[-1] − Close[0]) / Close[0] × 100  <span class="comment">(start-to-end %)</span>
+{W}MaxPriceChange  = max daily close-to-close return in window × 100
+{W}MaxPriceChangeDay  = trading days ago the max daily gain occurred
+{W}MaxVolumeChange  = max daily volume change in window × 100
+{W}MaxVolumeChangeDay  = trading days ago the max volume spike occurred
+{W}PriceChangeAtMaxVolume  = price return on the highest-volume day
+{W}VolumeChangeAtMaxPrice  = volume change on the highest-price-gain day
+        </div>
+        <p>The "Day" fields count from the <em>end</em> of the window (0 = most recent trading day, 1 = yesterday, etc.).</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── FUNDAMENTALS ── -->
+    <div class="doc-section" id="fundamentals">
+      <div class="section-label">07 — Fundamental Data</div>
+      <h2>EPS, P/E, Beta &amp; Volatility</h2>
+
+      <div id="eps">
+        <h3>Earnings Per Share — TTM Calculation</h3>
+        <p>EPS is <strong>trailing twelve months (TTM) GAAP EPS</strong> sourced from SEC EDGAR XBRL filings. The following concept fields are tried in order, stopping at the first with data:</p>
+        <ol>
+          <li><code>EarningsPerShareBasic</code></li>
+          <li><code>EarningsPerShareDiluted</code></li>
+          <li><code>IncomeLossFromContinuingOperationsPerBasicShare</code> — required for REITs</li>
+          <li><code>IncomeLossFromContinuingOperationsPerDilutedShare</code></li>
+        </ol>
+
+        <h3>YTD Cumulative Filing Detection</h3>
+        <p>Many companies (e.g. Merck, Chevron) file <strong>year-to-date cumulative EPS</strong> in their 10-Qs rather than single-quarter values. The scanner detects this by comparing the filing's reported period length:</p>
+        <ul>
+          <li>Period ≈ 90 days → true quarterly value, used directly.</li>
+          <li>Period ≈ 180 days → H1 YTD; Q2 is derived as H1 − Q1.</li>
+          <li>Period ≈ 270 days → 9M YTD; Q3 is derived as 9M − H1.</li>
+        </ul>
+
+        <h3>Q4 from Annual 10-K</h3>
+        <p>Q4 EPS is never filed in a 10-Q. It is derived as:</p>
+        <div class="formula">
+Q4 = Annual_10K − 9M_YTD_10Q
+TTM = Q1_recent + Q2_recent + Q3_recent + Q4_derived
+        </div>
+        <p>This correctly handles non-December fiscal years (Apple, Nvidia, Costco, etc.) where the most recent annual 10-K covers a different calendar year than the most recent 10-Qs.</p>
+
+        <h3>Special Cases</h3>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>Ticker</th><th>Adjustment</th><th>Reason</th></tr></thead>
+            <tbody>
+              <tr><td>BRK-B</td><td>EDGAR EPS ÷ 1500</td><td>EDGAR reports Berkshire EPS at Class A share level; Class B is 1/1500th of Class A</td></tr>
+              <tr><td>BKNG</td><td>EDGAR EPS ÷ 25 (if EPS &gt; 25)</td><td>25-for-1 stock split April 2026; EDGAR filings pre-split show EPS ~$150–170. Guard auto-disables once post-split 10-Q is filed (~Q2 2026)</td></tr>
+              <tr><td>CCEP, FER, TRI, ASML, PDD</td><td>EPS = null</td><td>Foreign IFRS filers; no US-GAAP EPS concepts in EDGAR XBRL</td></tr>
+              <tr><td>V (Visa)</td><td>EPS = null</td><td>No XBRL EPS data in EDGAR for this ticker</td></tr>
+              <tr><td>ERIE, ARES, KKR, STZ, ARM</td><td>EPS = null</td><td>EDGAR data unavailable or insufficient at time of last fundamentals refresh</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="pe">
+        <h3>P/E Ratio</h3>
+        <div class="formula">
+PE = Close[t] / EPS_TTM   <span class="comment">(computed live from current price and cached EPS)</span>
+        </div>
+        <p>PE is recomputed each scan using the latest price, so it reflects current market valuation even if EPS has not changed since the last fundamentals refresh. PE is set to <code>null</code> if EPS is null, zero, or negative.</p>
+      </div>
+
+      <div id="beta">
+        <h3>Beta</h3>
+        <div class="formula">
+Beta = Cov(stock_returns, SPY_returns) / Var(SPY_returns)
+       <span class="comment">— trailing 252 trading days (1 year), daily returns</span>
+        </div>
+        <p>SPY is fetched fresh each scan via a separate Polygon API call (SPY is not in the OHLCV cache since it is not in the scanner universe). Beta is null if SPY data is unavailable or the ticker has fewer than 60 days of history.</p>
+
+        <h3>30-Day Annualised Volatility</h3>
+        <div class="formula">
+Volatility30D = StdDev(daily_returns[-30:]) × √252
+        </div>
+        <p>Uses the last 30 trading days of close-to-close returns. Annualised by multiplying by √252.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SECTORS ── -->
+    <div class="doc-section" id="sectors">
+      <div class="section-label">08 — Sector Classification</div>
+      <h2>How Sectors Are Assigned</h2>
+
+      <p>Sector assignment follows a two-step priority:</p>
+      <ol>
+        <li><strong>Ticker override table</strong> — a hardcoded dict of 26 tickers whose SIC-derived sector is wrong (foreign incorporations, recent index additions, post-reorganisation companies). Takes precedence over all other logic.</li>
+        <li><strong>SIC-to-sector map</strong> — Polygon returns a SIC description string for each company. A static lookup table maps ~150 SIC descriptions to 11 GICS-aligned sectors.</li>
+      </ol>
+
+      <h3>Sector List</h3>
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>Sector</th><th>Tickers (approx.)</th><th>Examples</th></tr></thead>
+          <tbody>
+            <tr><td>Technology</td><td>96</td><td>AAPL, MSFT, NVDA, GOOGL, ACN, LRCX</td></tr>
+            <tr><td>Financial Services</td><td>75</td><td>JPM, BAC, V, MA, BRK-B, PYPL</td></tr>
+            <tr><td>Consumer Cyclical</td><td>61</td><td>AMZN, TSLA, BKNG, ABNB, CCL, UBER</td></tr>
+            <tr><td>Healthcare</td><td>60</td><td>JNJ, LLY, UNH, DHR, TMO, ABBV</td></tr>
+            <tr><td>Industrials</td><td>59</td><td>BA, CAT, HON, LMT, NOC, RTX, UPS</td></tr>
+            <tr><td>Consumer Defensive</td><td>38</td><td>WMT, PG, KO, PEP, COST, MO</td></tr>
+            <tr><td>Basic Materials</td><td>32</td><td>LIN, APD, FCX, NEM, DOW, AMCR</td></tr>
+            <tr><td>Real Estate</td><td>31</td><td>AMT, PLD, EQIX, SPG, CSGP</td></tr>
+            <tr><td>Utilities</td><td>31</td><td>NEE, DUK, SO, AEP, EXC</td></tr>
+            <tr><td>Energy</td><td>21</td><td>XOM, CVX, COP, SLB, EOG</td></tr>
+            <tr><td>Communication Services</td><td>12</td><td>META, GOOGL, NFLX, DIS, T, VZ</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="sector-avg">
+        <h3>Sector Average P/E — Market-Cap Weighted Harmonic Mean</h3>
+        <p>The sector average P/E is computed as the <strong>market-cap weighted harmonic mean</strong> of individual P/E ratios within each sector. This is mathematically equivalent to dividing total sector market capitalisation by total implied sector earnings:</p>
+        <div class="formula">
+SectorAvgPE = Σ(MarketCap_i) / Σ(MarketCap_i / PE_i)
+            = Total Sector Market Cap / Total Implied Earnings
+        </div>
+        <p>This is the same method used by S&amp;P for their sector indices. It is substantially more robust than a simple arithmetic mean, which is distorted by high-P/E outliers (e.g. a single stock at 600× P/E would dominate a simple average).</p>
+        <p><strong>PE_vs_Sector</strong> is then computed as:</p>
+        <div class="formula">
+PE_vs_Sector = (PE_i − SectorAvgPE) / SectorAvgPE × 100   <span class="comment">(%)</span>
+        </div>
+        <div class="note">
+          <strong>Note on Communication Services:</strong> AT&amp;T and Verizon have enormous market caps (~$120–160B each) and low P/E ratios (~10×). Because the sector average is market-cap weighted, these two stocks dominate, pulling the sector average to ~10×. This accurately reflects what a market-cap-weighted index investor experiences in that sector.
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SCORES ── -->
+    <div class="doc-section" id="scores">
+      <div class="section-label">09 — Scoring System</div>
+      <h2>Four Composite Scores</h2>
+
+      <h3>Breakout Score (0–100)</h3>
+      <p>Measures immediate price and volume momentum relative to recent averages. Higher = stronger near-term breakout signal.</p>
+      <div class="formula">
+component_1 = min(33, max(0, (PriceVsMA21 − 1) × 200))   <span class="comment">(price above MA21)</span>
+component_2 = min(33, max(0, PriceChange1D% × 3))         <span class="comment">(today's price move)</span>
+component_3 = min(34, max(0, (VolumeVsMA21 − 1) × 25))   <span class="comment">(volume surge)</span>
+BreakoutScore = round(component_1 + component_2 + component_3)
+      </div>
+
+      <h3>Volume Pressure Score (−100 to +100)</h3>
+      <p>Combines volume intensity with price direction. Positive = high volume + price up (buying pressure). Negative = high volume + price down (selling pressure).</p>
+      <div class="formula">
+direction = +1 if PriceChange1D &gt; 0, −1 if &lt; 0, else 0
+VolPressureScore = clamp((VolumeVsMA21 − 1) × direction × 100, −100, 100)
+      </div>
+
+      <h3>Trend Score (0–100)</h3>
+      <p>Fraction of the six timeframes (2W, 1M, 3M, 6M, 9M, 1Y) with positive price change, expressed as a percentage. 100 = uptrend across all timeframes. 0 = downtrend across all. Null timeframes (insufficient history) count as 0.</p>
+      <div class="formula">
+TrendScore = count(PriceChange &gt; 0 for each window) / 6 × 100
+      </div>
+
+      <h3>RS Score — Relative Strength (1–99, percentile)</h3>
+      <p>Measures price momentum relative to all other tickers in the universe. Computed as a <strong>percentile rank</strong> of a weighted raw score across the six timeframes:</p>
+      <div class="formula">
+RawRS = 0.40×3MPriceChange + 0.20×6MPriceChange
+      + 0.20×9MPriceChange + 0.20×1YPriceChange
+RSScore = percentile_rank(RawRS, all 516 tickers) × 98 + 1   <span class="comment">(scaled to 1–99)</span>
+      </div>
+      <p>Weights emphasise the 3-month window (the most predictive momentum period in academic literature) while retaining longer-term context.</p>
+
+      <h3>Momentum Score (0–100, percentile)</h3>
+      <p>Similar to RS Score but weighted toward shorter timeframes, capturing recent acceleration:</p>
+      <div class="formula">
+RawMomentum = 0.35×1MPriceChange + 0.25×3MPriceChange
+            + 0.20×6MPriceChange + 0.20×1YPriceChange
+MomentumScore = percentile_rank(RawMomentum, all 516 tickers) × 100
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── OUTPUT ── -->
+    <div class="doc-section" id="output">
+      <div class="section-label">10 — Output Format</div>
+      <h2>Published Data Files</h2>
+
+      <h3>data/latest.json</h3>
+      <p>Primary data file consumed by the dashboard. Published after each successful scan. Top-level structure:</p>
+      <div class="formula">
+{
+  "generated_at": "YYYY-MM-DD",
+  "data": [ { ...one object per ticker... } ]
+}
+      </div>
+      <p>Each ticker object contains: <code>Ticker</code>, <code>Date</code>, <code>Price</code>, <code>VolumeM</code>, all 1D and period metrics for each timeframe, <code>PE</code>, <code>EPS</code>, <code>MarketCap</code> (in $B), <code>Beta</code>, <code>Volatility30D</code>, <code>Sector</code>, <code>SectorAvgPE</code>, <code>PE_vs_Sector</code>, <code>CompanyName</code>, <code>Spark1Y</code> (normalised close series), and the four scores.</p>
+
+      <h3>data/candles.json</h3>
+      <p>Candlestick data for the modal chart. Loaded separately from <code>latest.json</code> (kept out of the main file to reduce initial page load size).</p>
+      <div class="formula">
+{
+  "date": "YYYY-MM-DD",
+  "dates": [ "YYYY-MM-DD", ... ],   <span class="comment">252 most recent trading days</span>
+  "data": {
+    "AAPL": [ [open,high,low,close], ... ],
+    ...
+  }
+}
+      </div>
+
+      <h3>archive/results_YYYY-MM-DD.csv</h3>
+      <p>A full CSV snapshot of each scan, retained for historical reference. Not consumed by the dashboard.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── LIMITATIONS ── -->
+    <div class="doc-section" id="limitations">
+      <div class="section-label">11 — Known Limitations</div>
+      <h2>Data Gaps &amp; Edge Cases</h2>
+
+      <h3>EPS Not Available (11 Tickers)</h3>
+      <p>CCEP, FER, TRI, ASML, PDD (foreign IFRS filers), V (no XBRL), and ERIE, ARES, KKR, STZ, ARM (missing or incomplete EDGAR data). P/E and PE_vs_Sector are null for these tickers. No third-party paid source is currently used as a fallback.</p>
+
+      <h3>Short OHLCV History</h3>
+      <p>BNY (Bank of New York Mellon, ticker changed from BK in 2025), BF-B, BRK-B, FISV, and Q have fewer than 252 clean trading days in the cache. Longer-period metrics (9M, 1Y) are null for these tickers and will fill in as the cache accumulates daily data going forward.</p>
+
+      <h3>Stock Split Adjustments</h3>
+      <p>Polygon returns split-adjusted prices automatically. EDGAR EPS filings are not retroactively adjusted until the company files its next 10-Q or 10-K on a post-split share basis. For <strong>BKNG</strong> (25-for-1 split, April 2026), the scanner manually divides EDGAR EPS by 25 until the Q2 2026 10-Q is filed (expected August 2026), at which point EDGAR will self-correct and the guard condition will disable automatically.</p>
+
+      <h3>Fundamentals Cache TTL</h3>
+      <p>Company fundamentals (EPS, sector, market cap) are cached on disk with an 8-day TTL. This means P/E ratios may reflect EPS from up to 8 days prior. The Saturday rebuild run refreshes the cache fully.</p>
+
+      <h3>Candle Chart History</h3>
+      <p>The <code>candles.json</code> date window covers the most recent 252 trading days. For tickers with fewer clean OHLCV entries in that window, the chart will show fewer candles and the x-axis labels will correspond to the tail of the 252-day window.</p>
+
+      <h3>Sector Average P/E Universe</h3>
+      <p>Sector average P/E is computed only from tickers within the Baizora universe (S&amp;P 500 + Nasdaq-100). This skews sector averages upward relative to the full market — the universe is dominated by large-cap and growth companies. The market-cap weighted harmonic mean mitigates this by anchoring the average to the largest companies' valuations, which approximate the sector index experience.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div style="opacity:0.55;font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);line-height:1.7;">
+      This document describes the internal methodology of Baizora's automated scanner as of May 31, 2026. Methods and data sources may be updated. Nothing in this document constitutes investment advice. Market data is provided for informational purposes only. Past signals do not predict future performance. All data is sourced from publicly available filings (SEC EDGAR) and licensed commercial market data providers (Polygon.io).
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div class="footer-left">© 2026 Baizora &nbsp;·&nbsp; <a href="../assets/privacy.html">Privacy</a> &nbsp;·&nbsp; <a href="../assets/terms.html">Terms</a></div>
+  <div class="footer-links">
+    <a href="../assets/disclaimer.html">Disclaimer</a>
+    <a href="../assets/faq.html">FAQ</a>
+    <a href="mailto:support@baizora.com">support@baizora.com</a>
+  </div>
+</footer>
+
+</body>
+</html>
