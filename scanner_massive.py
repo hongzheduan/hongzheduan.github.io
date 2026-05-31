@@ -1291,10 +1291,10 @@ def calculate_period_metrics(df, label, days):
 def scan():
     tickers, sp_set, nd_set = get_tickers()
     universe_set  = set(tickers)
-    results       = []
-    candles_out   = {}
-    sector_pe_map = {}
-    sector_counts = {}
+    results            = []
+    candles_out        = {}
+    sector_mktcap_sum  = {}   # sum of market caps (tickers with valid PE)
+    sector_earnings_sum = {}  # sum of implied earnings (mktcap / PE) = mktcap-weighted harmonic mean numerator/denominator
 
     print(f"Total tickers: {len(tickers)}")
 
@@ -1389,11 +1389,12 @@ def scan():
             # PE calculated from today's live price and cached EPS
             pe = round(float(latest["Close"]) / eps, 2) if eps and eps > 0 else None
 
-            if sector and pe:
-                sector_pe_map.setdefault(sector, 0)
-                sector_counts.setdefault(sector, 0)
-                sector_pe_map[sector] += pe
-                sector_counts[sector] += 1
+            market_cap = fund["MarketCap"]
+            if sector and pe and market_cap and market_cap > 0:
+                sector_mktcap_sum.setdefault(sector, 0.0)
+                sector_earnings_sum.setdefault(sector, 0.0)
+                sector_mktcap_sum[sector]   += market_cap
+                sector_earnings_sum[sector] += market_cap / pe
 
             # =========================
             # FLAGS
@@ -1536,10 +1537,13 @@ def scan():
     # =========================
     # POST-PROCESSING
     # =========================
+    # Market-cap weighted harmonic mean: sum(mktcap) / sum(mktcap/PE)
+    # Equivalent to total sector market cap / total sector implied earnings.
+    # Much more robust than simple mean — naturally downweights high-PE small caps.
     sector_avg_pe = {
-        s: sector_pe_map[s] / sector_counts[s]
-        for s in sector_pe_map
-        if sector_counts[s] > 0
+        s: sector_mktcap_sum[s] / sector_earnings_sum[s]
+        for s in sector_mktcap_sum
+        if sector_earnings_sum.get(s, 0) > 0
     }
 
     df = pd.DataFrame(results)
