@@ -3,7 +3,7 @@ name: Baizora Scanner
 on:
   schedule:
     - cron: "30 20 * * 1-5"   # weekdays 8:30 PM UTC – scan + daily videos
-    - cron: "0 0 * * 6"        # Saturday midnight UTC – full cache rebuild for data integrity
+    - cron: "0 0 * * 6"        # Saturday midnight UTC – incremental scan (no wipe; empty files auto-retried)
   workflow_dispatch:
 
 permissions:
@@ -42,13 +42,6 @@ jobs:
           else
             echo "IS_WEEKEND=False" >> $GITHUB_ENV
           fi
-
-      - name: Clear cache for Saturday full rebuild
-        if: env.IS_WEEKEND == 'True'
-        run: |
-          rm -rf data/ohlcv_cache
-          rm -f data/fundamentals_cache.json
-          echo "Cache cleared — full rebuild will run."
 
       - name: Run scanner
         if: env.IS_HOLIDAY != 'True'
