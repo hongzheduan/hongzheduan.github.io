@@ -1002,7 +1002,17 @@ def _get_eps_from_edgar(ticker):
         resp.raise_for_status()
         us_gaap = resp.json().get("facts", {}).get("us-gaap", {})
 
-        for field in ("EarningsPerShareBasic", "EarningsPerShareDiluted"):
+        EPS_FIELDS = (
+            "EarningsPerShareBasic",
+            "EarningsPerShareDiluted",
+            "IncomeLossFromContinuingOperationsPerBasicShare",
+            "IncomeLossFromContinuingOperationsPerDilutedShare",
+        )
+        # Max age for annual fallback — stale data is worse than None
+        min_annual_end = str(date.today().year - 2)
+        best_annual = None
+
+        for field in EPS_FIELDS:
             units = (us_gaap.get(field, {})
                            .get("units", {})
                            .get("USD/shares", []))
@@ -1011,8 +1021,9 @@ def _get_eps_from_edgar(ticker):
 
             q10_entries = [x for x in units if x.get("form") == "10-Q"
                            and x.get("start") and x.get("end")]
-            annual = sorted(
-                [x for x in units if x.get("form") in ("10-K", "10-K405")],
+            annual_entries = sorted(
+                [x for x in units if x.get("form") in ("10-K", "10-K405")
+                 and x.get("end", "") >= min_annual_end],
                 key=lambda x: x.get("end", ""),
                 reverse=True,
             )
@@ -1020,13 +1031,9 @@ def _get_eps_from_edgar(ticker):
             if q10_entries:
                 quarters = _derive_quarterly_eps(q10_entries)
 
-                # Try to derive Q4 from annual 10-K minus Q3 YTD.
-                # Q4 is never in a 10-Q; it only appears in the annual filing.
-                # Find the most recent Q3 YTD (period ~270 days) that ended
-                # before the latest annual filing.
-                if annual and len(quarters) >= 3:
-                    annual_end = annual[0]["end"]
-                    annual_val = annual[0]["val"]
+                if annual_entries and len(quarters) >= 3:
+                    annual_end = annual_entries[0]["end"]
+                    annual_val = annual_entries[0]["val"]
                     q3_ytd_candidates = sorted(
                         [x for x in q10_entries
                          if 200 < _period_days(x) < 310
@@ -1036,16 +1043,20 @@ def _get_eps_from_edgar(ticker):
                     )
                     if q3_ytd_candidates:
                         q4_val = annual_val - q3_ytd_candidates[0]["val"]
-                        # Use Q1+Q2+Q3 from current year + Q4 from prior annual
                         ttm = sum(v for _, v in quarters[:3]) + q4_val
                         return round(ttm, 4)
 
                 if len(quarters) >= 4:
-                    ttm = sum(v for _, v in quarters[:4])
-                    return round(ttm, 4)
+                    return round(sum(v for _, v in quarters[:4]), 4)
 
-            if annual:
-                return round(float(annual[0]["val"]), 4)
+            # Track best recent annual across all fields (used as last resort)
+            if annual_entries:
+                if best_annual is None or annual_entries[0]["end"] > best_annual["end"]:
+                    best_annual = annual_entries[0]
+
+        # Annual fallback only if no quarterly TTM found and data is recent
+        if best_annual:
+            return round(float(best_annual["val"]), 4)
 
         return None
     except Exception:
