@@ -110,6 +110,14 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 ---
 
+## Methodology Document
+
+- File: `assets/methodology_2026-05-31.html` — comprehensive internal documentation
+- Covers: data universe, sources (Polygon + EDGAR), daily pipeline, OHLCV cache, volume definition, all metric formulas, TTM EPS derivation, sector classification, market-cap weighted harmonic mean sector PE, all four scores, output format, known limitations
+- Versioned by date; create a new file (e.g. `methodology_2026-12-31.html`) when methods change significantly
+
+---
+
 ## Next Time: What to Check
 
 1. Check GitHub Actions run succeeded (no rate-limit failures overnight)
