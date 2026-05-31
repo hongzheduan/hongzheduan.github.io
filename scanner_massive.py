@@ -922,15 +922,67 @@ def _load_edgar_cik_map():
     print("EDGAR: CIK map unavailable - EPS will be skipped")
 
 
+def _period_days(entry):
+    """Return the number of days covered by an EDGAR filing entry."""
+    try:
+        from datetime import datetime as _dt
+        return (_dt.strptime(entry["end"], "%Y-%m-%d") -
+                _dt.strptime(entry["start"], "%Y-%m-%d")).days
+    except Exception:
+        return 999
+
+
+def _derive_quarterly_eps(entries):
+    """
+    Convert 10-Q EPS entries into true quarterly values.
+    Many companies (e.g. MRK, CVX) file YTD cumulative EPS in 10-Qs:
+      Q1 (start=Jan, end=Mar, ~90 days)  → already quarterly
+      Q2 (start=Jan, end=Jun, ~180 days) → YTD cumulative
+      Q3 (start=Jan, end=Sep, ~270 days) → YTD cumulative
+    Derive Q2_q = Q2_ytd - Q1_ytd, Q3_q = Q3_ytd - Q2_ytd.
+    Returns list of (end_date, quarterly_val) sorted newest first.
+    """
+    # Deduplicate by end date, keep most recent filing
+    seen, deduped = set(), []
+    for x in sorted(entries, key=lambda x: (x.get("end",""), x.get("filed","")), reverse=True):
+        if x.get("end") not in seen:
+            seen.add(x.get("end"))
+            deduped.append(x)
+
+    # Sort oldest-first to derive incrementals
+    deduped.sort(key=lambda x: x.get("end",""))
+
+    quarters = []
+    # Group by fiscal year start (entries with same start date are YTD from same year)
+    from itertools import groupby
+    for start_date, group in groupby(deduped, key=lambda x: x.get("start","")):
+        year_entries = sorted(list(group), key=lambda x: x.get("end",""))
+        prev_ytd = 0.0
+        for entry in year_entries:
+            days = _period_days(entry)
+            if days < 100:
+                # True quarterly (Q1 always ~90 days regardless of YTD/non-YTD)
+                quarters.append((entry["end"], entry["val"]))
+                prev_ytd = entry["val"]
+            else:
+                # YTD cumulative — derive the incremental quarter
+                quarterly_val = entry["val"] - prev_ytd
+                quarters.append((entry["end"], quarterly_val))
+                prev_ytd = entry["val"]
+
+    # Return newest first
+    quarters.sort(key=lambda x: x[0], reverse=True)
+    return quarters
+
+
 def _get_eps_from_edgar(ticker):
     """
-    Fetch TTM EPS from SEC EDGAR as a last-resort fallback.
-    Tries: last 4 quarterly 10-Q filings (TTM sum) → most recent 10-K.
-    Returns float EPS or None.
+    Fetch TTM EPS from SEC EDGAR.
+    Handles both quarterly and YTD-cumulative 10-Q filers.
+    Tries EarningsPerShareBasic → EarningsPerShareDiluted → annual 10-K.
     """
     _load_edgar_cik_map()
 
-    # Try ticker variants: BRK-B → BRK.B → BRKB
     cik = None
     for variant in [ticker, ticker.replace("-", "."), ticker.replace("-", "")]:
         cik = _edgar_cik_map.get(variant.upper())
@@ -955,21 +1007,13 @@ def _get_eps_from_edgar(ticker):
             if not units:
                 continue
 
-            # Deduplicate by period end date (keep most recent filing per period)
-            quarterly_raw = sorted(
-                [x for x in units if x.get("form") == "10-Q"],
-                key=lambda x: (x.get("end", ""), x.get("filed", "")),
-                reverse=True,
-            )
-            seen, quarterly = set(), []
-            for x in quarterly_raw:
-                if x.get("end") not in seen:
-                    seen.add(x.get("end"))
-                    quarterly.append(x)
-
-            # TTM = sum of last 4 quarters
-            if len(quarterly) >= 4:
-                return round(sum(x["val"] for x in quarterly[:4]), 4)
+            q10_entries = [x for x in units if x.get("form") == "10-Q"
+                           and x.get("start") and x.get("end")]
+            if q10_entries:
+                quarters = _derive_quarterly_eps(q10_entries)
+                if len(quarters) >= 4:
+                    ttm = sum(v for _, v in quarters[:4])
+                    return round(ttm, 4)
 
             # Annual fallback
             annual = sorted(
