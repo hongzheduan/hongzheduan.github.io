@@ -3412,38 +3412,6 @@
       "Volatility30D": null,
       "CompanyName": "Zimmer Biomet Holdings, Inc."
     },
-    "BF-B": {
-      "MarketCap": null,
-      "EPS": 4.13,
-      "Sector": "Consumer Defensive",
-      "SicDescription": "",
-      "Volatility30D": null,
-      "CompanyName": null
-    },
-    "BRK-B": {
-      "MarketCap": null,
-      "EPS": 13075,
-      "Sector": "Financial Services",
-      "SicDescription": "",
-      "Volatility30D": null,
-      "CompanyName": null
-    },
-    "CTSH": {
-      "MarketCap": null,
-      "EPS": 8.6,
-      "Sector": "Technology",
-      "SicDescription": "",
-      "Volatility30D": null,
-      "CompanyName": null
-    },
-    "CTVA": {
-      "MarketCap": null,
-      "EPS": 7.31,
-      "Sector": "Basic Materials",
-      "SicDescription": "",
-      "Volatility30D": null,
-      "CompanyName": null
-    },
     "PHM": {
       "MarketCap": 22511677197.54,
       "EPS": 18.66,
@@ -3515,14 +3483,6 @@
       "SicDescription": "",
       "Volatility30D": null,
       "CompanyName": "Arm Holdings plc American Depositary Shares"
-    },
-    "ASML": {
-      "MarketCap": null,
-      "EPS": null,
-      "Sector": "Technology",
-      "SicDescription": "",
-      "Volatility30D": null,
-      "CompanyName": null
     },
     "BRO": {
       "MarketCap": 19065816056.25,
@@ -3891,6 +3851,46 @@
       "SicDescription": "NATIONAL COMMERCIAL BANKS",
       "Volatility30D": null,
       "CompanyName": "Wells Fargo & Co."
+    },
+    "ASML": {
+      "MarketCap": 621586193405.4,
+      "EPS": null,
+      "Sector": "Technology",
+      "SicDescription": "",
+      "Volatility30D": null,
+      "CompanyName": "ASML Holding NV"
+    },
+    "BF-B": {
+      "MarketCap": 11797857337.88,
+      "EPS": 1.98,
+      "Sector": "Consumer Defensive",
+      "SicDescription": "BEVERAGES",
+      "Volatility30D": null,
+      "CompanyName": "Brown-Forman Corporation Class B"
+    },
+    "BRK-B": {
+      "MarketCap": 1023383989600.56,
+      "EPS": 5.6587,
+      "Sector": "Financial Services",
+      "SicDescription": "FIRE, MARINE & CASUALTY INSURANCE",
+      "Volatility30D": null,
+      "CompanyName": "BERKSHIRE HATHAWAY Class B"
+    },
+    "CTSH": {
+      "MarketCap": 26372115000.0,
+      "EPS": 4.61,
+      "Sector": "Technology",
+      "SicDescription": "SERVICES-COMPUTER PROGRAMMING SERVICES",
+      "Volatility30D": null,
+      "CompanyName": "Cognizant Technology Solutions"
+    },
+    "CTVA": {
+      "MarketCap": 52355229600.0,
+      "EPS": 3.48,
+      "Sector": "Basic Materials",
+      "SicDescription": "",
+      "Volatility30D": null,
+      "CompanyName": "Corteva, Inc. Common Stock"
     }
   }
 }

@@ -1074,16 +1074,26 @@ def get_fundamentals(ticker):
     if ticker in _fund_cache:
         return _fund_cache[ticker]
 
+    # Try hyphen format first, then dot format (e.g. BRK-B → BRK.B on Massive)
     overview = _massive_get(f"/v3/reference/tickers/{ticker}")
     results  = (overview or {}).get("results", {})
+    if not results.get("name"):
+        dot_ticker = ticker.replace("-", ".")
+        if dot_ticker != ticker:
+            alt = _massive_get(f"/v3/reference/tickers/{dot_ticker}")
+            results = (alt or {}).get("results", {}) or results
 
     market_cap   = results.get("market_cap")
     company_name = results.get("name")
     sic_desc     = results.get("sic_description") or ""
     sector       = TICKER_SECTOR_OVERRIDE.get(ticker) or sic_to_sector(sic_desc)
 
-    # EPS via SEC EDGAR — free, 10 req/sec, no ToS issues, better coverage than Massive vX
+    # EPS via SEC EDGAR
     eps = _get_eps_from_edgar(ticker)
+
+    # BRK-B: EDGAR reports Berkshire EPS at Class A level; Class B = Class A / 1500
+    if ticker == "BRK-B" and eps is not None:
+        eps = round(eps / 1500, 4)
 
     result = {
         "MarketCap":     market_cap,
