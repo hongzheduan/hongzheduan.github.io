@@ -119,12 +119,6 @@ def _last_weekday(year, month, weekday):
     return last - timedelta(days=(last.weekday() - weekday) % 7)
 
 
-# Special one-off market closures (presidential funerals, national days of mourning)
-_SPECIAL_CLOSURES = {
-    date(2025, 1, 9),   # Jimmy Carter state funeral
-}
-
-
 def nyse_holidays(year):
     h = set()
     h.add(_observed(date(year, 1, 1)))
@@ -144,7 +138,7 @@ def nyse_holidays(year):
 def is_market_holiday(d=None):
     if d is None:
         d = date.today()
-    return d in nyse_holidays(d.year) or d in _SPECIAL_CLOSURES
+    return d in nyse_holidays(d.year)
 
 
 # =========================
@@ -1662,6 +1656,14 @@ if __name__ == "__main__":
     if is_market_holiday(today):
         print(f"Market holiday ({today}) — skipping scan.")
         sys.exit(0)
+
+    # Check if today is a special market closure (e.g. presidential funeral)
+    # by pinging the grouped endpoint before doing any work.
+    if today.weekday() < 5:  # only on weekdays
+        probe = _massive_get(f"/v2/aggs/grouped/locale/us/market/stocks/{today.strftime('%Y-%m-%d')}")
+        if probe is not None and probe.get("resultsCount", -1) == 0:
+            print(f"Massive returned 0 results for {today} — special market closure, skipping scan.")
+            sys.exit(0)
 
     print("Running Baizora scanner (Massive API) …")
 
