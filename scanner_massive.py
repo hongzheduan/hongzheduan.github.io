@@ -711,10 +711,11 @@ def get_tickers():
 # =========================
 
 TICKER_ALIASES = {
-    "BNY": "BK",    # Bank of New York Mellon: traded as BK, adopted BNY ticker later.
+    "BNY":  "BK",    # Bank of New York Mellon: traded as BK, adopted BNY ticker later.
+    "BF-B": "BF.B",  # Brown-Forman B: symbol list uses hyphen, Massive returns dot.
+    "BRK-B":"BRK.B", # Berkshire Hathaway B: symbol list uses hyphen, Massive returns dot.
     # Add entries here when a company renames its ticker symbol.
-    # Format: "NEW_TICKER": "OLD_TICKER"
-    # Spinoffs (new companies) should NOT be added — their short history is correct.
+    # Format: "INTERNAL_TICKER": "MASSIVE_TICKER"
 }
 
 # =========================
