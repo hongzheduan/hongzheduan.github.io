@@ -11,6 +11,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
 
 jobs:
   run-scanner:
@@ -45,8 +46,6 @@ jobs:
 
       - name: Run scanner
         if: env.IS_HOLIDAY != 'True'
-        env:
-          MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
         run: python scanner_massive.py
 
       - name: Generate stock pages
