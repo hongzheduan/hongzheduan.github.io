@@ -142,7 +142,7 @@
 
     <div class="eyebrow">◈ &nbsp; Internal Documentation</div>
     <h1>Data &amp; Methodology</h1>
-    <div class="doc-meta">BAIZORA &nbsp;·&nbsp; VERSION 2026-05-31 &nbsp;·&nbsp; CONFIDENTIAL</div>
+    <div class="doc-meta">BAIZORA &nbsp;·&nbsp; VERSION 2026-06-01 &nbsp;·&nbsp; CONFIDENTIAL</div>
 
     <!-- ── OVERVIEW ── -->
     <div class="doc-section" id="overview">
@@ -193,7 +193,7 @@
       <p>Earnings per share is sourced directly from the <strong>SEC EDGAR XBRL API</strong> — a free, public, unlimited-rate API provided by the US Securities and Exchange Commission. No third-party data vendor is used for EPS.</p>
       <ul>
         <li>Endpoint: <code>data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json</code></li>
-        <li>XBRL concept: <code>us-gaap/EarningsPerShareBasic</code> (with fallbacks — see EPS section)</li>
+        <li>XBRL concept: <code>us-gaap/EarningsPerShareDiluted</code> (primary; see EPS section for full field order)</li>
         <li>All figures are as reported under US GAAP.</li>
       </ul>
 
@@ -326,12 +326,12 @@ VolumeVsMA21   = Volume[t] / mean(Volume[t-20 … t])
 
       <div id="eps">
         <h3>Earnings Per Share — TTM Calculation</h3>
-        <p>EPS is <strong>trailing twelve months (TTM) GAAP EPS</strong> sourced from SEC EDGAR XBRL filings. The following concept fields are tried in order, stopping at the first with data:</p>
+        <p>EPS is <strong>trailing twelve months (TTM) diluted GAAP EPS</strong> sourced from SEC EDGAR XBRL filings. Diluted EPS is used as the primary field to match the industry-standard methodology used by Yahoo Finance and S&P indices. The following concept fields are tried in order, stopping at the first with data:</p>
         <ol>
-          <li><code>EarningsPerShareBasic</code></li>
-          <li><code>EarningsPerShareDiluted</code></li>
-          <li><code>IncomeLossFromContinuingOperationsPerBasicShare</code> — required for REITs</li>
-          <li><code>IncomeLossFromContinuingOperationsPerDilutedShare</code></li>
+          <li><code>EarningsPerShareDiluted</code> <strong>(primary)</strong></li>
+          <li><code>EarningsPerShareBasic</code> — fallback if diluted unavailable</li>
+          <li><code>IncomeLossFromContinuingOperationsPerDilutedShare</code> — required for REITs</li>
+          <li><code>IncomeLossFromContinuingOperationsPerBasicShare</code></li>
         </ol>
 
         <h3>YTD Cumulative Filing Detection</h3>
@@ -379,7 +379,7 @@ PE = Close[t] / EPS_TTM   <span class="comment">(computed live from current pric
 Beta = Cov(stock_returns, SPY_returns) / Var(SPY_returns)
        <span class="comment">— trailing 252 trading days (1 year), daily returns</span>
         </div>
-        <p>SPY is fetched fresh each scan via a separate Polygon API call (SPY is not in the OHLCV cache since it is not in the scanner universe). Beta is null if SPY data is unavailable or the ticker has fewer than 60 days of history.</p>
+        <p>SPY is fetched fresh each scan via a separate API call (not in the OHLCV cache since SPY is not in the scanner universe). The fetch uses up to <strong>8 retries</strong> with exponential backoff to handle rate limiting. If SPY data is still unavailable after all retries, the scanner logs "SPY fetch returned no data — beta will be None" (visible in GitHub Actions run logs) and Beta is null for all tickers that run. Beta is also null if a ticker has fewer than 60 days of history.</p>
 
         <h3>30-Day Annualised Volatility</h3>
         <div class="formula">
@@ -503,6 +503,12 @@ MomentumScore = percentile_rank(RawMomentum, all 516 tickers) × 100
 }
       </div>
       <p>Each ticker object contains: <code>Ticker</code>, <code>Date</code>, <code>Price</code>, <code>VolumeM</code>, all 1D and period metrics for each timeframe, <code>PE</code>, <code>EPS</code>, <code>MarketCap</code> (in $B), <code>Beta</code>, <code>Volatility30D</code>, <code>Sector</code>, <code>SectorAvgPE</code>, <code>PE_vs_Sector</code>, <code>CompanyName</code>, <code>Spark1Y</code> (normalised close series), and the four scores.</p>
+
+      <h3>Dashboard — Ticker Modal</h3>
+      <p>Clicking any ticker row opens a modal showing: 1-year candlestick chart, current price with 1D price change (green/red), and a stats grid with P/E, EPS, Volume, Beta, 30D Volatility, Market Cap, Sector, and 1M / 3M / 1Y price change (colour-coded). Modal data is read from the same <code>latest.json</code> row; candle chart data comes from <code>data/candles.json</code>.</p>
+
+      <h3>Dashboard — Watchlist</h3>
+      <p>Users can star (☆ → ★) any ticker row to save it to a personal watchlist. Saved tickers are persisted in <code>localStorage</code> under the key <code>"baizora_watchlist"</code> and are shared between the EN and CN dashboard versions on the same browser. A dedicated "★ Watchlist" tab filters the main table to show only saved tickers, with all sort, filter, and timeframe controls intact.</p>
 
       <h3>data/candles.json</h3>
       <p>Candlestick data for the modal chart. Loaded separately from <code>latest.json</code> (kept out of the main file to reduce initial page load size).</p>

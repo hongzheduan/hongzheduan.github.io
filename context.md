@@ -17,13 +17,13 @@
 
 ---
 
-## EPS Calculation (complex — key bugs fixed 2026-05-30/31)
+## EPS Calculation (complex — key bugs fixed 2026-05-30/31; diluted-first since 2026-06-01)
 
-**Fields tried in order:**
-1. `EarningsPerShareBasic`
-2. `EarningsPerShareDiluted`
-3. `IncomeLossFromContinuingOperationsPerBasicShare` — REITs use this
-4. `IncomeLossFromContinuingOperationsPerDilutedShare`
+**Fields tried in order (diluted first — matches Yahoo Finance TTM P/E methodology):**
+1. `EarningsPerShareDiluted`
+2. `EarningsPerShareBasic`
+3. `IncomeLossFromContinuingOperationsPerDilutedShare` — REITs use this
+4. `IncomeLossFromContinuingOperationsPerBasicShare`
 
 **Algorithm:**
 - Many companies file YTD cumulative EPS in 10-Qs (Q2=6mo, Q3=9mo). `_derive_quarterly_eps()` detects YTD by period length and derives quarterly values by differencing.
@@ -105,23 +105,36 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 ## Dashboard
 
 - Ticker click → modal with 1Y candlestick chart + P/E, EPS, Beta, Vol30D, MarketCap, Sector
+- Modal header: 1D price change badge (green/red) displayed next to price
+- Modal stats grid: Volume (M), 1M/3M/1Y price change tiles with green/red coloring added (2026-06-01)
 - Close button: fixed `type=module` scope bug — `onclick` attribute can't reach module functions; replaced with `addEventListener` inside module (both EN and CN files)
 - Candle data: separate `data/candles.json`, loaded after table renders
+- **Watchlist** (added 2026-06-01): ☆ star icon on every row; click to save/remove. Stored in `localStorage` under `"baizora_watchlist"`. Dedicated "★ Watchlist" tab (EN) / "★ 自选股" tab (CN) shows saved tickers with full table/sort/filter. Persists across page refreshes; shared between EN and CN versions.
 
 ---
 
 ## Methodology Document
 
-- File: `assets/methodology_2026-05-31.html` — comprehensive internal documentation
+- File: `assets/methodology_2026-05-31.html` — comprehensive internal documentation (updated 2026-06-01 for diluted EPS + Beta fix)
 - Covers: data universe, sources (Polygon + EDGAR), daily pipeline, OHLCV cache, volume definition, all metric formulas, TTM EPS derivation, sector classification, market-cap weighted harmonic mean sector PE, all four scores, output format, known limitations
 - Versioned by date; create a new file (e.g. `methodology_2026-12-31.html`) when methods change significantly
+
+---
+
+## SPY / Beta
+
+- SPY fetched fresh each scan via `/v2/aggs/ticker/SPY/range/1/day/{from}/{to}` (not in OHLCV cache)
+- **Retry count increased to 8** (was 3) on 2026-06-01 after SPY silently failed under rate limiting, leaving Beta null for all 516 tickers
+- Failure now logs explicitly: "SPY fetch returned no data — beta will be None" (visible in GitHub Actions logs)
+- If SPY fails after 8 retries, Beta is null for all tickers that run
 
 ---
 
 ## Next Time: What to Check
 
 1. Check GitHub Actions run succeeded (no rate-limit failures overnight)
-2. Run `data quality warnings` from latest scanner log
-3. BNY — Beta will be recomputed on next scan; 9M/1Y will fill in over ~4 months
+2. Run `data quality warnings` from latest scanner log — check for "SPY fetch returned no data"
+3. BNY — 9M/1Y price changes will fill in over ~4 months
 4. BKNG split guard — once Q2 2026 10-Q is filed (~Aug 2026), verify `eps > 25` guard auto-disables correctly
 5. Remaining 11 EPS=None tickers — any solvable without a paid data source?
+6. **EPS cache rebuild caution** — if fundamentals cache must be deleted, patch sector/marketcap from old cache before re-running (267 tickers lost data on 2026-06-01 due to rate limiting). Script: restore old cache from git, merge Sector/MarketCap/CompanyName for Unknown/null entries.
