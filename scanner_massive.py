@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 # CONFIG
 # =========================
 
-MASSIVE_API_KEY  = os.environ["MASSIVE_API_KEY"]
+MASSIVE_API_KEY  = os.environ.get("MASSIVE_API_KEY", "")
 MASSIVE_BASE     = "https://api.massive.com"
 
 DATE_STR         = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -1789,6 +1789,9 @@ def fetch_and_save_index_news(lookback_days=90):
 # =========================
 
 if __name__ == "__main__":
+
+    if not MASSIVE_API_KEY:
+        sys.exit("ERROR: MASSIVE_API_KEY environment variable is not set.")
 
     today = date.today()
     if is_market_holiday(today):
