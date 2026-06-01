@@ -533,7 +533,7 @@
     }
 
     /* Cards hidden on desktop; table hidden on mobile */
-    #sp500Cards, #nasdaqCards { display: none; }
+    #sp500Cards, #nasdaqCards, #watchlistCards { display: none; }
 
     @media (max-width: 768px) {
       .toolbar { flex-wrap: wrap; height: auto; }
@@ -555,8 +555,8 @@
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
       tr:hover td.ticker-cell { background: #081229; }
       .mobile-search-bar { display: block; }
-      #sp500Table, #nasdaqTable { display: none !important; }
-      #sp500Cards, #nasdaqCards { display: block !important; }
+      #sp500Table, #nasdaqTable, #watchlistTable { display: none !important; }
+      #sp500Cards, #nasdaqCards, #watchlistCards { display: block !important; }
     }
     @media (max-width: 960px) and (orientation: landscape) {
       header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
@@ -675,6 +675,13 @@
       background: rgba(255,255,255,0.02); border-radius: 8px;
     }
     .ticker-cell:hover::after { content: " ↗"; color: var(--electric-bright); font-size: 10px; }
+
+    .star-btn {
+      background: none; border: none; cursor: pointer;
+      color: #475569; font-size: 12px; padding: 0 0 0 5px;
+      line-height: 1; transition: color 0.15s; vertical-align: middle;
+    }
+    .star-btn:hover, .star-btn.starred { color: #f59e0b; }
   </style>
 </head>
 
@@ -691,6 +698,7 @@
       <nav class="tab-nav">
         <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
         <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
+        <button class="tab-btn" onclick="show('watchlist', this)">★ Watchlist</button>
         <button class="tab-btn" onclick="show('readme', this)">README</button>
         <button class="tab-btn" onclick="show('membership', this)">MEMBERSHIP CHANGE</button>
       </nav>
@@ -716,8 +724,9 @@
   <div class="mobile-drawer" id="mobileDrawer">
     <button onclick="show('sp500', document.querySelectorAll('.tab-btn')[0]); toggleMenu();">S&P 500</button>
     <button onclick="show('nasdaq', document.querySelectorAll('.tab-btn')[1]); toggleMenu();">Nasdaq 100</button>
-    <button onclick="show('readme', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">README</button>
-    <button onclick="show('membership', document.querySelectorAll('.tab-btn')[3]); toggleMenu();">MEMBERSHIP CHANGE</button>
+    <button onclick="show('watchlist', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">★ Watchlist</button>
+    <button onclick="show('readme', document.querySelectorAll('.tab-btn')[3]); toggleMenu();">README</button>
+    <button onclick="show('membership', document.querySelectorAll('.tab-btn')[4]); toggleMenu();">MEMBERSHIP CHANGE</button>
     <a href="dashboard.html">Dashboard</a>
     <button class="m-danger" id="drawerLogout">↪ Sign out</button>
   </div>
@@ -770,6 +779,14 @@
     <div id="nasdaq" class="section">
       <table id="nasdaqTable"></table>
       <div id="nasdaqCards"></div>
+    </div>
+
+    <div id="watchlist" class="section">
+      <table id="watchlistTable"></table>
+      <div id="watchlistCards"></div>
+      <div id="watchlistEmpty" style="padding:60px 20px;text-align:center;color:#64748b;font-size:14px;">
+        No tickers saved yet — click ☆ on any row to add to your watchlist.
+      </div>
     </div>
 
     <div id="readme" class="section">
@@ -870,6 +887,12 @@
     let loadedDate    = "";
     let searchQuery   = "";
 
+    /* ── WATCHLIST ── */
+    let watchlist = new Set(JSON.parse(localStorage.getItem("baizora_watchlist") || "[]"));
+    function saveWatchlist() {
+      localStorage.setItem("baizora_watchlist", JSON.stringify([...watchlist]));
+    }
+
     /* ── DOM ── */
     const statusDot  = document.getElementById("statusDot");
     const statusText = document.getElementById("statusText");
@@ -956,10 +979,14 @@
 
     /* ── STATUS ── */
     function updateStatus() {
-      const rows  = activeTab === "sp500" ? spRows.length : ndRows.length;
-      const label = activeTab === "sp500" ? "S&P 500" : "Nasdaq 100";
       statusText.textContent = loadedDate;
-      rowCount.textContent = `${rows} SYMBOLS · ${label}`;
+      if (activeTab === "watchlist") {
+        rowCount.textContent = `${watchlist.size} SAVED`;
+      } else {
+        const rows  = activeTab === "sp500" ? spRows.length : ndRows.length;
+        const label = activeTab === "sp500" ? "S&P 500" : "Nasdaq 100";
+        rowCount.textContent = `${rows} SYMBOLS · ${label}`;
+      }
     }
 
     /* ── TAB ── */
@@ -1115,7 +1142,7 @@
             r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
           );
           return `<tr>
-            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
             <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
@@ -1150,7 +1177,7 @@
           );
           const peVs = r.PE_vs_Sector;
           return `<tr>
-            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
             <td class="${colorClass(0)}">${r.PE != null ? r.PE.toFixed(1) : "—"}</td>
@@ -1249,7 +1276,7 @@
           <td class="${colorClass(vma - 1)}">${vma}</td>` : "";
 
         return `<tr>
-          <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+          <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
           <td class="spark-cell">${sparkSVG}</td>
           <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
           <td class="neutral">${r.VolumeM ?? "—"}</td>
@@ -1322,6 +1349,7 @@
           <div class="card-header">
             <span class="card-ticker">${r.Ticker}</span>
             ${spark}
+            <button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>
           </div>
           <div class="card-price-row">
             <span class="card-price">$${r.Price?.toFixed(2) ?? "—"}</span>
@@ -1340,10 +1368,15 @@
       const filter = r => !searchQuery || r.Ticker.includes(searchQuery);
       const sp = spRows.filter(filter);
       const nd = ndRows.filter(filter);
-      document.getElementById("sp500Table").innerHTML  = buildTable(sp, w);
-      document.getElementById("nasdaqTable").innerHTML = buildTable(nd, w);
-      document.getElementById("sp500Cards").innerHTML  = buildCards(sp, w);
-      document.getElementById("nasdaqCards").innerHTML = buildCards(nd, w);
+      const wl = allRows.filter(r => watchlist.has(r.Ticker) && filter(r));
+      document.getElementById("sp500Table").innerHTML     = buildTable(sp, w);
+      document.getElementById("nasdaqTable").innerHTML    = buildTable(nd, w);
+      document.getElementById("sp500Cards").innerHTML     = buildCards(sp, w);
+      document.getElementById("nasdaqCards").innerHTML    = buildCards(nd, w);
+      document.getElementById("watchlistTable").innerHTML = buildTable(wl, w);
+      document.getElementById("watchlistCards").innerHTML = buildCards(wl, w);
+      document.getElementById("watchlistEmpty").style.display = wl.length === 0 ? "block" : "none";
+      updateStatus();
     }
 
     /* ── SEARCH ── */
@@ -1663,6 +1696,14 @@
     });
     document.addEventListener("keydown", e => { if (e.key === "Escape") closeTickerModal(); });
     document.getElementById("tableArea").addEventListener("click", e => {
+      const starBtn = e.target.closest(".star-btn");
+      if (starBtn) {
+        const ticker = starBtn.dataset.watch;
+        if (watchlist.has(ticker)) watchlist.delete(ticker); else watchlist.add(ticker);
+        saveWatchlist();
+        render();
+        return;
+      }
       const td = e.target.closest("td.ticker-cell");
       if (td) openTickerModal(td.dataset.ticker);
     });
