@@ -1598,18 +1598,36 @@
       document.getElementById("modalTicker").textContent = ticker;
       document.getElementById("modalName").textContent   = r.CompanyName || "";
       document.getElementById("modalPrice").textContent  = r.Price != null ? "$" + r.Price.toFixed(2) : "";
+      const pc1 = r.PriceChange1D;
+      const pc1El = document.getElementById("modalPriceChange");
+      if (pc1 != null) {
+        pc1El.textContent = (pc1 >= 0 ? "+" : "") + pc1 + "%";
+        pc1El.style.color = pc1 >= 0 ? "#22c55e" : "#ef4444";
+      } else {
+        pc1El.textContent = "";
+      }
+      const fmtChg = v => v != null
+        ? [(v >= 0 ? "+" : "") + v + "%", v >= 0 ? "#22c55e" : "#ef4444"]
+        : ["—", "#94a3b8"];
+      const [m1v, m1c] = fmtChg(r["1MPriceChange"]);
+      const [m3v, m3c] = fmtChg(r["3MPriceChange"]);
+      const [y1v, y1c] = fmtChg(r["1YPriceChange"]);
       const stats = [
         ["市盈率",     r.PE     != null ? r.PE.toFixed(1)                              : "—"],
         ["每股收益",   r.EPS    != null ? r.EPS.toFixed(2)                             : "—"],
+        ["成交量",     r.VolumeM != null ? r.VolumeM.toFixed(1)+"M"                   : "—"],
         ["贝塔",       r.Beta   != null ? r.Beta.toFixed(2)                            : "—"],
         ["30日波动率", r.Volatility30D != null ? (r.Volatility30D*100).toFixed(1)+"%" : "—"],
         ["市值",       r.MarketCap != null ? "$"+r.MarketCap.toFixed(1)+"B"            : "—"],
         ["行业",       r.Sector || "—"],
+        ["1月涨幅",    m1v, m1c],
+        ["3月涨幅",    m3v, m3c],
+        ["1年涨幅",    y1v, y1c],
       ];
-      document.getElementById("modalStats").innerHTML = stats.map(([k,v]) =>
+      document.getElementById("modalStats").innerHTML = stats.map(([k,v,c]) =>
         `<div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 14px;">
           <div style="color:#64748b;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:.06em;">${k}</div>
-          <div style="color:#fff;font-size:14px;margin-top:4px;">${v}</div>
+          <div style="color:${c||'#fff'};font-size:14px;margin-top:4px;">${v}</div>
         </div>`
       ).join("");
       document.getElementById("tickerModal").style.display = "flex";
@@ -1657,6 +1675,7 @@
       <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
         <span id="modalTicker" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:#fff;letter-spacing:.05em;"></span>
         <span id="modalPrice"  style="font-size:18px;color:#60a5fa;font-weight:600;"></span>
+        <span id="modalPriceChange" style="font-size:15px;font-weight:600;"></span>
       </div>
       <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
       <canvas id="candleCanvas"></canvas>

@@ -1042,10 +1042,10 @@ def _get_eps_from_edgar(ticker):
         us_gaap = resp.json().get("facts", {}).get("us-gaap", {})
 
         EPS_FIELDS = (
-            "EarningsPerShareBasic",
             "EarningsPerShareDiluted",
-            "IncomeLossFromContinuingOperationsPerBasicShare",
+            "EarningsPerShareBasic",
             "IncomeLossFromContinuingOperationsPerDilutedShare",
+            "IncomeLossFromContinuingOperationsPerBasicShare",
         )
         # Max age for annual fallback — stale data is worse than None
         min_annual_end = str(date.today().year - 2)
