@@ -834,7 +834,7 @@ def fetch_grouped_bars(date_str, universe_set):
 def fetch_benchmark_bars(ticker, from_date, to_date):
     """Fetch daily close prices for a benchmark ticker (e.g. SPY) not in the universe cache."""
     path = f"/v2/aggs/ticker/{ticker}/range/1/day/{from_date}/{to_date}"
-    data = _massive_get(path, params={"adjusted": "true", "sort": "asc", "limit": 50000})
+    data = _massive_get(path, params={"adjusted": "true", "sort": "asc", "limit": 50000}, retries=8)
     if not data or not data.get("results"):
         return None
     rows = [
@@ -1320,8 +1320,10 @@ def scan():
         if spy_df is not None and len(spy_df) >= 60:
             spy_returns = spy_df["Close"].pct_change().dropna()
             print(f"SPY loaded: {len(spy_returns)} daily returns for beta calculation")
-    except Exception:
-        print("SPY fetch failed — beta will be None")
+        else:
+            print("SPY fetch returned no data — beta will be None")
+    except Exception as e:
+        print(f"SPY fetch failed ({e}) — beta will be None")
 
     for i, ticker in enumerate(tickers, 1):
         try:
