@@ -89,8 +89,9 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 ## GitHub Actions Schedule
 
-- **Weekdays 8:30 PM UTC:** incremental scan
-- **Saturday midnight UTC:** same incremental scan (wipe step removed — wipe risked broken dashboard all weekend if rebuild failed)
+- **Weekdays 9:30 PM UTC (5:30 PM ET):** incremental scan + daily videos
+- Saturday midnight run removed (absorbed into weekday schedule)
+- **Requires Polygon paid tier** for same-day EOD data; free tier data not ready until 9–10 PM ET
 
 ---
 
@@ -130,11 +131,32 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 ---
 
+## Billing / Subscriptions (as of 2026-06-02)
+
+- **Subscriptions temporarily paused** — `billing.html` and `billing_cn.html` redirect to pricing page with maintenance banner
+- To re-enable: remove `<script>window.location.replace(...)` from both billing files
+- Waiting on Polygon data tier upgrade (contacting Polygon for allowance discussion)
+- Once upgraded to Polygon Starter+, data is available ~4:30–5:00 PM ET; cron at 9:30 PM UTC gives 90-min buffer
+
+---
+
+## OHLCV Data Timing Issue (fixed 2026-06-02)
+
+- **Root cause:** Polygon free tier EOD grouped data is only available 9–10 PM ET; scanner was running at 4:30 PM ET → empty `{}` cache files written for current day → fallback to prior day's data
+- **Fix:** Cron shifted to 9:30 PM UTC (5:30 PM ET). Requires paid Polygon tier to reliably get same-day data.
+- `data/ohlcv_cache/2026-06-01.json` is `{}` — will be auto-retried next scan (files <5 bytes treated as missing)
+- `scanner_massive.py` line 17: changed `os.environ["MASSIVE_API_KEY"]` → `os.environ.get("MASSIVE_API_KEY", "")` so module can be imported without the key (holiday check); fast-fail added in `__main__`
+- `scanner.yml`: `MASSIVE_API_KEY` moved to workflow-level `env` block so all steps can import the module
+
+---
+
 ## Next Time: What to Check
 
-1. Check GitHub Actions run succeeded (no rate-limit failures overnight)
-2. Run `data quality warnings` from latest scanner log — check for "SPY fetch returned no data"
-3. BNY — 9M/1Y price changes will fill in over ~4 months
-4. BKNG split guard — once Q2 2026 10-Q is filed (~Aug 2026), verify `eps > 25` guard auto-disables correctly
-5. Remaining 11 EPS=None tickers — any solvable without a paid data source?
-6. **EPS cache rebuild caution** — if fundamentals cache must be deleted, patch sector/marketcap from old cache before re-running (267 tickers lost data on 2026-06-01 due to rate limiting). Script: restore old cache from git, merge Sector/MarketCap/CompanyName for Unknown/null entries.
+1. Confirm Polygon tier upgrade complete — run scanner manually after 9 PM ET, verify `latest.json` date matches today
+2. Re-enable billing: remove redirect from `billing.html` and `billing_cn.html`
+3. Check GitHub Actions run succeeded (no rate-limit failures overnight)
+4. Run `data quality warnings` from latest scanner log — check for "SPY fetch returned no data"
+5. BNY — 9M/1Y price changes will fill in over ~4 months
+6. BKNG split guard — once Q2 2026 10-Q is filed (~Aug 2026), verify `eps > 25` guard auto-disables correctly
+7. Remaining 11 EPS=None tickers — any solvable without a paid data source?
+8. **EPS cache rebuild caution** — if fundamentals cache must be deleted, patch sector/marketcap from old cache before re-running (267 tickers lost data on 2026-06-01 due to rate limiting). Script: restore old cache from git, merge Sector/MarketCap/CompanyName for Unknown/null entries.
