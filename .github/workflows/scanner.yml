@@ -2,8 +2,7 @@ name: Baizora Scanner
 
 on:
   schedule:
-    - cron: "30 20 * * 1-5"   # weekdays 8:30 PM UTC – scan + daily videos
-    - cron: "0 0 * * 6"        # Saturday midnight UTC – incremental scan (no wipe; empty files auto-retried)
+    - cron: "30 2 * * 2-6"    # Tue–Sat 2:30 AM UTC = 10:30 PM ET Mon–Fri (after free-tier EOD data is ready)
   workflow_dispatch:
 
 permissions:
