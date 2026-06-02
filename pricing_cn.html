@@ -555,6 +555,14 @@
     <a href="dashboard_cn.html" id="drawerDashLink" style="display:none;">个人主页</a>
   </div>
 
+  <div id="maintenanceNotice" style="display:none;background:linear-gradient(90deg,#7c2d12,#92400e,#7c2d12);color:#fcd34d;text-align:center;padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;">
+    平台正在升级数据基础设施，订阅功能即将恢复，敬请期待。
+  </div>
+  <script>
+    if (new URLSearchParams(window.location.search).get('notice') === 'maintenance')
+      document.getElementById('maintenanceNotice').style.display = 'block';
+  </script>
+
   <!-- Main -->
   <div class="container">
 

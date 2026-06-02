@@ -389,6 +389,14 @@
     <a href="dashboard.html" id="drawerDashLink" style="display:none;">Dashboard</a>
   </div>
 
+  <div id="maintenanceNotice" style="display:none;background:linear-gradient(90deg,#7c2d12,#92400e,#7c2d12);color:#fcd34d;text-align:center;padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;">
+    We are currently upgrading our data infrastructure. Subscriptions will reopen shortly — check back soon.
+  </div>
+  <script>
+    if (new URLSearchParams(window.location.search).get('notice') === 'maintenance')
+      document.getElementById('maintenanceNotice').style.display = 'block';
+  </script>
+
   <div class="container">
 
     <div class="eyebrow">◈ &nbsp; Pricing</div>
