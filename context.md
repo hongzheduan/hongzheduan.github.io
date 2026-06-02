@@ -89,9 +89,9 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 ## GitHub Actions Schedule
 
-- **Weekdays 9:30 PM UTC (5:30 PM ET):** incremental scan + daily videos
-- Saturday midnight run removed (absorbed into weekday schedule)
-- **Requires Polygon paid tier** for same-day EOD data; free tier data not ready until 9–10 PM ET
+- **PAUSED as of 2026-06-02** — cron commented out in scanner.yml; video steps also disabled
+- To re-enable: uncomment cron line and video steps in scanner.yml
+- Previously: weekdays 9:30 PM UTC (5:30 PM ET), requires Polygon paid tier for same-day EOD data
 
 ---
 
@@ -134,9 +134,15 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 ## Billing / Subscriptions (as of 2026-06-02)
 
 - **Subscriptions temporarily paused** — `billing.html` and `billing_cn.html` redirect to pricing page with maintenance banner
-- To re-enable: remove `<script>window.location.replace(...)` from both billing files
-- Waiting on Polygon data tier upgrade (contacting Polygon for allowance discussion)
-- Once upgraded to Polygon Starter+, data is available ~4:30–5:00 PM ET; cron at 9:30 PM UTC gives 90-min buffer
+- To re-enable: remove `<script>window.location.replace(...)` from both billing files; also need a confirmed data provider first
+
+## Data Provider Status (as of 2026-06-02)
+
+- **Massive:** $2000/mo commercial license (50% discount still = $1000/mo) — too expensive with no paying customers yet; **ruled out**
+- **AlphaVantage:** $500/mo with 50% startup discount (~$250/mo) — potential candidate, inquiry in progress
+- **Tiingo / FMP / EODHD:** ~$10–80/mo — worth exploring
+- **yfinance:** free, ToS-gray, already have `scanner_yfinance.py` — viable short-term bridge (do NOT re-enable billing while on yfinance)
+- **Scanner paused** until a cost-appropriate provider is confirmed; do NOT re-enable billing until then
 
 ---
 
@@ -152,11 +158,11 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 ## Next Time: What to Check
 
-1. Confirm Polygon tier upgrade complete — run scanner manually after 9 PM ET, verify `latest.json` date matches today
-2. Re-enable billing: remove redirect from `billing.html` and `billing_cn.html`
-3. Check GitHub Actions run succeeded (no rate-limit failures overnight)
-4. Run `data quality warnings` from latest scanner log — check for "SPY fetch returned no data"
-5. BNY — 9M/1Y price changes will fill in over ~4 months
+1. **Data provider decision** — confirm AlphaVantage or another provider; adapt scanner accordingly
+2. **Re-enable scanner:** uncomment cron + video steps in `scanner.yml`
+3. **Re-enable billing:** remove redirect from `billing.html` and `billing_cn.html` — only after data provider confirmed
+4. If switching to yfinance temporarily: use `scanner_yfinance.py` as reference; do NOT re-enable billing while on yfinance
+5. BNY — 9M/1Y price changes will fill in over ~4 months once scanning resumes
 6. BKNG split guard — once Q2 2026 10-Q is filed (~Aug 2026), verify `eps > 25` guard auto-disables correctly
 7. Remaining 11 EPS=None tickers — any solvable without a paid data source?
 8. **EPS cache rebuild caution** — if fundamentals cache must be deleted, patch sector/marketcap from old cache before re-running (267 tickers lost data on 2026-06-01 due to rate limiting). Script: restore old cache from git, merge Sector/MarketCap/CompanyName for Unknown/null entries.

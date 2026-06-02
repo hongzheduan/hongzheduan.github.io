@@ -1,8 +1,9 @@
 name: Baizora Scanner
 
 on:
-  schedule:
-    - cron: "30 21 * * 1-5"   # weekdays 9:30 PM UTC = 5:30 PM ET (90 min after market close, requires paid Polygon tier)
+  # schedule:
+  #   - cron: "30 21 * * 1-5"   # weekdays 9:30 PM UTC = 5:30 PM ET (90 min after market close, requires paid Polygon tier)
+  # SCANNING PAUSED 2026-06-02 — Massive license too costly ($1000+/mo), shopping for new data provider
   workflow_dispatch:
 
 permissions:
@@ -81,49 +82,8 @@ jobs:
             git push origin HEAD:main
           fi
 
-      - name: Install video dependencies
-        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True'
-        run: |
-          pip install -r video/requirements.txt
-          sudo apt-get install -y fonts-noto-cjk
-
-      - name: Select daily video types
-        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True'
-        run: |
-          DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
-          if [ "$DOW" = "1" ]; then
-            echo "VIDEO_TYPES=volume_spikes volume_spikes_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "2" ]; then
-            echo "VIDEO_TYPES=best_performer best_performer_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "3" ]; then
-            echo "VIDEO_TYPES=6m_breakout 6m_breakout_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "4" ]; then
-            echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "5" ]; then
-            echo "VIDEO_TYPES=index_spotlight index_spotlight_cn" >> $GITHUB_ENV
-          else
-            echo "VIDEO_TYPES=" >> $GITHUB_ENV
-          fi
-
-      - name: Generate daily videos
-        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True' && env.VIDEO_TYPES != ''
-        run: |
-          for type in $VIDEO_TYPES; do
-            python video/generate_video.py --type $type
-          done
-
-      - name: Upload daily videos to YouTube
-        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True' && env.VIDEO_TYPES != ''
-        env:
-          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
-          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
-          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
-        run: |
-          DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
-          for type in $VIDEO_TYPES; do
-            if [ -f "video/${type}.mp4" ]; then
-              python video/upload_youtube.py --file video/${type}.mp4 --type $type --date $DATE
-            else
-              echo "Skipping $type — no qualifying stocks today"
-            fi
-          done
+      # VIDEO STEPS PAUSED 2026-06-02 — no scanner data, re-enable when new data provider confirmed
+      # - name: Install video dependencies
+      # - name: Select daily video types
+      # - name: Generate daily videos
+      # - name: Upload daily videos to YouTube
