@@ -1,3 +1,5 @@
+# BACKUP — not active. Switch back by updating scanner.yml to run this file.
+# Requires MASSIVE_API_KEY secret. Paused 2026-06-02 (license cost).
 import pandas as pd
 import numpy as np
 import time

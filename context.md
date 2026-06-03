@@ -1,8 +1,9 @@
 # Baizora Scanner - Project Context
 
-## Status: Massive API migration COMPLETE and stable
+## Status: Temporarily on yfinance (2026-06-02)
 
-`scanner_massive.py` is live in production. `scanner_yfinance.py` kept as reference only.
+`scanner_yfinance.py` is live in production (free, bridge while shopping data providers).
+`scanner_massive.py` kept as backup — restore by changing `scanner.yml` run command + adding `MASSIVE_API_KEY` secret.
 
 ---
 
