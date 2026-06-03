@@ -904,8 +904,8 @@
     const toolbar    = document.getElementById("toolbar");
 
     /* ── AUTH ── */
+    // TEMPORARILY FREE — dashboard open to all visitors; re-enable gate when billing resumes
     onAuthStateChanged(auth, (user) => {
-      if (!user) { window.location.href = "login.html"; return; }
       loadDashboard();
     });
 
