@@ -91,9 +91,8 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 ## GitHub Actions Schedule
 
-- **PAUSED as of 2026-06-02** — cron commented out in scanner.yml; video steps also disabled
-- To re-enable: uncomment cron line and video steps in scanner.yml
-- Previously: weekdays 9:30 PM UTC (5:30 PM ET), requires Polygon paid tier for same-day EOD data
+- **Weekdays 9:30 PM UTC (5:30 PM ET):** scanner + daily videos (re-enabled after switching to yfinance)
+- Videos skipped on weekends and holidays
 
 ---
 
