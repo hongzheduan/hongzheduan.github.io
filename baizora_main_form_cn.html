@@ -914,12 +914,16 @@
     const toolbar    = document.getElementById("toolbar");
 
     /* ── AUTH ── */
-    // FREE MODE: login required, no subscription check.
-    // TO RESTORE PAID GATE: replace loadDashboard() call with a Stripe subscription
-    // status check (e.g. call /api/subscription, verify status === "active"),
-    // then redirect to billing_cn.html if not subscribed.
     onAuthStateChanged(auth, (user) => {
       if (!user) { window.location.href = "login_cn.html"; return; }
+      // FREE MODE: subscription check disabled — uncomment block below to re-enable paid gate
+      // user.getIdToken().then(token =>
+      //   fetch("https://us-central1-baizora.cloudfunctions.net/api/subscription",
+      //         { headers: { Authorization: "Bearer " + token } })
+      //   .then(r => r.json())
+      //   .then(d => { if (d.status !== "active") window.location.href = "billing_cn.html"; else loadDashboard(); })
+      //   .catch(() => loadDashboard())
+      // );
       loadDashboard();
     });
 
