@@ -431,9 +431,9 @@ def scan():
 
                 try:
                     try:
-                        df = data[ticker][["Close", "Volume"]].dropna()
+                        df = data[ticker][["Open", "High", "Low", "Close", "Volume"]].dropna(subset=["Close", "Volume"])
                     except KeyError:
-                        df = data[["Close", "Volume"]].dropna()
+                        df = data[["Open", "High", "Low", "Close", "Volume"]].dropna(subset=["Close", "Volume"])
 
                     df = df[(df["Volume"] >= 10000) & (df["Close"] > 0)]
 
