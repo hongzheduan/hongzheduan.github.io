@@ -667,6 +667,9 @@
       color: #64748b; font-size: 20px; cursor: pointer; line-height: 1;
     }
     #modalClose:hover { color: #fff; }
+    #candleTimeframes { display: flex; gap: 6px; margin-bottom: 8px; }
+    .tf-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
+    .tf-btn.active, .tf-btn:hover { background: rgba(59,130,246,0.2); border-color: #3b82f6; color: #60a5fa; }
     #candleCanvas { width: 100%; height: 280px; display: block; border-radius: 8px; }
     #candleNoData {
       width: 100%; height: 280px; display: none;
@@ -1671,19 +1674,38 @@
       ).join("");
       document.getElementById("tickerModal").style.display = "flex";
       document.body.style.overflow = "hidden";
+
+      // reset timeframe to 3M on each open
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "63"));
+
       requestAnimationFrame(() => {
-        const candles = candleData?.data?.[ticker];
-        const dates   = candleData?.dates;
-        const canvas  = document.getElementById("candleCanvas");
-        const noData  = document.getElementById("candleNoData");
-        if (candles && candles.length > 0 && dates) {
-          canvas.style.display = "block"; noData.style.display = "none";
-          renderCandleChart(canvas, candles, dates.slice(-candles.length));
-        } else {
-          canvas.style.display = "none"; noData.style.display = "flex";
-        }
+        _renderModalChart(ticker, 63);
       });
     }
+
+    let _modalTicker = null;
+    function _renderModalChart(ticker, tf) {
+      _modalTicker = ticker;
+      const candles = candleData?.data?.[ticker];
+      const dates   = candleData?.dates;
+      const canvas  = document.getElementById("candleCanvas");
+      const noData  = document.getElementById("candleNoData");
+      if (candles && candles.length > 0 && dates) {
+        const slice = Math.min(tf, candles.length);
+        canvas.style.display = "block"; noData.style.display = "none";
+        renderCandleChart(canvas, candles.slice(-slice), dates.slice(-slice));
+      } else {
+        canvas.style.display = "none"; noData.style.display = "flex";
+      }
+    }
+
+    document.getElementById("candleTimeframes").addEventListener("click", e => {
+      const btn = e.target.closest(".tf-btn");
+      if (!btn || !_modalTicker) return;
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      _renderModalChart(_modalTicker, parseInt(btn.dataset.tf));
+    });
 
     function closeTickerModal() {
       document.getElementById("tickerModal").style.display = "none";
@@ -1725,6 +1747,11 @@
         <span id="modalPriceChange" style="font-size:15px;font-weight:600;"></span>
       </div>
       <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
+      <div id="candleTimeframes">
+        <button class="tf-btn active" data-tf="63">3M</button>
+        <button class="tf-btn" data-tf="126">6M</button>
+        <button class="tf-btn" data-tf="252">1Y</button>
+      </div>
       <canvas id="candleCanvas"></canvas>
       <div id="candleNoData">No chart data available yet</div>
       <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:18px;"></div>
