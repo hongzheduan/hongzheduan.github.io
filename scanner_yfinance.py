@@ -312,7 +312,7 @@ def get_fundamentals(ticker):
             "MarketCap": info.get("marketCap"),
             "EPS": info.get("trailingEps"),
             "Sector": info.get("sector"),
-            "Volatility30D": info.get("beta"),
+            "Volatility30D": None,  # computed from price data in scan()
             "CompanyName": info.get("longName") or info.get("shortName"),
         }
 
@@ -388,10 +388,28 @@ def scan():
 
     tickers, sp_set, nd_set = get_tickers()
     results = []
-    sector_pe_map = {}
-    sector_counts = {}
+    candles_out = {}
+    trading_days_list = []
+    sector_mktcap_sum = {}
+    sector_earnings_sum = {}
 
     print(f"Total tickers: {len(tickers)}")
+
+    # Fetch SPY for beta calculation
+    spy_returns = None
+    try:
+        spy_raw = yf.download("SPY", period="2y", progress=False)
+        try:
+            spy_closes = spy_raw["Close"]["SPY"]
+        except (KeyError, TypeError):
+            spy_closes = spy_raw["Close"]
+        if len(spy_closes) >= 60:
+            spy_returns = spy_closes.pct_change().dropna()
+            print(f"SPY loaded: {len(spy_returns)} daily returns for beta calculation")
+        else:
+            print("SPY fetch returned no data — beta will be None")
+    except Exception as e:
+        print(f"SPY fetch failed ({e}) — beta will be None")
 
     batch_size = 50
     sleep_time = 0.15
@@ -473,13 +491,13 @@ def scan():
 
                     sector = fund["Sector"]
                     pe = fund["PE"]
+                    market_cap_raw = fund["MarketCap"]
 
-                    if sector and pe:
-                        sector_pe_map.setdefault(sector, 0)
-                        sector_counts.setdefault(sector, 0)
-
-                        sector_pe_map[sector] += pe
-                        sector_counts[sector] += 1
+                    if sector and pe and market_cap_raw and market_cap_raw > 0:
+                        sector_mktcap_sum.setdefault(sector, 0.0)
+                        sector_earnings_sum.setdefault(sector, 0.0)
+                        sector_mktcap_sum[sector] += market_cap_raw
+                        sector_earnings_sum[sector] += market_cap_raw / pe
 
                     # =========================
                     # FLAGS
@@ -506,6 +524,49 @@ def scan():
                     except Exception:
                         spark_6m = None
                         spark_1y = None
+
+                    # =========================
+                    # BETA & VOLATILITY
+                    # =========================
+                    beta = None
+                    vol_30d = None
+                    try:
+                        stock_ret = df["Close"].pct_change().dropna()
+                        if len(stock_ret) >= 20:
+                            vol_30d = round(float(stock_ret.iloc[-30:].std() * np.sqrt(252)), 4)
+                        if spy_returns is not None and len(stock_ret) >= 60:
+                            n = min(252, len(stock_ret), len(spy_returns))
+                            s = stock_ret.iloc[-n:].values
+                            m = spy_returns.iloc[-n:].values
+                            cov = np.cov(s, m)
+                            if cov[1, 1] != 0:
+                                beta = round(cov[0, 1] / cov[1, 1], 3)
+                    except Exception:
+                        pass
+
+                    # =========================
+                    # CANDLE DATA (1Y)
+                    # =========================
+                    try:
+                        candle_rows = df.tail(252)
+                        candles = []
+                        for _, row in candle_rows.iterrows():
+                            o = row.get("Open") if "Open" in row else None
+                            h = row.get("High") if "High" in row else None
+                            l = row.get("Low")  if "Low"  in row else None
+                            c = row["Close"]
+                            if all(v is not None and pd.notna(v) for v in [o, h, l, c]):
+                                candles.append([round(float(o),2), round(float(h),2), round(float(l),2), round(float(c),2)])
+                            else:
+                                candles.append([round(float(c),2), round(float(c),2), round(float(c),2), round(float(c),2)])
+                        if candles:
+                            candles_out[ticker] = candles
+                    except Exception:
+                        pass
+
+                    # collect trading day strings (first successful ticker sets the list)
+                    if not trading_days_list and len(df) > 0:
+                        trading_days_list = [d.strftime("%Y-%m-%d") for d in df.index[-252:]]
 
                     # =========================
                     # SCORES (per-stock)
@@ -564,7 +625,8 @@ def scan():
                         "MarketCap": fund["MarketCap"],
                         "EPS": fund["EPS"],
                         "Sector": fund["Sector"],
-                        "Volatility30D": fund["Volatility30D"],
+                        "Beta": beta,
+                        "Volatility30D": vol_30d,
                         "CompanyName": fund["CompanyName"],
                         "Spark6M": spark_6m,
                         "Spark1Y": spark_1y,
@@ -586,9 +648,9 @@ def scan():
         time.sleep(sleep_time)
 
     sector_avg_pe = {
-        s: sector_pe_map[s] / sector_counts[s]
-        for s in sector_pe_map
-        if sector_counts[s] > 0
+        s: sector_mktcap_sum[s] / sector_earnings_sum[s]
+        for s in sector_mktcap_sum
+        if sector_earnings_sum.get(s, 0) > 0
     }
 
     df = pd.DataFrame(results)
@@ -628,7 +690,7 @@ def scan():
     if "VolumeChange1D" in df.columns:
         df = df.sort_values("VolumeChange1D", ascending=False)
 
-    return df
+    return df, candles_out, trading_days_list
 
 
 # =========================
@@ -652,6 +714,23 @@ def export(df):
         json.dump(payload, f, indent=2)
 
     print("Export complete:", len(df))
+
+# =========================
+# CANDLES EXPORT
+# =========================
+
+def export_candles(candles_out, trading_days_list):
+    dates = list(trading_days_list[-252:])
+    payload = {
+        "date":  DATE_STR,
+        "dates": dates,
+        "data":  candles_out,
+    }
+    path = os.path.join(DATA_DIR, "candles.json")
+    with open(path, "w") as f:
+        json.dump(payload, f)
+    print(f"Candles export: {len(candles_out)} tickers, {len(dates)} dates")
+
 
 # =========================
 # NYSE HOLIDAY DETECTION
@@ -849,14 +928,17 @@ if __name__ == "__main__":
     cleanup_old_archives()
 
     # 4. Run scan (reads freshly-updated txt files)
-    df = scan()
+    df, candles_out, trading_days_list = scan()
 
     print(df.head(10))
 
     # 5. Export results
     export(df)
 
-    # 6. Fetch index membership news
+    # 6. Export candle data
+    export_candles(candles_out, trading_days_list)
+
+    # 7. Fetch index membership news
     fetch_and_save_index_news()
 
     print("Done")

@@ -11,7 +11,6 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  MASSIVE_API_KEY: ${{ secrets.MASSIVE_API_KEY }}
 
 jobs:
   run-scanner:
@@ -34,24 +33,12 @@ jobs:
 
       - name: Check market holiday
         run: |
-          IS_HOLIDAY=$(python -c "from scanner_massive import is_market_holiday; print(is_market_holiday())")
+          IS_HOLIDAY=$(python -c "from scanner_yfinance import is_market_holiday; print(is_market_holiday())")
           echo "IS_HOLIDAY=$IS_HOLIDAY" >> $GITHUB_ENV
-          DOW=$(date +%u)   # 1=Mon … 5=Fri, 6=Sat, 7=Sun
-          if [ "$DOW" = "6" ] || [ "$DOW" = "7" ]; then
-            echo "IS_WEEKEND=True" >> $GITHUB_ENV
-            echo "Weekend run — fundamentals refresh only, no videos."
-          else
-            echo "IS_WEEKEND=False" >> $GITHUB_ENV
-          fi
 
       - name: Run scanner
         if: env.IS_HOLIDAY != 'True'
-        run: python scanner_massive.py
-
-      - name: Generate stock pages
-        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True'
-        continue-on-error: true
-        run: python generate_stock_pages.py NVDA GOOGL AAPL MSFT AMZN AVGO TSLA META WMT MU
+        run: python scanner_yfinance.py
 
       - name: Commit updated latest.json
         if: env.IS_HOLIDAY != 'True'
@@ -66,13 +53,10 @@ jobs:
           git stash pop
 
           git add data/latest.json || echo "data/latest.json not found, skipping"
-          git add stocks/ 2>/dev/null || echo "No stock pages found, skipping"
+          git add data/candles.json 2>/dev/null || echo "candles.json not found, skipping"
           git add data/index_changes.json 2>/dev/null || echo "data/index_changes.json not found, skipping"
           git add data/index_news.json 2>/dev/null || echo "data/index_news.json not found, skipping"
           git add data/sp500_symbols.txt data/nasdaq100_symbols.txt 2>/dev/null || echo "Symbol files not found, skipping"
-          git add data/fundamentals_cache.json 2>/dev/null || echo "fundamentals_cache.json not found, skipping"
-          git add data/candles.json 2>/dev/null || echo "candles.json not found, skipping"
-          git add data/ohlcv_cache/ 2>/dev/null || echo "No ohlcv_cache files found, skipping"
           git add archive/*.csv 2>/dev/null || echo "No archive csv files found, skipping"
 
           if git diff --cached --quiet; then
