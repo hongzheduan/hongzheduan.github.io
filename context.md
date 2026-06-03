@@ -135,7 +135,19 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 ## Billing / Subscriptions (as of 2026-06-02)
 
 - **Subscriptions temporarily paused** — `billing.html` and `billing_cn.html` redirect to pricing page with maintenance banner
-- To re-enable: remove `<script>window.location.replace(...)` from both billing files; also need a confirmed data provider first
+- To re-enable billing pages: remove `<script>window.location.replace(...)` from both billing files; also need a confirmed data provider first
+
+## Dashboard Access Mode (as of 2026-06-02)
+
+- **Current mode: FREE** — login required, no subscription check
+- Dashboard is `baizora_main_form.html` and `baizora_main_form_cn.html`
+- The subscription check code is **commented out** in both files inside `onAuthStateChanged`
+
+**To re-enable paid gate (2 edits per file):**
+1. **Uncomment** the `user.getIdToken()` fetch block in the auth section
+2. **Remove** (or comment out) the standalone `loadDashboard();` line directly below it
+
+The commented block checks `https://us-central1-baizora.cloudfunctions.net/api/subscription` and redirects to `billing.html` / `billing_cn.html` if status is not `"active"`.
 
 ## Data Provider Status (as of 2026-06-02)
 
