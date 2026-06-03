@@ -917,20 +917,32 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Probe yfinance with SPY to catch special closures not in the holiday calendar
-    # (e.g. presidential funerals, emergency closures). If the latest available
-    # data isn't today, the market was closed and there's nothing new to scan.
-    try:
-        probe = yf.download("SPY", period="5d", progress=False)
-        if probe.empty:
-            print("yfinance SPY probe returned no data — skipping scan.")
-            sys.exit(0)
-        latest_date = probe.index[-1].date()
-        if latest_date < today:
-            print(f"Latest yfinance data is {latest_date}, not {today} — special closure or data not yet available, skipping scan.")
-            sys.exit(0)
-        print(f"yfinance data confirmed for {latest_date} — proceeding.")
-    except Exception as e:
-        print(f"SPY probe failed ({e}) — proceeding anyway.")
+    # (e.g. presidential funerals, emergency closures). Retries every 5 minutes
+    # up to 4 times in case data is published shortly after the cron fires.
+    PROBE_RETRIES    = 4
+    PROBE_WAIT_SECS  = 5 * 60
+    data_confirmed   = False
+    for attempt in range(1, PROBE_RETRIES + 1):
+        try:
+            probe = yf.download("SPY", period="5d", progress=False)
+            if not probe.empty:
+                latest_date = probe.index[-1].date()
+                if latest_date >= today:
+                    print(f"yfinance data confirmed for {latest_date} — proceeding.")
+                    data_confirmed = True
+                    break
+                else:
+                    print(f"Attempt {attempt}/{PROBE_RETRIES}: latest data is {latest_date}, not {today}. Waiting {PROBE_WAIT_SECS//60} min...")
+            else:
+                print(f"Attempt {attempt}/{PROBE_RETRIES}: SPY probe returned no data. Waiting {PROBE_WAIT_SECS//60} min...")
+        except Exception as e:
+            print(f"Attempt {attempt}/{PROBE_RETRIES}: SPY probe failed ({e}). Waiting {PROBE_WAIT_SECS//60} min...")
+        if attempt < PROBE_RETRIES:
+            time.sleep(PROBE_WAIT_SECS)
+
+    if not data_confirmed:
+        print(f"Today's data not available after {PROBE_RETRIES} attempts — special closure or data delay, skipping scan.")
+        sys.exit(0)
 
     print("Running Baizora scanner...")
 
