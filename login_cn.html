@@ -532,8 +532,9 @@
         }
 
         // ── Redirect based on status ──
-        const isActive = subscriptionStatus === "active" || subscriptionStatus === "trialing";
-        window.location.href = isActive ? "dashboard_cn.html" : "billing_cn.html";
+        // FREE MODE: go straight to dashboard regardless of subscription status
+        // To restore paid gate: window.location.href = isActive ? "dashboard_cn.html" : "billing_cn.html";
+        window.location.href = "baizora_main_form_cn.html";
 
       } catch (e) {
         console.error(e);
