@@ -924,8 +924,7 @@ if __name__ == "__main__":
     # 2. Update index_changes.json (append if changed, keep full history)
     load_update_index_changes(changes_entry)
 
-    # 3. Delete archive CSVs older than 7 days
-    cleanup_old_archives()
+    # 3. (archive cleanup disabled — keep all history)
 
     # 4. Run scan (reads freshly-updated txt files)
     df, candles_out, trading_days_list = scan()

@@ -169,6 +169,13 @@ The commented block checks `https://us-central1-baizora.cloudfunctions.net/api/s
 
 ---
 
+## Scanner History Policy
+
+- **Keep all archive CSVs** — `cleanup_old_archives()` is disabled in both scanners; every daily `archive/results_YYYY-MM-DD.csv` is committed to git permanently
+- Do NOT re-enable the cleanup calls
+
+---
+
 ## Next Time: What to Check
 
 1. **Data provider decision** — confirm AlphaVantage or another provider; adapt scanner accordingly

@@ -1816,9 +1816,7 @@ if __name__ == "__main__":
     # 2. Update index_changes.json
     load_update_index_changes(changes_entry)
 
-    # 3. Delete old archives and OHLCV cache files beyond 2-year window
-    cleanup_old_archives()
-    cleanup_old_ohlcv_cache()
+    # 3. (archive + ohlcv cleanup disabled — keep all history)
 
     # 4. Run scan (builds/updates OHLCV cache, loads fundamentals cache)
     df, candles_out = scan()
