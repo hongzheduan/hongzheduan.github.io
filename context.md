@@ -214,15 +214,18 @@ Confirm a paid data provider is active before re-enabling billing. Do NOT charge
 
 ---
 
-## What Was Done 2026-06-02
+## What Was Done 2026-06-02 / 2026-06-03
 
 - Switched active scanner to `scanner_yfinance.py`; fixed to produce same output as massive scanner (Beta, Vol30D, candles, market-cap weighted sector PE)
 - Fixed candlestick chart: batch download now includes OHLCV (was Close+Volume only → all bars were flat dots)
 - Candlestick modal: added 3M/6M/1Y timeframe toggle, defaults to 3M (63 bars = readable candles)
 - Dashboard auth: login required, subscription check commented out (free mode); revert = uncomment fetch block in `onAuthStateChanged`
+- Login redirects to `dashboard.html` (not billing); scanner card unlocked for all logged-in users
 - Announcement bar updated to "Temporarily Free"
 - Archive cleanup disabled permanently — all daily CSVs kept in git
 - Data provider inquiries sent: EODHD, Tiingo, FMP, Intrinio
+- Scanner cron + video pipeline re-enabled (weekdays 9:30 PM UTC)
+- Added special market closure detection: SPY probe before scan, retries 3× every 30 min (90 min budget) before skipping
 
 ---
 
