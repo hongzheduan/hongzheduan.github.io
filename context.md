@@ -1,9 +1,10 @@
 # Baizora Scanner - Project Context
 
-## Status: Temporarily on yfinance (2026-06-02)
+## Status: Temporarily on yfinance (2026-06-02) — dashboard free to logged-in users
 
 `scanner_yfinance.py` is live in production (free, bridge while shopping data providers).
 `scanner_massive.py` kept as backup — restore by changing `scanner.yml` run command + adding `MASSIVE_API_KEY` secret.
+Scanner cron paused. Dashboard free for any logged-in user (no subscription check).
 
 ---
 
@@ -153,8 +154,11 @@ The commented block checks `https://us-central1-baizora.cloudfunctions.net/api/s
 
 - **Massive:** $2000/mo commercial license (50% discount still = $1000/mo) — too expensive with no paying customers yet; **ruled out**
 - **AlphaVantage:** $500/mo with 50% startup discount (~$250/mo) — potential candidate, inquiry in progress
-- **Tiingo / FMP / EODHD:** ~$10–80/mo — worth exploring
-- **yfinance:** free, ToS-gray, already have `scanner_yfinance.py` — viable short-term bridge (do NOT re-enable billing while on yfinance)
+- **EODHD:** inquiry sent 2026-06-02; Egor confirmed client-facing display = redistribution license (awaiting pricing)
+- **Tiingo:** inquiry sent 2026-06-02 (awaiting reply)
+- **FMP:** inquiry sent 2026-06-02 (awaiting reply)
+- **Intrinio:** inquiry sent 2026-06-02 (awaiting reply)
+- **yfinance:** currently active — free, ToS-gray, viable bridge. Do NOT re-enable billing while on yfinance.
 - **Scanner paused** until a cost-appropriate provider is confirmed; do NOT re-enable billing until then
 
 ---
@@ -176,13 +180,23 @@ The commented block checks `https://us-central1-baizora.cloudfunctions.net/api/s
 
 ---
 
+## What Was Done 2026-06-02
+
+- Switched active scanner to `scanner_yfinance.py`; fixed to produce same output as massive scanner (Beta, Vol30D, candles, market-cap weighted sector PE)
+- Fixed candlestick chart: batch download now includes OHLCV (was Close+Volume only → all bars were flat dots)
+- Candlestick modal: added 3M/6M/1Y timeframe toggle, defaults to 3M (63 bars = readable candles)
+- Dashboard auth: login required, subscription check commented out (free mode); revert = uncomment fetch block in `onAuthStateChanged`
+- Announcement bar updated to "Temporarily Free"
+- Archive cleanup disabled permanently — all daily CSVs kept in git
+- Data provider inquiries sent: EODHD, Tiingo, FMP, Intrinio
+
+---
+
 ## Next Time: What to Check
 
-1. **Data provider decision** — confirm AlphaVantage or another provider; adapt scanner accordingly
+1. **Data provider replies** — EODHD, Tiingo, FMP, Intrinio all pending; pick one and adapt scanner
 2. **Re-enable scanner:** uncomment cron + video steps in `scanner.yml`
-3. **Re-enable billing:** remove redirect from `billing.html` and `billing_cn.html` — only after data provider confirmed
-4. If switching to yfinance temporarily: use `scanner_yfinance.py` as reference; do NOT re-enable billing while on yfinance
-5. BNY — 9M/1Y price changes will fill in over ~4 months once scanning resumes
-6. BKNG split guard — once Q2 2026 10-Q is filed (~Aug 2026), verify `eps > 25` guard auto-disables correctly
-7. Remaining 11 EPS=None tickers — any solvable without a paid data source?
-8. **EPS cache rebuild caution** — if fundamentals cache must be deleted, patch sector/marketcap from old cache before re-running (267 tickers lost data on 2026-06-01 due to rate limiting). Script: restore old cache from git, merge Sector/MarketCap/CompanyName for Unknown/null entries.
+3. **Re-enable billing + paid gate:** remove redirect from `billing.html`/`billing_cn.html`; uncomment subscription fetch block in both dashboard files
+4. BKNG split guard — once Q2 2026 10-Q is filed (~Aug 2026), verify `eps > 25` guard auto-disables correctly
+5. Remaining 11 EPS=None tickers — any solvable without a paid data source?
+6. **EPS cache rebuild caution** — if fundamentals cache must be deleted, patch sector/marketcap from old cache before re-running
