@@ -916,6 +916,22 @@ if __name__ == "__main__":
         print(f"Market holiday ({today}) — skipping scan.")
         sys.exit(0)
 
+    # Probe yfinance with SPY to catch special closures not in the holiday calendar
+    # (e.g. presidential funerals, emergency closures). If the latest available
+    # data isn't today, the market was closed and there's nothing new to scan.
+    try:
+        probe = yf.download("SPY", period="5d", progress=False)
+        if probe.empty:
+            print("yfinance SPY probe returned no data — skipping scan.")
+            sys.exit(0)
+        latest_date = probe.index[-1].date()
+        if latest_date < today:
+            print(f"Latest yfinance data is {latest_date}, not {today} — special closure or data not yet available, skipping scan.")
+            sys.exit(0)
+        print(f"yfinance data confirmed for {latest_date} — proceeding.")
+    except Exception as e:
+        print(f"SPY probe failed ({e}) — proceeding anyway.")
+
     print("Running Baizora scanner...")
 
     # 1. Fetch fresh index lists and detect membership changes
