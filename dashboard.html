@@ -505,15 +505,17 @@
             : "";
           text.textContent = "Free Trial" + end;
         } else {
-          text.textContent = "No Active Subscription";
-          // Lock scanner card and show upgrade prompt
-          const scannerCard = document.querySelector('a[href="baizora_main_form.html"]');
-          if (scannerCard) {
-            scannerCard.classList.add("locked");
-            scannerCard.removeAttribute("href");
-            const tag = scannerCard.querySelector('.tool-tag');
-            if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ Please choose a plan to view'; }
-          }
+          text.textContent = "Free Access";
+          // FREE MODE: scanner open to all logged-in users — locking disabled
+          // To restore paid gate:
+          //   text.textContent = "No Active Subscription";
+          //   const scannerCard = document.querySelector('a[href="baizora_main_form.html"]');
+          //   if (scannerCard) {
+          //     scannerCard.classList.add("locked");
+          //     scannerCard.removeAttribute("href");
+          //     const tag = scannerCard.querySelector('.tool-tag');
+          //     if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ Please choose a plan to view'; }
+          //   }
         }
       } catch(e) {
         console.warn("Status fetch failed:", e.message);
