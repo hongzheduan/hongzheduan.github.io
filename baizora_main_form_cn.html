@@ -914,8 +914,9 @@
     const toolbar    = document.getElementById("toolbar");
 
     /* ── AUTH ── */
-    // TEMPORARILY FREE — dashboard open to all visitors; re-enable gate when billing resumes
+    // Free access: login required, no subscription check
     onAuthStateChanged(auth, (user) => {
+      if (!user) { window.location.href = "login_cn.html"; return; }
       loadDashboard();
     });
 
