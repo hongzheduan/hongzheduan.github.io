@@ -136,19 +136,54 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 ## Billing / Subscriptions (as of 2026-06-02)
 
 - **Subscriptions temporarily paused** — `billing.html` and `billing_cn.html` redirect to pricing page with maintenance banner
-- To re-enable billing pages: remove `<script>window.location.replace(...)` from both billing files; also need a confirmed data provider first
+- Do NOT re-enable billing until a data provider is confirmed and the paid gate is restored
 
-## Dashboard Access Mode (as of 2026-06-02)
+---
 
-- **Current mode: FREE** — login required, no subscription check
-- Dashboard is `baizora_main_form.html` and `baizora_main_form_cn.html`
-- The subscription check code is **commented out** in both files inside `onAuthStateChanged`
+## ⚠️ WHEN WE START CHARGING — Full Revert Checklist
 
-**To re-enable paid gate (2 edits per file):**
-1. **Uncomment** the `user.getIdToken()` fetch block in the auth section
-2. **Remove** (or comment out) the standalone `loadDashboard();` line directly below it
+All 6 files below were changed for free mode. Revert ALL of them together.
 
-The commented block checks `https://us-central1-baizora.cloudfunctions.net/api/subscription` and redirects to `billing.html` / `billing_cn.html` if status is not `"active"`.
+### 1. `login.html` and `login_cn.html`
+Comment out the direct redirect and uncomment the `isActive` ternary:
+```js
+// Remove this line:
+window.location.href = "dashboard.html";  // or dashboard_cn.html
+
+// Uncomment this line:
+// window.location.href = isActive ? "dashboard.html" : "billing.html";
+```
+
+### 2. `baizora_main_form.html` and `baizora_main_form_cn.html`
+Inside `onAuthStateChanged`, uncomment the subscription fetch block and remove the free `loadDashboard()` call:
+```js
+// Uncomment this block:
+// user.getIdToken().then(token =>
+//   fetch("https://us-central1-baizora.cloudfunctions.net/api/subscription", ...)
+//   .then(d => { if (d.status !== "active") window.location.href = "billing.html"; else loadDashboard(); })
+// );
+
+// Remove this line:
+loadDashboard();
+```
+
+### 3. `dashboard.html` and `dashboard_cn.html`
+Inside the `else` block (non-subscriber), restore the card-locking code:
+```js
+// Remove: text.textContent = "Free Access";  (or "免费开放中")
+// Uncomment the full locking block below it (scannerCard.classList.add("locked") etc.)
+```
+
+### 4. `billing.html` and `billing_cn.html`
+Remove the `<script>window.location.replace(...)` redirect at the top of each file.
+
+### 5. `index.html` and `index_cn.html`
+Restore the announcement bar text:
+- EN: `First 7 Days Free · Contact: support@baizora.com`
+- CN: `完全免费试用七天 · 联系我们：support@baizora.com`
+
+### 6. Scanner
+Confirm a paid data provider is active before re-enabling billing. Do NOT charge users while on yfinance data.
 
 ## Data Provider Status (as of 2026-06-02)
 
