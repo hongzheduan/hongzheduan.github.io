@@ -904,7 +904,10 @@
     const toolbar    = document.getElementById("toolbar");
 
     /* ── AUTH ── */
-    // Free access: login required, no subscription check
+    // FREE MODE: login required, no subscription check.
+    // TO RESTORE PAID GATE: replace loadDashboard() call with a Stripe subscription
+    // status check (e.g. call /api/subscription, verify status === "active"),
+    // then redirect to billing.html if not subscribed.
     onAuthStateChanged(auth, (user) => {
       if (!user) { window.location.href = "login.html"; return; }
       loadDashboard();
