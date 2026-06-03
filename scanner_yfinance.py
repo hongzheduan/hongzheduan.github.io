@@ -919,8 +919,8 @@ if __name__ == "__main__":
     # Probe yfinance with SPY to catch special closures not in the holiday calendar
     # (e.g. presidential funerals, emergency closures). Retries every 5 minutes
     # up to 4 times in case data is published shortly after the cron fires.
-    PROBE_RETRIES    = 4
-    PROBE_WAIT_SECS  = 5 * 60
+    PROBE_RETRIES    = 3
+    PROBE_WAIT_SECS  = 30 * 60
     data_confirmed   = False
     for attempt in range(1, PROBE_RETRIES + 1):
         try:
