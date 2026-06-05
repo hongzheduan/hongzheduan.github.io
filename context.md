@@ -214,6 +214,23 @@ Confirm a paid data provider is active before re-enabling billing. Do NOT charge
 
 ---
 
+## What Was Done 2026-06-04
+
+- **BaizScore** (composite score) added to scanner and dashboard — weighted formula: RS 30% + Momentum 25% + Breakout 20% + Trend 15% + Vol Pressure 10%; gold column header in SCORES tab
+- **TurnScore** (weak-to-strong reversal) added — formula: `Breakout × (1 − RS/100) × VP_norm`; blue column header; 3-tier indicator: ▲ 50+ green, → 25–49 amber, <25 red
+- `data/ohlcv_cache/` deleted (retired `scanner_massive.py` artifact, ~20 MB of JSON files)
+- Row limit raised from 200 → 600 across all SCORES/window sort slices
+- Column hover tooltips fixed — dead `tickerTip`/`tickerHideTimer` references were silently killing all column mouseover handlers with a ReferenceError
+- Price column removed from SCORES tab view (not relevant there)
+- Announcement bar: added live date display (JS `toLocaleDateString`) to signal freshness
+- Homepage "Ways to Explore" section: 4-card 2×2 grid — (1) Baizora Score merged with Use-Scores-as-Filter, (2) Volume Spike merged with Quiet Accumulation, (3) Multi-Week Momentum, (4) Index Rebalancing Tracker
+- Homepage: new Candlestick Chart card replacing the merged scores card — shows real 1Y NVDA OHLC chart lazy-loaded from `data/candles.json` via IntersectionObserver
+- Fact bar updated: 4× → 7× Daily Scores; hero bullet lists all 7 scores (Baizora · Turn · RS · Breakout · Momentum · Vol Pressure · Trend)
+- Readme (INFO tab in dashboard) updated to document all 7 scores with formulas
+- Nav: removed "Price Movers" and "Volume Movers" buttons from homepage
+
+---
+
 ## What Was Done 2026-06-02 / 2026-06-03
 
 - Switched active scanner to `scanner_yfinance.py`; fixed to produce same output as massive scanner (Beta, Vol30D, candles, market-cap weighted sector PE)
@@ -237,3 +254,4 @@ Confirm a paid data provider is active before re-enabling billing. Do NOT charge
 4. BKNG split guard — once Q2 2026 10-Q is filed (~Aug 2026), verify `eps > 25` guard auto-disables correctly
 5. Remaining 11 EPS=None tickers — any solvable without a paid data source?
 6. **EPS cache rebuild caution** — if fundamentals cache must be deleted, patch sector/marketcap from old cache before re-running
+7. **Tiingo attribution** — if/when switching to Tiingo, add `"Market Data Sourced by Tiingo.com"` to dashboard pages (`baizora_main_form.html`, `baizora_main_form_cn.html`) and any data-facing product pages, per the license agreement requirement
