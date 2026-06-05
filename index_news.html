@@ -393,7 +393,8 @@
           return;
         }
 
-        allItems = data.items;
+        const seen = new Set();
+        allItems = data.items.filter(it => { const k = it.title + '|' + it.category; if (seen.has(k)) return false; seen.add(k); return true; });
         buildTabs();
         renderCategory(activeKey);
 

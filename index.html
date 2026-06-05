@@ -2003,7 +2003,8 @@ window.mockSort = function(col, el) {
       const upd = document.getElementById("hpLastUpdated");
       if (upd && data.fetched) upd.textContent = data.fetched;
       if (data.items && data.items.length) {
-        allItems = data.items;
+        const seen = new Set();
+        allItems = data.items.filter(it => { const k = it.title + '|' + it.category; if (seen.has(k)) return false; seen.add(k); return true; });
         buildTabs();
         renderList(activeKey);
       } else {
