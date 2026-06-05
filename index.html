@@ -1043,8 +1043,9 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  &nbsp; Temporarily Free — Sign up for free access &nbsp;·&nbsp; Contact: support@baizora.com
+  &nbsp; Temporarily Free — Sign up for free access &nbsp;·&nbsp; Data updated daily &nbsp;·&nbsp; <span id="announcementDate"></span>
 </div>
+<script>document.getElementById('announcementDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});</script>
 
 <header>
   <a href="./" class="logo-wrap">
@@ -1053,8 +1054,6 @@
   </a>
 
   <div class="desktop-nav">
-    <a href="top-price-movers.html" class="nav-btn">Price Movers</a>
-    <a href="unusual-volume.html" class="nav-btn">Volume Movers</a>
     <a href="index_cn.html" class="nav-btn">中文</a>
     <a href="assets/about.html" class="nav-btn">About</a>
     <a href="pricing.html" class="nav-btn">Plans</a>
@@ -1224,17 +1223,17 @@
   <div class="cards">
     <div class="card fade-up">
       <div class="card-head">
-        <div class="card-icon">⟁</div>
-        <h3>Volume Spike Breakout</h3>
+        <div class="card-icon" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.25);">⊕</div>
+        <h3 style="color:#fcd34d;">Baizora Score — Use It as a Filter</h3>
       </div>
-      <p>Sort the <strong style="color:var(--white);">1D V CHG%</strong> column highest to lowest. Focus on stocks with volume surging over 100% alongside a positive price move — a pattern some traders associate with institutional activity.</p>
+      <p>Switch to the <strong style="color:var(--white);">Scores</strong> tab and sort by <strong style="color:#fcd34d;">Baizora</strong> — a composite of RS, Momentum, Breakout, Trend, and Volume Pressure. Stocks scoring <strong style="color:#fcd34d;">70+</strong> are broadly strong across all signals; below <strong style="color:#ef4444;">30</strong> are broadly weak. Cross-reference individual scores to understand why: high RS + high Breakout means sustained multi-week strength confirmed by today's price and volume action — a powerful pre-filter before deeper analysis.</p>
     </div>
     <div class="card fade-up delay-1">
       <div class="card-head">
-        <div class="card-icon">◎</div>
-        <h3>Quiet Accumulation</h3>
+        <div class="card-icon">⟁</div>
+        <h3>Volume Spike Breakout</h3>
       </div>
-      <p>Filter for high <strong style="color:var(--white);">1D V CHG%</strong> but a flat or small <strong style="color:var(--white);">1D P CHG%</strong>. Big volume with little price movement is a historically observed pattern — worth tracking as a data point in your own analysis.</p>
+      <p>Sort <strong style="color:var(--white);">1D V CHG%</strong> highest to lowest. Volume surging 100%+ alongside a rising price is a classic breakout signal. Volume surging with a flat price — quiet accumulation — is a different pattern worth tracking. Both start with the same sort; the price column tells the story.</p>
     </div>
     <div class="card fade-up delay-2">
       <div class="card-head">
@@ -1318,10 +1317,15 @@
 
     <div class="card fade-up delay-1">
       <div class="card-head">
-        <div class="card-icon">◎</div>
-        <h3>Use Scores as a Filter</h3>
+        <div class="card-icon" style="background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.25);">◐</div>
+        <h3>Candlestick Chart on Every Ticker</h3>
       </div>
-      <p>Open the <strong style="color:var(--white);">SCORES</strong> tab and sort by <strong style="color:var(--white);">RS</strong> to instantly rank every S&P 500 and Nasdaq-100 stock by relative strength. Then cross-reference with <strong style="color:var(--white);">Breakout</strong> — stocks where RS is above 70 and Breakout is above 60 are showing both sustained multi-week strength and today's price and volume confirming it. A powerful pre-filter before deeper analysis.</p>
+      <p>Click any ticker in the dashboard for a full OHLC candlestick view — 3M, 6M, or 1Y — covering every S&P 500 &amp; Nasdaq-100 stock, updated daily.</p>
+      <div style="margin-top:12px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;color:#64748b;margin-bottom:5px;">NVDA &nbsp;·&nbsp; 1-year candlestick</div>
+        <canvas id="hpNvdaCanvas" style="width:100%;height:120px;display:block;border-radius:8px;background:rgba(6,13,31,0.7);border:1px solid rgba(255,255,255,0.06);"></canvas>
+        <div id="hpNvdaNoData" style="display:none;height:120px;align-items:center;justify-content:center;color:#64748b;font-size:11px;font-family:'DM Mono',monospace;">—</div>
+      </div>
     </div>
 
   </div>
@@ -1382,6 +1386,75 @@
     </div>
   </div>
 </footer>
+
+<script>
+(function() {
+  const canvas = document.getElementById("hpNvdaCanvas");
+  if (!canvas) return;
+  let loaded = false;
+  function drawNvdaChart(candles, dates) {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+    const W = rect.width, H = rect.height;
+    const pad = { top: 12, right: 10, bottom: 22, left: 54 };
+    const cW = W - pad.left - pad.right, cH = H - pad.top - pad.bottom;
+    const n = candles.length;
+    let minP = Infinity, maxP = -Infinity;
+    candles.forEach(([o,h,l,c]) => { if (h > maxP) maxP = h; if (l < minP) minP = l; });
+    const buf = (maxP - minP) * 0.05 || 1;
+    const lo = minP - buf, hi = maxP + buf;
+    const toY = p => pad.top + cH * (1 - (p - lo) / (hi - lo));
+    const slotW = cW / n, cndW = Math.max(1, slotW * 0.65);
+    const toX = i => pad.left + i * slotW + (slotW - cndW) / 2;
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = "10px 'DM Mono', monospace";
+    ctx.textAlign = "right";
+    for (let i = 0; i <= 3; i++) {
+      const p = lo + (hi - lo) * (i / 3), y = toY(p);
+      ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+      ctx.fillStyle = "#64748b";
+      ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 4, y + 3);
+    }
+    ctx.textAlign = "center"; let lastMo = -1;
+    dates.forEach((d, i) => {
+      const mo = new Date(d).getMonth();
+      if (mo !== lastMo) {
+        lastMo = mo;
+        ctx.fillStyle = "#64748b";
+        ctx.fillText(new Date(d).toLocaleDateString("en-US", { month: "short" }), toX(i) + cndW / 2, H - 4);
+      }
+    });
+    candles.forEach(([o,h,l,c], i) => {
+      const green = c >= o, x = toX(i), mid = x + cndW / 2;
+      ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
+      ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
+      const bTop = toY(Math.max(o, c)), bH = Math.max(1, toY(Math.min(o, c)) - bTop);
+      ctx.fillRect(x, bTop, cndW, bH); ctx.strokeRect(x, bTop, cndW, bH);
+    });
+  }
+  function loadChart() {
+    if (loaded) return; loaded = true;
+    fetch("data/candles.json")
+      .then(r => r.json())
+      .then(d => {
+        const c = d.data && d.data["NVDA"], dt = d.dates;
+        if (c && c.length && dt) drawNvdaChart(c.slice(-252), dt.slice(-252));
+      })
+      .catch(function() {});
+  }
+  const obs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) { loadChart(); obs.disconnect(); }
+  }, { threshold: 0.1 });
+  obs.observe(canvas);
+})();
+</script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>

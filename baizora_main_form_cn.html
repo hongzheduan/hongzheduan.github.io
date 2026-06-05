@@ -303,6 +303,9 @@
     th.col-baiz { color: var(--gold); border-right: 1px solid rgba(245,158,11,0.2); }
     th.col-baiz:hover { color: var(--gold-light); }
     td.col-baiz { font-weight: 700; border-right: 1px solid rgba(245,158,11,0.12); }
+    th.col-turn { color: #60a5fa; border-right: 1px solid rgba(96,165,250,0.2); }
+    th.col-turn:hover { color: #93c5fd; }
+    td.col-turn { font-weight: 700; border-right: 1px solid rgba(96,165,250,0.12); }
 
     /* ── INFO PANEL ── */
     #readme { padding: 32px 40px; }
@@ -843,10 +846,12 @@
           </table>
 
           <div class="readme-label" style="margin-top:28px;">◈ &nbsp; 评分系统（评分标签页）</div>
-          <p>五项综合评分，每日收盘后基于同一套量价数据计算。评分高于50显示绿色，低于50显示红色。量压评分以0为中值。</p>
+          <p>七项综合评分，每日收盘后基于同一套量价数据计算。评分高于50显示绿色，低于50显示红色。量压评分以0为中值。转势评分以50 / 25为信号阈值。</p>
           <table class="col-table">
             <colgroup><col style="width:160px"><col></colgroup>
             <tr><th>评分</th><th>算法与解读</th></tr>
+            <tr><td>贝佐拉评分（0–100）</td><td>五项信号加权合成：<strong>RS 30% + 动能 25% + 突破 20% + 趋势 15% + 量压 10%</strong>。一眼判断综合强弱，降序排列可快速发现最强势标的。</td></tr>
+            <tr><td>转势评分（0–100）</td><td>由弱转强反转信号：<strong>突破 × (1 − RS/100) × 量压（归一化）</strong>。RS越低（历史越弱）、突破越强、买盘量压越高，得分越高。▲ 50分以上=强信号；→ 25–49分=初步信号；25分以下=无信号。量压为负时归零。</td></tr>
             <tr><td>RS评分（1–99）</td><td>相对强度——全市场百分位排名。算法：<strong>40%×3月 + 20%×6月 + 20%×9月 + 20%×1年</strong>涨幅，再全市场排名。99=前1%；1=末1%。</td></tr>
             <tr><td>突破评分（0–100）</td><td>三项信号合成：<strong>价格高于MA21</strong>（0–33分，按高出幅度线性计算）+ <strong>当日涨幅</strong>（0–33分）+ <strong>成交量高于MA21</strong>（0–34分）。满分100=三项信号全力触发，经典突破形态。</td></tr>
             <tr><td>动能评分（0–100）</td><td>跨周期加权涨幅百分位排名：<strong>35%×1月 + 25%×3月 + 20%×6月 + 20%×1年</strong>。奖励在所有窗口持续强势的股票，而非单日脉冲。100=全市场多周期动能最强。</td></tr>
@@ -1063,6 +1068,13 @@
       if (isNaN(n)) return "neutral";
       return n > mid ? "positive" : n < mid ? "negative" : "neutral";
     }
+    function turnFmt(v) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return { cls: "neutral", html: "—" };
+      if (n >= 50) return { cls: "positive", html: `<span style="font-size:9px;margin-right:2px;">▲</span>${n}` };
+      if (n >= 25) return { cls: "neutral",  html: `<span style="color:#f59e0b;font-size:9px;margin-right:2px;">→</span>${n}` };
+      return { cls: "negative", html: String(n) };
+    }
 
     function arrow(key) {
       if (sortKey !== key) return `<span class="sort-arrow"> ↕</span>`;
@@ -1153,15 +1165,15 @@
         const head = `<thead><tr>
           ${thSort("Ticker",          "代码")}
           ${thStatic("Spark1Y",       "年趋势线")}
-          ${thSort("Price",           "价格")}
           ${thSort("BaizScore",        "贝佐拉评分", "col-baiz")}
+          ${thSort("TurnScore",        "转势",       "col-turn")}
           ${thSort("RSScore",         "RS评分")}
           ${thSort("BreakoutScore",   "突破评分")}
           ${thSort("MomentumScore",   "动能评分")}
           ${thSort("VolPressureScore","量压评分")}
           ${thSort("TrendScore",      "趋势评分")}
         </tr></thead>`;
-        const rows = arr.slice(0, 200).map(r => {
+        const rows = arr.slice(0, 600).map(r => {
           const sparkSVG = renderSparkline(
             r.Spark1Y,
             r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
@@ -1170,8 +1182,8 @@
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
             <td class="spark-cell">${sparkSVG}</td>
-            <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
             <td class="col-baiz ${scoreClass(r.BaizScore, 50)}">${r.BaizScore ?? "—"}</td>
+            ${(t => `<td class="col-turn ${t.cls}">${t.html}</td>`)(turnFmt(r.TurnScore))}
             <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
             <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
             <td class="${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</td>
@@ -1196,7 +1208,7 @@
           ${thSort("PE_vs_Sector",  "PE vs 行业")}
           ${thSort("Sector",        "行业")}
         </tr></thead>`;
-        const rows = arr.slice(0, 200).map(r => {
+        const rows = arr.slice(0, 600).map(r => {
           const sparkSVG = renderSparkline(
             r.Spark1Y,
             r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
@@ -1254,7 +1266,7 @@
         ${windowHead}
       </tr></thead>`;
 
-      const rows = arr.slice(0, 200).map(r => {
+      const rows = arr.slice(0, 600).map(r => {
         const pc1  = r.PriceChange1D;
         const vc1  = r.VolumeChange1D;
         const pma  = r.PriceVsMA21_1D;
@@ -1322,7 +1334,7 @@
       const fmtP = v => v != null ? (v > 0 ? "+" : "") + v + "%" : "—";
       const fmtV = v => v != null ? v : "—";
 
-      const cards = arr.slice(0, 200).map(r => {
+      const cards = arr.slice(0, 600).map(r => {
         const pc1 = r.PriceChange1D;
         const vc1 = r.VolumeChange1D;
         const pma = r.PriceVsMA21_1D;
@@ -1341,6 +1353,7 @@
           priceChgDisplay = `<span class="card-chg ${colorClass(pc1)}">${fmtP(pc1)}</span>`;
           statsHTML = `
             <div class="card-row"><span class="card-label" style="color:#f59e0b;">贝佐拉</span><span class="card-val ${scoreClass(r.BaizScore, 50)}" style="font-weight:700;">${r.BaizScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label" style="color:#60a5fa;">转势</span><span class="card-val ${turnFmt(r.TurnScore).cls}" style="font-weight:700;">${turnFmt(r.TurnScore).html}</span></div>
             <div class="card-row"><span class="card-label">RS评分</span><span class="card-val ${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">突破</span><span class="card-val ${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">动能</span><span class="card-val ${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</span></div>
@@ -1458,6 +1471,7 @@
       "PE_vs_Sector":    { label: "PE vs 行业",  desc: "该股市盈率相对所在行业均值的偏差（百分比）。正值 = 溢价；负值 = 折价。行业均值仅基于标普500和纳斯达克100成分股计算。" },
       "Sector":          { label: "行业",        desc: "GICS行业分类。" },
       "BaizScore":       { label: "贝佐拉评分",  desc: "贝佐拉综合评分（0–100）。五项信号加权合成：RS 30% + 动能 25% + 突破 20% + 趋势 15% + 量压 10%。一眼判断综合强弱——绿色（>50）= 整体偏强，红色（<50）= 整体偏弱。按此列排序可快速发现最强势标的。" },
+      "TurnScore":       { label: "转势评分",    desc: "转势评分（0–100）。识别由弱转强的潜在标的。公式：突破评分 × (1 − RS/100) × 量压（归一化）。▲ 50分以上 = 强烈转势信号（绿色）；→ 25–49分 = 值得关注的初步信号（琥珀色）；25分以下 = 无有效反转信号（红色）。量压为负时归零——缺乏买盘确认。" },
       "RSScore":         { label: "RS评分",      desc: "相对强度评分（1–99）。与全体500+股票相比，本股近期价格表现的强弱排名。绿色（>50）= 跑赢大多数；红色（<50）= 表现落后。99 = 全市场最强1%，1 = 最弱。" },
       "BreakoutScore":   { label: "突破评分",    desc: "突破评分（0–100）。衡量今日突破强度：价格高于21日均线 + 当日涨幅 + 成交量放大，三项合计。绿色（>50）= 有效突破信号。100 = 三项信号同时全力触发。" },
       "MomentumScore":   { label: "动能评分",    desc: "动能评分（0–100）。跨1月、3月、6月、1年的持续上涨强度排名。绿色（>50）= 多周期涨幅优于大多数同类。100 = 全市场动能最强。" },

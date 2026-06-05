@@ -700,6 +700,13 @@ def scan():
             0.10 * vp_norm
         ).round().clip(0, 100).astype(int)
 
+        # Turn Score (0–100): weak-to-strong reversal signal
+        # High Breakout × low RS (was historically weak) × positive volume pressure
+        vp_turn = ((df["VolPressureScore"] + 100) / 200).clip(lower=0)
+        df["TurnScore"] = (
+            df["BreakoutScore"] * (1 - df["RSScore"] / 100) * vp_turn
+        ).round().clip(0, 100).astype(int)
+
     if "VolumeChange1D" in df.columns:
         df = df.sort_values("VolumeChange1D", ascending=False)
 
