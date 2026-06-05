@@ -687,6 +687,19 @@ def scan():
         df["MomentumScore"] = (df["_RawMomentum"].rank(pct=True) * 100).round().clip(0, 100).astype(int)
         df.drop(columns=["_RawMomentum"], inplace=True)
 
+    # Baizora Score (0–100): weighted composite of all five scores
+    score_cols = ["RSScore", "MomentumScore", "BreakoutScore", "TrendScore", "VolPressureScore"]
+    if all(c in df.columns for c in score_cols):
+        rs_norm = (df["RSScore"] - 1) / 98 * 100
+        vp_norm = (df["VolPressureScore"] + 100) / 2
+        df["BaizScore"] = (
+            0.30 * rs_norm +
+            0.25 * df["MomentumScore"] +
+            0.20 * df["BreakoutScore"] +
+            0.15 * df["TrendScore"] +
+            0.10 * vp_norm
+        ).round().clip(0, 100).astype(int)
+
     if "VolumeChange1D" in df.columns:
         df = df.sort_values("VolumeChange1D", ascending=False)
 
