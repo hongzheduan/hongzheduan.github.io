@@ -706,6 +706,18 @@ TICKER_SECTOR_OVERRIDE = {
     "AMCR":  "Basic Materials",
 }
 
+# Shares outstanding overrides for tickers where EDGAR's reported share count
+# under-represents total economic units due to multi-class/partnership structures.
+# Value = total equivalent shares (public + non-public economic units).
+# Market cap is computed as override_shares × current_price (so it stays live).
+# Last reviewed: 2026-06-07
+SHARES_OUTSTANDING_OVERRIDE = {
+    "BX":   1_222_000_000,  # Blackstone: Class A (742M EDGAR) + unconverted Holdings LP units
+    "IBKR": 1_697_000_000,  # Interactive Brokers: public Class A + IBG LLC membership units (~75%)
+    "DD":     405_000_000,  # DuPont: EDGAR shows 136M post-restructuring; verify against IR
+    "DVN":  1_153_000_000,  # Devon Energy: EDGAR shows 621M; ~2x gap — verify against IR
+}
+
 
 # =========================
 # TIINGO OHLCV CACHE (per-ticker)
@@ -923,13 +935,13 @@ def fetch_benchmark_bars(from_date, to_date):
 
 
 # =========================
-# TIINGO META — company names (one batch call)
+# TIINGO META — company names + market caps (one batch call)
 # =========================
 
-def prefetch_tiingo_names(tickers):
+def prefetch_tiingo_meta(tickers):
     """
-    Fetch company names for all tickers via Tiingo meta endpoint.
-    Returns {internal_ticker: company_name_str}.
+    Fetch company names and market caps for all tickers via Tiingo meta endpoint.
+    Returns {internal_ticker: {"name": str, "marketCap": float|None}}.
     """
     tiingo_tickers    = [_to_tiingo_ticker(TICKER_ALIASES.get(t, t)) for t in tickers]
     tiingo_to_internal = {_to_tiingo_ticker(TICKER_ALIASES.get(t, t)): t for t in tickers}
@@ -945,14 +957,18 @@ def prefetch_tiingo_names(tickers):
     for row in data:
         t = row.get("ticker", "").lower()
         if t not in meta_map or row.get("isActive", False):
-            meta_map[t] = row.get("name", "")
+            meta_map[t] = {
+                "name":      row.get("name", ""),
+                "marketCap": row.get("marketCap"),  # raw dollars, may be None
+            }
     result = {}
     for ticker in tickers:
         tiingo_tk      = _to_tiingo_ticker(TICKER_ALIASES.get(ticker, ticker))
-        result[ticker] = meta_map.get(tiingo_tk, "")
+        result[ticker] = meta_map.get(tiingo_tk, {"name": "", "marketCap": None})
 
-    found = sum(1 for v in result.values() if v)
-    print(f"Tiingo meta: {found}/{len(tickers)} company names loaded")
+    found_names = sum(1 for v in result.values() if v.get("name"))
+    found_mc    = sum(1 for v in result.values() if v.get("marketCap"))
+    print(f"Tiingo meta: {found_names}/{len(tickers)} names, {found_mc}/{len(tickers)} market caps loaded")
     return result
 
 
@@ -1130,6 +1146,8 @@ def _get_edgar_fundamentals(ticker):
             q10_entries = [x for x in units if x.get("form") == "10-Q"
                            and x.get("start") and x.get("end")
                            and x.get("end", "") >= min_annual_end]
+            q10_entries_all = [x for x in units if x.get("form") == "10-Q"
+                               and x.get("start") and x.get("end")]
             annual_entries = sorted(
                 [x for x in units if x.get("form") in ("10-K", "10-K405")
                  and x.get("end", "") >= min_annual_end],
@@ -1142,7 +1160,7 @@ def _get_edgar_fundamentals(ticker):
                     annual_end = annual_entries[0]["end"]
                     annual_val = annual_entries[0]["val"]
                     q3_candidates = sorted(
-                        [x for x in q10_entries
+                        [x for x in q10_entries_all
                          if 200 < _period_days(x) < 310 and x.get("end", "") < annual_end],
                         key=lambda x: x.get("end", ""), reverse=True,
                     )
@@ -1269,15 +1287,20 @@ def _parse_shares_from_latest_filing(cik):
             r'<ix:nonFraction[^>]*name="dei:EntityCommonStockSharesOutstanding"[^>]*>([^<]+)<',
             doc_r.text,
         )
-        vals = sorted(
-            [int(v.replace(",", "")) for v in raw if v.replace(",", "").isdigit()],
-        )
+        # Filter to plausible share counts (≥1M); zero/tiny values (e.g. WDAY) are
+        # excluded so the caller falls through to WeightedAverage.
+        vals = [int(v.replace(",", "")) for v in raw
+                if v.replace(",", "").isdigit() and int(v.replace(",", "")) >= 1_000_000]
         if not vals:
             return None, ""
 
-        # Sum all classes: dei:EntityCommonStockSharesOutstanding reports each share class
-        # separately (e.g. Visa A/B/C). Summing gives total economic shares outstanding,
-        # which is the correct market cap basis.
+        # If all values cluster within 2% of each other they are the same share class
+        # reported in multiple XBRL contexts (e.g. CME lists Class A twice with
+        # slightly different context dates) — take the largest to avoid double-counting.
+        # Otherwise they are distinct share classes (e.g. FOXA Class A + Class B) —
+        # sum them for total economic shares outstanding.
+        if max(vals) / min(vals) < 1.02:
+            return max(vals), filing_date or ""
         return sum(vals), filing_date or ""
 
     except Exception:
@@ -1383,16 +1406,23 @@ def _save_fund_disk_cache():
 def get_fundamentals(ticker, tiingo_names=None):
     if ticker in _fund_cache:
         cached = _fund_cache[ticker]
+        meta_entry = (tiingo_names or {}).get(ticker, {})
         if not cached.get("CompanyName"):
             # Backfill: prefer Tiingo name, fall back to EDGAR CIK map title
-            name = (tiingo_names or {}).get(ticker, "") or _edgar_name_map.get(ticker.upper(), "")
+            name = meta_entry.get("name", "") or _edgar_name_map.get(ticker.upper(), "")
             if name:
                 cached["CompanyName"] = name
+        # Always update TiingoMarketCap from the fresh meta call (not persisted in disk cache)
+        mc = meta_entry.get("marketCap")
+        if mc:
+            cached["TiingoMarketCap"] = mc
         return cached
 
     eps, shares, sic_desc, shares_filed, edgar_name = _get_edgar_fundamentals(ticker)
     sector       = TICKER_SECTOR_OVERRIDE.get(ticker) or sic_to_sector(sic_desc)
-    tiingo_name  = (tiingo_names or {}).get(ticker, "")
+    meta_entry   = (tiingo_names or {}).get(ticker, {})
+    tiingo_name  = meta_entry.get("name", "")
+    tiingo_mc    = meta_entry.get("marketCap")
     company_name = tiingo_name or edgar_name or _edgar_name_map.get(ticker.upper(), "")
 
     result = {
@@ -1402,6 +1432,7 @@ def get_fundamentals(ticker, tiingo_names=None):
         "Sector":            sector,
         "SicDescription":    sic_desc,
         "CompanyName":       company_name,
+        "TiingoMarketCap":   tiingo_mc,
     }
     _fund_cache[ticker] = result
     return result
@@ -1504,8 +1535,8 @@ def scan():
 
     # Load fundamentals (disk cache → EDGAR for missing)
     _load_fund_disk_cache()
-    tiingo_names = prefetch_tiingo_names(tickers)
-    prefetch_fundamentals(tickers, tiingo_names)
+    tiingo_meta = prefetch_tiingo_meta(tickers)
+    prefetch_fundamentals(tickers, tiingo_meta)
 
     # Build trading-day list and load all OHLCV into memory
     trading_days = get_trading_days(from_date, to_date)
@@ -1569,16 +1600,23 @@ def scan():
             for label, days in TIMEFRAMES.items():
                 metrics.update(calculate_period_metrics(df, label, days))
 
-            fund   = get_fundamentals(ticker, tiingo_names)
+            fund   = get_fundamentals(ticker, tiingo_meta)
             sector = fund["Sector"]
             eps    = fund["EPS"]
 
-            # Market cap: EDGAR total shares (all classes summed) × current price
+            # Market cap priority: BRK-B special case, then Tiingo meta (covers multi-class
+            # structures like GOOG/GOOGL, FOXA/FOX, NWS/NWSA), then EDGAR shares × price.
+            # SHARES_OUTSTANDING_OVERRIDE corrects tickers where EDGAR under-reports due to
+            # partnership units or LLC interests (BX, IBKR, etc.).
             shares = fund.get("SharesOutstanding")
+            shares_for_cap = SHARES_OUTSTANDING_OVERRIDE.get(ticker) or shares
             if ticker == "BRK-B":
                 market_cap = _get_brk_b_market_cap(float(latest["Close"]))
             else:
-                market_cap = shares * float(latest["Close"]) if shares else None
+                tiingo_mc = fund.get("TiingoMarketCap")
+                market_cap = float(tiingo_mc) if tiingo_mc else (
+                    shares_for_cap * float(latest["Close"]) if shares_for_cap else None
+                )
 
             pe = round(float(latest["Close"]) / eps, 2) if eps and eps > 0 else None
 
