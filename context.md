@@ -246,12 +246,33 @@ Confirm a paid data provider is active before re-enabling billing. Do NOT charge
 
 ---
 
+## What Was Done 2026-06-06
+
+- `scanner_tiingo.py` created — Tiingo commercial API scanner
+  - Per-ticker OHLCV cache (`ohlcv_tiingo_cache/{TICKER}.json`) replaces per-day cache
+  - Initial run: full 2Y history fetched per ticker; daily update via one bulk call (`/tiingo/daily/prices`)
+  - Market cap = EDGAR `EntityCommonStockSharesOutstanding` × current price (no stale API value)
+  - EPS: EDGAR (same diluted-first TTM algorithm as scanner_massive.py)
+  - SIC/sector: EDGAR submissions API (`/submissions/CIK{cik}.json`)
+  - Company names: Tiingo meta batch call (`/tiingo/daily/meta`)
+  - SPY: Tiingo `/tiingo/daily/spy/prices`
+  - BaizScore + TurnScore included (same formulas as scanner_yfinance.py)
+  - yfinance comparison step: flags price/volume diffs >5%, logs to `archive/compare_YYYY-MM-DD.log`
+- `scanner.yml` updated: two cron triggers (22:00 UTC = 6 PM ET preliminary; 00:00 UTC = 8 PM ET final + videos); uses `TIINGO_API_KEY` secret; commits `archive/compare_*.log`
+- **Next steps before activating:**
+  1. Add `TIINGO_API_KEY` secret to GitHub repo settings
+  2. Test locally: `TIINGO_API_KEY=xxx python scanner_tiingo.py` (verify bulk endpoint format, ticker casing)
+  3. Add Tiingo attribution to dashboard pages (see item 7 below)
+  4. Switch `scanner.yml` active scanner: already done (uses scanner_tiingo.py)
+  5. Re-enable billing once first clean Tiingo run completes
+
+---
+
 ## Next Time: What to Check
 
-1. **Data provider replies** — EODHD, Tiingo, FMP, Intrinio all pending; pick one and adapt scanner
-2. **Re-enable scanner:** uncomment cron + video steps in `scanner.yml`
-3. **Re-enable billing + paid gate:** remove redirect from `billing.html`/`billing_cn.html`; uncomment subscription fetch block in both dashboard files
-4. BKNG split guard — once Q2 2026 10-Q is filed (~Aug 2026), verify `eps > 25` guard auto-disables correctly
-5. Remaining 11 EPS=None tickers — any solvable without a paid data source?
-6. **EPS cache rebuild caution** — if fundamentals cache must be deleted, patch sector/marketcap from old cache before re-running
-7. **Tiingo attribution** — if/when switching to Tiingo, add `"Market Data Sourced by Tiingo.com"` to dashboard pages (`baizora_main_form.html`, `baizora_main_form_cn.html`) and any data-facing product pages, per the license agreement requirement
+1. **scanner_tiingo.py first run** — watch for: bulk endpoint field names (adjClose vs close), BRK-B/BF-B lowercase format, BNY ticker (verify Tiingo returns `bny` not `bk`)
+2. **Re-enable billing + paid gate:** remove redirect from `billing.html`/`billing_cn.html`; uncomment subscription fetch block in both dashboard files (checklist in context.md above)
+3. BKNG split guard — once Q2 2026 10-Q is filed (~Aug 2026), verify `eps > 25` guard auto-disables correctly
+4. Remaining 11 EPS=None tickers — any solvable without a paid data source?
+5. **EPS cache rebuild caution** — if fundamentals cache must be deleted, patch sector from old cache before re-running
+6. **Tiingo attribution** — add `"Market Data Sourced by Tiingo.com"` to dashboard pages (`baizora_main_form.html`, `baizora_main_form_cn.html`) and any data-facing product pages, per the license agreement requirement

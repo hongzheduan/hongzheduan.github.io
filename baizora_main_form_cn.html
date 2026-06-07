@@ -289,8 +289,12 @@
       color: var(--white);
       letter-spacing: 0.05em;
       cursor: pointer;
+      text-decoration: underline;
+      text-decoration-color: rgba(59,130,246,0.35);
+      text-decoration-style: dotted;
+      text-underline-offset: 3px;
     }
-    .ticker-cell:hover { color: var(--electric-bright); }
+    .ticker-cell:hover { color: var(--electric-bright); text-decoration-color: var(--electric-bright); text-decoration-style: solid; }
 
     .price-cell { font-family: 'DM Mono', monospace; color: var(--white); font-weight: 400; }
 
@@ -694,7 +698,13 @@
       color: #64748b; font-size: 14px;
       background: rgba(255,255,255,0.02); border-radius: 8px;
     }
-    .ticker-cell:hover::after { content: " ↗"; color: var(--electric-bright); font-size: 10px; }
+    .chart-btn {
+      background: none; border: none; cursor: pointer;
+      color: rgba(96,165,250,0.4); padding: 0 0 0 5px;
+      line-height: 1; transition: color 0.15s; vertical-align: middle;
+      display: inline-flex; align-items: center;
+    }
+    .ticker-cell:hover .chart-btn { color: var(--electric-bright); }
 
     .star-btn {
       background: none; border: none; cursor: pointer;
@@ -887,6 +897,8 @@
 
   </div>
 
+  <p style="text-align:center;font-size:11px;color:#475569;padding:14px 0 10px;letter-spacing:0.04em;">行情数据由 <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#475569;text-decoration:none;">Tiingo.com</a> 提供</p>
+
   <!-- Tooltips -->
   <div class="bz-tooltip col-tooltip" id="colTooltip">
     <div class="tt-label" id="colTooltipLabel"></div>
@@ -898,6 +910,9 @@
     import { auth } from "./firebase.js";
     import { signOut, onAuthStateChanged }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    /* ── CHART ICON ── */
+    const CHART_BTN = `<button class="chart-btn" title="查看K线图" aria-label="查看K线图"><svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><line x1="2.5" y1="1" x2="2.5" y2="10" stroke="currentColor" stroke-width="0.9"/><rect x="1" y="3.5" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.5"/><line x1="7" y1="0.5" x2="7" y2="10.5" stroke="currentColor" stroke-width="0.9"/><rect x="5.5" y="2" width="3" height="6" rx="0.4" fill="currentColor"/><line x1="11.5" y1="1" x2="11.5" y2="9.5" stroke="currentColor" stroke-width="0.9"/><rect x="10" y="3" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.7"/></svg></button>`;
 
     /* ── STATE ── */
     let spRows = [], ndRows = [], allRows = [];
@@ -1180,7 +1195,7 @@
             r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
           );
           return `<tr>
-            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="col-baiz ${scoreClass(r.BaizScore, 50)}">${r.BaizScore ?? "—"}</td>
             ${(t => `<td class="col-turn ${t.cls}">${t.html}</td>`)(turnFmt(r.TurnScore))}
@@ -1216,7 +1231,7 @@
           );
           const peVs = r.PE_vs_Sector;
           return `<tr>
-            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
             <td class="${colorClass(0)}">${r.PE != null ? r.PE.toFixed(1) : "—"}</td>
@@ -1315,7 +1330,7 @@
           <td class="${colorClass(vma - 1)}">${vma}</td>` : "";
 
         return `<tr>
-          <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+          <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
           <td class="spark-cell">${sparkSVG}</td>
           <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
           <td class="neutral">${r.VolumeM ?? "—"}</td>
@@ -1617,16 +1632,20 @@
       const ctx = canvas.getContext("2d");
       ctx.scale(dpr, dpr);
       const W = rect.width, H = rect.height;
-      const pad = { top: 20, right: 16, bottom: 32, left: 58 };
-      const cW = W - pad.left - pad.right, cH = H - pad.top - pad.bottom;
-      const n  = candles.length;
+      const hasVol = candles.some(c => c[4] > 0);
+      const volH   = hasVol ? Math.round(H * 0.22) : 0;
+      const gap    = hasVol ? 6 : 0;
+      const pad    = { top: 20, right: 16, bottom: 28, left: 58 };
+      const priceH = H - pad.top - pad.bottom - volH - gap;
+      const n      = candles.length;
+      const slotW  = (W - pad.left - pad.right) / n;
+      const cndW   = Math.max(1, slotW * 0.65);
+      const toX    = i => pad.left + i * slotW + (slotW - cndW) / 2;
       let minP = Infinity, maxP = -Infinity;
       candles.forEach(([o,h,l,c]) => { if(h>maxP) maxP=h; if(l<minP) minP=l; });
-      const buf = (maxP - minP) * 0.05 || 1;
-      const lo = minP - buf, hi = maxP + buf;
-      const toY = p => pad.top + cH * (1 - (p - lo) / (hi - lo));
-      const slotW = cW / n, cndW = Math.max(1, slotW * 0.65);
-      const toX = i => pad.left + i * slotW + (slotW - cndW) / 2;
+      const buf  = (maxP - minP) * 0.05 || 1;
+      const lo   = minP - buf, hi = maxP + buf;
+      const toY  = p => pad.top + priceH * (1 - (p - lo) / (hi - lo));
       ctx.clearRect(0, 0, W, H);
       ctx.font = `11px 'DM Mono', monospace`;
       ctx.textAlign = "right";
@@ -1642,19 +1661,34 @@
         const mo = new Date(d).getMonth();
         if (mo !== lastMo) {
           lastMo = mo; ctx.fillStyle = "#64748b";
-          ctx.fillText(new Date(d).toLocaleDateString("zh-CN", { month: "short" }),
-                       toX(i) + cndW / 2, H - 8);
+          ctx.fillText(new Date(d).toLocaleDateString("zh-CN", { month: "short" }), toX(i) + cndW / 2, H - 8);
         }
       });
       candles.forEach(([o, h, l, c], i) => {
         const green = c >= o, x = toX(i), mid = x + cndW / 2;
         ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
         ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
-        ctx.lineWidth   = 1;
+        ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
         const bTop = toY(Math.max(o, c)), bH = Math.max(1, toY(Math.min(o, c)) - bTop);
         ctx.fillRect(x, bTop, cndW, bH); ctx.strokeRect(x, bTop, cndW, bH);
       });
+      if (hasVol) {
+        const volTop = pad.top + priceH + gap;
+        const maxVol = Math.max(...candles.map(c => c[4] || 0));
+        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad.left, volTop); ctx.lineTo(W - pad.right, volTop); ctx.stroke();
+        ctx.fillStyle = "#475569"; ctx.font = `9px 'DM Mono', monospace`;
+        ctx.textAlign = "right";
+        ctx.fillText("量", pad.left - 5, volTop + 9);
+        candles.forEach(([o,, , c, v], i) => {
+          if (!v) return;
+          const green = c >= o;
+          const bH = Math.round((v / maxVol) * (volH - 4));
+          ctx.fillStyle = green ? "rgba(34,197,94,0.45)" : "rgba(239,68,68,0.45)";
+          ctx.fillRect(toX(i), volTop + (volH - 4) - bH, cndW, bH);
+        });
+      }
     }
 
     /* ── TICKER MODAL ── */

@@ -300,8 +300,35 @@
       color: var(--white);
       letter-spacing: 0.05em;
       cursor: pointer;
+      text-decoration: underline;
+      text-decoration-color: rgba(59,130,246,0.35);
+      text-decoration-style: dotted;
+      text-underline-offset: 3px;
     }
-    .ticker-cell:hover { color: var(--electric-bright); }
+    .ticker-cell:hover { color: var(--electric-bright); text-decoration-color: var(--electric-bright); text-decoration-style: solid; }
+    .chart-btn {
+      background: none; border: none; cursor: pointer;
+      color: rgba(96,165,250,0.4); padding: 0 0 0 5px;
+      line-height: 1; transition: color 0.15s; vertical-align: middle;
+      display: inline-flex; align-items: center;
+    }
+    .ticker-cell:hover .chart-btn { color: var(--electric-bright); }
+    th.col-baiz { color: var(--gold); border-right: 1px solid rgba(245,158,11,0.2); }
+    th.col-baiz:hover { color: var(--gold-light); }
+    td.col-baiz { font-weight: 700; border-right: 1px solid rgba(245,158,11,0.12); }
+    th.col-turn { color: #60a5fa; border-right: 1px solid rgba(96,165,250,0.2); }
+    th.col-turn:hover { color: #93c5fd; }
+    td.col-turn { font-weight: 700; border-right: 1px solid rgba(96,165,250,0.12); }
+    /* ── TICKER MODAL ── */
+    #tickerModal { position: fixed; inset: 0; z-index: 2000; background: rgba(6,13,31,0.88); display: none; align-items: center; justify-content: center; padding: 16px; }
+    #modalCard { background: #0d1e3d; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; width: min(820px,100%); max-height: 90vh; overflow-y: auto; padding: 28px; position: relative; }
+    #modalClose { position: absolute; top: 16px; right: 18px; background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer; line-height: 1; }
+    #modalClose:hover { color: #fff; }
+    #candleTimeframes { display: flex; gap: 6px; margin-bottom: 8px; }
+    .tf-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
+    .tf-btn.active, .tf-btn:hover { background: rgba(59,130,246,0.2); border-color: #3b82f6; color: #60a5fa; }
+    #candleCanvas { width: 100%; height: 280px; display: block; border-radius: 8px; }
+    #candleNoData { width: 100%; height: 280px; display: none; align-items: center; justify-content: center; color: #64748b; font-size: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; }
 
     .price-cell { font-family: 'DM Mono', monospace; color: var(--white); font-weight: 400; }
     .positive { color: var(--positive); font-family: 'DM Mono', monospace; }
@@ -369,7 +396,9 @@
       align-items: center;
       justify-content: flex-end;
       padding-bottom: 32px;
+      pointer-events: none;
     }
+    .blur-gate-inner { pointer-events: auto; }
     .blur-gate-inner { text-align: center; padding: 0 20px; }
     .blur-gate-eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #f59e0b; margin-bottom: 10px; }
     .blur-gate-title { font-family: 'DM Serif Display', serif; font-size: clamp(22px, 3vw, 32px); letter-spacing: -0.02em; color: var(--white); margin-bottom: 10px; line-height: 1.15; }
@@ -752,6 +781,7 @@
         </a>
         <a href="pricing.html" class="gate-btn-secondary">View Plans</a>
       </div>
+      <p style="font-size:10px;color:#475569;margin:10px 0 0;letter-spacing:0.04em;">Market Data Sourced by <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#475569;text-decoration:none;">Tiingo.com</a></p>
     </div>
   </div>
 
@@ -770,7 +800,31 @@
     <div class="tt-rows" id="ttRows"></div>
   </div>
 
+  <!-- TICKER MODAL -->
+  <div id="tickerModal">
+    <div id="modalCard">
+      <button id="modalClose">✕</button>
+      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
+        <span id="modalTicker" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:#fff;letter-spacing:.05em;"></span>
+        <span id="modalPrice"  style="font-size:18px;color:#60a5fa;font-weight:600;"></span>
+        <span id="modalPriceChange" style="font-size:15px;font-weight:600;"></span>
+      </div>
+      <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
+      <div id="candleTimeframes">
+        <button class="tf-btn active" data-tf="63">3M</button>
+        <button class="tf-btn" data-tf="126">6M</button>
+        <button class="tf-btn" data-tf="252">1Y</button>
+      </div>
+      <canvas id="candleCanvas"></canvas>
+      <div id="candleNoData">No chart data available yet</div>
+      <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:18px;"></div>
+    </div>
+  </div>
+
   <script>
+
+    /* ── CHART ICON ── */
+    const CHART_BTN = `<button class="chart-btn" title="View Chart" aria-label="View chart"><svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><line x1="2.5" y1="1" x2="2.5" y2="10" stroke="currentColor" stroke-width="0.9"/><rect x="1" y="3.5" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.5"/><line x1="7" y1="0.5" x2="7" y2="10.5" stroke="currentColor" stroke-width="0.9"/><rect x="5.5" y="2" width="3" height="6" rx="0.4" fill="currentColor"/><line x1="11.5" y1="1" x2="11.5" y2="9.5" stroke="currentColor" stroke-width="0.9"/><rect x="10" y="3" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.7"/></svg></button>`;
 
     /* ── STATE ── */
     let spRows = [], ndRows = [], allRows = [];
@@ -891,6 +945,14 @@
       return n >= mid ? "positive" : "negative";
     }
 
+    function turnFmt(v) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return { cls: "neutral", html: "—" };
+      if (n >= 50) return { cls: "positive", html: `<span style="font-size:9px;margin-right:2px;">▲</span>${n}` };
+      if (n >= 25) return { cls: "neutral",  html: `<span style="color:#f59e0b;font-size:9px;margin-right:2px;">→</span>${n}` };
+      return { cls: "negative", html: String(n) };
+    }
+
     function arrow(key) {
       if (sortKey !== key) return `<span class="sort-arrow"> ↕</span>`;
       return `<span class="sort-arrow">${sortAsc ? " ↑" : " ↓"}</span>`;
@@ -970,7 +1032,8 @@
         const head = `<thead><tr>
           ${thSort("Ticker",            "Ticker")}
           ${thStatic("Spark1Y",         "1Y Trend")}
-          ${thSort("Price",             "Price")}
+          ${thSort("BaizScore",         "Baizora", "col-baiz")}
+          ${thSort("TurnScore",         "Turn",    "col-turn")}
           ${thSort("RSScore",           "RS")}
           ${thSort("BreakoutScore",     "Breakout")}
           ${thSort("MomentumScore",     "Momentum")}
@@ -984,9 +1047,10 @@
             r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
           );
           return `<tr>
-            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}</td>
             <td class="spark-cell">${sparkSVG}</td>
-            <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
+            <td class="col-baiz ${scoreClass(r.BaizScore, 50)}">${r.BaizScore ?? "—"}</td>
+            ${(t => `<td class="col-turn ${t.cls}">${t.html}</td>`)(turnFmt(r.TurnScore))}
             <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
             <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
             <td class="${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</td>
@@ -1019,7 +1083,7 @@
           );
           const peVs = r.PE_vs_Sector;
           return `<tr>
-            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}</td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
             <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
@@ -1106,7 +1170,7 @@
         }
 
         return `<tr>
-          <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}</td>
+          <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}</td>
           <td class="spark-cell">${sparkSVG}</td>
           <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
           <td class="neutral">${r.VolumeM ?? "—"}</td>
@@ -1203,7 +1267,7 @@
     ══════════════════════════════════════════ */
 
     const COL_DESCS = {
-      "Ticker":          { label: "Ticker",    desc: "Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility, and sector comparison." },
+      "Ticker":          { label: "Ticker",    desc: "Stock symbol. Click to open candlestick chart (3M / 6M / 1Y). Hover for fundamentals: PE, market cap, EPS, volatility, and sector comparison." },
       "Spark1Y":         { label: "1Y Trend",  desc: "1-year normalized price sparkline. ▲ Triangle = highest-volume day (green=price up, red=price down). ● Circle = highest-price-change day (green=volume up, red=volume down)." },
       "Price":           { label: "Price",     desc: "Latest closing price in USD." },
       "VolumeM":         { label: "Vol (M)",   desc: "Trading volume in millions of shares for the most recent session." },
@@ -1223,6 +1287,8 @@
       "MomentumScore":   { label: "Momentum",      desc: "Momentum Score (0–100): percentile rank of weighted cross-timeframe price change. Formula: 35% × 1M + 25% × 3M + 20% × 6M + 20% × 1Y." },
       "VolPressureScore":{ label: "Vol Pressure",  desc: "Volume Pressure (−100 to 100): accumulation vs distribution. Positive = elevated volume on an up day. Negative = elevated volume on a down day." },
       "TrendScore":      { label: "Trend",         desc: "Trend Consistency (0–100): percentage of timeframes (2W, 1M, 3M, 6M, 9M, 1Y) showing positive price change. 100 = all 6 timeframes pointing up." },
+      "BaizScore":       { label: "Baizora Score", desc: "Baizora Composite Score (0–100): weighted blend of RS (35%), Momentum (20%), Breakout (20%), Trend (15%), and Vol Pressure (10%). High score = strong across all dimensions." },
+      "TurnScore":       { label: "Turn Score",    desc: "Turnaround Score (0–100): detects potential trend reversals — recent price/volume surges after a period of weakness. High score = early-stage breakout candidate." },
     };
 
     function getWindowColDesc(key, w) {
@@ -1263,7 +1329,7 @@
       if (!key) return;
       clearTimeout(colHideTimer);
       const info = COL_DESCS[key] || getWindowColDesc(key, currentWindow);
-      if (!info) return;
+      if (!info) { colTip.classList.remove("visible"); return; }
       colLabel.textContent = info.label;
       colDesc.textContent  = info.desc;
       positionTooltip(colTip, e.clientX, e.clientY);
@@ -1417,6 +1483,173 @@
       if (desktopBtn) _origShow(id, desktopBtn);
       syncDrawerActive(id);
     };
+
+    /* ── CANDLES DATA ── */
+    let candleData = null;
+    fetch("data/candles.json")
+      .then(r => r.json())
+      .then(d => { candleData = d; })
+      .catch(() => {});
+
+    /* ── CANDLESTICK RENDERER ── */
+    function renderCandleChart(canvas, candles, dates) {
+      const dpr  = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width  = rect.width  * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext("2d");
+      ctx.scale(dpr, dpr);
+      const W = rect.width, H = rect.height;
+      const hasVol = candles.some(c => c[4] > 0);
+      const volH   = hasVol ? Math.round(H * 0.22) : 0;
+      const gap    = hasVol ? 6 : 0;
+      const pad    = { top: 20, right: 16, bottom: 28, left: 58 };
+      const priceH = H - pad.top - pad.bottom - volH - gap;
+      const n      = candles.length;
+      const slotW  = (W - pad.left - pad.right) / n;
+      const cndW   = Math.max(1, slotW * 0.65);
+      const toX    = i => pad.left + i * slotW + (slotW - cndW) / 2;
+      let minP = Infinity, maxP = -Infinity;
+      candles.forEach(([o,h,l,c]) => { if(h>maxP) maxP=h; if(l<minP) minP=l; });
+      const buf  = (maxP - minP) * 0.05 || 1;
+      const lo   = minP - buf, hi = maxP + buf;
+      const toY  = p => pad.top + priceH * (1 - (p - lo) / (hi - lo));
+      ctx.clearRect(0, 0, W, H);
+      ctx.font = `11px 'DM Mono', monospace`;
+      /* price grid lines + labels */
+      ctx.textAlign = "right";
+      for (let i = 0; i <= 4; i++) {
+        const p = lo + (hi - lo) * (i / 4);
+        const y = toY(p);
+        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+        ctx.fillStyle = "#64748b";
+        ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 5, y + 4);
+      }
+      /* month labels on x-axis */
+      ctx.textAlign = "center";
+      let lastMo = -1;
+      dates.forEach((d, i) => {
+        const mo = new Date(d).getMonth();
+        if (mo !== lastMo) {
+          lastMo = mo;
+          ctx.fillStyle = "#64748b";
+          ctx.fillText(new Date(d).toLocaleDateString("en-US", { month: "short" }), toX(i) + cndW / 2, H - 8);
+        }
+      });
+      /* candlesticks */
+      candles.forEach(([o, h, l, c], i) => {
+        const green = c >= o;
+        const x = toX(i), mid = x + cndW / 2;
+        ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
+        ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
+        const bTop = toY(Math.max(o, c));
+        const bH   = Math.max(1, toY(Math.min(o, c)) - bTop);
+        ctx.fillRect(x, bTop, cndW, bH);
+        ctx.strokeRect(x, bTop, cndW, bH);
+      });
+      /* volume bars */
+      if (hasVol) {
+        const volTop  = pad.top + priceH + gap;
+        const maxVol  = Math.max(...candles.map(c => c[4] || 0));
+        /* subtle separator */
+        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad.left, volTop); ctx.lineTo(W - pad.right, volTop); ctx.stroke();
+        /* vol label */
+        ctx.fillStyle = "#475569"; ctx.font = `9px 'DM Mono', monospace`;
+        ctx.textAlign = "right";
+        ctx.fillText("VOL", pad.left - 5, volTop + 9);
+        candles.forEach(([o,, , c, v], i) => {
+          if (!v) return;
+          const green = c >= o;
+          const bH  = Math.round((v / maxVol) * (volH - 4));
+          const x   = toX(i);
+          ctx.fillStyle = green ? "rgba(34,197,94,0.45)" : "rgba(239,68,68,0.45)";
+          ctx.fillRect(x, volTop + (volH - 4) - bH, cndW, bH);
+        });
+      }
+    }
+
+    /* ── TICKER MODAL ── */
+    function openTickerModal(ticker) {
+      const r = allRows.find(x => x.Ticker === ticker);
+      if (!r) return;
+      document.getElementById("modalTicker").textContent = ticker;
+      document.getElementById("modalName").textContent   = r.CompanyName || "";
+      document.getElementById("modalPrice").textContent  = r.Price != null ? "$" + r.Price.toFixed(2) : "";
+      const pc1 = r.PriceChange1D;
+      const pc1El = document.getElementById("modalPriceChange");
+      if (pc1 != null) {
+        pc1El.textContent = (pc1 >= 0 ? "+" : "") + pc1 + "%";
+        pc1El.style.color = pc1 >= 0 ? "#22c55e" : "#ef4444";
+      } else { pc1El.textContent = ""; }
+      const fmtChg = v => v != null ? [(v >= 0 ? "+" : "") + v + "%", v >= 0 ? "#22c55e" : "#ef4444"] : ["—", "#94a3b8"];
+      const [m1v, m1c] = fmtChg(r["1MPriceChange"]);
+      const [m3v, m3c] = fmtChg(r["3MPriceChange"]);
+      const [y1v, y1c] = fmtChg(r["1YPriceChange"]);
+      const stats = [
+        ["P/E",     r.PE     != null ? r.PE.toFixed(1)                              : "—"],
+        ["EPS",     r.EPS    != null ? r.EPS.toFixed(2)                             : "—"],
+        ["Volume",  r.VolumeM != null ? r.VolumeM.toFixed(1)+"M"                   : "—"],
+        ["Beta",    r.Beta   != null ? r.Beta.toFixed(2)                            : "—"],
+        ["Vol 30D", r.Volatility30D != null ? (r.Volatility30D*100).toFixed(1)+"%" : "—"],
+        ["Mkt Cap", r.MarketCap != null ? "$"+r.MarketCap.toFixed(1)+"B"            : "—"],
+        ["Sector",  r.Sector || "—"],
+        ["1M CHG%", m1v, m1c],
+        ["3M CHG%", m3v, m3c],
+        ["1Y CHG%", y1v, y1c],
+      ];
+      document.getElementById("modalStats").innerHTML = stats.map(([k,v,c]) =>
+        `<div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 14px;">
+          <div style="color:#64748b;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:.06em;">${k}</div>
+          <div style="color:${c||'#fff'};font-size:14px;margin-top:4px;">${v}</div>
+        </div>`
+      ).join("");
+      document.getElementById("tickerModal").style.display = "flex";
+      document.body.style.overflow = "hidden";
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "63"));
+      requestAnimationFrame(() => { _renderModalChart(ticker, 63); });
+    }
+
+    let _modalTicker = null;
+    function _renderModalChart(ticker, tf) {
+      _modalTicker = ticker;
+      const candles = candleData?.data?.[ticker];
+      const dates   = candleData?.dates;
+      const canvas  = document.getElementById("candleCanvas");
+      const noData  = document.getElementById("candleNoData");
+      if (candles && candles.length > 0 && dates) {
+        const slice = Math.min(tf, candles.length);
+        canvas.style.display = "block"; noData.style.display = "none";
+        renderCandleChart(canvas, candles.slice(-slice), dates.slice(-slice));
+      } else {
+        canvas.style.display = "none"; noData.style.display = "flex";
+      }
+    }
+
+    document.getElementById("candleTimeframes").addEventListener("click", e => {
+      const btn = e.target.closest(".tf-btn");
+      if (!btn || !_modalTicker) return;
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      _renderModalChart(_modalTicker, parseInt(btn.dataset.tf));
+    });
+
+    function closeTickerModal() {
+      document.getElementById("tickerModal").style.display = "none";
+      document.body.style.overflow = "";
+    }
+    document.getElementById("modalClose").addEventListener("click", closeTickerModal);
+    document.getElementById("tickerModal").addEventListener("click", e => {
+      if (e.target === document.getElementById("tickerModal")) closeTickerModal();
+    });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeTickerModal(); });
+    document.getElementById("tableArea").addEventListener("click", e => {
+      const td = e.target.closest("td.ticker-cell");
+      if (td) openTickerModal(td.dataset.ticker);
+    });
 
   </script>
 
