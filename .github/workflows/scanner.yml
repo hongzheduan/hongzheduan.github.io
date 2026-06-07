@@ -2,8 +2,10 @@ name: Baizora Scanner
 
 on:
   schedule:
-    - cron: "0 22 * * 1-5"   # 6:00 PM ET (22:00 UTC) — scanner only, preliminary data
-    - cron: "0 0 * * 2-6"    # 8:00 PM ET (00:00 UTC next day) — scanner + videos, final data
+    - cron: "0 22 * * 1-5"   # 6:00 PM ET weekdays — preliminary data
+    - cron: "0 0 * * 2-6"    # 8:00 PM ET weekdays — final data + videos
+    - cron: "0 0 * * 0"      # 8:00 PM ET Saturday — weekend EDGAR refresh
+    - cron: "0 0 * * 1"      # 8:00 PM ET Sunday  — weekend EDGAR refresh
   workflow_dispatch:
 
 permissions:
@@ -36,16 +38,32 @@ jobs:
           IS_HOLIDAY=$(python -c "from scanner_tiingo import is_market_holiday; print(is_market_holiday())")
           echo "IS_HOLIDAY=$IS_HOLIDAY" >> $GITHUB_ENV
 
-          DOW=$(date +%u)   # 1=Mon … 5=Fri, 6=Sat, 7=Sun
+          DOW=$(date +%u)   # 1=Mon … 6=Sat, 7=Sun
+          HOUR=$(date +%H)
+
+          # IS_WEEKEND: true on Sat/Sun UTC, and on Mon midnight UTC (= Sun 8 PM ET).
+          # Used to skip video generation on days without fresh market data.
           if [ "$DOW" = "6" ] || [ "$DOW" = "7" ]; then
+            echo "IS_WEEKEND=True" >> $GITHUB_ENV
+          elif [ "$DOW" = "1" ] && [ "$HOUR" = "00" ]; then
             echo "IS_WEEKEND=True" >> $GITHUB_ENV
           else
             echo "IS_WEEKEND=False" >> $GITHUB_ENV
           fi
 
-          # 8 PM ET run fires at 00:xx UTC (midnight); 6 PM run fires at 22:xx UTC.
+          # FORCE_RUN=1 bypasses the weekend guard inside scanner_tiingo.py.
+          # Needed for Sun-midnight UTC (DOW=7, Sat 8 PM ET) and Mon-midnight UTC
+          # (DOW=1 + HOUR=00, Sun 8 PM ET) — days with no Tiingo market data.
+          if [ "$DOW" = "7" ]; then
+            echo "FORCE_RUN=1" >> $GITHUB_ENV
+          elif [ "$DOW" = "1" ] && [ "$HOUR" = "00" ]; then
+            echo "FORCE_RUN=1" >> $GITHUB_ENV
+          else
+            echo "FORCE_RUN=" >> $GITHUB_ENV
+          fi
+
+          # 8 PM ET run fires at 00:xx UTC; 6 PM run fires at 22:xx UTC.
           # Videos only run on the 8 PM (final data) run.
-          HOUR=$(date +%H)
           if [ "$HOUR" = "00" ] || [ "$HOUR" = "01" ]; then
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
           else
@@ -56,6 +74,7 @@ jobs:
         if: env.IS_HOLIDAY != 'True'
         env:
           TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
+          FORCE_RUN: ${{ env.FORCE_RUN }}
         run: python scanner_tiingo.py
 
       - name: Commit updated data
@@ -76,6 +95,7 @@ jobs:
           git add data/index_news.json                 2>/dev/null || true
           git add data/sp500_symbols.txt               2>/dev/null || true
           git add data/nasdaq100_symbols.txt           2>/dev/null || true
+          git add data/fundamentals_cache.json         2>/dev/null || true
           git add archive/results_*.csv               2>/dev/null || true
           git add archive/compare_*.log               2>/dev/null || true
 
