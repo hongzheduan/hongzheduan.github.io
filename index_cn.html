@@ -1894,6 +1894,51 @@ window.mockSort = function(col, el) {
   }).catch(() => {});
 })();
 
+// Live IEX prices — refresh ticker bar + demo table during market hours
+(function() {
+  const IEX_API = "https://us-central1-baizora.cloudfunctions.net/api/iex-quotes";
+  const BAR_TICKERS = ["NVDA","GOOGL","AAPL","MSFT","AMZN","AVGO","TSLA","META","WMT","MU"];
+
+  function isMarketOpen() {
+    try {
+      const et = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+      const d = et.getDay();
+      if (d === 0 || d === 6) return false;
+      const m = et.getHours() * 60 + et.getMinutes();
+      return m >= 570 && m < 960;
+    } catch(e) { return false; }
+  }
+
+  async function refreshPrices() {
+    try {
+      const resp = await fetch(IEX_API);
+      if (!resp.ok) return;
+      const q = await resp.json();
+      if (!q || !Object.keys(q).length) return;
+
+      if (MOCK_DATA.length) {
+        MOCK_DATA.forEach(row => { if (q[row.tk]?.last) row.pr = q[row.tk].last; });
+        renderMock();
+      }
+
+      const track = document.getElementById('tickerTrack');
+      if (!track) return;
+      const html = BAR_TICKERS.map(t => {
+        const d = q[t]; if (!d) return '';
+        const pc  = d.chgPct ?? 0;
+        const cls = pc >= 0 ? 'up' : 'dn';
+        const arr = pc >= 0 ? '▲' : '▼';
+        const s   = pc >= 0 ? '+' : '';
+        return `<a href="stocks/${t}.html" class="ticker-item" style="text-decoration:none;cursor:pointer;"><span class="sym">${t}</span> $${(d.last||0).toFixed(2)} <span class="${cls}">${arr} ${s}${pc.toFixed(1)}%</span></a>`;
+      }).join('');
+      track.innerHTML = html + html;
+    } catch(e) { /* silent */ }
+  }
+
+  refreshPrices();
+  if (isMarketOpen()) setInterval(refreshPrices, 60_000);
+})();
+
 // Promo bar: static links (CN)
 (function() {
   const track = document.getElementById('promoTrack');

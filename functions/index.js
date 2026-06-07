@@ -3,6 +3,7 @@ const express = require("express");
 const Stripe = require("stripe");
 const admin = require("firebase-admin");
 const cors = require("cors");
+const https = require("https");
 
 const { defineSecret } = require("firebase-functions/params");
 
@@ -15,6 +16,7 @@ const app = express();
 --------------------------- */
 const stripeSecret = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
+const tiingoKey = defineSecret("TIINGO_API_KEY");
 
 /* ---------------------------
    MIDDLEWARE
@@ -22,6 +24,50 @@ const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
    Each route gets json() explicitly.
 --------------------------- */
 app.use(cors({ origin: true }));
+
+/* ---------------------------
+   IEX LIVE QUOTES  (homepage only)
+--------------------------- */
+const _IEX_TICKERS = "NVDA,GOOGL,AAPL,MSFT,AMZN,AVGO,TSLA,META,WMT,MU";
+let _iexCache = null;
+let _iexCacheTs = 0;
+
+function _tiingoGet(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, res => {
+      let body = "";
+      res.on("data", c => body += c);
+      res.on("end", () => { try { resolve(JSON.parse(body)); } catch(e) { reject(e); } });
+    }).on("error", reject);
+  });
+}
+
+app.get("/iex-quotes", async (req, res) => {
+  try {
+    const now = Date.now();
+    if (_iexCache && (now - _iexCacheTs) < 60_000) return res.json(_iexCache);
+    const data = await _tiingoGet(
+      `https://api.tiingo.com/iex?tickers=${_IEX_TICKERS}&token=${tiingoKey.value()}`
+    );
+    const result = {};
+    (Array.isArray(data) ? data : []).forEach(q => {
+      const t = (q.ticker || "").toUpperCase();
+      if (!t) return;
+      const last = q.tngoLast ?? q.last;
+      const prev = q.prevClose;
+      result[t] = {
+        last,
+        chgPct: (prev && last) ? +((last - prev) / prev * 100).toFixed(2) : null,
+      };
+    });
+    _iexCache = result;
+    _iexCacheTs = now;
+    res.json(result);
+  } catch(e) {
+    console.error("iex-quotes:", e.message);
+    res.status(200).json(_iexCache || {});
+  }
+});
 
 /* ---------------------------
    STRIPE INIT
