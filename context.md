@@ -1,21 +1,22 @@
 # Baizora Scanner - Project Context
 
-## Status: Temporarily on yfinance (2026-06-02) — dashboard free to logged-in users
+## Status: Tiingo scanner LIVE (2026-06-07) — dashboard free to logged-in users
 
-`scanner_yfinance.py` is live in production (free, bridge while shopping data providers).
-`scanner_massive.py` kept as backup — restore by changing `scanner.yml` run command + adding `MASSIVE_API_KEY` secret.
-Scanner cron paused. Dashboard free for any logged-in user (no subscription check).
+`scanner_tiingo.py` is live in production. Two daily cron runs (6 PM ET preliminary; 8 PM ET final + videos).
+`scanner_yfinance.py` kept as backup. Billing still paused pending one clean week of Tiingo data.
+Dashboard free for any logged-in user (no subscription check).
 
 ---
 
-## Current Data Quality (as of 2026-05-31)
+## Current Data Quality (as of 2026-06-07)
 
 | Metric | Status |
 |---|---|
 | Total tickers | 516 (503 S&P 500 + 101 Nasdaq-100, union) |
 | Unknown sectors | 0 |
-| EPS coverage | 505/516 (98%) |
-| Missing name/mktcap | 0 |
+| EPS coverage | 503/516 (97%) — 13 tickers have EPS=None |
+| Company names | 516/516 (EDGAR CIK map fallback works even on Tiingo 502) |
+| Missing mktcap | 0 |
 
 ---
 
@@ -34,12 +35,17 @@ Scanner cron paused. Dashboard free for any logged-in user (no subscription chec
 - **Annual across all fields:** Best annual is tracked across all 4 fields before falling back — no early return from stale data in first field.
 
 **Special cases:**
-- `BRK-B`: EDGAR EPS is at Class A level → divide by 1500 for Class B
+- `BRK-B`: Berkshire stopped tagging EPS in EDGAR XBRL after 2013. Quarterly date filter (`end >= today-2yr`) correctly returns `eps=None` — no stale Class A data. BRK-B does not appear in PE/EPS display.
 - `BKNG`: 25-for-1 stock split April 2026 → divide by 25. Guard `eps > 25` auto-disables once Q2 2026 10-Q is filed (~Aug 2026) with post-split EPS.
+- `CVNA`: 5-for-1 stock split May 2026 (2026-05-08). Q1 2026 10-Q filed 2026-04-29 (pre-split). Guard: `eps > 4 → eps / 5`. Auto-disables once Q2 2026 10-Q (post-split) is filed (~Aug 2026).
 - Foreign IFRS filers (CCEP, FER, TRI, ASML, PDD): no US-GAAP EPS in EDGAR → None
 - Visa (V): no XBRL EPS data at all in EDGAR → None
 
-**EPS=None tickers (11):** CCEP, FER, TRI, ASML, PDD, V, ERIE, ARES, KKR, STZ, ARM
+**`_derive_quarterly_eps` dedup (fixed 2026-06-07):** Some companies file BOTH an individual quarterly EPS AND a YTD cumulative EPS with the same `end` and `filed` date. Tiebreaker: prefer entry with `period ≈ 90 days` (individual quarter) over longer periods (H1=~180d, 9M=~270d). Without this, VRSN's 9M YTD entry was treated as a single quarter, inflating TTM.
+
+**Quarterly date filter (fixed 2026-06-07):** `10-Q` entries now require `end >= (today-2yr)`, matching the annual filter. Without this, BRK-B's 12 stale 2013 quarterly EPS entries (~$7,219/share Class A) passed through and produced wrong EPS.
+
+**EPS=None tickers (13):** CCEP, FER, TRI, ASML, PDD, V, ERIE, ARES, KKR, STZ, ARM, BRK-B, and possibly others with no recent EDGAR data
 
 ---
 
@@ -91,8 +97,10 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 ## GitHub Actions Schedule
 
-- **Weekdays 9:30 PM UTC (5:30 PM ET):** scanner + daily videos (re-enabled after switching to yfinance)
+- **Weekdays 22:00 UTC (6 PM ET):** preliminary scan only (`IS_VIDEO_RUN=False`); commits data
+- **Weekdays 00:00 UTC next day (8 PM ET):** final scan + daily videos (`IS_VIDEO_RUN=True`)
 - Videos skipped on weekends and holidays
+- Both runs use `scanner_tiingo.py` with `TIINGO_API_KEY` secret
 
 ---
 
@@ -106,12 +114,12 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 ## Dashboard
 
-- Ticker click → modal with 1Y candlestick chart + P/E, EPS, Beta, Vol30D, MarketCap, Sector
-- Modal header: 1D price change badge (green/red) displayed next to price
-- Modal stats grid: Volume (M), 1M/3M/1Y price change tiles with green/red coloring added (2026-06-01)
-- Close button: fixed `type=module` scope bug — `onclick` attribute can't reach module functions; replaced with `addEventListener` inside module (both EN and CN files)
-- Candle data: separate `data/candles.json`, loaded after table renders
-- **Watchlist** (added 2026-06-01): ☆ star icon on every row; click to save/remove. Stored in `localStorage` under `"baizora_watchlist"`. Dedicated "★ Watchlist" tab (EN) / "★ 自选股" tab (CN) shows saved tickers with full table/sort/filter. Persists across page refreshes; shared between EN and CN versions.
+- Ticker click → modal with candlestick chart + P/E, EPS, Beta, Vol30D, MarketCap, Sector
+- Modal header: ticker symbol, **company name** (`#modalName`, color `#94a3b8`), price, 1D price change (green/red)
+- Timeframe toggle: 3M / 6M / 1Y (defaults to 3M = 63 bars); driven by `data/candles.json`
+- Modal stats grid: Volume (M), 1M/3M/1Y price change tiles with green/red coloring
+- Close button: fixed `type=module` scope bug — wired via `addEventListener` inside module (both EN and CN)
+- **Watchlist** (2026-06-01): ☆ star icon; localStorage `"baizora_watchlist"`; "★ Watchlist" / "★ 自选股" tab
 
 ---
 
@@ -246,6 +254,44 @@ Confirm a paid data provider is active before re-enabling billing. Do NOT charge
 
 ---
 
+## What Was Done 2026-06-07
+
+### scanner_tiingo.py — Three EPS Fixes
+
+**Fix 1: VRSN EPS dedup tiebreaker (`_derive_quarterly_eps`)**
+- Root cause: VRSN files BOTH an individual quarterly EPS and a YTD cumulative EPS with the same `end` + `filed` date. Python's stable sort picked arbitrarily; sometimes 9M YTD ($6.58) won over Q3 ($2.27). The 9M entry had no prior YTD to subtract from, so it was treated as a single quarter, producing wrong TTM.
+- Fix: sort tiebreaker by `-abs(period_days - 90)` — prefers entries closest to 90-day individual quarters. Period ≈ 90 for individual quarters, ≈ 180 for H1 YTD, ≈ 270 for 9M YTD.
+- Result: VRSN EPS 2.07 → 9.05 (matches yfinance; diff gone from compare log)
+
+**Fix 2: BRK-B stale quarterly entries (quarterly date filter)**
+- Root cause: 10-Q entries had NO date filter. BRK-B's 12 stale 2013 quarterly EPS entries (~$7,219/share Class A) passed through, summed 4 quarters of 2013 → ÷1500 = $4.81 Class B EPS (wrong).
+- Fix: `q10_entries` now filtered by `end >= min_annual_end` (same `today-2yr` cutoff as annual entries).
+- Result: BRK-B → EPS=None (Berkshire has no EDGAR XBRL EPS data after 2013). No longer appears in compare log.
+
+**Fix 3: CVNA 5:1 split EPS guard**
+- Root cause: CVNA's 5-for-1 split was 2026-05-08. Q1 2026 10-Q was filed 2026-04-29 (pre-split). Shares were correctly multiplied by 5 via `_get_post_filing_split_factor`, but EPS was not divided by 5.
+- Fix: explicit guard `if ticker == "CVNA" and eps is not None and eps > 4: eps = round(eps / 5, 4)`. Matches BKNG ÷25 pattern. Auto-disables once Q2 2026 10-Q (post-split) is filed (~Aug 2026).
+- Result: CVNA EPS 10.20 → 2.04
+
+### Company Name Fallback
+
+- Root cause: Tiingo meta endpoint returned HTTP 502 in both recent scans → `tiingo_names={}` → all 516 `CompanyName` fields empty in cache and `latest.json`.
+- Fix 1 (immediate): one-time script fetched all names from SEC EDGAR CIK map (`company_tickers.json`) — single HTTP call covers all 516 tickers. Patched `fundamentals_cache.json` and `latest.json`.
+- Fix 2 (permanent): `_load_edgar_cik_map()` now also builds `_edgar_name_map` (ticker → title from CIK JSON). `get_fundamentals` uses it as fallback when both Tiingo and cache CompanyName are empty. Covers both cached and newly-fetched tickers.
+
+### Compare Log Status (2026-06-07)
+- VRSN: fixed ✓ (not in log)
+- BRK-B: fixed ✓ (not in log)
+- CVNA: fixed ✓
+- Remaining flagged EPS diffs are expected GAAP vs adjusted differences (OXY, MLM, CI, HSY, GD, TXT, BDX, etc.) — our GAAP TTM is correct; yfinance uses analyst "adjusted" EPS
+
+### Tiingo Scanner Activated
+- `scanner_tiingo.py` committed and now the active scanner in `scanner.yml`
+- First complete scan with all fixes ran 2026-06-07; compare log clean of structural EPS bugs
+- Modal company name confirmed working (was already wired up as `#modalName` in prior session)
+
+---
+
 ## What Was Done 2026-06-06
 
 - `scanner_tiingo.py` created — Tiingo commercial API scanner
@@ -270,9 +316,9 @@ Confirm a paid data provider is active before re-enabling billing. Do NOT charge
 
 ## Next Time: What to Check
 
-1. **scanner_tiingo.py first run** — watch for: bulk endpoint field names (adjClose vs close), BRK-B/BF-B lowercase format, BNY ticker (verify Tiingo returns `bny` not `bk`)
-2. **Re-enable billing + paid gate:** remove redirect from `billing.html`/`billing_cn.html`; uncomment subscription fetch block in both dashboard files (checklist in context.md above)
-3. BKNG split guard — once Q2 2026 10-Q is filed (~Aug 2026), verify `eps > 25` guard auto-disables correctly
-4. Remaining 11 EPS=None tickers — any solvable without a paid data source?
-5. **EPS cache rebuild caution** — if fundamentals cache must be deleted, patch sector from old cache before re-running
-6. **Tiingo attribution** — add `"Market Data Sourced by Tiingo.com"` to dashboard pages (`baizora_main_form.html`, `baizora_main_form_cn.html`) and any data-facing product pages, per the license agreement requirement
+1. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the 6-item revert checklist above.
+2. **Tiingo attribution** — required by license: add `"Market Data Sourced by Tiingo.com"` to `baizora_main_form.html`, `baizora_main_form_cn.html`, and any other data-facing product pages. NOT yet done.
+3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify eps drops to expected post-split values and compare log stays clean.
+4. **Remaining EPS=None tickers** — BRK-B is structural (no EDGAR data after 2013); others may be IFRS filers. Investigate if any are solvable from EDGAR without a paid source.
+5. **EPS cache rebuild caution** — if `fundamentals_cache.json` must be deleted, the next scan will re-fetch all 516 tickers from EDGAR (takes ~15 min). Sector overrides are in code, not cache — safe to rebuild.
+6. **yfinance compare log** — remaining flagged diffs (OXY 436%, MLM 163%, CI 382%) are all GAAP one-time items vs adjusted EPS. These are correct and expected — not bugs.
