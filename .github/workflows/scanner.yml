@@ -1,9 +1,9 @@
-name: Baizora Scanner
+﻿name: Baizora Scanner
 
 on:
   schedule:
-    - cron: "0 22 * * 1-5"   # 6:00 PM ET weekdays — preliminary data
-    - cron: "0 0 * * 2-6"    # 8:00 PM ET weekdays — final data + videos
+    - cron: "0 22 * * 1-5"   # 6:00 PM ET weekdays — preliminary data + videos
+    - cron: "0 0 * * 2-6"    # 8:00 PM ET weekdays — final data
     - cron: "0 0 * * 0"      # 8:00 PM ET Saturday — weekend EDGAR refresh
     - cron: "0 0 * * 1"      # 8:00 PM ET Sunday  — weekend EDGAR refresh
   workflow_dispatch:
@@ -62,9 +62,8 @@ jobs:
             echo "FORCE_RUN=" >> $GITHUB_ENV
           fi
 
-          # 8 PM ET run fires at 00:xx UTC; 6 PM run fires at 22:xx UTC.
-          # Videos only run on the 8 PM (final data) run.
-          if [ "$HOUR" = "00" ] || [ "$HOUR" = "01" ]; then
+          # Videos run on the 6 PM ET run (22:xx UTC).
+          if [ "$HOUR" = "22" ] || [ "$HOUR" = "23" ]; then
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
           else
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
