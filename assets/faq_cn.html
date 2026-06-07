@@ -239,8 +239,20 @@
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        市场数据在美股收盘后每日更新，通常在<strong>美东时间下午5:00–6:00</strong>之间。这确保了一致稳定的每日对比，不受盘中噪声干扰。<br><br>
-        所有信号——价格变化、成交量行为、移动均线比率、走势图和基本面——均反映最新交易日的收盘数据。
+        扫描器<strong>每天运行，包括周末</strong>。工作日运行两次：市场收盘后约在<strong>美东时间下午6:00</strong>进行初步扫描，并在<strong>美东时间下午8:00</strong>进行最终扫描。周末扫描延续最近一个周五的收盘数据。<br><br>
+        价格、成交量、走势图和所有评分信号均反映最新交易日的收盘数据。基本面数据——每股收益、市盈率和行业——约每周从 SEC EDGAR 刷新一次。
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">市盈率和每股收益数据有多新？</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        每股收益直接来源于 <strong>SEC EDGAR XBRL 申报文件</strong>——这是美国所有上市公司向监管机构提交的权威 US GAAP 财务数据。EDGAR 在公司提交新的季报（10-Q）或年报（10-K）时更新，通常每季度一次。<br><br>
+        扫描器每晚运行，并滚动刷新 EDGAR 基本面数据。实际上，每股收益变动较少——仅在公司提交新的 10-Q 或 10-K 时才会变化——因此数据始终与实际公司申报保持同步。<br><br>
+        <strong>关于 GAAP 与调整后每股收益的说明：</strong>贝佐拉报告的是<strong>过去十二个月（TTM）摊薄 GAAP 每股收益</strong>。这与其他金融平台常见的"调整后"或"非 GAAP"数据不同。GAAP 每股收益包含一次性费用、重组成本和减值损失，而调整后数据则将其剔除。对于某些公司，这可能导致市盈率存在明显差异。
       </div></div>
     </div>
 
