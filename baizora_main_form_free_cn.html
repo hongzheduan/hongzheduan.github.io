@@ -1639,13 +1639,23 @@
         ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 5, y + 4);
       }
       ctx.textAlign = "center";
-      let lastMo = -1;
+      let lastMo = -1, lastYr = -1, moCount = 0;
       dates.forEach((d, i) => {
-        const mo = new Date(d).getMonth();
-        if (mo !== lastMo) {
-          lastMo = mo;
+        const dt = new Date(d + 'T12:00:00');
+        const mo = dt.getMonth(), yr = dt.getFullYear();
+        if (n < 100) {
+          if (i % Math.round(n / 6) !== 0) return;
           ctx.fillStyle = "#64748b";
-          ctx.fillText(new Date(d).toLocaleDateString("zh-CN", { month: "short" }), toX(i) + cndW / 2, H - 8);
+          ctx.fillText(dt.toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" }), toX(i) + cndW / 2, H - 8);
+        } else {
+          if (mo === lastMo) return;
+          lastMo = mo; moCount++;
+          if (n >= 200 && moCount % 2 === 0) return;
+          const moName = dt.toLocaleDateString("zh-CN", { month: "short" });
+          const label  = yr !== lastYr ? `${moName}'${String(yr).slice(-2)}` : moName;
+          lastYr = yr;
+          ctx.fillStyle = "#64748b";
+          ctx.fillText(label, toX(i) + cndW / 2, H - 8);
         }
       });
       candles.forEach(([o, h, l, c], i) => {
