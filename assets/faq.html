@@ -242,8 +242,20 @@
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        Market data is processed and updated daily after U.S. market close, typically between <strong>5:00–6:00 PM Eastern Time</strong>. This ensures consistent, stable daily comparisons without intraday noise.<br><br>
-        All signals — price changes, volume behavior, moving average ratios, sparklines, and fundamentals — reflect the most recent session's closing data.
+        The scanner runs <strong>every day at midnight UTC, including weekends</strong>. On weekdays two scans run: a preliminary pass at approximately <strong>6:00 PM Eastern Time</strong> (shortly after market close) and a final pass at <strong>8:00 PM Eastern Time</strong>. Weekend scans carry forward the most recent Friday closing data.<br><br>
+        Price, volume, sparklines, and all score signals reflect the most recent session's closing data. Fundamental data — EPS, P/E ratio, and sector — is refreshed from SEC EDGAR approximately once per week.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">How current is the P/E and EPS data?</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        EPS is sourced directly from <strong>SEC EDGAR XBRL filings</strong> — the authoritative US GAAP financial data submitted to regulators by every public company. EDGAR is updated when companies file new quarterly (10-Q) or annual (10-K) reports, typically once every three months.<br><br>
+        The scanner runs nightly and refreshes EDGAR fundamentals on a rolling basis. In practice, EPS changes are infrequent — they only shift when a new 10-Q or 10-K is filed — so the data stays current with actual corporate filings.<br><br>
+        <strong>Note on GAAP vs. adjusted EPS:</strong> Baizora reports <strong>trailing twelve months (TTM) diluted GAAP EPS</strong>. This differs from the "adjusted" or "non-GAAP" figures commonly shown on other financial platforms. GAAP EPS includes one-time charges, restructuring costs, and write-downs that adjusted figures exclude. For some companies this can result in meaningfully different P/E ratios.
       </div></div>
     </div>
 

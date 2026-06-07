@@ -142,7 +142,7 @@
 
     <div class="eyebrow">◈ &nbsp; Internal Documentation</div>
     <h1>Data &amp; Methodology</h1>
-    <div class="doc-meta">BAIZORA &nbsp;·&nbsp; VERSION 2026-06-01 &nbsp;·&nbsp; CONFIDENTIAL</div>
+    <div class="doc-meta">BAIZORA &nbsp;·&nbsp; VERSION 2026-06-07 &nbsp;·&nbsp; CONFIDENTIAL</div>
 
     <!-- ── OVERVIEW ── -->
     <div class="doc-section" id="overview">
@@ -181,21 +181,23 @@
       <div class="section-label">03 — Data Sources</div>
       <h2>Where the Data Comes From</h2>
 
-      <h3>Polygon.io (Market Data)</h3>
-      <p>All price, volume, and company fundamental data (name, market cap, SIC code) is sourced from <strong>Polygon.io</strong> via a commercial API licence. Polygon aggregates data from all US exchanges and dark pools, reporting consolidated tape volume.</p>
+      <h3>Tiingo (Market Data)</h3>
+      <p>All price and volume data is sourced from <strong>Tiingo</strong> via a commercial API licence. Tiingo provides end-of-day OHLCV data for US equities with split and dividend adjustments.</p>
       <ul>
-        <li><strong>Grouped daily endpoint</strong> — one API call per trading day returns OHLCV bars for the entire universe.</li>
-        <li><strong>Ticker details endpoint</strong> — provides company name, market cap, SIC description.</li>
-        <li><strong>Adjusted prices</strong> — all OHLCV data is split- and dividend-adjusted (<code>adjusted=true</code>).</li>
+        <li><strong>Bulk daily endpoint</strong> — one API call returns the latest EOD bar for all tickers in a single request.</li>
+        <li><strong>Per-ticker history endpoint</strong> — fetches up to 2 years of daily OHLCV history on first scan; incremental updates thereafter.</li>
+        <li><strong>Adjusted prices</strong> — all OHLCV data is split- and dividend-adjusted.</li>
       </ul>
 
-      <h3>SEC EDGAR (EPS Data)</h3>
-      <p>Earnings per share is sourced directly from the <strong>SEC EDGAR XBRL API</strong> — a free, public, unlimited-rate API provided by the US Securities and Exchange Commission. No third-party data vendor is used for EPS.</p>
+      <h3>SEC EDGAR (EPS, Shares, Sector)</h3>
+      <p>Earnings per share, shares outstanding, and SIC sector classification are sourced directly from the <strong>SEC EDGAR XBRL API</strong> — a free, public API provided by the US Securities and Exchange Commission. No third-party data vendor is used for fundamentals.</p>
       <ul>
-        <li>Endpoint: <code>data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json</code></li>
+        <li>EPS endpoint: <code>data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json</code></li>
+        <li>Sector/shares endpoint: <code>data.sec.gov/submissions/CIK{cik}.json</code></li>
         <li>XBRL concept: <code>us-gaap/EarningsPerShareDiluted</code> (primary; see EPS section for full field order)</li>
         <li>All figures are as reported under US GAAP.</li>
       </ul>
+      <p>Company names are resolved via the EDGAR CIK map (<code>company_tickers.json</code>) as a fallback when the Tiingo meta endpoint is unavailable.</p>
 
       <h3>Firebase &amp; Stripe</h3>
       <p>User authentication is handled by <strong>Firebase Auth</strong>. Subscription billing uses <strong>Stripe</strong>. Neither service is involved in market data processing.</p>
@@ -209,23 +211,24 @@
       <h2>Daily Processing Flow</h2>
 
       <h3>Schedule</h3>
-      <p>The scanner runs as a <strong>GitHub Actions workflow</strong> on a cron schedule:</p>
+      <p>The scanner runs as a <strong>GitHub Actions workflow</strong> on a daily midnight UTC schedule, every day including weekends:</p>
       <ul>
-        <li><strong>Weekdays at 20:30 UTC</strong> — approximately 30 minutes after NYSE close (16:00 ET), allowing final trade prints to settle.</li>
-        <li><strong>Saturday at 00:00 UTC</strong> — redundant run in case a weekday run fails.</li>
+        <li><strong>Weekdays at 22:00 UTC (6:00 PM ET)</strong> — preliminary scan shortly after NYSE close, allowing final trade prints to settle. Commits updated market data.</li>
+        <li><strong>Daily at 00:00 UTC (8:00 PM ET prior day)</strong> — final scan with video generation on weekdays. On weekends, carries forward the most recent Friday closing data and refreshes fundamentals if the cache has expired.</li>
       </ul>
+      <p>Running every night (including weekends) ensures the fundamentals cache is kept warm and the dashboard reflects the latest available data at all times.</p>
 
       <h3>Market Closure Detection</h3>
-      <p>Before scanning, the pipeline probes the Polygon grouped endpoint for the current date. If it returns zero results on what should be a trading day, the run aborts and the existing <code>latest.json</code> is left unchanged. This handles unexpected market closures (e.g. the January 2025 Jimmy Carter state funeral holiday).</p>
-      <p>Regular NYSE holidays (New Year's Day, MLK Day, Presidents' Day, Good Friday, Memorial Day, Juneteenth, Independence Day, Labor Day, Thanksgiving, Christmas) are computed algorithmically and skipped without an API probe.</p>
+      <p>On weekdays, before fetching new data, the pipeline probes Tiingo for the current day's SPY data. If the probe returns no results on what should be a trading day, the run aborts and the existing <code>latest.json</code> is left unchanged. This handles unexpected market closures (e.g. the January 2025 Jimmy Carter state funeral holiday).</p>
+      <p>Regular NYSE holidays are computed algorithmically and skipped without an API probe. Weekend runs bypass the market probe and proceed directly to using cached OHLCV data.</p>
 
       <h3>Steps per Run</h3>
       <ol>
-        <li><strong>Build OHLCV cache</strong> — identify missing trading-day cache files and fetch them via one grouped API call each.</li>
-        <li><strong>Load fundamentals</strong> — read from disk cache (8-day TTL). Fetch any missing tickers from Polygon + EDGAR.</li>
-        <li><strong>Load OHLCV into memory</strong> — all cache files loaded once; each ticker reads from this in-memory dict (avoids 500+ disk reads per ticker).</li>
+        <li><strong>Update OHLCV cache</strong> — one bulk Tiingo API call fetches the latest EOD bar for all 516 tickers; missing history is backfilled per-ticker on first scan.</li>
+        <li><strong>Load fundamentals</strong> — read from disk cache (8-day TTL, committed to git so it persists across runs). Fetch any missing or expired tickers from EDGAR.</li>
+        <li><strong>Load OHLCV into memory</strong> — per-ticker cache files loaded once into a shared dict; each metric computation reads from memory rather than disk.</li>
         <li><strong>Compute metrics</strong> — for each of 516 tickers: reconstruct price/volume series, calculate all timeframe metrics, fundamentals, scores.</li>
-        <li><strong>Post-process</strong> — compute sector average P/E (market-cap weighted), percentile-rank RSScore and MomentumScore across the full universe.</li>
+        <li><strong>Post-process</strong> — compute sector average P/E (market-cap weighted harmonic mean), percentile-rank RSScore and MomentumScore across the full universe.</li>
         <li><strong>Data quality check</strong> — flag any ticker with &gt;25% 1D price change (likely a cache gap), &lt;200 candle bars, or empty cache files.</li>
         <li><strong>Export</strong> — write <code>data/latest.json</code>, <code>data/candles.json</code>, and a dated CSV to <code>archive/</code>.</li>
       </ol>
@@ -240,27 +243,13 @@
 
       <div id="ohlcv-cache">
         <h3>Cache Structure</h3>
-        <p>One JSON file per trading day: <code>data/ohlcv_cache/YYYY-MM-DD.json</code>. Each file is a flat dict mapping ticker → <code>{o, h, l, c, v}</code>. Files are written once and never overwritten (except for files &lt;5 bytes, which are treated as failed writes and retried).</p>
-        <p>The cache currently holds <strong>up to 730 calendar days</strong> (~504 trading days) of history. Older files are not proactively deleted but are outside the calculation window.</p>
-
-        <h3>Ticker Aliases</h3>
-        <p>Polygon uses dot notation for dual-class shares; the scanner's internal list uses hyphens (matching index provider conventions). A static alias map translates at fetch time:</p>
-        <div class="card">
-          <table class="data-table">
-            <thead><tr><th>Internal Ticker</th><th>Polygon Symbol</th><th>Reason</th></tr></thead>
-            <tbody>
-              <tr><td>BRK-B</td><td>BRK.B</td><td>Berkshire Hathaway Class B</td></tr>
-              <tr><td>BF-B</td><td>BF.B</td><td>Brown-Forman Class B</td></tr>
-              <tr><td>BNY</td><td>BK</td><td>Bank of New York Mellon (ticker changed from BK to BNY in 2025)</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <p>One JSON file per ticker: <code>data/ohlcv_tiingo_cache/{TICKER}.json</code>. Each file contains the full OHLCV history for that ticker as a list of <code>{date, open, high, low, close, volume}</code> records, sorted ascending by date. Files are updated incrementally — new bars are appended without rewriting history.</p>
+        <p>The cache holds <strong>up to 2 years of daily history</strong> (~504 trading days). On first scan a ticker has no cache file and the full history is backfilled from Tiingo. Subsequent scans append only the new bar from the bulk daily endpoint.</p>
       </div>
 
       <div id="volume-note">
         <h3>Volume Definition</h3>
-        <p>Polygon's grouped daily endpoint reports <strong>consolidated tape volume</strong> — the total number of shares traded across all US venues: primary exchanges (NYSE, Nasdaq, CBOE, BATS), regional exchanges, dark pools, and off-exchange (OTC) prints.</p>
-        <p>Yahoo Finance and most retail data providers typically show only primary-exchange volume. For liquid large-caps, <strong>30–45% of daily volume is executed off-exchange</strong>, so Baizora's reported volume is systematically 25–60% higher than Yahoo Finance. This is not an error — it is a more complete measure of actual market activity.</p>
+        <p>Tiingo's EOD data reports share volume as provided by the exchange feed. Volume figures may include extended-hours trading (pre-market and after-hours sessions) in addition to regular-session activity, depending on the instrument and exchange reporting conventions. Reported volume is therefore systematically higher than platforms that show only regular-session volume. This is not an error — it reflects a broader measure of daily market activity.</p>
       </div>
     </div>
 
@@ -349,6 +338,7 @@ Q4 = Annual_10K − 9M_YTD_10Q
 TTM = Q1_recent + Q2_recent + Q3_recent + Q4_derived
         </div>
         <p>This correctly handles non-December fiscal years (Apple, Nvidia, Costco, etc.) where the most recent annual 10-K covers a different calendar year than the most recent 10-Qs.</p>
+        <p>The Q3 YTD candidate search uses the <strong>full historical 10-Q entry set</strong> (no recency cutoff), while the TTM quarterly sum uses only entries within the past two years. This split ensures the Q4 derivation path can always find the correct 9M YTD filing that pairs with an older annual — even for companies whose most recent 10-K pre-dates the two-year rolling window — without exposing the TTM sum to stale quarters from distant fiscal years.</p>
 
         <h3>Special Cases</h3>
         <div class="card">
@@ -545,7 +535,7 @@ MomentumScore = percentile_rank(RawMomentum, all 516 tickers) × 100
       <p>Polygon returns split-adjusted prices automatically. EDGAR EPS filings are not retroactively adjusted until the company files its next 10-Q or 10-K on a post-split share basis. For <strong>BKNG</strong> (25-for-1 split, April 2026), the scanner manually divides EDGAR EPS by 25 until the Q2 2026 10-Q is filed (expected August 2026), at which point EDGAR will self-correct and the guard condition will disable automatically.</p>
 
       <h3>Fundamentals Cache TTL</h3>
-      <p>Company fundamentals (EPS, sector, market cap) are cached on disk with an 8-day TTL. This means P/E ratios may reflect EPS from up to 8 days prior. The Saturday rebuild run refreshes the cache fully.</p>
+      <p>Company fundamentals (EPS, sector, shares outstanding) are cached with an <strong>8-day TTL</strong>. The cache file is committed to the repository and persists across daily scanner runs, so EDGAR is only re-fetched when the cache expires. P/E ratios may therefore reflect EPS up to 8 days old. In practice this introduces negligible error, since EDGAR XBRL data only changes when a company files a new 10-Q or 10-K (quarterly cadence).</p>
 
       <h3>Candle Chart History</h3>
       <p>The <code>candles.json</code> date window covers the most recent 252 trading days. For tickers with fewer clean OHLCV entries in that window, the chart will show fewer candles and the x-axis labels will correspond to the tail of the 252-day window.</p>
@@ -557,7 +547,7 @@ MomentumScore = percentile_rank(RawMomentum, all 516 tickers) × 100
     <div class="divider"></div>
 
     <div style="font-family:'DM Mono',monospace;font-size:11.5px;color:#94a3b8;line-height:1.8;">
-      This document describes the internal methodology of Baizora's automated scanner as of May 31, 2026. Methods and data sources may be updated. Nothing in this document constitutes investment advice. Market data is provided for informational purposes only. Past signals do not predict future performance. All data is sourced from publicly available filings (SEC EDGAR) and licensed commercial market data providers (Polygon.io).
+      This document describes the internal methodology of Baizora's automated scanner as of June 7, 2026. Methods and data sources may be updated. Nothing in this document constitutes investment advice. Market data is provided for informational purposes only. Past signals do not predict future performance. All data is sourced from publicly available filings (SEC EDGAR) and licensed commercial market data providers.
     </div>
 
   </main>
