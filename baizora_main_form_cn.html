@@ -1656,6 +1656,14 @@
         ctx.fillStyle = "#64748b";
         ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 5, y + 4);
       }
+      const latestDate = new Date(dates[dates.length - 1] + 'T12:00:00');
+      ctx.font = `10px 'DM Mono', monospace`;
+      ctx.fillStyle = "#475569";
+      ctx.fillText(
+        latestDate.toLocaleDateString("zh-CN", { year: "numeric", month: "numeric", day: "numeric" }),
+        W - pad.right, pad.top - 4
+      );
+      ctx.font = `11px 'DM Mono', monospace`;
       ctx.textAlign = "center";
       let lastMo = -1, lastYr = -1, moCount = 0;
       dates.forEach((d, i) => {
