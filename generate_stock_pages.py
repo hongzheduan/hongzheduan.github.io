@@ -4,9 +4,10 @@
 import json
 from pathlib import Path
 
-ROOT_DIR  = Path(__file__).parent
-DATA_FILE = ROOT_DIR / "data" / "latest.json"
-OUTPUT_DIR = ROOT_DIR / "stocks"
+ROOT_DIR     = Path(__file__).parent
+DATA_FILE    = ROOT_DIR / "data" / "latest.json"
+CANDLES_FILE = ROOT_DIR / "data" / "candles.json"
+OUTPUT_DIR   = ROOT_DIR / "stocks"
 
 TOP10_NASDAQ = ["NVDA", "GOOGL", "AAPL", "MSFT", "AMZN", "AVGO", "TSLA", "META", "WMT", "MU"]
 
@@ -16,23 +17,177 @@ FEATURED_TICKERS = [
     "UBER", "ABNB", "COIN", "PANW", "CRWD", "SMCI",
 ]
 
+# ---------------------------------------------------------------------------
+# Chart + IEX script template (regular string — no f-string escaping needed).
+# Placeholders: __DATES__, __OHLCV__, __TICKER__
+# ---------------------------------------------------------------------------
+_SCRIPT_TEMPLATE = r"""
+<script>
+(function() {
+  /* ---- Candlestick chart ---- */
+  var DATES = __DATES__;
+  var OHLCV  = __OHLCV__;
 
-def spark_to_svg(spark, width=900, height=200):
-    if not spark or len(spark) < 2:
-        return ""
-    min_v, max_v = min(spark), max(spark)
-    rng = max_v - min_v if max_v > min_v else 1
-    n   = len(spark)
-    pts = []
-    for i, v in enumerate(spark):
-        x = i / (n - 1) * width
-        y = height - (v - min_v) / rng * (height - 4) - 2
-        pts.append(f"{x:.1f},{y:.1f}")
-    return (
-        f'<polyline points="{" ".join(pts)}" '
-        f'fill="none" stroke="#3b82f6" stroke-width="2.5" '
-        f'stroke-linecap="round" stroke-linejoin="round"/>'
-    )
+  function renderChart() {
+    var canvas = document.getElementById('stockChart');
+    if (!canvas || !OHLCV.length) return;
+    var dpr  = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    if (!rect.width) return;
+    canvas.width  = Math.round(rect.width  * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    var W = rect.width, H = rect.height;
+    var hasVol = OHLCV.some(function(c) { return c[4] > 0; });
+    var volH   = hasVol ? Math.round(H * 0.22) : 0;
+    var gap    = hasVol ? 6 : 0;
+    var pad    = { top:20, right:16, bottom:28, left:58 };
+    var priceH = H - pad.top - pad.bottom - volH - gap;
+    var n      = OHLCV.length;
+    var slotW  = (W - pad.left - pad.right) / n;
+    var cndW   = Math.max(1, slotW * 0.65);
+    function toX(i) { return pad.left + i * slotW + (slotW - cndW) / 2; }
+    var minP = Infinity, maxP = -Infinity;
+    OHLCV.forEach(function(c) { if(c[1]>maxP) maxP=c[1]; if(c[2]<minP) minP=c[2]; });
+    var buf = (maxP - minP) * 0.05 || 1;
+    var lo = minP - buf, hi = maxP + buf;
+    function toY(p) { return pad.top + priceH * (1 - (p - lo) / (hi - lo)); }
+    ctx.clearRect(0, 0, W, H);
+    /* grid + price labels */
+    ctx.font = "11px 'DM Mono',monospace";
+    ctx.textAlign = "right";
+    for (var gi = 0; gi <= 4; gi++) {
+      var p = lo + (hi - lo) * (gi / 4);
+      var y = toY(p);
+      ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+      ctx.fillStyle = "#64748b";
+      ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 5, y + 4);
+    }
+    /* latest date top-right */
+    if (DATES.length) {
+      var ld = new Date(DATES[DATES.length - 1] + 'T12:00:00');
+      ctx.font = "10px 'DM Mono',monospace"; ctx.fillStyle = "#475569"; ctx.textAlign = "right";
+      ctx.fillText(ld.toLocaleDateString("en-US", {month:"short",day:"numeric",year:"numeric"}), W - pad.right, pad.top - 4);
+    }
+    /* x-axis date labels */
+    ctx.font = "11px 'DM Mono',monospace"; ctx.textAlign = "center";
+    var lastMo = -1, lastYr = -1, moCount = 0;
+    DATES.forEach(function(d, i) {
+      var dt = new Date(d + 'T12:00:00');
+      var mo = dt.getMonth(), yr = dt.getFullYear();
+      if (n < 100) {
+        if (i % Math.round(n / 6) !== 0) return;
+        ctx.fillStyle = "#64748b";
+        ctx.fillText(dt.toLocaleDateString("en-US", {month:"short",day:"numeric"}), toX(i) + cndW / 2, H - 8);
+      } else {
+        if (mo === lastMo) return;
+        lastMo = mo; moCount++;
+        if (n >= 200 && moCount % 2 === 0) return;
+        var moName = dt.toLocaleDateString("en-US", {month:"short"});
+        var label  = yr !== lastYr ? moName + " '" + String(yr).slice(-2) : moName;
+        lastYr = yr;
+        ctx.fillStyle = "#64748b";
+        ctx.fillText(label, toX(i) + cndW / 2, H - 8);
+      }
+    });
+    /* candlesticks */
+    OHLCV.forEach(function(c, i) {
+      var o = c[0], h = c[1], l = c[2], cl = c[3];
+      var green = cl >= o;
+      var x = toX(i), mid = x + cndW / 2;
+      ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
+      ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
+      var bTop = toY(Math.max(o, cl));
+      var bH   = Math.max(1, toY(Math.min(o, cl)) - bTop);
+      ctx.fillRect(x, bTop, cndW, bH);
+      ctx.strokeRect(x, bTop, cndW, bH);
+    });
+    /* volume panel */
+    if (hasVol) {
+      var volTop = pad.top + priceH + gap;
+      var maxVol = Math.max.apply(null, OHLCV.map(function(c) { return c[4] || 0; }));
+      ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.left, volTop); ctx.lineTo(W - pad.right, volTop); ctx.stroke();
+      ctx.fillStyle = "#475569"; ctx.font = "9px 'DM Mono',monospace"; ctx.textAlign = "right";
+      ctx.fillText("VOL", pad.left - 5, volTop + 9);
+      OHLCV.forEach(function(c, i) {
+        if (!c[4]) return;
+        var green = c[3] >= c[0];
+        var bH = Math.round((c[4] / maxVol) * (volH - 4));
+        ctx.fillStyle = green ? "rgba(34,197,94,0.45)" : "rgba(239,68,68,0.45)";
+        ctx.fillRect(toX(i), volTop + (volH - 4) - bH, cndW, bH);
+      });
+    }
+  }
+
+  renderChart();
+  var _rt;
+  window.addEventListener('resize', function() { clearTimeout(_rt); _rt = setTimeout(renderChart, 120); });
+
+  /* ---- Live IEX prices (market hours only) ---- */
+  var TICKER = "__TICKER__";
+  var IEX    = "https://us-central1-baizora.cloudfunctions.net/api/iex-quotes";
+
+  function isMarketOpen() {
+    try {
+      var et = new Date(new Date().toLocaleString("en-US", {timeZone:"America/New_York"}));
+      var d = et.getDay();
+      if (d === 0 || d === 6) return false;
+      var m = et.getHours() * 60 + et.getMinutes();
+      return m >= 570 && m < 960;
+    } catch(e) { return false; }
+  }
+
+  function refresh() {
+    fetch(IEX).then(function(r) { return r.json(); }).then(function(q) {
+      if (!q || !Object.keys(q).length) return;
+      var d = q[TICKER];
+      if (d && d.last != null) {
+        var priceEl  = document.querySelector(".price");
+        var changeEl = document.querySelector(".change");
+        var dateEl   = document.querySelector(".scan-date");
+        if (priceEl)  priceEl.textContent = "$" + d.last.toFixed(2);
+        if (changeEl && d.chgPct != null) {
+          var pc = d.chgPct;
+          changeEl.textContent = (pc >= 0 ? "+" : "") + pc.toFixed(2) + "%";
+          changeEl.style.color = pc >= 0 ? "#22c55e" : "#ef4444";
+        }
+        if (dateEl) {
+          var t = new Date().toLocaleTimeString("en-US", {hour:"numeric",minute:"2-digit",timeZone:"America/New_York"});
+          dateEl.textContent = "Prices live as of " + t + " ET";
+        }
+      }
+      document.querySelectorAll(".peer-card").forEach(function(card) {
+        var tkEl = card.querySelector(".peer-ticker");
+        if (!tkEl) return;
+        var t  = tkEl.textContent.trim();
+        var pd = q[t];
+        if (!pd || pd.chgPct == null) return;
+        var chgEl = card.querySelector(".peer-chg");
+        if (!chgEl) return;
+        var pc = pd.chgPct;
+        chgEl.textContent = (pc >= 0 ? "+" : "") + pc.toFixed(1) + "%";
+        chgEl.style.color = pc >= 0 ? "#22c55e" : "#ef4444";
+      });
+    }).catch(function() {});
+  }
+
+  refresh();
+  if (isMarketOpen()) setInterval(refresh, 60000);
+})();
+</script>
+"""
+
+
+def build_page_script(ticker, candle_dates_json, candle_ohlcv_json):
+    return (_SCRIPT_TEMPLATE
+            .replace("__DATES__", candle_dates_json)
+            .replace("__OHLCV__", candle_ohlcv_json)
+            .replace('"__TICKER__"', json.dumps(ticker)))
 
 
 def generate_summary(row):
@@ -114,7 +269,7 @@ def build_peers_html(current_ticker, peer_rows):
 """
 
 
-def generate_page(row, scan_date, peer_rows=None):
+def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlcv=None):
     ticker   = row["Ticker"]
     name     = row.get("CompanyName", ticker)
     price    = row.get("Price", 0) or 0
@@ -126,14 +281,17 @@ def generate_page(row, scan_date, peer_rows=None):
     eps      = row.get("EPS", 0) or 0
     vol1d    = row.get("VolumeM", 0) or 0
     vol_ma21 = row.get("VolumeVsMA21_1D", 0) or 0
-    spark    = row.get("Spark1Y") or []
     in_sp    = row.get("InSP500", False)
     in_ndq   = row.get("InNASDAQ100", False)
 
     color1d = "#22c55e" if pc1d >= 0 else "#ef4444"
     sign1d  = "+" if pc1d >= 0 else ""
     summary = generate_summary(row)
-    svg     = spark_to_svg(spark)
+
+    # Inline OHLCV data for the canvas chart
+    candle_dates_json = json.dumps(candle_dates or [])
+    candle_ohlcv_json = json.dumps(candle_ohlcv or [])
+    page_script = build_page_script(ticker, candle_dates_json, candle_ohlcv_json)
 
     badges = ""
     if in_sp:
@@ -162,7 +320,7 @@ def generate_page(row, scan_date, peer_rows=None):
 
     peers_html = build_peers_html(ticker, peer_rows or [])
 
-    desc = f"{name} ({ticker}) stock analysis: ${price:,.2f} today ({sign1d}{pc1d:.1f}%), 1-year trend, volume spikes, MA21 ratios, and multi-timeframe performance. Updated daily."
+    desc = f"{name} ({ticker}) stock analysis: ${price:,.2f} today ({sign1d}{pc1d:.1f}%), 1-year candlestick chart with volume, MA21 ratios, and multi-timeframe performance. Updated daily."
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -238,8 +396,8 @@ def generate_page(row, scan_date, peer_rows=None):
 
     .section-title{{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:14px;}}
 
-    .spark-box{{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:32px;overflow:hidden;}}
-    .spark-box svg{{width:100%;height:auto;display:block;}}
+    .chart-box{{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:32px;}}
+    .chart-box canvas{{width:100%;height:360px;display:block;}}
 
     .tf-box{{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:32px;}}
     table{{width:100%;border-collapse:collapse;}}
@@ -269,6 +427,7 @@ def generate_page(row, scan_date, peer_rows=None):
       .page{{padding:32px 16px 60px;}}
       .ticker{{font-size:38px;}} .price{{font-size:26px;}}
       .peers-grid{{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));}}
+      .chart-box canvas{{height:260px;}}
     }}
   </style>
 </head>
@@ -327,11 +486,9 @@ def generate_page(row, scan_date, peer_rows=None):
     </div>
   </div>
 
-  <div class="section-title">1-Year Price Trend</div>
-  <div class="spark-box">
-    <svg viewBox="0 0 900 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-      {svg}
-    </svg>
+  <div class="section-title">1-Year Candlestick &amp; Volume &nbsp;·&nbsp; Scan date: {scan_date}</div>
+  <div class="chart-box">
+    <canvas id="stockChart"></canvas>
   </div>
 
   <div class="section-title">Multi-Timeframe Performance</div>
@@ -370,6 +527,7 @@ def generate_page(row, scan_date, peer_rows=None):
   For informational purposes only. Not financial advice. Data updated daily after US market close.
 </footer>
 
+{page_script}
 </body>
 </html>"""
 
@@ -379,6 +537,16 @@ def main():
     data      = json.load(open(DATA_FILE))
     scan_date = data["date"]
     ticker_map = {r["Ticker"]: r for r in data["data"]}
+
+    # Load candle data for chart embedding
+    candle_dates = []
+    candle_data  = {}
+    if CANDLES_FILE.exists():
+        cj = json.load(open(CANDLES_FILE))
+        candle_dates = cj.get("dates", [])
+        candle_data  = cj.get("data", {})
+    else:
+        print("[warn] candles.json not found — charts will be empty")
 
     tickers = sys.argv[1:] if len(sys.argv) > 1 else FEATURED_TICKERS
     OUTPUT_DIR.mkdir(exist_ok=True)
@@ -395,7 +563,12 @@ def main():
             peers = [r for r in top10_rows if r["Ticker"] != ticker]
         else:
             peers = []
-        html = generate_page(ticker_map[ticker], scan_date, peer_rows=peers)
+        html = generate_page(
+            ticker_map[ticker], scan_date,
+            peer_rows=peers,
+            candle_dates=candle_dates,
+            candle_ohlcv=candle_data.get(ticker, []),
+        )
         out  = OUTPUT_DIR / f"{ticker}.html"
         out.write_text(html, encoding="utf-8")
         print(f"[ok] {out}")
