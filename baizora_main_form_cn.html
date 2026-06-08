@@ -1334,7 +1334,7 @@
         return `<tr>
           <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
           <td class="spark-cell">${sparkSVG}</td>
-          <td class="price-cell">${r.Price?.toFixed(2) ?? "—"}</td>
+          <td class="price-cell" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price)?.toFixed(2) ?? "—"}</td>
           <td class="neutral">${r.VolumeM ?? "—"}</td>
           ${oneDayTds}
           ${windowCells}
@@ -1410,7 +1410,7 @@
             <button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>
           </div>
           <div class="card-price-row">
-            <span class="card-price">$${r.Price?.toFixed(2) ?? "—"}</span>
+            <span class="card-price" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price) != null ? '$' + (r._livePrice ?? r.Price).toFixed(2) : '—'}</span>
             ${priceChgDisplay}
           </div>
           <div class="card-stats">${statsHTML}</div>
@@ -1843,6 +1843,13 @@
         if (newP && _prevDashPrices[t] != null)
           dirs[t] = newP > _prevDashPrices[t] ? 'up' : newP < _prevDashPrices[t] ? 'dn' : '';
         if (newP) { _prevDashPrices[t] = newP; _liveIex[t] = q[t]; }
+      });
+
+      // Persist on allRows so render() picks up color
+      allRows.forEach(r => {
+        const d = q[r.Ticker]; if (!d?.last) return;
+        r._livePrice = d.last;
+        r._priceDir  = dirs[r.Ticker] || '';
       });
 
       document.querySelectorAll('td.ticker-cell[data-ticker]').forEach(tc => {
