@@ -2,10 +2,9 @@
 
 on:
   schedule:
-    - cron: "0 22 * * 1-5"   # 6:00 PM ET weekdays — preliminary data + videos
-    - cron: "0 0 * * 2-6"    # 8:00 PM ET weekdays — final data
-    - cron: "0 0 * * 0"      # 8:00 PM ET Saturday — weekend EDGAR refresh
-    - cron: "0 0 * * 1"      # 8:00 PM ET Sunday  — weekend EDGAR refresh
+    - cron: "0 22 * * 1-5"   # 6 PM ET weekdays  — preliminary data + videos
+    - cron: "0 0 * * 2-6"    # 8 PM ET weekdays  — final data
+    - cron: "0 5 * * *"      # midnight ET daily  — EDGAR refresh only
   workflow_dispatch:
 
 permissions:
@@ -38,46 +37,35 @@ jobs:
           IS_HOLIDAY=$(python -c "from scanner_tiingo import is_market_holiday; print(is_market_holiday())")
           echo "IS_HOLIDAY=$IS_HOLIDAY" >> $GITHUB_ENV
 
-          DOW=$(date +%u)   # 1=Mon … 6=Sat, 7=Sun
-          HOUR=$(date +%H)
+          SCHEDULE="${{ github.event.schedule }}"
 
-          # IS_WEEKEND: true on Sat/Sun UTC, and on Mon midnight UTC (= Sun 8 PM ET).
-          # Used to skip video generation on days without fresh market data.
-          if [ "$DOW" = "6" ] || [ "$DOW" = "7" ]; then
-            echo "IS_WEEKEND=True" >> $GITHUB_ENV
-          elif [ "$DOW" = "1" ] && [ "$HOUR" = "00" ]; then
-            echo "IS_WEEKEND=True" >> $GITHUB_ENV
-          else
-            echo "IS_WEEKEND=False" >> $GITHUB_ENV
-          fi
-
-          # FORCE_RUN=1 bypasses the weekend guard inside scanner_tiingo.py.
-          # Needed for Sun-midnight UTC (DOW=7, Sat 8 PM ET) and Mon-midnight UTC
-          # (DOW=1 + HOUR=00, Sun 8 PM ET) — days with no Tiingo market data.
-          if [ "$DOW" = "7" ]; then
-            echo "FORCE_RUN=1" >> $GITHUB_ENV
-          elif [ "$DOW" = "1" ] && [ "$HOUR" = "00" ]; then
-            echo "FORCE_RUN=1" >> $GITHUB_ENV
-          else
-            echo "FORCE_RUN=" >> $GITHUB_ENV
-          fi
-
-          # Videos run on the 6 PM ET run (22:xx UTC).
-          if [ "$HOUR" = "22" ] || [ "$HOUR" = "23" ]; then
-            echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
-          else
+          # midnight ET cron → EDGAR-only refresh, skip market scan
+          if [ "$SCHEDULE" = "0 5 * * *" ]; then
+            echo "EDGAR_ONLY=1" >> $GITHUB_ENV
+            echo "SKIP_EDGAR="  >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+          else
+            echo "EDGAR_ONLY="        >> $GITHUB_ENV
+            echo "SKIP_EDGAR=1"       >> $GITHUB_ENV
+            # Videos run on the 6 PM ET cron (22:xx UTC)
+            HOUR=$(date +%H)
+            if [ "$HOUR" = "22" ] || [ "$HOUR" = "23" ]; then
+              echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
+            else
+              echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            fi
           fi
 
       - name: Run scanner
-        if: env.IS_HOLIDAY != 'True'
+        if: env.IS_HOLIDAY != 'True' || env.EDGAR_ONLY == '1'
         env:
           TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
-          FORCE_RUN: ${{ env.FORCE_RUN }}
+          EDGAR_ONLY: ${{ env.EDGAR_ONLY }}
+          SKIP_EDGAR: ${{ env.SKIP_EDGAR }}
         run: python scanner_tiingo.py
 
       - name: Commit updated data
-        if: env.IS_HOLIDAY != 'True'
+        if: env.IS_HOLIDAY != 'True' || env.EDGAR_ONLY == '1'
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
@@ -106,13 +94,13 @@ jobs:
           fi
 
       - name: Install video dependencies
-        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True' && env.IS_VIDEO_RUN == 'True'
+        if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True'
         run: |
           pip install -r video/requirements.txt
           sudo apt-get install -y fonts-noto-cjk
 
       - name: Select daily video types
-        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True' && env.IS_VIDEO_RUN == 'True'
+        if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True'
         run: |
           DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
           if [ "$DOW" = "1" ]; then
@@ -130,14 +118,14 @@ jobs:
           fi
 
       - name: Generate daily videos
-        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
+        if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
         run: |
           for type in $VIDEO_TYPES; do
             python video/generate_video.py --type $type
           done
 
       - name: Upload daily videos to YouTube
-        if: env.IS_HOLIDAY != 'True' && env.IS_WEEKEND != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
+        if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}

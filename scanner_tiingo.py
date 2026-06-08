@@ -19,6 +19,8 @@ from itertools import groupby
 
 TIINGO_API_KEY   = os.environ.get("TIINGO_API_KEY", "")
 TIINGO_BASE      = "https://api.tiingo.com"
+SKIP_EDGAR       = os.environ.get("SKIP_EDGAR",  "").lower() in ("1", "true", "yes")
+EDGAR_ONLY       = os.environ.get("EDGAR_ONLY",  "").lower() in ("1", "true", "yes")
 
 DATE_STR         = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 DATA_DIR         = "data"
@@ -1379,7 +1381,7 @@ def _get_brk_b_market_cap(brkb_close):
 _fund_cache = {}
 
 
-def _load_fund_disk_cache():
+def _load_fund_disk_cache(ignore_ttl=False):
     global _fund_cache
     if not os.path.exists(FUND_CACHE_FILE):
         return False
@@ -1388,7 +1390,7 @@ def _load_fund_disk_cache():
             data = json.load(f)
         fetched  = datetime.strptime(data.get("fetched", ""), "%Y-%m-%d").date()
         age_days = (date.today() - fetched).days
-        if age_days <= FUND_CACHE_TTL_DAYS:
+        if ignore_ttl or age_days <= FUND_CACHE_TTL_DAYS:
             _fund_cache = data.get("tickers", {})
             print(f"Fundamentals: {len(_fund_cache)} tickers from disk cache ({age_days}d old)")
             return True
@@ -1417,6 +1419,10 @@ def get_fundamentals(ticker, tiingo_names=None):
         if mc:
             cached["TiingoMarketCap"] = mc
         return cached
+
+    if SKIP_EDGAR:
+        return {"SharesOutstanding": None, "SharesFiledDate": None, "EPS": None,
+                "Sector": "", "SicDescription": "", "CompanyName": "", "TiingoMarketCap": None}
 
     eps, shares, sic_desc, shares_filed, edgar_name = _get_edgar_fundamentals(ticker)
     sector       = TICKER_SECTOR_OVERRIDE.get(ticker) or sic_to_sector(sic_desc)
@@ -1534,9 +1540,12 @@ def scan():
     build_ohlcv_cache(tickers, from_date)
 
     # Load fundamentals (disk cache → EDGAR for missing)
-    _load_fund_disk_cache()
+    _load_fund_disk_cache(ignore_ttl=SKIP_EDGAR)
     tiingo_meta = prefetch_tiingo_meta(tickers)
-    prefetch_fundamentals(tickers, tiingo_meta)
+    if not SKIP_EDGAR:
+        prefetch_fundamentals(tickers, tiingo_meta)
+    else:
+        print("SKIP_EDGAR=1 — using cached fundamentals, skipping EDGAR fetch")
 
     # Build trading-day list and load all OHLCV into memory
     trading_days = get_trading_days(from_date, to_date)
@@ -2108,6 +2117,16 @@ if __name__ == "__main__":
 
     if not TIINGO_API_KEY:
         sys.exit("ERROR: TIINGO_API_KEY environment variable is not set.")
+
+    # EDGAR-only midnight run: refresh fundamentals cache, skip market scan entirely.
+    if EDGAR_ONLY:
+        print("EDGAR_ONLY — refreshing fundamentals cache from SEC EDGAR …")
+        tickers, _, _ = get_tickers()
+        _fund_cache.clear()  # force full re-fetch so new filings are picked up
+        tiingo_meta = prefetch_tiingo_meta(tickers)
+        prefetch_fundamentals(tickers, tiingo_meta)
+        print("EDGAR refresh complete.")
+        sys.exit(0)
 
     # FORCE_RUN=1 bypasses the holiday and probe checks (use for local testing).
     FORCE_RUN = os.environ.get("FORCE_RUN", "").lower() in ("1", "true", "yes")
