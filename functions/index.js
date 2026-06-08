@@ -50,11 +50,11 @@ app.get("/iex-quotes", async (req, res) => {
   try {
     const now = Date.now();
     const cached = _iexCacheMap.get(key);
-    if (cached && (now - cached.ts) < 60_000) return res.json(cached.data);
+    if (cached && (now - cached.ts) < 10_000) return res.json(cached.data);
 
-    // Evict entries older than 2 minutes to keep the map small
+    // Evict entries older than 30 seconds to keep the map small
     for (const [k, v] of _iexCacheMap) {
-      if (now - v.ts > 120_000) _iexCacheMap.delete(k);
+      if (now - v.ts > 30_000) _iexCacheMap.delete(k);
     }
 
     const data = await _tiingoGet(

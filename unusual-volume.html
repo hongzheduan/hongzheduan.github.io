@@ -755,7 +755,7 @@
       volDate = json.date || '';
       renderVolTable();
       refreshLivePrices();
-      setInterval(() => { if (isMarketOpen()) refreshLivePrices(); }, 60_000);
+      setInterval(refreshLivePrices, 10_000);
     })
     .catch(() => {
       document.getElementById('tableWrap').innerHTML =
