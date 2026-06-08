@@ -1130,6 +1130,7 @@
 
         <div class="dash-thead" id="mockThead"></div>
         <div id="mockBody"></div>
+        <div id="mockDataNote" style="font-family:'DM Mono',monospace;font-size:9px;color:#94a3b8;letter-spacing:0.06em;text-align:center;margin-top:4px;"></div>
 
         <div id="mockChanges" style="display:none; padding:12px 10px; font-family:'DM Mono',monospace; font-size:11px; line-height:2.0; text-align:left;">
           <div style="color:#64748b; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px;">近期成分股变动记录</div>
@@ -1839,6 +1840,11 @@ window.mockSort = function(col, el) {
       };
     }).filter(Boolean);
     renderMock();
+    const scanDate = data.date
+      ? new Date(data.date + 'T00:00:00').toLocaleDateString('zh-CN', {month:'long', day:'numeric', year:'numeric'})
+      : '';
+    const note = document.getElementById('mockDataNote');
+    if (note && scanDate) note.textContent = '数据截至 ' + scanDate;
   }).catch(() => {});
 })();
 
@@ -1951,6 +1957,9 @@ window.mockSort = function(col, el) {
           }
         });
         renderMock();
+        const today = new Date().toLocaleDateString('zh-CN', {month:'long', day:'numeric', year:'numeric', timeZone:'America/New_York'});
+        const note = document.getElementById('mockDataNote');
+        if (note) note.textContent = '数据截至 ' + today + ' · 延迟15分钟';
       }
 
       const track = document.getElementById('tickerTrack');
