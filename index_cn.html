@@ -981,6 +981,8 @@
     .sp-legend-row { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #475569; }
 
     .dr-pr { font-size: 11px; color: #94a3b8; text-align: center; }
+    .dr-pr.price-up { color: #22c55e; }
+    .dr-pr.price-dn { color: #ef4444; }
     .dr-pos { font-size: 11px; color: #64c487; text-align: center; }
     .dr-neg { font-size: 11px; color: #c46464; text-align: center; }
     .dr-neu { font-size: 11px; color: #cbd5e1; text-align: center; }
@@ -1738,7 +1740,7 @@ function renderMock() {
   body.innerHTML = data.map(r => {
     const cells = isFund
       ? `${tkCell(r)}${spCell(r)}
-         <span class="dr-pr">${fmtN(r.pr)}</span>
+         <span class="dr-pr ${r.prDir||''}">${fmtN(r.pr)}</span>
          <span class="dr-neu dr-gs">${r.mc}</span>
          <span class="dr-neu">${r.pe}</span>
          <span class="${cc(r.eps)}">${r.eps}</span>
@@ -1746,14 +1748,14 @@ function renderMock() {
          <span class="${cc(r.pevsec)}">${r.pevsec}</span>`
       : isScores
       ? `${tkCell(r)}${spCell(r)}
-         <span class="dr-pr">${fmtN(r.pr)}</span>
+         <span class="dr-pr ${r.prDir||''}">${fmtN(r.pr)}</span>
          <span class="${scClass(r.rs, 50)} dr-gs">${r.rs ?? '—'}</span>
          <span class="${scClass(r.breakout, 50)}">${r.breakout ?? '—'}</span>
          <span class="${scClass(r.momentum, 50)}">${r.momentum ?? '—'}</span>
          <span class="${cc(r.volpress)}">${r.volpress ?? '—'}</span>
          <span class="${scClass(r.trend, 50)}">${r.trend ?? '—'}</span>`
       : `${tkCell(r)}${spCell(r)}
-         <span class="dr-pr">${fmtN(r.pr)}</span>
+         <span class="dr-pr ${r.prDir||''}">${fmtN(r.pr)}</span>
          <span class="${cc(r.chg)} dr-gs">${fmt(r.chg)}</span>
          <span class="${cc(r.mx)}">${fmt(r.mx)}</span>
          <span class="${cc(r.vatpr)}">${fmt(r.vatpr)}</span>
@@ -1922,6 +1924,8 @@ window.mockSort = function(col, el) {
     } catch(e) { return false; }
   }
 
+  const _prevIexPrices = {};
+
   async function refreshPrices() {
     try {
       const resp = await fetch(IEX_API);
@@ -1929,8 +1933,23 @@ window.mockSort = function(col, el) {
       const q = await resp.json();
       if (!q || !Object.keys(q).length) return;
 
+      const dirs = {};
+      [...BAR_TICKERS, ...MOCK_DATA.map(r => r.tk)].forEach(t => {
+        const newP = q[t]?.last;
+        if (newP && _prevIexPrices[t] != null) {
+          dirs[t] = newP > _prevIexPrices[t] ? 'up' : newP < _prevIexPrices[t] ? 'dn' : '';
+        }
+        if (newP) _prevIexPrices[t] = newP;
+      });
+
       if (MOCK_DATA.length) {
-        MOCK_DATA.forEach(row => { if (q[row.tk]?.last) row.pr = q[row.tk].last; });
+        MOCK_DATA.forEach(row => {
+          const newPrice = q[row.tk]?.last;
+          if (newPrice) {
+            row.prDir = dirs[row.tk] ? 'price-' + dirs[row.tk] : '';
+            row.pr = newPrice;
+          }
+        });
         renderMock();
       }
 
@@ -1942,7 +1961,9 @@ window.mockSort = function(col, el) {
         const cls = pc >= 0 ? 'up' : 'dn';
         const arr = pc >= 0 ? '▲' : '▼';
         const s   = pc >= 0 ? '+' : '';
-        return `<a href="stocks/${t}.html" class="ticker-item" style="text-decoration:none;cursor:pointer;"><span class="sym">${t}</span> $${(d.last||0).toFixed(2)} <span class="${cls}">${arr} ${s}${pc.toFixed(1)}%</span></a>`;
+        const dir = dirs[t];
+        const priceStyle = dir ? `color:${dir==='up'?'#22c55e':'#ef4444'}` : '';
+        return `<a href="stocks/${t}.html" class="ticker-item" style="text-decoration:none;cursor:pointer;"><span class="sym">${t}</span> <span style="${priceStyle}">$${(d.last||0).toFixed(2)}</span> <span class="${cls}">${arr} ${s}${pc.toFixed(1)}%</span></a>`;
       }).join('');
       track.innerHTML = html + html;
     } catch(e) { /* silent */ }
