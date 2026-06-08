@@ -26,11 +26,13 @@ const tiingoKey = defineSecret("TIINGO_API_KEY");
 app.use(cors({ origin: true }));
 
 /* ---------------------------
-   IEX LIVE QUOTES  (homepage only)
+   IEX LIVE QUOTES  (homepage, movers, volume pages)
+   Accepts optional ?tickers=A,B,C param; defaults to 10 homepage tickers.
+   60s in-memory cache keyed by sorted ticker list — limits Tiingo calls to
+   ~1,440/day per unique ticker set regardless of visitor count.
 --------------------------- */
-const _IEX_TICKERS = "NVDA,GOOGL,AAPL,MSFT,AMZN,AVGO,TSLA,META,WMT,MU";
-let _iexCache = null;
-let _iexCacheTs = 0;
+const _IEX_DEFAULT = "NVDA,GOOGL,AAPL,MSFT,AMZN,AVGO,TSLA,META,WMT,MU";
+const _iexCacheMap = new Map(); // key: sorted-ticker-string → {data, ts}
 
 function _tiingoGet(url) {
   return new Promise((resolve, reject) => {
@@ -43,11 +45,21 @@ function _tiingoGet(url) {
 }
 
 app.get("/iex-quotes", async (req, res) => {
+  const raw  = ((req.query.tickers || _IEX_DEFAULT) + "").toUpperCase();
+  const list = raw.split(",").map(t => t.trim()).filter(Boolean);
+  const key  = [...list].sort().join(",");
   try {
     const now = Date.now();
-    if (_iexCache && (now - _iexCacheTs) < 60_000) return res.json(_iexCache);
+    const cached = _iexCacheMap.get(key);
+    if (cached && (now - cached.ts) < 60_000) return res.json(cached.data);
+
+    // Evict entries older than 2 minutes to keep the map small
+    for (const [k, v] of _iexCacheMap) {
+      if (now - v.ts > 120_000) _iexCacheMap.delete(k);
+    }
+
     const data = await _tiingoGet(
-      `https://api.tiingo.com/iex?tickers=${_IEX_TICKERS}&token=${tiingoKey.value()}`
+      `https://api.tiingo.com/iex?tickers=${list.join(",")}&token=${tiingoKey.value()}`
     );
     const result = {};
     (Array.isArray(data) ? data : []).forEach(q => {
@@ -60,12 +72,12 @@ app.get("/iex-quotes", async (req, res) => {
         chgPct: (prev && last) ? +((last - prev) / prev * 100).toFixed(2) : null,
       };
     });
-    _iexCache = result;
-    _iexCacheTs = now;
+    _iexCacheMap.set(key, { data: result, ts: now });
     res.json(result);
   } catch(e) {
     console.error("iex-quotes:", e.message);
-    res.status(200).json(_iexCache || {});
+    const cached = _iexCacheMap.get(key);
+    res.status(200).json(cached ? cached.data : {});
   }
 });
 

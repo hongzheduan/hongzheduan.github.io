@@ -581,7 +581,7 @@
 
   /* ── Table ── */
   const TOP = 20;
-  let allRows = [], dataDate = '';
+  let allRows = [], dataDate = '', currentMode = 'gainers', livePricesLoaded = false;
 
   function fmt(v, decimals, sign) {
     if (v == null || isNaN(v)) return '<span style="color:#475569;">—</span>';
@@ -611,19 +611,21 @@
       losers ? a.PriceChange1D - b.PriceChange1D : b.PriceChange1D - a.PriceChange1D
     ).slice(0, TOP);
 
+    const liveNote = livePricesLoaded ? ' · Prices live' : '';
     document.getElementById('dataDateLabel').textContent =
-      (losers ? 'Top losers' : 'Top gainers') + ' · As of ' + dataDate + ' · S&P 500 & Nasdaq-100';
+      (losers ? 'Top losers' : 'Top gainers') + ' · As of ' + dataDate + ' · S&P 500 & Nasdaq-100' + liveNote;
 
     const tbody = rows.map((r, i) => {
       const tkLink = `<a href="stocks/${r.Ticker}.html" class="tk-link">${r.Ticker}</a>`;
-      const price  = r.Price != null ? `$${r.Price.toFixed(2)}` : '—';
+      const price  = (r._livePrice ?? r.Price) != null ? `$${(r._livePrice ?? r.Price).toFixed(2)}` : '—';
+      const chg1d  = r._liveChgPct ?? r.PriceChange1D;
       return `<tr>
         <td class="rank">${i + 1}</td>
         <td>${tkLink}</td>
         <td class="company-name" title="${r.CompanyName || ''}">${(r.CompanyName || '').slice(0, 28)}${(r.CompanyName || '').length > 28 ? '…' : ''}</td>
         <td class="center">${indexBadge(r)}</td>
         <td class="right" style="color:var(--white);">${price}</td>
-        <td class="right">${fmt(r.PriceChange1D, 2, true)}</td>
+        <td class="right">${fmt(chg1d, 2, true)}</td>
         <td class="right">${fmt(r.VolumeChange1D, 1, true)}</td>
         <td class="right">${fmtMA(r.VolumeVsMA21_1D)}</td>
       </tr>`;
@@ -651,10 +653,40 @@
   }
 
   window.showTab = function(mode) {
+    currentMode = mode;
     document.getElementById('tabGainers').classList.toggle('active', mode === 'gainers');
     document.getElementById('tabLosers').classList.toggle('active', mode === 'losers');
     if (allRows.length) renderTable(mode);
   };
+
+  function isMarketOpen() {
+    try {
+      const et = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+      const d = et.getDay();
+      if (d === 0 || d === 6) return false;
+      const m = et.getHours() * 60 + et.getMinutes();
+      return m >= 570 && m < 960;
+    } catch(e) { return false; }
+  }
+
+  async function refreshLivePrices() {
+    if (!allRows.length) return;
+    const gainers = allRows.slice().sort((a, b) => b.PriceChange1D - a.PriceChange1D).slice(0, TOP);
+    const losers  = allRows.slice().sort((a, b) => a.PriceChange1D - b.PriceChange1D).slice(0, TOP);
+    const tickers = [...new Set([...gainers, ...losers].map(r => r.Ticker))].join(',');
+    try {
+      const resp = await fetch(`https://us-central1-baizora.cloudfunctions.net/api/iex-quotes?tickers=${tickers}`);
+      if (!resp.ok) return;
+      const q = await resp.json();
+      if (!q || !Object.keys(q).length) return;
+      allRows.forEach(r => {
+        const d = q[r.Ticker];
+        if (d) { r._livePrice = d.last; r._liveChgPct = d.chgPct; }
+      });
+      livePricesLoaded = true;
+      renderTable(currentMode);
+    } catch(e) { /* silent */ }
+  }
 
   fetch('data/latest.json')
     .then(r => r.json())
@@ -662,6 +694,8 @@
       allRows = (json.data || []).filter(r => r.PriceChange1D != null);
       dataDate = json.date || '';
       renderTable('gainers');
+      refreshLivePrices();
+      if (isMarketOpen()) setInterval(refreshLivePrices, 60_000);
     })
     .catch(() => {
       document.getElementById('tableWrap').innerHTML =
