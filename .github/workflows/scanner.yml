@@ -3,6 +3,7 @@
 on:
   schedule:
     - cron: "0 22 * * 1-5"   # 6 PM ET weekdays  — preliminary data + videos
+    - cron: "0 23 * * 1-5"   # 7 PM ET weekdays  — retry if 6 PM data not yet available
     - cron: "0 0 * * 2-6"    # 8 PM ET weekdays  — final data
     - cron: "0 5 * * *"      # midnight ET daily  — EDGAR refresh only
   workflow_dispatch:
@@ -47,9 +48,8 @@ jobs:
           else
             echo "EDGAR_ONLY="        >> $GITHUB_ENV
             echo "SKIP_EDGAR=1"       >> $GITHUB_ENV
-            # Videos run on the 6 PM ET cron (22:xx UTC)
-            HOUR=$(date +%H)
-            if [ "$HOUR" = "22" ] || [ "$HOUR" = "23" ]; then
+            # Videos run only on the 6 PM ET cron
+            if [ "$SCHEDULE" = "0 22 * * 1-5" ]; then
               echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
             else
               echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
