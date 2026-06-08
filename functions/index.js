@@ -72,6 +72,10 @@ app.get("/iex-quotes", async (req, res) => {
       result[t] = {
         last,
         chgPct: (prev && last) ? +((last - prev) / prev * 100).toFixed(2) : null,
+        open:   q.open   ?? null,
+        high:   q.high   ?? null,
+        low:    q.low    ?? null,
+        volume: q.volume ?? null,
       };
     });
     _iexCacheMap.set(key, { data: result, ts: now });

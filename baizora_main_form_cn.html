@@ -1012,6 +1012,8 @@
           render();
           updateStatus();
           loadIndexChanges();
+          refreshDashPrices();
+          setInterval(() => { if (isMarketOpen()) refreshDashPrices(); }, 10 * 60 * 1000);
         })
         .catch(err => {
           console.error(err);
@@ -1717,11 +1719,12 @@
       if (!r) return;
       document.getElementById("modalTicker").textContent = ticker;
       document.getElementById("modalName").textContent   = r.CompanyName || "";
-      document.getElementById("modalPrice").textContent  = r.Price != null ? "$" + r.Price.toFixed(2) : "";
-      const pc1 = r.PriceChange1D;
+      const liveP = _liveIex[ticker]?.last;
+      document.getElementById("modalPrice").textContent = (liveP ?? r.Price) != null ? "$" + (liveP ?? r.Price).toFixed(2) : "";
+      const pc1 = _liveIex[ticker]?.chgPct ?? r.PriceChange1D;
       const pc1El = document.getElementById("modalPriceChange");
       if (pc1 != null) {
-        pc1El.textContent = (pc1 >= 0 ? "+" : "") + pc1 + "%";
+        pc1El.textContent = (pc1 >= 0 ? "+" : "") + pc1.toFixed(2) + "%";
         pc1El.style.color = pc1 >= 0 ? "#22c55e" : "#ef4444";
       } else {
         pc1El.textContent = "";
@@ -1807,6 +1810,85 @@
       const td = e.target.closest("td.ticker-cell");
       if (td) openTickerModal(td.dataset.ticker);
     });
+
+    /* ── LIVE PRICE REFRESH (10-min, market hours only) ── */
+    const IEX_CF = 'https://us-central1-baizora.cloudfunctions.net/api/iex-quotes';
+    const _prevDashPrices = {};
+    const _liveIex = {};
+
+    function isMarketOpen() {
+      try {
+        const et = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+        if (et.getDay() === 0 || et.getDay() === 6) return false;
+        const m = et.getHours() * 60 + et.getMinutes();
+        return m >= 570 && m < 960;
+      } catch(e) { return false; }
+    }
+
+    async function refreshDashPrices() {
+      if (!allRows.length) return;
+      const tickers = [...new Set(allRows.map(r => r.Ticker))];
+      const results = await Promise.all(
+        Array.from({length: Math.ceil(tickers.length / 150)}, (_, i) =>
+          fetch(`${IEX_CF}?tickers=${tickers.slice(i*150, (i+1)*150).join(',')}`)
+            .then(r => r.ok ? r.json() : {}).catch(() => ({}))
+        )
+      );
+      const q = Object.assign({}, ...results);
+      if (!Object.keys(q).length) return;
+
+      const dirs = {};
+      tickers.forEach(t => {
+        const newP = q[t]?.last;
+        if (newP && _prevDashPrices[t] != null)
+          dirs[t] = newP > _prevDashPrices[t] ? 'up' : newP < _prevDashPrices[t] ? 'dn' : '';
+        if (newP) { _prevDashPrices[t] = newP; _liveIex[t] = q[t]; }
+      });
+
+      document.querySelectorAll('td.ticker-cell[data-ticker]').forEach(tc => {
+        const t = tc.dataset.ticker;
+        const d = q[t]; if (!d?.last) return;
+        const pc = tc.parentElement?.querySelector('td.price-cell');
+        if (!pc) return;
+        pc.textContent = d.last.toFixed(2);
+        pc.style.color = dirs[t] === 'up' ? '#22c55e' : dirs[t] === 'dn' ? '#ef4444' : '';
+      });
+
+      const todayET = new Date().toLocaleDateString('en-CA', {timeZone:'America/New_York'});
+      if (candleData?.data && candleData.dates) {
+        const lastDate = candleData.dates[candleData.dates.length - 1];
+        const isToday  = lastDate === todayET;
+        tickers.forEach(t => {
+          const d = q[t]; if (!d?.last) return;
+          const bars = candleData.data[t]; if (!bars?.length) return;
+          if (isToday) {
+            const bar = bars[bars.length - 1];
+            if (d.open   != null) bar[0] = d.open;
+            if (d.high   != null) bar[1] = Math.max(bar[1], d.high);
+            if (d.low    != null) bar[2] = Math.min(bar[2], d.low);
+            bar[3] = d.last;
+            if (d.volume != null) bar[4] = d.volume;
+          } else {
+            const prev = bars[bars.length - 1][3];
+            bars.push([d.open ?? prev, d.high ?? d.open ?? prev, d.low ?? d.open ?? prev, d.last, d.volume ?? 0]);
+          }
+        });
+        if (!isToday) candleData.dates.push(todayET);
+      }
+
+      if (_modalTicker && document.getElementById('tickerModal').style.display !== 'none') {
+        const d = q[_modalTicker];
+        if (d?.last != null)
+          document.getElementById('modalPrice').textContent = '$' + d.last.toFixed(2);
+        if (d?.chgPct != null) {
+          const el = document.getElementById('modalPriceChange');
+          el.textContent = (d.chgPct >= 0 ? '+' : '') + d.chgPct.toFixed(2) + '%';
+          el.style.color = d.chgPct >= 0 ? '#22c55e' : '#ef4444';
+        }
+        const activeTf = document.querySelector('.tf-btn.active');
+        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 63);
+      }
+    }
 
   </script>
 
