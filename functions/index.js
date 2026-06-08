@@ -16,7 +16,6 @@ const app = express();
 --------------------------- */
 const stripeSecret = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
-const tiingoKey = defineSecret("TIINGO_API_KEY");
 
 /* ---------------------------
    MIDDLEWARE
@@ -59,8 +58,11 @@ app.get("/iex-quotes", async (req, res) => {
     }
 
     const data = await _tiingoGet(
-      `https://api.tiingo.com/iex?tickers=${list.join(",")}&token=${tiingoKey.value()}`
+      `https://api.tiingo.com/iex/?tickers=${list.join(",")}&token=${process.env.TIINGO_API_KEY}`
     );
+    if (!Array.isArray(data)) {
+      console.error("iex-quotes: unexpected Tiingo response:", JSON.stringify(data).substring(0, 300));
+    }
     const result = {};
     (Array.isArray(data) ? data : []).forEach(q => {
       const t = (q.ticker || "").toUpperCase();
