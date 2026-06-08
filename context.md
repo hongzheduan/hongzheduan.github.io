@@ -222,6 +222,68 @@ Confirm a paid data provider is active before re-enabling billing. Do NOT charge
 
 ---
 
+## What Was Done 2026-06-07 (Evening Session)
+
+### Individual Stock Pages (stocks/*.html)
+
+- `generate_stock_pages.py` rewrote all 10 pages (NVDA, GOOGL, AAPL, MSFT, AMZN, AVGO, TSLA, META, WMT, MU)
+- **SVG sparkline replaced with canvas candlestick + volume chart** — OHLCV data from `data/candles.json` embedded inline at generation time (no runtime API call); section title shows "Scan date: YYYY-MM-DD"
+- **Live IEX price refresh** — same `/api/iex-quotes` Cloud Function as homepage; polls every 60s during market hours; updates price + 1D change on the page
+- **Tiingo attribution** added to footer of each stock page: "Market Data Sourced by Tiingo.com"
+- Canvas renderer: adapted from dashboard `renderCandleChart()`; OHLCV arrays embedded via `_SCRIPT_TEMPLATE` raw string with `__DATES__`/`__OHLCV__`/`__TICKER__` placeholders (avoids f-string curly-brace escaping)
+
+### Dashboard Color Refinement (all 4 dashboard files)
+
+Applied to `baizora_main_form.html`, `baizora_main_form_cn.html`, `baizora_main_form_free.html`, `baizora_main_form_free_cn.html`:
+
+- **Column headers** (`th`): dimmed `var(--white)` → brighter `#e2e8f0` (headers now brighter than data)
+- **Data cells** (`td`): `var(--muted)` → `#94a3b8` (dimmed)
+- **Ticker + Price cells**: `var(--white)` → `#94a3b8`
+- **Positive/negative CSS vars**: `--positive: #64c487; --negative: #c46464;` (muted green/red — HSL ~45% saturation, ~58% lightness)
+- **`.neutral`**: `var(--muted)` → `#94a3b8`
+
+### Homepage Color Refinement (index.html + index_cn.html)
+
+- **Popular stocks section** — `.dr-tk`, `.tk-val`, `.dr-pr`: `#ffffff` → `#94a3b8`; `.dr-pos`: → `#64c487`; `.dr-neg`: → `#c46464`; `.spark-ticker`, `.up-c`, `.dn-c`, `.tk-pos`, `.tk-neg`, `.up`, `.dn` also updated
+- **Hero bullets** (`.hero-bullet`): `#e2e8f0` → `#94a3b8`; removed bold weight + gold color from promo box and "Simple by design…" bullet
+
+### Dashboard Welcome Page
+
+- `dashboard.html` + `dashboard_cn.html`: `.page-title` color `var(--white)` → `#94a3b8` ("Welcome back" / "欢迎回家")
+
+---
+
+## What Was Done 2026-06-08
+
+### Video Schedule: Moved to 6 PM ET
+
+- `IS_VIDEO_RUN` detection in `scanner.yml` changed from `HOUR=00||01` to `HOUR=22||23`
+- Two crons now clearly separated: `0 22 * * 1-5` = 6 PM ET preliminary scan (no videos); `0 0 * * 2-6` = 8 PM ET final scan + videos
+- Updated cron comments in `scanner.yml` to match
+
+### FAQ Updates
+
+- `assets/faq.html`: Updated "When is data updated?" to describe dual-run schedule (6 PM preliminary + 8 PM final); added new FAQ item "How current is the P/E and EPS data?" explaining TTM diluted GAAP EPS from SEC EDGAR XBRL
+- `assets/faq_cn.html`: Synced with EN — translated both FAQ updates into Chinese
+- `assets/methodology_2026-05-31.html`: Replaced all Polygon.io references with Tiingo; updated cache structure, volume definition, schedule section, added Q3 YTD search note; version date updated to 2026-06-07
+
+### Candlestick Chart Date Improvements
+
+Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_cn.html`, `baizora_main_form_free.html`, `baizora_main_form_free_cn.html`):
+
+1. **Adaptive x-axis date labels:** 3M (n<100) → bi-weekly with "Apr 7"; 6M (n<200) → monthly with year suffix on year changes ("Jun '25"); 1Y (n≥200) → every other month (~6 labels). Timezone fix: `new Date(d + 'T12:00:00')`.
+2. **Top-right "as of [date]" label:** 10px DM Mono `#475569` at `(W - pad.right, pad.top - 4)`, shows the latest data date so users know data is current.
+
+### Live IEX Prices on Homepage
+
+- **Cloud Function `GET /api/iex-quotes`** added to `functions/index.js`: proxies Tiingo IEX endpoint for 10 homepage tickers (NVDA,GOOGL,AAPL,MSFT,AMZN,AVGO,TSLA,META,WMT,MU); 60s in-memory cache caps Tiingo calls to ~1,440/day
+- **`TIINGO_API_KEY`** set as Firebase secret via `echo "KEY" | firebase functions:secrets:set TIINGO_API_KEY` (piped stdin — interactive prompt not supported in Claude Code terminal)
+- **`index.html` and `index_cn.html`**: added `refreshPrices()` IIFE — loads on page, then polls every 60s during market hours (Mon–Fri 9:30–16:00 ET via `America/New_York` timezone). Updates rolling ticker bar HTML + demo table `MOCK_DATA` prices.
+- Functions deployed via `firebase deploy --only functions`
+- **Pending verification:** live IEX polling must be checked during market hours (next opportunity 2026-06-09 Monday)
+
+---
+
 ## What Was Done 2026-06-04
 
 - **BaizScore** (composite score) added to scanner and dashboard — weighted formula: RS 30% + Momentum 25% + Breakout 20% + Trend 15% + Vol Pressure 10%; gold column header in SCORES tab
@@ -317,7 +379,7 @@ Confirm a paid data provider is active before re-enabling billing. Do NOT charge
 ## Next Time: What to Check
 
 1. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the 6-item revert checklist above.
-2. **Tiingo attribution** — required by license: add `"Market Data Sourced by Tiingo.com"` to `baizora_main_form.html`, `baizora_main_form_cn.html`, and any other data-facing product pages. NOT yet done.
+2. **Tiingo attribution** — required by license: add `"Market Data Sourced by Tiingo.com"` to `baizora_main_form.html` and `baizora_main_form_cn.html`. Already done on individual stock pages (stocks/*.html). NOT yet done on main dashboards.
 3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify eps drops to expected post-split values and compare log stays clean.
 4. **Remaining EPS=None tickers** — BRK-B is structural (no EDGAR data after 2013); others may be IFRS filers. Investigate if any are solvable from EDGAR without a paid source.
 5. **EPS cache rebuild caution** — if `fundamentals_cache.json` must be deleted, the next scan will re-fetch all 516 tickers from EDGAR (takes ~15 min). Sector overrides are in code, not cache — safe to rebuild.
