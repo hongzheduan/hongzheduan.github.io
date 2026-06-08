@@ -1284,7 +1284,7 @@
       </tr></thead>`;
 
       const rows = arr.slice(0, 600).map(r => {
-        const pc1  = r.PriceChange1D;
+        const pc1  = r._liveChgPct ?? r.PriceChange1D;
         const vc1  = r.VolumeChange1D;
         const pma  = r.PriceVsMA21_1D;
         const vma  = r.VolumeVsMA21_1D;
@@ -1326,7 +1326,7 @@
 
         // 1D-specific cells (only shown in 1D view)
         const oneDayTds = is1D ? `
-          <td class="${colorClass(pc1)} group-start">${pc1}%</td>
+          <td class="${colorClass(pc1)} group-start chg1d-cell" data-ticker="${r.Ticker}">${pc1 != null ? pc1 + '%' : '—'}</td>
           <td class="${colorClass(pma - 1)} group-start">${pma}</td>
           <td class="${colorClass(vc1)}">${vc1}%</td>
           <td class="${colorClass(vma - 1)}">${vma}</td>` : "";
@@ -1352,7 +1352,7 @@
       const fmtV = v => v != null ? v : "—";
 
       const cards = arr.slice(0, 600).map(r => {
-        const pc1 = r.PriceChange1D;
+        const pc1 = r._liveChgPct ?? r.PriceChange1D;
         const vc1 = r.VolumeChange1D;
         const pma = r.PriceVsMA21_1D;
         const vma = r.VolumeVsMA21_1D;
@@ -1845,11 +1845,12 @@
         if (newP) { _prevDashPrices[t] = newP; _liveIex[t] = q[t]; }
       });
 
-      // Persist on allRows so render() picks up color
+      // Persist live price + direction + chgPct on row objects so render() picks them up
       allRows.forEach(r => {
         const d = q[r.Ticker]; if (!d?.last) return;
-        r._livePrice = d.last;
-        r._priceDir  = dirs[r.Ticker] || '';
+        r._livePrice   = d.last;
+        r._priceDir    = dirs[r.Ticker] || '';
+        if (d.chgPct != null) r._liveChgPct = d.chgPct;
       });
 
       document.querySelectorAll('td.ticker-cell[data-ticker]').forEach(tc => {
@@ -1859,6 +1860,13 @@
         if (!pc) return;
         pc.textContent = d.last.toFixed(2);
         pc.style.color = dirs[t] === 'up' ? '#22c55e' : dirs[t] === 'dn' ? '#ef4444' : '';
+      });
+
+      // Surgical 1D P CHG% update
+      document.querySelectorAll('td.chg1d-cell[data-ticker]').forEach(tc => {
+        const d = q[tc.dataset.ticker]; if (d?.chgPct == null) return;
+        tc.textContent = (d.chgPct >= 0 ? '+' : '') + d.chgPct + '%';
+        tc.className = tc.className.replace(/\b(positive|negative|neutral)\b/, d.chgPct > 0 ? 'positive' : d.chgPct < 0 ? 'negative' : 'neutral');
       });
 
       const todayET = new Date().toLocaleDateString('en-CA', {timeZone:'America/New_York'});
