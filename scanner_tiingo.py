@@ -2146,7 +2146,7 @@ if __name__ == "__main__":
     else:
         # Probe Tiingo for today's SPY data. Retry every 30 min for up to 90 min
         # to handle data publication delays (especially the 6 PM scan).
-        PROBE_RETRIES   = 3
+        PROBE_RETRIES   = int(os.environ.get("PROBE_RETRIES", "3"))
         PROBE_WAIT_SECS = 30 * 60
         data_confirmed  = False
 
