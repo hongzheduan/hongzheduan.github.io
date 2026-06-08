@@ -86,7 +86,7 @@ jobs:
           git stash --include-untracked
           git fetch origin main
           git rebase origin/main
-          git stash pop
+          git stash pop || true
 
           git add data/latest.json                     2>/dev/null || true
           git add data/candles.json                    2>/dev/null || true
