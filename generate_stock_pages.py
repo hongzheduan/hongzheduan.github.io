@@ -525,6 +525,8 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
   <a href="../assets/disclaimer.html">Disclaimer</a>
   <br>
   For informational purposes only. Not financial advice. Data updated daily after US market close.
+  <br>
+  <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.04em;">Market Data Sourced by <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#475569;text-decoration:none;">Tiingo.com</a></span>
 </footer>
 
 {page_script}
