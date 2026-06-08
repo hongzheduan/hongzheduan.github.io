@@ -42,18 +42,20 @@ jobs:
 
           # midnight ET cron → EDGAR-only refresh, skip market scan
           if [ "$SCHEDULE" = "0 5 * * *" ]; then
-            echo "EDGAR_ONLY=1" >> $GITHUB_ENV
-            echo "SKIP_EDGAR="  >> $GITHUB_ENV
+            echo "EDGAR_ONLY=1"    >> $GITHUB_ENV
+            echo "SKIP_EDGAR="    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+          elif [ "$SCHEDULE" = "0 22 * * 1-5" ]; then
+            echo "EDGAR_ONLY="    >> $GITHUB_ENV
+            echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
+            echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
+            echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 6:00, retry at 6:30
           else
-            echo "EDGAR_ONLY="        >> $GITHUB_ENV
-            echo "SKIP_EDGAR=1"       >> $GITHUB_ENV
-            # Videos run only on the 6 PM ET cron
-            if [ "$SCHEDULE" = "0 22 * * 1-5" ]; then
-              echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
-            else
-              echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
-            fi
+            echo "EDGAR_ONLY="    >> $GITHUB_ENV
+            echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
+            echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 7 PM and 8 PM: probe once and exit
           fi
 
       - name: Run scanner
@@ -62,7 +64,7 @@ jobs:
           TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
           EDGAR_ONLY: ${{ env.EDGAR_ONLY }}
           SKIP_EDGAR: ${{ env.SKIP_EDGAR }}
-          PROBE_RETRIES: ${{ github.event.schedule == '0 22 * * 1-5' && '1' || '3' }}
+          PROBE_RETRIES: ${{ env.PROBE_RETRIES }}
         run: python scanner_tiingo.py
 
       - name: Commit updated data
