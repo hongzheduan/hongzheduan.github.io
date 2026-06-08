@@ -1939,14 +1939,15 @@ window.mockSort = function(col, el) {
       const q = await resp.json();
       if (!q || !Object.keys(q).length) return;
 
+      const uniqueTickers = [...new Set([...BAR_TICKERS, ...MOCK_DATA.map(r => r.tk)])];
       const dirs = {};
-      [...BAR_TICKERS, ...MOCK_DATA.map(r => r.tk)].forEach(t => {
+      uniqueTickers.forEach(t => {
         const newP = q[t]?.last;
         if (newP && _prevIexPrices[t] != null) {
           dirs[t] = newP > _prevIexPrices[t] ? 'up' : newP < _prevIexPrices[t] ? 'dn' : '';
         }
-        if (newP) _prevIexPrices[t] = newP;
       });
+      uniqueTickers.forEach(t => { if (q[t]?.last) _prevIexPrices[t] = q[t].last; });
 
       if (MOCK_DATA.length) {
         MOCK_DATA.forEach(row => {
