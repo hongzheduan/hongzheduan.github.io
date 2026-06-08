@@ -393,6 +393,7 @@
 
     .sort-arrow { opacity: 0.5; }
     th.sorted .sort-arrow { opacity: 1; }
+    .live-tag { font-size:9px; color:#22c55e; font-family:'DM Mono',monospace; font-weight:400; letter-spacing:0.02em; opacity:0.75; vertical-align:middle; margin-left:3px; }
 
     /* ── TOOLTIPS ── */
     .bz-tooltip {
@@ -1258,7 +1259,7 @@
 
       // For 1D view: show 1D-specific cols; for other windows: show window price change + window stats only
       const oneDayCols = is1D ? `
-        ${thSort("PriceChange1D",   "1D P CHG%",  "group-start")}
+        ${thSort("PriceChange1D",   "1D P CHG%<span class='live-tag'>live</span>",  "group-start")}
         ${thSort("PriceVsMA21_1D",  "PRICE/MA21", "group-start")}
         ${thSort("VolumeChange1D",  "1D V CHG%")}
         ${thSort("VolumeVsMA21_1D", "VOL/MA21")}` : "";
@@ -1266,7 +1267,7 @@
       const head = `<thead><tr>
         ${thSort("Ticker",          "Ticker")}
         ${thStatic("Spark1Y",       "1Y Trend")}
-        ${thSort("Price",           "Price")}
+        ${thSort("Price",           "Price<span class='live-tag'>live</span>")}
         ${thSort("VolumeM",         "Vol (M)")}
         ${oneDayCols}
         ${windowHead}

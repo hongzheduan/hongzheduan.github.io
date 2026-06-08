@@ -404,6 +404,7 @@
 
     .sort-arrow { opacity: 0.5; }
     th.sorted .sort-arrow { opacity: 1; }
+    .live-tag { font-size:9px; color:#22c55e; font-family:'DM Mono',monospace; font-weight:400; letter-spacing:0.02em; opacity:0.75; vertical-align:middle; margin-left:3px; }
 
     /* ── TOOLTIPS ── */
     .bz-tooltip {
@@ -1269,7 +1270,7 @@
 
       // For 1D view: show 1D-specific cols; for other windows: show window price change + window stats only
       const oneDayCols = is1D ? `
-        ${thSort("PriceChange1D",   "日价格变化",  "group-start")}
+        ${thSort("PriceChange1D",   "日价格变化<span class='live-tag'>实时</span>",  "group-start")}
         ${thSort("PriceVsMA21_1D",  "价格/MA21", "group-start")}
         ${thSort("VolumeChange1D",  "日成交量变化")}
         ${thSort("VolumeVsMA21_1D", "成交量/MA21")}` : "";
@@ -1277,7 +1278,7 @@
       const head = `<thead><tr>
         ${thSort("Ticker",          "代码")}
         ${thStatic("Spark1Y",       "年趋势线")}
-        ${thSort("Price",           "价格")}
+        ${thSort("Price",           "价格<span class='live-tag'>实时</span>")}
         ${thSort("VolumeM",         "成交量(M)")}
         ${oneDayCols}
         ${windowHead}
