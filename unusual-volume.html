@@ -680,7 +680,7 @@
           <td>${tkLink}</td>
           <td class="company-name" title="${r.CompanyName || ''}">${(r.CompanyName || '').slice(0, 28)}${(r.CompanyName || '').length > 28 ? '…' : ''}</td>
           <td class="center">${indexBadge(r)}</td>
-          <td class="right" style="color:var(--white);">${price}</td>
+          <td class="right" style="color:${r._priceDir==='up'?'#22c55e':r._priceDir==='dn'?'#ef4444':'var(--white)'};">${price}</td>
           <td class="right">${fmt(chg1d, 1, true)}</td>
           <td>${fmtVol(r.VolumeChange1D)}</td>
           <td class="right">${fmtMA(r.VolumeVsMA21_1D)}</td>
@@ -716,6 +716,8 @@
     } catch(e) { return false; }
   }
 
+  const _prevIexPrices = {};
+
   async function refreshLivePrices() {
     if (!volRows.length) return;
     const tickers = volRows.map(r => r.Ticker).join(',');
@@ -726,7 +728,17 @@
       if (!q || !Object.keys(q).length) return;
       volRows.forEach(r => {
         const d = q[r.Ticker];
-        if (d) { r._livePrice = d.last; r._liveChgPct = d.chgPct; }
+        if (d) {
+          const newP = d.last;
+          if (newP && _prevIexPrices[r.Ticker] != null) {
+            r._priceDir = newP > _prevIexPrices[r.Ticker] ? 'up' : newP < _prevIexPrices[r.Ticker] ? 'dn' : '';
+          } else {
+            r._priceDir = '';
+          }
+          _prevIexPrices[r.Ticker] = newP;
+          r._livePrice = newP;
+          r._liveChgPct = d.chgPct;
+        }
       });
       volLiveLoaded = true;
       renderVolTable();
