@@ -666,7 +666,7 @@
 
   function renderVolTable() {
     if (!volRows.length) return;
-    const liveNote = volLiveLoaded ? ' · Prices live' : '';
+    const liveNote = volLiveLoaded ? ' · Prices 15-min delayed' : '';
     if (volDate) {
       document.getElementById('dataDateLabel').textContent =
         'As of ' + volDate + ' · ' + volRows.length + ' stocks shown · S&P 500 & Nasdaq-100' + liveNote;

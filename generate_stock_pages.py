@@ -158,7 +158,7 @@ _SCRIPT_TEMPLATE = r"""
         }
         if (dateEl) {
           var t = new Date().toLocaleTimeString("en-US", {hour:"numeric",minute:"2-digit",timeZone:"America/New_York"});
-          dateEl.textContent = "Prices live as of " + t + " ET";
+          dateEl.textContent = "Prices 15-min delayed · As of " + t + " ET";
         }
       }
       document.querySelectorAll(".peer-card").forEach(function(card) {

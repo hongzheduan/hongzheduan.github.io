@@ -515,6 +515,18 @@
       padding: 12px 0;
     }
 
+    .ticker-delay-note {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 9px;
+      color: #475569;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.04em;
+      z-index: 2;
+      pointer-events: none;
+    }
     .ticker-track {
       display: flex;
       animation: ticker 30s linear infinite;
@@ -1163,6 +1175,7 @@
 
 <div class="ticker-wrap">
   <div class="ticker-track" id="tickerTrack"></div>
+  <span class="ticker-delay-note">延迟15分钟</span>
 </div>
 
 <div class="promo-ticker-wrap">

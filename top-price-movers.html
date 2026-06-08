@@ -611,7 +611,7 @@
       losers ? a.PriceChange1D - b.PriceChange1D : b.PriceChange1D - a.PriceChange1D
     ).slice(0, TOP);
 
-    const liveNote = livePricesLoaded ? ' · Prices live' : '';
+    const liveNote = livePricesLoaded ? ' · Prices 15-min delayed' : '';
     document.getElementById('dataDateLabel').textContent =
       (losers ? 'Top losers' : 'Top gainers') + ' · As of ' + dataDate + ' · S&P 500 & Nasdaq-100' + liveNote;
 
