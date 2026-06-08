@@ -177,7 +177,7 @@ _SCRIPT_TEMPLATE = r"""
   }
 
   refresh();
-  if (isMarketOpen()) setInterval(refresh, 60000);
+  setInterval(function() { if (isMarketOpen()) refresh(); }, 60000);
 })();
 </script>
 """

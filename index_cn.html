@@ -1949,7 +1949,7 @@ window.mockSort = function(col, el) {
   }
 
   refreshPrices();
-  if (isMarketOpen()) setInterval(refreshPrices, 60_000);
+  setInterval(() => { if (isMarketOpen()) refreshPrices(); }, 60_000);
 })();
 
 // Promo bar: static links (CN)
