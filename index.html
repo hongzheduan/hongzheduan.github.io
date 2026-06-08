@@ -48,8 +48,8 @@
       --electric-bright: #60a5fa;
       --gold: #f59e0b;
       --gold-light: #fcd34d;
-      --green: #22c55e;
-      --red: #ef4444;
+      --green: #64c487;
+      --red: #c46464;
       --white: #ffffff;
       --muted: #cbd5e1;
       --border: rgba(255,255,255,0.09);
@@ -536,9 +536,9 @@
       border-right: 1px solid var(--border);
     }
 
-    .ticker-item .sym { color: #ffffff; font-weight: 500; }
-    .ticker-item .up { color: #22c55e; }
-    .ticker-item .dn { color: #ef4444; }
+    .ticker-item .sym { color: #94a3b8; font-weight: 500; }
+    .ticker-item .up { color: #64c487; }
+    .ticker-item .dn { color: #c46464; }
 
     /* ── PROMO TICKER STRIP ── */
     .promo-ticker-wrap {
@@ -687,12 +687,12 @@
 
     .spark-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border); }
     .spark-row:last-child { border-bottom: none; }
-    .spark-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: #ffffff; width: 44px; flex-shrink: 0; }
+    .spark-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: #94a3b8; width: 44px; flex-shrink: 0; }
     .spark-svg-wrap { flex: 1; }
     .spark-scores-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
     @media (max-width: 768px) { .spark-scores-wrap { grid-template-columns: 1fr; } }
-    .up-c { color: #22c55e; }
-    .dn-c { color: #ef4444; }
+    .up-c { color: #64c487; }
+    .dn-c { color: #c46464; }
 
     .timeframe-demo { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
     .tf-btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: default; }
@@ -953,7 +953,7 @@
     .dr-tk {
       font-size: 12px;
       font-weight: 600;
-      color: #ffffff;
+      color: #94a3b8;
       letter-spacing: 0.05em;
       cursor: default;
       position: relative;
@@ -984,9 +984,9 @@
     .tk-rows { display: flex; flex-direction: column; gap: 5px; }
     .tk-row { display: flex; justify-content: space-between; gap: 12px; }
     .tk-key { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; }
-    .tk-val { font-size: 10px; color: #ffffff; }
-    .tk-pos { color: #22c55e; }
-    .tk-neg { color: #ef4444; }
+    .tk-val { font-size: 10px; color: #94a3b8; }
+    .tk-pos { color: #64c487; }
+    .tk-neg { color: #c46464; }
     .tk-div { height: 1px; background: rgba(255,255,255,0.06); margin: 2px 0; }
 
     .dr-sp { display: flex; align-items: center; position: relative; cursor: default; padding-left: 8px; }
@@ -1014,9 +1014,9 @@
     .sp-legend { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.06); }
     .sp-legend-row { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #94a3b8; }
 
-    .dr-pr { font-size: 11px; color: #ffffff; text-align: center; }
-    .dr-pos { font-size: 11px; color: #4ade80; text-align: center; }
-    .dr-neg { font-size: 11px; color: #f87171; text-align: center; }
+    .dr-pr { font-size: 11px; color: #94a3b8; text-align: center; }
+    .dr-pos { font-size: 11px; color: #64c487; text-align: center; }
+    .dr-neg { font-size: 11px; color: #c46464; text-align: center; }
     .dr-neu { font-size: 11px; color: #cbd5e1; text-align: center; }
     .dr-gs { border-left: 2px solid rgba(59,130,246,0.1); padding-left: 5px; }
     .mock-spark { display: block; }
@@ -1168,20 +1168,20 @@
 
           <div style="margin-bottom:12px;">
             <div style="color:#94a3b8; font-size:9px; letter-spacing:0.1em; margin-bottom:4px;">2026-03-23 &nbsp;·&nbsp; S&amp;P 500</div>
-            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">VRT</span> <span style="color:#94a3b8; font-size:10px;">Vertiv Holdings</span></div>
-            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">LITE</span> <span style="color:#94a3b8; font-size:10px;">Lumentum Holdings</span></div>
-            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">COHR</span> <span style="color:#94a3b8; font-size:10px;">Coherent Corp.</span></div>
-            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">SATS</span> <span style="color:#94a3b8; font-size:10px;">EchoStar Corp.</span></div>
-            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MTCH</span> <span style="color:#94a3b8; font-size:10px;">Match Group</span></div>
-            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MOH</span> <span style="color:#94a3b8; font-size:10px;">Molina Healthcare</span></div>
-            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">LW</span> <span style="color:#94a3b8; font-size:10px;">Lamb Weston</span></div>
-            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">PAYC</span> <span style="color:#94a3b8; font-size:10px;">Paycom Software</span></div>
+            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">VRT</span> <span style="color:#94a3b8; font-size:10px;">Vertiv Holdings</span></div>
+            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">LITE</span> <span style="color:#94a3b8; font-size:10px;">Lumentum Holdings</span></div>
+            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">COHR</span> <span style="color:#94a3b8; font-size:10px;">Coherent Corp.</span></div>
+            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">SATS</span> <span style="color:#94a3b8; font-size:10px;">EchoStar Corp.</span></div>
+            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MTCH</span> <span style="color:#94a3b8; font-size:10px;">Match Group</span></div>
+            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MOH</span> <span style="color:#94a3b8; font-size:10px;">Molina Healthcare</span></div>
+            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">LW</span> <span style="color:#94a3b8; font-size:10px;">Lamb Weston</span></div>
+            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">PAYC</span> <span style="color:#94a3b8; font-size:10px;">Paycom Software</span></div>
           </div>
 
           <div style="margin-bottom:12px;">
             <div style="color:#94a3b8; font-size:9px; letter-spacing:0.1em; margin-bottom:4px;">2026-01-20 &nbsp;·&nbsp; NASDAQ 100</div>
-            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">WMT</span> <span style="color:#94a3b8; font-size:10px;">Walmart Inc.</span></div>
-            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">AZN</span> <span style="color:#94a3b8; font-size:10px;">AstraZeneca</span></div>
+            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">WMT</span> <span style="color:#94a3b8; font-size:10px;">Walmart Inc.</span></div>
+            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">AZN</span> <span style="color:#94a3b8; font-size:10px;">AstraZeneca</span></div>
           </div>
 
           <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:10px; margin-top:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
@@ -1268,7 +1268,7 @@
 
       <div class="spark-legend">
         <div class="spark-legend-item">
-          <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#22c55e"/></svg>
+          <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#64c487"/></svg>
           Highest-volume day (price was up)
         </div>
         <div class="spark-legend-item">
@@ -1277,8 +1277,8 @@
         </div>
         <div class="spark-legend-item">
           <svg width="14" height="12" viewBox="0 0 14 12">
-            <circle cx="7" cy="6" r="5.5" fill="#22c55e" opacity="0.25"/>
-            <circle cx="7" cy="6" r="3.2" fill="#22c55e" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
+            <circle cx="7" cy="6" r="5.5" fill="#64c487" opacity="0.25"/>
+            <circle cx="7" cy="6" r="3.2" fill="#64c487" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
           </svg>
           Largest price-change day (volume elevated)
         </div>
@@ -1296,9 +1296,9 @@
         <div class="spark-svg-wrap">
           <svg width="200" height="28" viewBox="0 0 200 28" fill="none">
             <path d="M0,22 L10,20 L20,18 L30,15 L40,12 L50,9 L60,11 L70,8 L80,5 L90,7 L100,4 L110,6 L120,3 L130,5 L140,4 L150,7 L160,5 L170,8 L180,10 L190,7 L200,5" stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
-            <polygon points="80,0 75.5,8.6 84.5,8.6" fill="#22c55e" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>
-            <circle cx="120" cy="3" r="5.5" fill="#22c55e" opacity="0.25"/>
-            <circle cx="120" cy="3" r="3.2" fill="#22c55e" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
+            <polygon points="80,0 75.5,8.6 84.5,8.6" fill="#64c487" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>
+            <circle cx="120" cy="3" r="5.5" fill="#64c487" opacity="0.25"/>
+            <circle cx="120" cy="3" r="3.2" fill="#64c487" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
           </svg>
         </div>
       </div>
@@ -1307,9 +1307,9 @@
         <div class="spark-svg-wrap">
           <svg width="200" height="28" viewBox="0 0 200 28" fill="none">
             <path d="M0,5 L10,8 L20,12 L30,16 L40,20 L50,18 L60,22 L70,18 L80,14 L90,18 L100,22 L110,18 L120,15 L130,19 L140,22 L150,18 L160,20 L170,16 L180,18 L190,14 L200,16" stroke="#ef4444" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
-            <polygon points="70,13 65.5,21.6 74.5,21.6" fill="#22c55e" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>
-            <circle cx="40" cy="20" r="5.5" fill="#22c55e" opacity="0.25"/>
-            <circle cx="40" cy="20" r="3.2" fill="#22c55e" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
+            <polygon points="70,13 65.5,21.6 74.5,21.6" fill="#64c487" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>
+            <circle cx="40" cy="20" r="5.5" fill="#64c487" opacity="0.25"/>
+            <circle cx="40" cy="20" r="3.2" fill="#64c487" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
           </svg>
         </div>
       </div>

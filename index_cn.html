@@ -48,8 +48,8 @@
       --electric-bright: #60a5fa;
       --gold: #f59e0b;
       --gold-light: #fcd34d;
-      --green: #22c55e;
-      --red: #ef4444;
+      --green: #64c487;
+      --red: #c46464;
       --white: #ffffff;
       --muted: #cbd5e1;
       --border: rgba(255,255,255,0.09);
@@ -541,9 +541,9 @@
       border-right: 1px solid var(--border);
     }
 
-    .ticker-item .sym { color: #ffffff; font-weight: 500; }
-    .ticker-item .up { color: #22c55e; }
-    .ticker-item .dn { color: #ef4444; }
+    .ticker-item .sym { color: #94a3b8; font-weight: 500; }
+    .ticker-item .up { color: #64c487; }
+    .ticker-item .dn { color: #c46464; }
 
     /* ── PROMO TICKER STRIP ── */
     .promo-ticker-wrap {
@@ -642,12 +642,12 @@
 
     .spark-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border); }
     .spark-row:last-child { border-bottom: none; }
-    .spark-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: #ffffff; width: 44px; flex-shrink: 0; }
+    .spark-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: #94a3b8; width: 44px; flex-shrink: 0; }
     .spark-svg-wrap { flex: 1; }
     .spark-scores-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
     @media (max-width: 768px) { .spark-scores-wrap { grid-template-columns: 1fr; } }
-    .up-c { color: #22c55e; }
-    .dn-c { color: #ef4444; }
+    .up-c { color: #64c487; }
+    .dn-c { color: #c46464; }
 
     .timeframe-demo { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
     .tf-btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: default; }
@@ -907,7 +907,7 @@
     .dr-tk {
       font-size: 12px;
       font-weight: 600;
-      color: #ffffff;
+      color: #94a3b8;
       letter-spacing: 0.05em;
       cursor: default;
       position: relative;
@@ -938,9 +938,9 @@
     .tk-rows { display: flex; flex-direction: column; gap: 5px; }
     .tk-row { display: flex; justify-content: space-between; gap: 12px; }
     .tk-key { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; }
-    .tk-val { font-size: 10px; color: #ffffff; }
-    .tk-pos { color: #22c55e; }
-    .tk-neg { color: #ef4444; }
+    .tk-val { font-size: 10px; color: #94a3b8; }
+    .tk-pos { color: #64c487; }
+    .tk-neg { color: #c46464; }
     .tk-div { height: 1px; background: rgba(255,255,255,0.06); margin: 2px 0; }
 
     .dr-sp { display: flex; align-items: center; position: relative; cursor: default; padding-left: 8px; }
@@ -968,9 +968,9 @@
     .sp-legend { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.06); }
     .sp-legend-row { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #475569; }
 
-    .dr-pr { font-size: 11px; color: #ffffff; text-align: center; }
-    .dr-pos { font-size: 11px; color: #4ade80; text-align: center; }
-    .dr-neg { font-size: 11px; color: #f87171; text-align: center; }
+    .dr-pr { font-size: 11px; color: #94a3b8; text-align: center; }
+    .dr-pos { font-size: 11px; color: #64c487; text-align: center; }
+    .dr-neg { font-size: 11px; color: #c46464; text-align: center; }
     .dr-neu { font-size: 11px; color: #cbd5e1; text-align: center; }
     .dr-gs { border-left: 2px solid rgba(59,130,246,0.1); padding-left: 5px; }
     .mock-spark { display: block; }
@@ -1122,20 +1122,20 @@
 
           <div style="margin-bottom:12px;">
             <div style="color:#94a3b8; font-size:9px; letter-spacing:0.1em; margin-bottom:4px;">2026-03-23 &nbsp;·&nbsp; 标普500</div>
-            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">VRT</span> <span style="color:#64748b; font-size:10px;">Vertiv Holdings</span></div>
-            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">LITE</span> <span style="color:#64748b; font-size:10px;">Lumentum Holdings</span></div>
-            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">COHR</span> <span style="color:#64748b; font-size:10px;">Coherent Corp.</span></div>
-            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">SATS</span> <span style="color:#64748b; font-size:10px;">EchoStar Corp.</span></div>
-            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MTCH</span> <span style="color:#64748b; font-size:10px;">Match Group</span></div>
-            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MOH</span> <span style="color:#64748b; font-size:10px;">Molina Healthcare</span></div>
-            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">LW</span> <span style="color:#64748b; font-size:10px;">Lamb Weston</span></div>
-            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">PAYC</span> <span style="color:#64748b; font-size:10px;">Paycom Software</span></div>
+            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">VRT</span> <span style="color:#64748b; font-size:10px;">Vertiv Holdings</span></div>
+            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">LITE</span> <span style="color:#64748b; font-size:10px;">Lumentum Holdings</span></div>
+            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">COHR</span> <span style="color:#64748b; font-size:10px;">Coherent Corp.</span></div>
+            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">SATS</span> <span style="color:#64748b; font-size:10px;">EchoStar Corp.</span></div>
+            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MTCH</span> <span style="color:#64748b; font-size:10px;">Match Group</span></div>
+            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MOH</span> <span style="color:#64748b; font-size:10px;">Molina Healthcare</span></div>
+            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">LW</span> <span style="color:#64748b; font-size:10px;">Lamb Weston</span></div>
+            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">PAYC</span> <span style="color:#64748b; font-size:10px;">Paycom Software</span></div>
           </div>
 
           <div style="margin-bottom:12px;">
             <div style="color:#94a3b8; font-size:9px; letter-spacing:0.1em; margin-bottom:4px;">2026-01-20 &nbsp;·&nbsp; 纳斯达克100</div>
-            <div><span style="color:#22c55e; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">WMT</span> <span style="color:#64748b; font-size:10px;">Walmart Inc.</span></div>
-            <div><span style="color:#ef4444; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">AZN</span> <span style="color:#64748b; font-size:10px;">AstraZeneca</span></div>
+            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">WMT</span> <span style="color:#64748b; font-size:10px;">Walmart Inc.</span></div>
+            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">AZN</span> <span style="color:#64748b; font-size:10px;">AstraZeneca</span></div>
           </div>
 
           <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:10px; margin-top:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">

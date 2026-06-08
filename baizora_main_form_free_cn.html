@@ -46,8 +46,8 @@
       --muted: #cbd5e1;
       --border: rgba(255,255,255,0.09);
       --border-bright: rgba(255,255,255,0.12);
-      --positive: #22c55e;
-      --negative: #ef4444;
+      --positive: #64c487;
+      --negative: #c46464;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -279,7 +279,7 @@
       font-size: 10px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #94a3b8;
+      color: #e2e8f0;
       user-select: none;
       transition: color 0.15s, background 0.15s;
     }
@@ -287,7 +287,7 @@
     th.sorted { color: var(--electric-bright); }
     th:last-child { border-right: none; }
     th.no-sort { cursor: default; }
-    th.no-sort:hover { color: #94a3b8; background: rgba(10,22,40,0.98); }
+    th.no-sort:hover { color: #e2e8f0; background: rgba(10,22,40,0.98); }
 
     td {
       padding: 9px 12px;
@@ -295,7 +295,7 @@
       border-right: 1px solid var(--border);
       white-space: nowrap;
       font-size: 12px;
-      color: var(--muted);
+      color: #94a3b8;
       transition: background 0.1s;
     }
     td:last-child { border-right: none; }
@@ -307,7 +307,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 12px;
       font-weight: 500;
-      color: var(--white);
+      color: #94a3b8;
       letter-spacing: 0.05em;
       cursor: pointer;
       text-decoration: underline;
@@ -339,10 +339,10 @@
     #candleCanvas { width: 100%; height: 280px; display: block; border-radius: 8px; }
     #candleNoData { width: 100%; height: 280px; display: none; align-items: center; justify-content: center; color: #64748b; font-size: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; }
 
-    .price-cell { font-family: 'DM Mono', monospace; color: var(--white); font-weight: 400; }
+    .price-cell { font-family: 'DM Mono', monospace; color: #94a3b8; font-weight: 400; }
     .positive { color: var(--positive); font-family: 'DM Mono', monospace; }
     .negative { color: var(--negative); font-family: 'DM Mono', monospace; }
-    .neutral  { color: var(--muted);    font-family: 'DM Mono', monospace; }
+    .neutral  { color: #94a3b8;         font-family: 'DM Mono', monospace; }
 
     th.group-start { border-left: 2px solid rgba(59,130,246,0.2); }
     td.group-start { border-left: 2px solid rgba(59,130,246,0.1); }
