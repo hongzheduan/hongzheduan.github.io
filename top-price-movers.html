@@ -695,7 +695,7 @@
       dataDate = json.date || '';
       renderTable('gainers');
       refreshLivePrices();
-      if (isMarketOpen()) setInterval(refreshLivePrices, 60_000);
+      setInterval(() => { if (isMarketOpen()) refreshLivePrices(); }, 60_000);
     })
     .catch(() => {
       document.getElementById('tableWrap').innerHTML =
