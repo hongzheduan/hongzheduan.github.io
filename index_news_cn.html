@@ -357,8 +357,9 @@
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     onAuthStateChanged(auth, (user) => {
-      if (!user) { window.location.href = "login_cn.html"; return; }
-      document.getElementById("headerEmail").textContent = user.email;
+      // TEMP: time-limited free — restore to re-enable login gate
+      // if (!user) { window.location.href = "login_cn.html"; return; }
+      if (user) document.getElementById("headerEmail").textContent = user.email;
       loadNews();
     });
 
