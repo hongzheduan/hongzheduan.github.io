@@ -2,9 +2,9 @@
 
 on:
   schedule:
-    - cron: "0 22 * * 1-5"   # 6 PM ET weekdays  — preliminary data + videos
-    - cron: "0 23 * * 1-5"   # 7 PM ET weekdays  — retry if 6 PM data not yet available
-    - cron: "0 0 * * 2-6"    # 8 PM ET weekdays  — final data
+    - cron: "0 21 * * 1-5"   # 5 PM ET weekdays  — preliminary data + videos (retries at 5:30 PM)
+    - cron: "0 22 * * 1-5"   # 6 PM ET weekdays  — retry if 5 PM data not yet available
+    - cron: "0 23 * * 1-5"   # 7 PM ET weekdays  — final data
     - cron: "0 5 * * *"      # midnight ET daily  — EDGAR refresh only
   workflow_dispatch:
 
@@ -46,16 +46,16 @@ jobs:
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
-          elif [ "$SCHEDULE" = "0 22 * * 1-5" ]; then
+          elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
-            echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 6:00, retry at 6:30
+            echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 5:00, retry at 5:30
           else
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
-            echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 7 PM and 8 PM: probe once and exit
+            echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 6 PM and 7 PM: probe once and exit
           fi
 
       - name: Run scanner
@@ -73,11 +73,33 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          # Stash scanner output, sync with remote, then restore
-          git stash --include-untracked
+          # Backup generated files, sync with remote, then restore unconditionally.
+          # (git stash pop can silently fail on conflict, losing files like compare_*.log)
+          TMPBAK=$(mktemp -d)
+          cp data/latest.json          "$TMPBAK/" 2>/dev/null || true
+          cp data/candles.json         "$TMPBAK/" 2>/dev/null || true
+          cp data/index_changes.json   "$TMPBAK/" 2>/dev/null || true
+          cp data/index_news.json      "$TMPBAK/" 2>/dev/null || true
+          cp data/sp500_symbols.txt    "$TMPBAK/" 2>/dev/null || true
+          cp data/nasdaq100_symbols.txt "$TMPBAK/" 2>/dev/null || true
+          cp data/fundamentals_cache.json "$TMPBAK/" 2>/dev/null || true
+          find archive -name "results_*.csv" -exec cp {} "$TMPBAK/" \; 2>/dev/null || true
+          find archive -name "compare_*.log" -exec cp {} "$TMPBAK/" \; 2>/dev/null || true
+
+          git stash
           git fetch origin main
           git rebase origin/main
-          git stash pop || true
+
+          # Restore — overwrite whatever remote had with our fresh scanner output
+          cp "$TMPBAK/latest.json"           data/ 2>/dev/null || true
+          cp "$TMPBAK/candles.json"          data/ 2>/dev/null || true
+          cp "$TMPBAK/index_changes.json"    data/ 2>/dev/null || true
+          cp "$TMPBAK/index_news.json"       data/ 2>/dev/null || true
+          cp "$TMPBAK/sp500_symbols.txt"     data/ 2>/dev/null || true
+          cp "$TMPBAK/nasdaq100_symbols.txt" data/ 2>/dev/null || true
+          cp "$TMPBAK/fundamentals_cache.json" data/ 2>/dev/null || true
+          find "$TMPBAK" -name "results_*.csv" -exec cp {} archive/ \; 2>/dev/null || true
+          find "$TMPBAK" -name "compare_*.log" -exec cp {} archive/ \; 2>/dev/null || true
 
           git add data/latest.json                     2>/dev/null || true
           git add data/candles.json                    2>/dev/null || true
