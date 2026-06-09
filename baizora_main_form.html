@@ -929,7 +929,8 @@
 
     /* ── AUTH ── */
     onAuthStateChanged(auth, (user) => {
-      if (!user) { window.location.href = "login.html"; return; }
+      // TEMP: time-limited free — restore to re-enable login gate
+      // if (!user) { window.location.href = "login.html"; return; }
       // FREE MODE: subscription check disabled — uncomment block below to re-enable paid gate
       // user.getIdToken().then(token =>
       //   fetch("https://us-central1-baizora.cloudfunctions.net/api/subscription",

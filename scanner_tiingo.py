@@ -1379,10 +1379,11 @@ def _get_brk_b_market_cap(brkb_close):
 # =========================
 
 _fund_cache = {}
+_fund_cache_fetched_date = ""
 
 
 def _load_fund_disk_cache(ignore_ttl=False):
-    global _fund_cache
+    global _fund_cache, _fund_cache_fetched_date
     if not os.path.exists(FUND_CACHE_FILE):
         return False
     try:
@@ -1391,7 +1392,8 @@ def _load_fund_disk_cache(ignore_ttl=False):
         fetched  = datetime.strptime(data.get("fetched", ""), "%Y-%m-%d").date()
         age_days = (date.today() - fetched).days
         if ignore_ttl or age_days <= FUND_CACHE_TTL_DAYS:
-            _fund_cache = data.get("tickers", {})
+            _fund_cache             = data.get("tickers", {})
+            _fund_cache_fetched_date = data.get("fetched", "")
             print(f"Fundamentals: {len(_fund_cache)} tickers from disk cache ({age_days}d old)")
             return True
         print(f"Fundamentals cache stale ({age_days}d old) — refreshing from EDGAR")
@@ -1442,6 +1444,63 @@ def get_fundamentals(ticker, tiingo_names=None):
     }
     _fund_cache[ticker] = result
     return result
+
+
+def _apply_post_cache_splits(ticker_set):
+    """
+    Check for splits since the last fundamentals cache build and update cached
+    share counts in _fund_cache. Uses the batch endpoint (one call per trading
+    day between cache-fetch date and today — at most ~6 calls for an 8-day TTL).
+
+    Only affects tickers already in _fund_cache. New tickers (cache miss) are
+    handled by _get_post_filing_split_factor inside _get_edgar_fundamentals.
+    """
+    if not _fund_cache_fetched_date or not _fund_cache:
+        return
+    try:
+        start = datetime.strptime(_fund_cache_fetched_date, "%Y-%m-%d").date() + timedelta(days=1)
+    except Exception:
+        return
+    today = date.today()
+    if start > today:
+        return
+
+    tiingo_to_internal = {_to_tiingo_ticker(TICKER_ALIASES.get(t, t)): t for t in ticker_set}
+
+    post_cache_splits = {}  # tiingo_lower → cumulative factor
+    current = start
+    call_count = 0
+    while current <= today:
+        if current.weekday() < 5 and not is_market_holiday(current):
+            date_str = current.strftime("%Y-%m-%d")
+            resp = _tiingo_get("/tiingo/corporate-actions/splits", params={"exDate": date_str})
+            if resp:
+                for event in resp:
+                    tiingo_tk = (event.get("ticker") or "").lower()
+                    if tiingo_tk in tiingo_to_internal:
+                        sf = float(event.get("splitFactor") or 1.0)
+                        if sf and sf != 1.0:
+                            post_cache_splits[tiingo_tk] = post_cache_splits.get(tiingo_tk, 1.0) * sf
+            call_count += 1
+            time.sleep(0.05)
+        current += timedelta(days=1)
+
+    if not post_cache_splits:
+        print(f"Post-cache split check: {call_count} date(s) — no splits in universe")
+        return
+
+    print(f"Post-cache split check: {call_count} date(s), {len(post_cache_splits)} universe ticker(s) with splits:")
+    for tiingo_tk, factor in post_cache_splits.items():
+        internal = tiingo_to_internal[tiingo_tk]
+        shares = (_fund_cache.get(internal) or {}).get("SharesOutstanding")
+        if shares:
+            new_shares = int(shares * factor)
+            _fund_cache[internal]["SharesOutstanding"] = new_shares
+            print(f"  {internal}: {shares:,} → {new_shares:,} (×{factor})")
+        if internal in SHARES_OUTSTANDING_OVERRIDE:
+            old_ov = SHARES_OUTSTANDING_OVERRIDE[internal]
+            SHARES_OUTSTANDING_OVERRIDE[internal] = int(old_ov * factor)
+            print(f"  {internal} override: {old_ov:,} → {SHARES_OUTSTANDING_OVERRIDE[internal]:,} (×{factor}) — UPDATE HARDCODED VALUE")
 
 
 def prefetch_fundamentals(tickers, tiingo_names, sleep_edgar=0.15):
@@ -1541,6 +1600,8 @@ def scan():
 
     # Load fundamentals (disk cache → EDGAR for missing)
     _load_fund_disk_cache(ignore_ttl=SKIP_EDGAR)
+    if not SKIP_EDGAR:
+        _apply_post_cache_splits(set(tickers))
     tiingo_meta = prefetch_tiingo_meta(tickers)
     if not SKIP_EDGAR:
         prefetch_fundamentals(tickers, tiingo_meta)

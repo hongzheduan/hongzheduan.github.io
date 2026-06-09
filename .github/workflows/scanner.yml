@@ -73,6 +73,17 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
+          # Determine run type for worklog (resolved before rebase so it's available)
+          SCHEDULE="${{ github.event.schedule }}"
+          EVENT="${{ github.event_name }}"
+          if   [ "$SCHEDULE" = "0 5 * * *"    ]; then RUN_TYPE="EDGAR-only"
+          elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then RUN_TYPE="5PM-scan"
+          elif [ "$SCHEDULE" = "0 22 * * 1-5" ]; then RUN_TYPE="6PM-scan"
+          elif [ "$SCHEDULE" = "0 23 * * 1-5" ]; then RUN_TYPE="7PM-scan"
+          elif [ "$EVENT"    = "workflow_dispatch" ]; then RUN_TYPE="manual"
+          else RUN_TYPE="unknown"; fi
+          WORKLOG_ENTRY="$(date -u '+%Y-%m-%d %H:%M UTC')  $RUN_TYPE"
+
           # Backup generated files, sync with remote, then restore unconditionally.
           # (git stash pop can silently fail on conflict, losing files like compare_*.log)
           TMPBAK=$(mktemp -d)
@@ -101,6 +112,9 @@ jobs:
           find "$TMPBAK" -name "results_*.csv" -exec cp {} archive/ \; 2>/dev/null || true
           find "$TMPBAK" -name "compare_*.log" -exec cp {} archive/ \; 2>/dev/null || true
 
+          # Append worklog entry AFTER rebase so parallel-run entries from remote are preserved
+          echo "$WORKLOG_ENTRY" >> archive/worklog.md
+
           git add data/latest.json                     2>/dev/null || true
           git add data/candles.json                    2>/dev/null || true
           git add data/index_changes.json              2>/dev/null || true
@@ -110,6 +124,7 @@ jobs:
           git add data/fundamentals_cache.json         2>/dev/null || true
           git add archive/results_*.csv               2>/dev/null || true
           git add archive/compare_*.log               2>/dev/null || true
+          git add archive/worklog.md                   2>/dev/null || true
 
           if git diff --cached --quiet; then
             echo "No changes to commit, skipping push"

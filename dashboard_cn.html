@@ -443,12 +443,14 @@
         <div class="tool-tag tag-testing">⚙ 测试中</div>
       </a>
 
+      <!-- TEMP: time-limited free — restore free preview card when trial resumes
       <a href="baizora_main_form_free_cn.html" class="tool-card">
         <div class="tool-icon">⬡</div>
         <div class="tool-name">免费预览</div>
         <div class="tool-desc">今日股价涨幅最大前3只异动股 — 无需登录，可分享给任何人。</div>
         <div class="tool-tag tag-free">免费</div>
       </a>
+      -->
 
     </div>
 
@@ -464,9 +466,11 @@
       <a href="index_cn.html" class="quick-link">
         <span class="quick-link-icon">🏠</span> 首页
       </a>
+      <!-- TEMP: time-limited free — restore quick link when trial resumes
       <a href="baizora_main_form_free_cn.html" class="quick-link">
         <span class="quick-link-icon">👁</span> 免费预览
       </a>
+      -->
       <a href="assets/faq_cn.html" class="quick-link">
         <span class="quick-link-icon">❓</span> 常见问题
       </a>
@@ -484,10 +488,8 @@
     const API = "https://us-central1-baizora.cloudfunctions.net/api";
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login_cn.html";
-        return;
-      }
+      // TEMP: time-limited free — restore to re-enable login gate
+      // if (!user) { window.location.href = "login_cn.html"; return; }
 
       // Fill header email
       document.getElementById("headerEmail").textContent = user.email;
