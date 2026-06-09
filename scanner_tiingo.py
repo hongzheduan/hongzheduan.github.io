@@ -983,6 +983,32 @@ _edgar_cik_map          = {}
 _edgar_name_map         = {}   # ticker → company title from company_tickers.json
 _edgar_cik_map_attempted = False
 
+_fx_rates = {}   # ISO currency code → USD conversion factor (e.g. "EUR" → 1.099)
+
+
+def _load_fx_rates():
+    """
+    Fetch today's FX rates once per process from the Frankfurter API (ECB daily rates).
+    Populates _fx_rates with foreign→USD factors for EUR, CNY, GBP, CAD.
+    Called once at the start of prefetch_fundamentals.
+    """
+    global _fx_rates
+    if _fx_rates:
+        return
+    _fx_rates["USD"] = 1.0   # baseline; set early so partial failure still handles USD
+    try:
+        r = requests.get(
+            "https://api.frankfurter.app/latest?from=USD&to=EUR,CNY,GBP,CAD",
+            headers=_EDGAR_HEADERS, timeout=10,
+        )
+        r.raise_for_status()
+        rates = r.json().get("rates", {})   # USD → foreign
+        for ccy, usd_per_foreign in {k: 1.0 / v for k, v in rates.items() if v}.items():
+            _fx_rates[ccy.upper()] = usd_per_foreign
+        print(f"FX rates loaded: { {k: round(v,4) for k,v in _fx_rates.items()} }")
+    except Exception as e:
+        print(f"FX rates fetch failed: {e} — non-USD EPS will be null")
+
 
 def _load_edgar_cik_map():
     global _edgar_cik_map, _edgar_name_map, _edgar_cik_map_attempted
@@ -1184,6 +1210,14 @@ def _get_edgar_fundamentals(ticker):
     except Exception:
         pass
 
+    # Inline XBRL fallback: used when company_facts has no EPS data.
+    # Handles US GAAP filers (e.g. Visa) via 10-Q/10-K TTM, and IFRS filers
+    # (CCEP, ASML, FER, TRI, PDD) via annual 20-F/40-F (annual EPS, non-USD currency).
+    if eps is None:
+        eps = _parse_eps_from_latest_filing(cik)
+        if eps is not None:
+            print(f"  {ticker}: EPS from inline XBRL fallback = {eps}")
+
     # --- submissions: SIC description + company name ---
     edgar_company_name = ""
     try:
@@ -1307,6 +1341,188 @@ def _parse_shares_from_latest_filing(cik):
 
     except Exception:
         return None, ""
+
+
+def _parse_eps_from_latest_filing(cik):
+    """
+    Fallback: extract EPS from inline XBRL in the primary filing documents.
+    Called only when company_facts returns no EPS data (e.g. Visa, CCEP).
+
+    US GAAP path  (10-Q / 10-K): builds full TTM from up to 4 quarterly filings
+                                  + annual 10-K for Q4 derivation.
+    IFRS path     (20-F / 40-F): annual EPS only (no quarterly 20-F filings exist).
+
+    Reporting currency is detected automatically from the XBRL unitRef attribute
+    in each filing and converted to USD using _fx_rates (loaded once per scan).
+    Returns eps in USD (float) or None.
+    """
+    try:
+        import re as _re
+
+        sub = requests.get(
+            f"https://data.sec.gov/submissions/CIK{cik}.json",
+            headers=_EDGAR_HEADERS, timeout=15,
+        )
+        sub.raise_for_status()
+        recent  = sub.json()["filings"]["recent"]
+        forms   = recent["form"]
+        accns   = recent["accessionNumber"]
+        docs    = recent.get("primaryDocument", [""] * len(forms))
+        periods = recent.get("reportDate",      [""] * len(forms))
+
+        q_filings  = []
+        ann_filing = None
+        for i, form in enumerate(forms):
+            if form == "10-Q" and len(q_filings) < 4:
+                q_filings.append((accns[i], docs[i], periods[i]))
+            elif form in ("10-K", "10-K405", "20-F", "40-F") and ann_filing is None:
+                ann_filing = (accns[i], docs[i], periods[i], form)
+            if len(q_filings) >= 4 and ann_filing:
+                break
+
+        US_GAAP_TAGS = (
+            "us-gaap:EarningsPerShareDiluted",
+            "us-gaap:EarningsPerShareBasic",
+        )
+        IFRS_TAGS = (
+            "ifrs-full:DilutedEarningsLossPerShare",
+            "ifrs-full:BasicEarningsLossPerShare",
+            "ifrs-full:EarningsLossPerShare",
+        )
+
+        def _fetch_eps_entries(accn, primary_doc, prefer_ifrs=False):
+            """
+            Return list of (end_date_str, period_days, value, currency_code).
+            Currency is detected from XBRL unit definitions in the filing.
+            """
+            if not primary_doc:
+                return []
+            accn_path = accn.replace("-", "")
+            url = (f"https://www.sec.gov/Archives/edgar/data/"
+                   f"{int(cik)}/{accn_path}/{primary_doc}")
+            r = requests.get(url, headers=_EDGAR_HEADERS, timeout=30)
+            r.raise_for_status()
+            html = r.text
+
+            # Duration contexts: id → (end_date_str, period_days)
+            contexts = {}
+            for ctx_id, body in _re.findall(
+                r'<[^:>]*:context[^>]+id="([^"]+)"[^>]*>(.*?)</[^:>]*:context>',
+                html, _re.DOTALL | _re.IGNORECASE,
+            ):
+                sm = _re.search(r'<[^:>]*:startDate[^>]*>(\d{4}-\d{2}-\d{2})<',
+                                body, _re.IGNORECASE)
+                em = _re.search(r'<[^:>]*:endDate[^>]*>(\d{4}-\d{2}-\d{2})<',
+                                body, _re.IGNORECASE)
+                if sm and em:
+                    days = (date.fromisoformat(em.group(1))
+                            - date.fromisoformat(sm.group(1))).days
+                    contexts[ctx_id] = (em.group(1), days)
+
+            # Unit definitions: unit_id → ISO currency code (e.g. "iso4217:EUR" → "EUR")
+            unit_map = {}
+            for uid, body in _re.findall(
+                r'<[^:>]*:unit[^>]+id="([^"]+)"[^>]*>(.*?)</[^:>]*:unit>',
+                html, _re.DOTALL | _re.IGNORECASE,
+            ):
+                m = _re.search(r'iso4217:([A-Z]{3})', body, _re.IGNORECASE)
+                if m:
+                    unit_map[uid] = m.group(1).upper()
+
+            tag_order = IFRS_TAGS + US_GAAP_TAGS if prefer_ifrs else US_GAAP_TAGS + IFRS_TAGS
+            results = []
+            for tag in tag_order:
+                hits = _re.findall(
+                    r'<ix:nonFraction([^>]*\bname="' + _re.escape(tag)
+                    + r'"[^>]*)>([\d.,\-\(\)]+)<',
+                    html, _re.IGNORECASE,
+                )
+                for attrs, raw in hits:
+                    cm = _re.search(r'\bcontextRef="([^"]+)"', attrs)
+                    sm = _re.search(r'\bsign="([^"]+)"',       attrs)
+                    um = _re.search(r'\bunitRef="([^"]+)"',    attrs)
+                    if not cm or cm.group(1) not in contexts:
+                        continue
+                    v        = raw.replace(",", "").strip()
+                    negative = (sm and sm.group(1) == "-") or (
+                        v.startswith("(") and v.endswith(")"))
+                    try:
+                        val = float(v.strip("()")) * (-1 if negative else 1)
+                    except ValueError:
+                        continue
+                    end_date, days = contexts[cm.group(1)]
+                    # Resolve currency: unitRef → unit definition → ISO code
+                    currency = "USD"
+                    if um:
+                        ref = um.group(1)
+                        currency = unit_map.get(ref) or (
+                            ref.upper() if _re.match(r'^[A-Z]{3}$', ref) else "USD")
+                    results.append((end_date, days, val, currency))
+                if results:
+                    break
+            return results
+
+        def _to_usd(val, currency):
+            """Convert val to USD using cached FX rates. Returns None if rate missing."""
+            rate = _fx_rates.get(currency.upper())
+            if rate is None:
+                return None
+            return val * rate
+
+        # Collect quarterly (~90d) and 9M-YTD (~270d) entries from 10-Qs
+        quarterly = {}   # end_date → (val, currency)
+        ytd_9m    = {}   # end_date → (val, currency)
+        for accn, doc, _ in q_filings:
+            for end_date, days, val, ccy in _fetch_eps_entries(accn, doc):
+                if 60 < days < 120 and end_date not in quarterly:
+                    quarterly[end_date] = (val, ccy)
+                elif 200 < days < 310 and end_date not in ytd_9m:
+                    ytd_9m[end_date] = (val, ccy)
+
+        quarters = sorted(quarterly.items(), reverse=True)  # newest first
+
+        ann_entries = None
+
+        def _get_ann_entries():
+            nonlocal ann_entries
+            if ann_entries is None and ann_filing:
+                prefer = ann_filing[3] in ("20-F", "40-F")
+                ann_entries = _fetch_eps_entries(ann_filing[0], ann_filing[1],
+                                                 prefer_ifrs=prefer)
+            return ann_entries or []
+
+        # Path 1: four full quarters — convert each to USD and sum
+        if len(quarters) >= 4:
+            vals = [_to_usd(v, c) for _, (v, c) in quarters[:4]]
+            if all(x is not None for x in vals):
+                return round(sum(vals), 4)
+
+        # Path 2: three quarters + Q4 derived from annual (annual − 9M YTD)
+        if ann_filing and len(quarters) >= 3:
+            ann_end = ann_filing[2]
+            ann_hit = next(((v, c) for _, d, v, c in _get_ann_entries() if 300 < d < 400), None)
+            if ann_hit:
+                ann_val, ann_ccy = ann_hit
+                q3_hit = next(
+                    ((v, c) for end, (v, c) in sorted(ytd_9m.items(), reverse=True)
+                     if end < ann_end), None)
+                if q3_hit:
+                    q4_usd = _to_usd(ann_val - q3_hit[0], ann_ccy)
+                    partial_vals = [_to_usd(v, c) for _, (v, c) in quarters[:3]]
+                    if q4_usd is not None and all(x is not None for x in partial_vals):
+                        return round(sum(partial_vals) + q4_usd, 4)
+
+        # Path 3: annual only (20-F / 40-F land here)
+        ann_hit = next(((v, c) for _, d, v, c in _get_ann_entries() if 300 < d < 400), None)
+        if ann_hit:
+            result = _to_usd(ann_hit[0], ann_hit[1])
+            if result is not None:
+                return round(result, 4)
+
+        return None
+
+    except Exception:
+        return None
 
 
 def _get_brk_b_market_cap(brkb_close):
@@ -1509,6 +1725,7 @@ def prefetch_fundamentals(tickers, tiingo_names, sleep_edgar=0.15):
     sleep_edgar paces EDGAR calls (rate limit: ~10 req/sec; we use ~6 req/sec).
     Each new ticker requires 2 EDGAR calls (company_facts + submissions).
     """
+    _load_fx_rates()   # fetch once; needed for foreign-filer EPS currency conversion
     needed = [t for t in tickers if t not in _fund_cache]
     print(f"Fundamentals: fetching {len(needed)} tickers from EDGAR "
           f"({len(tickers) - len(needed)} already cached) …")
@@ -2136,6 +2353,40 @@ def compare_with_yfinance(df):
     ]
     total_flagged = sum(1 for m in results for _, _, _, d in results[m] if d > THRESHOLD)
     lines.append(f"{total_flagged} flagged diffs above threshold")
+
+    lines += [
+        "",
+        "=" * 60,
+        "KNOWN EXPECTED DIFFERENCES (not bugs)",
+        "=" * 60,
+        "",
+        "EPS / PE — hardcoded adjustments (our side intentional):",
+        "  BRK-B   EDGAR EPS ÷ 1500  (Class A→B conversion)",
+        "  BKNG    EDGAR EPS ÷ 25    (25-for-1 split Apr 2026; auto-disables after Q2 2026 10-Q)",
+        "  CVNA    EDGAR EPS ÷ 5     (5-for-1 split May 2026; auto-disables after Q2 2026 10-Q)",
+        "",
+        "EPS / PE — null (no XBRL EPS in EDGAR; skipped in compare):",
+        "  CCEP FER TRI ASML PDD     foreign IFRS filers, no us-gaap EPS concept",
+        "  V                         XBRL EPS absent from company_facts despite US filing",
+        "  ERIE ARES KKR STZ ARM     missing or insufficient EDGAR data at last cache refresh",
+        "",
+        "EPS / PE — TTM window vs YF annual anchor:",
+        "  Large diffs (e.g. CI 23.61 vs YF 113.71) often mean YF is anchored to an older",
+        "  annual 10-K that included a one-time gain/charge now outside our rolling TTM.",
+        "  Our TTM = sum of 4 most recent quarters from EDGAR 10-Q/10-K filings.",
+        "  YF trailingEps sources from data vendors and may reflect a different period.",
+        "",
+        "MKTCAP — shares outstanding overrides (our side intentional):",
+        "  BX     1,222,000,000  (Class A 742M + Holdings LP units; EDGAR under-reports)",
+        "  IBKR   1,697,000,000  (public Class A + IBG LLC membership units ~75%)",
+        "  DD       405,000,000  (post-restructuring; verify against IR)",
+        "  DVN    1,153,000,000  (~2x EDGAR reported; verify against IR)",
+        "",
+        "VOLUME — systematic offset:",
+        "  Tiingo EOD volume includes extended-hours (pre/after market).",
+        "  YF typically reports regular-session only. Expect ours ~1.5-2x YF across the board.",
+        "=" * 60,
+    ]
 
     for metric in metrics:
         rows_sorted = sorted(results[metric], key=lambda x: x[3], reverse=True)

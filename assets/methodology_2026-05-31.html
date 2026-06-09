@@ -128,6 +128,7 @@
     <a class="sub" href="#period">Period Metrics</a>
     <a href="#fundamentals">Fundamentals</a>
     <a class="sub" href="#eps">EPS (TTM)</a>
+    <a class="sub" href="#eps-example">EPS Worked Example</a>
     <a class="sub" href="#pe">P/E Ratio</a>
     <a class="sub" href="#beta">Beta &amp; Volatility</a>
     <a href="#sectors">Sector Classification</a>
@@ -339,6 +340,28 @@ TTM = Q1_recent + Q2_recent + Q3_recent + Q4_derived
         </div>
         <p>This correctly handles non-December fiscal years (Apple, Nvidia, Costco, etc.) where the most recent annual 10-K covers a different calendar year than the most recent 10-Qs.</p>
         <p>The Q3 YTD candidate search uses the <strong>full historical 10-Q entry set</strong> (no recency cutoff), while the TTM quarterly sum uses only entries within the past two years. This split ensures the Q4 derivation path can always find the correct 9M YTD filing that pairs with an older annual — even for companies whose most recent 10-K pre-dates the two-year rolling window — without exposing the TTM sum to stale quarters from distant fiscal years.</p>
+
+        <h3 id="eps-example">Worked Example: CI (Cigna Group) — TTM vs. One-Time Gains</h3>
+        <p>This example illustrates how the TTM calculation works in practice and why our EPS can legitimately differ from third-party sources like Yahoo Finance.</p>
+        <p>As of the June 2026 scan, the EDGAR <code>EarningsPerShareDiluted</code> entries for CI under <code>form=10-Q</code> showed:</p>
+        <div class="formula">
+Q2 2025  (end=2025-06-30, period≈90d):   5.71   <span class="comment">(individual quarter)</span>
+Q3 2025  (end=2025-09-30, period≈90d):   6.98   <span class="comment">(individual quarter)</span>
+Q1 2026  (end=2026-03-31, period≈90d):   6.26   <span class="comment">(individual quarter)</span>
+        </div>
+        <p>Q4 2025 is not in any 10-Q. It was derived from the 10-K:</p>
+        <div class="formula">
+Q3 YTD  (10-Q, start=2025-01-01, end=2025-09-30, period≈273d): ~19.01
+FY2025  (10-K, end=2025-12-31):                                  ~23.67
+Q4 derived = 23.67 − 19.01 = ~4.66
+
+TTM = 6.26 + 6.98 + 5.71 + 4.66 = <strong>23.61</strong>
+        </div>
+        <p>Yahoo Finance reported <code>trailingEps = 113.71</code> for the same date, implying a P/E of 2.5× — an implausibly low valuation for a major health insurer. Our P/E of 12.3× is consistent with CI's historical range.</p>
+        <p>The most likely explanation: Yahoo Finance sourced EPS from the <strong>FY2024 10-K</strong>, which included a large one-time after-tax gain when Cigna sold its Medicare Advantage and supplemental benefits businesses to Health Care Service Corporation (HCSC). That gain inflated the 2024 reported GAAP EPS well above the company's recurring earnings run rate. By June 2026, our TTM window had rolled entirely past that event, correctly reflecting Cigna's ongoing quarterly earnings of ~$5–7 per share.</p>
+        <div class="note">
+          <strong>Key takeaway:</strong> TTM EPS is a rolling window. The same stock can show very different EPS and P/E depending on which four quarters fall inside the window. When a large one-time gain or charge has rolled out of the TTM window, our EDGAR-derived figure will diverge from sources anchored to an older annual 10-K — and our number is typically more representative of the company's recurring earnings power.
+        </div>
 
         <h3>Special Cases</h3>
         <div class="card">
