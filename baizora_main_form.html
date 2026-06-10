@@ -534,6 +534,17 @@
     }
     .mobile-search-bar input::placeholder { color: #475569; }
     .mobile-search-bar input:focus { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.04); }
+    .mobile-rotate-hint {
+      display: none;
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      color: #64748b;
+      padding: 5px 12px;
+      background: rgba(10,22,40,0.9);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
     .mobile-search-icon {
       position: absolute;
       left: 22px;
@@ -566,6 +577,7 @@
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
       tr:hover td.ticker-cell { background: #081229; }
       .mobile-search-bar { display: block; }
+      .mobile-rotate-hint { display: block; }
       #sp500Table, #nasdaqTable, #watchlistTable { display: none !important; }
       #sp500Cards, #nasdaqCards, #watchlistCards { display: block !important; }
     }
@@ -782,6 +794,9 @@
     </svg>
     <input type="text" id="tickerSearchMobile" placeholder="Search ticker…" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
   </div>
+
+  <!-- Mobile rotate hint -->
+  <div class="mobile-rotate-hint">Rotate to landscape for full table detail</div>
 
   <!-- Table Area -->
   <div class="table-area" id="tableArea">
@@ -1015,9 +1030,12 @@
 
     /* ── LOAD ── */
     function loadDashboard() {
-      fetch("data/latest.json")
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 15000);
+      fetch("data/latest.json", { signal: ctrl.signal })
         .then(r => r.json())
         .then(json => {
+          clearTimeout(tid);
           allRows    = json.data || [];
           loadedDate = json.date || "—";
           spRows = allRows.filter(x => x.InSP500);
@@ -1031,6 +1049,7 @@
           setInterval(() => { if (isMarketOpen()) refreshDashPrices(); }, 10 * 60 * 1000);
         })
         .catch(err => {
+          clearTimeout(tid);
           console.error(err);
           overlay.classList.add("hidden");
           statusDot.className = "status-dot error";

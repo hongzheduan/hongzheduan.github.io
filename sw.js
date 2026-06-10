@@ -1,4 +1,4 @@
-const CACHE = 'baizora-v3';
+const CACHE = 'baizora-v4';
 
 const APP_SHELL = [
   '/',

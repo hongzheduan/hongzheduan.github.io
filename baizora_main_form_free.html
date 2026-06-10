@@ -844,9 +844,12 @@
 
     /* ── LOAD (no auth) ── */
     function loadDashboard() {
-      fetch("data/latest.json")
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 15000);
+      fetch("data/latest.json", { signal: ctrl.signal })
         .then(r => r.json())
         .then(json => {
+          clearTimeout(tid);
           allRows    = json.data || [];
           loadedDate = json.date || "—";
           spRows = allRows.filter(x => x.InSP500);
@@ -857,6 +860,7 @@
           updateStatus();
         })
         .catch(err => {
+          clearTimeout(tid);
           console.error(err);
           overlay.classList.add("hidden");
           statusDot.className = "status-dot error";
