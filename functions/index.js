@@ -1,4 +1,5 @@
 const functions = require("firebase-functions");
+const { onRequest } = require("firebase-functions/v2/https");
 const express = require("express");
 const Stripe = require("stripe");
 const admin = require("firebase-admin");
@@ -726,6 +727,7 @@ app.post("/chat", express.json(), async (req, res) => {
 /* ---------------------------
    EXPORT
 --------------------------- */
-exports.api = functions
-  .runWith({ secrets: ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "ANTHROPIC_API_KEY"] })
-  .https.onRequest(app);
+exports.api = onRequest(
+  { secrets: ["ANTHROPIC_API_KEY"] },
+  app
+);
