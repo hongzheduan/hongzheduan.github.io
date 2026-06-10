@@ -726,4 +726,6 @@ app.post("/chat", express.json(), async (req, res) => {
 /* ---------------------------
    EXPORT
 --------------------------- */
-exports.api = functions.https.onRequest(app);
+exports.api = functions
+  .runWith({ secrets: ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "ANTHROPIC_API_KEY"] })
+  .https.onRequest(app);
