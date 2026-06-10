@@ -142,10 +142,10 @@
 </header>
 
 <div class="mobile-drawer" id="mobileDrawer">
+  <div id="mobileAuthLinks"></div>
   <!-- <a href="faq.html">FAQ</a> -->
   <!-- <a href="../free.html">Free Preview</a> -->
   <a href="../index.html">Home</a>
-  <a href="../login.html" class="primary">Sign in</a>
 </div>
 
 <div class="container">
@@ -225,12 +225,15 @@
       projectId: "baizora"
     });
 
+    const mStyle='display:block;padding:14px 20px;text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.07);';
     firebase.auth().onAuthStateChanged(function(user) {
       const loginBtn = document.querySelector('a[href="../login.html"].nav-btn-primary');
-      const mobileLoginBtn = document.querySelector('.mobile-drawer a[href="../login.html"].primary');
+      const mLinks = document.getElementById('mobileAuthLinks');
       if (user) {
         if (loginBtn) { loginBtn.textContent = 'Dashboard'; loginBtn.href = '../dashboard.html'; }
-        if (mobileLoginBtn) { mobileLoginBtn.textContent = 'Dashboard'; mobileLoginBtn.href = '../dashboard.html'; }
+        if (mLinks) mLinks.innerHTML='<a href="../dashboard.html" style="'+mStyle+'color:#94a3b8;">Dashboard</a>';
+      } else {
+        if (mLinks) mLinks.innerHTML='<a href="../login.html" style="'+mStyle+'color:#94a3b8;">Sign in</a>'+'<a href="../signup.html" style="'+mStyle+'color:var(--electric-bright);font-weight:600;">Create Account</a>';
       }
     });
   </script>

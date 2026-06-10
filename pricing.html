@@ -328,6 +328,112 @@
       margin-bottom: 60px;
     }
 
+    /* ── TRUST SIGNALS ── */
+    .plan-trust {
+      margin-top: 12px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      color: #475569;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .trust-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px 20px;
+      max-width: 720px;
+      margin: 0 auto 36px;
+      padding: 14px 20px;
+      background: rgba(13,30,61,0.4);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: #64748b;
+    }
+
+    .trust-strip .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .trust-strip .trust-item svg { flex-shrink: 0; opacity: 0.7; }
+    .trust-strip .stripe-mark { color: #818cf8; font-weight: 500; }
+
+    /* ── FEATURE COMPARISON TABLE ── */
+    .compare-wrap {
+      max-width: 720px;
+      margin: 0 auto 48px;
+      animation: fadeUp 0.6s 0.45s ease both;
+    }
+    .compare-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 20px;
+    }
+    .compare-outer {
+      background: rgba(13,30,61,0.5);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .cmp-table { width: 100%; border-collapse: collapse; }
+    .cmp-table thead th {
+      padding: 13px 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 500;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .cmp-table .th-feat { text-align: left; width: 46%; color: transparent; }
+    .cmp-table .th-free { color: var(--muted); width: 18%; }
+    .cmp-table .th-trial {
+      color: var(--electric-bright);
+      width: 18%;
+      background: rgba(59,130,246,0.07);
+      border-left: 1px solid rgba(59,130,246,0.15);
+    }
+    .cmp-table .th-paid {
+      color: var(--electric-bright);
+      width: 18%;
+      background: rgba(59,130,246,0.07);
+      border-left: 1px solid rgba(59,130,246,0.1);
+    }
+    .cmp-table tbody tr { border-top: 1px solid rgba(255,255,255,0.04); }
+    .cmp-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+    .cmp-table td { padding: 10px 16px; font-size: 13px; text-align: center; }
+    .cmp-table td.td-feat { text-align: left; color: #94a3b8; font-weight: 300; }
+    .cmp-table td.td-trial {
+      background: rgba(59,130,246,0.04);
+      border-left: 1px solid rgba(59,130,246,0.08);
+    }
+    .cmp-table td.td-paid {
+      background: rgba(59,130,246,0.04);
+      border-left: 1px solid rgba(59,130,246,0.06);
+    }
+    .ct-yes  { color: #60a5fa; }
+    .ct-no   { color: #334155; }
+    .ct-hl   { color: #60a5fa; font-weight: 600; }
+    .ct-dim  { color: #64748b; font-size: 12px; }
+    .ct-mono { font-family: 'DM Mono', monospace; font-size: 11px; color: #94a3b8; letter-spacing: 0.04em; }
+
+    @media (max-width: 600px) {
+      .cmp-table td, .cmp-table thead th { padding: 9px 10px; font-size: 11px; }
+    }
+
     footer {
       position: relative;
       z-index: 10;
@@ -373,6 +479,7 @@
       <span class="logo-text">Baiz<span>ora</span></span>
     </a>
     <div class="header-right">
+      <a href="pricing_cn.html" class="nav-btn">中文</a>
       <a href="login.html" class="nav-btn" id="navLoginBtn">Sign in</a>
       <a href="signup.html" class="nav-btn nav-btn-primary" id="navSignupBtn">Create Account</a>
       <a href="dashboard.html" class="nav-btn nav-btn-primary" id="navDashBtn" style="display:none;">Dashboard</a>
@@ -384,6 +491,7 @@
 
   <!-- Mobile drawer -->
   <div class="mobile-drawer" id="mobileDrawer">
+    <a href="pricing_cn.html">中文</a>
     <a href="login.html" id="drawerLoginLink">Sign in</a>
     <a href="signup.html" id="drawerSignupLink">Create Account</a>
     <a href="dashboard.html" id="drawerDashLink" style="display:none;">Dashboard</a>
@@ -459,6 +567,112 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- ── TRUST STRIP ── -->
+    <div class="trust-strip">
+      <span class="trust-item">
+        <svg width="12" height="14" viewBox="0 0 12 14" fill="none"><rect x="1" y="6" width="10" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 6V4a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Payments secured by <span class="stripe-mark">Stripe</span>
+      </span>
+      <span class="trust-item">No credit card charged until trial ends</span>
+    </div>
+
+    <!-- ── FEATURE COMPARISON ── -->
+    <div class="compare-wrap">
+      <div class="compare-label">What's included</div>
+      <div class="compare-outer">
+        <table class="cmp-table">
+          <thead>
+            <tr>
+              <th class="th-feat">Feature</th>
+              <th class="th-free">Free Preview</th>
+              <th class="th-trial">Trial · 7 Days</th>
+              <th class="th-paid">Subscription</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-feat">No sign-up required</td>
+              <td><span class="ct-yes">✓</span></td>
+              <td class="td-trial"><span class="ct-no">—</span></td>
+              <td class="td-paid"><span class="ct-no">—</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">Stocks visible</td>
+              <td><span class="ct-dim">Top 3 movers</span></td>
+              <td class="td-trial"><span class="ct-hl">All 500+</span></td>
+              <td class="td-paid"><span class="ct-hl">All 500+</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">Index filter (S&amp;P 500 · Nasdaq-100)</td>
+              <td><span class="ct-no">—</span></td>
+              <td class="td-trial"><span class="ct-yes">✓</span></td>
+              <td class="td-paid"><span class="ct-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">All timeframes (1D – 1Y)</td>
+              <td><span class="ct-yes">✓</span></td>
+              <td class="td-trial"><span class="ct-yes">✓</span></td>
+              <td class="td-paid"><span class="ct-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">Multi-week price &amp; volume analytics</td>
+              <td><span class="ct-yes">✓</span></td>
+              <td class="td-trial"><span class="ct-yes">✓</span></td>
+              <td class="td-paid"><span class="ct-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">SCORES tab (Baizora Score, Turn Score, RS, Momentum &amp; more)</td>
+              <td><span class="ct-yes">✓</span></td>
+              <td class="td-trial"><span class="ct-yes">✓</span></td>
+              <td class="td-paid"><span class="ct-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">Fundamentals tab (P/E, EPS, Market Cap)</td>
+              <td><span class="ct-yes">✓</span></td>
+              <td class="td-trial"><span class="ct-yes">✓</span></td>
+              <td class="td-paid"><span class="ct-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">Watchlist cloud sync (across devices)</td>
+              <td><span class="ct-no">—</span></td>
+              <td class="td-trial"><span class="ct-yes">✓</span></td>
+              <td class="td-paid"><span class="ct-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">Daily updates (after market close)</td>
+              <td><span class="ct-yes">✓</span></td>
+              <td class="td-trial"><span class="ct-yes">✓</span></td>
+              <td class="td-paid"><span class="ct-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">Membership Changes (additions &amp; removals history)</td>
+              <td><span class="ct-no">—</span></td>
+              <td class="td-trial"><span class="ct-yes">✓</span></td>
+              <td class="td-paid"><span class="ct-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">Index Membership News (Google News articles)</td>
+              <td><span class="ct-no">—</span></td>
+              <td class="td-trial"><span class="ct-yes">✓</span></td>
+              <td class="td-paid"><span class="ct-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">Duration</td>
+              <td><span class="ct-mono">Always</span></td>
+              <td class="td-trial"><span class="ct-mono">7 days</span></td>
+              <td class="td-paid"><span class="ct-mono">Ongoing</span></td>
+            </tr>
+            <tr>
+              <td class="td-feat">Price</td>
+              <td><span class="ct-mono">Free</span></td>
+              <td class="td-trial"><span class="ct-mono">$0</span></td>
+              <td class="td-paid"><span class="ct-mono">$9.99/mo · $99/yr</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="note">Baizora provides structured market data · Payments secured by Stripe · All prices tax-inclusive</div>

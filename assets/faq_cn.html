@@ -239,7 +239,7 @@
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        扫描器<strong>每天运行，包括周末</strong>。工作日运行两次：市场收盘后约在<strong>美东时间下午6:00</strong>进行初步扫描，并在<strong>美东时间下午8:00</strong>进行最终扫描。周末扫描延续最近一个周五的收盘数据。<br><br>
+        扫描器在<strong>每个工作日（周一至周五）</strong>美股收盘后运行。数据供应商的盘后数据通常在<strong>美东时间下午6:00</strong>左右到达，因此个人主页一般在<strong>下午6–7点之间</strong>完成更新。数据供应商偶尔会出现延迟，这种情况较少见，但有时会发生——如果数据看起来未更新，稍等片刻后再刷新即可。周末数据延续最近一个周五的收盘数据。<br><br>
         价格、成交量、走势图和所有评分信号均反映最新交易日的收盘数据。基本面数据——每股收益、市盈率和行业——约每周从 SEC EDGAR 刷新一次。
       </div></div>
     </div>
@@ -313,6 +313,20 @@
       <div class="faq-a"><div class="faq-a-inner">
         不。Baizora 是一个<strong>数据智能平台</strong>——提供结构化统计信号，而非投资建议。本平台上的任何内容均不构成金融、投资、交易或专业建议。<br><br>
         所有信号均由自动化系统生成，不应被解读为买入、卖出或持有建议。在做出投资决策前，请务必进行自主研究或咨询合格的金融顾问。
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">我的自选股去哪了？收藏的股票消失了。</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        在未登录状态下使用 Baizora 时，您的自选股（★ 标记的股票）保存在<strong>浏览器本地存储</strong>中，不与任何账户绑定。这意味着：<br><br>
+        — 清除浏览器缓存或 Cookie 会导致自选股丢失。<br>
+        — 切换到其他浏览器或设备，自选股列表将为空。<br>
+        — 使用隐私/无痕模式时，已保存的股票不会同步过来。<br><br>
+        <strong>如需跨设备保留自选股</strong>，请登录您的 Baizora 账户。登录后，自选股将自动同步至云端，在任何已登录的设备上均可恢复。
       </div></div>
     </div>
   </div>
@@ -411,6 +425,69 @@
     </div>
   </div>
 
+  <!-- Troubleshooting -->
+  <div class="faq-section">
+    <div class="section-group-label">常见问题排查</div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">我无法登录——一直报错或被跳转。</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        最常见的原因：<br><br>
+        <strong>1. 邮箱未验证</strong> — 注册后，您必须点击确认邮件中的链接才能登录。请检查垃圾邮件文件夹，或在登录页面点击"重新发送验证邮件"。<br><br>
+        <strong>2. 密码错误</strong> — 在登录页面使用<a href="../login_cn.html">忘记密码</a>链接重置密码。重置邮件来自 <em>noreply@baizora.firebaseapp.com</em>，请注意查收垃圾邮件。<br><br>
+        <strong>3. 无有效订阅</strong> — 若登录成功但立即跳转到账单页面，说明您的账户没有有效订阅，选择方案即可继续使用。<br><br>
+        如以上方法均无效，请发邮件至 <a href="mailto:support@baizora.com">support@baizora.com</a>，并注明您的账户邮箱和错误描述。
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">数据看起来过期了，今天还没有更新。</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        请依次检查以下几点：<br><br>
+        <strong>是否为工作日？</strong> — 扫描器仅在周一至周五处理新市场数据。周末及美国市场假日显示最近一个周五的收盘数据，这是正常现象。<br><br>
+        <strong>注意更新时间</strong> — 盘后数据通常在<strong>美东时间下午6:00</strong>左右到达，个人主页一般在<strong>下午6–7点之间</strong>完成更新。数据供应商的延迟情况较少见，但偶有发生——稍等片刻后再刷新即可。<br><br>
+        <strong>浏览器缓存</strong> — 浏览器可能缓存了旧版数据。请强制刷新：Windows/Linux 按 <strong>Ctrl+Shift+R</strong>，Mac 按 <strong>Cmd+Shift+R</strong>。
+        <div class="highlight">✓ 个人主页顶部显示最近一次扫描的日期</div>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">我没有收到验证邮件。</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        验证邮件由 <strong>noreply@baizora.firebaseapp.com</strong> 发出，通常在一分钟内到达，有时可能需要几分钟。<br><br>
+        请尝试以下步骤：<br>
+        — 检查<strong>垃圾邮件或广告邮件文件夹</strong><br>
+        — 在收件箱搜索 <em>baizora</em> 或 <em>firebaseapp</em><br>
+        — 在登录页面点击<strong>重新发送验证邮件</strong><br><br>
+        若10分钟后仍未收到，请发邮件至 <a href="mailto:support@baizora.com">support@baizora.com</a>，并注明您的注册邮箱。
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">个人主页空白或无法加载。</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        请按顺序尝试以下步骤：<br><br>
+        <strong>1. 强制刷新</strong> — Windows/Linux 按 <strong>Ctrl+Shift+R</strong>，Mac 按 <strong>Cmd+Shift+R</strong>，跳过浏览器缓存。<br><br>
+        <strong>2. 退出后重新登录</strong> — 从导航栏退出登录，再重新登录，刷新您的身份验证状态。<br><br>
+        <strong>3. 换一个浏览器</strong> — 如浏览器扩展程序或缓存状态有干扰，使用干净的浏览器（如 Chrome 无痕模式）可排查是否为环境问题。<br><br>
+        <strong>4. 检查网络连接</strong> — 个人主页通过实时API加载数据，网络不稳定可能导致空白。<br><br>
+        如问题持续，请发邮件至 <a href="mailto:support@baizora.com">support@baizora.com</a>，并说明您使用的浏览器和操作系统版本。
+      </div></div>
+    </div>
+  </div>
+
   <!-- Contact -->
   <div class="contact-card">
     <div class="section-group-label">◈ &nbsp; 还有其他问题？</div>
@@ -474,7 +551,7 @@
     } else {
       if(loginBtn){ loginBtn.textContent='登录'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login_cn.html'; loginBtn.onclick=null; }
       if(dashBtn) dashBtn.style.display='none';
-      if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a>';
+      if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a>'+'<a href="../signup_cn.html" style="'+mStyle+'color:var(--electric-bright);font-weight:600;">免费注册</a>';
     }
   });
 </script>
