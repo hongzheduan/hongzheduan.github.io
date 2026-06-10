@@ -1056,7 +1056,7 @@
           updateStatus();
           loadIndexChanges();
           refreshDashPrices();
-          setInterval(() => { if (isMarketOpen()) refreshDashPrices(); }, 10 * 60 * 1000);
+          setInterval(() => { if (isMarketOpen()) refreshDashPrices(); }, 10_000);
         })
         .catch(err => {
           clearTimeout(tid);
