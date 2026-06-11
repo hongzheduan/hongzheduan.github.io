@@ -1237,11 +1237,16 @@ def _get_edgar_fundamentals(ticker):
     if ticker == "CVNA" and eps is not None and eps > 4:
         eps = round(eps / 5, 4)
 
-    # ADS ratio corrections: EDGAR reports ordinary shares; Tiingo prices are per ADS.
-    # Divide shares by the ADS ratio so market cap = (ordinary shares / ratio) × ADS price.
+    # ADS ratio corrections: EDGAR reports per ordinary share; Tiingo prices are per ADS.
+    # Divide shares by ratio → market cap = (ordinary_shares / ratio) × ADS_price.
+    # Multiply EPS by ratio → PE = ADS_price / (ordinary_EPS × ratio).
     _ADS_RATIOS = {"PDD": 4}   # 1 PDD ADS = 4 ordinary shares
-    if ticker in _ADS_RATIOS and shares_outstanding is not None:
-        shares_outstanding = shares_outstanding // _ADS_RATIOS[ticker]
+    if ticker in _ADS_RATIOS:
+        ratio = _ADS_RATIOS[ticker]
+        if shares_outstanding is not None:
+            shares_outstanding = shares_outstanding // ratio
+        if eps is not None:
+            eps = round(eps * ratio, 4)
 
     return eps, shares_outstanding, sic_description, shares_filed_date, edgar_company_name
 
@@ -1495,10 +1500,18 @@ def _parse_eps_from_latest_filing(cik):
             if all(x is not None for x in vals):
                 return round(sum(vals), 4)
 
+        def _best_ann_hit():
+            # Sort by end_date desc, then prefer USD over CNY (avoids FX conversion noise).
+            # 20-F comparative tables list oldest year first; without sorting we'd pick FY-2.
+            entries = sorted(_get_ann_entries(),
+                             key=lambda x: (x[0], x[3] == 'USD'),
+                             reverse=True)
+            return next(((v, c) for _, d, v, c in entries if 300 < d < 400), None)
+
         # Path 2: three quarters + Q4 derived from annual (annual − 9M YTD)
         if ann_filing and len(quarters) >= 3:
             ann_end = ann_filing[2]
-            ann_hit = next(((v, c) for _, d, v, c in _get_ann_entries() if 300 < d < 400), None)
+            ann_hit = _best_ann_hit()
             if ann_hit:
                 ann_val, ann_ccy = ann_hit
                 q3_hit = next(
@@ -1511,7 +1524,7 @@ def _parse_eps_from_latest_filing(cik):
                         return round(sum(partial_vals) + q4_usd, 4)
 
         # Path 3: annual only (20-F / 40-F land here)
-        ann_hit = next(((v, c) for _, d, v, c in _get_ann_entries() if 300 < d < 400), None)
+        ann_hit = _best_ann_hit()
         if ann_hit:
             result = _to_usd(ann_hit[0], ann_hit[1])
             if result is not None:
