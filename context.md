@@ -376,6 +376,35 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
 
 ---
 
+## What Was Done 2026-06-11
+
+### PDD EPS Fix (ADS ratio)
+
+- **Root cause:** PDD files a 20-F (foreign annual). EDGAR reports EPS per ordinary share. Tiingo price is per ADS (1 ADS = 4 ordinary shares). Old code was picking FY2023 EPS (10.29 CNY → $1.52 USD) from the 20-F comparative table instead of FY2025 (2.36 USD), AND was not applying the ADS ratio.
+- **Fix 1 — fiscal year ordering:** `_best_ann_hit()` helper added inside `_parse_eps_from_latest_filing`. Sorts annual entries by `end_date` desc, prefers USD over CNY. 20-F comparative tables list oldest year first in HTML; without sorting the code picked FY2023 instead of FY2025.
+- **Fix 2 — ADS ratio:** `_ADS_RATIOS = {"PDD": 4}` added. Divides `shares_outstanding // 4` for correct market cap. Multiplies `eps × 4` so PE = ADS_price / (ordinary_EPS × 4) is correct.
+- **Result:** PDD EPS 1.518 → 9.44 (matches yf 9.54). PE 53.89 → ~8.7 (matches yf 8.426). No longer flagged in compare log.
+
+### CVNA Shares Lambda Threshold Fix
+
+- **Root cause:** CVNA had a 5-for-1 forward split on 2026-05-08. EDGAR inline XBRL (10-K filed 2026-02-18) shows pre-split Class A shares = **219M** (not ~32M as originally assumed). The lambda condition `< 50_000_000` never fired since 219M > 50M.
+- **Fix:** Lambda threshold raised from `50_000_000` → `250_000_000`. Now 219M < 250M → fires → 219M × 5 = 1.095B shares → mktcap ≈ $73B (matches yf $72B).
+- **Auto-heals:** After Q2 2026 10-Q is filed (~Aug 2026), EDGAR will show post-split ~1.095B shares. 1.095B > 250M → lambda returns unchanged. ✓
+
+### Cache Management — TTL set to 0 permanently
+
+- **`FUND_CACHE_TTL_DAYS = 0`** (changed 2026-06-11) with strict `<` comparison → cache is NEVER reused between runs. Every scan always re-fetches all EDGAR data fresh.
+- **Rule:** Any fix to EPS/shares/fundamentals code → wipe `data/fundamentals_cache.json` immediately (write `{}`), commit together with the fix. Never debug "why isn't my fix working" — the answer is always the stale cache.
+- **Users unaffected** — they see `latest.json` which only updates after scan finishes.
+- **Cache stores raw EDGAR values.** SHARES_OUTSTANDING_OVERRIDE lambda is applied at scan time, not stored in cache.
+
+### Tiingo OHLCV vs EDGAR Fundamentals Cache
+
+- OHLCV (price, volume): fetched fresh every scan from Tiingo. No staleness risk.
+- Fundamentals (EPS, shares, sector, company name): cached in `data/fundamentals_cache.json` for up to 8 days (`FUND_CACHE_TTL_DAYS`). Risk: code fixes don't apply until cache expires or is manually cleared.
+
+---
+
 ## Next Time: What to Check
 
 1. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the 6-item revert checklist above.
