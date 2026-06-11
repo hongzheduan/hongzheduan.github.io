@@ -6,7 +6,7 @@ on:
     - cron: "0 22 * * 1-5"   # 6 PM ET weekdays  — retry if 5 PM data not yet available
     - cron: "0 23 * * 1-5"   # 7 PM ET weekdays  — final data
     - cron: "0 4 * * 2-6"    # 11 PM ET weekdays — full EDGAR + market scan, no videos
-    - cron: "0 5 * * *"      # midnight ET daily  — EDGAR refresh only (weekends: no market data)
+    - cron: "0 5 * * 0,6"    # midnight ET weekends — EDGAR refresh only
   workflow_dispatch:
 
 permissions:
@@ -43,7 +43,7 @@ jobs:
           EVENT="${{ github.event_name }}"
 
           # midnight ET cron → EDGAR-only refresh, skip market scan
-          if [ "$SCHEDULE" = "0 5 * * *" ]; then
+          if [ "$SCHEDULE" = "0 5 * * 0,6" ]; then
             echo "EDGAR_ONLY=1"    >> $GITHUB_ENV
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
@@ -93,7 +93,7 @@ jobs:
           # Determine run type for worklog (resolved before rebase so it's available)
           SCHEDULE="${{ github.event.schedule }}"
           EVENT="${{ github.event_name }}"
-          if   [ "$SCHEDULE" = "0 5 * * *"    ]; then RUN_TYPE="EDGAR-only"
+          if   [ "$SCHEDULE" = "0 5 * * 0,6"  ]; then RUN_TYPE="EDGAR-only"
           elif [ "$SCHEDULE" = "0 4 * * 2-6" ]; then RUN_TYPE="11PM-full"
           elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then RUN_TYPE="5PM-scan"
           elif [ "$SCHEDULE" = "0 22 * * 1-5" ]; then RUN_TYPE="6PM-scan"
