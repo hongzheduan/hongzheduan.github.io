@@ -710,15 +710,7 @@ TICKER_SECTOR_OVERRIDE = {
 
 # Shares outstanding overrides for tickers where EDGAR's reported share count
 # under-represents total economic units due to multi-class/partnership structures.
-# Value = total equivalent shares (public + non-public economic units).
-# Market cap is computed as override_shares × current_price (so it stays live).
-# Last reviewed: 2026-06-07
-SHARES_OUTSTANDING_OVERRIDE = {
-    "BX":   1_222_000_000,  # Blackstone: Class A (742M EDGAR) + unconverted Holdings LP units
-    "IBKR": 1_697_000_000,  # Interactive Brokers: public Class A + IBG LLC membership units (~75%)
-    "DD":     405_000_000,  # DuPont: EDGAR shows 136M post-restructuring; verify against IR
-    "DVN":  1_153_000_000,  # Devon Energy: EDGAR shows 621M; ~2x gap — verify against IR
-}
+SHARES_OUTSTANDING_OVERRIDE = {}  # pure EDGAR shares — no hardcoded overrides
 
 
 # =========================
@@ -1160,6 +1152,7 @@ def _get_edgar_fundamentals(ticker):
         EPS_FIELDS = (
             "EarningsPerShareDiluted",
             "EarningsPerShareBasic",
+            "EarningsPerShareBasicAndDiluted",   # used by PDD Holdings and some other filers
             "IncomeLossFromContinuingOperationsPerDilutedShare",
             "IncomeLossFromContinuingOperationsPerBasicShare",
         )
@@ -1246,14 +1239,6 @@ def _get_edgar_fundamentals(ticker):
     if ticker in _ADS_RATIOS and shares_outstanding is not None:
         shares_outstanding = shares_outstanding // _ADS_RATIOS[ticker]
 
-    # Split adjustment: if a forward split occurred AFTER the EDGAR filing date,
-    # Tiingo prices are already split-adjusted but our share count is pre-split.
-    # Multiply by the cumulative Tiingo split factor to match.
-    if shares_outstanding is not None and shares_filed_date:
-        split_factor = _get_post_filing_split_factor(ticker, shares_filed_date)
-        if split_factor and split_factor != 1.0:
-            shares_outstanding = int(shares_outstanding * split_factor)
-
     return eps, shares_outstanding, sic_description, shares_filed_date, edgar_company_name
 
 
@@ -1276,6 +1261,15 @@ def _get_post_filing_split_factor(ticker, filing_date_str):
         for event in resp:
             ex_date = (event.get("exDate") or "")[:10]   # trim to YYYY-MM-DD
             if ex_date > filing_date_str:
+                # Skip spin-off / distribution events: Tiingo records them as splits to
+                # adjust historical prices, but they don't change share count.
+                # Real stock splits have small clean integers (2:1, 3:2); spin-offs use
+                # large arbitrary ratios (e.g. FDX Freight spin-off: 1000:1241).
+                sf_from = event.get("splitFrom")
+                sf_to   = event.get("splitTo")
+                if sf_from is not None and sf_to is not None:
+                    if max(abs(sf_from), abs(sf_to)) > 20:
+                        continue  # spin-off / distribution, not a stock split
                 sf = float(event.get("splitFactor") or 1.0)
                 factor *= sf
         return factor
@@ -1818,7 +1812,7 @@ def scan():
     # Load fundamentals (disk cache → EDGAR for missing)
     _load_fund_disk_cache(ignore_ttl=SKIP_EDGAR)
     if not SKIP_EDGAR:
-        _apply_post_cache_splits(set(tickers))
+        pass  # post-cache split adjustment removed — EDGAR shares used as-is
     tiingo_meta = prefetch_tiingo_meta(tickers)
     if not SKIP_EDGAR:
         prefetch_fundamentals(tickers, tiingo_meta)
@@ -1891,20 +1885,14 @@ def scan():
             sector = fund["Sector"]
             eps    = fund["EPS"]
 
-            # Market cap priority: BRK-B special case, then EDGAR shares × current price
-            # (always fresh), then Tiingo meta as fallback when EDGAR has no shares.
-            # SHARES_OUTSTANDING_OVERRIDE corrects tickers where EDGAR under-reports due to
-            # partnership units or LLC interests (BX, IBKR, etc.).
+            # Market cap: BRK-B special case, otherwise EDGAR shares × current price.
+            # Pure EDGAR — no Tiingo market cap, no hardcoded overrides.
             shares = fund.get("SharesOutstanding")
-            shares_for_cap = SHARES_OUTSTANDING_OVERRIDE.get(ticker) or shares
+            shares_for_cap = shares
             if ticker == "BRK-B":
                 market_cap = _get_brk_b_market_cap(float(latest["Close"]))
             else:
-                tiingo_mc = fund.get("TiingoMarketCap")
-                market_cap = (
-                    shares_for_cap * float(latest["Close"]) if shares_for_cap else
-                    float(tiingo_mc) if tiingo_mc else None
-                )
+                market_cap = shares_for_cap * float(latest["Close"]) if shares_for_cap else None
 
             pe = round(float(latest["Close"]) / eps, 2) if eps and eps > 0 else None
 
@@ -2370,7 +2358,7 @@ def compare_with_yfinance(df):
         "  V                    US 10-Q/10-K  USD        EPS ~11.18",
         "  ERIE KKR STZ ARM     US 10-Q/10-K  USD        populated via fallback",
         "  ASML CCEP FER        20-F          EUR→USD    converted via daily ECB rate",
-        "  PDD                  20-F          CNY→USD    converted via daily ECB rate",
+        "  PDD                  20-F          USD        EarningsPerShareBasicAndDiluted",
         "  Diffs vs YF expected: foreign EPS is annual-only (no TTM); FX rate differs by fetch time.",
         "",
         "EPS / PE — null (still unavailable):",
