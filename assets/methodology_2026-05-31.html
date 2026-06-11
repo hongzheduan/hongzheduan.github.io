@@ -131,6 +131,7 @@
     <a class="sub" href="#eps-example">EPS Worked Example</a>
     <a class="sub" href="#eps-fallback">Inline XBRL Fallback</a>
     <a class="sub" href="#pe">P/E Ratio</a>
+    <a class="sub" href="#mktcap">Market Cap</a>
     <a class="sub" href="#beta">Beta &amp; Volatility</a>
     <a href="#sectors">Sector Classification</a>
     <a class="sub" href="#sector-avg">Sector Avg P/E</a>
@@ -313,7 +314,7 @@ VolumeVsMA21   = Volume[t] / mean(Volume[t-20 … t])
     <!-- ── FUNDAMENTALS ── -->
     <div class="doc-section" id="fundamentals">
       <div class="section-label">07 — Fundamental Data</div>
-      <h2>EPS, P/E, Beta &amp; Volatility</h2>
+      <h2>EPS, P/E, Market Cap, Beta &amp; Volatility</h2>
 
       <div id="eps">
         <h3>Earnings Per Share — TTM Calculation</h3>
@@ -417,6 +418,32 @@ EPS_USD = EPS_local × FX_rate   <span class="comment">(e.g. ASML: €19.90 × 1
 PE = Close[t] / EPS_TTM   <span class="comment">(computed live from current price and cached EPS)</span>
         </div>
         <p>PE is recomputed each scan using the latest price, so it reflects current market valuation even if EPS has not changed since the last fundamentals refresh. PE is set to <code>null</code> if EPS is null, zero, or negative.</p>
+      </div>
+
+      <div id="mktcap">
+        <h3>Market Capitalisation</h3>
+        <div class="formula">
+MarketCap = SharesOutstanding × Close[t]   <span class="comment">(recomputed each scan using current price)</span>
+        </div>
+        <p>Shares outstanding are sourced from <strong>SEC EDGAR XBRL</strong> via the <code>dei/EntityCommonStockSharesOutstanding</code> concept in the <code>companyfacts</code> API. The following sources are tried in order, requiring a filing date within the past two years:</p>
+        <ol>
+          <li><code>dei/EntityCommonStockSharesOutstanding</code> — cover-page DEI field; period-end count <strong>(primary)</strong></li>
+          <li><code>us-gaap/CommonStockSharesOutstanding</code> — balance-sheet equivalent</li>
+          <li>Inline XBRL parse of the most recent 10-Q or 10-K cover page</li>
+          <li><code>us-gaap/WeightedAverageNumberOfSharesOutstandingBasic</code> — TTM average; last resort</li>
+        </ol>
+        <p>Multiplying by the <strong>current close price</strong> (rather than storing a vendor-supplied market cap figure) ensures the displayed market cap stays fresh on every scan even when the underlying share count has not changed. Third-party cached market cap figures can lag significant buyback activity by weeks or months.</p>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>Ticker</th><th>Override Shares</th><th>Reason</th></tr></thead>
+            <tbody>
+              <tr><td>BRK-B</td><td>Class A equivalent</td><td>Special calculation combining Class A and Class B shares; EDGAR only files at the Class A level</td></tr>
+              <tr><td>BX</td><td>1,222,000,000</td><td>EDGAR reports Class A (~742M) only; Blackstone Holdings LP units add ~480M equivalent shares</td></tr>
+              <tr><td>IBKR</td><td>1,697,000,000</td><td>Public Class A shares plus ~75% IBG LLC membership units held by the founding entity</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Market cap is published in <strong>$billions</strong> in <code>latest.json</code> and is used as the weighting factor for the sector average P/E harmonic mean.</p>
       </div>
 
       <div id="beta">
