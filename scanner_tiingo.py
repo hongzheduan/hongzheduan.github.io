@@ -27,7 +27,7 @@ DATA_DIR         = "data"
 ARCHIVE_DIR      = "archive"
 OHLCV_CACHE_DIR  = os.path.join(DATA_DIR, "ohlcv_tiingo_cache")
 FUND_CACHE_FILE  = os.path.join(DATA_DIR, "fundamentals_cache.json")
-FUND_CACHE_TTL_DAYS = 8
+FUND_CACHE_TTL_DAYS = 0  # always re-fetch EDGAR every run; no stale data risk
 
 os.makedirs(DATA_DIR,        exist_ok=True)
 os.makedirs(ARCHIVE_DIR,     exist_ok=True)
@@ -1618,7 +1618,7 @@ def _load_fund_disk_cache(ignore_ttl=False):
             data = json.load(f)
         fetched  = datetime.strptime(data.get("fetched", ""), "%Y-%m-%d").date()
         age_days = (date.today() - fetched).days
-        if ignore_ttl or age_days <= FUND_CACHE_TTL_DAYS:
+        if ignore_ttl or age_days < FUND_CACHE_TTL_DAYS:
             _fund_cache             = data.get("tickers", {})
             _fund_cache_fetched_date = data.get("fetched", "")
             print(f"Fundamentals: {len(_fund_cache)} tickers from disk cache ({age_days}d old)")
