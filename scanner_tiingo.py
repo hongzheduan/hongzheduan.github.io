@@ -1236,6 +1236,8 @@ def _get_edgar_fundamentals(ticker):
         eps = round(eps / 25, 4)
     if ticker == "CVNA" and eps is not None and eps > 4:
         eps = round(eps / 5, 4)
+    if ticker == "KLAC" and eps is not None and eps > 10:
+        eps = round(eps / 10, 4)
 
     # ADS ratio corrections: EDGAR reports per ordinary share; Tiingo prices are per ADS.
     # Divide shares by ratio → market cap = (ordinary_shares / ratio) × ADS_price.
@@ -2371,6 +2373,7 @@ def compare_with_yfinance(df):
         "  BRK-B   EDGAR EPS ÷ 1500  (Class A→B conversion)",
         "  BKNG    EDGAR EPS ÷ 25    (25-for-1 split Apr 2026; auto-disables after Q2 2026 10-Q)",
         "  CVNA    EDGAR EPS ÷ 5     (5-for-1 split May 2026; auto-disables after Q2 2026 10-Q)",
+        "  KLAC    EDGAR EPS ÷ 10    (10-for-1 split Jun 2026; auto-disables after Q2 2026 10-Q)",
         "",
         "EPS / PE — inline XBRL fallback (company_facts has no data; we parse filing HTML):",
         "  V                    US 10-Q/10-K  USD        EPS ~11.18",
