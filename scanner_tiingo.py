@@ -708,6 +708,11 @@ TICKER_SECTOR_OVERRIDE = {
     "AMCR":  "Basic Materials",
 }
 
+# Tickers where EDGAR only reports one share class but the economic entity is larger
+# (e.g. public Class A + LP/LLC units not in EDGAR). Use Tiingo meta marketCap for these.
+# Excludes BRK-B (own special case) and GOOG/GOOGL (EDGAR covers both classes fine).
+TIINGO_MKTCAP_TICKERS = {"IBKR", "BX", "DD", "DVN"}
+
 # Shares outstanding overrides for tickers where EDGAR's reported share count
 # under-represents total economic units due to multi-class/partnership structures.
 SHARES_OUTSTANDING_OVERRIDE = {}  # pure EDGAR shares — no hardcoded overrides
@@ -1885,12 +1890,17 @@ def scan():
             sector = fund["Sector"]
             eps    = fund["EPS"]
 
-            # Market cap: BRK-B special case, otherwise EDGAR shares × current price.
-            # Pure EDGAR — no Tiingo market cap, no hardcoded overrides.
+            # Market cap: BRK-B special case; multi-class tickers use Tiingo meta MC
+            # (EDGAR only reports one class for IBKR/BX/DD/DVN); otherwise EDGAR shares × price.
             shares = fund.get("SharesOutstanding")
             shares_for_cap = shares
             if ticker == "BRK-B":
                 market_cap = _get_brk_b_market_cap(float(latest["Close"]))
+            elif ticker in TIINGO_MKTCAP_TICKERS:
+                tiingo_mc = fund.get("TiingoMarketCap")
+                market_cap = float(tiingo_mc) if tiingo_mc else (
+                    shares_for_cap * float(latest["Close"]) if shares_for_cap else None
+                )
             else:
                 market_cap = shares_for_cap * float(latest["Close"]) if shares_for_cap else None
 
@@ -2371,11 +2381,11 @@ def compare_with_yfinance(df):
         "  Our TTM = sum of 4 most recent quarters from EDGAR 10-Q/10-K filings.",
         "  YF trailingEps sources from data vendors and may reflect a different period.",
         "",
-        "MKTCAP — shares outstanding overrides (our side intentional):",
-        "  BX     1,222,000,000  (Class A 742M + Holdings LP units; EDGAR under-reports)",
-        "  IBKR   1,697,000,000  (public Class A + IBG LLC membership units ~75%)",
-        "  DD       405,000,000  (post-restructuring; verify against IR)",
-        "  DVN    1,153,000,000  (~2x EDGAR reported; verify against IR)",
+        "MKTCAP — multi-class tickers use Tiingo meta marketCap (TIINGO_MKTCAP_TICKERS):",
+        "  IBKR   Tiingo MC  (public Class A + IBG LLC membership units; EDGAR under-reports)",
+        "  BX     Tiingo MC  (Class A + Holdings LP units; EDGAR under-reports)",
+        "  DD     Tiingo MC  (post-restructuring; EDGAR share count incomplete)",
+        "  DVN    Tiingo MC  (~2x EDGAR reported shares; full float via Tiingo)",
         "",
         "VOLUME — systematic offset:",
         "  Tiingo EOD volume includes extended-hours (pre/after market).",
