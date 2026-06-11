@@ -1891,8 +1891,8 @@ def scan():
             sector = fund["Sector"]
             eps    = fund["EPS"]
 
-            # Market cap priority: BRK-B special case, then Tiingo meta (covers multi-class
-            # structures like GOOG/GOOGL, FOXA/FOX, NWS/NWSA), then EDGAR shares × price.
+            # Market cap priority: BRK-B special case, then EDGAR shares × current price
+            # (always fresh), then Tiingo meta as fallback when EDGAR has no shares.
             # SHARES_OUTSTANDING_OVERRIDE corrects tickers where EDGAR under-reports due to
             # partnership units or LLC interests (BX, IBKR, etc.).
             shares = fund.get("SharesOutstanding")
@@ -1901,8 +1901,9 @@ def scan():
                 market_cap = _get_brk_b_market_cap(float(latest["Close"]))
             else:
                 tiingo_mc = fund.get("TiingoMarketCap")
-                market_cap = float(tiingo_mc) if tiingo_mc else (
-                    shares_for_cap * float(latest["Close"]) if shares_for_cap else None
+                market_cap = (
+                    shares_for_cap * float(latest["Close"]) if shares_for_cap else
+                    float(tiingo_mc) if tiingo_mc else None
                 )
 
             pe = round(float(latest["Close"]) / eps, 2) if eps and eps > 0 else None
