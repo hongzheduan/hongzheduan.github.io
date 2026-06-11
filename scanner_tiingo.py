@@ -708,14 +708,15 @@ TICKER_SECTOR_OVERRIDE = {
     "AMCR":  "Basic Materials",
 }
 
-# Tickers where EDGAR only reports one share class but the economic entity is larger
-# (e.g. public Class A + LP/LLC units not in EDGAR). Use Tiingo meta marketCap for these.
-# Excludes BRK-B (own special case) and GOOG/GOOGL (EDGAR covers both classes fine).
-TIINGO_MKTCAP_TICKERS = {"IBKR", "BX", "DD", "DVN"}
-
-# Shares outstanding overrides for tickers where EDGAR's reported share count
-# under-represents total economic units due to multi-class/partnership structures.
-SHARES_OUTSTANDING_OVERRIDE = {}  # pure EDGAR shares — no hardcoded overrides
+# Shares outstanding overrides for tickers where EDGAR only reports one share class
+# but total economic units are larger (LP/LLC units, multi-class structures).
+# BRK-B excluded (own special case). GOOG/GOOGL excluded (EDGAR covers both classes).
+SHARES_OUTSTANDING_OVERRIDE = {
+    "IBKR": 1_697_000_000,  # permanent: Class A 445M + IBG LLC membership units (~75% private stake)
+    "BX":   1_222_000_000,  # permanent: Class A 742M + Blackstone Holdings LP units
+    # Conditional (lambda): uses override only while EDGAR lags; auto-heals once 10-Q is filed
+    "DVN":  lambda s: 1_153_000_000 if (s or 0) < 800_000_000 else s,  # Coterra merger May 2026; EDGAR pre-merger ~621M; heals after Q2 2026 10-Q
+}
 
 
 # =========================
@@ -1111,25 +1112,22 @@ def _get_edgar_fundamentals(ticker):
         #   4. WeightedAverageBasic (last resort; TTM average, ok but not ideal for mktcap)
         # Require filing within 2 years to reject stale entries (e.g. IBKR DEI from 2011).
         _two_yrs_ago = (date.today() - timedelta(days=2 * 365)).isoformat()
-        for _shares_src in [
-            dei.get("EntityCommonStockSharesOutstanding", {}).get("units", {}).get("shares", []),
-            us_gaap.get("CommonStockSharesOutstanding", {}).get("units", {}).get("shares", []),
-        ]:
-            if not _shares_src:
-                continue
-            recent_shares = sorted(
-                [
-                    x for x in _shares_src
-                    if x.get("val") and x.get("val") >= 1_000_000
-                    and x.get("filed") and x["filed"] >= _two_yrs_ago
-                ],
-                key=lambda x: x.get("filed", ""),
-                reverse=True,
-            )
-            if recent_shares:
-                shares_outstanding = int(recent_shares[0]["val"])
-                shares_filed_date  = recent_shares[0].get("filed", "")
-                break
+        _all_share_entries = (
+            dei.get("EntityCommonStockSharesOutstanding", {}).get("units", {}).get("shares", [])
+            + us_gaap.get("CommonStockSharesOutstanding", {}).get("units", {}).get("shares", [])
+        )
+        recent_shares = sorted(
+            [
+                x for x in _all_share_entries
+                if x.get("val") and x.get("val") >= 1_000_000
+                and x.get("filed") and x["filed"] >= _two_yrs_ago
+            ],
+            key=lambda x: x.get("filed", ""),
+            reverse=True,
+        )
+        if recent_shares:
+            shares_outstanding = int(recent_shares[0]["val"])
+            shares_filed_date  = recent_shares[0].get("filed", "")
 
         # If DEI/CommonStock are stale or empty, try inline XBRL (period-end, more
         # accurate than weighted average for current market cap).
@@ -1890,17 +1888,13 @@ def scan():
             sector = fund["Sector"]
             eps    = fund["EPS"]
 
-            # Market cap: BRK-B special case; multi-class tickers use Tiingo meta MC
-            # (EDGAR only reports one class for IBKR/BX/DD/DVN); otherwise EDGAR shares × price.
+            # Market cap: BRK-B special case; otherwise SHARES_OUTSTANDING_OVERRIDE if set
+            # (covers multi-class/LP structures where EDGAR under-reports), else EDGAR shares × price.
             shares = fund.get("SharesOutstanding")
-            shares_for_cap = shares
+            _ov = SHARES_OUTSTANDING_OVERRIDE.get(ticker)
+            shares_for_cap = _ov(shares) if callable(_ov) else (_ov if _ov is not None else shares)
             if ticker == "BRK-B":
                 market_cap = _get_brk_b_market_cap(float(latest["Close"]))
-            elif ticker in TIINGO_MKTCAP_TICKERS:
-                tiingo_mc = fund.get("TiingoMarketCap")
-                market_cap = float(tiingo_mc) if tiingo_mc else (
-                    shares_for_cap * float(latest["Close"]) if shares_for_cap else None
-                )
             else:
                 market_cap = shares_for_cap * float(latest["Close"]) if shares_for_cap else None
 
@@ -2381,11 +2375,10 @@ def compare_with_yfinance(df):
         "  Our TTM = sum of 4 most recent quarters from EDGAR 10-Q/10-K filings.",
         "  YF trailingEps sources from data vendors and may reflect a different period.",
         "",
-        "MKTCAP — multi-class tickers use Tiingo meta marketCap (TIINGO_MKTCAP_TICKERS):",
-        "  IBKR   Tiingo MC  (public Class A + IBG LLC membership units; EDGAR under-reports)",
-        "  BX     Tiingo MC  (Class A + Holdings LP units; EDGAR under-reports)",
-        "  DD     Tiingo MC  (post-restructuring; EDGAR share count incomplete)",
-        "  DVN    Tiingo MC  (~2x EDGAR reported shares; full float via Tiingo)",
+        "MKTCAP — shares outstanding overrides (SHARES_OUTSTANDING_OVERRIDE, our side intentional):",
+        "  IBKR   1,697,000,000  (Class A 445M + IBG LLC membership units; EDGAR under-reports)",
+        "  BX     1,222,000,000  (Class A 742M + Blackstone Holdings LP units)",
+        "  DVN    1,153,000,000  (Coterra merger May 2026 doubled shares; EDGAR XBRL lags until Q2 2026 10-Q ~Aug 2026)",
         "",
         "VOLUME — systematic offset:",
         "  Tiingo EOD volume includes extended-hours (pre/after market).",
