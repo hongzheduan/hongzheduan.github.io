@@ -39,6 +39,12 @@ jobs:
           echo "IS_HOLIDAY=$IS_HOLIDAY" >> $GITHUB_ENV
 
           SCHEDULE="${{ github.event.schedule }}"
+          EVENT="${{ github.event_name }}"
+
+          # manual trigger — bypass SPY probe, use latest available data
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            echo "FORCE_RUN=1"      >> $GITHUB_ENV
+          fi
 
           # midnight ET cron → EDGAR-only refresh, skip market scan
           if [ "$SCHEDULE" = "0 5 * * *" ]; then
@@ -81,7 +87,7 @@ jobs:
           elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then RUN_TYPE="5PM-scan"
           elif [ "$SCHEDULE" = "0 22 * * 1-5" ]; then RUN_TYPE="6PM-scan"
           elif [ "$SCHEDULE" = "0 23 * * 1-5" ]; then RUN_TYPE="7PM-scan"
-          elif [ "$EVENT"    = "workflow_dispatch" ]; then RUN_TYPE="manual"; echo "FORCE_RUN=1" >> $GITHUB_ENV
+          elif [ "$EVENT"    = "workflow_dispatch" ]; then RUN_TYPE="manual"
           else RUN_TYPE="unknown"; fi
           WORKLOG_ENTRY="$(date -u '+%Y-%m-%d %H:%M UTC')  $RUN_TYPE"
 
