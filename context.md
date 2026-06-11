@@ -398,18 +398,13 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
 - **Users unaffected** — they see `latest.json` which only updates after scan finishes.
 - **Cache stores raw EDGAR values.** SHARES_OUTSTANDING_OVERRIDE lambda is applied at scan time, not stored in cache.
 
-### Tiingo OHLCV vs EDGAR Fundamentals Cache
-
-- OHLCV (price, volume): fetched fresh every scan from Tiingo. No staleness risk.
-- Fundamentals (EPS, shares, sector, company name): cached in `data/fundamentals_cache.json` for up to 8 days (`FUND_CACHE_TTL_DAYS`). Risk: code fixes don't apply until cache expires or is manually cleared.
-
 ---
 
 ## Next Time: What to Check
 
 1. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the 6-item revert checklist above.
-2. **Tiingo attribution** — required by license: add `"Market Data Sourced by Tiingo.com"` to `baizora_main_form.html` and `baizora_main_form_cn.html`. Already done on individual stock pages (stocks/*.html). NOT yet done on main dashboards.
-3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify eps drops to expected post-split values and compare log stays clean.
+2. **Tiingo attribution** — required by license: add `"Market Data Sourced by Tiingo.com"` to `baizora_main_form.html` and `baizora_main_form_cn.html`. Already done on individual stock pages. NOT yet done on main dashboards.
+3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify EPS and mktcap drop to expected post-split values and compare log stays clean.
 4. **Remaining EPS=None tickers** — BRK-B is structural (no EDGAR data after 2013); others may be IFRS filers. Investigate if any are solvable from EDGAR without a paid source.
-5. **EPS cache rebuild caution** — if `fundamentals_cache.json` must be deleted, the next scan will re-fetch all 516 tickers from EDGAR (takes ~15 min). Sector overrides are in code, not cache — safe to rebuild.
-6. **yfinance compare log** — remaining flagged diffs (OXY 436%, MLM 163%, CI 382%) are all GAAP one-time items vs adjusted EPS. These are correct and expected — not bugs.
+5. **yfinance compare log** — remaining flagged EPS diffs (OXY, MLM, CI etc.) are GAAP one-time items vs adjusted EPS. These are correct and expected — not bugs.
+6. **FUND_CACHE_TTL_DAYS = 0** — EDGAR now always re-fetches every run. Cache file is still written but never read back. No further cache management needed.
