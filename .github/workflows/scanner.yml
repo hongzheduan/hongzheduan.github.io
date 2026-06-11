@@ -65,6 +65,7 @@ jobs:
           EDGAR_ONLY: ${{ env.EDGAR_ONLY }}
           SKIP_EDGAR: ${{ env.SKIP_EDGAR }}
           PROBE_RETRIES: ${{ env.PROBE_RETRIES }}
+          FORCE_RUN: ${{ env.FORCE_RUN }}
         run: python scanner_tiingo.py
 
       - name: Commit updated data
@@ -80,7 +81,7 @@ jobs:
           elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then RUN_TYPE="5PM-scan"
           elif [ "$SCHEDULE" = "0 22 * * 1-5" ]; then RUN_TYPE="6PM-scan"
           elif [ "$SCHEDULE" = "0 23 * * 1-5" ]; then RUN_TYPE="7PM-scan"
-          elif [ "$EVENT"    = "workflow_dispatch" ]; then RUN_TYPE="manual"
+          elif [ "$EVENT"    = "workflow_dispatch" ]; then RUN_TYPE="manual"; echo "FORCE_RUN=1" >> $GITHUB_ENV
           else RUN_TYPE="unknown"; fi
           WORKLOG_ENTRY="$(date -u '+%Y-%m-%d %H:%M UTC')  $RUN_TYPE"
 
