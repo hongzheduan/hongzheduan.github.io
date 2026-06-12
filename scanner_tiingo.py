@@ -1087,7 +1087,7 @@ def _get_edgar_fundamentals(ticker):
         if cik:
             break
     if not cik:
-        return None, None, "", ""
+        return None, None, "", "", ""
 
     eps                = None
     shares_outstanding = None
@@ -1744,7 +1744,10 @@ def prefetch_fundamentals(tickers, tiingo_names, sleep_edgar=0.15):
           f"({len(tickers) - len(needed)} already cached) …")
 
     for i, ticker in enumerate(needed, 1):
-        get_fundamentals(ticker, tiingo_names)
+        try:
+            get_fundamentals(ticker, tiingo_names)
+        except Exception as e:
+            print(f"  {ticker}: EDGAR fetch error — {e}")
         time.sleep(sleep_edgar)
         if i % 50 == 0:
             print(f"  … fetched {i}/{len(needed)}")
