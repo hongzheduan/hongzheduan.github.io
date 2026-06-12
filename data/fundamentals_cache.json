@@ -1,5 +1,5 @@
 {
-  "fetched": "2026-06-11",
+  "fetched": "2026-06-12",
   "tickers": {
     "A": {
       "SharesOutstanding": 282431944,
@@ -1160,6 +1160,15 @@
       "Sector": "Basic Materials",
       "SicDescription": "Agricultural Production-Crops",
       "CompanyName": "Corteva, Inc.",
+      "TiingoMarketCap": null
+    },
+    "CVNA": {
+      "SharesOutstanding": 219367148,
+      "SharesFiledDate": "2026-04-29",
+      "EPS": 1.69,
+      "Sector": "Consumer Cyclical",
+      "SicDescription": "Retail-Auto Dealers & Gasoline Stations",
+      "CompanyName": "CARVANA CO.",
       "TiingoMarketCap": null
     },
     "CVS": {
@@ -2470,7 +2479,7 @@
     "KLAC": {
       "SharesOutstanding": 130627521,
       "SharesFiledDate": "2026-04-30",
-      "EPS": 35.32,
+      "EPS": 3.532,
       "Sector": "Technology",
       "SicDescription": "Optical Instruments & Lenses",
       "CompanyName": "KLA CORP",
