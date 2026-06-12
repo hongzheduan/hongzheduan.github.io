@@ -1672,11 +1672,11 @@
         // _liveIex has data but candleData was null — inject today's bar now.
         const todayET = new Date().toLocaleDateString('en-CA', {timeZone:'America/New_York'});
         if (Object.keys(_liveIex).length && candleData.dates[candleData.dates.length - 1] !== todayET) {
-          Object.keys(_liveIex).forEach(t => {
-            const iv = _liveIex[t]; if (!iv?.last) return;
+          Object.keys(candleData.data).forEach(t => {
             const bars = candleData.data[t]; if (!bars?.length) return;
             const prev = bars[bars.length - 1][3];
-            bars.push([iv.open ?? prev, iv.high ?? iv.open ?? prev, iv.low ?? iv.open ?? prev, iv.last, iv.volume ?? 0]);
+            const iv = _liveIex[t];
+            bars.push([iv?.open ?? prev, iv?.high ?? iv?.open ?? prev, iv?.low ?? iv?.open ?? prev, iv?.last ?? prev, iv?.volume ?? 0]);
           });
           candleData.dates.push(todayET);
         }
@@ -1971,22 +1971,34 @@
       if (candleData?.data && candleData.dates) {
         const lastDate = candleData.dates[candleData.dates.length - 1];
         const isToday  = lastDate === todayET;
-        tickers.forEach(t => {
-          const d = q[t]; if (!d?.last) return;
-          const bars = candleData.data[t]; if (!bars?.length) return;
-          if (isToday) {
+        if (isToday) {
+          tickers.forEach(t => {
+            const d = q[t]; if (!d?.last) return;
+            const bars = candleData.data[t]; if (!bars?.length) return;
             const bar = bars[bars.length - 1];
             if (d.open   != null) bar[0] = d.open;
             if (d.high   != null) bar[1] = Math.max(bar[1], d.high);
             if (d.low    != null) bar[2] = Math.min(bar[2], d.low);
             bar[3] = d.last;
             if (d.volume != null) bar[4] = d.volume;
-          } else {
+          });
+        } else {
+          // Append today bar to ALL tickers so candleData.dates stays aligned.
+          // Tickers without a live quote get a flat carry-forward bar.
+          Object.keys(candleData.data).forEach(t => {
+            const bars = candleData.data[t]; if (!bars?.length) return;
             const prev = bars[bars.length - 1][3];
-            bars.push([d.open ?? prev, d.high ?? d.open ?? prev, d.low ?? d.open ?? prev, d.last, d.volume ?? 0]);
-          }
-        });
-        if (!isToday) candleData.dates.push(todayET);
+            const d = q[t];
+            bars.push([
+              d?.open ?? prev,
+              d?.high ?? d?.open ?? prev,
+              d?.low  ?? d?.open ?? prev,
+              d?.last ?? prev,
+              d?.volume ?? 0
+            ]);
+          });
+          candleData.dates.push(todayET);
+        }
       }
 
       if (_modalTicker && document.getElementById('tickerModal').style.display !== 'none') {
