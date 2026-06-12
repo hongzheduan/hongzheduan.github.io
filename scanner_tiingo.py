@@ -840,39 +840,30 @@ SPLITS_PATH = os.path.join(DATA_DIR, "splits.json")
 
 def update_splits_file(tickers, lookback_days=180, sleep_time=0.1):
     """
-    Query Tiingo splits endpoint for all tickers and write data/splits.json.
-    Only runs in the full nightly scan (not SKIP_EDGAR runs).
-    Tiingo splitFactor: ratio of new shares to old (10 for 10:1 split).
-    If < 1 (some APIs invert it), we take 1/factor to normalize to >1.
+    Detect forward splits by scanning Tiingo daily price history for splitFactor != 1.0.
+    splitFactor is a field in /tiingo/daily/{ticker}/prices — no separate splits endpoint exists.
     """
     lookback_start = (datetime.now() - timedelta(days=lookback_days)).strftime("%Y-%m-%d")
 
-    existing = {}
-    if os.path.exists(SPLITS_PATH):
-        try:
-            with open(SPLITS_PATH) as f:
-                existing = json.load(f)
-        except Exception:
-            existing = {}
-
     splits = {}
-    print(f"Fetching split history for {len(tickers)} tickers since {lookback_start} …")
+    print(f"Scanning split history for {len(tickers)} tickers since {lookback_start} …")
     for i, ticker in enumerate(tickers, 1):
         tiingo_tk = _to_tiingo_ticker(TICKER_ALIASES.get(ticker, ticker))
-        data = _tiingo_get(f"/tiingo/daily/{tiingo_tk}/splits",
+        data = _tiingo_get(f"/tiingo/daily/{tiingo_tk}/prices",
                            params={"startDate": lookback_start})
         if isinstance(data, list):
-            for item in data:
-                d = _parse_tiingo_date(item.get("date", ""))
-                factor = item.get("splitFactor")
-                if not d or factor is None:
+            for bar in data:
+                factor = bar.get("splitFactor")
+                if factor is None or float(factor) == 1.0:
+                    continue
+                d = _parse_tiingo_date(bar.get("date", ""))
+                if not d:
                     continue
                 ratio = float(factor)
                 if 0 < ratio < 1:
-                    ratio = 1 / ratio      # normalize: some APIs express as price multiplier
+                    ratio = 1 / ratio
                 ratio = round(ratio)
-                if ratio >= 2:             # ignore reverse splits and rounding noise
-                    # keep latest split within lookback window
+                if ratio >= 2:
                     if ticker not in splits or d > splits[ticker]["date"]:
                         splits[ticker] = {"ratio": ratio, "date": d}
         if i % 100 == 0:
