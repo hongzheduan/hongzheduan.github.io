@@ -400,6 +400,64 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
 
 ---
 
+## Services & Infrastructure
+
+### Service Stack
+
+| Service | Role | Plan / Cost |
+|---|---|---|
+| **GitHub Pages** | Static site hosting + global CDN for all HTML/JS/CSS and `data/latest.json` | Free |
+| **GitHub Actions** | Nightly scanner cron (5PM/6PM/7PM/11PM ET weekdays), video generation, archive push | Free (2,000 min/month) |
+| **GitHub `scanner-archive` repo** | Permanent gzipped CSV archive (1 file/day, from 11PM run only) for data quality audit | Free (private repo) |
+| **Google Cloud Functions (Firebase)** | `/api/iex-quotes` live price endpoint; `/api/subscription` auth check; other API routes | Blaze pay-as-you-go (~$0.10/month at current scale) |
+| **Firebase Auth** | User authentication (email/password) | Free up to 50,000 MAU |
+| **Stripe** | Subscription billing ($9.99/month or $99/year); 7-day free trial | 2.9% + $0.30 per transaction |
+| **Tiingo** | EOD OHLCV data + company metadata for 516 tickers; IEX live quotes for homepage | Commercial license |
+| **SEC EDGAR** | EPS (TTM diluted GAAP), shares outstanding, SIC sector, company name | Free (public API) |
+
+---
+
+### Scalability & Cost Analysis
+
+**GitHub Pages (CDN)**
+- Served via Fastly CDN — no concurrent user limit for static files
+- Soft bandwidth limit: 100GB/month. At ~5MB per `latest.json` load, that's ~20,000 full page loads/month
+- Repeat visitors don't re-download HTML/CSS/JS (browser-cached); only `latest.json` is fetched fresh each visit
+- Cost: $0. GitHub does not charge for Pages bandwidth — soft limit triggers an email, not a bill
+- If bandwidth becomes a concern at scale: gzip `latest.json` server-side (~10x reduction to ~500KB)
+
+**Google Cloud Functions**
+- Free tier (always free on Blaze): 2,000,000 invocations/month, 400,000 GB-seconds, 5GB outbound
+- `/api/iex-quotes` has a **60-second in-memory cache** — regardless of concurrent homepage users, the function is called at most once per minute (~1,440 calls/day, ~31,680/month — well within 2M free)
+- Paid rate beyond free tier: $0.40 per million invocations — 10M calls/month = ~$3.20
+- Outbound data: $0.12/GB beyond 5GB free
+- Current bill: ~$0.10/month (minor outbound networking from calling Tiingo/IEX)
+
+**Firebase Auth**
+- Free up to 50,000 monthly active users on Blaze plan
+- Cost: $0 at any realistic near-term scale
+
+**Key architectural advantage: user traffic does not multiply infrastructure cost**
+- GitHub Pages CDN absorbs all static asset requests at no charge
+- Cloud Functions 60s cache means 10,000 simultaneous homepage users = same cost as 1 user
+- EDGAR and Tiingo are only called by GitHub Actions (nightly batch) — completely decoupled from user traffic
+- No WebSocket server, no real-time database polling, no per-user server sessions
+
+**Cost at 1,000 daily active users**
+- GitHub Pages: $0
+- Cloud Functions: $0 (well within free tier)
+- Firebase Auth: $0
+- Total infrastructure: ~$1–2/month (unchanged from today)
+- Stripe fees: ~$32/month if 10% convert to paid (~100 subscribers × $9.99)
+- Revenue at 10% conversion: ~$967/month net
+
+**When architecture would need to change**
+- Real-time sub-second price streaming (WebSocket service required — current 60s polling is by design)
+- Tens of thousands of daily active users consistently exceeding GitHub Pages 100GB/month soft limit
+- Neither scenario is relevant at current scale
+
+---
+
 ## Next Time: What to Check
 
 1. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the 6-item revert checklist above.
