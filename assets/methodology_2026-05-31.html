@@ -138,6 +138,7 @@
     <a href="#scores">Scoring System</a>
     <a href="#output">Output Format</a>
     <a href="#limitations">Known Limitations</a>
+    <a href="#services">Services</a>
   </nav>
 
   <!-- MAIN CONTENT -->
@@ -624,6 +625,58 @@ MomentumScore = percentile_rank(RawMomentum, all 516 tickers) × 100
 
       <h3>Sector Average P/E Universe</h3>
       <p>Sector average P/E is computed only from tickers within the Baizora universe (S&amp;P 500 + Nasdaq-100). This skews sector averages upward relative to the full market — the universe is dominated by large-cap and growth companies. The market-cap weighted harmonic mean mitigates this by anchoring the average to the largest companies' valuations, which approximate the sector index experience.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SERVICES ── -->
+    <div class="doc-section" id="services">
+      <div class="section-label">12 — Services &amp; Infrastructure</div>
+      <h2>Service Stack</h2>
+      <p>Baizora is built entirely on managed cloud services with no dedicated servers. The architecture is designed so that user traffic volume does not meaningfully increase infrastructure cost.</p>
+
+      <table class="data-table">
+        <thead>
+          <tr><th>Service</th><th>Role</th><th>Plan / Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>GitHub Pages</td><td>Static site hosting + global CDN for all HTML/JS/CSS and <code>data/latest.json</code></td><td>Free</td></tr>
+          <tr><td>GitHub Actions</td><td>Nightly scanner cron (5 PM / 6 PM / 7 PM / 11 PM ET weekdays), video generation, archive push</td><td>Free (2,000 min/month)</td></tr>
+          <tr><td>scanner-archive repo</td><td>Permanent gzipped CSV archive (1 file/day from 11 PM run) for data quality audit trail</td><td>Free (private repo)</td></tr>
+          <tr><td>Google Cloud Functions</td><td><code>/api/iex-quotes</code> live price endpoint; <code>/api/subscription</code> auth check</td><td>Blaze pay-as-you-go (~$0.10/month)</td></tr>
+          <tr><td>Firebase Auth</td><td>User authentication (email/password)</td><td>Free up to 50,000 MAU</td></tr>
+          <tr><td>Stripe</td><td>Subscription billing ($9.99/month or $99/year); 7-day free trial</td><td>2.9% + $0.30 per transaction</td></tr>
+          <tr><td>Tiingo</td><td>EOD OHLCV data + company metadata for 516 tickers; IEX live quotes for homepage</td><td>Commercial license</td></tr>
+          <tr><td>SEC EDGAR</td><td>EPS (TTM diluted GAAP), shares outstanding, SIC sector, company name</td><td>Free (public API)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Scalability</h3>
+      <p><strong>GitHub Pages</strong> is served via Fastly CDN with no concurrent user limit for static files. The soft bandwidth limit is 100 GB/month — at ~5 MB per <code>latest.json</code> load, that supports roughly 20,000 full page loads per month. Repeat visitors do not re-download HTML/CSS/JS (browser-cached), so the effective limit is much higher in practice. GitHub does not charge for Pages bandwidth.</p>
+
+      <p><strong>Google Cloud Functions</strong> free tier covers 2,000,000 invocations/month. The <code>/api/iex-quotes</code> endpoint uses a <strong>60-second in-memory cache</strong> — regardless of how many users are on the homepage simultaneously, the function is invoked at most once per minute (~31,680 calls/month), well within the free tier. EDGAR and Tiingo are only called by GitHub Actions (nightly batch) and are entirely decoupled from user traffic.</p>
+
+      <p><strong>Firebase Auth</strong> is free up to 50,000 monthly active users on the Blaze plan.</p>
+
+      <h3>Cost at Scale</h3>
+      <div class="card">
+        <p style="margin-bottom:12px;"><strong>At 1,000 daily active users:</strong></p>
+        <ul>
+          <li>GitHub Pages: <strong>$0</strong></li>
+          <li>Google Cloud Functions: <strong>$0</strong> (well within free tier)</li>
+          <li>Firebase Auth: <strong>$0</strong></li>
+          <li>Total infrastructure: <strong>~$1–2/month</strong> (unchanged from current)</li>
+          <li>Stripe fees: <strong>~$32/month</strong> if 10% convert to paid (~100 subscribers × $9.99)</li>
+          <li>Net revenue at 10% conversion: <strong>~$967/month</strong></li>
+        </ul>
+      </div>
+
+      <h3>When Architecture Would Need to Change</h3>
+      <ul>
+        <li><strong>Real-time sub-second price streaming</strong> — would require a WebSocket service. Current 60-second polling is intentional and sufficient for the product.</li>
+        <li><strong>Sustained traffic exceeding 100 GB/month</strong> on GitHub Pages — mitigation is simple: gzip <code>latest.json</code> server-side (~10× size reduction to ~500 KB).</li>
+      </ul>
+      <p>Neither scenario is relevant at current scale.</p>
     </div>
 
     <div class="divider"></div>
