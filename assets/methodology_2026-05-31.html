@@ -292,6 +292,19 @@ PriceVsMA21    = Close[t] / mean(Close[t-20 … t])
 VolumeVsMA21   = Volume[t] / mean(Volume[t-20 … t])
         </div>
         <p><code>PriceVsMA21</code> and <code>VolumeVsMA21</code> are ratios (1.0 = exactly at the 21-day moving average). Values above 1.0 indicate the current day is above the recent average.</p>
+        <h4>Live Price &amp; 1D Change (dashboard only)</h4>
+        <p>The authenticated dashboard refreshes the <strong>PRICE</strong> and <strong>1D P CHG%</strong> columns every 60 seconds using Tiingo IEX real-time quotes. The live change is computed as:</p>
+        <div class="formula">
+1D P CHG% (live) = (IEX_last − scanClose) / scanClose × 100
+        </div>
+        <p>where <code>scanClose</code> is the prior-night's closing price from <code>latest.json</code>. The IEX <code>prevClose</code> field is deliberately not used because it can be stale or unadjusted on split days.</p>
+        <h4>Stock Split Correction</h4>
+        <p>On forward-split effective dates, Tiingo IEX immediately returns the post-split price while <code>latest.json</code> still holds the pre-split close. Without correction, this causes a large artificial negative 1D change. The dashboard corrects this automatically:</p>
+        <ul>
+          <li><code>data/splits.json</code> is fetched at dashboard load. It contains any forward splits (ratio ≥ 2) from the last 6 months, sourced from the Tiingo <code>/tiingo/daily/{ticker}/splits</code> endpoint and refreshed every nightly scan and every weekend midnight EDGAR run.</li>
+          <li>For each ticker in the split table, the dashboard checks whether the observed ratio <code>scanClose / IEX_last ≈ splitRatio (±20%)</code>. If so, it adjusts the reference price to <code>scanClose / splitRatio</code> before computing the change.</li>
+          <li>Once the nightly scanner runs after the split, <code>latest.json</code> is updated to the post-split close and the ratio becomes ≈ 1, so the correction self-disables automatically — no manual intervention required.</li>
+        </ul>
       </div>
 
       <div id="period">
@@ -405,6 +418,7 @@ EPS_USD = EPS_local × FX_rate   <span class="comment">(e.g. ASML: €19.90 × 1
               <tr><td>BRK-B</td><td>EDGAR EPS ÷ 1500</td><td>EDGAR reports Berkshire EPS at Class A share level; Class B is 1/1500th of Class A</td></tr>
               <tr><td>BKNG</td><td>EDGAR EPS ÷ 25 (if EPS &gt; 25)</td><td>25-for-1 stock split April 2026; EDGAR filings pre-split show EPS ~$150–170. Guard auto-disables once post-split 10-Q is filed (~Q2 2026)</td></tr>
               <tr><td>CVNA</td><td>EDGAR EPS ÷ 5 (if EPS &gt; 4)</td><td>5-for-1 stock split May 2026; EDGAR filings pre-split show EPS ~$10. Guard auto-disables once post-split 10-Q is filed (~Q2 2026)</td></tr>
+              <tr><td>KLAC</td><td>EDGAR EPS ÷ 10 (if EPS &gt; 10)</td><td>10-for-1 stock split June 2026; EDGAR filings pre-split show EPS ~$25–30. EDGAR already updated with post-split share count (~1.3B). Guard auto-disables once post-split 10-Q is filed</td></tr>
               <tr><td>CCEP, FER, TRI, ASML, PDD</td><td>EPS = null</td><td>Foreign IFRS filers; no US-GAAP EPS concepts in EDGAR XBRL</td></tr>
               <tr><td>V (Visa)</td><td>EPS = null</td><td>No XBRL EPS data in EDGAR for this ticker</td></tr>
               <tr><td>ERIE, ARES, KKR, STZ, ARM</td><td>EPS = null</td><td>EDGAR data unavailable or insufficient at time of last fundamentals refresh</td></tr>

@@ -112,6 +112,7 @@ jobs:
           cp data/sp500_symbols.txt    "$TMPBAK/" 2>/dev/null || true
           cp data/nasdaq100_symbols.txt "$TMPBAK/" 2>/dev/null || true
           cp data/fundamentals_cache.json "$TMPBAK/" 2>/dev/null || true
+          cp data/splits.json           "$TMPBAK/" 2>/dev/null || true
           find archive -name "results_*.csv" -exec cp {} "$TMPBAK/" \; 2>/dev/null || true
           find archive -name "compare_*.log" -exec cp {} "$TMPBAK/" \; 2>/dev/null || true
 
@@ -127,6 +128,7 @@ jobs:
           cp "$TMPBAK/sp500_symbols.txt"     data/ 2>/dev/null || true
           cp "$TMPBAK/nasdaq100_symbols.txt" data/ 2>/dev/null || true
           cp "$TMPBAK/fundamentals_cache.json" data/ 2>/dev/null || true
+          cp "$TMPBAK/splits.json"           data/ 2>/dev/null || true
           find "$TMPBAK" -name "results_*.csv" -exec cp {} archive/ \; 2>/dev/null || true
           find "$TMPBAK" -name "compare_*.log" -exec cp {} archive/ \; 2>/dev/null || true
 
@@ -140,6 +142,7 @@ jobs:
           git add data/sp500_symbols.txt               2>/dev/null || true
           git add data/nasdaq100_symbols.txt           2>/dev/null || true
           git add data/fundamentals_cache.json         2>/dev/null || true
+          git add data/splits.json                     2>/dev/null || true
           # results_*.csv are pushed gzipped to scanner-archive repo, not committed here
           git add -f archive/compare_*.log             2>/dev/null || true
           git add archive/worklog.md                   2>/dev/null || true

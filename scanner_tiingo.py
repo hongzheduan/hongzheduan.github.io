@@ -836,6 +836,56 @@ def get_trading_days(from_date, to_date):
     return days
 
 
+SPLITS_PATH = os.path.join(DATA_DIR, "splits.json")
+
+def update_splits_file(tickers, lookback_days=180, sleep_time=0.1):
+    """
+    Query Tiingo splits endpoint for all tickers and write data/splits.json.
+    Only runs in the full nightly scan (not SKIP_EDGAR runs).
+    Tiingo splitFactor: ratio of new shares to old (10 for 10:1 split).
+    If < 1 (some APIs invert it), we take 1/factor to normalize to >1.
+    """
+    lookback_start = (datetime.now() - timedelta(days=lookback_days)).strftime("%Y-%m-%d")
+
+    existing = {}
+    if os.path.exists(SPLITS_PATH):
+        try:
+            with open(SPLITS_PATH) as f:
+                existing = json.load(f)
+        except Exception:
+            existing = {}
+
+    splits = {}
+    print(f"Fetching split history for {len(tickers)} tickers since {lookback_start} …")
+    for i, ticker in enumerate(tickers, 1):
+        tiingo_tk = _to_tiingo_ticker(TICKER_ALIASES.get(ticker, ticker))
+        data = _tiingo_get(f"/tiingo/daily/{tiingo_tk}/splits",
+                           params={"startDate": lookback_start})
+        if isinstance(data, list):
+            for item in data:
+                d = _parse_tiingo_date(item.get("date", ""))
+                factor = item.get("splitFactor")
+                if not d or factor is None:
+                    continue
+                ratio = float(factor)
+                if 0 < ratio < 1:
+                    ratio = 1 / ratio      # normalize: some APIs express as price multiplier
+                ratio = round(ratio)
+                if ratio >= 2:             # ignore reverse splits and rounding noise
+                    # keep latest split within lookback window
+                    if ticker not in splits or d > splits[ticker]["date"]:
+                        splits[ticker] = {"ratio": ratio, "date": d}
+        if i % 100 == 0:
+            print(f"  … splits {i}/{len(tickers)}")
+        time.sleep(sleep_time)
+
+    os.makedirs(DATA_DIR, exist_ok=True)
+    with open(SPLITS_PATH, "w") as f:
+        json.dump(splits, f, indent=2)
+    print(f"splits.json written: {len(splits)} split(s) found in last {lookback_days} days.")
+    return splits
+
+
 def build_ohlcv_cache(tickers, from_date, sleep_time=0.15):
     """
     Ensure every ticker has an up-to-date per-ticker cache file.
@@ -1831,6 +1881,11 @@ def scan():
 
     # Build / update per-ticker OHLCV cache
     build_ohlcv_cache(tickers, from_date)
+
+    # Fetch Tiingo split history and write data/splits.json
+    # Runs on full scan AND weekend EDGAR-only runs (splits announced well before effective date)
+    if not SKIP_EDGAR or EDGAR_ONLY:
+        update_splits_file(tickers)
 
     # Load fundamentals (disk cache → EDGAR for missing)
     _load_fund_disk_cache(ignore_ttl=SKIP_EDGAR)

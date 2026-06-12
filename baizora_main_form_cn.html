@@ -1779,7 +1779,7 @@
       document.getElementById("modalName").textContent   = r.CompanyName || "";
       const liveP = _liveIex[ticker]?.last;
       document.getElementById("modalPrice").textContent = (liveP ?? r.Price) != null ? "$" + (liveP ?? r.Price).toFixed(2) : "";
-      const pc1 = _liveIex[ticker]?.chgPct ?? r.PriceChange1D;
+      const pc1 = r._liveChgPct ?? r.PriceChange1D;
       const pc1El = document.getElementById("modalPriceChange");
       if (pc1 != null) {
         pc1El.textContent = (pc1 >= 0 ? "+" : "") + pc1.toFixed(2) + "%";
@@ -1874,6 +1874,18 @@
     const _prevDashPrices = {};
     const _liveIex = {};
 
+    // Split adjustments loaded from data/splits.json (written nightly by scanner).
+    // Keyed by ticker → ratio (e.g. KLAC: 10 for 10-for-1 split).
+    let _SPLIT_ADJ = {};
+    fetch('data/splits.json').then(r => r.ok ? r.json() : {}).then(data => {
+      const cutoff = new Date();
+      cutoff.setMonth(cutoff.getMonth() - 6);
+      const cutoffStr = cutoff.toISOString().slice(0, 10);
+      Object.entries(data).forEach(([t, v]) => {
+        if (v.ratio >= 2 && v.date >= cutoffStr) _SPLIT_ADJ[t] = v.ratio;
+      });
+    }).catch(() => {});
+
     function isMarketOpen() {
       try {
         const et = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
@@ -1904,11 +1916,19 @@
       });
 
       // Persist live price + direction + chgPct on row objects so render() picks them up
+      // Use authoritative scan close for chgPct, with explicit split adjustments for known splits.
+      // Auto-heals once the nightly scanner updates r.Price to the post-split close.
+      const correctedChgPct = {};
       allRows.forEach(r => {
         const d = q[r.Ticker]; if (!d?.last) return;
         r._livePrice   = d.last;
         r._priceDir    = dirs[r.Ticker] || '';
-        if (d.chgPct != null) r._liveChgPct = d.chgPct;
+        const ratio = _SPLIT_ADJ[r.Ticker];
+        const obsRatio = (ratio && r.Price && d.last) ? r.Price / d.last : 0;
+        const refPrice = (obsRatio > ratio * 0.8 && obsRatio < ratio * 1.2) ? r.Price / ratio : r.Price;
+        const chg = refPrice ? +((d.last - refPrice) / refPrice * 100).toFixed(2) : (d.chgPct ?? null);
+        r._liveChgPct = chg;
+        if (chg != null) correctedChgPct[r.Ticker] = chg;
       });
 
       document.querySelectorAll('td.ticker-cell[data-ticker]').forEach(tc => {
@@ -1922,9 +1942,10 @@
 
       // Surgical 1D P CHG% update
       document.querySelectorAll('td.chg1d-cell[data-ticker]').forEach(tc => {
-        const d = q[tc.dataset.ticker]; if (d?.chgPct == null) return;
-        tc.textContent = (d.chgPct >= 0 ? '+' : '') + d.chgPct + '%';
-        tc.className = tc.className.replace(/\b(positive|negative|neutral)\b/, d.chgPct > 0 ? 'positive' : d.chgPct < 0 ? 'negative' : 'neutral');
+        const chgPct = correctedChgPct[tc.dataset.ticker];
+        if (chgPct == null) return;
+        tc.textContent = (chgPct >= 0 ? '+' : '') + chgPct + '%';
+        tc.className = tc.className.replace(/\b(positive|negative|neutral)\b/, chgPct > 0 ? 'positive' : chgPct < 0 ? 'negative' : 'neutral');
       });
 
       const todayET = new Date().toLocaleDateString('en-CA', {timeZone:'America/New_York'});

@@ -38,6 +38,7 @@ Dashboard free for any logged-in user (no subscription check).
 - `BRK-B`: Berkshire stopped tagging EPS in EDGAR XBRL after 2013. Quarterly date filter (`end >= today-2yr`) correctly returns `eps=None` — no stale Class A data. BRK-B does not appear in PE/EPS display.
 - `BKNG`: 25-for-1 stock split April 2026 → divide by 25. Guard `eps > 25` auto-disables once Q2 2026 10-Q is filed (~Aug 2026) with post-split EPS.
 - `CVNA`: 5-for-1 stock split May 2026 (2026-05-08). Q1 2026 10-Q filed 2026-04-29 (pre-split). Guard: `eps > 4 → eps / 5`. Auto-disables once Q2 2026 10-Q (post-split) is filed (~Aug 2026).
+- `KLAC`: 10-for-1 stock split 2026-06-12. Guard: `eps > 10 → eps / 10`. EDGAR already shows post-split shares (~1.3B). Auto-disables once Q4 FY2026 10-K or next 10-Q is filed with post-split EPS.
 - Foreign IFRS filers (CCEP, FER, TRI, ASML, PDD): no US-GAAP EPS in EDGAR → None
 - Visa (V): no XBRL EPS data at all in EDGAR → None
 
@@ -397,6 +398,31 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
 - **Rule:** Any fix to EPS/shares/fundamentals code → wipe `data/fundamentals_cache.json` immediately (write `{}`), commit together with the fix. Never debug "why isn't my fix working" — the answer is always the stale cache.
 - **Users unaffected** — they see `latest.json` which only updates after scan finishes.
 - **Cache stores raw EDGAR values.** SHARES_OUTSTANDING_OVERRIDE lambda is applied at scan time, not stored in cache.
+
+---
+
+## What Was Done 2026-06-12
+
+### Stock Split Handling — Automated Split Detection & Live Price Correction
+
+**Problem:** KLAC had a 10-for-1 forward split on 2026-06-12. Tiingo IEX live quotes immediately returned the post-split price (~$247), but `latest.json` still held the pre-split close ($2411.64) from the previous night's scan. The dashboard's 1D P CHG% computation (`(livePrice - scanClose) / scanClose`) showed -89.88% instead of the correct ~+2.6%.
+
+**Root cause of `chgPct` computation:** The code was using Tiingo IEX's `prevClose` field (unreliable on split day) to calculate the daily change. Fixed to always use the authoritative scan close `r.Price` from `latest.json`.
+
+**Fix — `data/splits.json` (automated):**
+- New file `data/splits.json` created by `update_splits_file()` in `scanner_tiingo.py`. Format: `{"TICKER": {"ratio": N, "date": "YYYY-MM-DD"}, ...}`.
+- Tiingo endpoint: `GET /tiingo/daily/{ticker}/splits?startDate=...` (6-month lookback). Field: `splitFactor`. Normalized: if `< 1` (price adjustment factor), takes reciprocal to get forward ratio. Rounds to nearest integer; only ratio ≥ 2 recorded.
+- Runs on: every full nightly scan (11 PM weekdays) AND every weekend midnight EDGAR-only run (splits are announced well before effective date → advance notice in `splits.json` before market open).
+- `data/splits.json` is backed up, restored, committed, and git-added in `scanner.yml` alongside `latest.json`.
+
+**Fix — Dashboard live price correction (`baizora_main_form.html` + `_cn.html`):**
+- `_SPLIT_ADJ` is now populated dynamically from `data/splits.json` on page load (async fetch at startup).
+- **Auto-heal logic:** for each ticker in `_SPLIT_ADJ`, compute `obsRatio = r.Price / d.last` (scan close ÷ live price). If `obsRatio ≈ split ratio (±20%)`, the scan close is pre-split → use `r.Price / ratio` as reference price for `chgPct`. If `obsRatio ≈ 1` (i.e., after tonight's scanner runs and updates `latest.json` to post-split price), the adjustment self-disables automatically — no manual intervention needed.
+- The corrected `chgPct` is applied to both the table's 1D P CHG% column and the modal's `pc1` field.
+
+**KLAC EPS guard (pre-existing, unchanged):** `if ticker == "KLAC" and eps > 10: eps = round(eps / 10, 4)`. EDGAR already had post-split shares (~1.3B). Market cap and PE auto-correct after tonight's scan when Tiingo returns post-split price ~$247.
+
+**Design principle:** No generic percentage-based sanity check (e.g., block changes > 40%). That would hide real crashes. Instead: explicit per-ticker split ratio from verified Tiingo data, with two-sided `obsRatio` check that self-disables once the scanner catches up.
 
 ---
 
