@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-06-12
 Threshold: >10% for all metrics
-274 flagged diffs above threshold
+272 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -113,13 +113,13 @@ MKTCAP  -- 7 flagged (>10%)
     ESS      ours=$18.03B  yf=$19.34B  diff=6.8%
 
 ------------------------------------------------------------
-PE  -- 24 flagged (>10%)
-  FLAGGED (top 20 of 24):
+PE  -- 23 flagged (>10%)
+  FLAGGED (top 20 of 23):
     TPL      ours=97.250  yf=50.762  diff=91.6% ***
     KKR      ours=61.090  yf=32.415  diff=88.5% ***
     OXY      ours=13.970  yf=74.959  diff=81.4% ***
     ALNY     ours=127.480  yf=72.529  diff=75.8% ***
-    MLM      ours=13.480  yf=35.524  diff=62.1% ***
+    MLM      ours=13.480  yf=35.457  diff=62.0% ***
     NWS      ours=15.060  yf=38.139  diff=60.5% ***
     NWSA     ours=13.150  yf=33.285  diff=60.5% ***
     BDX      ours=37.300  yf=25.716  diff=45.0% ***
@@ -140,7 +140,7 @@ PE  -- 24 flagged (>10%)
     KKR      ours=61.090  yf=32.415  diff=88.5% ***
     OXY      ours=13.970  yf=74.959  diff=81.4% ***
     ALNY     ours=127.480  yf=72.529  diff=75.8% ***
-    MLM      ours=13.480  yf=35.524  diff=62.1% ***
+    MLM      ours=13.480  yf=35.457  diff=62.0% ***
     NWS      ours=15.060  yf=38.139  diff=60.5% ***
     NWSA     ours=13.150  yf=33.285  diff=60.5% ***
     BDX      ours=37.300  yf=25.716  diff=45.0% ***
@@ -148,13 +148,13 @@ PE  -- 24 flagged (>10%)
     TXT      ours=11.430  yf=17.891  diff=36.1% ***
 
 ------------------------------------------------------------
-EPS  -- 35 flagged (>10%)
-  FLAGGED (top 20 of 35):
+EPS  -- 34 flagged (>10%)
+  FLAGGED (top 20 of 34):
     PSKY     ours=-0.700  yf=0.030  diff=2433.3% ***
     OXY      ours=3.970  yf=0.740  diff=436.5% ***
     NFLX     ours=-2.850  yf=3.100  diff=191.9% ***
     GPN      ours=-2.030  yf=2.720  diff=174.6% ***
-    MLM      ours=41.960  yf=15.920  diff=163.6% ***
+    MLM      ours=41.960  yf=15.950  diff=163.1% ***
     NWS      ours=2.000  yf=0.790  diff=153.2% ***
     NWSA     ours=2.000  yf=0.790  diff=153.2% ***
     DD       ours=-0.060  yf=0.380  diff=115.8% ***
@@ -175,7 +175,7 @@ EPS  -- 35 flagged (>10%)
     OXY      ours=3.970  yf=0.740  diff=436.5% ***
     NFLX     ours=-2.850  yf=3.100  diff=191.9% ***
     GPN      ours=-2.030  yf=2.720  diff=174.6% ***
-    MLM      ours=41.960  yf=15.920  diff=163.6% ***
+    MLM      ours=41.960  yf=15.950  diff=163.1% ***
     NWS      ours=2.000  yf=0.790  diff=153.2% ***
     NWSA     ours=2.000  yf=0.790  diff=153.2% ***
     DD       ours=-0.060  yf=0.380  diff=115.8% ***
