@@ -716,7 +716,8 @@ SHARES_OUTSTANDING_OVERRIDE = {
     "BX":   1_222_000_000,  # permanent: Class A 742M + Blackstone Holdings LP units
     # Conditional (lambda): uses override only while EDGAR lags; auto-heals once 10-Q is filed
     "DVN":  lambda s: 1_153_000_000 if (s or 0) < 800_000_000 else s,  # Coterra merger May 2026; EDGAR pre-merger ~621M; heals after Q2 2026 10-Q
-    "CVNA": lambda s: (s or 0) * 5 if (s or 0) < 250_000_000 else s,   # 5-for-1 split May 2026; EDGAR pre-split ~219M Class A; heals after Q2 2026 10-Q
+    "CVNA": lambda s: (s or 0) * 5  if (s or 0) < 250_000_000 else s,   # 5-for-1 split May 2026; EDGAR pre-split ~219M Class A; heals after Q2 2026 10-Q
+    "KLAC": lambda s: (s or 0) * 10 if (s or 0) < 500_000_000 else s,   # 10-for-1 split Jun 2026; EDGAR pre-split ~130.6M; heals after Q2 2026 10-Q
 }
 
 
@@ -2400,6 +2401,7 @@ def compare_with_yfinance(df):
         "  BX     1,222,000,000  (Class A 742M + Blackstone Holdings LP units)",
         "  DVN    1,153,000,000  (Coterra merger May 2026 doubled shares; EDGAR XBRL lags until Q2 2026 10-Q ~Aug 2026)",
         "  CVNA   shares × 5    (5-for-1 split May 2026; EDGAR pre-split ~219M Class A; heals after Q2 2026 10-Q ~Aug 2026)",
+        "  KLAC   shares × 10   (10-for-1 split Jun 2026; EDGAR pre-split ~130.6M; heals after Q2 2026 10-Q ~Aug 2026)",
         "",
         "VOLUME — systematic offset:",
         "  Tiingo EOD volume includes extended-hours (pre/after market).",
