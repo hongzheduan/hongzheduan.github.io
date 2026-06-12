@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-06-12
 Threshold: >10% for all metrics
-585 flagged diffs above threshold
+584 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -44,113 +44,114 @@ VOLUME — systematic offset:
 ------------------------------------------------------------
 PRICE  -- 2 flagged (>10%)
   FLAGGED (top 2 of 2):
-    KLAC     ours=2411.64  yf=248.74  diff=869.5% ***
-    SATS     ours=128.13  yf=111.81  diff=14.6% ***
+    KLAC     ours=2411.64  yf=246.98  diff=876.5% ***
+    SATS     ours=128.13  yf=107.92  diff=18.7% ***
   TOP 10 LARGEST DIFF:
-    KLAC     ours=2411.64  yf=248.74  diff=869.5% ***
-    SATS     ours=128.13  yf=111.81  diff=14.6% ***
-    ARM      ours=342.23  yf=377.42  diff=9.3%
-    ADBE     ours=218.80  yf=202.72  diff=7.9%
-    ALB      ours=159.06  yf=170.85  diff=6.9%
-    MOS      ours=21.09  yf=22.55  diff=6.5%
-    FDXF     ours=180.00  yf=169.29  diff=6.3%
-    COHR     ours=363.58  yf=386.49  diff=5.9%
-    STX      ours=868.09  yf=921.12  diff=5.8%
-    HPE      ours=46.80  yf=49.43  diff=5.3%
+    KLAC     ours=2411.64  yf=246.98  diff=876.5% ***
+    SATS     ours=128.13  yf=107.92  diff=18.7% ***
+    ADBE     ours=218.80  yf=202.69  diff=7.9%
+    ARM      ours=342.23  yf=368.36  diff=7.1%
+    FDXF     ours=180.00  yf=168.52  diff=6.8%
+    ALB      ours=159.06  yf=170.54  diff=6.7%
+    MOS      ours=21.09  yf=22.54  diff=6.4%
+    CVNA     ours=67.82  yf=63.87  diff=6.2%
+    SMCI     ours=31.97  yf=30.18  diff=5.9%
+    COHR     ours=363.58  yf=385.40  diff=5.7%
 
 ------------------------------------------------------------
-VOLUME  -- 515 flagged (>10%)
-  FLAGGED (top 20 of 515):
-    KIM      ours=17.41  yf=1.12  diff=1449.4% ***
-    NXPI     ours=5.12  yf=0.39  diff=1202.2% ***
-    NDSN     ours=0.46  yf=0.04  diff=1023.3% ***
-    SWKS     ours=4.75  yf=0.43  diff=1001.1% ***
-    DGX      ours=1.08  yf=0.10  diff=1000.8% ***
-    LYV      ours=3.16  yf=0.30  diff=950.0% ***
-    KDP      ours=28.69  yf=2.77  diff=936.0% ***
-    ALGN     ours=1.03  yf=0.10  diff=907.1% ***
-    WRB      ours=2.73  yf=0.29  diff=839.9% ***
-    CINF     ours=1.28  yf=0.14  diff=839.2% ***
-    FDS      ours=0.93  yf=0.10  diff=836.8% ***
-    TYL      ours=1.20  yf=0.13  diff=808.3% ***
-    MSI      ours=0.99  yf=0.11  diff=785.2% ***
-    TECH     ours=2.66  yf=0.30  diff=784.2% ***
-    IR       ours=4.30  yf=0.49  diff=776.2% ***
-    SRE      ours=4.15  yf=0.48  diff=768.5% ***
-    MCHP     ours=15.47  yf=1.81  diff=753.4% ***
-    FOXA     ours=3.31  yf=0.39  diff=741.6% ***
-    AIG      ours=4.23  yf=0.50  diff=738.1% ***
-    GNRC     ours=0.99  yf=0.12  diff=731.5% ***
+VOLUME  -- 513 flagged (>10%)
+  FLAGGED (top 20 of 513):
+    NXPI     ours=5.12  yf=0.45  diff=1041.2% ***
+    KIM      ours=17.41  yf=1.55  diff=1021.2% ***
+    DGX      ours=1.08  yf=0.11  diff=917.9% ***
+    NDSN     ours=0.46  yf=0.05  diff=906.2% ***
+    KDP      ours=28.69  yf=3.01  diff=853.8% ***
+    SWKS     ours=4.75  yf=0.50  diff=850.9% ***
+    LYV      ours=3.16  yf=0.34  diff=818.0% ***
+    ALGN     ours=1.03  yf=0.11  diff=812.2% ***
+    CINF     ours=1.28  yf=0.15  diff=756.5% ***
+    FDS      ours=0.93  yf=0.11  diff=723.2% ***
+    WRB      ours=2.73  yf=0.34  diff=704.1% ***
+    IR       ours=4.30  yf=0.54  diff=696.5% ***
+    SRE      ours=4.15  yf=0.53  diff=679.5% ***
+    TYL      ours=1.20  yf=0.15  diff=674.8% ***
+    FOXA     ours=3.31  yf=0.43  diff=665.3% ***
+    MSI      ours=0.99  yf=0.13  diff=661.4% ***
+    AIG      ours=4.23  yf=0.56  diff=660.6% ***
+    ALLE     ours=1.48  yf=0.20  diff=653.1% ***
+    GNRC     ours=0.99  yf=0.13  diff=648.5% ***
+    WELL     ours=3.81  yf=0.51  diff=642.8% ***
   TOP 10 LARGEST DIFF:
-    KIM      ours=17.41  yf=1.12  diff=1449.4% ***
-    NXPI     ours=5.12  yf=0.39  diff=1202.2% ***
-    NDSN     ours=0.46  yf=0.04  diff=1023.3% ***
-    SWKS     ours=4.75  yf=0.43  diff=1001.1% ***
-    DGX      ours=1.08  yf=0.10  diff=1000.8% ***
-    LYV      ours=3.16  yf=0.30  diff=950.0% ***
-    KDP      ours=28.69  yf=2.77  diff=936.0% ***
-    ALGN     ours=1.03  yf=0.10  diff=907.1% ***
-    WRB      ours=2.73  yf=0.29  diff=839.9% ***
-    CINF     ours=1.28  yf=0.14  diff=839.2% ***
+    NXPI     ours=5.12  yf=0.45  diff=1041.2% ***
+    KIM      ours=17.41  yf=1.55  diff=1021.2% ***
+    DGX      ours=1.08  yf=0.11  diff=917.9% ***
+    NDSN     ours=0.46  yf=0.05  diff=906.2% ***
+    KDP      ours=28.69  yf=3.01  diff=853.8% ***
+    SWKS     ours=4.75  yf=0.50  diff=850.9% ***
+    LYV      ours=3.16  yf=0.34  diff=818.0% ***
+    ALGN     ours=1.03  yf=0.11  diff=812.2% ***
+    CINF     ours=1.28  yf=0.15  diff=756.5% ***
+    FDS      ours=0.93  yf=0.11  diff=723.2% ***
 
 ------------------------------------------------------------
-MKTCAP  -- 9 flagged (>10%)
-  FLAGGED (top 9 of 9):
-    KLAC     ours=$3150.27B  yf=$324.92B  diff=869.5% ***
-    CHTR     ours=$17.11B  yf=$22.20B  diff=22.9% ***
-    PCG      ours=$45.00B  yf=$37.27B  diff=20.7% ***
-    SPG      ours=$69.68B  yf=$83.59B  diff=16.6% ***
-    SATS     ours=$37.13B  yf=$32.41B  diff=14.6% ***
-    UDR      ours=$12.71B  yf=$14.60B  diff=12.9% ***
-    ERIE     ours=$10.44B  yf=$11.94B  diff=12.5% ***
-    CCL      ours=$34.84B  yf=$39.80B  diff=12.5% ***
-    BXP      ours=$10.56B  yf=$11.86B  diff=11.0% ***
+MKTCAP  -- 10 flagged (>10%)
+  FLAGGED (top 10 of 10):
+    KLAC     ours=$3150.27B  yf=$322.62B  diff=876.5% ***
+    CHTR     ours=$17.11B  yf=$22.15B  diff=22.8% ***
+    PCG      ours=$45.00B  yf=$37.36B  diff=20.4% ***
+    SATS     ours=$37.13B  yf=$31.28B  diff=18.7% ***
+    SPG      ours=$69.68B  yf=$83.54B  diff=16.6% ***
+    UDR      ours=$12.71B  yf=$14.59B  diff=12.9% ***
+    ERIE     ours=$10.44B  yf=$11.90B  diff=12.3% ***
+    CCL      ours=$34.84B  yf=$39.57B  diff=11.9% ***
+    BXP      ours=$10.56B  yf=$11.85B  diff=10.9% ***
+    WDAY     ours=$34.79B  yf=$31.53B  diff=10.3% ***
   TOP 10 LARGEST DIFF:
-    KLAC     ours=$3150.27B  yf=$324.92B  diff=869.5% ***
-    CHTR     ours=$17.11B  yf=$22.20B  diff=22.9% ***
-    PCG      ours=$45.00B  yf=$37.27B  diff=20.7% ***
-    SPG      ours=$69.68B  yf=$83.59B  diff=16.6% ***
-    SATS     ours=$37.13B  yf=$32.41B  diff=14.6% ***
-    UDR      ours=$12.71B  yf=$14.60B  diff=12.9% ***
-    ERIE     ours=$10.44B  yf=$11.94B  diff=12.5% ***
-    CCL      ours=$34.84B  yf=$39.80B  diff=12.5% ***
-    BXP      ours=$10.56B  yf=$11.86B  diff=11.0% ***
-    ARM      ours=$364.15B  yf=$403.11B  diff=9.7%
+    KLAC     ours=$3150.27B  yf=$322.62B  diff=876.5% ***
+    CHTR     ours=$17.11B  yf=$22.15B  diff=22.8% ***
+    PCG      ours=$45.00B  yf=$37.36B  diff=20.4% ***
+    SATS     ours=$37.13B  yf=$31.28B  diff=18.7% ***
+    SPG      ours=$69.68B  yf=$83.54B  diff=16.6% ***
+    UDR      ours=$12.71B  yf=$14.59B  diff=12.9% ***
+    ERIE     ours=$10.44B  yf=$11.90B  diff=12.3% ***
+    CCL      ours=$34.84B  yf=$39.57B  diff=11.9% ***
+    BXP      ours=$10.56B  yf=$11.85B  diff=10.9% ***
+    WDAY     ours=$34.79B  yf=$31.53B  diff=10.3% ***
 
 ------------------------------------------------------------
 PE  -- 25 flagged (>10%)
   FLAGGED (top 20 of 25):
-    KLAC     ours=682.800  yf=70.665  diff=866.3% ***
-    KKR      ours=61.090  yf=33.361  diff=83.1% ***
-    TPL      ours=97.250  yf=53.263  diff=82.6% ***
-    OXY      ours=13.970  yf=77.183  diff=81.9% ***
-    ALNY     ours=127.480  yf=72.261  diff=76.4% ***
-    MLM      ours=13.480  yf=35.999  diff=62.6% ***
-    NWSA     ours=13.150  yf=33.203  diff=60.4% ***
-    NWS      ours=15.060  yf=37.759  diff=60.1% ***
-    BDX      ours=37.300  yf=25.442  diff=46.6% ***
-    JCI      ours=26.040  yf=44.361  diff=41.3% ***
-    TXT      ours=11.430  yf=17.605  diff=35.1% ***
-    HAL      ours=29.240  yf=21.961  diff=33.1% ***
-    LEN      ours=10.460  yf=14.223  diff=26.5% ***
-    BRK-B    ours=18.110  yf=14.500  diff=24.9% ***
-    WEC      ours=17.920  yf=22.698  diff=21.1% ***
-    STZ      ours=12.110  yf=15.240  diff=20.5% ***
-    BKNG     ours=25.990  yf=21.567  diff=20.5% ***
-    KMB      ours=15.940  yf=19.772  diff=19.4% ***
-    AMCR     ours=38.640  yf=32.380  diff=19.3% ***
-    CSGP     ours=544.170  yf=471.286  diff=15.5% ***
+    KLAC     ours=682.800  yf=70.165  diff=873.1% ***
+    KKR      ours=61.090  yf=32.917  diff=85.6% ***
+    TPL      ours=97.250  yf=53.228  diff=82.7% ***
+    OXY      ours=13.970  yf=77.101  diff=81.9% ***
+    ALNY     ours=127.480  yf=72.000  diff=77.1% ***
+    MLM      ours=13.480  yf=36.081  diff=62.6% ***
+    NWSA     ours=13.150  yf=32.975  diff=60.1% ***
+    NWS      ours=15.060  yf=37.544  diff=59.9% ***
+    BDX      ours=37.300  yf=25.361  diff=47.1% ***
+    JCI      ours=26.040  yf=44.202  diff=41.1% ***
+    TXT      ours=11.430  yf=17.612  diff=35.1% ***
+    HAL      ours=29.240  yf=21.994  diff=32.9% ***
+    LEN      ours=10.460  yf=14.215  diff=26.4% ***
+    BRK-B    ours=18.110  yf=14.489  diff=25.0% ***
+    WEC      ours=17.920  yf=22.764  diff=21.3% ***
+    BKNG     ours=25.990  yf=21.519  diff=20.8% ***
+    STZ      ours=12.110  yf=15.210  diff=20.4% ***
+    AMCR     ours=38.640  yf=32.332  diff=19.5% ***
+    KMB      ours=15.940  yf=19.778  diff=19.4% ***
+    CSGP     ours=544.170  yf=467.571  diff=16.4% ***
   TOP 10 LARGEST DIFF:
-    KLAC     ours=682.800  yf=70.665  diff=866.3% ***
-    KKR      ours=61.090  yf=33.361  diff=83.1% ***
-    TPL      ours=97.250  yf=53.263  diff=82.6% ***
-    OXY      ours=13.970  yf=77.183  diff=81.9% ***
-    ALNY     ours=127.480  yf=72.261  diff=76.4% ***
-    MLM      ours=13.480  yf=35.999  diff=62.6% ***
-    NWSA     ours=13.150  yf=33.203  diff=60.4% ***
-    NWS      ours=15.060  yf=37.759  diff=60.1% ***
-    BDX      ours=37.300  yf=25.442  diff=46.6% ***
-    JCI      ours=26.040  yf=44.361  diff=41.3% ***
+    KLAC     ours=682.800  yf=70.165  diff=873.1% ***
+    KKR      ours=61.090  yf=32.917  diff=85.6% ***
+    TPL      ours=97.250  yf=53.228  diff=82.7% ***
+    OXY      ours=13.970  yf=77.101  diff=81.9% ***
+    ALNY     ours=127.480  yf=72.000  diff=77.1% ***
+    MLM      ours=13.480  yf=36.081  diff=62.6% ***
+    NWSA     ours=13.150  yf=32.975  diff=60.1% ***
+    NWS      ours=15.060  yf=37.544  diff=59.9% ***
+    BDX      ours=37.300  yf=25.361  diff=47.1% ***
+    JCI      ours=26.040  yf=44.202  diff=41.1% ***
 
 ------------------------------------------------------------
 EPS  -- 34 flagged (>10%)
