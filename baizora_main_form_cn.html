@@ -1729,18 +1729,21 @@
       dates.forEach((d, i) => {
         const dt = new Date(d + 'T12:00:00');
         const mo = dt.getMonth(), yr = dt.getFullYear();
+        const isLast = i === n - 1;
         if (n < 100) {
-          if (i % Math.round(n / 6) !== 0) return;
-          ctx.fillStyle = "#64748b";
+          if (i % Math.round(n / 6) !== 0 && !isLast) return;
+          ctx.fillStyle = isLast ? "#94a3b8" : "#64748b";
           ctx.fillText(dt.toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" }), toX(i) + cndW / 2, H - 8);
         } else {
-          if (mo === lastMo) return;
-          lastMo = mo; moCount++;
-          if (n >= 200 && moCount % 2 === 0) return;
+          if (mo === lastMo && !isLast) return;
+          if (!isLast) { lastMo = mo; moCount++; }
+          if (n >= 200 && moCount % 2 === 0 && !isLast) return;
           const moName = dt.toLocaleDateString("zh-CN", { month: "short" });
-          const label  = yr !== lastYr ? `${moName}'${String(yr).slice(-2)}` : moName;
-          lastYr = yr;
-          ctx.fillStyle = "#64748b";
+          const label  = isLast
+            ? dt.toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" })
+            : (yr !== lastYr ? `${moName}'${String(yr).slice(-2)}` : moName);
+          if (!isLast) lastYr = yr;
+          ctx.fillStyle = isLast ? "#94a3b8" : "#64748b";
           ctx.fillText(label, toX(i) + cndW / 2, H - 8);
         }
       });
