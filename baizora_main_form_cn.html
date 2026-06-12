@@ -1815,10 +1815,10 @@
       document.body.style.overflow = "hidden";
 
       // reset timeframe to 3M on each open
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "252"));
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "63"));
 
       requestAnimationFrame(() => {
-        _renderModalChart(ticker, 252);
+        _renderModalChart(ticker, 63);
       });
     }
 
@@ -2018,9 +2018,9 @@
       </div>
       <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
       <div id="candleTimeframes">
-        <button class="tf-btn" data-tf="63">3月</button>
+        <button class="tf-btn active" data-tf="63">3月</button>
         <button class="tf-btn" data-tf="126">6月</button>
-        <button class="tf-btn active" data-tf="252">1年</button>
+        <button class="tf-btn" data-tf="252">1年</button>
       </div>
       <canvas id="candleCanvas"></canvas>
       <div id="candleNoData">暂无图表数据</div>
