@@ -1400,7 +1400,7 @@
         let priceChgDisplay, statsHTML;
 
         if (w === "SCORES") {
-          priceChgDisplay = `<span class="card-chg ${colorClass(pc1)}">${fmtP(pc1)}</span>`;
+          priceChgDisplay = `<span class="card-chg card-live-chg ${colorClass(pc1)}" data-ticker="${r.Ticker}">${fmtP(pc1)}</span>`;
           statsHTML = `
             <div class="card-row"><span class="card-label" style="color:#f59e0b;">Baizora</span><span class="card-val ${scoreClass(r.BaizScore, 50)}" style="font-weight:700;">${r.BaizScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label" style="color:#60a5fa;">Turn</span><span class="card-val ${turnFmt(r.TurnScore).cls}" style="font-weight:700;">${turnFmt(r.TurnScore).html}</span></div>
@@ -1413,14 +1413,14 @@
           const eps   = r.EPS;
           const mcap  = r.MarketCap;
           const peVs  = r.PE_vs_Sector;
-          priceChgDisplay = `<span class="card-chg ${colorClass(pc1)}">${fmtP(pc1)}</span>`;
+          priceChgDisplay = `<span class="card-chg card-live-chg ${colorClass(pc1)}" data-ticker="${r.Ticker}">${fmtP(pc1)}</span>`;
           statsHTML = `
             <div class="card-row"><span class="card-label">P/E</span><span class="card-val">${pe != null ? pe.toFixed(1) : "—"}</span></div>
             <div class="card-row"><span class="card-label">EPS</span><span class="card-val ${colorClass(eps)}">${eps != null ? eps.toFixed(2) : "—"}</span></div>
             <div class="card-row"><span class="card-label">Mkt Cap</span><span class="card-val">${mcap != null ? mcap.toFixed(1) + "B" : "—"}</span></div>
             <div class="card-row"><span class="card-label">PE/Sec</span><span class="card-val ${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</span></div>`;
         } else if (is1D) {
-          priceChgDisplay = `<span class="card-chg ${colorClass(pc1)}">${fmtP(pc1)}</span>`;
+          priceChgDisplay = `<span class="card-chg card-live-chg ${colorClass(pc1)}" data-ticker="${r.Ticker}">${fmtP(pc1)}</span>`;
           statsHTML = `
             <div class="card-row"><span class="card-label">Vol Chg</span><span class="card-val ${colorClass(vc1)}">${fmtP(vc1)}</span></div>
             <div class="card-row"><span class="card-label">P/MA21</span><span class="card-val ${colorClass(pma - 1)}">${fmtV(pma)}</span></div>
@@ -1443,7 +1443,7 @@
             <button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>
           </div>
           <div class="card-price-row">
-            <span class="card-price" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price) != null ? '$' + (r._livePrice ?? r.Price).toFixed(2) : '—'}</span>
+            <span class="card-price" data-ticker="${r.Ticker}" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price) != null ? '$' + (r._livePrice ?? r.Price).toFixed(2) : '—'}</span>
             ${priceChgDisplay}
           </div>
           <div class="card-stats">${statsHTML}</div>
@@ -1935,12 +1935,28 @@
         pc.style.color = dirs[t] === 'up' ? '#22c55e' : dirs[t] === 'dn' ? '#ef4444' : '';
       });
 
-      // Surgical 1D P CHG% update
+      // Surgical 1D P CHG% update (table)
       document.querySelectorAll('td.chg1d-cell[data-ticker]').forEach(tc => {
         const chgPct = correctedChgPct[tc.dataset.ticker];
         if (chgPct == null) return;
         tc.textContent = (chgPct >= 0 ? '+' : '') + chgPct + '%';
         tc.className = tc.className.replace(/\b(positive|negative|neutral)\b/, chgPct > 0 ? 'positive' : chgPct < 0 ? 'negative' : 'neutral');
+      });
+
+      // Surgical card price update (mobile)
+      document.querySelectorAll('span.card-price[data-ticker]').forEach(sp => {
+        const t = sp.dataset.ticker;
+        const d = q[t]; if (!d?.last) return;
+        sp.textContent = '$' + d.last.toFixed(2);
+        sp.style.color = dirs[t] === 'up' ? '#22c55e' : dirs[t] === 'dn' ? '#ef4444' : '';
+      });
+
+      // Surgical card 1D chg update (mobile — only spans showing pc1, not period windows)
+      document.querySelectorAll('span.card-live-chg[data-ticker]').forEach(sp => {
+        const chgPct = correctedChgPct[sp.dataset.ticker];
+        if (chgPct == null) return;
+        sp.textContent = (chgPct >= 0 ? '+' : '') + chgPct + '%';
+        sp.className = sp.className.replace(/\b(positive|negative|neutral)\b/, chgPct > 0 ? 'positive' : chgPct < 0 ? 'negative' : 'neutral');
       });
 
       // Update candleData for every ticker so modal sees current bars
