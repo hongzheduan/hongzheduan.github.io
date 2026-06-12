@@ -1659,7 +1659,8 @@
         candleData = d;
         // If refreshDashPrices() already ran before candles.json loaded,
         // _liveIex has data but candleData was null — inject today's bar now.
-        const todayET = new Date().toLocaleDateString('en-CA', {timeZone:'America/New_York'});
+        const _d = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+        const todayET = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
         if (Object.keys(_liveIex).length && candleData.dates[candleData.dates.length - 1] !== todayET) {
           Object.keys(candleData.data).forEach(t => {
             const bars = candleData.data[t]; if (!bars?.length) return;
@@ -1826,7 +1827,8 @@
       const canvas  = document.getElementById("candleCanvas");
       const noData  = document.getElementById("candleNoData");
       if (candles && candles.length > 0 && dates) {
-        const slice = Math.min(tf, candles.length);
+        const n = Math.min(candles.length, dates.length); // guard against any length mismatch
+        const slice = Math.min(tf, n);
         canvas.style.display = "block"; noData.style.display = "none";
         renderCandleChart(canvas, candles.slice(-slice), dates.slice(-slice));
       } else {
@@ -1963,20 +1965,19 @@
       });
 
       // Update candleData for every ticker so modal sees current bars
-      const todayET = new Date().toLocaleDateString('en-CA', {timeZone:'America/New_York'});
+      const _d = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+      const todayET = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
       if (candleData?.data && candleData.dates) {
         const lastDate = candleData.dates[candleData.dates.length - 1];
         const isToday  = lastDate === todayET;
         if (isToday) {
+          // Scanner already wrote today's OHLCV; only update the close (live price).
+          // Updating open/high/low/volume from IEX can corrupt the scanner's
+          // accurate regular-session data with premarket/extended-hours values.
           tickers.forEach(t => {
             const d = q[t]; if (!d?.last) return;
             const bars = candleData.data[t]; if (!bars?.length) return;
-            const bar = bars[bars.length - 1];
-            if (d.open   != null) bar[0] = d.open;
-            if (d.high   != null) bar[1] = Math.max(bar[1], d.high);
-            if (d.low    != null) bar[2] = Math.min(bar[2], d.low);
-            bar[3] = d.last;
-            if (d.volume != null) bar[4] = d.volume;
+            bars[bars.length - 1][3] = d.last;
           });
         } else {
           // Append today bar to ALL tickers so candleData.dates stays aligned.
