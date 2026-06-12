@@ -214,7 +214,7 @@ jobs:
           git push origin main
 
       - name: Push gzipped CSV to scanner-archive
-        if: env.IS_HOLIDAY != 'True' && env.EDGAR_ONLY != '1'
+        if: env.IS_HOLIDAY != 'True' && github.event.schedule == '0 4 * * 2-6'
         env:
           ARCHIVE_PAT: ${{ secrets.ARCHIVE_PAT }}
         run: |
