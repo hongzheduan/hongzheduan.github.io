@@ -197,3 +197,18 @@ jobs:
               echo "Skipping $type — no qualifying stocks today"
             fi
           done
+
+      - name: Log skipped videos to worklog
+        if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
+        run: |
+          SKIPPED=""
+          for type in $VIDEO_TYPES; do
+            [ ! -f "video/${type}.mp4" ] && SKIPPED="$SKIPPED $type"
+          done
+          [ -z "$SKIPPED" ] && exit 0
+          git fetch origin main
+          git rebase origin/main
+          echo "  no-video (no qualifying stocks):$SKIPPED" >> archive/worklog.md
+          git add archive/worklog.md
+          git commit -m "log: video skipped — no qualifying stocks"
+          git push origin main
