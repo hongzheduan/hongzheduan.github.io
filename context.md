@@ -150,7 +150,9 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 ## ⚠️ WHEN WE START CHARGING — Full Revert Checklist
 
-All 6 files below were changed for free mode. Revert ALL of them together.
+**Quick find:** Search `// TEMP:` and `<!-- TEMP:` across all HTML files — every item below is marked with one of these comments. Also search `// FREE MODE:` for the subscription check block in `baizora_main_form.html` / `_cn.html`.
+
+All files below were changed for free mode. Revert ALL of them together.
 
 ### 1. `login.html` and `login_cn.html`
 Comment out the direct redirect and uncomment the `isActive` ternary:
@@ -163,7 +165,13 @@ window.location.href = "dashboard.html";  // or dashboard_cn.html
 ```
 
 ### 2. `baizora_main_form.html` and `baizora_main_form_cn.html`
-Inside `onAuthStateChanged`, uncomment the subscription fetch block and remove the free `loadDashboard()` call:
+Inside `onAuthStateChanged`:
+- Restore the login gate (currently commented out):
+```js
+// Uncomment this line:
+// if (!user) { window.location.href = "login.html"; return; }  // or login_cn.html
+```
+- Uncomment the subscription fetch block and remove the free `loadDashboard()` call:
 ```js
 // Uncomment this block:
 // user.getIdToken().then(token =>
@@ -176,7 +184,34 @@ loadDashboard();
 ```
 
 ### 3. `dashboard.html` and `dashboard_cn.html`
-Inside the `else` block (non-subscriber), restore the card-locking code:
+Three changes:
+
+**a) Restore login gate** (currently commented out):
+```js
+// Uncomment this:
+// if (!user) { window.location.href = "login.html"; return; }  // or login_cn.html
+```
+
+**b) Restore "Free Preview" tool card** (currently commented out between `<!-- TEMP -->` markers):
+```html
+<a href="baizora_main_form_free.html" class="tool-card">
+  <div class="tool-icon">⬡</div>
+  <div class="tool-name">Free Preview</div>
+  <div class="tool-desc">Top 3 movers from today's data — no login required. Share with anyone.</div>
+  <div class="tool-tag tag-free">Free</div>
+</a>
+```
+(CN: `baizora_main_form_free_cn.html`)
+
+**c) Restore "Free Preview" quick link** (currently commented out between `<!-- TEMP -->` markers):
+```html
+<a href="baizora_main_form_free.html" class="quick-link">
+  <span class="quick-link-icon">👁</span> Free Preview
+</a>
+```
+(CN: `baizora_main_form_free_cn.html`)
+
+**d) Restore card-locking for non-subscribers** (inside the `else` block):
 ```js
 // Remove: text.textContent = "Free Access";  (or "免费开放中")
 // Uncomment the full locking block below it (scannerCard.classList.add("locked") etc.)
@@ -186,11 +221,32 @@ Inside the `else` block (non-subscriber), restore the card-locking code:
 Remove the `<script>window.location.replace(...)` redirect at the top of each file.
 
 ### 5. `index.html` and `index_cn.html`
-Restore the announcement bar text:
+Four changes:
+
+**a) Restore announcement bar text:**
 - EN: `First 7 Days Free · Contact: support@baizora.com`
 - CN: `完全免费试用七天 · 联系我们：support@baizora.com`
 
-### 6. Scanner
+**b) Restore nav "Plans" link; remove "Full Dashboard" nav link:**
+- EN: uncomment `<a href="pricing.html" class="nav-btn">Plans</a>`, remove the `Full Dashboard` nav `<a>` tag
+- CN: uncomment `<a href="pricing_cn.html" class="nav-btn">价格方案</a>`, remove `完整数据` nav `<a>` tag
+
+**c) Restore hero primary CTA button:**
+- EN: change `View Full Dashboard — No Sign-up` → `Free Preview (No Sign-up)`, `href="baizora_main_form_free.html"`
+- CN: change `查看完整数据 — 无需注册` → `免费预览（无需注册）`, `href="baizora_main_form_free_cn.html"`
+
+**d) Restore hero secondary CTA button:**
+- EN: change `View Full Dashboard` → `Free Preview`, `href="baizora_main_form_free.html"`
+- CN: change `查看完整数据` → `免费预览`, `href="baizora_main_form_free_cn.html"`
+
+### 6. `index_news.html` and `index_news_cn.html`
+Restore login gate (currently commented out):
+```js
+// Uncomment this:
+// if (!user) { window.location.href = "login.html"; return; }  // or login_cn.html
+```
+
+### 7. Scanner
 Confirm a paid data provider is active before re-enabling billing. Do NOT charge users while on yfinance data.
 
 ## Data Provider Status (as of 2026-06-02)
