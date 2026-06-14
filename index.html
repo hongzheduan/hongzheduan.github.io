@@ -2110,7 +2110,7 @@ window.mockSort = function(col, el) {
       const upd = document.getElementById("hpLastUpdated");
       if (upd) {
         const _now = new Date();
-        const _checked = _now.getUTCHours().toString().padStart(2,'0') + ':' + _now.getUTCMinutes().toString().padStart(2,'0') + ' UTC';
+        const _checked = _now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false }) + ' ET';
         upd.textContent = (data.fetched || "—") + " · " + _checked;
       }
       if (data.items && data.items.length) {

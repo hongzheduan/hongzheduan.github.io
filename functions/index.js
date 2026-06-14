@@ -187,7 +187,7 @@ app.get("/index-news", async (req, res) => {
     }
 
     const result = {
-      fetched: new Date().toISOString().slice(0, 16).replace("T", " ") + " UTC",
+      fetched: new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()).replace(", ", " ") + " ET",
       lookback_days: 90,
       items: deduped,
     };
