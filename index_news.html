@@ -348,12 +348,15 @@
       // if (!user) { window.location.href = "login.html"; return; }
       if (user) document.getElementById("headerEmail").textContent = user.email;
       loadNews();
+      setInterval(loadNews, 60 * 60 * 1000);
     });
 
     window.doLogout = async function() {
       await signOut(auth);
       window.location.href = "login.html";
     };
+
+    const CF_NEWS = "https://us-central1-baizora.cloudfunctions.net/api/index-news";
 
     const CATEGORIES = [
       { key: "S&P 500 addition",    label: "S&P 500 — ADDITION",    cls: "active-add" },
@@ -368,7 +371,8 @@
     async function loadNews() {
       const container = document.getElementById("newsContainer");
       try {
-        const res = await fetch("data/index_news.json?t=" + Date.now());
+        let res = await fetch(CF_NEWS);
+        if (!res.ok) res = await fetch("data/index_news.json?t=" + Date.now());
         if (!res.ok) throw new Error("fetch failed");
         const data = await res.json();
 

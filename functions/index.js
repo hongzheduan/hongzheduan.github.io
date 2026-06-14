@@ -92,6 +92,116 @@ app.get("/iex-quotes", async (req, res) => {
 });
 
 /* ---------------------------
+   INDEX MEMBERSHIP NEWS
+   Fetches Google News RSS for S&P 500 + Nasdaq-100 membership changes.
+   1-hour in-memory cache — Google RSS is only called once per hour
+   regardless of how many users load the page.
+--------------------------- */
+const _NEWS_QUERIES = [
+  { key: "S&P 500 addition",    query: '"added to S&P 500" OR "will join S&P 500" OR "joins S&P 500" OR "joining S&P 500" OR "entering S&P 500" OR "S&P 500 index addition" OR "S&P 500 inclusion"' },
+  { key: "S&P 500 removal",     query: '"removed from S&P 500" OR "dropped from S&P 500" OR "leaving S&P 500" OR "exits S&P 500" OR "S&P 500 index removal" OR "S&P 500 exclusion"' },
+  { key: "Nasdaq-100 addition", query: '"added to Nasdaq-100" OR "will join Nasdaq-100" OR "joins Nasdaq-100" OR "joining Nasdaq-100" OR "entering Nasdaq-100" OR "Nasdaq-100 index addition" OR "Nasdaq-100 inclusion"' },
+  { key: "Nasdaq-100 removal",  query: '"removed from Nasdaq-100" OR "dropped from Nasdaq-100" OR "leaving Nasdaq-100" OR "exits Nasdaq-100" OR "Nasdaq-100 index removal" OR "Nasdaq-100 exclusion"' },
+];
+
+const _NEWS_SKIP = [
+  "within a year", "within a month", "within months",
+  "since joining", "since being added", "since addition",
+  "year after joining", "months after joining", "a year of joining",
+  "years after", "year later", "months later", "one year", "look back",
+];
+
+let _newsCache = { data: null, ts: 0 };
+const _NEWS_TTL = 60 * 60 * 1000; // 1 hour
+
+function _parseRssItems(xml) {
+  const items = [];
+  const itemRe = /<item>([\s\S]*?)<\/item>/g;
+  let m;
+  while ((m = itemRe.exec(xml)) !== null) {
+    const block = m[1];
+    const title   = ((block.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/) ||
+                      block.match(/<title>([\s\S]*?)<\/title>/)) || [])[1] || "";
+    const link    = (block.match(/<link>([\s\S]*?)<\/link>/)     || [])[1] || "";
+    const pubDate = (block.match(/<pubDate>([\s\S]*?)<\/pubDate>/) || [])[1] || "";
+    const source  = ((block.match(/<source[^>]*>([\s\S]*?)<\/source>/) ||
+                      block.match(/<source>([\s\S]*?)<\/source>/)) || [])[1] || "";
+    if (title && link) items.push({ title: title.trim(), link: link.trim(), pubDate: pubDate.trim(), source: source.trim() });
+  }
+  return items;
+}
+
+async function _translateToZh(text) {
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(text)}`;
+    const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    const data = await resp.json();
+    return data[0].map(p => p[0]).join("");
+  } catch(e) {
+    return "";
+  }
+}
+
+app.get("/index-news", async (req, res) => {
+  try {
+    const now = Date.now();
+    if (_newsCache.data && (now - _newsCache.ts) < _NEWS_TTL) {
+      return res.json(_newsCache.data);
+    }
+
+    const cutoff = new Date(now - 90 * 24 * 60 * 60 * 1000);
+    const allItems = [];
+
+    for (const { key, query } of _NEWS_QUERIES) {
+      try {
+        const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
+        const resp = await fetch(url, {
+          headers: { "User-Agent": "Mozilla/5.0 (compatible; Baizora/1.0)" },
+          signal: AbortSignal.timeout(10000),
+        });
+        const xml = await resp.text();
+        for (const it of _parseRssItems(xml)) {
+          const pubDt = new Date(it.pubDate);
+          if (isNaN(pubDt) || pubDt < cutoff) continue;
+          const tl = it.title.toLowerCase();
+          if (_NEWS_SKIP.some(p => tl.includes(p))) continue;
+          allItems.push({ category: key, date: pubDt.toISOString().slice(0, 10), title: it.title, source: it.source, link: it.link });
+        }
+      } catch(e) {
+        console.warn(`[index-news] ${key}:`, e.message);
+      }
+    }
+
+    allItems.sort((a, b) => b.date.localeCompare(a.date));
+
+    // Deduplicate by title
+    const seen = new Set();
+    const deduped = allItems.filter(it => { const k = it.title + "|" + it.category; if (seen.has(k)) return false; seen.add(k); return true; });
+
+    // Translate titles to Chinese (cached for 1 hour so latency only hits once)
+    for (const item of deduped) {
+      const suffix = " - " + item.source;
+      const clean = item.title.endsWith(suffix) ? item.title.slice(0, -suffix.length) : item.title;
+      item.title_cn = await _translateToZh(clean);
+      await new Promise(r => setTimeout(r, 100));
+    }
+
+    const result = {
+      fetched: new Date().toISOString().slice(0, 16).replace("T", " ") + " UTC",
+      lookback_days: 90,
+      items: deduped,
+    };
+
+    _newsCache = { data: result, ts: now };
+    res.json(result);
+  } catch(e) {
+    console.error("index-news:", e.message);
+    if (_newsCache.data) return res.json(_newsCache.data);
+    res.status(500).json({ error: "Failed to fetch news" });
+  }
+});
+
+/* ---------------------------
    STRIPE INIT
 --------------------------- */
 function getStripe() {
