@@ -2100,11 +2100,19 @@ window.mockSort = function(col, el) {
     renderList(key);
   };
 
-  fetch("data/index_news.json?t=" + Date.now())
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(data => {
+  (async () => {
+    const CF_HP = "https://us-central1-baizora.cloudfunctions.net/api/index-news";
+    try {
+      let res = await fetch(CF_HP);
+      if (!res.ok) res = await fetch("data/index_news.json?t=" + Date.now());
+      if (!res.ok) throw new Error("fetch failed");
+      const data = await res.json();
       const upd = document.getElementById("hpLastUpdated");
-      if (upd && data.fetched) upd.textContent = data.fetched;
+      if (upd) {
+        const _now = new Date();
+        const _checked = _now.getUTCHours().toString().padStart(2,'0') + ':' + _now.getUTCMinutes().toString().padStart(2,'0') + ' UTC';
+        upd.textContent = (data.fetched || "—") + " · " + _checked;
+      }
       if (data.items && data.items.length) {
         const seen = new Set();
         allItems = data.items.filter(it => { const k = it.title + '|' + it.category; if (seen.has(k)) return false; seen.add(k); return true; });
@@ -2114,11 +2122,11 @@ window.mockSort = function(col, el) {
         const list = document.getElementById("hpNewsList");
         if (list) list.innerHTML = '<div class="hp-news-msg">No news available.</div>';
       }
-    })
-    .catch(() => {
+    } catch (_) {
       const list = document.getElementById("hpNewsList");
       if (list) list.innerHTML = '<div class="hp-news-msg">Could not load news.</div>';
-    });
+    }
+  })();
 })();
 
 </script>

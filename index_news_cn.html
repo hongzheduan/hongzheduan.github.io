@@ -375,7 +375,9 @@
         if (!res.ok) throw new Error("fetch failed");
         const data = await res.json();
 
-        document.getElementById("lastUpdated").textContent = "更新于：" + data.fetched;
+        const _now = new Date();
+        const _checked = _now.getUTCHours().toString().padStart(2,'0') + ':' + _now.getUTCMinutes().toString().padStart(2,'0') + ' UTC';
+        document.getElementById("lastUpdated").textContent = "更新于：" + (data.fetched || "—") + " · 检查：" + _checked;
 
         if (!data.items || data.items.length === 0) {
           container.innerHTML = '<div class="state-msg">近90天暂无相关新闻。</div>';
