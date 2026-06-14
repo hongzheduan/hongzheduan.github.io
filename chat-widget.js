@@ -40,7 +40,8 @@
       'transition:transform .2s,box-shadow .2s;',
     '}',
     '#bzw-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(59,130,246,.6);}',
-    '#bzw-btn svg{width:26px;height:26px;fill:#fff;pointer-events:none;}',
+    '#bzw-btn svg{width:30px;height:30px;fill:#fff;pointer-events:none;animation:bzw-float 3s ease-in-out infinite;}',
+    '@keyframes bzw-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}',
 
     '#bzw-panel{',
       'position:fixed;bottom:92px;right:24px;z-index:9998;',
@@ -144,7 +145,16 @@
   var btn = document.createElement('button');
   btn.id = 'bzw-btn';
   btn.setAttribute('aria-label', T.title);
-  btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>';
+  btn.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
+    '<circle cx="12" cy="2" r="1.4"/>' +
+    '<rect x="11.3" y="3.2" width="1.4" height="2.4" rx="0.5"/>' +
+    '<rect x="2.5" y="5.5" width="19" height="13" rx="3.5"/>' +
+    '<circle cx="8.5" cy="11" r="2.1" style="fill:#0d1e3d"/>' +
+    '<circle cx="9.3" cy="10.2" r="0.65" style="fill:#fff"/>' +
+    '<circle cx="15.5" cy="11" r="2.1" style="fill:#0d1e3d"/>' +
+    '<circle cx="16.3" cy="10.2" r="0.65" style="fill:#fff"/>' +
+    '<path d="M8.5 14.8 Q12 17 15.5 14.8" style="fill:none;stroke:#0d1e3d;stroke-width:1.5;stroke-linecap:round"/>' +
+    '</svg>';
 
   var panel = document.createElement('div');
   panel.id = 'bzw-panel';
