@@ -705,7 +705,7 @@
       allRows = (json.data || []).filter(r => r.PriceChange1D != null);
       dataDate = json.date || '';
       renderTable('gainers');
-      refreshLivePrices();
+      if (isMarketOpen()) refreshLivePrices();
       setInterval(() => { if (isMarketOpen()) refreshLivePrices(); }, 10_000);
     })
     .catch(() => {

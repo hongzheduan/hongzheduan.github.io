@@ -1991,7 +1991,7 @@ window.mockSort = function(col, el) {
     } catch(e) { /* silent — page falls back to latest.json data */ }
   }
 
-  refreshPrices();
+  if (isMarketOpen()) refreshPrices();
   setInterval(() => { if (isMarketOpen()) refreshPrices(); }, 10_000);
 })();
 

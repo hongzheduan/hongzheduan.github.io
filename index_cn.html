@@ -1989,7 +1989,7 @@ window.mockSort = function(col, el) {
     } catch(e) { /* silent */ }
   }
 
-  refreshPrices();
+  if (isMarketOpen()) refreshPrices();
   setInterval(() => { if (isMarketOpen()) refreshPrices(); }, 10_000);
 })();
 
