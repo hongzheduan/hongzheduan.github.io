@@ -18,6 +18,7 @@
       : "Hi! I'm Baizora's AI assistant. Ask me about features, pricing, dashboard columns, or how to sign up.",
     error:       isCN ? '抱歉，出现了错误，请稍后重试。' : 'Sorry, something went wrong. Please try again.',
     limit:       isCN ? '已达本次对话上限，请刷新页面重新开始。' : 'Session limit reached. Please refresh to start a new chat.',
+    ask:         isCN ? '问' : 'Ask',
   };
 
   var MAX_TURNS = 10;
@@ -32,16 +33,18 @@
   styleEl.textContent = [
     '#bzw-btn{',
       'position:fixed;bottom:24px;right:24px;z-index:9999;',
-      'width:56px;height:56px;border-radius:50%;',
+      'height:52px;padding:0 18px 0 12px;border-radius:26px;',
       'background:linear-gradient(135deg,#3b82f6,#1d4ed8);',
       'border:none;cursor:pointer;',
       'box-shadow:0 4px 20px rgba(59,130,246,.45);',
-      'display:flex;align-items:center;justify-content:center;',
+      'display:flex;align-items:center;justify-content:center;gap:7px;',
       'transition:transform .2s,box-shadow .2s;',
+      'animation:bzw-float 3s ease-in-out infinite;',
     '}',
-    '#bzw-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(59,130,246,.6);}',
-    '#bzw-btn svg{width:30px;height:30px;fill:#fff;pointer-events:none;animation:bzw-float 3s ease-in-out infinite;}',
-    '@keyframes bzw-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}',
+    '#bzw-btn:hover{animation:none;transform:scale(1.06);box-shadow:0 6px 28px rgba(59,130,246,.6);}',
+    '#bzw-btn svg{width:28px;height:28px;fill:#fff;pointer-events:none;flex-shrink:0;}',
+    '#bzw-btn span{font-size:14px;font-weight:600;color:#fff;letter-spacing:.03em;pointer-events:none;}',
+    '@keyframes bzw-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}',
 
     '#bzw-panel{',
       'position:fixed;bottom:92px;right:24px;z-index:9998;',
@@ -135,8 +138,10 @@
     '#bzw-sd svg{width:15px;height:15px;fill:#fff;}',
 
     '@media(max-width:480px){',
-      '#bzw-panel{width:calc(100vw - 20px);right:10px;bottom:84px;}',
-      '#bzw-btn{bottom:16px;right:14px;}',
+      '#bzw-panel{width:calc(100vw - 20px);right:10px;bottom:80px;}',
+      '#bzw-btn{bottom:16px;right:14px;height:44px;padding:0 14px 0 10px;gap:6px;}',
+      '#bzw-btn span{font-size:13px;}',
+      '#bzw-btn svg{width:24px;height:24px;}',
     '}',
   ].join('');
   document.head.appendChild(styleEl);
@@ -154,7 +159,8 @@
     '<circle cx="15.5" cy="11" r="2.1" style="fill:#0d1e3d"/>' +
     '<circle cx="16.3" cy="10.2" r="0.65" style="fill:#fff"/>' +
     '<path d="M8.5 14.8 Q12 17 15.5 14.8" style="fill:none;stroke:#0d1e3d;stroke-width:1.5;stroke-linecap:round"/>' +
-    '</svg>';
+    '</svg>' +
+    '<span>' + T.ask + '</span>';
 
   var panel = document.createElement('div');
   panel.id = 'bzw-panel';
