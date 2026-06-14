@@ -950,6 +950,10 @@
         if (snap.exists() && Array.isArray(snap.data().watchlist)) {
           watchlist = new Set(snap.data().watchlist);
           localStorage.setItem("baizora_watchlist", JSON.stringify([...watchlist]));
+        } else if (watchlist.size > 0) {
+          // Firestore has no watchlist yet — seed it from localStorage so other devices sync
+          setDoc(doc(db, "users", uid), { watchlist: [...watchlist] }, { merge: true })
+            .catch(e => console.warn("Watchlist initial cloud seed failed:", e));
         }
       } catch (e) {
         console.warn("Watchlist cloud load failed, using local:", e);
