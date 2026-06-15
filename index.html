@@ -2111,7 +2111,7 @@ window.mockSort = function(col, el) {
       if (upd) {
         const _now = new Date();
         const _checked = _now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false }) + ' ET';
-        upd.textContent = (data.fetched || "—") + " · " + _checked;
+        upd.textContent = "checked " + _checked;
       }
       if (data.items && data.items.length) {
         const seen = new Set();
