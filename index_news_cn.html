@@ -376,7 +376,7 @@
         const data = await res.json();
 
         const _now = new Date();
-        const _checked = _now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false }) + ' ET';
+        const _checked = _now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) + ' ' + _now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false }) + ' ET';
         document.getElementById("lastUpdated").textContent = "检查时间：" + _checked;
 
         if (!data.items || data.items.length === 0) {
