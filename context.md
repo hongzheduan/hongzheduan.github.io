@@ -433,6 +433,20 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
 
 ---
 
+## What Was Done 2026-06-15
+
+### Mobile Homepage — Dashboard Button in Header
+
+- **Problem:** Mobile users had no obvious path to the dashboard from the homepage. The drawer only showed "About", auth links, and language toggle — no data access without digging.
+- **Fix:** Added a blue "Dashboard" / "控制台" button directly in the mobile header, beside the hamburger icon. Always visible without opening the drawer.
+  - `index.html`: `<a href="dashboard.html" class="mobile-dash-btn">Dashboard</a>` before the hamburger
+  - `index_cn.html`: `<a href="dashboard_cn.html" class="mobile-dash-btn">控制台</a>` before the hamburger
+  - CSS class `.mobile-dash-btn`: `display:none` on desktop, `display:inline-flex` at ≤768px; electric blue pill style
+- **Also added** "Full Dashboard" / "完整数据" inside the mobile drawer (after the About link) as a secondary entry with `mobile-primary` styling linking to `baizora_main_form.html` / `baizora_main_form_cn.html`.
+- **Temporary:** Both changes are for the free-access period only. Removal instructions documented in `assets/revert_billing_checklist.html` sections e/f/g. Search `mobile-dash-btn` to find all instances.
+
+---
+
 ## What Was Done 2026-06-11
 
 ### PDD EPS Fix (ADS ratio)
@@ -574,7 +588,7 @@ Two-part fix:
 
 ## Next Time: What to Check
 
-1. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the revert checklist above.
+1. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the revert checklist above. Also remove the mobile `mobile-dash-btn` button and drawer link from `index.html` / `index_cn.html` (see `assets/revert_billing_checklist.html` sections e/f/g).
 2. **Tiingo attribution** — required by license: add `"Market Data Sourced by Tiingo.com"` to `baizora_main_form.html` and `baizora_main_form_cn.html`. Already done on individual stock pages. NOT yet done on main dashboards.
 3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify EPS and mktcap drop to expected post-split values and compare log stays clean.
 4. **Remaining EPS=None tickers** — BRK-B is structural (no EDGAR data after 2013); others may be IFRS filers. Investigate if any are solvable from EDGAR without a paid source.
