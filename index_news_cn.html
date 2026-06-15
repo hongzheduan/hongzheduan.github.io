@@ -373,7 +373,11 @@
         let res = await fetch(CF_NEWS);
         if (!res.ok) res = await fetch("data/index_news.json?t=" + Date.now());
         if (!res.ok) throw new Error("fetch failed");
-        const data = await res.json();
+        let data = await res.json();
+        if (!data.items || data.items.length === 0) {
+          const fb = await fetch("data/index_news.json?t=" + Date.now());
+          if (fb.ok) { const fbData = await fb.json(); if (fbData.items && fbData.items.length) data = fbData; }
+        }
 
         const _now = new Date();
         const _checked = _now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) + ' ' + _now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false }) + ' ET';

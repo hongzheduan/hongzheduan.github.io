@@ -2106,7 +2106,11 @@ window.mockSort = function(col, el) {
       let res = await fetch(CF_HP);
       if (!res.ok) res = await fetch("data/index_news.json?t=" + Date.now());
       if (!res.ok) throw new Error("fetch failed");
-      const data = await res.json();
+      let data = await res.json();
+      if (!data.items || data.items.length === 0) {
+        const fb = await fetch("data/index_news.json?t=" + Date.now());
+        if (fb.ok) { const fbData = await fb.json(); if (fbData.items && fbData.items.length) data = fbData; }
+      }
       const upd = document.getElementById("hpLastUpdated");
       if (upd) {
         const _now = new Date();

@@ -190,6 +190,11 @@ app.get("/index-news", async (req, res) => {
       await new Promise(r => setTimeout(r, 100));
     }
 
+    // If fresh fetch returned nothing, serve stale cache rather than empty results
+    if (deduped.length === 0 && _newsCache.data && _newsCache.data.items.length > 0) {
+      return res.json(_newsCache.data);
+    }
+
     const result = {
       fetched: new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()).replace(", ", " ") + " ET",
       lookback_days: 90,
