@@ -130,17 +130,16 @@
 
     <h3>login.html <span class="line-ref">~line 525</span></h3>
     <pre><code><span class="comment">// FREE MODE: go straight to dashboard regardless of subscription status</span>
-<span class="comment">// To restore paid gate: window.location.href = isActive ? "dashboard.html" : "billing.html";</span>
 <span class="del">window.location.href = "dashboard.html";   ← REMOVE THIS LINE</span>
 
-<span class="comment">// Replace with:</span>
-<span class="add">window.location.href = isActive ? "dashboard.html" : "billing.html";</span></code></pre>
+<span class="comment">// Replace with (variable is subscriptionStatus, not isActive):</span>
+<span class="add">window.location.href = (subscriptionStatus === "active" || subscriptionStatus === "trialing") ? "dashboard.html" : "billing.html";</span></code></pre>
 
     <h3>login_cn.html <span class="line-ref">~line 535</span></h3>
     <pre><code><span class="del">window.location.href = "dashboard_cn.html";   ← REMOVE THIS LINE</span>
 
 <span class="comment">// Replace with:</span>
-<span class="add">window.location.href = isActive ? "dashboard_cn.html" : "billing_cn.html";</span></code></pre>
+<span class="add">window.location.href = (subscriptionStatus === "active" || subscriptionStatus === "trialing") ? "dashboard_cn.html" : "billing_cn.html";</span></code></pre>
 
     <!-- FILE 2 -->
     <h2 id="main-form">2. <span class="file-badge">baizora_main_form.html</span> <span class="file-badge">baizora_main_form_cn.html</span></h2>

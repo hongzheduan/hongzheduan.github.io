@@ -532,7 +532,7 @@
         }
 
         // ── Redirect based on status ──
-        window.location.href = isActive ? "dashboard_cn.html" : "billing_cn.html";
+        window.location.href = (subscriptionStatus === "active" || subscriptionStatus === "trialing") ? "dashboard_cn.html" : "billing_cn.html";
 
       } catch (e) {
         console.error(e);
