@@ -514,13 +514,16 @@
           text.textContent = "免费试用中" + end;
         } else {
           text.textContent = "暂无有效订阅";
-          const scannerCard = document.querySelector('a[href="baizora_main_form_cn.html"]');
-          if (scannerCard) {
-            scannerCard.classList.add("locked");
-            scannerCard.removeAttribute("href");
-            const tag = scannerCard.querySelector('.tool-tag');
-            if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ 请选择订阅方案后查看'; }
-          }
+          [['a[href="baizora_main_form_cn.html"]', '→ 请选择订阅方案后查看'],
+           ['a[href="index_news_cn.html"]',        '→ 请选择订阅方案后查看']].forEach(([sel, msg]) => {
+            const card = document.querySelector(sel);
+            if (card) {
+              card.classList.add("locked");
+              card.removeAttribute("href");
+              const tag = card.querySelector('.tool-tag');
+              if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = msg; }
+            }
+          });
         }
       } catch(e) {
         console.warn("订阅状态获取失败：", e.message);

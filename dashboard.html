@@ -502,13 +502,16 @@
           text.textContent = "Free Trial" + end;
         } else {
           text.textContent = "No Active Subscription";
-          const scannerCard = document.querySelector('a[href="baizora_main_form.html"]');
-          if (scannerCard) {
-            scannerCard.classList.add("locked");
-            scannerCard.removeAttribute("href");
-            const tag = scannerCard.querySelector('.tool-tag');
-            if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ Please choose a plan to view'; }
-          }
+          [['a[href="baizora_main_form.html"]', '→ Please choose a plan to view'],
+           ['a[href="index_news.html"]',        '→ Please choose a plan to view']].forEach(([sel, msg]) => {
+            const card = document.querySelector(sel);
+            if (card) {
+              card.classList.add("locked");
+              card.removeAttribute("href");
+              const tag = card.querySelector('.tool-tag');
+              if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = msg; }
+            }
+          });
         }
       } catch(e) {
         console.warn("Status fetch failed:", e.message);

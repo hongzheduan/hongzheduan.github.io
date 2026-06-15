@@ -343,9 +343,19 @@
     import { auth } from "./firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    onAuthStateChanged(auth, (user) => {
+    const API = "https://us-central1-baizora.cloudfunctions.net/api";
+
+    onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = "login.html"; return; }
-      if (user) document.getElementById("headerEmail").textContent = user.email;
+      document.getElementById("headerEmail").textContent = user.email;
+      try {
+        const res = await fetch(`${API}/get-user?uid=${user.uid}`);
+        const data = await res.json();
+        const status = data.subscriptionStatus || "inactive";
+        if (status !== "active" && status !== "trialing") {
+          window.location.href = "billing.html"; return;
+        }
+      } catch(e) { /* network error — allow through */ }
       loadNews();
       setInterval(loadNews, 60 * 60 * 1000);
     });
