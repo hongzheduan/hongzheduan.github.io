@@ -114,18 +114,22 @@ const _NEWS_SKIP = [
 let _newsCache = { data: null, ts: 0 };
 const _NEWS_TTL = 60 * 60 * 1000; // 1 hour
 
+function _decodeXmlEntities(str) {
+  return str.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+}
+
 function _parseRssItems(xml) {
   const items = [];
   const itemRe = /<item>([\s\S]*?)<\/item>/g;
   let m;
   while ((m = itemRe.exec(xml)) !== null) {
     const block = m[1];
-    const title   = ((block.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/) ||
-                      block.match(/<title>([\s\S]*?)<\/title>/)) || [])[1] || "";
+    const title   = _decodeXmlEntities(((block.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/) ||
+                      block.match(/<title>([\s\S]*?)<\/title>/)) || [])[1] || "");
     const link    = (block.match(/<link>([\s\S]*?)<\/link>/)     || [])[1] || "";
     const pubDate = (block.match(/<pubDate>([\s\S]*?)<\/pubDate>/) || [])[1] || "";
-    const source  = ((block.match(/<source[^>]*>([\s\S]*?)<\/source>/) ||
-                      block.match(/<source>([\s\S]*?)<\/source>/)) || [])[1] || "";
+    const source  = _decodeXmlEntities(((block.match(/<source[^>]*>([\s\S]*?)<\/source>/) ||
+                      block.match(/<source>([\s\S]*?)<\/source>/)) || [])[1] || "");
     if (title && link) items.push({ title: title.trim(), link: link.trim(), pubDate: pubDate.trim(), source: source.trim() });
   }
   return items;
