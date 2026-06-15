@@ -260,6 +260,21 @@
     .hamburger:hover span { background: var(--white); }
     .hamburger { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 
+    .mobile-dash-btn {
+      display: none;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 7px;
+      background: var(--electric);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     .mobile-drawer {
       display: none;
       position: fixed;
@@ -721,6 +736,7 @@
       header { padding: 0 16px; height: 52px; }
       .desktop-nav { display: none; }
       .hamburger { display: flex; }
+      .mobile-dash-btn { display: inline-flex; }
       .hero { padding: 40px 20px 36px; }
       .hero-text-block { text-align: center; }
       .hero-bullet { justify-content: center; }
@@ -1034,6 +1050,7 @@
     <a href="login_cn.html" class="nav-btn nav-btn-primary" id="navLoginLogout">登录</a>
   </div>
 
+  <a href="dashboard_cn.html" class="mobile-dash-btn">控制台</a>
   <button class="hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -1042,6 +1059,7 @@
 
 <div class="mobile-drawer" id="mobileDrawer">
   <a href="assets/about_cn.html">平台简介</a>
+  <a href="baizora_main_form_cn.html" class="mobile-primary">完整数据</a>
   <div id="mobileAuthLinks"></div>
   <!-- <a href="account_cn.html">订阅管理</a> -->
   <a href="index.html">English</a>

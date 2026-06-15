@@ -118,6 +118,7 @@
       <li><span class="inline-code">// TEMP:</span> — JS login gates and dashboard items</li>
       <li><span class="inline-code">&lt;!-- TEMP:</span> — HTML blocks (nav links, cards, CTAs)</li>
       <li><span class="inline-code">// FREE MODE:</span> — subscription check block in main form</li>
+      <li><span class="inline-code">mobile-dash-btn</span> — mobile header Dashboard button (CSS + HTML in index.html / index_cn.html)</li>
     </ul>
     <div class="tip-box">
       <p>In VS Code: <strong>Ctrl+Shift+F</strong> → search <code>TEMP:</code> to find all HTML blocks and most JS gates. Also search <code>FREE MODE:</code> separately — <code>login.html</code> and <code>baizora_main_form.html</code> use that marker instead of <code>TEMP:</code>.</p>
@@ -278,6 +279,43 @@
 <span class="comment">// Uncomment both TEMP blocks and remove the btn-secondary dashboard link.</span>
 <span class="comment">// CN: pricing_cn.html / 开始免费试用</span></code></pre>
 
+    <h3>e) Mobile header Dashboard button — CSS <span class="line-ref">search: mobile-dash-btn</span></h3>
+    <p>A blue "Dashboard" / "控制台" button was added directly in the mobile header (visible at ≤768px) so users don't need to open the drawer. Remove the CSS class and the HTML element from both files.</p>
+    <pre><code><span class="comment">/* Remove this entire CSS block from both index.html and index_cn.html: */</span>
+<span class="del">.mobile-dash-btn {</span>
+<span class="del">  display: none;</span>
+<span class="del">  align-items: center;</span>
+<span class="del">  padding: 6px 12px;</span>
+<span class="del">  border-radius: 7px;</span>
+<span class="del">  background: var(--electric);</span>
+<span class="del">  color: white;</span>
+<span class="del">  font-family: 'DM Sans', sans-serif;</span>
+<span class="del">  font-size: 13px;</span>
+<span class="del">  font-weight: 500;</span>
+<span class="del">  text-decoration: none;</span>
+<span class="del">  white-space: nowrap;</span>
+<span class="del">  flex-shrink: 0;</span>
+<span class="del">}</span>
+
+<span class="comment">/* Also remove from the @media (max-width: 768px) block: */</span>
+<span class="del">.mobile-dash-btn { display: inline-flex; }</span></code></pre>
+
+    <h3>f) Mobile header Dashboard button — HTML <span class="line-ref">search: mobile-dash-btn</span></h3>
+    <p>Remove the button element from both headers (it sits just before the hamburger button):</p>
+    <pre><code><span class="comment">&lt;!-- index.html — remove this line: --&gt;</span>
+<span class="del">&lt;a href="dashboard.html" class="mobile-dash-btn"&gt;Dashboard&lt;/a&gt;</span>
+
+<span class="comment">&lt;!-- index_cn.html — remove this line: --&gt;</span>
+<span class="del">&lt;a href="dashboard_cn.html" class="mobile-dash-btn"&gt;控制台&lt;/a&gt;</span></code></pre>
+
+    <h3>g) Mobile drawer Dashboard link <span class="line-ref">search: mobile-primary"&gt;Full Dashboard</span></h3>
+    <p>A second entry was also added inside the mobile drawer (after the About link). Remove both:</p>
+    <pre><code><span class="comment">&lt;!-- index.html mobile drawer — remove this line: --&gt;</span>
+<span class="del">&lt;a href="baizora_main_form.html" class="mobile-primary"&gt;Full Dashboard&lt;/a&gt;</span>
+
+<span class="comment">&lt;!-- index_cn.html mobile drawer — remove this line: --&gt;</span>
+<span class="del">&lt;a href="baizora_main_form_cn.html" class="mobile-primary"&gt;完整数据&lt;/a&gt;</span></code></pre>
+
     <!-- FILE 6 -->
     <h2 id="news">6. <span class="file-badge">index_news.html</span> <span class="file-badge">index_news_cn.html</span></h2>
     <p>The Index Membership News page is currently accessible without login. Restore the gate.</p>
@@ -315,7 +353,7 @@
       <p>After pushing, GitHub Pages can take 1–3 minutes to propagate. Hard-refresh (Ctrl+Shift+R) before testing.</p>
     </div>
 
-    <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-06-14 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
+    <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-06-15 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
 
   </div>
 </div>

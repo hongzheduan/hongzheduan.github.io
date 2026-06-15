@@ -259,6 +259,21 @@
     .hamburger:hover span { background: var(--white); }
     .hamburger { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 
+    .mobile-dash-btn {
+      display: none;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 7px;
+      background: var(--electric);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     .mobile-drawer {
       display: none;
       position: fixed;
@@ -766,6 +781,7 @@
       header { padding: 0 16px; height: 52px; }
       .desktop-nav { display: none; }
       .hamburger { display: flex; }
+      .mobile-dash-btn { display: inline-flex; }
       .hero { padding: 40px 20px 36px; }
       .hero-text-block { text-align: center; }
       .hero-bullet { justify-content: center; }
@@ -1081,6 +1097,7 @@
 
   </div>
 
+  <a href="dashboard.html" class="mobile-dash-btn">Dashboard</a>
   <button class="hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -1089,6 +1106,7 @@
 
 <div class="mobile-drawer" id="mobileDrawer">
   <a href="assets/about.html">About</a>
+  <a href="baizora_main_form.html" class="mobile-primary">Full Dashboard</a>
   <div id="mobileAuthLinks"></div>
   <!-- <a href="account.html">Manage Subscription</a> -->
   <a href="index_cn.html">中文</a>
