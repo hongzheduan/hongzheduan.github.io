@@ -344,8 +344,7 @@
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     onAuthStateChanged(auth, (user) => {
-      // TEMP: time-limited free — restore to re-enable login gate
-      // if (!user) { window.location.href = "login.html"; return; }
+      if (!user) { window.location.href = "login.html"; return; }
       if (user) document.getElementById("headerEmail").textContent = user.email;
       loadNews();
       setInterval(loadNews, 60 * 60 * 1000);

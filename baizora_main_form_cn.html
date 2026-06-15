@@ -981,17 +981,14 @@
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       if (user) await loadCloudWatchlist(user.uid);
-      // TEMP: time-limited free — restore to re-enable login gate
-      // if (!user) { window.location.href = "login_cn.html"; return; }
-      // FREE MODE: subscription check disabled — uncomment block below to re-enable paid gate
-      // user.getIdToken().then(token =>
-      //   fetch("https://us-central1-baizora.cloudfunctions.net/api/subscription",
-      //         { headers: { Authorization: "Bearer " + token } })
-      //   .then(r => r.json())
-      //   .then(d => { if (d.status !== "active") window.location.href = "billing_cn.html"; else loadDashboard(); })
-      //   .catch(() => loadDashboard())
-      // );
-      loadDashboard();
+      if (!user) { window.location.href = "login_cn.html"; return; }
+      user.getIdToken().then(token =>
+        fetch("https://us-central1-baizora.cloudfunctions.net/api/subscription",
+              { headers: { Authorization: "Bearer " + token } })
+        .then(r => r.json())
+        .then(d => { if (d.status !== "active") window.location.href = "billing_cn.html"; else loadDashboard(); })
+        .catch(() => loadDashboard())
+      );
     });
 
     /* ── INDEX CHANGES ── */

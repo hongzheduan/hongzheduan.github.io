@@ -430,14 +430,12 @@
         <div class="tool-desc">Pending and recent additions and removals from S&amp;P 500 and Nasdaq-100, sourced from financial news. Updated daily after market close.</div>
       </a>
 
-      <!-- TEMP: time-limited free — restore free preview card when trial resumes
       <a href="baizora_main_form_free.html" class="tool-card">
         <div class="tool-icon">⬡</div>
         <div class="tool-name">Free Preview</div>
         <div class="tool-desc">Top 3 movers from today's data — no login required. Share with anyone.</div>
         <div class="tool-tag tag-free">Free</div>
       </a>
-      -->
 
     </div>
 
@@ -453,11 +451,9 @@
       <a href="index.html" class="quick-link">
         <span class="quick-link-icon">🏠</span> Homepage
       </a>
-      <!-- TEMP: time-limited free — restore quick link when trial resumes
       <a href="baizora_main_form_free.html" class="quick-link">
         <span class="quick-link-icon">👁</span> Free Preview
       </a>
-      -->
       <a href="assets/faq.html" class="quick-link">
         <span class="quick-link-icon">❓</span> FAQ
       </a>
@@ -475,8 +471,7 @@
     const API = "https://us-central1-baizora.cloudfunctions.net/api";
 
     onAuthStateChanged(auth, async (user) => {
-      // TEMP: time-limited free — restore to re-enable login gate
-      // if (!user) { window.location.href = "login.html"; return; }
+      if (!user) { window.location.href = "login.html"; return; }
 
       // Fill header email
       document.getElementById("headerEmail").textContent = user.email;
@@ -506,17 +501,14 @@
             : "";
           text.textContent = "Free Trial" + end;
         } else {
-          text.textContent = "Free Access";
-          // FREE MODE: scanner open to all logged-in users — locking disabled
-          // To restore paid gate:
-          //   text.textContent = "No Active Subscription";
-          //   const scannerCard = document.querySelector('a[href="baizora_main_form.html"]');
-          //   if (scannerCard) {
-          //     scannerCard.classList.add("locked");
-          //     scannerCard.removeAttribute("href");
-          //     const tag = scannerCard.querySelector('.tool-tag');
-          //     if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ Please choose a plan to view'; }
-          //   }
+          text.textContent = "No Active Subscription";
+          const scannerCard = document.querySelector('a[href="baizora_main_form.html"]');
+          if (scannerCard) {
+            scannerCard.classList.add("locked");
+            scannerCard.removeAttribute("href");
+            const tag = scannerCard.querySelector('.tool-tag');
+            if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ Please choose a plan to view'; }
+          }
         }
       } catch(e) {
         console.warn("Status fetch failed:", e.message);

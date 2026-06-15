@@ -260,21 +260,6 @@
     .hamburger:hover span { background: var(--white); }
     .hamburger { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 
-    .mobile-dash-btn {
-      display: none;
-      align-items: center;
-      padding: 6px 12px;
-      border-radius: 7px;
-      background: var(--electric);
-      color: white;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      text-decoration: none;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
     .mobile-drawer {
       display: none;
       position: fixed;
@@ -736,7 +721,6 @@
       header { padding: 0 16px; height: 52px; }
       .desktop-nav { display: none; }
       .hamburger { display: flex; }
-      .mobile-dash-btn { display: inline-flex; }
       .hero { padding: 40px 20px 36px; }
       .hero-text-block { text-align: center; }
       .hero-bullet { justify-content: center; }
@@ -1025,12 +1009,10 @@
 <body>
 
 <div class="site-top">
-<!-- TEMP: free period announcement — restore to "完全免费试用七天 · 联系我们：support@baizora.com" when billing resumes -->
 <div class="announcement">
   <span class="dot"></span>
-  &nbsp; 限时免费开放 — 无需注册，完整数据免费查看 &nbsp;·&nbsp; 分析数据每日美东时间下午6–7点更新&nbsp;·&nbsp; <span id="announcementDate"></span>
+  &nbsp; 完全免费试用七天 &nbsp;·&nbsp; 联系我们：support@baizora.com
 </div>
-<script>document.getElementById('announcementDate').textContent = new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'short'});</script>
 
 <header>
   <a href="index_cn.html" class="logo-wrap">
@@ -1041,16 +1023,13 @@
   <div class="desktop-nav">
     <a href="index.html" class="nav-btn">English</a>
     <a href="assets/about_cn.html" class="nav-btn">平台简介</a>
-    <!-- TEMP: 价格方案 hidden during free period; restore when billing resumes -->
-    <!-- <a href="pricing_cn.html" class="nav-btn">价格方案</a> -->
-    <a href="dashboard_cn.html" class="nav-btn">完整数据</a>
+    <a href="pricing_cn.html" class="nav-btn">价格方案</a>
     <a href="signup_cn.html" class="nav-btn" id="navRegisterBtn">免费注册</a>
     <a href="dashboard_cn.html" class="nav-btn" id="navDashBtn" style="display:none;">个人主页</a>
     <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
     <a href="login_cn.html" class="nav-btn nav-btn-primary" id="navLoginLogout">登录</a>
   </div>
 
-  <a href="dashboard_cn.html" class="mobile-dash-btn">控制台</a>
   <button class="hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -1059,11 +1038,10 @@
 
 <div class="mobile-drawer" id="mobileDrawer">
   <a href="assets/about_cn.html">平台简介</a>
-  <a href="baizora_main_form_cn.html" class="mobile-primary">完整数据</a>
   <div id="mobileAuthLinks"></div>
   <!-- <a href="account_cn.html">订阅管理</a> -->
   <a href="index.html">English</a>
-  <!-- <a href="billing_cn.html" class="mobile-gold">🔥 免费试用 — 七天</a> -->
+  <a href="pricing_cn.html" class="mobile-gold">🔥 免费试用 — 七天</a>
 </div>
 
 <!-- ── HERO ── -->
@@ -1085,13 +1063,11 @@
       </div>
 
       <div class="hero-cta">
-        <!-- TEMP: all data free for 1 month — restore gold btn when trial resumes
         <a href="pricing_cn.html" class="btn-gold">
           🔥 七天免费体验
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        -->
-        <a href="dashboard_cn.html" class="btn-primary">查看完整数据 — 无需注册</a>
+        <a href="baizora_main_form_free_cn.html" class="btn-secondary">免费预览</a>
       </div>
 
 
@@ -1349,17 +1325,13 @@
     <div class="cta-box">
       <h2>清晰呈现每个周期<br>价格和成交量变化</h2>
       <p>首页热门信息、指数资讯及免费预览随时可用 — 无需注册。</p>
-      <!-- TEMP: all data free for 1 month — restore when trial resumes
       <p>新用户前七天完整功能免费体验 — 随时可取消，无任何承诺。</p>
-      -->
       <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-        <!-- TEMP: restore gold btn when trial resumes
         <a href="pricing_cn.html" class="btn-gold">
           立即免费开始
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        -->
-        <a href="dashboard_cn.html" class="btn-secondary">查看完整数据</a>
+        <a href="baizora_main_form_free_cn.html" class="btn-secondary">免费预览</a>
       </div>
     </div>
 

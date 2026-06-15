@@ -442,14 +442,12 @@
         <div class="tool-desc">标普500与纳斯达克100近期及预告成分股增减变动，来源于金融新闻媒体，每个交易日收盘后更新。</div>
       </a>
 
-      <!-- TEMP: time-limited free — restore free preview card when trial resumes
       <a href="baizora_main_form_free_cn.html" class="tool-card">
         <div class="tool-icon">⬡</div>
         <div class="tool-name">免费预览</div>
         <div class="tool-desc">今日股价涨幅最大前3只异动股 — 无需登录，可分享给任何人。</div>
         <div class="tool-tag tag-free">免费</div>
       </a>
-      -->
 
     </div>
 
@@ -465,11 +463,9 @@
       <a href="index_cn.html" class="quick-link">
         <span class="quick-link-icon">🏠</span> 首页
       </a>
-      <!-- TEMP: time-limited free — restore quick link when trial resumes
       <a href="baizora_main_form_free_cn.html" class="quick-link">
         <span class="quick-link-icon">👁</span> 免费预览
       </a>
-      -->
       <a href="assets/faq_cn.html" class="quick-link">
         <span class="quick-link-icon">❓</span> 常见问题
       </a>
@@ -487,8 +483,7 @@
     const API = "https://us-central1-baizora.cloudfunctions.net/api";
 
     onAuthStateChanged(auth, async (user) => {
-      // TEMP: time-limited free — restore to re-enable login gate
-      // if (!user) { window.location.href = "login_cn.html"; return; }
+      if (!user) { window.location.href = "login_cn.html"; return; }
 
       // Fill header email
       document.getElementById("headerEmail").textContent = user.email;
@@ -518,17 +513,14 @@
             : "";
           text.textContent = "免费试用中" + end;
         } else {
-          text.textContent = "免费开放中";
-          // FREE MODE: scanner open to all logged-in users — locking disabled
-          // To restore paid gate:
-          //   text.textContent = "暂无有效订阅";
-          //   const scannerCard = document.querySelector('a[href="baizora_main_form_cn.html"]');
-          //   if (scannerCard) {
-          //     scannerCard.classList.add("locked");
-          //     scannerCard.removeAttribute("href");
-          //     const tag = scannerCard.querySelector('.tool-tag');
-          //     if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ 请选择订阅方案后查看'; }
-          //   }
+          text.textContent = "暂无有效订阅";
+          const scannerCard = document.querySelector('a[href="baizora_main_form_cn.html"]');
+          if (scannerCard) {
+            scannerCard.classList.add("locked");
+            scannerCard.removeAttribute("href");
+            const tag = scannerCard.querySelector('.tool-tag');
+            if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ 请选择订阅方案后查看'; }
+          }
         }
       } catch(e) {
         console.warn("订阅状态获取失败：", e.message);

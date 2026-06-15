@@ -259,21 +259,6 @@
     .hamburger:hover span { background: var(--white); }
     .hamburger { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 
-    .mobile-dash-btn {
-      display: none;
-      align-items: center;
-      padding: 6px 12px;
-      border-radius: 7px;
-      background: var(--electric);
-      color: white;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      text-decoration: none;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
     .mobile-drawer {
       display: none;
       position: fixed;
@@ -781,7 +766,6 @@
       header { padding: 0 16px; height: 52px; }
       .desktop-nav { display: none; }
       .hamburger { display: flex; }
-      .mobile-dash-btn { display: inline-flex; }
       .hero { padding: 40px 20px 36px; }
       .hero-text-block { text-align: center; }
       .hero-bullet { justify-content: center; }
@@ -1071,12 +1055,10 @@
 <body>
 
 <div class="site-top">
-<!-- TEMP: free period announcement — restore to "First 7 Days Free · Contact: support@baizora.com" when billing resumes -->
 <div class="announcement">
   <span class="dot"></span>
-  &nbsp; Time-Limited Free — Full Dashboard, No Sign-up &nbsp;·&nbsp; Processed data updated daily 6–7 PM ET &nbsp;·&nbsp; <span id="announcementDate"></span>
+  &nbsp; First 7 Days Free &nbsp;·&nbsp; Contact: support@baizora.com
 </div>
-<script>document.getElementById('announcementDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});</script>
 
 <header>
   <a href="./" class="logo-wrap">
@@ -1087,9 +1069,7 @@
   <div class="desktop-nav">
     <a href="index_cn.html" class="nav-btn">中文</a>
     <a href="assets/about.html" class="nav-btn">About</a>
-    <!-- TEMP: Plans hidden during free period; restore when billing resumes -->
-    <!-- <a href="pricing.html" class="nav-btn">Plans</a> -->
-    <a href="dashboard.html" class="nav-btn">Full Dashboard</a>
+    <a href="pricing.html" class="nav-btn">Plans</a>
     <a href="signup.html" class="nav-btn" id="navRegisterBtn">Register for Free</a>
     <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
     <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
@@ -1097,7 +1077,6 @@
 
   </div>
 
-  <a href="dashboard.html" class="mobile-dash-btn">Dashboard</a>
   <button class="hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -1106,11 +1085,10 @@
 
 <div class="mobile-drawer" id="mobileDrawer">
   <a href="assets/about.html">About</a>
-  <a href="baizora_main_form.html" class="mobile-primary">Full Dashboard</a>
   <div id="mobileAuthLinks"></div>
   <!-- <a href="account.html">Manage Subscription</a> -->
   <a href="index_cn.html">中文</a>
-  <!-- <a href="pricing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a> -->
+  <a href="pricing.html" class="mobile-gold">🔥 Start Free Trial — 7 Days</a>
 </div>
 
 <!-- ── HERO ── -->
@@ -1132,13 +1110,11 @@
       </div>
 
       <div class="hero-cta">
-        <!-- TEMP: all data free for 1 month — restore gold btn when trial resumes
         <a href="pricing.html" class="btn-gold">
           🔥 Start Free — 7 Days
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        -->
-        <a href="dashboard.html" class="btn-primary">View Full Dashboard — No Sign-up</a>
+        <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview</a>
       </div>
 
       <div class="fact-bar">
@@ -1393,17 +1369,13 @@
     <div class="cta-box">
       <h2>Every Price Move<br>Every Volume Spike<br>Organized</h2>
       <p>Homepage highlights, index news, and free preview are always available — no account needed.</p>
-      <!-- TEMP: all data free for 1 month — restore when trial resumes
       <p>New subscribers get 7 days of full access free — cancel anytime, no commitment.</p>
-      -->
       <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-        <!-- TEMP: restore gold btn when trial resumes
         <a href="pricing.html" class="btn-gold">
           Get Started Free
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        -->
-        <a href="dashboard.html" class="btn-secondary">View Full Dashboard</a>
+        <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview</a>
       </div>
     </div>
 
