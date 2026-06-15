@@ -457,6 +457,38 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
 
 ---
 
+## What Was Done 2026-06-14
+
+### Bug Fix: 1D P CHG% Showing 0% on Weekends
+
+- **Root cause:** `refreshDashPrices()` / `refreshLivePrices()` was called unconditionally on page load. On weekends, Tiingo IEX returns last traded price (= scanner close) → `chg = 0` → `r._liveChgPct = 0` → `0 ?? r.PriceChange1D` evaluates to `0` (because `??` only replaces null/undefined, not 0).
+- **Fix:** Wrapped initial refresh call in `isMarketOpen()` guard in all 6 affected files: `baizora_main_form.html`, `baizora_main_form_cn.html`, `top-price-movers.html`, `unusual-volume.html`, `index.html`, `index_cn.html`.
+
+### Bug Fix: Watchlist Not Syncing Across Devices
+
+Two-part fix:
+1. **Firestore security rules** were `allow read, write: if false` — blocking all client writes. Updated in Firebase Console to allow per-user access: `match /users/{userId} { allow read, write: if request.auth != null && request.auth.uid == userId; }`
+2. **`loadCloudWatchlist()` seeding:** Previously, if Firestore had no watchlist doc, it silently kept localStorage data and never wrote to Firestore. Fixed to seed Firestore from localStorage on first login so other devices can then sync. The Firestore document is keyed by `uid`; email is not needed since uid is the document ID.
+
+### Feature: `/api/index-news` Cloud Function
+
+- Fetches Google News RSS for 4 queries (S&P 500 addition/removal, Nasdaq-100 addition/removal)
+- 1-hour in-memory cache; filters retrospective articles; deduplicates; translates titles to Chinese
+- Returns `{ fetched: "YYYY-MM-DD HH:MM ET", lookback_days: 90, items: [...] }`
+- `index_news.html` + `_cn.html`: fetch CF first, fall back to static `data/index_news.json`; hourly `setInterval`
+- `index.html` + `index_cn.html` homepage: also try CF first for the news card
+- All pages show "Last checked: YYYY-MM-DD HH:MM ET" (browser fetch time)
+- **firebase-tools** installed globally: `npm install -g firebase-tools`; deploy with `firebase deploy --only functions --non-interactive`
+
+### Feature: Chat Widget Robot Icon
+
+- `chat-widget.js`: replaced plain chat bubble with a cute robot face SVG (antenna, rounded head, eyes with shine, smile)
+- Button changed from circular (56×56px) to pill shape with robot icon + **"Ask"** label (or **"问"** in CN)
+- Entire pill floats up/down with CSS animation (pauses on hover)
+- Cache-busting: all 4 pages loading `chat-widget.js` now use `?v=3` query string — bump this number on every future change to `chat-widget.js`
+
+---
+
 ## What Was Done 2026-06-12
 
 ### Stock Split Handling — Automated Split Detection & Live Price Correction
@@ -542,9 +574,10 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
 
 ## Next Time: What to Check
 
-1. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the 6-item revert checklist above.
+1. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the revert checklist above.
 2. **Tiingo attribution** — required by license: add `"Market Data Sourced by Tiingo.com"` to `baizora_main_form.html` and `baizora_main_form_cn.html`. Already done on individual stock pages. NOT yet done on main dashboards.
 3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify EPS and mktcap drop to expected post-split values and compare log stays clean.
 4. **Remaining EPS=None tickers** — BRK-B is structural (no EDGAR data after 2013); others may be IFRS filers. Investigate if any are solvable from EDGAR without a paid source.
 5. **yfinance compare log** — remaining flagged EPS diffs (OXY, MLM, CI etc.) are GAAP one-time items vs adjusted EPS. These are correct and expected — not bugs.
 6. **FUND_CACHE_TTL_DAYS = 0** — EDGAR now always re-fetches every run. Cache file is still written but never read back. No further cache management needed.
+7. **FAQ watchlist section** — user asked to update FAQ to reflect that watchlist now syncs across devices via Firestore (was previously described as local-only). Check `assets/faq.html` and `assets/faq_cn.html`.
