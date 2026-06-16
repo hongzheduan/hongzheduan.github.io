@@ -589,7 +589,7 @@ Two-part fix:
 ## Next Time: What to Check
 
 1. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the revert checklist above. Also remove the mobile `mobile-dash-btn` button and drawer link from `index.html` / `index_cn.html` (see `assets/revert_billing_checklist.html` sections e/f/g).
-2. **Tiingo attribution** — required by license: add `"Market Data Sourced by Tiingo.com"` to `baizora_main_form.html` and `baizora_main_form_cn.html`. Already done on individual stock pages. NOT yet done on main dashboards.
+2. **Tiingo attribution** — ✓ DONE. Present in `baizora_main_form.html` (line 906), individual stock pages, and homepage. `dashboard.html` shows no market data so no attribution needed there.
 3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify EPS and mktcap drop to expected post-split values and compare log stays clean.
 4. **Remaining EPS=None tickers** — BRK-B is structural (no EDGAR data after 2013); others may be IFRS filers. Investigate if any are solvable from EDGAR without a paid source.
 5. **yfinance compare log** — remaining flagged EPS diffs (OXY, MLM, CI etc.) are GAAP one-time items vs adjusted EPS. These are correct and expected — not bugs.

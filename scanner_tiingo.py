@@ -1223,6 +1223,23 @@ def _get_edgar_fundamentals(ticker):
 
             if q10_entries:
                 quarters = _derive_quarterly_eps(q10_entries)
+                if annual_entries and len(quarters) >= 1:
+                    annual_end = annual_entries[0]["end"]
+                    annual_val = annual_entries[0]["val"]
+                    recent_end, recent_val = quarters[0]
+                    # Preferred path: TTM = annual + (recent_Q - year_ago_Q).
+                    # Only use when exactly 1 quarter has been reported since the annual
+                    # (~50–120 days), so the formula is mathematically correct.
+                    # More robust than the q3_candidates path because it avoids the
+                    # inconsistent 9M YTD value (e.g. TPL where Q1+Q2+Q3 ≠ 9M YTD).
+                    if recent_end > annual_end:
+                        days_since = (date.fromisoformat(recent_end) - date.fromisoformat(annual_end)).days
+                        if 50 <= days_since <= 120:
+                            year_ago_end = f"{int(recent_end[:4]) - 1}{recent_end[4:]}"
+                            year_ago = next((q for q in quarters if q[0] == year_ago_end), None)
+                            if year_ago:
+                                eps = round(annual_val + recent_val - year_ago[1], 4)
+                                break
                 if annual_entries and len(quarters) >= 3:
                     annual_end = annual_entries[0]["end"]
                     annual_val = annual_entries[0]["val"]
