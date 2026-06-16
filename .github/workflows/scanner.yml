@@ -210,7 +210,7 @@ jobs:
             fi
           done
           VID_DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
-          printf '{"en":{"name":"%s","date":"%s"},"cn":{"name":"%s","date":"%s"}}' \
+          printf '{"en":{"name":"%s","date":"%s","url":""},"cn":{"name":"%s","date":"%s","url":""}}' \
             "$EN_NAME" "$VID_DATE" "$CN_NAME" "$VID_DATE" > data/latest_video_meta.json
 
       - name: Upload daily videos to YouTube
@@ -223,7 +223,26 @@ jobs:
           DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
           for type in $VIDEO_TYPES; do
             if [ -f "video/${type}.mp4" ]; then
-              python video/upload_youtube.py --file video/${type}.mp4 --type $type --date $DATE
+              OUT=$(python video/upload_youtube.py --file video/${type}.mp4 --type $type --date $DATE)
+              echo "$OUT"
+              YT_URL=$(echo "$OUT" | grep '^YOUTUBE_URL=' | cut -d= -f2-)
+              if [ -n "$YT_URL" ]; then
+                if echo "$type" | grep -q "_cn$"; then
+                  python -c "
+import json, sys
+m = json.load(open('data/latest_video_meta.json'))
+m['cn']['url'] = sys.argv[1]
+json.dump(m, open('data/latest_video_meta.json','w'))
+" "$YT_URL"
+                else
+                  python -c "
+import json, sys
+m = json.load(open('data/latest_video_meta.json'))
+m['en']['url'] = sys.argv[1]
+json.dump(m, open('data/latest_video_meta.json','w'))
+" "$YT_URL"
+                fi
+              fi
             else
               echo "Skipping $type — no qualifying stocks today"
             fi

@@ -326,7 +326,9 @@ def main():
         sys.exit(1)
 
     title, description = make_meta(args.type, args.date)
-    upload(args.file, title, description, args.privacy)
+    video_id = upload(args.file, title, description, args.privacy)
+    if video_id:
+        print(f"YOUTUBE_URL=https://youtu.be/{video_id}")
 
 
 if __name__ == "__main__":

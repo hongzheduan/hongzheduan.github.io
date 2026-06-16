@@ -1349,7 +1349,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="#ef4444"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
         YouTube
       </a></span>
-      <span class="footer-email">下载最新视频：<a id="videoDownloadLink" href="data/latest_video_cn.mp4" download class="footer-yt">↓ 最新视频</a></span>
+      <span class="footer-email">最新视频：<a id="videoWatchLink" href="data/latest_video_cn.mp4" target="_blank" class="footer-yt">最新视频</a> <a id="videoDownloadLink" href="data/latest_video_cn.mp4" download class="footer-yt" title="下载">↓</a></span>
     </div>
     <div class="footer-links">
       <a href="assets/privacy_cn.html">隐私政策</a>
@@ -2077,10 +2077,15 @@ window.mockSort = function(col, el) {
 })();
 
 fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
-  const link = document.getElementById('videoDownloadLink');
-  if (link && m.cn && m.cn.name) {
-    link.textContent = '↓ ' + m.cn.name + (m.cn.date ? ' (' + m.cn.date + ')' : '');
+  if (!m.cn) return;
+  const watch = document.getElementById('videoWatchLink');
+  const dl    = document.getElementById('videoDownloadLink');
+  const label = (m.cn.name || '最新视频') + (m.cn.date ? ' (' + m.cn.date + ')' : '');
+  if (watch) {
+    watch.textContent = label;
+    if (m.cn.url) watch.href = m.cn.url;
   }
+  if (dl && m.cn.url) dl.href = 'data/latest_video_cn.mp4';
 }).catch(() => {});
 
 </script>
