@@ -1685,6 +1685,40 @@
       })
       .catch(() => {});
 
+    /* ── CALENDAR GAP FILLER ── */
+    // US market holidays 2024-2027 (NYSE observed dates)
+    const _HOLIDAYS = new Set([
+      '2024-01-01','2024-01-15','2024-02-19','2024-03-29','2024-05-27','2024-06-19',
+      '2024-07-04','2024-09-02','2024-11-28','2024-12-25',
+      '2025-01-01','2025-01-20','2025-02-17','2025-04-18','2025-05-26','2025-06-19',
+      '2025-07-04','2025-09-01','2025-11-27','2025-12-25',
+      '2026-01-01','2026-01-19','2026-02-16','2026-04-03','2026-05-25','2026-06-19',
+      '2026-07-03','2026-09-07','2026-11-26','2026-12-25',
+      '2027-01-01','2027-01-18','2027-02-15','2027-04-02','2027-05-31','2027-06-18',
+      '2027-07-05','2027-09-06','2027-11-25','2027-12-24',
+    ]);
+    function fillCalendarGaps(dates, candles) {
+      const rd = [], rc = [];
+      for (let i = 0; i < dates.length; i++) {
+        if (i > 0) {
+          const prev = new Date(dates[i-1] + 'T12:00:00Z');
+          const curr = new Date(dates[i]   + 'T12:00:00Z');
+          const d = new Date(prev);
+          d.setUTCDate(d.getUTCDate() + 1);
+          while (d < curr) {
+            const dow = d.getUTCDay();
+            const ds  = d.toISOString().slice(0, 10);
+            if (dow !== 0 && dow !== 6 && !_HOLIDAYS.has(ds)) {
+              rd.push(ds); rc.push(null);
+            }
+            d.setUTCDate(d.getUTCDate() + 1);
+          }
+        }
+        rd.push(dates[i]); rc.push(candles[i]);
+      }
+      return { dates: rd, candles: rc };
+    }
+
     /* ── CANDLESTICK RENDERER ── */
     function renderCandleChart(canvas, candles, dates) {
       const dpr  = window.devicePixelRatio || 1;
@@ -1694,7 +1728,7 @@
       const ctx = canvas.getContext("2d");
       ctx.scale(dpr, dpr);
       const W = rect.width, H = rect.height;
-      const hasVol = candles.some(c => c[4] > 0);
+      const hasVol = candles.some(c => c && c[4] > 0);
       const volH   = hasVol ? Math.round(H * 0.22) : 0;
       const gap    = hasVol ? 6 : 0;
       const pad    = { top: 20, right: 16, bottom: 28, left: 58 };
@@ -1704,7 +1738,7 @@
       const cndW   = Math.max(1, slotW * 0.65);
       const toX    = i => pad.left + i * slotW + (slotW - cndW) / 2;
       let minP = Infinity, maxP = -Infinity;
-      candles.forEach(([o,h,l,c]) => { if(h>maxP) maxP=h; if(l<minP) minP=l; });
+      candles.forEach(c => { if (!c) return; const [,h,l] = c; if(h>maxP) maxP=h; if(l<minP) minP=l; });
       const buf  = (maxP - minP) * 0.05 || 1;
       const lo   = minP - buf, hi = maxP + buf;
       const toY  = p => pad.top + priceH * (1 - (p - lo) / (hi - lo));
@@ -1749,26 +1783,29 @@
           ctx.fillText(label, toX(i) + cndW / 2, H - 8);
         }
       });
-      candles.forEach(([o, h, l, c], i) => {
-        const green = c >= o, x = toX(i), mid = x + cndW / 2;
+      candles.forEach((c, i) => {
+        if (!c) return;
+        const [o, h, l, cv] = c;
+        const green = cv >= o, x = toX(i), mid = x + cndW / 2;
         ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
         ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
-        const bTop = toY(Math.max(o, c)), bH = Math.max(1, toY(Math.min(o, c)) - bTop);
+        const bTop = toY(Math.max(o, cv)), bH = Math.max(1, toY(Math.min(o, cv)) - bTop);
         ctx.fillRect(x, bTop, cndW, bH); ctx.strokeRect(x, bTop, cndW, bH);
       });
       if (hasVol) {
         const volTop = pad.top + priceH + gap;
-        const maxVol = Math.max(...candles.map(c => c[4] || 0));
+        const maxVol = Math.max(...candles.map(c => c ? c[4] || 0 : 0));
         ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(pad.left, volTop); ctx.lineTo(W - pad.right, volTop); ctx.stroke();
         ctx.fillStyle = "#475569"; ctx.font = `9px 'DM Mono', monospace`;
         ctx.textAlign = "right";
         ctx.fillText("量", pad.left - 5, volTop + 9);
-        candles.forEach(([o,, , c, v], i) => {
-          if (!v) return;
-          const green = c >= o;
+        candles.forEach((c, i) => {
+          if (!c || !c[4]) return;
+          const [o,,, cv, v] = c;
+          const green = cv >= o;
           const bH = Math.round((v / maxVol) * (volH - 4));
           ctx.fillStyle = green ? "rgba(34,197,94,0.45)" : "rgba(239,68,68,0.45)";
           ctx.fillRect(toX(i), volTop + (volH - 4) - bH, cndW, bH);
@@ -1830,15 +1867,23 @@
     let _modalTicker = null;
     function _renderModalChart(ticker, tf) {
       _modalTicker = ticker;
-      const candles = candleData?.data?.[ticker];
-      const dates   = candleData?.dates;
-      const canvas  = document.getElementById("candleCanvas");
-      const noData  = document.getElementById("candleNoData");
-      if (candles && candles.length > 0 && dates) {
-        const n = Math.min(candles.length, dates.length); // guard against any length mismatch
-        const slice = Math.min(tf, n);
+      const rawCandles = candleData?.data?.[ticker];
+      const dates      = candleData?.dates;
+      const canvas     = document.getElementById("candleCanvas");
+      const noData     = document.getElementById("candleNoData");
+      if (rawCandles && rawCandles.length > 0 && dates) {
+        // Left-pad with nulls when ticker has fewer bars than the shared dates array
+        // so each null becomes an empty space at the correct calendar position.
+        const candles = rawCandles.length < dates.length
+          ? new Array(dates.length - rawCandles.length).fill(null).concat(rawCandles)
+          : rawCandles;
+        const slice = Math.min(tf, dates.length);
+        const slicedDates   = dates.slice(-slice);
+        const slicedCandles = candles.slice(-slice);
+        // Insert null entries for weekday trading days missing from the data
+        const filled = fillCalendarGaps(slicedDates, slicedCandles);
         canvas.style.display = "block"; noData.style.display = "none";
-        renderCandleChart(canvas, candles.slice(-slice), dates.slice(-slice));
+        renderCandleChart(canvas, filled.candles, filled.dates);
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
       }
@@ -1982,7 +2027,10 @@
           tickers.forEach(t => {
             const d = q[t]; if (!d?.last) return;
             const bars = candleData.data[t]; if (!bars?.length) return;
-            bars[bars.length - 1][3] = d.last;
+            const bar = bars[bars.length - 1];
+            bar[3] = d.last;
+            if (d.last < bar[2]) bar[2] = d.last; // extend low if price dropped below scanner's low
+            if (d.last > bar[1]) bar[1] = d.last; // extend high if price rose above scanner's high
           });
         } else {
           // Append today bar to ALL tickers so candleData.dates stays aligned.
