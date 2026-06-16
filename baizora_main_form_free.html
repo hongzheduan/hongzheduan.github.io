@@ -1490,7 +1490,7 @@
 
     /* ── CANDLES DATA ── */
     let candleData = null;
-    fetch("data/candles.json")
+    fetch("data/candles.json?v=" + Date.now(), {cache: "no-cache"})
       .then(r => r.json())
       .then(d => { candleData = d; })
       .catch(() => {});
@@ -1553,6 +1553,10 @@
       const lo   = minP - buf, hi = maxP + buf;
       const toY  = p => pad.top + priceH * (1 - (p - lo) / (hi - lo));
       ctx.clearRect(0, 0, W, H);
+      /* gray background on today's (last) slot */
+      const todaySlotX = pad.left + (n - 1) * slotW;
+      ctx.fillStyle = "rgba(255,255,255,0.04)";
+      ctx.fillRect(todaySlotX, pad.top, slotW, priceH + gap + volH);
       ctx.font = `11px 'DM Mono', monospace`;
       /* price grid lines + labels */
       ctx.textAlign = "right";
@@ -1577,14 +1581,15 @@
       dates.forEach((d, i) => {
         const dt = new Date(d + 'T12:00:00');
         const mo = dt.getMonth(), yr = dt.getFullYear();
+        const isSecondLast = i === n - 2;
         if (n < 100) {
-          if (i % Math.round(n / 6) !== 0) return;
+          if (i % Math.round(n / 6) !== 0 && !isSecondLast) return;
           ctx.fillStyle = "#64748b";
           ctx.fillText(dt.toLocaleDateString("en-US", { month: "short", day: "numeric" }), toX(i) + cndW / 2, H - 8);
         } else {
-          if (mo === lastMo) return;
-          lastMo = mo; moCount++;
-          if (n >= 200 && moCount % 2 === 0) return;
+          if (mo === lastMo && !isSecondLast) return;
+          if (!isSecondLast) { lastMo = mo; moCount++; }
+          if (n >= 200 && moCount % 2 === 0 && !isSecondLast) return;
           const moName = dt.toLocaleDateString("en-US", { month: "short" });
           const label  = yr !== lastYr ? `${moName} '${String(yr).slice(-2)}` : moName;
           lastYr = yr;
@@ -1601,9 +1606,10 @@
         ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
         ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
         ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
+        if (h === l) { ctx.beginPath(); ctx.moveTo(mid - cndW/2, toY(h)); ctx.lineTo(mid + cndW/2, toY(h)); ctx.stroke(); }
+        else { ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke(); }
         const bTop = toY(Math.max(o, cv));
-        const bH   = Math.max(1, toY(Math.min(o, cv)) - bTop);
+        const bH   = Math.max(4, toY(Math.min(o, cv)) - bTop);
         ctx.fillRect(x, bTop, cndW, bH);
         ctx.strokeRect(x, bTop, cndW, bH);
       });
