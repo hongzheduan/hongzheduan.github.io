@@ -228,19 +228,9 @@ jobs:
               YT_URL=$(echo "$OUT" | grep '^YOUTUBE_URL=' | cut -d= -f2-)
               if [ -n "$YT_URL" ]; then
                 if echo "$type" | grep -q "_cn$"; then
-                  python -c "
-import json, sys
-m = json.load(open('data/latest_video_meta.json'))
-m['cn']['url'] = sys.argv[1]
-json.dump(m, open('data/latest_video_meta.json','w'))
-" "$YT_URL"
+                  python -c "import json,sys; m=json.load(open('data/latest_video_meta.json')); m['cn']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_meta.json','w'))" "$YT_URL"
                 else
-                  python -c "
-import json, sys
-m = json.load(open('data/latest_video_meta.json'))
-m['en']['url'] = sys.argv[1]
-json.dump(m, open('data/latest_video_meta.json','w'))
-" "$YT_URL"
+                  python -c "import json,sys; m=json.load(open('data/latest_video_meta.json')); m['en']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_meta.json','w'))" "$YT_URL"
                 fi
               fi
             else
