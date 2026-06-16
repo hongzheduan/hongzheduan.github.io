@@ -1950,9 +1950,7 @@
             .then(r => r.ok ? r.json() : {}).catch(() => ({}))
         )
       );
-      window._debug_raw = results;
       const q = Object.assign({}, ...results);
-      window._debug_q = q;
       if (!Object.keys(q).length) return;
 
       // Direction vs previous refresh
@@ -2016,14 +2014,7 @@
 
       // Update candleData for every ticker so modal sees current bars
       const todayET = new Date().toLocaleDateString("en-CA", {timeZone: "America/New_York"});
-      { const d = q["LITE"];
-        console.log("LITE raw quote:", d);
-        console.log("LITE timestamp raw:", d?.timestamp);
-        console.log("LITE qDay:", d?.timestamp ? new Date(d.timestamp).toLocaleDateString("en-CA", {timeZone: "America/New_York"}) : "no timestamp");
-        console.log("todayET:", todayET);
-        console.log("candleData last date:", candleData?.dates?.[candleData.dates.length - 1]);
-        console.log("fresh?", d?.timestamp ? new Date(d.timestamp).toLocaleDateString("en-CA", {timeZone: "America/New_York"}) === todayET : false); }
-      if (candleData?.data && candleData.dates) {
+if (candleData?.data && candleData.dates) {
         if (candleData.dates[candleData.dates.length - 1] === todayET) {
           // Scanner already wrote today's OHLCV; only update the close (live price).
           // Updating open/high/low/volume from IEX can corrupt the scanner's
