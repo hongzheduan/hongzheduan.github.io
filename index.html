@@ -1393,9 +1393,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="#ef4444"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
         YouTube
       </a></span>
-      <span class="footer-email" id="videoDownloadWrap" style="display:none">
-        <a id="videoDownloadLink" href="data/latest_video_en.mp4" download class="footer-yt">↓ Download</a>
-      </span>
+      <span class="footer-email">Download latest video: <a id="videoDownloadLink" href="data/latest_video_en.mp4" download class="footer-yt">↓ latest video</a></span>
     </div>
     <div class="footer-links">
       <a href="assets/privacy.html">Privacy</a>
@@ -2127,13 +2125,9 @@ window.mockSort = function(col, el) {
 })();
 
 fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
-  if (m.en && m.en.name) {
-    const wrap = document.getElementById('videoDownloadWrap');
-    const link = document.getElementById('videoDownloadLink');
-    if (wrap && link) {
-      link.textContent = '↓ ' + m.en.name + (m.en.date ? ' (' + m.en.date + ')' : '');
-      wrap.style.display = '';
-    }
+  const link = document.getElementById('videoDownloadLink');
+  if (link && m.en && m.en.name) {
+    link.textContent = '↓ ' + m.en.name + (m.en.date ? ' (' + m.en.date + ')' : '');
   }
 }).catch(() => {});
 
