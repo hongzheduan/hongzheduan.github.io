@@ -184,16 +184,34 @@ jobs:
           for type in $VIDEO_TYPES; do
             python video/generate_video.py --type $type
           done
-          # Copy generated videos to fixed paths for homepage download links
+          # Copy generated videos to fixed paths and write name metadata
+          EN_NAME="" CN_NAME=""
           for type in $VIDEO_TYPES; do
             if [ -f "video/${type}.mp4" ]; then
               if echo "$type" | grep -q "_cn$"; then
                 cp "video/${type}.mp4" data/latest_video_cn.mp4
+                case "$type" in
+                  volume_spikes_cn)   CN_NAME="异常成交量" ;;
+                  best_performer_cn)  CN_NAME="最佳涨幅股" ;;
+                  6m_breakout_cn)     CN_NAME="6个月突破" ;;
+                  1y_vol_peak_cn)     CN_NAME="年成交量峰值" ;;
+                  index_spotlight_cn) CN_NAME="指数聚焦" ;;
+                esac
               else
                 cp "video/${type}.mp4" data/latest_video_en.mp4
+                case "$type" in
+                  volume_spikes)   EN_NAME="Unusual Volume Spikes" ;;
+                  best_performer)  EN_NAME="Top Price Movers" ;;
+                  6m_breakout)     EN_NAME="6-Month Breakout" ;;
+                  1y_vol_peak)     EN_NAME="1Y Volume Peak" ;;
+                  index_spotlight) EN_NAME="Index Spotlight" ;;
+                esac
               fi
             fi
           done
+          VID_DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
+          printf '{"en":{"name":"%s","date":"%s"},"cn":{"name":"%s","date":"%s"}}' \
+            "$EN_NAME" "$VID_DATE" "$CN_NAME" "$VID_DATE" > data/latest_video_meta.json
 
       - name: Upload daily videos to YouTube
         if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
@@ -218,6 +236,7 @@ jobs:
           git rebase origin/main
           git add -f data/latest_video_en.mp4 2>/dev/null || true
           git add -f data/latest_video_cn.mp4 2>/dev/null || true
+          git add data/latest_video_meta.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No video files changed, skipping commit"
           else
