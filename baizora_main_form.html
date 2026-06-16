@@ -1654,19 +1654,20 @@
 
     /* ── CANDLES DATA ── */
     let candleData = null;
-    fetch("data/candles.json?v=" + Date.now(), {cache: "no-cache"})
+    fetch("data/candles.json")
       .then(r => r.json())
       .then(d => {
-        candleData = window._debug_candleData = d;
+        candleData = d;
         // If refreshDashPrices() already ran before candles.json loaded,
         // _liveIex has data but candleData was null — inject today's bar now.
-        const todayET = new Date().toLocaleDateString("en-CA", {timeZone: "America/New_York"});
+        const _d = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+        const todayET = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
         if (Object.keys(_liveIex).length && candleData.dates[candleData.dates.length - 1] !== todayET) {
           Object.keys(candleData.data).forEach(t => {
             const bars = candleData.data[t]; if (!bars?.length) return;
             const prev = bars[bars.length - 1][3];
-            const cl = _liveIex[t]?.last ?? prev;
-            bars.push([prev, Math.max(prev, cl), Math.min(prev, cl), cl, 0]);
+            const iv = _liveIex[t];
+            bars.push([iv?.open ?? prev, iv?.high ?? iv?.open ?? prev, iv?.low ?? iv?.open ?? prev, iv?.last ?? prev, iv?.volume ?? 0]);
           });
           candleData.dates.push(todayET);
         }
@@ -1731,10 +1732,6 @@
       const lo   = minP - buf, hi = maxP + buf;
       const toY  = p => pad.top + priceH * (1 - (p - lo) / (hi - lo));
       ctx.clearRect(0, 0, W, H);
-      /* gray background on today's (last) slot */
-      const todaySlotX = pad.left + (n - 1) * slotW;
-      ctx.fillStyle = "rgba(255,255,255,0.10)";
-      ctx.fillRect(todaySlotX, pad.top, slotW, priceH + gap + volH);
       ctx.font = `11px 'DM Mono', monospace`;
       ctx.textAlign = "right";
       for (let i = 0; i <= 4; i++) {
@@ -1758,19 +1755,21 @@
       dates.forEach((d, i) => {
         const dt = new Date(d + 'T12:00:00');
         const mo = dt.getMonth(), yr = dt.getFullYear();
-        const isSecondLast = i === n - 2;
+        const isLast = i === n - 1;
         if (n < 100) {
-          if (i % Math.round(n / 6) !== 0 && !isSecondLast) return;
-          ctx.fillStyle = "#64748b";
+          if (i % Math.round(n / 6) !== 0 && !isLast) return;
+          ctx.fillStyle = isLast ? "#94a3b8" : "#64748b";
           ctx.fillText(dt.toLocaleDateString("en-US", { month: "short", day: "numeric" }), toX(i) + cndW / 2, H - 8);
         } else {
-          if (mo === lastMo && !isSecondLast) return;
-          if (!isSecondLast) { lastMo = mo; moCount++; }
-          if (n >= 200 && moCount % 2 === 0 && !isSecondLast) return;
+          if (mo === lastMo && !isLast) return;
+          if (!isLast) { lastMo = mo; moCount++; }
+          if (n >= 200 && moCount % 2 === 0 && !isLast) return;
           const moName = dt.toLocaleDateString("en-US", { month: "short" });
-          const label  = yr !== lastYr ? `${moName} '${String(yr).slice(-2)}` : moName;
-          if (!isSecondLast) lastYr = yr;
-          ctx.fillStyle = "#64748b";
+          const label  = isLast
+            ? dt.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            : (yr !== lastYr ? `${moName} '${String(yr).slice(-2)}` : moName);
+          if (!isLast) lastYr = yr;
+          ctx.fillStyle = isLast ? "#94a3b8" : "#64748b";
           ctx.fillText(label, toX(i) + cndW / 2, H - 8);
         }
       });
@@ -1782,10 +1781,9 @@
         ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
         ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
         ctx.lineWidth = 1;
-        if (h === l) { ctx.beginPath(); ctx.moveTo(mid - cndW/2, toY(h)); ctx.lineTo(mid + cndW/2, toY(h)); ctx.stroke(); }
-        else { ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke(); }
+        ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
         const bTop = toY(Math.max(o, cv));
-        const bH   = Math.max(4, toY(Math.min(o, cv)) - bTop);
+        const bH   = Math.max(1, toY(Math.min(o, cv)) - bTop);
         ctx.fillRect(x, bTop, cndW, bH);
         ctx.strokeRect(x, bTop, cndW, bH);
       });
@@ -2013,9 +2011,12 @@
       });
 
       // Update candleData for every ticker so modal sees current bars
-      const todayET = new Date().toLocaleDateString("en-CA", {timeZone: "America/New_York"});
-if (candleData?.data && candleData.dates) {
-        if (candleData.dates[candleData.dates.length - 1] === todayET) {
+      const _d = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+      const todayET = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
+      if (candleData?.data && candleData.dates) {
+        const lastDate = candleData.dates[candleData.dates.length - 1];
+        const isToday  = lastDate === todayET;
+        if (isToday) {
           // Scanner already wrote today's OHLCV; only update the close (live price).
           // Updating open/high/low/volume from IEX can corrupt the scanner's
           // accurate regular-session data with premarket/extended-hours values.
@@ -2027,19 +2028,20 @@ if (candleData?.data && candleData.dates) {
             if (d.last < bar[2]) bar[2] = d.last; // extend low if price dropped below scanner's low
             if (d.last > bar[1]) bar[1] = d.last; // extend high if price rose above scanner's high
           });
-        } else if (candleData.dates[candleData.dates.length - 1] !== todayET) {
+        } else {
           // Append today bar to ALL tickers so candleData.dates stays aligned.
           // Tickers without a live quote get a flat carry-forward bar.
-          // Guard re-reads the live array tail to block a double-push if the
-          // candles.json onload callback already injected today's bar first.
           Object.keys(candleData.data).forEach(t => {
             const bars = candleData.data[t]; if (!bars?.length) return;
             const prev = bars[bars.length - 1][3];
-            // Use live close only; derive o/h/l from prev so we never inject
-            // stale IEX intraday OHLCV (Tiingo returns yesterday's values for
-            // stocks with thin IEX volume, e.g. LITE).
-            const cl = q[t]?.last ?? prev;
-            bars.push([prev, Math.max(prev, cl), Math.min(prev, cl), cl, 0]);
+            const d = q[t];
+            bars.push([
+              d?.open ?? prev,
+              d?.high ?? d?.open ?? prev,
+              d?.low  ?? d?.open ?? prev,
+              d?.last ?? prev,
+              d?.volume ?? 0
+            ]);
           });
           candleData.dates.push(todayET);
         }

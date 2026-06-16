@@ -1665,7 +1665,7 @@
 
     /* ── CANDLES DATA ── */
     let candleData = null;
-    fetch("data/candles.json?v=" + Date.now(), {cache: "no-cache"})
+    fetch("data/candles.json")
       .then(r => r.json())
       .then(d => {
         candleData = d;
@@ -1677,8 +1677,8 @@
           Object.keys(candleData.data).forEach(t => {
             const bars = candleData.data[t]; if (!bars?.length) return;
             const prev = bars[bars.length - 1][3];
-            const cl = _liveIex[t]?.last ?? prev;
-            bars.push([prev, Math.max(prev, cl), Math.min(prev, cl), cl, 0]);
+            const iv = _liveIex[t];
+            bars.push([iv?.open ?? prev, iv?.high ?? iv?.open ?? prev, iv?.low ?? iv?.open ?? prev, iv?.last ?? prev, iv?.volume ?? 0]);
           });
           candleData.dates.push(todayET);
         }
@@ -1743,10 +1743,6 @@
       const lo   = minP - buf, hi = maxP + buf;
       const toY  = p => pad.top + priceH * (1 - (p - lo) / (hi - lo));
       ctx.clearRect(0, 0, W, H);
-      /* gray background on today's (last) slot */
-      const todaySlotX = pad.left + (n - 1) * slotW;
-      ctx.fillStyle = "rgba(255,255,255,0.04)";
-      ctx.fillRect(todaySlotX, pad.top, slotW, priceH + gap + volH);
       ctx.font = `11px 'DM Mono', monospace`;
       ctx.textAlign = "right";
       for (let i = 0; i <= 4; i++) {
@@ -1769,19 +1765,21 @@
       dates.forEach((d, i) => {
         const dt = new Date(d + 'T12:00:00');
         const mo = dt.getMonth(), yr = dt.getFullYear();
-        const isSecondLast = i === n - 2;
+        const isLast = i === n - 1;
         if (n < 100) {
-          if (i % Math.round(n / 6) !== 0 && !isSecondLast) return;
-          ctx.fillStyle = "#64748b";
+          if (i % Math.round(n / 6) !== 0 && !isLast) return;
+          ctx.fillStyle = isLast ? "#94a3b8" : "#64748b";
           ctx.fillText(dt.toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" }), toX(i) + cndW / 2, H - 8);
         } else {
-          if (mo === lastMo && !isSecondLast) return;
-          if (!isSecondLast) { lastMo = mo; moCount++; }
-          if (n >= 200 && moCount % 2 === 0 && !isSecondLast) return;
+          if (mo === lastMo && !isLast) return;
+          if (!isLast) { lastMo = mo; moCount++; }
+          if (n >= 200 && moCount % 2 === 0 && !isLast) return;
           const moName = dt.toLocaleDateString("zh-CN", { month: "short" });
-          const label  = yr !== lastYr ? `${moName}'${String(yr).slice(-2)}` : moName;
-          if (!isSecondLast) lastYr = yr;
-          ctx.fillStyle = "#64748b";
+          const label  = isLast
+            ? dt.toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" })
+            : (yr !== lastYr ? `${moName}'${String(yr).slice(-2)}` : moName);
+          if (!isLast) lastYr = yr;
+          ctx.fillStyle = isLast ? "#94a3b8" : "#64748b";
           ctx.fillText(label, toX(i) + cndW / 2, H - 8);
         }
       });
@@ -1792,9 +1790,8 @@
         ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
         ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
         ctx.lineWidth = 1;
-        if (h === l) { ctx.beginPath(); ctx.moveTo(mid - cndW/2, toY(h)); ctx.lineTo(mid + cndW/2, toY(h)); ctx.stroke(); }
-        else { ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke(); }
-        const bTop = toY(Math.max(o, cv)), bH = Math.max(4, toY(Math.min(o, cv)) - bTop);
+        ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
+        const bTop = toY(Math.max(o, cv)), bH = Math.max(1, toY(Math.min(o, cv)) - bTop);
         ctx.fillRect(x, bTop, cndW, bH); ctx.strokeRect(x, bTop, cndW, bH);
       });
       if (hasVol) {
@@ -2041,8 +2038,14 @@
           Object.keys(candleData.data).forEach(t => {
             const bars = candleData.data[t]; if (!bars?.length) return;
             const prev = bars[bars.length - 1][3];
-            const cl = q[t]?.last ?? prev;
-            bars.push([prev, Math.max(prev, cl), Math.min(prev, cl), cl, 0]);
+            const d = q[t];
+            bars.push([
+              d?.open ?? prev,
+              d?.high ?? d?.open ?? prev,
+              d?.low  ?? d?.open ?? prev,
+              d?.last ?? prev,
+              d?.volume ?? 0
+            ]);
           });
           candleData.dates.push(todayET);
         }

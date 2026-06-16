@@ -906,7 +906,7 @@ def build_ohlcv_cache(tickers, from_date, sleep_time=0.15):
             continue
         d    = bar_data.pop("date")
         bars = _load_ticker_bars(ticker)
-        if d not in bars or d == DATE_STR:
+        if d not in bars:
             bars[d] = bar_data
             bars = _trim_old_bars(bars, cutoff_str)
             _save_ticker_bars(ticker, bars)
