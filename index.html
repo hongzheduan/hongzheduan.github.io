@@ -63,10 +63,7 @@
       background: var(--navy);
       color: var(--white);
       min-height: 100vh;
-    }
-
-    @media (min-width: 769px) {
-      body { overflow-x: hidden; }
+      overflow-x: hidden;
     }
 
     body::before {
@@ -315,9 +312,11 @@
       position: relative;
       z-index: 10;
       max-width: 1280px;
+      width: 100%;
       margin: 0 auto;
       padding: 52px 40px 50px;
       text-align: center;
+      overflow-x: hidden;
     }
 
     .hero::before {
@@ -517,6 +516,9 @@
       background: rgba(13, 30, 61, 0.5);
       overflow: hidden;
       padding: 12px 0;
+      width: 100%;
+      max-width: 100%;
+      contain: layout;
     }
     .ticker-delay-note {
       position: absolute;
@@ -569,6 +571,9 @@
       background: rgba(59,130,246,0.06);
       overflow: hidden;
       padding: 9px 0;
+      width: 100%;
+      max-width: 100%;
+      contain: layout;
     }
     .promo-ticker-track {
       display: flex;
