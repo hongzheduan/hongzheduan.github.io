@@ -187,6 +187,26 @@
   _root.appendChild(btn);
   _root.appendChild(panel);
 
+  /* ---- pin to visual bottom-right using screen.width (not layout viewport) ---- */
+  function positionBtn() {
+    var landscape = window.innerWidth > window.innerHeight;
+    var sw = Math.min(window.screen.width || 480, window.screen.height || 480);
+    if (!landscape && sw <= 480) {
+      requestAnimationFrame(function () {
+        var bw = btn.offsetWidth || 88;
+        btn.style.right = 'auto';
+        btn.style.left  = (sw - bw - 14) + 'px';
+        panel.style.right = 'auto';
+        panel.style.left  = Math.max(0, sw - Math.min(sw - 20, 340) - 10) + 'px';
+      });
+    } else {
+      btn.style.left   = 'auto'; btn.style.right   = '24px';
+      panel.style.left = 'auto'; panel.style.right = '24px';
+    }
+  }
+  positionBtn();
+  window.addEventListener('orientationchange', function () { setTimeout(positionBtn, 300); });
+
   var msgsEl = document.getElementById('bzw-msgs');
   var inputEl = document.getElementById('bzw-in');
   var sendEl  = document.getElementById('bzw-sd');
