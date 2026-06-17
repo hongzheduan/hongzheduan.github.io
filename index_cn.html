@@ -131,6 +131,11 @@
       z-index: 200;
     }
 
+    @media (max-width: 768px) and (orientation: portrait) {
+      .site-top { position: fixed; top: 0; left: 0; right: 0; }
+      .hero { padding-top: 105px; }
+    }
+
     /* ── HEADER ── */
     header {
       position: relative;
@@ -307,9 +312,11 @@
       position: relative;
       z-index: 10;
       max-width: 1280px;
+      width: 100%;
       margin: 0 auto;
       padding: 52px 40px 50px;
       text-align: center;
+      overflow-x: hidden;
     }
 
     .hero::before {
@@ -513,6 +520,9 @@
       background: rgba(13, 30, 61, 0.5);
       overflow: hidden;
       padding: 12px 0;
+      width: 100%;
+      max-width: 100%;
+      contain: layout;
     }
 
     .ticker-delay-note {
@@ -565,6 +575,9 @@
       background: rgba(59,130,246,0.06);
       overflow: hidden;
       padding: 9px 0;
+      width: 100%;
+      max-width: 100%;
+      contain: layout;
     }
     .promo-ticker-track {
       display: flex;
@@ -993,9 +1006,9 @@
     @media (max-width: 900px) {
       .hero-split { flex-direction: column; text-align: center; gap: 32px; }
       .hero-left { flex: none; width: 100%; align-items: center; }
-      .hero-right { width: 100%; max-width: 100%; margin: 0 auto; overflow-x: auto; }
-      .dash-mock { min-width: 600px; }
-      .dash-mock-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+      .hero-right { width: 100%; max-width: 100%; margin: 0 auto; }
+      .dash-mock { min-width: 0; width: 100%; overflow: hidden; }
+      .dash-mock-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; max-width: 100%; }
       .dash-mock-wrap::after { content: '← 滑动查看更多列'; display:block; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:#94a3b8; padding:6px 0; letter-spacing:0.08em; }
       .hero-split .hero-title    { text-align: center; }
       .hero-split .hero-bullets  { align-items: flex-start; text-align: left; width: 100%; max-width: 100%; margin: 0 0 20px; background: rgba(13,30,61,0.55); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 18px; }
@@ -1444,9 +1457,9 @@
 <script>
   /* Mobile menu */
   function toggleMenu() {
-    const drawer = document.getElementById("mobileDrawer");
-    const header = document.querySelector("header");
-    const bottom = header.getBoundingClientRect().bottom;
+    const drawer  = document.getElementById("mobileDrawer");
+    const siteTop = document.querySelector(".site-top");
+    const bottom  = siteTop ? siteTop.getBoundingClientRect().bottom : document.querySelector("header").getBoundingClientRect().bottom;
     drawer.style.top = bottom + "px";
     drawer.style.maxHeight = (window.innerHeight - bottom) + "px";
     drawer.classList.toggle("open");
