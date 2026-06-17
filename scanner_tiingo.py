@@ -2528,7 +2528,7 @@ if __name__ == "__main__":
     # FORCE_RUN=1 bypasses the holiday and probe checks (use for local testing).
     FORCE_RUN = os.environ.get("FORCE_RUN", "").lower() in ("1", "true", "yes")
 
-    today = date.today()
+    today = datetime.now(pytz.timezone('America/New_York')).date()
     if not FORCE_RUN and is_market_holiday(today):
         print(f"Market holiday ({today}) — skipping scan.")
         sys.exit(0)
