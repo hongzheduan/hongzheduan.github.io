@@ -222,7 +222,7 @@
     }
 
     /* ── TABLE AREA ── */
-    .table-area { position: relative; z-index: 10; overflow: auto; -webkit-overflow-scrolling: touch; transform: translateZ(0); -webkit-transform: translateZ(0); isolation: isolate; flex: 1; min-height: 0; }
+    .table-area { position: relative; z-index: 10; overflow: auto; -webkit-overflow-scrolling: touch; will-change: scroll-position; flex: 1; min-height: 0; }
 
     .table-area::-webkit-scrollbar { width: 6px; height: 6px; }
     .table-area::-webkit-scrollbar-track { background: transparent; }
@@ -479,6 +479,7 @@
     .mobile-drawer {
       display: none;
       position: fixed;
+      top: 56px;
       left: 0; right: 0;
       background: rgba(6,13,31,0.98);
       border-bottom: 1px solid var(--border);
@@ -563,10 +564,11 @@
       .row-count { font-size: 9px; white-space: nowrap; width: 100%; margin-left: 0; padding-bottom: 2px; }
     }
     @media (max-width: 640px) {
-      header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
+      header { position: fixed; top: 0; left: 0; right: 0; padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
       .header-divider, .tab-nav, .status-badge, .logout-btn, .dash-btn { display: none !important; }
       .hamburger { display: flex; }
-      .toolbar { padding: 6px 10px; gap: 6px; }
+      .toolbar { padding: 6px 10px; gap: 6px; margin-top: 56px; }
+      .mobile-search-bar { margin-top: 0; }
       .window-btn { padding: 3px 7px; font-size: 10px; white-space: nowrap; }
       .toolbar-search { display: none; }
       #readme, #membership { padding: 24px 16px; }
