@@ -262,6 +262,7 @@
     .mobile-drawer {
       display: none;
       position: fixed;
+      top: 89px;
       left: 0; right: 0;
       z-index: 199;
       background: rgba(6, 13, 31, 0.98);
@@ -270,7 +271,7 @@
       padding: 12px 20px 20px;
       flex-direction: column;
       gap: 8px;
-      max-height: calc(100vh - 80px);
+      max-height: calc(100vh - 89px);
       overflow-y: auto;
     }
 
@@ -1487,9 +1488,9 @@
 <script>
   /* Mobile menu */
   function toggleMenu() {
-    const drawer = document.getElementById("mobileDrawer");
-    const header = document.querySelector("header");
-    const bottom = header.getBoundingClientRect().bottom;
+    const drawer  = document.getElementById("mobileDrawer");
+    const siteTop = document.querySelector(".site-top");
+    const bottom  = siteTop ? siteTop.getBoundingClientRect().bottom : document.querySelector("header").getBoundingClientRect().bottom;
     drawer.style.top = bottom + "px";
     drawer.style.maxHeight = (window.innerHeight - bottom) + "px";
     drawer.classList.toggle("open");
