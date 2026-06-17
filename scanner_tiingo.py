@@ -24,6 +24,7 @@ SKIP_EDGAR       = os.environ.get("SKIP_EDGAR",  "").lower() in ("1", "true", "y
 EDGAR_ONLY       = os.environ.get("EDGAR_ONLY",  "").lower() in ("1", "true", "yes")
 
 DATE_STR         = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d")
+_TIINGO_LAST_DATE = DATE_STR   # updated by __main__ to the last date Tiingo actually has data for
 DATA_DIR         = "data"
 ARCHIVE_DIR      = "archive"
 OHLCV_CACHE_DIR  = os.path.join(DATA_DIR, "ohlcv_tiingo_cache")
@@ -1885,7 +1886,7 @@ def scan():
 
     print(f"Total tickers: {len(tickers)}")
 
-    to_date   = DATE_STR
+    to_date   = _TIINGO_LAST_DATE
     from_date = (datetime.now(pytz.timezone('America/New_York')) - timedelta(days=730)).strftime("%Y-%m-%d")
 
     # Build / update per-ticker OHLCV cache
@@ -2540,6 +2541,16 @@ if __name__ == "__main__":
     if FORCE_RUN:
         print("FORCE_RUN=1 — skipping market probe, using latest available Tiingo data.")
         data_confirmed = True
+        _discover = _tiingo_get(
+            "/tiingo/daily/spy/prices",
+            params={
+                "startDate": (datetime.now(pytz.timezone('America/New_York')) - timedelta(days=7)).strftime("%Y-%m-%d"),
+                "endDate": DATE_STR,
+            },
+        )
+        if _discover:
+            _TIINGO_LAST_DATE = _parse_tiingo_date(_discover[-1].get("date", "")) or DATE_STR
+            print(f"FORCE_RUN: Tiingo latest date confirmed = {_TIINGO_LAST_DATE}")
     else:
         # Probe Tiingo for today's SPY data. Retry every 30 min for up to 90 min
         # to handle data publication delays (especially the 6 PM scan).
@@ -2555,6 +2566,7 @@ if __name__ == "__main__":
             if probe:
                 latest_bar_date = _parse_tiingo_date(probe[-1].get("date", ""))
                 if latest_bar_date >= DATE_STR:
+                    _TIINGO_LAST_DATE = latest_bar_date
                     print(f"Tiingo data confirmed for {latest_bar_date} — proceeding.")
                     data_confirmed = True
                     break
