@@ -1660,19 +1660,7 @@
       .then(r => r.json())
       .then(d => {
         candleData = d;
-        // If refreshDashPrices() already ran before candles.json loaded,
-        // _liveIex has data but candleData was null — inject today's bar now.
-        const _d = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
-        const todayET = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
-        if (Object.keys(_liveIex).length && candleData.dates[candleData.dates.length - 1] !== todayET) {
-          Object.keys(candleData.data).forEach(t => {
-            const bars = candleData.data[t]; if (!bars?.length) return;
-            const prev = bars[bars.length - 1][3];
-            const iv = _liveIex[t];
-            bars.push([iv?.open ?? prev, iv?.high ?? iv?.open ?? prev, iv?.low ?? iv?.open ?? prev, iv?.last ?? prev, iv?.volume ?? 0]);
-          });
-          candleData.dates.push(todayET);
-        }
+        if (isMarketOpen()) refreshDashPrices();
       })
       .catch(() => {});
 

@@ -12,6 +12,7 @@ from datetime import date, datetime, timedelta, timezone
 import math
 import xml.etree.ElementTree as ET
 from itertools import groupby
+import pytz
 
 # =========================
 # CONFIG
@@ -22,7 +23,7 @@ TIINGO_BASE      = "https://api.tiingo.com"
 SKIP_EDGAR       = os.environ.get("SKIP_EDGAR",  "").lower() in ("1", "true", "yes")
 EDGAR_ONLY       = os.environ.get("EDGAR_ONLY",  "").lower() in ("1", "true", "yes")
 
-DATE_STR         = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+DATE_STR         = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d")
 DATA_DIR         = "data"
 ARCHIVE_DIR      = "archive"
 OHLCV_CACHE_DIR  = os.path.join(DATA_DIR, "ohlcv_tiingo_cache")
@@ -1885,7 +1886,7 @@ def scan():
     print(f"Total tickers: {len(tickers)}")
 
     to_date   = DATE_STR
-    from_date = (datetime.now() - timedelta(days=730)).strftime("%Y-%m-%d")
+    from_date = (datetime.now(pytz.timezone('America/New_York')) - timedelta(days=730)).strftime("%Y-%m-%d")
 
     # Build / update per-ticker OHLCV cache
     build_ohlcv_cache(tickers, from_date)
