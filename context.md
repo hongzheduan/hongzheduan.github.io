@@ -433,6 +433,45 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
 
 ---
 
+## What Was Done 2026-06-16/17
+
+### Auth State on Free Preview Pages
+
+- **Problem:** After navigating from dashboard → free preview, user appeared signed out.
+- **Fix:** Added Firebase compat SDK (`firebase-app-compat.js`, `firebase-auth-compat.js`) + `onAuthStateChanged` to both `baizora_main_form_free.html` and `baizora_main_form_free_cn.html`. Now shows Sign Out + user email when logged in (same pattern as homepage nav).
+
+### Free Preview Mobile Header — Tab Row
+
+- **Problem:** Mobile header too crowded; S&P 500 / Nasdaq 100 / README / MEMBERSHIP CHANGE buttons in the header caused "Upgrade" button to be cut off.
+- **Fix:** Moved the 4 section-tab buttons to a new sticky `<div class="tab-row">` between the `</header>` and toolbar. `.tab-row { position:sticky; top:56px; z-index:60; height:40px }`. Updated `.toolbar { top:96px }` (was 56px). JS selectors updated from `.tab-nav .tab-btn` → `.tab-row .tab-btn` across `drawerSection()` and `showMobileTab()`.
+- Applied to `baizora_main_form_free.html` (EN version — CN version has no tab row issue).
+
+### Chat Widget Mobile iOS Fixes (chat-widget.js, v3 → v8)
+
+Multiple layered iOS Safari bugs addressed:
+
+**v4 — bottom:72px:** Initial attempt to clear iOS Safari navigation toolbar (~49px). Not sufficient for newer iPhones (toolbar + home indicator = ~83px).
+
+**v5 — positionBtn() with visualViewport:** Attempted JS positioning using `window.visualViewport.width` to avoid layout viewport inflation. Caused wrong positioning because `visualViewport` still returns layout viewport width in some scenarios.
+
+**v6 — append to `<html>`, restore CSS right:14px:** Appended widget to `document.documentElement` instead of `document.body` to escape iOS body overflow context. Removed `positionBtn()` left-calc (CSS `right:14px` used instead). Also moved `overflow-x:hidden` from `body` to `html` in `index.html`/`index_cn.html` to fix fixed-element scrolling bug.
+
+**v7 — positionBtn() using screen.width, revert overflow-x to body:** Moving `overflow-x:hidden` to `html` broke `position:sticky` on the header. Reverted to `body`. Reimplemented `positionBtn()` using `Math.min(window.screen.width, window.screen.height)` (actual portrait device width — immune to layout viewport inflation) to compute `left` position. Widget stays on `<html>`.
+
+**v8 — transform:translateZ(0), bottom:90px:**
+- **Root cause of "robot not visible on page open":** iOS Safari doesn't activate `position:fixed` compositing until the first scroll event unless the element has a GPU-composited property. Added `-webkit-transform:translateZ(0); transform:translateZ(0); -webkit-backface-visibility:hidden` to `#bzw-btn` CSS to force immediate compositing layer.
+- **Root cause of "toolbar hiding button":** iOS Safari toolbar (~49px) + home indicator (~34px) = ~83px of bottom chrome. `bottom:72px` put button behind the chrome. Raised to `bottom:90px` (button), `bottom:130px` (panel).
+
+**Final state (v8):**
+- Widget appended to `<html>` (not body) — escapes iOS body overflow-x:hidden fixed-position bug
+- `body { overflow-x: hidden }` — prevents horizontal scroll AND keeps header sticky working
+- `transform:translateZ(0)` — forces immediate GPU compositing on iOS so button is fixed from page load
+- `bottom:90px` mobile — clears iOS Safari toolbar + home indicator on newer iPhones
+- `positionBtn()` uses `Math.min(screen.width, screen.height)` for `left` in portrait — immune to wide table inflating layout viewport
+- Chat-widget.js loaded with `?v=8` across all 4 pages
+
+---
+
 ## What Was Done 2026-06-15
 
 ### Mobile Homepage — Dashboard Button in Header
@@ -588,7 +627,8 @@ Two-part fix:
 
 ## Next Time: What to Check
 
-1. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the revert checklist above. Also remove the mobile `mobile-dash-btn` button and drawer link from `index.html` / `index_cn.html` (see `assets/revert_billing_checklist.html` sections e/f/g).
+1. **Chat widget mobile test result** — user was going to test `chat-widget.js?v=8` on another phone. Confirm whether bottom:90px + transform:translateZ(0) fixed both "not visible on page open" and "scrolls with page until middle". If button is still not fixed: next step is JS scroll listener fallback (position:absolute updated on every scroll event as last resort).
+2. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the revert checklist above. Also remove the mobile `mobile-dash-btn` button and drawer link from `index.html` / `index_cn.html` (see `assets/revert_billing_checklist.html` sections e/f/g).
 2. **Tiingo attribution** — ✓ DONE. Present in `baizora_main_form.html` (line 906), individual stock pages, and homepage. `dashboard.html` shows no market data so no attribution needed there.
 3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify EPS and mktcap drop to expected post-split values and compare log stays clean.
 4. **Remaining EPS=None tickers** — BRK-B is structural (no EDGAR data after 2013); others may be IFRS filers. Investigate if any are solvable from EDGAR without a paid source.
