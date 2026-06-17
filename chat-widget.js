@@ -138,8 +138,8 @@
     '#bzw-sd svg{width:15px;height:15px;fill:#fff;}',
 
     '@media(max-width:480px){',
-      '#bzw-panel{width:calc(100vw - 20px);right:10px;bottom:80px;}',
-      '#bzw-btn{bottom:16px;right:14px;height:44px;padding:0 14px 0 10px;gap:6px;}',
+      '#bzw-panel{width:calc(100vw - 20px);right:10px;bottom:112px;}',
+      '#bzw-btn{bottom:72px;right:14px;height:44px;padding:0 14px 0 10px;gap:6px;}',
       '#bzw-btn span{font-size:13px;}',
       '#bzw-btn svg{width:24px;height:24px;}',
     '}',

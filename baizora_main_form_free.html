@@ -190,10 +190,26 @@
       transform: translateY(-1px);
     }
 
+    /* ── TAB ROW ── */
+    .tab-row {
+      position: sticky;
+      top: 56px;
+      z-index: 60;
+      flex-shrink: 0;
+      height: 40px;
+      background: rgba(6, 13, 31, 0.97);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 4px;
+    }
+
     /* ── TOOLBAR ── */
     .toolbar {
       position: sticky;
-      top: 56px;
+      top: 96px;
       z-index: 50;
       flex-shrink: 0;
       height: 44px;
@@ -511,7 +527,7 @@
       border-radius: 2px;
     }
     @media (max-width: 640px) {
-      .header-divider, .tab-nav, .status-badge, .header-right { display: none !important; }
+      .header-divider, .tab-nav, .tab-row, .status-badge, .header-right { display: none !important; }
       header { padding: 0 14px; }
       .header-left { gap: 6px; }
       .header-left img { height: 32px; }
@@ -612,13 +628,6 @@
       </a>
       <div class="header-divider"></div>
       <div class="preview-badge">⬡ Free Preview</div>
-      <div class="header-divider"></div>
-      <nav class="tab-nav">
-        <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
-        <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
-        <button class="tab-btn" onclick="show('readme', this)">README</button>
-        <button class="tab-btn" onclick="show('membership', this)">MEMBERSHIP CHANGE</button>
-      </nav>
     </div>
 
     <div class="header-right">
@@ -628,7 +637,8 @@
       </div>
       <a href="assets/about.html" class="nav-btn">About</a>
       <a href="dashboard.html" class="nav-btn">Dashboard</a>
-      <a href="login.html" class="nav-btn">Sign in</a>
+      <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
+      <a href="login.html" class="nav-btn" id="navLoginLogout">Sign in</a>
       <a href="pricing.html" class="nav-btn nav-btn-upgrade">⚡ Upgrade</a>
     </div>
     <!-- Mobile hamburger -->
@@ -636,6 +646,14 @@
       <span></span><span></span><span></span>
     </button>
   </header>
+
+  <!-- Tab row -->
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
+    <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
+    <button class="tab-btn" onclick="show('readme', this)">README</button>
+    <button class="tab-btn" onclick="show('membership', this)">MEMBERSHIP CHANGE</button>
+  </div>
 
   <!-- Mobile tab strip (hidden — navigation is in the drawer) -->
   <div class="mobile-tab-strip" id="mobileTabStrip" style="display:none!important;"></div>
@@ -649,7 +667,7 @@
     <div class="drawer-divider"></div>
     <a href="assets/about.html">About</a>
     <a href="dashboard.html">Dashboard</a>
-    <a href="login.html">Sign in</a>
+    <a href="login.html" id="drawerLoginLogout">Sign in</a>
     <a href="pricing.html" class="m-upgrade">⚡ Upgrade — 7 Days Free</a>
   </div>
 
@@ -1474,7 +1492,7 @@
     }
 
     window.drawerSection = function(id, btn) {
-      const desktopBtn = [...document.querySelectorAll(".tab-nav .tab-btn")]
+      const desktopBtn = [...document.querySelectorAll(".tab-row .tab-btn")]
         .find(b => (b.getAttribute("onclick") || "").includes("'" + id + "'"));
       if (desktopBtn) _origShow(id, desktopBtn);
       syncDrawerActive(id);
@@ -1482,7 +1500,7 @@
     };
 
     window.showMobileTab = function(id, mobileBtn) {
-      const desktopBtn = [...document.querySelectorAll(".tab-nav .tab-btn")]
+      const desktopBtn = [...document.querySelectorAll(".tab-row .tab-btn")]
         .find(b => (b.getAttribute("onclick") || "").includes("'" + id + "'"));
       if (desktopBtn) _origShow(id, desktopBtn);
       syncDrawerActive(id);
@@ -1726,7 +1744,37 @@
     }
   </script>
 
-  <script src="chat-widget.js?v=3" data-lang="en"></script>
+  <script src="chat-widget.js?v=4" data-lang="en"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+      authDomain: "baizora.firebaseapp.com",
+      projectId: "baizora"
+    });
+    firebase.auth().onAuthStateChanged(function(user) {
+      var btn       = document.getElementById('navLoginLogout');
+      var emailEl   = document.getElementById('navUserEmail');
+      var drawerBtn = document.getElementById('drawerLoginLogout');
+      if (user) {
+        if (emailEl) { emailEl.textContent = user.email; emailEl.style.display = 'inline'; }
+        if (btn) {
+          btn.textContent = 'Sign out';
+          btn.style.borderColor = 'rgba(239,68,68,0.3)';
+          btn.style.color = '#fca5a5';
+          btn.href = '#';
+          btn.onclick = function(e) { e.preventDefault(); firebase.auth().signOut().then(function() { window.location.href = 'index.html'; }); };
+        }
+        if (drawerBtn) {
+          drawerBtn.textContent = 'Sign out';
+          drawerBtn.href = '#';
+          drawerBtn.onclick = function(e) { e.preventDefault(); firebase.auth().signOut().then(function() { window.location.href = 'index.html'; }); };
+        }
+      }
+    });
+  </script>
 
 </body>
 </html>
