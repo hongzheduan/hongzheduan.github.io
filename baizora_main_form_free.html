@@ -846,6 +846,18 @@
 
     /* ── STATE ── */
     let spRows = [], ndRows = [], allRows = [];
+    const IEX_CF = 'https://us-central1-baizora.cloudfunctions.net/api/iex-quotes';
+    const _liveIex = {};
+    const _prevFreePrices = {};
+
+    function isMarketOpen() {
+      try {
+        const et = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+        if (et.getDay() === 0 || et.getDay() === 6) return false;
+        const m = et.getHours() * 60 + et.getMinutes();
+        return m >= 570 && m < 960;
+      } catch(e) { return false; }
+    }
     let activeTab     = "sp500";
     let sortKey       = "PriceChange1D";
     let sortAsc       = false;
@@ -876,6 +888,7 @@
           statusDot.className = "status-dot";
           render();
           updateStatus();
+          if (isMarketOpen()) { refreshFreePrices(); setInterval(() => { if (isMarketOpen()) refreshFreePrices(); }, 10_000); }
         })
         .catch(err => {
           clearTimeout(tid);
@@ -1167,7 +1180,7 @@
         const fmt = v => (v ?? "—");
 
         const oneDayTds = is1D ? `
-          <td class="${colorClass(pc1)} group-start">${pc1}%</td>
+          <td class="${colorClass(pc1)} chg1d-cell group-start" data-ticker="${r.Ticker}">${pc1 != null ? pc1 + '%' : '—'}</td>
           <td class="${colorClass(pma - 1)} group-start">${pma}</td>
           <td class="${colorClass(vc1)}">${vc1}%</td>
           <td class="${colorClass(vma - 1)}">${vma}</td>` : "";
@@ -1506,11 +1519,83 @@
       syncDrawerActive(id);
     };
 
+    /* ── LIVE PRICE REFRESH ── */
+    async function refreshFreePrices() {
+      const tickers = [...new Set([...document.querySelectorAll('td.ticker-cell[data-ticker]')].map(td => td.dataset.ticker))];
+      if (!tickers.length) return;
+      let q = {};
+      try {
+        const r = await fetch(`${IEX_CF}?tickers=${tickers.join(',')}`);
+        q = r.ok ? await r.json() : {};
+      } catch(e) { return; }
+      if (!Object.keys(q).length) return;
+
+      // Update price cells
+      document.querySelectorAll('td.ticker-cell[data-ticker]').forEach(tc => {
+        const t = tc.dataset.ticker;
+        const d = q[t]; if (!d?.last) return;
+        const dir = (_prevFreePrices[t] != null) ? (d.last > _prevFreePrices[t] ? 'up' : d.last < _prevFreePrices[t] ? 'dn' : '') : '';
+        _prevFreePrices[t] = d.last;
+        _liveIex[t] = d;
+        const pc = tc.parentElement?.querySelector('td.price-cell');
+        if (pc) { pc.textContent = d.last.toFixed(2); pc.style.color = dir === 'up' ? '#22c55e' : dir === 'dn' ? '#ef4444' : ''; }
+      });
+
+      // Update 1D chg% cells
+      document.querySelectorAll('td.chg1d-cell[data-ticker]').forEach(tc => {
+        const d = q[tc.dataset.ticker]; if (!d?.last) return;
+        const r = allRows.find(x => x.Ticker === tc.dataset.ticker); if (!r?.Price) return;
+        const chg = +((d.last - r.Price) / r.Price * 100).toFixed(2);
+        tc.textContent = (chg >= 0 ? '+' : '') + chg + '%';
+        tc.className = tc.className.replace(/\b(positive|negative|neutral)\b/g, chg > 0 ? 'positive' : chg < 0 ? 'negative' : 'neutral');
+      });
+
+      // Update candleData for modal
+      if (candleData?.data && candleData.dates) {
+        const _d = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+        const todayET = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
+        const isToday = candleData.dates[candleData.dates.length - 1] === todayET;
+        if (isToday) {
+          tickers.forEach(t => {
+            const d = q[t]; if (!d?.last) return;
+            const bars = candleData.data[t]; if (!bars?.length) return;
+            const bar = bars[bars.length - 1];
+            bar[3] = d.last;
+            if (d.last < bar[2]) bar[2] = d.last;
+            if (d.last > bar[1]) bar[1] = d.last;
+          });
+        } else {
+          Object.keys(candleData.data).forEach(t => {
+            const bars = candleData.data[t]; if (!bars?.length) return;
+            const prev = bars[bars.length - 1][3];
+            const d = q[t];
+            bars.push([d?.open ?? prev, d?.high ?? d?.open ?? prev, d?.low ?? d?.open ?? prev, d?.last ?? prev, d?.volume ?? 0]);
+          });
+          candleData.dates.push(todayET);
+        }
+      }
+
+      // Update open modal
+      if (_modalTicker && document.getElementById('tickerModal').style.display !== 'none') {
+        const d = q[_modalTicker];
+        if (d?.last != null) document.getElementById('modalPrice').textContent = '$' + d.last.toFixed(2);
+        if (d?.last != null) {
+          const r = allRows.find(x => x.Ticker === _modalTicker);
+          if (r?.Price) {
+            const chg = +((d.last - r.Price) / r.Price * 100).toFixed(2);
+            const el = document.getElementById('modalPriceChange');
+            el.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+            el.style.color = chg > 0 ? '#22c55e' : chg < 0 ? '#ef4444' : '#94a3b8';
+          }
+        }
+      }
+    }
+
     /* ── CANDLES DATA ── */
     let candleData = null;
     fetch("data/candles.json")
       .then(r => r.json())
-      .then(d => { candleData = d; })
+      .then(d => { candleData = d; if (isMarketOpen()) refreshFreePrices(); })
       .catch(() => {});
 
     /* ── CALENDAR GAP FILLER ── */
