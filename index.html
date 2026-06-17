@@ -56,12 +56,13 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; overflow-x: hidden; }
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--navy);
       color: var(--white);
+      overflow-x: hidden;
       min-height: 100vh;
     }
 
@@ -2144,7 +2145,7 @@ fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
     }
   </script>
 
-  <script src="chat-widget.js?v=5" data-lang="en"></script>
+  <script src="chat-widget.js?v=6" data-lang="en"></script>
 
 </body>
 </html>

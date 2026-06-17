@@ -138,8 +138,8 @@
     '#bzw-sd svg{width:15px;height:15px;fill:#fff;}',
 
     '@media(max-width:480px){',
-      '#bzw-panel{width:calc(100vw - 20px);bottom:112px;}',
-      '#bzw-btn{bottom:72px;height:44px;padding:0 14px 0 10px;gap:6px;}',
+      '#bzw-panel{width:calc(100vw - 20px);right:10px;bottom:112px;}',
+      '#bzw-btn{bottom:72px;right:14px;height:44px;padding:0 14px 0 10px;gap:6px;}',
       '#bzw-btn span{font-size:13px;}',
       '#bzw-btn svg{width:24px;height:24px;}',
     '}',
@@ -183,29 +183,9 @@
       '</button>' +
     '</div>';
 
-  document.body.appendChild(btn);
-  document.body.appendChild(panel);
-
-  /* ---- mobile positioning (visual viewport, not layout viewport) ---- */
-  function positionBtn() {
-    var vw = (window.visualViewport ? window.visualViewport.width : null) || window.innerWidth;
-    if (vw <= 480) {
-      var bw = btn.offsetWidth || 88;
-      btn.style.right = 'auto';
-      btn.style.left = Math.max(0, vw - bw - 14) + 'px';
-      panel.style.right = 'auto';
-      panel.style.left = Math.max(0, vw - Math.min(vw - 20, 340) - 10) + 'px';
-    } else {
-      btn.style.left = 'auto';
-      btn.style.right = '24px';
-      panel.style.left = 'auto';
-      panel.style.right = '24px';
-    }
-  }
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', positionBtn);
-  window.addEventListener('orientationchange', function () { setTimeout(positionBtn, 200); });
-  window.addEventListener('resize', positionBtn);
-  positionBtn();
+  var _root = document.documentElement || document.body;
+  _root.appendChild(btn);
+  _root.appendChild(panel);
 
   var msgsEl = document.getElementById('bzw-msgs');
   var inputEl = document.getElementById('bzw-in');
