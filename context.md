@@ -98,10 +98,17 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 ## GitHub Actions Schedule
 
-- **Weekdays 22:00 UTC (6 PM ET):** preliminary scan only (`IS_VIDEO_RUN=False`); commits data
-- **Weekdays 00:00 UTC next day (8 PM ET):** final scan + daily videos (`IS_VIDEO_RUN=True`)
-- Videos skipped on weekends and holidays
-- Both runs use `scanner_tiingo.py` with `TIINGO_API_KEY` secret
+| Cron | ET Time | Days | What runs |
+|---|---|---|---|
+| `30 20 * * 1-5` | **4:30 PM** | Mon–Fri | Market scan + videos (`SKIP_EDGAR=1`, `PROBE_RETRIES=2` — retries at 5:00 PM if no data) |
+| `30 21 * * 1-5` | **5:30 PM** | Mon–Fri | Market scan only (`SKIP_EDGAR=1`, `PROBE_RETRIES=1`) |
+| `30 22 * * 1-5` | **6:30 PM** | Mon–Fri | Market scan only (`SKIP_EDGAR=1`, `PROBE_RETRIES=1`) |
+| `0 4 * * 2-6` | **11 PM** | Mon–Fri | Full scan + EDGAR (`FORCE_RUN=1`); pushes gzipped CSV to `scanner-archive` |
+| `0 5 * * 0,6` | **midnight** | Sat + Sun | EDGAR refresh only (`EDGAR_ONLY=1`) |
+
+- Videos skipped on holidays; only 4:30 PM run generates videos (`IS_VIDEO_RUN=True`)
+- Video type rotates by weekday: Mon=Volume Spikes, Tue=Best Performer, Wed=6M Breakout, Thu=1Y Vol Peak, Fri=Index Spotlight
+- All runs use `scanner_tiingo.py` with `TIINGO_API_KEY` secret
 
 ---
 
@@ -430,6 +437,54 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
   3. Add Tiingo attribution to dashboard pages (see item 7 below)
   4. Switch `scanner.yml` active scanner: already done (uses scanner_tiingo.py)
   5. Re-enable billing once first clean Tiingo run completes
+
+---
+
+## What Was Done 2026-06-18
+
+### Scanner Cron Schedule Shifted 30 Minutes Earlier
+
+- `30 20 * * 1-5` (4:30 PM ET) replaces `0 21` (5 PM ET) — preliminary + videos
+- `30 21 * * 1-5` (5:30 PM ET) replaces `0 22` (6 PM ET) — retry scan
+- `30 22 * * 1-5` (6:30 PM ET) replaces `0 23` (7 PM ET) — final scan
+- 11 PM and weekend midnight runs unchanged
+
+---
+
+## What Was Done 2026-06-17 (Intraday Bar Session)
+
+### Root Cause: Scanner UTC/ET Date Mismatch
+
+The final scanner runs at `00:00 UTC` (= 8 PM ET), so Python's `datetime.now(timezone.utc)` returned the next calendar day. `DATE_STR` was labeled `2026-06-17` for June 16 EOD data. This caused `trading_days` (which runs up to `DATE_STR`) to include June 17 with no Tiingo bars, making `candles.json`'s `dates[]` one entry longer than each ticker's bars arrays. On the frontend `isToday` was immediately `true`, so the injection branch never fired — live prices updated the June 16 bar instead of building a new June 17 bar.
+
+### scanner_tiingo.py Fixes (commits 4070fcd, f4bcde4, 7233f26)
+
+- Added `import pytz`
+- `DATE_STR` changed from `datetime.now(timezone.utc)` → `datetime.now(pytz.timezone('America/New_York'))` (line 26)
+- `today` in `__main__` holiday/weekend check changed from `date.today()` → ET date (line 2531)
+- `from_date` 730-day lookback changed to ET
+- Added module-level `_TIINGO_LAST_DATE = DATE_STR` — updated by probe/FORCE_RUN to last date Tiingo actually has data for
+- FORCE_RUN path now does a 7-day lookback probe to discover latest confirmed Tiingo date
+- Regular probe sets `_TIINGO_LAST_DATE = latest_bar_date` on confirmation
+- `scan()` uses `_TIINGO_LAST_DATE` as `to_date` instead of `DATE_STR` — `trading_days` never includes a date without real bars
+
+### Frontend Injection Fix — All 4 Dashboard Files
+
+**Both full dashboards (`baizora_main_form.html` + `_cn.html`):**
+- Removed "Path A" (injection block inside candles.json `.then()` callback) — was racing with the `candleData = d` assignment, causing dates/bars misalignment
+- `refreshDashPrices()` is now the sole injection point, called explicitly after `candleData = d` in the `.then()` callback
+
+**Free preview pages (`baizora_main_form_free.html` + `_free_cn.html`):**
+- Added full live price refresh: `refreshFreePrices()` + `isMarketOpen()` + `IEX_CF` constant
+- Updates price-cell (green/red flash), 1D chg% cell (live-computed vs scan close), open modal price/%, and candleData intraday bar
+- Called from candles.json `.then()` and every 10s via `setInterval`
+- Added `chg1d-cell data-ticker` to 1D change `<td>` in render template
+
+### Verification
+
+- Ran scanner via `workflow_dispatch` (FORCE_RUN=1) during market hours
+- `candles.json` last date = `2026-06-16` ✓, LITE bars[-1] close = 875.36 ✓, dates count == bars count ✓
+- Intraday bar confirmed working on EN and CN full dashboards
 
 ---
 
