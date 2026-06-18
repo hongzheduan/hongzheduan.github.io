@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-06-18
 Threshold: >10% for all metrics
-357 flagged diffs above threshold
+356 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -56,8 +56,8 @@ PRICE  -- 0 flagged (>10%)
     ADI      ours=434.46  yf=434.46  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 301 flagged (>10%)
-  FLAGGED (top 20 of 301):
+VOLUME  -- 299 flagged (>10%)
+  FLAGGED (top 20 of 299):
     ABT      ours=41.61  yf=10.41  diff=299.8% ***
     LDOS     ours=6.83  yf=1.85  diff=268.6% ***
     OMC      ours=24.26  yf=6.62  diff=266.3% ***
@@ -113,8 +113,8 @@ MKTCAP  -- 7 flagged (>10%)
     ESS      ours=$17.59B  yf=$18.87B  diff=6.8%
 
 ------------------------------------------------------------
-PE  -- 20 flagged (>10%)
-  FLAGGED (top 20 of 20):
+PE  -- 21 flagged (>10%)
+  FLAGGED (top 20 of 21):
     KKR      ours=62.190  yf=32.997  diff=88.5% ***
     OXY      ours=13.050  yf=70.027  diff=81.4% ***
     ALNY     ours=122.510  yf=70.048  diff=74.9% ***
