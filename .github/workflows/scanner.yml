@@ -2,9 +2,9 @@
 
 on:
   schedule:
-    - cron: "0 21 * * 1-5"   # 5 PM ET weekdays  — preliminary data + videos (retries at 5:30 PM)
-    - cron: "0 22 * * 1-5"   # 6 PM ET weekdays  — retry if 5 PM data not yet available
-    - cron: "0 23 * * 1-5"   # 7 PM ET weekdays  — final data
+    - cron: "30 20 * * 1-5"   # 4:30 PM ET weekdays  — preliminary data + videos (retries at 5:00 PM)
+    - cron: "30 21 * * 1-5"   # 5:30 PM ET weekdays  — retry if 4:30 PM data not yet available
+    - cron: "30 22 * * 1-5"   # 6:30 PM ET weekdays  — final data
     - cron: "0 4 * * 2-6"    # 11 PM ET weekdays — full EDGAR + market scan, no videos
     - cron: "0 5 * * 0,6"    # midnight ET weekends — EDGAR refresh only
   workflow_dispatch:
@@ -55,11 +55,11 @@ jobs:
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
-          elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then
+          elif [ "$SCHEDULE" = "30 20 * * 1-5" ]; then
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
-            echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 5:00, retry at 5:30
+            echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 4:30, retry at 5:00
           elif [ "$EVENT" = "workflow_dispatch" ]; then
             # manual trigger — full EDGAR refresh + market scan, no videos
             echo "FORCE_RUN=1"    >> $GITHUB_ENV
@@ -71,7 +71,7 @@ jobs:
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
-            echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 6 PM and 7 PM: probe once and exit
+            echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 5:30 PM and 6:30 PM: probe once and exit
           fi
 
       - name: Run scanner
@@ -95,9 +95,9 @@ jobs:
           EVENT="${{ github.event_name }}"
           if   [ "$SCHEDULE" = "0 5 * * 0,6"  ]; then RUN_TYPE="EDGAR-only"
           elif [ "$SCHEDULE" = "0 4 * * 2-6" ]; then RUN_TYPE="11PM-full"
-          elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then RUN_TYPE="5PM-scan"
-          elif [ "$SCHEDULE" = "0 22 * * 1-5" ]; then RUN_TYPE="6PM-scan"
-          elif [ "$SCHEDULE" = "0 23 * * 1-5" ]; then RUN_TYPE="7PM-scan"
+          elif [ "$SCHEDULE" = "30 20 * * 1-5" ]; then RUN_TYPE="430PM-scan"
+          elif [ "$SCHEDULE" = "30 21 * * 1-5" ]; then RUN_TYPE="530PM-scan"
+          elif [ "$SCHEDULE" = "30 22 * * 1-5" ]; then RUN_TYPE="630PM-scan"
           elif [ "$EVENT"    = "workflow_dispatch" ]; then RUN_TYPE="manual"
           else RUN_TYPE="unknown"; fi
           WORKLOG_ENTRY="$(date -u '+%Y-%m-%d %H:%M UTC')  $RUN_TYPE"
