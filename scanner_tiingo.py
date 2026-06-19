@@ -2413,11 +2413,11 @@ def export_score_history(df):
         history["sessions"]      = history["sessions"][:5]
         history["session_ranks"] = history["session_ranks"][:5]
 
-        # Top-10 by PriceChange1D from PREVIOUS session (latest_d1.json) — safe to show publicly
-        d1_path = os.path.join(DATA_DIR, "latest_d1.json")
+        # Top-10 by PriceChange1D from TODAY's scan (latest.json).
+        # By the time users view the homepage next day this is already "last session's" data.
         top10 = []
-        if os.path.exists(d1_path):
-            with open(d1_path) as f:
+        if os.path.exists(OUTPUT_JSON):
+            with open(OUTPUT_JSON) as f:
                 d1 = json.load(f)
             d1_rows = [r for r in d1.get("data", []) if r.get("PriceChange1D") is not None]
             d1_rows.sort(key=lambda r: r.get("PriceChange1D") or 0, reverse=True)
