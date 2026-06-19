@@ -458,6 +458,17 @@
 
     .btn-secondary:hover { border-color: rgba(59,130,246,0.3); color: var(--white); background: rgba(59,130,246,0.05); }
 
+    .hero-cta { flex-wrap: nowrap; }
+    .cta-mini-btns { flex-wrap: nowrap !important; }
+    .hero-cta .btn-gold, .hero-cta .btn-secondary,
+    .cta-mini-btns .btn-gold, .cta-mini-btns .btn-secondary {
+      flex-direction: column; gap: 2px; line-height: 1.2; padding: 11px 20px;
+    }
+    .btn-sub {
+      font-size: 10px; font-weight: 400; opacity: 0.7;
+      font-family: 'DM Mono', monospace; letter-spacing: 0.04em;
+    }
+
     /* ── FACT BAR ── */
     .fact-bar {
       display: flex;
@@ -1118,6 +1129,7 @@
     <a href="index_cn.html" class="nav-btn">中文</a>
     <a href="assets/about.html" class="nav-btn">About</a>
     <a href="pricing.html" class="nav-btn">Plans</a>
+    <a href="baizora_main_form_freetier.html" class="nav-btn">Free Tier</a>
     <a href="signup.html" class="nav-btn" id="navRegisterBtn">Register for Free</a>
     <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
     <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
@@ -1158,11 +1170,9 @@
       </div>
 
       <div class="hero-cta">
-        <a href="pricing.html" class="btn-gold">
-          🔥 Start Free — 7 Days
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-        <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview</a>
+        <a href="pricing.html" class="btn-gold">🔥 Start Free Trial<span class="btn-sub">latest · all 500+ tickers</span></a>
+        <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview<span class="btn-sub">latest · top 3 movers</span></a>
+        <a href="baizora_main_form_freetier.html" class="btn-secondary">Free Tier<span class="btn-sub">2 sessions delayed</span></a>
       </div>
 
       <div class="fact-bar">
@@ -1180,8 +1190,7 @@
         </div>
         <div class="fact-item">
           <div class="fact-num">2<span class="accent">×</span></div>
-          <div class="fact-label">Plans</div>
-          <div class="fact-sub">(All prices include tax)</div>
+          <div class="fact-label">Plans (tax incl.)</div>
         </div>
       </div>
     </div><!-- /hero-left -->
@@ -1443,11 +1452,9 @@
   <!-- Compact CTA -->
   <div class="cta-mini">
     <div class="cta-mini-btns">
-      <a href="pricing.html" class="btn-gold">
-        Get Started Free
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview</a>
+      <a href="pricing.html" class="btn-gold">🔥 Start Free Trial<span class="btn-sub">latest · all 500+ tickers</span></a>
+      <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview<span class="btn-sub">latest · top 3 movers</span></a>
+      <a href="baizora_main_form_freetier.html" class="btn-secondary">Free Tier<span class="btn-sub">2 sessions delayed</span></a>
     </div>
     <div class="cta-mini-tagline">Unique scores combining price & volume signals · 7-day free trial · cancel anytime</div>
   </div>

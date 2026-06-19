@@ -2234,11 +2234,37 @@ def check_data_quality(df, candles_out, trading_days):
 # EXPORT
 # =========================
 
+def _rotate_free_tier(new_market_date):
+    """3-slot circular buffer: latest_d1.json → free_tier.json, latest.json → latest_d1.json.
+    Only rotates when the incoming scan is for a new market date."""
+    import shutil
+    d1_path        = os.path.join(DATA_DIR, "latest_d1.json")
+    free_tier_path = os.path.join(DATA_DIR, "free_tier.json")
+
+    if not os.path.exists(OUTPUT_JSON):
+        return
+    try:
+        with open(OUTPUT_JSON) as f:
+            existing_date = json.load(f).get("date", "")
+        if existing_date == new_market_date:
+            return  # Same-day rescan — don't rotate
+    except Exception:
+        return
+
+    if os.path.exists(d1_path):
+        shutil.copy2(d1_path, free_tier_path)
+    shutil.copy2(OUTPUT_JSON, d1_path)
+    print(f"[rotate] free_tier←{existing_date}, d1←{existing_date}, new latest←{new_market_date}")
+
+
 def export(df):
     df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
     df.to_csv(OUTPUT_CSV, index=False)
 
     market_date = df["Date"].iloc[0] if len(df) and "Date" in df.columns else DATE_STR
+
+    _rotate_free_tier(market_date)
+
     payload = {
         "date":   market_date,
         "status": "Updated",

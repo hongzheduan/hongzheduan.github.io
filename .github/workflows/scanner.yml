@@ -106,6 +106,8 @@ jobs:
           # (git stash pop can silently fail on conflict, losing files like compare_*.log)
           TMPBAK=$(mktemp -d)
           cp data/latest.json          "$TMPBAK/" 2>/dev/null || true
+          cp data/latest_d1.json       "$TMPBAK/" 2>/dev/null || true
+          cp data/free_tier.json       "$TMPBAK/" 2>/dev/null || true
           cp data/candles.json         "$TMPBAK/" 2>/dev/null || true
           cp data/index_changes.json   "$TMPBAK/" 2>/dev/null || true
           cp data/index_news.json      "$TMPBAK/" 2>/dev/null || true
@@ -125,6 +127,8 @@ jobs:
 
           # Restore — overwrite whatever remote had with our fresh scanner output
           cp "$TMPBAK/latest.json"           data/ 2>/dev/null || true
+          cp "$TMPBAK/latest_d1.json"        data/ 2>/dev/null || true
+          cp "$TMPBAK/free_tier.json"        data/ 2>/dev/null || true
           cp "$TMPBAK/candles.json"          data/ 2>/dev/null || true
           cp "$TMPBAK/index_changes.json"    data/ 2>/dev/null || true
           cp "$TMPBAK/index_news.json"       data/ 2>/dev/null || true
@@ -142,6 +146,8 @@ jobs:
           echo "$WORKLOG_ENTRY" >> archive/worklog.md
 
           git add data/latest.json                     2>/dev/null || true
+          git add data/latest_d1.json                  2>/dev/null || true
+          git add data/free_tier.json                  2>/dev/null || true
           git add data/candles.json                    2>/dev/null || true
           git add data/index_changes.json              2>/dev/null || true
           git add data/index_news.json                 2>/dev/null || true

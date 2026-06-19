@@ -458,6 +458,17 @@
 
     .btn-secondary:hover { border-color: rgba(59,130,246,0.3); color: var(--white); background: rgba(59,130,246,0.05); }
 
+    .hero-cta { flex-wrap: nowrap; }
+    .cta-mini-btns { flex-wrap: nowrap !important; }
+    .hero-cta .btn-gold, .hero-cta .btn-secondary,
+    .cta-mini-btns .btn-gold, .cta-mini-btns .btn-secondary {
+      flex-direction: column; gap: 2px; line-height: 1.2; padding: 11px 20px;
+    }
+    .btn-sub {
+      font-size: 10px; font-weight: 400; opacity: 0.7;
+      font-family: 'DM Mono', monospace; letter-spacing: 0.04em;
+    }
+
     /* ── FACT BAR ── */
     .fact-bar {
       display: flex;
@@ -1071,6 +1082,7 @@
     <a href="index.html" class="nav-btn">English</a>
     <a href="assets/about_cn.html" class="nav-btn">平台简介</a>
     <a href="pricing_cn.html" class="nav-btn">价格方案</a>
+    <a href="baizora_main_form_freetier_cn.html" class="nav-btn">免费版</a>
     <a href="signup_cn.html" class="nav-btn" id="navRegisterBtn">免费注册</a>
     <a href="dashboard_cn.html" class="nav-btn" id="navDashBtn" style="display:none;">个人主页</a>
     <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
@@ -1110,11 +1122,9 @@
       </div>
 
       <div class="hero-cta">
-        <a href="pricing_cn.html" class="btn-gold">
-          🔥 七天免费体验
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-        <a href="baizora_main_form_free_cn.html" class="btn-secondary">免费预览</a>
+        <a href="pricing_cn.html" class="btn-gold">🔥 免费体验<span class="btn-sub">最新 · 全部500+股票</span></a>
+        <a href="baizora_main_form_free_cn.html" class="btn-secondary">免费预览<span class="btn-sub">最新 · 前3名异动股</span></a>
+        <a href="baizora_main_form_freetier_cn.html" class="btn-secondary">免费版<span class="btn-sub">延迟2个交易日</span></a>
       </div>
 
 
@@ -1398,11 +1408,9 @@
   <!-- 紧凑型 CTA -->
   <div class="cta-mini">
     <div class="cta-mini-btns">
-      <a href="pricing_cn.html" class="btn-gold">
-        立即免费开始
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <a href="baizora_main_form_free_cn.html" class="btn-secondary">免费预览</a>
+      <a href="pricing_cn.html" class="btn-gold">🔥 免费体验<span class="btn-sub">最新 · 全部500+股票</span></a>
+      <a href="baizora_main_form_free_cn.html" class="btn-secondary">免费预览<span class="btn-sub">最新 · 前3名异动股</span></a>
+      <a href="baizora_main_form_freetier_cn.html" class="btn-secondary">免费版<span class="btn-sub">延迟2个交易日</span></a>
     </div>
     <div class="cta-mini-tagline">独特评分系统 · 综合价格与成交量信号 · 7天免费体验 · 随时可取消</div>
   </div>
