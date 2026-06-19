@@ -659,6 +659,33 @@
     .card h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #60a5fa; margin-bottom: 8px; }
     .card p { font-size: 14px; color: #cbd5e1; line-height: 1.7; font-weight: 400; }
 
+    /* ── Top movers card ── */
+    .sh-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    .sh-header { display: grid; grid-template-columns: 28px 1fr 130px 60px 110px 52px; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--border); }
+    .sh-header span { font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #94a3b8; }
+    .sh-row { display: grid; grid-template-columns: 28px 1fr 130px 60px 110px 52px; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    .sh-row:last-child { border-bottom: none; }
+    .sh-row:hover { background: rgba(59,130,246,0.04); }
+    .sh-rank { font-family: 'DM Mono',monospace; font-size: 11px; color: #94a3b8; text-align: center; }
+    .sh-info { min-width: 0; }
+    .sh-ticker-name { font-family: 'DM Mono',monospace; font-size: 12px; font-weight: 700; color: #60a5fa; }
+    .sh-company-name { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+    .sh-spark svg { display: block; }
+    .sh-chg { font-family: 'DM Mono',monospace; font-size: 12px; font-weight: 600; text-align: right; }
+    .sh-chg.up { color: #22c55e; } .sh-chg.dn { color: #ef4444; }
+    .sh-dots { display: flex; gap: 3px; align-items: center; }
+    .sh-dot { width: 20px; height: 20px; border-radius: 50%; font-family: 'DM Mono',monospace; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: default; }
+    .sh-dot.top10 { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+    .sh-dot.top50 { background: rgba(245,158,11,0.08); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+    .sh-dot.miss  { background: rgba(100,116,139,0.08); color: #64748b; border: 1px solid rgba(100,116,139,0.2); }
+    .sh-score { font-family: 'DM Mono',monospace; font-size: 12px; color: #fcd34d; text-align: right; }
+    .sh-badge { font-family: 'DM Mono',monospace; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: 700; margin-left: 2px; }
+    .sh-badge-sp { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+    .sh-badge-nd { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+    @media (max-width: 900px) {
+      .sh-header, .sh-row { grid-template-columns: 22px 1fr 90px 52px 88px 44px; gap: 8px; padding: 9px 12px; }
+    }
+
     .spark-demo {
       background: rgba(13, 30, 61, 0.6);
       border: 1px solid rgba(59,130,246,0.2);
@@ -1149,84 +1176,21 @@
       </div>
     </div><!-- /hero-left -->
 
-    <!-- RIGHT: dashboard mock -->
+    <!-- RIGHT: 上期涨幅最大股票 -->
     <div class="hero-right">
-
-      <div style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#60a5fa;border:1px solid rgba(59,130,246,0.25);background:rgba(59,130,246,0.06);padding:6px 14px;border-radius:999px;margin-bottom:8px;">热门股票</div>
-      <div class="dash-mock-wrap">
-      <div class="dash-mock">
-
-        <div class="dash-header">
-          <div class="dash-logo">
-            <div class="dash-logo-dot">⬡</div>
-            <span class="dash-logo-text">贝佐拉</span>
-          </div>
-          <div class="dash-divider"></div>
-          <div class="dash-tabs">
-            <span class="dash-tab active" onclick="showDemoTab('data',this)">标普500</span>
-            <span class="dash-tab" onclick="showDemoTab('data',this)">纳斯达克100</span>
-            <span class="dash-tab" onclick="showDemoTab('chgs',this)">成分股变动</span>
-          </div>
+      <div id="shBadge" style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#22c55e;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);padding:6px 14px;border-radius:999px;margin-bottom:10px;">涨幅榜</div>
+      <div class="sh-card">
+        <div class="sh-header">
+          <span>#</span><span>代码</span><span>年趋势线</span><span>涨幅</span><span>评分排名 · 旧→新</span><span style="text-align:right;">贝佐拉评分</span>
         </div>
-
-        <div class="dash-toolbar">
-          <span class="dash-toolbar-label">周期</span>
-          <div class="dash-wins">
-            <span class="dash-win">1天</span>
-            <span class="dash-win">2周</span>
-            <span class="dash-win">1月</span>
-            <span class="dash-win">3月</span>
-            <span class="dash-win">6月</span>
-            <span class="dash-win">9月</span>
-            <span class="dash-win active" id="mockWin1Y" onclick="switchMockView('normal',this)">1年</span>
-            <span class="dash-win" id="mockWinScores" onclick="switchMockView('scores',this)" style="margin-left:6px;border-color:rgba(96,165,250,0.4);color:#60a5fa;">评分</span>
-            <span class="dash-win" id="mockWinFund"   onclick="switchMockView('fund',this)"   style="margin-left:4px;border-color:rgba(245,158,11,0.4);color:#f59e0b;">基本面</span>
-          </div>
+        <div id="shGrid">
+          <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;">加载中…</div>
         </div>
-
-        <div class="dash-thead" id="mockThead"></div>
-        <div id="mockBody"></div>
-
-        <div id="mockChanges" style="display:none; padding:12px 10px; font-family:'DM Mono',monospace; font-size:11px; line-height:2.0; text-align:left;">
-          <div style="color:#64748b; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px;">近期成分股变动记录</div>
-
-          <div style="margin-bottom:12px;">
-            <div style="color:#94a3b8; font-size:9px; letter-spacing:0.1em; margin-bottom:4px;">2026-03-23 &nbsp;·&nbsp; 标普500</div>
-            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">VRT</span> <span style="color:#64748b; font-size:10px;">Vertiv Holdings</span></div>
-            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">LITE</span> <span style="color:#64748b; font-size:10px;">Lumentum Holdings</span></div>
-            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">COHR</span> <span style="color:#64748b; font-size:10px;">Coherent Corp.</span></div>
-            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">SATS</span> <span style="color:#64748b; font-size:10px;">EchoStar Corp.</span></div>
-            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MTCH</span> <span style="color:#64748b; font-size:10px;">Match Group</span></div>
-            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MOH</span> <span style="color:#64748b; font-size:10px;">Molina Healthcare</span></div>
-            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">LW</span> <span style="color:#64748b; font-size:10px;">Lamb Weston</span></div>
-            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">PAYC</span> <span style="color:#64748b; font-size:10px;">Paycom Software</span></div>
-          </div>
-
-          <div style="margin-bottom:12px;">
-            <div style="color:#94a3b8; font-size:9px; letter-spacing:0.1em; margin-bottom:4px;">2026-01-20 &nbsp;·&nbsp; 纳斯达克100</div>
-            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">WMT</span> <span style="color:#64748b; font-size:10px;">Walmart Inc.</span></div>
-            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">AZN</span> <span style="color:#64748b; font-size:10px;">AstraZeneca</span></div>
-          </div>
-
-          <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:10px; margin-top:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
-            <span style="color:#94a3b8; font-size:9px; letter-spacing:0.08em;">2026年4月起需登录查看</span>
-            <a href="login_cn.html" style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.08em; color:#60a5fa; text-decoration:none; border:1px solid rgba(59,130,246,0.3); padding:3px 10px; border-radius:4px;">登录 →</a>
-          </div>
-        </div>
-
-        <!-- Hint bar -->
-        <div style="padding:8px 8px; background:rgba(29,78,216,0.06); border-top:1px solid rgba(29,78,216,0.15); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <span style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.07em; color:#cbd5e1;">
-            👆 悬停<span style="color:#60a5fa;">代码</span>查看基本面 &nbsp;·&nbsp; <span style="color:#60a5fa;">↕ 点击排序</span>
-          </span>
-        </div>
-        <!-- Column legend -->
-        <div id="mockLegend" style="padding:10px 8px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);"></div>
-
-      </div><!-- /dash-mock -->
-      </div><!-- /dash-mock-wrap -->
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:#94a3b8;letter-spacing:0.06em;text-align:center;margin-top:8px;">展示 500+ 只追踪股票中的 8 只 &nbsp;·&nbsp; 完整版分析深度远超此展示 &nbsp;·&nbsp; 覆盖标普500与纳斯达克100全部成分股</div>
-      <div id="mockDataNote" style="font-family:'DM Mono',monospace;font-size:9px;color:#94a3b8;letter-spacing:0.06em;text-align:center;margin-top:4px;"></div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#94a3b8;letter-spacing:0.04em;text-align:center;margin-top:8px;line-height:1.8;">
+        年趋势线：<svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><polygon points="4,0 0,8 8,8" fill="#94a3b8"/></svg> 最高成交量日 &nbsp;·&nbsp; <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><circle cx="4" cy="4" r="3.5" fill="#94a3b8"/></svg> 最大价格变动日 &nbsp;·&nbsp; 绿=上涨，红=下跌<br>
+        排名点：<span style="color:#22c55e;">●</span> 前10 &nbsp;<span style="color:#f59e0b;">●</span> 前50 &nbsp;<span style="color:#64748b;">●</span> 50名外 &nbsp;·&nbsp; 左旧右新 &nbsp;·&nbsp; <a href="baizora_main_form_freetier_cn.html" style="color:#3b82f6;text-decoration:none;">查看完整结果 →</a>
+      </div>
     </div><!-- /hero-right -->
 
   </div><!-- /hero-split -->
@@ -1639,295 +1603,7 @@
 </script>
 
 <script>
-/* ── Mock table: data + sort ── */
-let MOCK_DATA = [];
-let mockView  = 'normal';
-
-function buildSparkPath(arr) {
-  if (!arr || arr.length < 2) return 'M0,10 L94,10';
-  const n = arr.length - 1 || 1;
-  const mn = Math.min(...arr), mx = Math.max(...arr);
-  const rng = mx - mn || 1;
-  return 'M' + arr.map((v, i) =>
-    `${((i/n)*94).toFixed(1)},${(20-((v-mn)/rng)*18).toFixed(1)}`
-  ).join(' L');
-}
-
-let mockSortCol = 'chg';
-let mockSortAsc = false;
-
-window.showDemoTab = function(mode, el) {
-  document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  const isChgs = mode === 'chgs';
-  document.getElementById('mockThead').style.display = isChgs ? 'none' : '';
-  document.getElementById('mockBody').style.display = isChgs ? 'none' : '';
-  document.getElementById('mockChanges').style.display = isChgs ? 'block' : 'none';
-  document.querySelector('.dash-toolbar').style.display = isChgs ? 'none' : '';
-};
-
-function cc(v) {
-  const n = parseFloat(v);
-  if (isNaN(n) || n === 0) return 'dr-neu';
-  return n > 0 ? 'dr-pos' : 'dr-neg';
-}
-function scClass(v, mid) {
-  const n = parseFloat(v);
-  if (isNaN(n)) return 'dr-neu';
-  return n > mid ? 'dr-pos' : n < mid ? 'dr-neg' : 'dr-neu';
-}
-const MOCK_GRIDS = {
-  normal: '54px 118px 80px 76px 72px 72px 70px 76px',
-  scores: '54px 118px 80px 56px 74px 82px 84px 60px',
-  fund:   '54px 118px 80px 70px 54px 58px 54px 90px',
-};
-const MOCK_SORT_DEFAULTS = { normal: 'chg', scores: 'rs', fund: 'mcapNum' };
-
-window.switchMockView = function(view, el) {
-  mockView = view;
-  ['mockWin1Y','mockWinScores','mockWinFund'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) btn.classList.remove('active');
-  });
-  el.classList.add('active');
-  mockSortCol = MOCK_SORT_DEFAULTS[view] || 'chg';
-  mockSortAsc = false;
-  document.querySelector('.dash-mock').style.setProperty('--mock-grid', MOCK_GRIDS[view]);
-  renderMock();
-};
-
-function fmt(v, digits=2) {
-  const n = parseFloat(v);
-  if (isNaN(n)) return v;
-  return (n > 0 ? '+' : '') + n.toFixed(digits) + '%';
-}
-
-function fmtN(v) { return parseFloat(v).toFixed(2); }
-
-function sparkSVG(r) {
-  return `<svg class="mock-spark" width="94" height="22" viewBox="0 0 94 22" fill="none">
-    <path d="${r.spark}" stroke="${r.sc}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
-    <polygon points="${r.triX},${r.triY-7} ${r.triX-4},${r.triY} ${r.triX+4},${r.triY}" fill="${r.triC}" stroke="rgba(6,13,31,0.9)" stroke-width="1"/>
-    <circle cx="${r.dotX}" cy="${r.dotY}" r="4" fill="${r.dotC}" opacity="0.25"/>
-    <circle cx="${r.dotX}" cy="${r.dotY}" r="2.5" fill="${r.dotC}" stroke="rgba(6,13,31,0.9)" stroke-width="1.2"/>
-  </svg>`;
-}
-
-const NORMAL_HEAD = `
-  <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">代码 <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">代码</div>股票代码。悬停查看基本面：市盈率、市值、每股收益、波动率及行业对比。</div></span>
-  <span class="dc" style="cursor:default; padding-left:8px;">年趋势图<div class="dc-tip"><div class="dc-tip-label">年趋势图</div>一年标准化价格走势。▲ 三角 = 最大成交量日（绿=上涨，红=下跌）。● 圆点 = 最大涨跌日（绿=量增，红=量减）。</div></span>
-  <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">价格 <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">价格</div>最新收盘价（美元）。</div></span>
-  <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">年涨幅<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">年涨幅</div>过去一年股价总变化（%）。</div></span>
-  <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">日最大价涨<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">日最大价涨</div>过去一年最大单日股价上涨（%）。</div></span>
-  <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">量@价日<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">量@价日</div>最大股价上涨日的成交量变化（%）。</div></span>
-  <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">日最大量涨<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">日最大量涨</div>过去一年最大单日成交量上升（%）。</div></span>
-  <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">价@量日<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">价@量日</div>最大成交量上涨日的股价变化（%）。</div></span>`;
-
-const SCORES_HEAD = `
-  <span class="dc dk-sort" data-col="tk"       onclick="mockSort('tk',this)">代码 <span class="dk-arr">↕</span></span>
-  <span class="dc" style="cursor:default; padding-left:8px;">年趋势图</span>
-  <span class="dc dk-sort" data-col="pr"        onclick="mockSort('pr',this)">价格 <span class="dk-arr">↕</span></span>
-  <span class="dc dk-sort gstart" data-col="rs" onclick="mockSort('rs',this)">RS评分 <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">RS评分（1–99）</div>相对强度：基于加权涨幅在全体500+股票中的百分位排名。算法：40%×3月 + 20%×6月 + 20%×9月 + 20%×1年。99=全市场前1%。</div></span>
-  <span class="dc dk-sort" data-col="breakout"  onclick="mockSort('breakout',this)">突破评分 <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">突破评分（0–100）</div>三项信号合成：价格高于MA21（0–33分）、当日涨幅（0–33分）、成交量高于MA21（0–34分）。高分=经典突破形态。</div></span>
-  <span class="dc dk-sort" data-col="momentum"  onclick="mockSort('momentum',this)">动能评分 <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">动能评分（0–100）</div>跨周期加权涨幅百分位排名：35%×1月 + 25%×3月 + 20%×6月 + 20%×1年。100=全市场动能最强。</div></span>
-  <span class="dc dk-sort" data-col="volpress"  onclick="mockSort('volpress',this)">量压评分 <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">量压评分（−100至100）</div>吸筹与派发的量化指标。算法：(成交量/MA21 − 1) × 价格方向 × 100。正值=买盘压力，负值=卖盘压力。</div></span>
-  <span class="dc dk-sort" data-col="trend"     onclick="mockSort('trend',this)">趋势评分 <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">趋势评分（0–100）</div>各周期（2周/1月/3月/6月/9月/1年）中价格为正的比例。100=全部6个周期均上涨，0=全部下跌。</div></span>`;
-
-const NORMAL_LEGEND = `
-  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">列说明</div>
-  <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> 年涨幅 &nbsp;&nbsp;过去一年股价总变化</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> 日最大价涨 最大单日股价上涨</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> 量@价日 &nbsp;&nbsp;最大股价上涨日成交量变化</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> 日最大量涨 最大单日成交量上升</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> 价@量日 &nbsp;&nbsp;最大成交量上涨日股价变化</div>
-  </div>`;
-
-const FUND_HEAD = `
-  <span class="dc dk-sort" data-col="tk"      onclick="mockSort('tk',this)">代码 <span class="dk-arr">↕</span></span>
-  <span class="dc" style="cursor:default; padding-left:8px;">年趋势图</span>
-  <span class="dc dk-sort" data-col="pr"      onclick="mockSort('pr',this)">价格 <span class="dk-arr">↕</span></span>
-  <span class="dc dk-sort gstart" data-col="mcapNum" onclick="mockSort('mcapNum',this)">市值 <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">市值</div>以十亿（B）或万亿（T）美元计算的市值。</div></span>
-  <span class="dc dk-sort" data-col="pe"      onclick="mockSort('pe',this)">市盈率 <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">市盈率（P/E）</div>滚动市盈率（过去12个月）。若盈利为负或数据缺失则显示"—"。</div></span>
-  <span class="dc dk-sort" data-col="eps"     onclick="mockSort('eps',this)">EPS <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">每股收益（EPS）</div>过去12个月每股收益（美元）。正值表示盈利。</div></span>
-  <span class="dc dk-sort" data-col="beta"    onclick="mockSort('beta',this)">贝塔 <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">贝塔系数（30日）</div>衡量股价对大盘涨跌的敏感程度。贝塔 > 1 表示波动高于市场。</div></span>
-  <span class="dc dk-sort" data-col="pevsec"  onclick="mockSort('pevsec',this)">市盈/行业 <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PE vs 行业</div>该股市盈率相对所在行业均值的偏差（%）。正值=溢价，负值=折价。</div></span>`;
-
-const FUND_LEGEND = `
-  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#f59e0b; margin-bottom:7px;">基本面说明</div>
-  <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">市值</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;以B（十亿）或T（万亿）美元计</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">市盈率</span> &nbsp;&nbsp;&nbsp;&nbsp;过去12个月市盈率</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">EPS</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;过去12个月每股收益（美元）</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">贝塔</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;30日贝塔，衡量对大盘的敏感度</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">市盈/行业</span> &nbsp;相对行业均值溢价（+）或折价（−）</div>
-  </div>`;
-
-const SCORES_LEGEND = `
-  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">评分说明</div>
-  <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">RS</span> &nbsp;&nbsp;&nbsp;&nbsp;1–99 · 相对强度，全市场百分位排名</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">突破</span> &nbsp;&nbsp;0–100 · 价格+量能突破综合评分</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">动能</span> &nbsp;&nbsp;0–100 · 跨周期加权动能强度</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">量压</span> &nbsp;&nbsp;±100 · 吸筹（正）vs 派发（负）</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">趋势</span> &nbsp;&nbsp;0–100 · 各周期向上比例</div>
-  </div>`;
-
-function renderMock() {
-  const isScores = mockView === 'scores';
-  const isFund   = mockView === 'fund';
-  const thead = document.getElementById('mockThead');
-  const legend = document.getElementById('mockLegend');
-  if (thead)  thead.innerHTML  = isFund ? FUND_HEAD   : isScores ? SCORES_HEAD   : NORMAL_HEAD;
-  if (legend) legend.innerHTML = isFund ? FUND_LEGEND : isScores ? SCORES_LEGEND : NORMAL_LEGEND;
-
-  const data = [...MOCK_DATA].sort((a, b) => {
-    const A = typeof a[mockSortCol] === 'string' ? a[mockSortCol] : parseFloat(a[mockSortCol]);
-    const B = typeof b[mockSortCol] === 'string' ? b[mockSortCol] : parseFloat(b[mockSortCol]);
-    if (typeof A === 'string') return mockSortAsc ? A.localeCompare(B) : B.localeCompare(A);
-    return mockSortAsc ? A - B : B - A;
-  });
-
-  const body = document.getElementById('mockBody');
-  if (!body) return;
-
-  const tkCell = r => `<span class="dr-tk">${r.tk}
-    <div class="tk-popup">
-      <div class="tk-popup-head"><span class="tk-sym">${r.tk}</span><span class="tk-sector">${r.sector}</span></div>
-      <div class="tk-rows">
-        <div class="tk-row"><span class="tk-key">PE</span><span class="tk-val">${r.pe}</span></div>
-        <div class="tk-row"><span class="tk-key">市值</span><span class="tk-val">${r.mc}</span></div>
-        <div class="tk-row"><span class="tk-key">EPS</span><span class="tk-val">${r.eps}</span></div>
-        <div class="tk-div"></div>
-        <div class="tk-row"><span class="tk-key">30日波动率</span><span class="tk-val">${r.vol30}</span></div>
-        <div class="tk-div"></div>
-        <div class="tk-row"><span class="tk-key">行业平均PE</span><span class="tk-val">${r.secpe}</span></div>
-        <div class="tk-row"><span class="tk-key">PE vs 行业</span><span class="tk-val ${r.pevsec.startsWith('+') ? 'tk-pos' : 'tk-neg'}">${r.pevsec}</span></div>
-      </div>
-    </div>
-  </span>`;
-
-  const spCell = r => `<span class="dr-sp">${sparkSVG(r)}
-    <div class="sp-tip">
-      <div class="sp-tip-title">年趋势图</div>
-      <div class="sp-tip-desc">一年标准化价格走势图</div>
-      <div class="sp-legend">
-        <div class="sp-legend-row"><svg width="10" height="9" viewBox="0 0 10 9"><polygon points="5,0 0,9 10,9" fill="${r.triC}"/></svg>最大成交量日</div>
-        <div class="sp-legend-row"><svg width="10" height="9" viewBox="0 0 10 9"><circle cx="5" cy="5" r="3.5" fill="${r.dotC}" opacity="0.3"/><circle cx="5" cy="5" r="2" fill="${r.dotC}"/></svg>最大涨跌日</div>
-      </div>
-    </div>
-  </span>`;
-
-  body.innerHTML = data.map(r => {
-    const cells = isFund
-      ? `${tkCell(r)}${spCell(r)}
-         <span class="dr-pr ${r.prDir||''}">${fmtN(r.pr)}</span>
-         <span class="dr-neu dr-gs">${r.mc}</span>
-         <span class="dr-neu">${r.pe}</span>
-         <span class="${cc(r.eps)}">${r.eps}</span>
-         <span class="dr-neu">${r.beta != null ? parseFloat(r.beta).toFixed(2) : '—'}</span>
-         <span class="${cc(r.pevsec)}">${r.pevsec}</span>`
-      : isScores
-      ? `${tkCell(r)}${spCell(r)}
-         <span class="dr-pr ${r.prDir||''}">${fmtN(r.pr)}</span>
-         <span class="${scClass(r.rs, 50)} dr-gs">${r.rs ?? '—'}</span>
-         <span class="${scClass(r.breakout, 50)}">${r.breakout ?? '—'}</span>
-         <span class="${scClass(r.momentum, 50)}">${r.momentum ?? '—'}</span>
-         <span class="${cc(r.volpress)}">${r.volpress ?? '—'}</span>
-         <span class="${scClass(r.trend, 50)}">${r.trend ?? '—'}</span>`
-      : `${tkCell(r)}${spCell(r)}
-         <span class="dr-pr ${r.prDir||''}">${fmtN(r.pr)}</span>
-         <span class="${cc(r.chg)} dr-gs">${fmt(r.chg)}</span>
-         <span class="${cc(r.mx)}">${fmt(r.mx)}</span>
-         <span class="${cc(r.vatpr)}">${fmt(r.vatpr)}</span>
-         <span class="${cc(r.vol)}">${fmt(r.vol)}</span>
-         <span class="${cc(r.pvol)}">${fmt(r.pvol)}</span>`;
-    return `<div class="dash-row">${cells}</div>`;
-  }).join('');
-
-  document.querySelectorAll('#mockThead .dk-sort').forEach(el => {
-    const arr = el.querySelector('.dk-arr');
-    if (!arr) return;
-    const col = el.dataset.col;
-    if (col === mockSortCol) {
-      el.classList.add('active');
-      arr.textContent = mockSortAsc ? ' ↑' : ' ↓';
-    } else {
-      el.classList.remove('active');
-      arr.textContent = ' ↕';
-    }
-  });
-}
-
-window.mockSort = function(col, el) {
-  if (mockSortCol === col) {
-    mockSortAsc = !mockSortAsc;
-  } else {
-    mockSortCol = col;
-    mockSortAsc = false;
-  }
-  renderMock();
-};
-
-// Load real data into demo table
-(function() {
-  const TOP10 = ["NVDA","GOOGL","AAPL","MSFT","AMZN","TSLA","META","MU"];
-  fetch('data/latest.json').then(r => r.json()).then(data => {
-    const tm = {};
-    data.data.forEach(r => { tm[r.Ticker] = r; });
-    MOCK_DATA = TOP10.map(t => {
-      const r = tm[t]; if (!r) return null;
-      const spark = r.Spark1Y || [];
-      const n = Math.max(spark.length - 1, 1);
-      const mn = spark.length ? Math.min(...spark) : 0;
-      const mx2 = spark.length ? Math.max(...spark) : 1;
-      const rng = mx2 - mn || 1;
-      const posX = i => +((i / n) * 94).toFixed(1);
-      const posY = i => +(20 - ((spark[i] - mn) / rng) * 18).toFixed(1);
-      const dotIdx = Math.min(r['1YMaxPriceChangeDay'] || 0, spark.length - 1);
-      const triIdx = Math.min(r['1YMaxVolumeChangeDay'] || 0, spark.length - 1);
-      const pc1y  = r['1YPriceChange'] || 0;
-      const pvol  = r['1YPriceChangeAtMaxVolume'] || 0;
-      const peVs  = r['PE_vs_Sector'] || 0;
-      const mcap  = r.MarketCap || 0;
-      return {
-        tk: t, sector: r.Sector || '',
-        pe:    (r.PE || 0).toFixed(1),
-        mc:    mcap >= 1000 ? (mcap / 1000).toFixed(2) + 'T' : Math.round(mcap) + 'B',
-        eps:   (r.EPS || 0).toFixed(2),
-        vol30: (r.VolumeVsMA21_1D || 0).toFixed(2) + 'x',
-        secpe: (r.SectorAvgPE || 0).toFixed(1),
-        pevsec:(peVs >= 0 ? '+' : '') + peVs.toFixed(1) + '%',
-        sc:    pc1y >= 0 ? '#22c55e' : '#ef4444',
-        triC:  pvol >= 0 ? '#22c55e' : '#ef4444',
-        dotC:  '#22c55e',
-        spark: buildSparkPath(spark),
-        triX: posX(triIdx), triY: posY(triIdx),
-        dotX: posX(dotIdx), dotY: posY(dotIdx),
-        pr:       r.Price || 0,
-        chg:      pc1y,
-        mx:       r['1YMaxPriceChange'] || 0,
-        vatpr:    r['1YVolumeChangeAtMaxPrice'] || 0,
-        vol:      r['1YMaxVolumeChange'] || 0,
-        pvol,
-        rs:       r.RSScore ?? null,
-        breakout: r.BreakoutScore ?? null,
-        momentum: r.MomentumScore ?? null,
-        volpress: r.VolPressureScore ?? null,
-        trend:    r.TrendScore ?? null,
-        beta:     r.Volatility30D ?? null,
-        mcapNum:  mcap,
-      };
-    }).filter(Boolean);
-    renderMock();
-    const scanDate = data.date
-      ? new Date(data.date + 'T00:00:00').toLocaleDateString('zh-CN', {month:'long', day:'numeric', year:'numeric'})
-      : '';
-    const note = document.getElementById('mockDataNote');
-    if (note && scanDate) note.textContent = '数据截至 ' + scanDate;
-  }).catch(() => {});
-})();
-
+/* ── Ticker bar + live prices ── */
 // Ticker bar
 (function() {
   const TOP10 = ["NVDA","GOOGL","AAPL","MSFT","AMZN","AVGO","TSLA","META","WMT","MU"];
@@ -2019,29 +1695,14 @@ window.mockSort = function(col, el) {
       const q = await resp.json();
       if (!q || !Object.keys(q).length) return;
 
-      const uniqueTickers = [...new Set([...BAR_TICKERS, ...MOCK_DATA.map(r => r.tk)])];
       const dirs = {};
-      uniqueTickers.forEach(t => {
+      BAR_TICKERS.forEach(t => {
         const newP = q[t]?.last;
         if (newP && _prevIexPrices[t] != null) {
           dirs[t] = newP > _prevIexPrices[t] ? 'up' : newP < _prevIexPrices[t] ? 'dn' : '';
         }
       });
-      uniqueTickers.forEach(t => { if (q[t]?.last) _prevIexPrices[t] = q[t].last; });
-
-      if (MOCK_DATA.length) {
-        MOCK_DATA.forEach(row => {
-          const newPrice = q[row.tk]?.last;
-          if (newPrice) {
-            row.prDir = dirs[row.tk] ? 'price-' + dirs[row.tk] : '';
-            row.pr = newPrice;
-          }
-        });
-        renderMock();
-        const today = new Date().toLocaleDateString('zh-CN', {month:'long', day:'numeric', year:'numeric', timeZone:'America/New_York'});
-        const note = document.getElementById('mockDataNote');
-        if (note) note.textContent = '数据截至 ' + today + ' · 延迟15分钟';
-      }
+      BAR_TICKERS.forEach(t => { if (q[t]?.last) _prevIexPrices[t] = q[t].last; });
 
       const track = document.getElementById('tickerTrack');
       if (!track) return;
@@ -2244,6 +1905,84 @@ fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
   }
   if (dl && m.cn.url) dl.href = 'data/latest_video_cn.mp4';
 }).catch(() => {});
+
+// Top movers card
+(function() {
+  function miniSpark(data, W, H, triIdx, triCol, dotIdx, dotCol) {
+    if (!data || data.length < 2) return `<svg width="${W}" height="${H}"></svg>`;
+    const n = data.length - 1 || 1;
+    const pad = 3;
+    const posX = i => +((i/n)*W).toFixed(1);
+    const posY = v => +(pad+(1-v)*(H-pad*2)).toFixed(1);
+    const pts = data.map((v,i) => `${posX(i)},${posY(v)}`).join(' ');
+    const col = data[data.length-1] >= data[0] ? '#22c55e' : '#ef4444';
+    const tc = triCol || '#22c55e';
+    const dc = dotCol || '#22c55e';
+    let markers = '';
+    if (triIdx != null && triIdx < data.length) {
+      const tx = posX(triIdx), ty = posY(data[triIdx]);
+      markers += `<polygon points="${tx},${ty-6} ${tx-3.5},${ty} ${tx+3.5},${ty}" fill="${tc}" stroke="rgba(6,13,31,0.9)" stroke-width="1"/>`;
+    }
+    if (dotIdx != null && dotIdx < data.length) {
+      const dx = posX(dotIdx), dy = posY(data[dotIdx]);
+      markers += `<circle cx="${dx}" cy="${dy}" r="4" fill="${dc}" opacity="0.25"/><circle cx="${dx}" cy="${dy}" r="2.5" fill="${dc}" stroke="rgba(6,13,31,0.9)" stroke-width="1.1"/>`;
+    }
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none"><polyline points="${pts}" stroke="${col}" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>${markers}</svg>`;
+  }
+
+  function dotClass(rank) {
+    if (rank == null) return 'miss';
+    return rank <= 10 ? 'top10' : 'top50';
+  }
+
+  fetch('data/score_history.json').then(r => r.json()).then(d => {
+    const grid = document.getElementById('shGrid');
+    if (!grid || !d.top10 || !d.top10.length) return;
+    const sessions = d.sessions || [];
+    const sRanks   = d.session_ranks || [];
+
+    const badge = document.getElementById('shBadge');
+    if (badge && d.top10[0]?.session) badge.textContent = d.top10[0].session + ' · 涨幅榜';
+
+    grid.innerHTML = d.top10.map((t, i) => {
+      const chg    = t.change1d ?? 0;
+      const chgCls = chg >= 0 ? 'up' : 'dn';
+      const chgStr = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+      const spark  = miniSpark(t.spark1y, 130, 28, t.triIdx, t.triCol, t.dotIdx, t.dotCol);
+
+      const dotsArr = [...sessions].reverse().map((sess, si) => {
+        const realSi = sessions.length - 1 - si;
+        const rank   = sRanks[realSi]?.ranks?.[t.ticker] ?? null;
+        const cls    = dotClass(rank);
+        const label  = rank ?? '—';
+        return `<span class="sh-dot ${cls}" title="${sess}: ${rank ? '排名 #'+rank : '50名外'}">${label}</span>`;
+      });
+      const dots = dotsArr.join('');
+
+      const badges = [
+        t.inSP500     ? `<span class="sh-badge sh-badge-sp">SP</span>` : '',
+        t.inNASDAQ100 ? `<span class="sh-badge sh-badge-nd">ND</span>` : '',
+      ].join('');
+
+      const score = t.score != null ? t.score.toFixed(1) : '—';
+
+      return `<div class="sh-row">
+        <div class="sh-rank">${i+1}</div>
+        <div class="sh-info">
+          <div class="sh-ticker-name">${t.ticker} <span style="display:inline-flex;gap:2px;vertical-align:middle;">${badges}</span></div>
+          <div class="sh-company-name">${t.company || ''}</div>
+        </div>
+        <div class="sh-spark">${spark}</div>
+        <div class="sh-chg ${chgCls}">${chgStr}</div>
+        <div class="sh-dots">${dots}</div>
+        <div class="sh-score">${score}</div>
+      </div>`;
+    }).join('');
+  }).catch(() => {
+    const grid = document.getElementById('shGrid');
+    if (grid) grid.innerHTML = '<div style="padding:24px;text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:#94a3b8;">数据暂未生成，请在收市后再查看。</div>';
+  });
+})();
 
 </script>
 

@@ -625,14 +625,14 @@
     .sh-section { max-width: 860px; margin: 0 auto; padding: 60px 24px 40px; }
     .sh-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
     .sh-header { display: grid; grid-template-columns: 28px 1fr 130px 60px 110px 52px; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--border); }
-    .sh-header span { font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #475569; }
+    .sh-header span { font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #94a3b8; }
     .sh-row { display: grid; grid-template-columns: 28px 1fr 130px 60px 110px 52px; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); transition: background 0.15s; }
     .sh-row:last-child { border-bottom: none; }
     .sh-row:hover { background: rgba(59,130,246,0.04); }
-    .sh-rank { font-family: 'DM Mono',monospace; font-size: 11px; color: #475569; text-align: center; }
+    .sh-rank { font-family: 'DM Mono',monospace; font-size: 11px; color: #94a3b8; text-align: center; }
     .sh-info { min-width: 0; }
     .sh-ticker-name { font-family: 'DM Mono',monospace; font-size: 13px; font-weight: 600; color: #fff; }
-    .sh-company-name { font-size: 11px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+    .sh-company-name { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
     .sh-spark svg { display: block; }
     .sh-chg { font-family: 'DM Mono',monospace; font-size: 12px; font-weight: 600; text-align: right; }
     .sh-chg.up { color: #22c55e; } .sh-chg.dn { color: #ef4444; }
@@ -640,7 +640,7 @@
     .sh-dot { width: 20px; height: 20px; border-radius: 50%; font-family: 'DM Mono',monospace; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: default; }
     .sh-dot.top10 { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
     .sh-dot.top50 { background: rgba(245,158,11,0.08); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
-    .sh-dot.miss  { background: rgba(100,116,139,0.06); color: #334155; border: 1px solid rgba(100,116,139,0.12); }
+    .sh-dot.miss  { background: rgba(100,116,139,0.08); color: #64748b; border: 1px solid rgba(100,116,139,0.2); }
     .sh-score { font-family: 'DM Mono',monospace; font-size: 12px; color: #fcd34d; text-align: right; }
     .sh-badges { display: flex; gap: 3px; flex-wrap: nowrap; }
     .sh-badge { font-family: 'DM Mono',monospace; font-size: 8px; padding: 1px 4px; border-radius: 3px; font-weight: 600; }
@@ -1233,12 +1233,12 @@
           <span>#</span><span>Ticker</span><span>1Y Trend</span><span>Move</span><span>Score Rank · old→new</span><span style="text-align:right;">Baizora Score</span>
         </div>
         <div id="shGrid">
-          <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#475569;">Loading…</div>
+          <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;">Loading…</div>
         </div>
       </div>
-      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#475569;letter-spacing:0.04em;text-align:center;margin-top:8px;line-height:1.8;">
-        1Y Trend: <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><polygon points="4,0 0,8 8,8" fill="#64748b"/></svg> highest-vol day &nbsp;·&nbsp; <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><circle cx="4" cy="4" r="3.5" fill="#64748b"/></svg> largest price-change day &nbsp;·&nbsp; green = price up, red = down<br>
-        Rank dots: <span style="color:#22c55e;">●</span> top 10 &nbsp;<span style="color:#f59e0b;">●</span> top 50 &nbsp;<span style="color:#334155;">●</span> outside &nbsp;·&nbsp; left oldest · right most recent &nbsp;·&nbsp; <a href="baizora_main_form_freetier.html" style="color:#3b82f6;text-decoration:none;">See full results →</a>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#94a3b8;letter-spacing:0.04em;text-align:center;margin-top:8px;line-height:1.8;">
+        1Y Trend: <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><polygon points="4,0 0,8 8,8" fill="#94a3b8"/></svg> highest-vol day &nbsp;·&nbsp; <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><circle cx="4" cy="4" r="3.5" fill="#94a3b8"/></svg> largest price-change day &nbsp;·&nbsp; green = price up, red = down<br>
+        Rank dots: <span style="color:#22c55e;">●</span> top 10 &nbsp;<span style="color:#f59e0b;">●</span> top 50 &nbsp;<span style="color:#64748b;">●</span> outside &nbsp;·&nbsp; left oldest · right most recent &nbsp;·&nbsp; <a href="baizora_main_form_freetier.html" style="color:#3b82f6;text-decoration:none;">See full results →</a>
       </div>
     </div><!-- /hero-right -->
 
