@@ -449,6 +449,32 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
 - `30 22 * * 1-5` (6:30 PM ET) replaces `0 23` (7 PM ET) — final scan
 - 11 PM and weekend midnight runs unchanged
 
+### Today's Market Briefing Card (Homepage)
+
+Added a full "Today's Market Briefing" digest card to both `index.html` and `index_cn.html`, replacing the old CTA box on the right panel.
+
+**Data files (scanner-generated):**
+- `data/daily_digest.json` — top 5 gainers + volume spikes, date, scan_time
+- `data/daily_briefing.txt` — EN download, full text with movers + news headlines + baizora.com footer
+- `data/daily_briefing_cn.txt` — CN download, full Chinese text (labels, footer, CN Google News headlines)
+
+**Cloud Function `/api/market-news`:**
+- Bilingual: EN default, CN via `?lang=zh`
+- EN query: `stock market OR "Federal Reserve" OR earnings OR war OR tariff OR inflation`
+- CN query: Chinese terms (`股市 OR 利率 OR 美联储...`), `hl=zh-CN&gl=CN&ceid=CN:zh-Hans`
+- 1-hour cache per lang; empty-result guard (never caches 0 items; serves stale instead)
+- `lang` declared outside try/catch to avoid ReferenceError
+
+**Index-news dedup fix:** Strips ` - SourceName` suffix before comparing titles, so same story from WSJ + Bloomberg no longer appears twice.
+
+**Download link:** Green (`#64c487`) when `digest.date === today ET date`; blue otherwise.
+
+**CTA mini:** Simplified to centered tagline + two buttons (no card background). Tagline below buttons.
+
+**Video title fix:** Homepage fetches real title from YouTube oEmbed (`https://www.youtube.com/oembed?url=...&format=json`) — no API key needed. Falls back to JSON `name` field. Date suffix NOT appended (YouTube title already has date).
+
+**Known: video commit can fail** if external pushes happen between scanner's data commit and video commit steps. Workaround: manually update `data/latest_video_meta.json`. Video schedule: Mon=volume_spikes, Tue=best_performer, Wed=6m_breakout, Thu=1y_vol_peak, Fri=index_spotlight.
+
 ---
 
 ## What Was Done 2026-06-17 (Intraday Bar Session)
