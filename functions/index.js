@@ -80,6 +80,7 @@ app.get("/iex-quotes", async (req, res) => {
         high:   q.high   ?? null,
         low:    q.low    ?? null,
         volume: q.volume ?? null,
+        ts:     q.lastSaleTimestamp ?? q.quoteTimestamp ?? null,
       };
     });
     _iexCacheMap.set(key, { data: result, ts: now });

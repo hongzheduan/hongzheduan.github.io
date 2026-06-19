@@ -854,12 +854,6 @@
       try {
         const et = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
         if (et.getDay() === 0 || et.getDay() === 6) return false;
-        const mm = et.getMonth()+1, dd = et.getDate(), yy = et.getFullYear();
-        const ymd = `${yy}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
-        if (['2026-01-01','2026-01-19','2026-02-16','2026-04-03','2026-05-25',
-             '2026-06-19','2026-07-03','2026-09-07','2026-11-26','2026-12-25',
-             '2027-01-01','2027-01-18','2027-02-15','2027-03-26','2027-05-31',
-             '2027-06-18','2027-07-05','2027-09-06','2027-11-25','2027-12-24'].includes(ymd)) return false;
         const m = et.getHours() * 60 + et.getMinutes();
         return m >= 570 && m < 960;
       } catch(e) { return false; }
@@ -1536,6 +1530,16 @@
       } catch(e) { return; }
       if (!Object.keys(q).length) return;
 
+      const _firstTs = Object.values(q).find(v => v.ts)?.ts;
+      const _isTodayIex = (() => {
+        if (!_firstTs) return true;
+        try {
+          const et = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+          const qt = new Date(new Date(_firstTs).toLocaleString('en-US', {timeZone:'America/New_York'}));
+          return et.getFullYear()===qt.getFullYear() && et.getMonth()===qt.getMonth() && et.getDate()===qt.getDate();
+        } catch(e) { return true; }
+      })();
+
       // Update price cells
       document.querySelectorAll('td.ticker-cell[data-ticker]').forEach(tc => {
         const t = tc.dataset.ticker;
@@ -1547,8 +1551,8 @@
         if (pc) { pc.textContent = d.last.toFixed(2); pc.style.color = dir === 'up' ? '#22c55e' : dir === 'dn' ? '#ef4444' : ''; }
       });
 
-      // Update 1D chg% cells
-      document.querySelectorAll('td.chg1d-cell[data-ticker]').forEach(tc => {
+      // Update 1D chg% cells — only when IEX data is from today ET
+      if (_isTodayIex) document.querySelectorAll('td.chg1d-cell[data-ticker]').forEach(tc => {
         const d = q[tc.dataset.ticker]; if (!d?.last) return;
         const r = allRows.find(x => x.Ticker === tc.dataset.ticker); if (!r?.Price) return;
         const chg = +((d.last - r.Price) / r.Price * 100).toFixed(2);
