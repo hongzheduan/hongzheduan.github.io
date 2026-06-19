@@ -2375,7 +2375,9 @@ def export_daily_digest(df):
             f.write(txt_cn)
         print("CN briefing text written.")
     except Exception as e:
+        import traceback
         print(f"[digest] export failed: {e}")
+        traceback.print_exc()
 
 
 # =========================
