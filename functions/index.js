@@ -218,7 +218,7 @@ app.get("/index-news", async (req, res) => {
 let _marketNewsCache = { en: { data: null, ts: 0 }, zh: { data: null, ts: 0 } };
 const _MARKET_NEWS_TTL = 60 * 60 * 1000;
 const _MARKET_NEWS_QUERY = 'stock market OR "Federal Reserve" OR earnings OR war OR tariff OR inflation';
-const _MARKET_NEWS_QUERY_ZH = '股市 OR 利率 OR 美联储 OR 财报 OR 战争 OR 关税 OR 油价 OR 房价 OR 失业率 OR 通胀';
+const _MARKET_NEWS_QUERY_ZH = '股市 OR 利率 OR 美联储 OR 财报 OR 美股 OR 关税 OR 油价 OR 失业率 OR 通胀';
 
 app.get("/market-news", async (req, res) => {
   const lang = req.query.lang === "zh" ? "zh" : "en";
