@@ -44,8 +44,10 @@ TIMEFRAMES = {
     "1Y": 252,
 }
 
-OUTPUT_JSON = os.path.join(DATA_DIR,    "latest.json")
-OUTPUT_CSV  = os.path.join(ARCHIVE_DIR, f"results_{DATE_STR}.csv")
+OUTPUT_JSON   = os.path.join(DATA_DIR,    "latest.json")
+OUTPUT_CSV    = os.path.join(ARCHIVE_DIR, f"results_{DATE_STR}.csv")
+DIGEST_JSON   = os.path.join(DATA_DIR,    "daily_digest.json")
+BRIEFING_TXT  = os.path.join(DATA_DIR,    "daily_briefing.txt")
 
 SCRAPE_HEADERS = {
     "User-Agent": (
@@ -623,6 +625,31 @@ def cleanup_old_archives():
                 print(f"Deleted old archive: {fname}")
         except Exception:
             pass
+
+
+def _fetch_market_headlines(n=5):
+    """Fetch top financial headlines from Google News RSS for the daily briefing text."""
+    try:
+        import urllib.request
+        query = "S%26P+500+OR+%22stock+market%22+OR+%22Wall+Street%22"
+        url = f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; Baizora/1.0)"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            xml_bytes = resp.read()
+        root = ET.fromstring(xml_bytes)
+        items = []
+        for item in root.iter("item"):
+            title = (item.findtext("title") or "").strip()
+            source_el = item.find("source")
+            source = source_el.text.strip() if source_el is not None and source_el.text else ""
+            if title:
+                items.append(f"  • {title}" + (f" — {source}" if source else ""))
+            if len(items) >= n:
+                break
+        return items
+    except Exception as e:
+        print(f"[digest] news fetch failed: {e}")
+        return []
 
 
 # =========================
@@ -2232,6 +2259,66 @@ def export_candles(candles_out, trading_days):
     print(f"Candles export: {len(candles_out)} tickers, {len(dates)} dates")
 
 
+def export_daily_digest(df):
+    """Write daily_digest.json (for card display) and daily_briefing.txt (for download)."""
+    try:
+        et_tz = pytz.timezone("America/New_York")
+        scan_time = datetime.now(et_tz).strftime("%Y-%m-%d %I:%M %p ET")
+
+        df_clean = df.dropna(subset=["PriceChange1D", "VolumeChange1D"]).copy()
+        top_g = df_clean.nlargest(5, "PriceChange1D")
+        top_v = df_clean.nlargest(5, "VolumeChange1D")
+
+        def _row_g(r):
+            return {"ticker": r["Ticker"], "name": r.get("CompanyName", ""),
+                    "price": round(float(r["Price"]), 2) if r.get("Price") else None,
+                    "chg1d": round(float(r["PriceChange1D"]), 2)}
+        def _row_v(r):
+            return {"ticker": r["Ticker"], "name": r.get("CompanyName", ""),
+                    "price": round(float(r["Price"]), 2) if r.get("Price") else None,
+                    "volchg": round(float(r["VolumeChange1D"]), 1),
+                    "vol": round(float(r["VolumeM"]), 1) if r.get("VolumeM") else None}
+
+        market_date = df["Date"].iloc[0] if len(df) and "Date" in df.columns else DATE_STR
+        digest = {
+            "date":        market_date,
+            "scan_time":   scan_time,
+            "top_gainers": [_row_g(r) for _, r in top_g.iterrows()],
+            "top_volume":  [_row_v(r) for _, r in top_v.iterrows()],
+        }
+        with open(DIGEST_JSON, "w") as f:
+            json.dump(digest, f)
+        print(f"Digest JSON: {len(digest['top_gainers'])} gainers, {len(digest['top_volume'])} volume spikes")
+
+        # Build downloadable text briefing
+        headlines = _fetch_market_headlines(5)
+        line = "─" * 54
+        txt  = f"BAIZORA DAILY MARKET BRIEFING — {market_date}\n{line}\n"
+        txt += f"S&P 500 & Nasdaq-100  ·  516 stocks tracked\n"
+        txt += f"Scan time: {scan_time}\n\n"
+        txt += "TOP GAINERS (1-Day)\n"
+        for r in digest["top_gainers"]:
+            sign = "+" if r["chg1d"] >= 0 else ""
+            name = (r["name"] or "")[:22]
+            txt += f"  {r['ticker']:<6} {name:<22}  ${r['price']:.2f}   {sign}{r['chg1d']:.2f}%\n"
+        txt += "\nTOP VOLUME SPIKES (1-Day)\n"
+        for r in digest["top_volume"]:
+            name  = (r["name"] or "")[:22]
+            vol_s = f"{r['vol']:.1f}M" if r["vol"] else "—"
+            txt += f"  {r['ticker']:<6} {name:<22}  +{r['volchg']:.0f}%   Vol: {vol_s}\n"
+        if headlines:
+            txt += "\nMARKET NEWS\n"
+            for h in headlines:
+                txt += h + "\n"
+        txt += f"\n{line}\nBaizora — S&P 500 & Nasdaq-100 Daily Analytics\nhttps://baizora.com\nNot financial advice.\n"
+
+        with open(BRIEFING_TXT, "w", encoding="utf-8") as f:
+            f.write(txt)
+        print("Briefing text written.")
+    except Exception as e:
+        print(f"[digest] export failed: {e}")
+
+
 # =========================
 # INDEX MEMBERSHIP NEWS
 # =========================
@@ -2603,6 +2690,9 @@ if __name__ == "__main__":
 
     # 6. Export results to latest.json + archive CSV
     export(df)
+
+    # 6b. Export daily digest + downloadable briefing for homepage card
+    export_daily_digest(df)
 
     # 7. Export candle data
     export_candles(candles_out, trading_days)

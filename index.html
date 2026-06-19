@@ -732,6 +732,38 @@
     .cta-box p { font-size: 16px; color: #cbd5e1; margin-bottom: 16px; font-weight: 400; }
     .cta-box p:last-of-type { margin-bottom: 32px; }
     .cta-two-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
+
+    /* ── DIGEST PANEL ── */
+    .digest-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; text-align: left; }
+    .digest-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
+    .digest-heading { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--white); margin-bottom: 14px; letter-spacing: -0.01em; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .digest-date { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; font-weight: 400; flex-shrink: 0; }
+    .digest-movers { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
+    .digest-col-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
+    .digest-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .digest-row:last-child { border-bottom: none; }
+    .digest-dtk { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); font-weight: 500; min-width: 40px; }
+    .digest-dname { font-size: 10px; color: #64748b; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .digest-dpct { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .digest-pos { color: #64c487; } .digest-neg { color: #c46464; }
+    .digest-div { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 12px 0; }
+    .digest-news-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
+    .digest-news-item { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .digest-news-item:last-child { border-bottom: none; }
+    .digest-news-link { font-size: 11px; color: #e2e8f0; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; transition: color 0.15s; }
+    .digest-news-link:hover { color: var(--electric-bright); }
+    .digest-news-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: #475569; margin-top: 2px; }
+    .digest-footer { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .digest-scan-note { font-family: 'DM Mono', monospace; font-size: 10px; color: #475569; }
+    .digest-dl { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: var(--electric-bright); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s; }
+    .digest-dl:hover { opacity: 0.75; }
+    .digest-msg { font-size: 12px; color: #64748b; padding: 14px 0; text-align: center; }
+
+    /* ── CTA MINI ── */
+    .cta-mini { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+    .cta-mini-tagline { font-size: 13px; color: #94a3b8; }
+    .cta-mini-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
     .hp-news-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 32px 28px; display: flex; flex-direction: column; text-align: left; }
     .hp-news-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
     .hp-news-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); margin-bottom: 4px; letter-spacing: -0.01em; }
@@ -788,6 +820,8 @@
 
       .cta-two-panel { grid-template-columns: 1fr; }
       .cta-box { padding: 40px 24px; }
+
+      .digest-movers { grid-template-columns: 1fr; gap: 12px; }
       footer { padding: 24px 20px; }
       .footer-row { flex-direction: column; align-items: center; text-align: center; }
       .footer-links { justify-content: center; }
@@ -1379,21 +1413,45 @@
       </div>
     </div>
 
-    <!-- Right: CTA -->
-    <div class="cta-box">
-      <h2>Every Price Move<br>Every Volume Spike<br>Organized</h2>
-      <p>Homepage highlights, index news, and free preview are always available — no account needed.</p>
-      <p>New subscribers get 7 days of full access free — cancel anytime, no commitment.</p>
-      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-        <a href="pricing.html" class="btn-gold">
-          Get Started Free
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    <!-- Right: Today's Market Briefing -->
+    <div class="digest-panel">
+      <div class="digest-eyebrow">◈ &nbsp; Daily Briefing</div>
+      <div class="digest-heading">Today's Market Briefing</div>
+      <div class="digest-movers">
+        <div>
+          <div class="digest-col-label">Top Gainers</div>
+          <div id="digestGainers"><div class="digest-msg">Loading…</div></div>
+        </div>
+        <div>
+          <div class="digest-col-label" style="display:flex;justify-content:space-between;align-items:center;">Volume Spikes <span id="digestDate" style="letter-spacing:0.05em;text-transform:none;font-weight:400;">—</span></div>
+          <div id="digestVolume"><div class="digest-msg">Loading…</div></div>
+        </div>
+      </div>
+      <hr class="digest-div">
+      <div class="digest-news-label">Market News <span style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">(updates hourly)</span></div>
+      <div id="digestNews"><div class="digest-msg">Loading…</div></div>
+      <div class="digest-footer">
+        <span class="digest-scan-note" id="digestScanNote"></span>
+        <a href="data/daily_briefing.txt" id="digestDlBtn" class="digest-dl" title="Download today's briefing as a text file">
+          ↓ Download
         </a>
-        <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview</a>
       </div>
     </div>
 
   </div>
+
+  <!-- Compact CTA -->
+  <div class="cta-mini">
+    <div class="cta-mini-btns">
+      <a href="pricing.html" class="btn-gold">
+        Get Started Free
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="baizora_main_form_free.html" class="btn-secondary">Free Preview</a>
+    </div>
+    <div class="cta-mini-tagline">Unique scores combining price & volume signals · 7-day free trial · cancel anytime</div>
+  </div>
+
 </section>
 
 <footer>
@@ -2134,6 +2192,82 @@ window.mockSort = function(col, el) {
     } catch (_) {
       const list = document.getElementById("hpNewsList");
       if (list) list.innerHTML = '<div class="hp-news-msg">Could not load news.</div>';
+    }
+  })();
+})();
+
+/* ── DAILY DIGEST CARD ── */
+(function() {
+  const CF = "https://us-central1-baizora.cloudfunctions.net/api";
+  let _digest = null, _news = null;
+
+  function _f(n, d) { return (n != null && !isNaN(+n)) ? (+n).toFixed(d != null ? d : 2) : "—"; }
+
+  function renderGainers(data) {
+    const el = document.getElementById("digestGainers"); if (!el) return;
+    if (!data || !data.top_gainers || !data.top_gainers.length) { el.innerHTML = '<div class="digest-msg">—</div>'; return; }
+    el.innerHTML = data.top_gainers.slice(0, 3).map(r => {
+      const pos = (r.chg1d || 0) >= 0;
+      return `<div class="digest-row"><span class="digest-dtk">${r.ticker}</span><span class="digest-dname">${r.name || ""}</span><span class="digest-dpct ${pos ? "digest-pos" : "digest-neg"}">${pos ? "+" : ""}${_f(r.chg1d)}%</span></div>`;
+    }).join("");
+  }
+
+  function renderVolume(data) {
+    const el = document.getElementById("digestVolume"); if (!el) return;
+    if (!data || !data.top_volume || !data.top_volume.length) { el.innerHTML = '<div class="digest-msg">—</div>'; return; }
+    el.innerHTML = data.top_volume.slice(0, 3).map(r =>
+      `<div class="digest-row"><span class="digest-dtk">${r.ticker}</span><span class="digest-dname">${r.name || ""}</span><span class="digest-dpct digest-pos">+${_f(r.volchg, 0)}%</span></div>`
+    ).join("");
+  }
+
+  function renderNews(newsData) {
+    const el = document.getElementById("digestNews"); if (!el) return;
+    if (!newsData || !newsData.items || !newsData.items.length) { el.innerHTML = '<div class="digest-msg">—</div>'; return; }
+    el.innerHTML = newsData.items.slice(0, 6).map(it =>
+      `<div class="digest-news-item"><a href="${it.link}" target="_blank" rel="noopener" class="digest-news-link">${it.title}</a><div class="digest-news-meta">${it.source || ""}${it.date ? " · " + it.date : ""}</div></div>`
+    ).join("");
+    const nu = document.getElementById("digestNewsUpdated");
+    if (nu && newsData.fetched) nu.textContent = "News: " + newsData.fetched;
+  }
+
+  (async () => {
+    try {
+      const r = await fetch("data/daily_digest.json?" + Date.now());
+      if (!r.ok) throw new Error(r.status);
+      _digest = await r.json();
+      const badge = document.getElementById("digestDate");
+      if (badge && _digest.date) badge.textContent = _digest.date;
+      const note = document.getElementById("digestScanNote");
+      if (note && _digest.scan_time) note.textContent = "Movers as of " + _digest.scan_time;
+      const dlBtn = document.getElementById("digestDlBtn");
+      if (dlBtn && _digest.date) {
+        dlBtn.download = "baizora-briefing-" + _digest.date + ".txt";
+        const todayET = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+        if (_digest.date === todayET) dlBtn.style.color = '#64c487';
+      }
+      renderGainers(_digest);
+      renderVolume(_digest);
+    } catch(e) {
+      ["digestGainers","digestVolume"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '<div class="digest-msg">—</div>';
+      });
+    }
+  })();
+
+  (async () => {
+    try {
+      const r = await fetch(CF + "/market-news");
+      if (!r.ok) throw new Error(r.status);
+      _news = await r.json();
+      renderNews(_news);
+      const note = document.getElementById("digestScanNote");
+      if (note && _digest && _digest.scan_time) {
+        note.textContent = "Movers: " + _digest.scan_time + "  ·  News: " + (_news.fetched || "");
+      }
+    } catch(e) {
+      const el = document.getElementById("digestNews");
+      if (el) el.innerHTML = '<div class="digest-msg">—</div>';
     }
   })();
 })();

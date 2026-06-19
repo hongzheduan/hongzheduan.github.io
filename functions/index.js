@@ -180,7 +180,7 @@ app.get("/index-news", async (req, res) => {
 
     // Deduplicate by title
     const seen = new Set();
-    const deduped = allItems.filter(it => { const k = it.title + "|" + it.category; if (seen.has(k)) return false; seen.add(k); return true; });
+    const deduped = allItems.filter(it => { const suffix = " - " + it.source; const base = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title; const k = base.toLowerCase().replace(/\s+/g, " ").trim(); if (seen.has(k)) return false; seen.add(k); return true; });
 
     // Translate titles to Chinese (cached for 1 hour so latency only hits once)
     for (const item of deduped) {
@@ -206,6 +206,56 @@ app.get("/index-news", async (req, res) => {
   } catch(e) {
     console.error("index-news:", e.message);
     if (_newsCache.data) return res.json(_newsCache.data);
+    res.status(500).json({ error: "Failed to fetch news" });
+  }
+});
+
+/* ---------------------------
+   MARKET NEWS
+   General financial headlines from Google News RSS.
+   1-hour in-memory cache.
+--------------------------- */
+let _marketNewsCache = { en: { data: null, ts: 0 }, zh: { data: null, ts: 0 } };
+const _MARKET_NEWS_TTL = 60 * 60 * 1000;
+const _MARKET_NEWS_QUERY = 'stock market OR "Federal Reserve" OR earnings OR war OR tariff OR inflation';
+const _MARKET_NEWS_QUERY_ZH = '股市 OR 利率 OR 美联储 OR 财报 OR 战争 OR 关税 OR 油价 OR 房价 OR 失业率 OR 通胀';
+
+app.get("/market-news", async (req, res) => {
+  const lang = req.query.lang === "zh" ? "zh" : "en";
+  try {
+    const cache = _marketNewsCache[lang];
+    const now = Date.now();
+    if (cache.data && (now - cache.ts) < _MARKET_NEWS_TTL) {
+      return res.json(cache.data);
+    }
+    const [hl, gl, ceid, query] = lang === "zh"
+      ? ["zh-CN", "CN", "CN:zh-Hans", _MARKET_NEWS_QUERY_ZH]
+      : ["en-US", "US", "US:en", _MARKET_NEWS_QUERY];
+    const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=${hl}&gl=${gl}&ceid=${ceid}`;
+    const resp = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; Baizora/1.0)" },
+      signal: AbortSignal.timeout(10000),
+    });
+    const xml = await resp.text();
+    const parsed = _parseRssItems(xml);
+    const items = parsed.slice(0, 6).map(it => ({
+      title: it.title,
+      source: it.source,
+      link: it.link,
+      date: new Date(it.pubDate).toISOString().slice(0, 10),
+    }));
+    const fetched_et = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", hour12: true,
+    }).format(new Date()) + " ET";
+    const result = { fetched: fetched_et, items };
+    if (items.length > 0) _marketNewsCache[lang] = { data: result, ts: now };
+    else if (_marketNewsCache[lang].data) return res.json(_marketNewsCache[lang].data);
+    res.json(result);
+  } catch(e) {
+    console.error("market-news:", e.message);
+    const stale = _marketNewsCache[lang];
+    if (stale && stale.data) return res.json(stale.data);
     res.status(500).json({ error: "Failed to fetch news" });
   }
 });
