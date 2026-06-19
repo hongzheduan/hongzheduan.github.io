@@ -634,7 +634,8 @@ def _fetch_market_headlines(n=5, lang="en"):
     try:
         import urllib.request
         if lang == "zh":
-            query = "%E8%82%A1%E5%B8%82+OR+%E5%88%A9%E7%8E%87+OR+%E7%BE%8E%E8%81%94%E5%82%A8+OR+%E8%B4%A2%E6%8A%A5+OR+%E6%88%98%E4%BA%89+OR+%E5%85%B3%E7%A8%8E"
+            # 股市 利率 美联储 财报 美股 关税 通胀 — no 战争 (too broad, pulls historical war articles)
+            query = "%E8%82%A1%E5%B8%82+OR+%E5%88%A9%E7%8E%87+OR+%E7%BE%8E%E8%81%94%E5%82%A8+OR+%E8%B4%A2%E6%8A%A5+OR+%E7%BE%8E%E8%82%A1+OR+%E5%85%B3%E7%A8%8E+OR+%E9%80%9A%E8%83%80"
             url = f"https://news.google.com/rss/search?q={query}&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
         else:
             query = "stock+market+OR+%22Federal+Reserve%22+OR+earnings+OR+war+OR+tariff+OR+inflation"
