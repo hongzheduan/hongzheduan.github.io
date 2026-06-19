@@ -440,6 +440,61 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
 
 ---
 
+## What Was Done 2026-06-19
+
+### Top Price Movers Panel (Homepage Hero)
+
+Replaced the static "POPULAR STOCKS" mock dashboard (`hero-right` div) on both `index.html` and `index_cn.html` with a live "Top Price Movers" card driven by `data/score_history.json`.
+
+**Panel contents (per row):**
+- Rank (#1–10), ticker + company name
+- 1Y sparkline with ▲ (highest-vol day) and ● (largest price-change day) markers; green = price up on that day, red = down
+- 1D price change % (green/red)
+- 5-session Baizora score rank dots (oldest→newest): green = top 10, amber = top 50, dim = outside
+- Baizora Score
+
+**CSS classes:** `sh-card`, `sh-header`, `sh-row`, `sh-dot.top10/.top50/.miss`, `sh-score`. Grid: `28px 1fr 130px 60px 110px 52px`. Badge shows session date. Dim texts use `#94a3b8`/`#64748b`.
+
+**CN page:** Same panel with Chinese headers (代码, 年趋势线, 涨幅, 评分排名·旧→新, 贝佐拉评分). Badge: `YYYY-MM-DD · 涨幅榜`.
+
+**Removed:** ~300 lines of mock dashboard JS from both pages (MOCK_DATA, mockView, buildSparkPath, MOCK_GRIDS, switchMockView, renderMock, etc.).
+
+### score_history.json
+
+New rolling file at `data/score_history.json` — maintained by scanner, consumed by homepage.
+
+**Structure:**
+```json
+{
+  "sessions": ["2026-06-18", "2026-06-17", "2026-06-16"],
+  "top10": [{ "ticker": "SNDK", "company": "...", "session": "2026-06-18", "price": 0.0,
+              "change1d": 0.0, "spark1y": [...], "triIdx": 0, "triCol": "#22c55e",
+              "dotIdx": 0, "dotCol": "#22c55e", "inSP500": true, "inNASDAQ100": false,
+              "score": 0.0, "scoreRank": 1 }],
+  "session_ranks": [{ "session": "2026-06-18", "ranks": { "TICKER": N } }]
+}
+```
+
+**sessions[]:** newest first. **top10[]:** from current session only (PriceChange1D desc). **session_ranks[]:** top-50 BaizScore per session for dot rendering. Dot render loop reverses `sessions` so left = oldest, right = most recent.
+
+**Sparkline markers:** `triIdx`/`triCol` = highest-volume day position + color; `dotIdx`/`dotCol` = largest price-change day position + color.
+
+**Seeding:** Bootstrapped from 3 on-disk files: `latest.json` (06-18), `latest_d1.json` (06-17), `free_tier.json` (06-16, from git commit `bfb85a2`). Scanner appends one session per run and drops oldest when >5 sessions.
+
+**scanner.yml:** `score_history.json` backed up, restored, and committed on every run.
+
+### Scanner Changes
+
+- `export_score_history(df)` — reads top10 from `OUTPUT_JSON` (latest.json), stores marker fields, updates session_ranks
+- `_rotate_free_tier()` — 3-slot rotation: `free_tier.json ← latest_d1.json ← latest.json ← new scan`
+- `export_daily_digest` except block — added `traceback.print_exc()` to surface silent failures (Jun 18 digest was stale due to a swallowed exception)
+
+### CN Market News Query Fix
+
+Removed `战争` (war) from CN Google News query in both `functions/index.js` (line 221, `/api/market-news`) and `scanner_tiingo.py` (`_fetch_market_headlines`). `战争` pulled historical war articles (e.g., 抗美援朝). Replaced with `美股` + `通胀`. CF redeployed — 1-hour cache clears naturally.
+
+---
+
 ## What Was Done 2026-06-18
 
 ### Scanner Cron Schedule Shifted 30 Minutes Earlier
