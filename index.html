@@ -1433,14 +1433,15 @@
   </div>
 </section>
 
-<!-- ── TOP 10 BY BAIZORA SCORE ── -->
+<!-- ── LAST SESSION TOP MOVERS ── -->
 <section class="sh-section">
-  <div class="section-label">Live Rankings</div>
-  <h2 class="section-title" style="font-size:clamp(22px,3vw,34px);margin-bottom:8px;">Top 10 by Baizora Score</h2>
-  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.04em;margin-bottom:24px;">Combined S&amp;P 500 + Nasdaq-100 · Ranked by composite score · Dots show rank over last 5 sessions <span style="color:#22c55e;">●</span> top 10 &nbsp;<span style="color:#f59e0b;">●</span> top 50 &nbsp;<span style="color:#334155;">●</span> outside</p>
+  <div class="section-label">Baizora Insight</div>
+  <h2 class="section-title" style="font-size:clamp(22px,3vw,34px);margin-bottom:8px;">Last Session's Top Price Movers</h2>
+  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.04em;margin-bottom:6px;">Were these moves a surprise? Our score had most of them ranked in the top 10 — for days before they moved.</p>
+  <p style="font-family:'DM Mono',monospace;font-size:10px;color:#475569;letter-spacing:0.04em;margin-bottom:24px;"><span style="color:#22c55e;">●</span> top 10 &nbsp;<span style="color:#f59e0b;">●</span> top 50 &nbsp;<span style="color:#334155;">●</span> outside &nbsp;·&nbsp; dots = Baizora score rank over prior 5 sessions</p>
   <div class="sh-card">
     <div class="sh-header">
-      <span>#</span><span>Ticker</span><span>1Y Trend</span><span>1D Chg</span><span>5-Session Rank</span><span style="text-align:right;">Score</span>
+      <span>#</span><span>Ticker &nbsp;<span id="shSessionDate" style="color:#334155;letter-spacing:0;text-transform:none;font-weight:400;"></span></span><span>1Y Trend</span><span>Move</span><span>Score Rank History</span><span style="text-align:right;">Score</span>
     </div>
     <div id="shGrid">
       <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#475569;">Loading…</div>
@@ -2128,29 +2129,37 @@ window.mockSort = function(col, el) {
 
   fetch('data/score_history.json').then(r => r.json()).then(d => {
     const grid = document.getElementById('shGrid');
-    if (!grid || !d.top10) return;
+    if (!grid || !d.top10 || !d.top10.length) return;
     const sessions = d.sessions || [];
     const sRanks   = d.session_ranks || [];
 
+    // Show the session date this data is from
+    const sessEl = document.getElementById('shSessionDate');
+    if (sessEl && d.top10[0]?.session) sessEl.textContent = '· ' + d.top10[0].session;
+
     grid.innerHTML = d.top10.map((t, i) => {
-      const chg   = t.change1d ?? 0;
+      const chg    = t.change1d ?? 0;
       const chgCls = chg >= 0 ? 'up' : 'dn';
       const chgStr = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+      const spark  = miniSpark(t.spark1y, 130, 28);
 
-      const spark = miniSpark(t.spark1y, 130, 28);
-
-      const dots = sessions.map((sess, si) => {
-        const rank = sRanks[si]?.ranks?.[t.ticker] ?? null;
-        const cls  = dotClass(rank);
-        const label = rank ?? '—';
-        const dateStr = sess;
-        return `<span class="sh-dot ${cls}" title="${dateStr}: ${rank ? '#'+rank : 'outside top 50'}">${label}</span>`;
-      }).join('');
+      // Dots show BaizScore rank across the 5 tracked sessions (oldest→newest)
+      const dotsArr = [...sessions].reverse().map((sess, si) => {
+        const realSi = sessions.length - 1 - si;
+        const rank   = sRanks[realSi]?.ranks?.[t.ticker] ?? null;
+        const cls    = dotClass(rank);
+        const label  = rank ?? '—';
+        return `<span class="sh-dot ${cls}" title="${sess}: ${rank ? 'rank #'+rank : 'outside top 50'}">${label}</span>`;
+      });
+      // Today (most recent) is rightmost
+      const dots = dotsArr.join('');
 
       const badges = [
         t.inSP500     ? `<span class="sh-badge sh-badge-sp">SP</span>` : '',
         t.inNASDAQ100 ? `<span class="sh-badge sh-badge-nd">ND</span>` : '',
       ].join('');
+
+      const score = t.score != null ? t.score.toFixed(1) : '—';
 
       return `<div class="sh-row">
         <div class="sh-rank">${i+1}</div>
@@ -2161,12 +2170,12 @@ window.mockSort = function(col, el) {
         <div class="sh-spark">${spark}</div>
         <div class="sh-chg ${chgCls}">${chgStr}</div>
         <div class="sh-dots">${dots}</div>
-        <div class="sh-score">${(t.score ?? 0).toFixed(1)}</div>
+        <div class="sh-score">${score}</div>
       </div>`;
     }).join('');
   }).catch(() => {
     const grid = document.getElementById('shGrid');
-    if (grid) grid.innerHTML = '<div style="padding:24px;text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:#475569;">Rankings not yet available — check back after market close.</div>';
+    if (grid) grid.innerHTML = '<div style="padding:24px;text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:#475569;">Data not yet available — check back after market close.</div>';
   });
 })();
 

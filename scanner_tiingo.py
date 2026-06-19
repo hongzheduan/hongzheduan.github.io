@@ -2383,39 +2383,19 @@ def export_daily_digest(df):
 # =========================
 
 def export_score_history(df):
-    """Rolling 5-session BaizScore ranking — top 10 display data + top-50 ranks per session."""
+    """Last session's top-10 price movers (from latest_d1.json) + 5-session BaizScore rank history."""
     try:
         market_date = df["Date"].iloc[0] if len(df) and "Date" in df.columns else DATE_STR
 
+        # Today's top-50 BaizScore ranks — used for the rank-history dots
         df_s = df[df["BaizScore"].notna()].copy()
         df_s = df_s.sort_values("BaizScore", ascending=False).reset_index(drop=True)
         df_s["_rank"] = range(1, len(df_s) + 1)
-
-        # Top-50 ranks for history lookup
         top50_ranks = {row["Ticker"]: int(row["_rank"]) for _, row in df_s.head(50).iterrows()}
+        score_map   = {row["Ticker"]: (round(float(row["BaizScore"]), 1), int(row["_rank"]))
+                       for _, row in df_s.head(50).iterrows()}
 
-        # Top-10 display data (round spark values to 4dp to keep file small)
-        def _safe(v):
-            try: return round(float(v), 2) if v is not None and v == v else None
-            except: return None
-
-        top10 = []
-        for _, row in df_s.head(10).iterrows():
-            spark = row.get("Spark1Y")
-            if isinstance(spark, list):
-                spark = [round(float(x), 4) for x in spark if x is not None]
-            top10.append({
-                "ticker":      row["Ticker"],
-                "company":     row.get("CompanyName", ""),
-                "score":       _safe(row.get("BaizScore")),
-                "price":       _safe(row.get("Price")),
-                "change1d":    _safe(row.get("PriceChange1D")),
-                "spark1y":     spark,
-                "inSP500":     bool(row.get("InSP500")),
-                "inNASDAQ100": bool(row.get("InNASDAQ100")),
-            })
-
-        # Load existing history, skip duplicate date
+        # Load existing history and update with today's ranks
         history = {"sessions": [], "session_ranks": []}
         if os.path.exists(SCORE_HISTORY):
             try:
@@ -2433,11 +2413,37 @@ def export_score_history(df):
         history["sessions"]      = history["sessions"][:5]
         history["session_ranks"] = history["session_ranks"][:5]
 
+        # Top-10 by PriceChange1D from PREVIOUS session (latest_d1.json) — safe to show publicly
+        d1_path = os.path.join(DATA_DIR, "latest_d1.json")
+        top10 = []
+        if os.path.exists(d1_path):
+            with open(d1_path) as f:
+                d1 = json.load(f)
+            d1_rows = [r for r in d1.get("data", []) if r.get("PriceChange1D") is not None]
+            d1_rows.sort(key=lambda r: r.get("PriceChange1D") or 0, reverse=True)
+            for r in d1_rows[:10]:
+                spark = r.get("Spark1Y")
+                if isinstance(spark, list):
+                    spark = [round(float(x), 4) for x in spark if x is not None]
+                sc, rk = score_map.get(r["Ticker"], (None, None))
+                top10.append({
+                    "ticker":      r["Ticker"],
+                    "company":     r.get("CompanyName", ""),
+                    "session":     d1.get("date", ""),
+                    "price":       round(float(r["Price"]), 2) if r.get("Price") else None,
+                    "change1d":    round(float(r["PriceChange1D"]), 2) if r.get("PriceChange1D") else None,
+                    "spark1y":     spark,
+                    "inSP500":     bool(r.get("InSP500")),
+                    "inNASDAQ100": bool(r.get("InNASDAQ100")),
+                    "score":       sc,
+                    "scoreRank":   rk,
+                })
+
         with open(SCORE_HISTORY, "w") as f:
             json.dump({"sessions": history["sessions"], "top10": top10,
                        "session_ranks": history["session_ranks"]}, f)
 
-        print(f"[score_history] {len(history['sessions'])} sessions, top10: {[t['ticker'] for t in top10]}")
+        print(f"[score_history] {len(history['sessions'])} sessions, top movers from d1: {[t['ticker'] for t in top10[:5]]}")
     except Exception as e:
         print(f"[score_history] failed: {e}")
 
