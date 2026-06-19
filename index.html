@@ -621,6 +621,36 @@
 
     .section-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 16px; }
 
+    /* ── SCORE HISTORY TOP 10 ── */
+    .sh-section { max-width: 860px; margin: 0 auto; padding: 60px 24px 40px; }
+    .sh-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    .sh-header { display: grid; grid-template-columns: 28px 1fr 130px 60px 110px 52px; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--border); }
+    .sh-header span { font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #475569; }
+    .sh-row { display: grid; grid-template-columns: 28px 1fr 130px 60px 110px 52px; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    .sh-row:last-child { border-bottom: none; }
+    .sh-row:hover { background: rgba(59,130,246,0.04); }
+    .sh-rank { font-family: 'DM Mono',monospace; font-size: 11px; color: #475569; text-align: center; }
+    .sh-info { min-width: 0; }
+    .sh-ticker-name { font-family: 'DM Mono',monospace; font-size: 13px; font-weight: 600; color: #fff; }
+    .sh-company-name { font-size: 11px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+    .sh-spark svg { display: block; }
+    .sh-chg { font-family: 'DM Mono',monospace; font-size: 12px; font-weight: 600; text-align: right; }
+    .sh-chg.up { color: #22c55e; } .sh-chg.dn { color: #ef4444; }
+    .sh-dots { display: flex; gap: 3px; align-items: center; }
+    .sh-dot { width: 20px; height: 20px; border-radius: 50%; font-family: 'DM Mono',monospace; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: default; }
+    .sh-dot.top10 { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+    .sh-dot.top50 { background: rgba(245,158,11,0.08); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+    .sh-dot.miss  { background: rgba(100,116,139,0.06); color: #334155; border: 1px solid rgba(100,116,139,0.12); }
+    .sh-score { font-family: 'DM Mono',monospace; font-size: 12px; color: #fcd34d; text-align: right; }
+    .sh-badges { display: flex; gap: 3px; flex-wrap: nowrap; }
+    .sh-badge { font-family: 'DM Mono',monospace; font-size: 8px; padding: 1px 4px; border-radius: 3px; font-weight: 600; }
+    .sh-badge-sp { background: rgba(59,130,246,0.1); color: #60a5fa; }
+    .sh-badge-nd { background: rgba(168,85,247,0.1); color: #c084fc; }
+    @media (max-width: 640px) {
+      .sh-header, .sh-row { grid-template-columns: 22px 1fr 90px 52px 88px 44px; gap: 8px; padding: 9px 12px; }
+      .sh-company-name { display: none; }
+    }
+
     .section-title { font-family: 'DM Serif Display', serif; font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em; color: #f1f5f9; margin-bottom: 50px; }
     .section-title em { font-style: italic; color: #94a3b8; }
 
@@ -1403,6 +1433,21 @@
   </div>
 </section>
 
+<!-- ── TOP 10 BY BAIZORA SCORE ── -->
+<section class="sh-section">
+  <div class="section-label">Live Rankings</div>
+  <h2 class="section-title" style="font-size:clamp(22px,3vw,34px);margin-bottom:8px;">Top 10 by Baizora Score</h2>
+  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.04em;margin-bottom:24px;">Combined S&amp;P 500 + Nasdaq-100 · Ranked by composite score · Dots show rank over last 5 sessions <span style="color:#22c55e;">●</span> top 10 &nbsp;<span style="color:#f59e0b;">●</span> top 50 &nbsp;<span style="color:#334155;">●</span> outside</p>
+  <div class="sh-card">
+    <div class="sh-header">
+      <span>#</span><span>Ticker</span><span>1Y Trend</span><span>1D Chg</span><span>5-Session Rank</span><span style="text-align:right;">Score</span>
+    </div>
+    <div id="shGrid">
+      <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#475569;">Loading…</div>
+    </div>
+  </div>
+</section>
+
 <section class="bottom-cta">
   <div class="cta-two-panel">
 
@@ -2063,6 +2108,66 @@ window.mockSort = function(col, el) {
 
   if (isMarketOpen()) refreshPrices();
   setInterval(() => { if (isMarketOpen()) refreshPrices(); }, 10_000);
+})();
+
+// Top 10 by Baizora Score
+(function() {
+  function miniSpark(data, W, H) {
+    if (!data || data.length < 2) return `<svg width="${W}" height="${H}"></svg>`;
+    const n = data.length - 1 || 1;
+    const pad = 3;
+    const pts = data.map((v,i) => `${((i/n)*W).toFixed(1)},${(pad+(1-v)*(H-pad*2)).toFixed(1)}`).join(' ');
+    const col = data[data.length-1] >= data[0] ? '#22c55e' : '#ef4444';
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><polyline points="${pts}" stroke="${col}" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+  }
+
+  function dotClass(rank) {
+    if (rank == null) return 'miss';
+    return rank <= 10 ? 'top10' : 'top50';
+  }
+
+  fetch('data/score_history.json').then(r => r.json()).then(d => {
+    const grid = document.getElementById('shGrid');
+    if (!grid || !d.top10) return;
+    const sessions = d.sessions || [];
+    const sRanks   = d.session_ranks || [];
+
+    grid.innerHTML = d.top10.map((t, i) => {
+      const chg   = t.change1d ?? 0;
+      const chgCls = chg >= 0 ? 'up' : 'dn';
+      const chgStr = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+
+      const spark = miniSpark(t.spark1y, 130, 28);
+
+      const dots = sessions.map((sess, si) => {
+        const rank = sRanks[si]?.ranks?.[t.ticker] ?? null;
+        const cls  = dotClass(rank);
+        const label = rank ?? '—';
+        const dateStr = sess;
+        return `<span class="sh-dot ${cls}" title="${dateStr}: ${rank ? '#'+rank : 'outside top 50'}">${label}</span>`;
+      }).join('');
+
+      const badges = [
+        t.inSP500     ? `<span class="sh-badge sh-badge-sp">SP</span>` : '',
+        t.inNASDAQ100 ? `<span class="sh-badge sh-badge-nd">ND</span>` : '',
+      ].join('');
+
+      return `<div class="sh-row">
+        <div class="sh-rank">${i+1}</div>
+        <div class="sh-info">
+          <div class="sh-ticker-name">${t.ticker} <span style="display:inline-flex;gap:2px;vertical-align:middle;">${badges}</span></div>
+          <div class="sh-company-name">${t.company || ''}</div>
+        </div>
+        <div class="sh-spark">${spark}</div>
+        <div class="sh-chg ${chgCls}">${chgStr}</div>
+        <div class="sh-dots">${dots}</div>
+        <div class="sh-score">${(t.score ?? 0).toFixed(1)}</div>
+      </div>`;
+    }).join('');
+  }).catch(() => {
+    const grid = document.getElementById('shGrid');
+    if (grid) grid.innerHTML = '<div style="padding:24px;text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:#475569;">Rankings not yet available — check back after market close.</div>';
+  });
 })();
 
 // Promo bar: static links

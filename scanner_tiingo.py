@@ -49,6 +49,7 @@ OUTPUT_CSV    = os.path.join(ARCHIVE_DIR, f"results_{DATE_STR}.csv")
 DIGEST_JSON   = os.path.join(DATA_DIR,    "daily_digest.json")
 BRIEFING_TXT     = os.path.join(DATA_DIR, "daily_briefing.txt")
 BRIEFING_TXT_CN  = os.path.join(DATA_DIR, "daily_briefing_cn.txt")
+SCORE_HISTORY    = os.path.join(DATA_DIR, "score_history.json")
 
 SCRAPE_HEADERS = {
     "User-Agent": (
@@ -2378,6 +2379,70 @@ def export_daily_digest(df):
 
 
 # =========================
+# SCORE HISTORY
+# =========================
+
+def export_score_history(df):
+    """Rolling 5-session BaizScore ranking — top 10 display data + top-50 ranks per session."""
+    try:
+        market_date = df["Date"].iloc[0] if len(df) and "Date" in df.columns else DATE_STR
+
+        df_s = df[df["BaizScore"].notna()].copy()
+        df_s = df_s.sort_values("BaizScore", ascending=False).reset_index(drop=True)
+        df_s["_rank"] = range(1, len(df_s) + 1)
+
+        # Top-50 ranks for history lookup
+        top50_ranks = {row["Ticker"]: int(row["_rank"]) for _, row in df_s.head(50).iterrows()}
+
+        # Top-10 display data (round spark values to 4dp to keep file small)
+        def _safe(v):
+            try: return round(float(v), 2) if v is not None and v == v else None
+            except: return None
+
+        top10 = []
+        for _, row in df_s.head(10).iterrows():
+            spark = row.get("Spark1Y")
+            if isinstance(spark, list):
+                spark = [round(float(x), 4) for x in spark if x is not None]
+            top10.append({
+                "ticker":      row["Ticker"],
+                "company":     row.get("CompanyName", ""),
+                "score":       _safe(row.get("BaizScore")),
+                "price":       _safe(row.get("Price")),
+                "change1d":    _safe(row.get("PriceChange1D")),
+                "spark1y":     spark,
+                "inSP500":     bool(row.get("InSP500")),
+                "inNASDAQ100": bool(row.get("InNASDAQ100")),
+            })
+
+        # Load existing history, skip duplicate date
+        history = {"sessions": [], "session_ranks": []}
+        if os.path.exists(SCORE_HISTORY):
+            try:
+                with open(SCORE_HISTORY) as f:
+                    history = json.load(f)
+            except Exception:
+                pass
+
+        if history["sessions"] and history["sessions"][0] == market_date:
+            history["session_ranks"][0] = {"date": market_date, "ranks": top50_ranks}
+        else:
+            history["sessions"].insert(0, market_date)
+            history["session_ranks"].insert(0, {"date": market_date, "ranks": top50_ranks})
+
+        history["sessions"]      = history["sessions"][:5]
+        history["session_ranks"] = history["session_ranks"][:5]
+
+        with open(SCORE_HISTORY, "w") as f:
+            json.dump({"sessions": history["sessions"], "top10": top10,
+                       "session_ranks": history["session_ranks"]}, f)
+
+        print(f"[score_history] {len(history['sessions'])} sessions, top10: {[t['ticker'] for t in top10]}")
+    except Exception as e:
+        print(f"[score_history] failed: {e}")
+
+
+# =========================
 # INDEX MEMBERSHIP NEWS
 # =========================
 
@@ -2751,6 +2816,9 @@ if __name__ == "__main__":
 
     # 6b. Export daily digest + downloadable briefing for homepage card
     export_daily_digest(df)
+
+    # 6c. Export rolling 5-session BaizScore history for homepage top-10 card
+    export_score_history(df)
 
     # 7. Export candle data
     export_candles(candles_out, trading_days)
