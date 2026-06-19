@@ -2282,7 +2282,7 @@ fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
     if (m.en.url) {
       watch.href = m.en.url;
       fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent(m.en.url) + '&format=json')
-        .then(r => r.json()).then(oe => { if (oe.title) watch.textContent = oe.title + dateStr; }).catch(() => {});
+        .then(r => r.json()).then(oe => { if (oe.title) watch.textContent = oe.title; }).catch(() => {});
     }
   }
   if (dl && m.en.url) dl.href = 'data/latest_video_en.mp4';
