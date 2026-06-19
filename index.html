@@ -1225,84 +1225,19 @@
       </div>
     </div><!-- /hero-left -->
 
-    <!-- RIGHT: dashboard mock -->
+    <!-- RIGHT: last session's top price movers -->
     <div class="hero-right">
-
-      <div style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#60a5fa;border:1px solid rgba(59,130,246,0.25);background:rgba(59,130,246,0.06);padding:6px 14px;border-radius:999px;margin-bottom:8px;">POPULAR STOCKS</div>
-      <div class="dash-mock-wrap">
-      <div class="dash-mock">
-
-        <div class="dash-header">
-          <div class="dash-logo">
-            <div class="dash-logo-dot">⬡</div>
-            <span class="dash-logo-text">Baiz<span>ora</span></span>
-          </div>
-          <div class="dash-divider"></div>
-          <div class="dash-tabs">
-            <span class="dash-tab active" onclick="showDemoTab('data',this)">S&amp;P 500</span>
-            <span class="dash-tab" onclick="showDemoTab('data',this)">NASDAQ 100</span>
-            <span class="dash-tab" onclick="showDemoTab('chgs',this)">INDEX CHGS</span>
-          </div>
+      <div style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#22c55e;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);padding:6px 14px;border-radius:999px;margin-bottom:10px;">Last Session's Top Price Movers</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:#64748b;letter-spacing:0.03em;line-height:1.6;margin-bottom:12px;">Were these moves a surprise? Our score had most ranked in the top 10 — <em style="color:#94a3b8;">before</em> they moved.</div>
+      <div class="sh-card">
+        <div class="sh-header">
+          <span>#</span><span>Ticker &nbsp;<span id="shSessionDate" style="color:#334155;letter-spacing:0;text-transform:none;font-weight:400;"></span></span><span>1Y Trend</span><span>Move</span><span>Score Rank History</span><span style="text-align:right;">Score</span>
         </div>
-
-        <div class="dash-toolbar">
-          <span class="dash-toolbar-label">WINDOW</span>
-          <div class="dash-wins">
-            <span class="dash-win">1D</span>
-            <span class="dash-win">2W</span>
-            <span class="dash-win">1M</span>
-            <span class="dash-win">3M</span>
-            <span class="dash-win">6M</span>
-            <span class="dash-win">9M</span>
-            <span class="dash-win active" id="mockWin1Y" onclick="switchMockView('normal',this)">1Y</span>
-            <span class="dash-win" id="mockWinScores" onclick="switchMockView('scores',this)" style="margin-left:6px;border-color:rgba(96,165,250,0.4);color:#60a5fa;">SCORES</span>
-            <span class="dash-win" id="mockWinFund"   onclick="switchMockView('fund',this)"   style="margin-left:4px;border-color:rgba(245,158,11,0.4);color:#f59e0b;">FUND</span>
-          </div>
+        <div id="shGrid">
+          <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#475569;">Loading…</div>
         </div>
-
-        <div class="dash-thead" id="mockThead"></div>
-        <div id="mockBody"></div>
-
-        <div id="mockChanges" style="display:none; padding:12px 10px; font-family:'DM Mono',monospace; font-size:11px; line-height:2.0; text-align:left;">
-          <div style="color:#94a3b8; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px;">Recent index membership changes</div>
-
-          <div style="margin-bottom:12px;">
-            <div style="color:#94a3b8; font-size:9px; letter-spacing:0.1em; margin-bottom:4px;">2026-03-23 &nbsp;·&nbsp; S&amp;P 500</div>
-            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">VRT</span> <span style="color:#94a3b8; font-size:10px;">Vertiv Holdings</span></div>
-            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">LITE</span> <span style="color:#94a3b8; font-size:10px;">Lumentum Holdings</span></div>
-            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">COHR</span> <span style="color:#94a3b8; font-size:10px;">Coherent Corp.</span></div>
-            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">SATS</span> <span style="color:#94a3b8; font-size:10px;">EchoStar Corp.</span></div>
-            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MTCH</span> <span style="color:#94a3b8; font-size:10px;">Match Group</span></div>
-            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">MOH</span> <span style="color:#94a3b8; font-size:10px;">Molina Healthcare</span></div>
-            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">LW</span> <span style="color:#94a3b8; font-size:10px;">Lamb Weston</span></div>
-            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">PAYC</span> <span style="color:#94a3b8; font-size:10px;">Paycom Software</span></div>
-          </div>
-
-          <div style="margin-bottom:12px;">
-            <div style="color:#94a3b8; font-size:9px; letter-spacing:0.1em; margin-bottom:4px;">2026-01-20 &nbsp;·&nbsp; NASDAQ 100</div>
-            <div><span style="color:#64c487; font-weight:700;">+</span> &nbsp;<span style="color:#60a5fa;">WMT</span> <span style="color:#94a3b8; font-size:10px;">Walmart Inc.</span></div>
-            <div><span style="color:#c46464; font-weight:700;">−</span> &nbsp;<span style="color:#60a5fa;">AZN</span> <span style="color:#94a3b8; font-size:10px;">AstraZeneca</span></div>
-          </div>
-
-          <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:10px; margin-top:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
-            <span style="color:#94a3b8; font-size:9px; letter-spacing:0.08em;">Apr 2026 – present requires sign-in</span>
-            <a href="login.html" style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.08em; color:#60a5fa; text-decoration:none; border:1px solid rgba(59,130,246,0.3); padding:3px 10px; border-radius:4px;">Sign In →</a>
-          </div>
-        </div>
-
-        <!-- Hint bar -->
-        <div style="padding:8px 8px; background:rgba(29,78,216,0.06); border-top:1px solid rgba(29,78,216,0.15); display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <span style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.07em; color:#cbd5e1;">
-            👆 Hover <span style="color:#60a5fa;">ticker</span> for fundamentals &nbsp;·&nbsp; <span style="color:#60a5fa;">↕ click to sort</span>
-          </span>
-        </div>
-        <!-- Column legend -->
-        <div id="mockLegend" style="padding:10px 8px; background:rgba(6,13,31,0.6); border-top:1px solid rgba(255,255,255,0.06);"></div>
-
-      </div><!-- /dash-mock -->
-      </div><!-- /dash-mock-wrap -->
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:#94a3b8;letter-spacing:0.06em;text-align:center;margin-top:8px;">Showing 8 of 500+ tracked stocks &nbsp;·&nbsp; far deeper analytics in full dashboard &nbsp;·&nbsp; covers all S&amp;P 500 &amp; Nasdaq-100 constituents</div>
-      <div id="mockDataNote" style="font-family:'DM Mono',monospace;font-size:9px;color:#94a3b8;letter-spacing:0.06em;text-align:center;margin-top:4px;"></div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#475569;letter-spacing:0.04em;text-align:center;margin-top:8px;"><span style="color:#22c55e;">●</span> top 10 &nbsp;<span style="color:#f59e0b;">●</span> top 50 &nbsp;<span style="color:#334155;">●</span> outside &nbsp;·&nbsp; Baizora score rank over prior 5 sessions · <a href="baizora_main_form_freetier.html" style="color:#3b82f6;text-decoration:none;">See full results →</a></div>
     </div><!-- /hero-right -->
 
   </div><!-- /hero-split -->
@@ -1430,22 +1365,6 @@
       </div>
     </div>
 
-  </div>
-</section>
-
-<!-- ── LAST SESSION TOP MOVERS ── -->
-<section class="sh-section">
-  <div class="section-label">Baizora Insight</div>
-  <h2 class="section-title" style="font-size:clamp(22px,3vw,34px);margin-bottom:8px;">Last Session's Top Price Movers</h2>
-  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.04em;margin-bottom:6px;">Were these moves a surprise? Our score had most of them ranked in the top 10 — for days before they moved.</p>
-  <p style="font-family:'DM Mono',monospace;font-size:10px;color:#475569;letter-spacing:0.04em;margin-bottom:24px;"><span style="color:#22c55e;">●</span> top 10 &nbsp;<span style="color:#f59e0b;">●</span> top 50 &nbsp;<span style="color:#334155;">●</span> outside &nbsp;·&nbsp; dots = Baizora score rank over prior 5 sessions</p>
-  <div class="sh-card">
-    <div class="sh-header">
-      <span>#</span><span>Ticker &nbsp;<span id="shSessionDate" style="color:#334155;letter-spacing:0;text-transform:none;font-weight:400;"></span></span><span>1Y Trend</span><span>Move</span><span>Score Rank History</span><span style="text-align:right;">Score</span>
-    </div>
-    <div id="shGrid">
-      <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#475569;">Loading…</div>
-    </div>
   </div>
 </section>
 
@@ -1728,10 +1647,7 @@
 </script>
 
 <script>
-/* ── Mock table: data + sort ── */
-let MOCK_DATA = [];
-let mockView  = 'normal'; // 'normal' | 'scores'
-
+/* ── Ticker bar + live prices ── */
 function buildSparkPath(arr) {
   if (!arr || arr.length < 2) return 'M0,10 L94,10';
   const n = arr.length - 1 || 1;
@@ -1742,281 +1658,7 @@ function buildSparkPath(arr) {
   ).join(' L');
 }
 
-let mockSortCol = 'chg';
-let mockSortAsc = false;
 
-window.showDemoTab = function(mode, el) {
-  document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  const isChgs = mode === 'chgs';
-  document.getElementById('mockThead').style.display = isChgs ? 'none' : '';
-  document.getElementById('mockBody').style.display = isChgs ? 'none' : '';
-  document.getElementById('mockChanges').style.display = isChgs ? 'block' : 'none';
-  document.querySelector('.dash-toolbar').style.display = isChgs ? 'none' : '';
-};
-
-function cc(v) {
-  const n = parseFloat(v);
-  if (isNaN(n) || n === 0) return 'dr-neu';
-  return n > 0 ? 'dr-pos' : 'dr-neg';
-}
-function scClass(v, mid) {
-  const n = parseFloat(v);
-  if (isNaN(n)) return 'dr-neu';
-  return n > mid ? 'dr-pos' : n < mid ? 'dr-neg' : 'dr-neu';
-}
-const MOCK_GRIDS = {
-  normal: '54px 118px 80px 76px 72px 72px 70px 76px',
-  scores: '54px 118px 80px 56px 74px 82px 84px 60px',
-  fund:   '54px 118px 80px 70px 54px 58px 54px 90px',
-};
-const MOCK_SORT_DEFAULTS = { normal: 'chg', scores: 'rs', fund: 'mcapNum' };
-
-window.switchMockView = function(view, el) {
-  mockView = view;
-  ['mockWin1Y','mockWinScores','mockWinFund'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) btn.classList.remove('active');
-  });
-  el.classList.add('active');
-  mockSortCol = MOCK_SORT_DEFAULTS[view] || 'chg';
-  mockSortAsc = false;
-  document.querySelector('.dash-mock').style.setProperty('--mock-grid', MOCK_GRIDS[view]);
-  renderMock();
-};
-
-function fmt(v, digits=2) {
-  const n = parseFloat(v);
-  if (isNaN(n)) return v;
-  return (n > 0 ? '+' : '') + n.toFixed(digits) + '%';
-}
-
-function fmtN(v) { return parseFloat(v).toFixed(2); }
-
-function sparkSVG(r) {
-  return `<svg class="mock-spark" width="94" height="22" viewBox="0 0 94 22" fill="none">
-    <path d="${r.spark}" stroke="${r.sc}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
-    <polygon points="${r.triX},${r.triY-7} ${r.triX-4},${r.triY} ${r.triX+4},${r.triY}" fill="${r.triC}" stroke="rgba(6,13,31,0.9)" stroke-width="1"/>
-    <circle cx="${r.dotX}" cy="${r.dotY}" r="4" fill="${r.dotC}" opacity="0.25"/>
-    <circle cx="${r.dotX}" cy="${r.dotY}" r="2.5" fill="${r.dotC}" stroke="rgba(6,13,31,0.9)" stroke-width="1.2"/>
-  </svg>`;
-}
-
-const NORMAL_HEAD = `
-  <span class="dc dk-sort" data-col="tk"    onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol. Hover for fundamentals: PE, market cap, EPS, volatility and sector comparison.</div></span>
-  <span class="dc" style="cursor:default; padding-left:8px;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart. ▲ Triangle = highest-volume day (green=up, red=down). ● Circle = largest price-change day (green=vol up, red=vol down).</div></span>
-  <span class="dc dk-sort" data-col="pr"    onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
-  <span class="dc dk-sort gstart" data-col="chg" onclick="mockSort('chg',this)">P CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">①</span> <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">1Y CHG%</div>Total price change (%) over the past 1 year.</div></span>
-  <span class="dc dk-sort" data-col="mx"    onclick="mockSort('mx',this)">MAX P CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">②</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y MAX%</div>Largest single-day price increase (%) within the past 1 year.</div></span>
-  <span class="dc dk-sort" data-col="vatpr" onclick="mockSort('vatpr',this)">V@P DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">③</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">V@PRICE</div>Volume change (%) on the day of the largest price increase.</div></span>
-  <span class="dc dk-sort" data-col="vol"   onclick="mockSort('vol',this)">MAX V CHG%<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">④</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">1Y VOL%</div>Largest single-day volume increase (%) within the past 1 year.</div></span>
-  <span class="dc dk-sort" data-col="pvol"  onclick="mockSort('pvol',this)">P@V DAY<span style="color:#60a5fa;font-size:7px;vertical-align:super;margin-left:1px;">⑤</span> <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P@VOL</div>Price change (%) on the day of the largest volume increase.</div></span>`;
-
-const SCORES_HEAD = `
-  <span class="dc dk-sort" data-col="tk"       onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol.</div></span>
-  <span class="dc" style="cursor:default; padding-left:8px;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart.</div></span>
-  <span class="dc dk-sort" data-col="pr"        onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
-  <span class="dc dk-sort gstart" data-col="rs" onclick="mockSort('rs',this)">RS <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">RS Score (1–99)</div>Relative Strength: percentile rank of weighted price performance vs all 500+ stocks. Formula: 40% × 3M + 20% × 6M + 20% × 9M + 20% × 1Y price change. 99 = top 1%.</div></span>
-  <span class="dc dk-sort" data-col="breakout"  onclick="mockSort('breakout',this)">BREAKOUT <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">Breakout Score (0–100)</div>Composite of three signals: price above MA21 (0–33 pts), today's price gain (0–33 pts), and volume elevation above MA21 (0–34 pts). High score = classic breakout setup.</div></span>
-  <span class="dc dk-sort" data-col="momentum"  onclick="mockSort('momentum',this)">MOMENTUM <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">Momentum Score (0–100)</div>Percentile rank of weighted cross-timeframe price change: 35% × 1M + 25% × 3M + 20% × 6M + 20% × 1Y. 100 = strongest momentum in the universe.</div></span>
-  <span class="dc dk-sort" data-col="volpress"  onclick="mockSort('volpress',this)">VOL PRESS <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">Volume Pressure (−100 to 100)</div>Accumulation vs distribution. Formula: (Vol/MA21 − 1) × price direction × 100. Positive = volume buying pressure, negative = distribution. Near 0 = neutral.</div></span>
-  <span class="dc dk-sort" data-col="trend"     onclick="mockSort('trend',this)">TREND <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">Trend Consistency (0–100)</div>% of timeframes (2W, 1M, 3M, 6M, 9M, 1Y) showing positive price change. 100 = all 6 timeframes pointing up. 0 = all down.</div></span>`;
-
-const NORMAL_LEGEND = `
-  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">Column Guide</div>
-  <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">①</span> P CHG% &nbsp;&nbsp;Total price change over 1 year</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">②</span> MAX P CHG% Largest single-day price increase</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">③</span> V@P DAY &nbsp;&nbsp;Volume change on max price day</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">④</span> MAX V CHG% Largest single-day volume increase</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">⑤</span> P@V DAY &nbsp;&nbsp;Price change on max volume day</div>
-  </div>`;
-
-const FUND_HEAD = `
-  <span class="dc dk-sort" data-col="tk"      onclick="mockSort('tk',this)">TICKER <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">TICKER</div>Stock symbol. Hover for full fundamentals breakdown.</div></span>
-  <span class="dc" style="cursor:default; padding-left:8px;">1Y TREND<div class="dc-tip"><div class="dc-tip-label">1Y Trend</div>1-year normalized price chart.</div></span>
-  <span class="dc dk-sort" data-col="pr"      onclick="mockSort('pr',this)">PRICE <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PRICE</div>Latest closing price in USD.</div></span>
-  <span class="dc dk-sort gstart" data-col="mcapNum" onclick="mockSort('mcapNum',this)">MKT CAP <span class="dk-arr">↓</span><div class="dc-tip"><div class="dc-tip-label">Market Cap</div>Market capitalisation in billions (B) or trillions (T) of USD.</div></span>
-  <span class="dc dk-sort" data-col="pe"      onclick="mockSort('pe',this)">P/E <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">P/E Ratio</div>Trailing price-to-earnings ratio. Blank if earnings are negative or unavailable.</div></span>
-  <span class="dc dk-sort" data-col="eps"     onclick="mockSort('eps',this)">EPS <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">EPS</div>Trailing twelve-month earnings per share in USD. Positive = profitable.</div></span>
-  <span class="dc dk-sort" data-col="beta"    onclick="mockSort('beta',this)">BETA <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">Beta (30D)</div>30-day beta — sensitivity to broad market moves. Beta > 1 = more volatile than market.</div></span>
-  <span class="dc dk-sort" data-col="pevsec"  onclick="mockSort('pevsec',this)">PE VS SECTOR <span class="dk-arr">↕</span><div class="dc-tip"><div class="dc-tip-label">PE vs Sector</div>This stock's P/E relative to its sector average (%). Positive = trading at a premium; negative = discount.</div></span>`;
-
-const FUND_LEGEND = `
-  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#f59e0b; margin-bottom:7px;">Fundamentals Guide</div>
-  <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">MKT CAP</span> &nbsp;Market cap in B (billions) or T (trillions)</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">P/E</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Trailing price-to-earnings ratio</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">EPS</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Trailing 12-month earnings per share (USD)</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">BETA</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;30-day sensitivity to market moves</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#f59e0b; font-weight:600;">PE VS SECTOR</span> P/E premium (+) or discount (−) vs sector avg</div>
-  </div>`;
-
-const SCORES_LEGEND = `
-  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#60a5fa; margin-bottom:7px;">Score Guide</div>
-  <div class="col-legend-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px 16px;">
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">RS</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1–99 · Relative strength vs all stocks</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">BREAKOUT</span> 0–100 · Price above MA + vol surge today</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">MOMENTUM</span> 0–100 · Weighted multi-timeframe strength</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">VOL PRESS</span> ±100 · Accumulation vs distribution</div>
-    <div style="font-family:'DM Mono',monospace; font-size:10px; color:#cbd5e1; line-height:1.6;"><span style="color:#60a5fa; font-weight:600;">TREND</span> &nbsp;&nbsp;&nbsp;0–100 · % of timeframes pointing up</div>
-  </div>`;
-
-function renderMock() {
-  const isScores = mockView === 'scores';
-  const isFund   = mockView === 'fund';
-
-  const thead = document.getElementById('mockThead');
-  const legend = document.getElementById('mockLegend');
-  if (thead)  thead.innerHTML  = isFund ? FUND_HEAD   : isScores ? SCORES_HEAD  : NORMAL_HEAD;
-  if (legend) legend.innerHTML = isFund ? FUND_LEGEND : isScores ? SCORES_LEGEND : NORMAL_LEGEND;
-
-  const data = [...MOCK_DATA].sort((a, b) => {
-    const A = typeof a[mockSortCol] === 'string' ? a[mockSortCol] : parseFloat(a[mockSortCol]);
-    const B = typeof b[mockSortCol] === 'string' ? b[mockSortCol] : parseFloat(b[mockSortCol]);
-    if (typeof A === 'string') return mockSortAsc ? A.localeCompare(B) : B.localeCompare(A);
-    return mockSortAsc ? A - B : B - A;
-  });
-
-  const body = document.getElementById('mockBody');
-  if (!body) return;
-
-  const tkCell = r => `<span class="dr-tk">${r.tk}
-    <div class="tk-popup">
-      <div class="tk-popup-head"><span class="tk-sym">${r.tk}</span><span class="tk-sector">${r.sector}</span></div>
-      <div class="tk-rows">
-        <div class="tk-row"><span class="tk-key">PE</span><span class="tk-val">${r.pe}</span></div>
-        <div class="tk-row"><span class="tk-key">Mkt Cap</span><span class="tk-val">${r.mc}</span></div>
-        <div class="tk-row"><span class="tk-key">EPS</span><span class="tk-val">${r.eps}</span></div>
-        <div class="tk-div"></div>
-        <div class="tk-row"><span class="tk-key">Vol 30D</span><span class="tk-val">${r.vol30}</span></div>
-        <div class="tk-div"></div>
-        <div class="tk-row"><span class="tk-key">Sector Avg PE</span><span class="tk-val">${r.secpe}</span></div>
-        <div class="tk-row"><span class="tk-key">PE vs Sector</span><span class="tk-val ${r.pevsec.startsWith('+') ? 'tk-pos' : 'tk-neg'}">${r.pevsec}</span></div>
-      </div>
-    </div>
-  </span>`;
-
-  const spCell = r => `<span class="dr-sp">${sparkSVG(r)}
-    <div class="sp-tip">
-      <div class="sp-tip-title">1Y TREND</div>
-      <div class="sp-tip-desc">1-year normalized price chart</div>
-      <div class="sp-legend">
-        <div class="sp-legend-row"><svg width="10" height="9" viewBox="0 0 10 9"><polygon points="5,0 0,9 10,9" fill="${r.triC}"/></svg>Highest-volume day</div>
-        <div class="sp-legend-row"><svg width="10" height="9" viewBox="0 0 10 9"><circle cx="5" cy="5" r="3.5" fill="${r.dotC}" opacity="0.3"/><circle cx="5" cy="5" r="2" fill="${r.dotC}"/></svg>Largest price-change day</div>
-      </div>
-    </div>
-  </span>`;
-
-  body.innerHTML = data.map(r => {
-    const cells = isFund
-      ? `${tkCell(r)}${spCell(r)}
-         <span class="dr-pr ${r.prDir||''}">${fmtN(r.pr)}</span>
-         <span class="dr-neu dr-gs">${r.mc}</span>
-         <span class="dr-neu">${r.pe}</span>
-         <span class="${cc(r.eps)}">${r.eps}</span>
-         <span class="dr-neu">${r.beta != null ? parseFloat(r.beta).toFixed(2) : '—'}</span>
-         <span class="${cc(r.pevsec)}">${r.pevsec}</span>`
-      : isScores
-      ? `${tkCell(r)}${spCell(r)}
-         <span class="dr-pr ${r.prDir||''}">${fmtN(r.pr)}</span>
-         <span class="${scClass(r.rs, 50)} dr-gs">${r.rs ?? '—'}</span>
-         <span class="${scClass(r.breakout, 50)}">${r.breakout ?? '—'}</span>
-         <span class="${scClass(r.momentum, 50)}">${r.momentum ?? '—'}</span>
-         <span class="${cc(r.volpress)}">${r.volpress ?? '—'}</span>
-         <span class="${scClass(r.trend, 50)}">${r.trend ?? '—'}</span>`
-      : `${tkCell(r)}${spCell(r)}
-         <span class="dr-pr ${r.prDir||''}">${fmtN(r.pr)}</span>
-         <span class="${cc(r.chg)} dr-gs">${fmt(r.chg)}</span>
-         <span class="${cc(r.mx)}">${fmt(r.mx)}</span>
-         <span class="${cc(r.vatpr)}">${fmt(r.vatpr)}</span>
-         <span class="${cc(r.vol)}">${fmt(r.vol)}</span>
-         <span class="${cc(r.pvol)}">${fmt(r.pvol)}</span>`;
-    return `<div class="dash-row">${cells}</div>`;
-  }).join('');
-
-  document.querySelectorAll('#mockThead .dk-sort').forEach(el => {
-    const arr = el.querySelector('.dk-arr');
-    if (!arr) return;
-    const col = el.dataset.col;
-    if (col === mockSortCol) {
-      el.classList.add('active');
-      arr.textContent = mockSortAsc ? ' ↑' : ' ↓';
-    } else {
-      el.classList.remove('active');
-      arr.textContent = ' ↕';
-    }
-  });
-}
-
-window.mockSort = function(col, el) {
-  if (mockSortCol === col) {
-    mockSortAsc = !mockSortAsc;
-  } else {
-    mockSortCol = col;
-    mockSortAsc = false;
-  }
-  renderMock();
-};
-
-// Load real data into demo table
-(function() {
-  const TOP10 = ["NVDA","GOOGL","AAPL","MSFT","AMZN","TSLA","META","MU"];
-  fetch('data/latest.json').then(r => r.json()).then(data => {
-    const tm = {};
-    data.data.forEach(r => { tm[r.Ticker] = r; });
-    MOCK_DATA = TOP10.map(t => {
-      const r = tm[t]; if (!r) return null;
-      const spark = r.Spark1Y || [];
-      const n = Math.max(spark.length - 1, 1);
-      const mn = spark.length ? Math.min(...spark) : 0;
-      const mx2 = spark.length ? Math.max(...spark) : 1;
-      const rng = mx2 - mn || 1;
-      const posX = i => +((i / n) * 94).toFixed(1);
-      const posY = i => +(20 - ((spark[i] - mn) / rng) * 18).toFixed(1);
-      const dotIdx = Math.min(r['1YMaxPriceChangeDay'] || 0, spark.length - 1);
-      const triIdx = Math.min(r['1YMaxVolumeChangeDay'] || 0, spark.length - 1);
-      const pc1y  = r['1YPriceChange'] || 0;
-      const pvol  = r['1YPriceChangeAtMaxVolume'] || 0;
-      const peVs  = r['PE_vs_Sector'] || 0;
-      const mcap  = r.MarketCap || 0;
-      return {
-        tk: t, sector: r.Sector || '',
-        pe:    (r.PE || 0).toFixed(1),
-        mc:    mcap >= 1000 ? (mcap / 1000).toFixed(2) + 'T' : Math.round(mcap) + 'B',
-        eps:   (r.EPS || 0).toFixed(2),
-        vol30: (r.VolumeVsMA21_1D || 0).toFixed(2) + 'x',
-        secpe: (r.SectorAvgPE || 0).toFixed(1),
-        pevsec:(peVs >= 0 ? '+' : '') + peVs.toFixed(1) + '%',
-        sc:    pc1y >= 0 ? '#22c55e' : '#ef4444',
-        triC:  pvol >= 0 ? '#22c55e' : '#ef4444',
-        dotC:  '#22c55e',
-        spark: buildSparkPath(spark),
-        triX: posX(triIdx), triY: posY(triIdx),
-        dotX: posX(dotIdx), dotY: posY(dotIdx),
-        pr:       r.Price || 0,
-        chg:      pc1y,
-        mx:       r['1YMaxPriceChange'] || 0,
-        vatpr:    r['1YVolumeChangeAtMaxPrice'] || 0,
-        vol:      r['1YMaxVolumeChange'] || 0,
-        pvol,
-        rs:       r.RSScore ?? null,
-        breakout: r.BreakoutScore ?? null,
-        momentum: r.MomentumScore ?? null,
-        volpress: r.VolPressureScore ?? null,
-        trend:    r.TrendScore ?? null,
-        beta:     r.Volatility30D ?? null,
-        mcapNum:  mcap,
-      };
-    }).filter(Boolean);
-    renderMock();
-    const scanDate = data.date
-      ? new Date(data.date + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})
-      : '';
-    const note = document.getElementById('mockDataNote');
-    if (note && scanDate) note.textContent = 'As of ' + scanDate;
-  }).catch(() => {});
-})();
 
 // Ticker bar
 (function() {
@@ -2064,31 +1706,15 @@ window.mockSort = function(col, el) {
       const q = await resp.json();
       if (!q || !Object.keys(q).length) return;
 
-      // Compute price direction vs previous refresh for all tickers
-      const uniqueTickers = [...new Set([...BAR_TICKERS, ...MOCK_DATA.map(r => r.tk)])];
+      // Compute price direction vs previous refresh (ticker bar only)
       const dirs = {};
-      uniqueTickers.forEach(t => {
+      BAR_TICKERS.forEach(t => {
         const newP = q[t]?.last;
         if (newP && _prevIexPrices[t] != null) {
           dirs[t] = newP > _prevIexPrices[t] ? 'up' : newP < _prevIexPrices[t] ? 'dn' : '';
         }
       });
-      uniqueTickers.forEach(t => { if (q[t]?.last) _prevIexPrices[t] = q[t].last; });
-
-      // Update demo table prices and re-render
-      if (MOCK_DATA.length) {
-        MOCK_DATA.forEach(row => {
-          const newPrice = q[row.tk]?.last;
-          if (newPrice) {
-            row.prDir = dirs[row.tk] ? 'price-' + dirs[row.tk] : '';
-            row.pr = newPrice;
-          }
-        });
-        renderMock();
-        const today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric', timeZone:'America/New_York'});
-        const note = document.getElementById('mockDataNote');
-        if (note) note.textContent = 'As of ' + today + ' · Prices 15-min delayed';
-      }
+      BAR_TICKERS.forEach(t => { if (q[t]?.last) _prevIexPrices[t] = q[t].last; });
 
       // Rebuild ticker bar with live prices + refresh-direction color on the price number
       const track = document.getElementById('tickerTrack');
@@ -2113,13 +1739,26 @@ window.mockSort = function(col, el) {
 
 // Top 10 by Baizora Score
 (function() {
-  function miniSpark(data, W, H) {
+  function miniSpark(data, W, H, triIdx, triCol, dotIdx, dotCol) {
     if (!data || data.length < 2) return `<svg width="${W}" height="${H}"></svg>`;
     const n = data.length - 1 || 1;
     const pad = 3;
-    const pts = data.map((v,i) => `${((i/n)*W).toFixed(1)},${(pad+(1-v)*(H-pad*2)).toFixed(1)}`).join(' ');
+    const posX = i => +((i/n)*W).toFixed(1);
+    const posY = v => +(pad+(1-v)*(H-pad*2)).toFixed(1);
+    const pts = data.map((v,i) => `${posX(i)},${posY(v)}`).join(' ');
     const col = data[data.length-1] >= data[0] ? '#22c55e' : '#ef4444';
-    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><polyline points="${pts}" stroke="${col}" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+    const tc = triCol || '#22c55e';
+    const dc = dotCol || '#22c55e';
+    let markers = '';
+    if (triIdx != null && triIdx < data.length) {
+      const tx = posX(triIdx), ty = posY(data[triIdx]);
+      markers += `<polygon points="${tx},${ty-6} ${tx-3.5},${ty} ${tx+3.5},${ty}" fill="${tc}" stroke="rgba(6,13,31,0.9)" stroke-width="1"/>`;
+    }
+    if (dotIdx != null && dotIdx < data.length) {
+      const dx = posX(dotIdx), dy = posY(data[dotIdx]);
+      markers += `<circle cx="${dx}" cy="${dy}" r="4" fill="${dc}" opacity="0.25"/><circle cx="${dx}" cy="${dy}" r="2.5" fill="${dc}" stroke="rgba(6,13,31,0.9)" stroke-width="1.1"/>`;
+    }
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none"><polyline points="${pts}" stroke="${col}" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>${markers}</svg>`;
   }
 
   function dotClass(rank) {
@@ -2141,7 +1780,7 @@ window.mockSort = function(col, el) {
       const chg    = t.change1d ?? 0;
       const chgCls = chg >= 0 ? 'up' : 'dn';
       const chgStr = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-      const spark  = miniSpark(t.spark1y, 130, 28);
+      const spark  = miniSpark(t.spark1y, 130, 28, t.triIdx, t.triCol, t.dotIdx, t.dotCol);
 
       // Dots show BaizScore rank across the 5 tracked sessions (oldest→newest)
       const dotsArr = [...sessions].reverse().map((sess, si) => {

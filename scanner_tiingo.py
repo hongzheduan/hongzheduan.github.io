@@ -2426,6 +2426,13 @@ def export_score_history(df):
                 if isinstance(spark, list):
                     spark = [round(float(x), 4) for x in spark if x is not None]
                 sc, rk = score_map.get(r["Ticker"], (None, None))
+                n_spark = max(len(spark) - 1, 1) if spark else 1
+                # Triangle = highest-volume day; dot = largest price-change day
+                tri_idx = min(int(r.get("1YMaxVolumeChangeDay") or 0), n_spark)
+                dot_idx = min(int(r.get("1YMaxPriceChangeDay") or 0), n_spark)
+                tri_col = "#22c55e" if (r.get("1YPriceChangeAtMaxVolume") or 0) >= 0 else "#ef4444"
+                dot_col = "#22c55e" if (r.get("1YVolumeChangeAtMaxPrice") or 0) >= 0 else "#ef4444"
+                sc, rk = score_map.get(r["Ticker"], (None, None))
                 top10.append({
                     "ticker":      r["Ticker"],
                     "company":     r.get("CompanyName", ""),
@@ -2433,6 +2440,10 @@ def export_score_history(df):
                     "price":       round(float(r["Price"]), 2) if r.get("Price") else None,
                     "change1d":    round(float(r["PriceChange1D"]), 2) if r.get("PriceChange1D") else None,
                     "spark1y":     spark,
+                    "triIdx":      tri_idx,
+                    "triCol":      tri_col,
+                    "dotIdx":      dot_idx,
+                    "dotCol":      dot_col,
                     "inSP500":     bool(r.get("InSP500")),
                     "inNASDAQ100": bool(r.get("InNASDAQ100")),
                     "score":       sc,
