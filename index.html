@@ -1227,11 +1227,11 @@
 
     <!-- RIGHT: last session's top price movers -->
     <div class="hero-right">
-      <div style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#22c55e;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);padding:6px 14px;border-radius:999px;margin-bottom:10px;">Last Session's Top Price Movers</div>
+      <div id="shBadge" style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#22c55e;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);padding:6px 14px;border-radius:999px;margin-bottom:10px;">Top Price Movers</div>
       <div style="font-family:'DM Mono',monospace;font-size:10px;color:#64748b;letter-spacing:0.03em;line-height:1.6;margin-bottom:12px;">Were these moves a surprise? Our score had most ranked in the top 10 — <em style="color:#94a3b8;">before</em> they moved.</div>
       <div class="sh-card">
         <div class="sh-header">
-          <span>#</span><span>Ticker &nbsp;<span id="shSessionDate" style="color:#334155;letter-spacing:0;text-transform:none;font-weight:400;"></span></span><span>1Y Trend</span><span>Move</span><span>Score Rank History</span><span style="text-align:right;">Score</span>
+          <span>#</span><span>Ticker</span><span>1Y Trend</span><span>Move</span><span>Score Rank History</span><span style="text-align:right;">Score</span>
         </div>
         <div id="shGrid">
           <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#475569;">Loading…</div>
@@ -1772,9 +1772,9 @@ function buildSparkPath(arr) {
     const sessions = d.sessions || [];
     const sRanks   = d.session_ranks || [];
 
-    // Show the session date this data is from
-    const sessEl = document.getElementById('shSessionDate');
-    if (sessEl && d.top10[0]?.session) sessEl.textContent = '· ' + d.top10[0].session;
+    // Show the actual session date in the badge
+    const badge = document.getElementById('shBadge');
+    if (badge && d.top10[0]?.session) badge.textContent = d.top10[0].session + ' · Top Price Movers';
 
     grid.innerHTML = d.top10.map((t, i) => {
       const chg    = t.change1d ?? 0;
