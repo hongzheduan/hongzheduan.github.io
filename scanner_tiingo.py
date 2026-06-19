@@ -47,7 +47,8 @@ TIMEFRAMES = {
 OUTPUT_JSON   = os.path.join(DATA_DIR,    "latest.json")
 OUTPUT_CSV    = os.path.join(ARCHIVE_DIR, f"results_{DATE_STR}.csv")
 DIGEST_JSON   = os.path.join(DATA_DIR,    "daily_digest.json")
-BRIEFING_TXT  = os.path.join(DATA_DIR,    "daily_briefing.txt")
+BRIEFING_TXT     = os.path.join(DATA_DIR, "daily_briefing.txt")
+BRIEFING_TXT_CN  = os.path.join(DATA_DIR, "daily_briefing_cn.txt")
 
 SCRAPE_HEADERS = {
     "User-Agent": (
@@ -627,12 +628,16 @@ def cleanup_old_archives():
             pass
 
 
-def _fetch_market_headlines(n=5):
+def _fetch_market_headlines(n=5, lang="en"):
     """Fetch top financial headlines from Google News RSS for the daily briefing text."""
     try:
         import urllib.request
-        query = "S%26P+500+OR+%22stock+market%22+OR+%22Wall+Street%22"
-        url = f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
+        if lang == "zh":
+            query = "%E8%82%A1%E5%B8%82+OR+%E5%88%A9%E7%8E%87+OR+%E7%BE%8E%E8%81%94%E5%82%A8+OR+%E8%B4%A2%E6%8A%A5+OR+%E6%88%98%E4%BA%89+OR+%E5%85%B3%E7%A8%8E"
+            url = f"https://news.google.com/rss/search?q={query}&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+        else:
+            query = "stock+market+OR+%22Federal+Reserve%22+OR+earnings+OR+war+OR+tariff+OR+inflation"
+            url = f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; Baizora/1.0)"})
         with urllib.request.urlopen(req, timeout=10) as resp:
             xml_bytes = resp.read()
@@ -2315,6 +2320,33 @@ def export_daily_digest(df):
         with open(BRIEFING_TXT, "w", encoding="utf-8") as f:
             f.write(txt)
         print("Briefing text written.")
+
+        # CN version
+        headlines_cn = _fetch_market_headlines(5, lang="zh")
+        txt_cn  = f"贝佐拉每日市场简报 — {market_date}\n{line}\n"
+        txt_cn += f"标普500 & 纳斯达克100  ·  追踪516支股票\n"
+        txt_cn += f"行情时间：{scan_time}\n\n"
+        txt_cn += "涨幅榜（日内）\n"
+        for r in digest["top_gainers"]:
+            sign = "+" if r["chg1d"] >= 0 else ""
+            name = (r["name"] or "")[:22]
+            txt_cn += f"  {r['ticker']:<6} {name:<22}  ${r['price']:.2f}   {sign}{r['chg1d']:.2f}%\n"
+        txt_cn += "\n成交量飙升（日内）\n"
+        for r in digest["top_volume"]:
+            name  = (r["name"] or "")[:22]
+            vol_s = f"{r['vol']:.1f}M" if r["vol"] else "—"
+            txt_cn += f"  {r['ticker']:<6} {name:<22}  +{r['volchg']:.0f}%   成交量: {vol_s}\n"
+        if headlines_cn:
+            txt_cn += "\n市场资讯\n"
+            for h in headlines_cn:
+                txt_cn += h + "\n"
+        else:
+            txt_cn += "\n市场资讯\n  （每日更新于 baizora.com）\n"
+        txt_cn += f"\n{line}\n贝佐拉 — 标普500 & 纳斯达克100 每日行情分析\nhttps://baizora.com\n本内容不构成投资建议。\n"
+
+        with open(BRIEFING_TXT_CN, "w", encoding="utf-8") as f:
+            f.write(txt_cn)
+        print("CN briefing text written.")
     except Exception as e:
         print(f"[digest] export failed: {e}")
 

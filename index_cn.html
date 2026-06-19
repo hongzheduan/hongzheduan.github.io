@@ -1387,7 +1387,7 @@
       <div id="digestNews"><div class="digest-msg">加载中…</div></div>
       <div class="digest-footer">
         <span class="digest-scan-note" id="digestScanNote"></span>
-        <a href="data/daily_briefing.txt" id="digestDlBtn" class="digest-dl" title="下载今日简报文本文件">
+        <a href="data/daily_briefing_cn.txt" id="digestDlBtn" class="digest-dl" title="下载今日简报文本文件">
           ↓ 下载
         </a>
       </div>
@@ -2190,7 +2190,7 @@ window.mockSort = function(col, el) {
       if (note && _digest.scan_time) note.textContent = "行情时间：" + _digest.scan_time;
       const dlBtn = document.getElementById("digestDlBtn");
       if (dlBtn && _digest.date) {
-        dlBtn.download = "baizora-briefing-" + _digest.date + ".txt";
+        dlBtn.download = "baizora-briefing-cn-" + _digest.date + ".txt";
         const todayET = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
         if (_digest.date === todayET) dlBtn.style.color = '#64c487';
       }
