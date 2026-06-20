@@ -661,9 +661,10 @@
 
     /* ── Top movers card ── */
     .sh-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-    .sh-header { display: grid; grid-template-columns: 28px 1fr 130px 60px 110px 52px; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--border); }
+    .sh-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .sh-header { display: grid; grid-template-columns: 28px 110px 140px 72px 120px 64px; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--border); min-width: 580px; }
     .sh-header span { font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #94a3b8; }
-    .sh-row { display: grid; grid-template-columns: 28px 1fr 130px 60px 110px 52px; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    .sh-row { display: grid; grid-template-columns: 28px 110px 140px 72px 120px 64px; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); transition: background 0.15s; min-width: 580px; }
     .sh-row:last-child { border-bottom: none; }
     .sh-row:hover { background: rgba(59,130,246,0.04); }
     .sh-rank { font-family: 'DM Mono',monospace; font-size: 11px; color: #94a3b8; text-align: center; }
@@ -682,8 +683,8 @@
     .sh-badge { font-family: 'DM Mono',monospace; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: 700; margin-left: 2px; }
     .sh-badge-sp { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
     .sh-badge-nd { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
-    @media (max-width: 900px) {
-      .sh-header, .sh-row { grid-template-columns: 22px 1fr 90px 52px 88px 44px; gap: 8px; padding: 9px 12px; }
+    @media (max-width: 640px) {
+      .sh-company-name { display: none; }
     }
 
     .spark-demo {
@@ -1180,11 +1181,13 @@
     <div class="hero-right">
       <div id="shBadge" style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#22c55e;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);padding:6px 14px;border-radius:999px;margin-bottom:10px;">涨幅榜</div>
       <div class="sh-card">
-        <div class="sh-header">
-          <span>#</span><span>代码</span><span>年趋势线</span><span>涨幅</span><span>评分排名 · 旧→新</span><span style="text-align:right;">贝佐拉评分</span>
-        </div>
-        <div id="shGrid">
-          <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;">加载中…</div>
+        <div class="sh-scroll-wrap">
+          <div class="sh-header">
+            <span>#</span><span>代码</span><span>年趋势线</span><span>涨幅</span><span>评分排名 · 旧→新</span><span style="text-align:right;">贝佐拉评分</span>
+          </div>
+          <div id="shGrid">
+            <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;">加载中…</div>
+          </div>
         </div>
       </div>
       <div style="font-family:'DM Mono',monospace;font-size:9px;color:#94a3b8;letter-spacing:0.04em;text-align:center;margin-top:8px;line-height:1.8;">
