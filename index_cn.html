@@ -1732,8 +1732,8 @@
   const track = document.getElementById('promoTrack');
   if (!track) return;
   const sep = `<span class="promo-ticker-item" style="cursor:default;color:#334155;">·</span>`;
-  const link1 = `<a href="unusual-volume.html" class="promo-ticker-item"><span class="promo-arrow">📊</span> <span class="promo-label">今日异常放量股票</span> <span class="promo-arrow">→</span></a>`;
-  const link2 = `<a href="top-price-movers.html" class="promo-ticker-item"><span class="promo-arrow">🚀</span> <span class="promo-label">今日涨跌幅最大股票</span> <span class="promo-arrow">→</span></a>`;
+  const link1 = `<a href="unusual-volume.html" class="promo-ticker-item"><span class="promo-arrow">📊</span> <span class="promo-label">上期异常放量股票</span> <span class="promo-arrow">→</span></a>`;
+  const link2 = `<a href="top-price-movers.html" class="promo-ticker-item"><span class="promo-arrow">🚀</span> <span class="promo-label">上期涨跌幅最大股票</span> <span class="promo-arrow">→</span></a>`;
   const chunk = link1 + sep + link2 + sep;
   track.innerHTML = chunk.repeat(8);
 })();
