@@ -234,10 +234,11 @@ app.get("/market-news", async (req, res) => {
       : ["en-US", "US", "US:en", _MARKET_NEWS_QUERY];
     const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=${hl}&gl=${gl}&ceid=${ceid}`;
     const resp = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; Baizora/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" },
       signal: AbortSignal.timeout(10000),
     });
     const xml = await resp.text();
+    if (!xml.includes("<item>")) console.warn("market-news: 0 items from Google RSS. status:", resp.status, "preview:", xml.slice(0, 200));
     const parsed = _parseRssItems(xml);
     const items = parsed.slice(0, 6).map(it => ({
       title: it.title,
