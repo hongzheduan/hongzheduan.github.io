@@ -191,9 +191,9 @@
     /* ── PRICING GRID ── */
     .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      max-width: 1200px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 720px;
       margin: 0 auto 60px;
       align-items: stretch;
       animation: fadeUp 0.6s 0.3s ease both;
@@ -501,10 +501,7 @@
       header { padding: 0 16px; }
       .header-right { display: none; }
       .hamburger { display: flex; }
-      .pricing-grid { grid-template-columns: 1fr 1fr; max-width: 600px; }
-    }
-    @media (max-width: 480px) {
-      .pricing-grid { grid-template-columns: 1fr; max-width: 360px; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
       footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px 16px; }
       .amount { font-size: 44px; }
     }
@@ -547,40 +544,6 @@
 
     <!-- Pricing Cards -->
     <div class="pricing-grid">
-
-      <!-- Free Preview -->
-      <div class="plan free-tier">
-        <div class="plan-name">Free Preview</div>
-        <div class="period" style="margin-bottom:24px;">no sign up required</div>
-        <div class="plan-divider"></div>
-        <ul>
-          <li><span class="check">◆</span> 3 sample tickers</li>
-          <li><span class="check">◆</span> All metrics visible</li>
-          <li><span class="cross">◇</span> <span style="color:#475569;">Full ticker universe</span></li>
-          <li><span class="cross">◇</span> <span style="color:#475569;">Current session data</span></li>
-          <li><span class="cross">◇</span> <span style="color:#475569;">Watchlist &amp; filters</span></li>
-        </ul>
-        <a href="baizora_main_form_free.html" class="plan-btn btn-outline" style="text-decoration:none;text-align:center;">
-          Try Free Preview
-        </a>
-      </div>
-
-      <!-- Free Tier -->
-      <div class="plan free-tier">
-        <div class="plan-name">Free Tier</div>
-        <div class="period" style="margin-bottom:24px;">no sign up required</div>
-        <div class="plan-divider"></div>
-        <ul>
-          <li><span class="check">◆</span> All tickers (500+)</li>
-          <li><span class="check">◆</span> All metrics visible</li>
-          <li><span class="check">◆</span> 2 sessions delayed data</li>
-          <li><span class="cross">◇</span> <span style="color:#475569;">Current session data</span></li>
-          <li><span class="cross">◇</span> <span style="color:#475569;">Watchlist &amp; filters</span></li>
-        </ul>
-        <a href="baizora_main_form_freetier.html" class="plan-btn btn-outline" style="text-decoration:none;text-align:center;">
-          Open Free Tier
-        </a>
-      </div>
 
       <!-- Monthly -->
       <div class="plan">
