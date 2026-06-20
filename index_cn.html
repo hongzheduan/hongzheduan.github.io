@@ -1177,7 +1177,7 @@
       </div>
     </div><!-- /hero-left -->
 
-    <!-- RIGHT: 上期涨幅最大股票 -->
+    <!-- RIGHT: 最近交易日涨幅最大股票 -->
     <div class="hero-right">
       <div id="shBadge" style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#22c55e;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);padding:6px 14px;border-radius:999px;margin-bottom:10px;">涨幅榜</div>
       <div class="sh-card">
@@ -1732,8 +1732,8 @@
   const track = document.getElementById('promoTrack');
   if (!track) return;
   const sep = `<span class="promo-ticker-item" style="cursor:default;color:#334155;">·</span>`;
-  const link1 = `<a href="unusual-volume.html" class="promo-ticker-item"><span class="promo-arrow">📊</span> <span class="promo-label">上期异常放量股票</span> <span class="promo-arrow">→</span></a>`;
-  const link2 = `<a href="top-price-movers.html" class="promo-ticker-item"><span class="promo-arrow">🚀</span> <span class="promo-label">上期涨跌幅最大股票</span> <span class="promo-arrow">→</span></a>`;
+  const link1 = `<a href="unusual-volume.html" class="promo-ticker-item"><span class="promo-arrow">📊</span> <span class="promo-label">最近交易日异常放量股票</span> <span class="promo-arrow">→</span></a>`;
+  const link2 = `<a href="top-price-movers.html" class="promo-ticker-item"><span class="promo-arrow">🚀</span> <span class="promo-label">最近交易日涨跌幅最大股票</span> <span class="promo-arrow">→</span></a>`;
   const chunk = link1 + sep + link2 + sep;
   track.innerHTML = chunk.repeat(8);
 })();
