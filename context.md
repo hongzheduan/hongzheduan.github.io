@@ -150,122 +150,7 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 ## Billing / Subscriptions (as of 2026-06-02)
 
-- **Subscriptions temporarily paused** — `billing.html` and `billing_cn.html` redirect to pricing page with maintenance banner
-- Do NOT re-enable billing until a data provider is confirmed and the paid gate is restored
-
----
-
-## ⚠️ WHEN WE START CHARGING — Full Revert Checklist
-
-**Quick find:** Search `// TEMP:` and `<!-- TEMP:` across all HTML files — every item below is marked with one of these comments. Also search `// FREE MODE:` for the subscription check block in `baizora_main_form.html` / `_cn.html`.
-
-All files below were changed for free mode. Revert ALL of them together.
-
-### 1. `login.html` and `login_cn.html`
-Comment out the direct redirect and uncomment the `isActive` ternary:
-```js
-// Remove this line:
-window.location.href = "dashboard.html";  // or dashboard_cn.html
-
-// Uncomment this line:
-// window.location.href = isActive ? "dashboard.html" : "billing.html";
-```
-
-### 2. `baizora_main_form.html` and `baizora_main_form_cn.html`
-Inside `onAuthStateChanged`:
-- Restore the login gate (currently commented out):
-```js
-// Uncomment this line:
-// if (!user) { window.location.href = "login.html"; return; }  // or login_cn.html
-```
-- Uncomment the subscription fetch block and remove the free `loadDashboard()` call:
-```js
-// Uncomment this block:
-// user.getIdToken().then(token =>
-//   fetch("https://us-central1-baizora.cloudfunctions.net/api/subscription", ...)
-//   .then(d => { if (d.status !== "active") window.location.href = "billing.html"; else loadDashboard(); })
-// );
-
-// Remove this line:
-loadDashboard();
-```
-
-### 3. `dashboard.html` and `dashboard_cn.html`
-Three changes:
-
-**a) Restore login gate** (currently commented out):
-```js
-// Uncomment this:
-// if (!user) { window.location.href = "login.html"; return; }  // or login_cn.html
-```
-
-**b) Restore "Free Preview" tool card** (currently commented out between `<!-- TEMP -->` markers):
-```html
-<a href="baizora_main_form_free.html" class="tool-card">
-  <div class="tool-icon">⬡</div>
-  <div class="tool-name">Free Preview</div>
-  <div class="tool-desc">Top 3 movers from today's data — no login required. Share with anyone.</div>
-  <div class="tool-tag tag-free">Free</div>
-</a>
-```
-(CN: `baizora_main_form_free_cn.html`)
-
-**c) Restore "Free Preview" quick link** (currently commented out between `<!-- TEMP -->` markers):
-```html
-<a href="baizora_main_form_free.html" class="quick-link">
-  <span class="quick-link-icon">👁</span> Free Preview
-</a>
-```
-(CN: `baizora_main_form_free_cn.html`)
-
-**d) Restore card-locking for non-subscribers** (inside the `else` block):
-```js
-// Remove: text.textContent = "Free Access";  (or "免费开放中")
-// Uncomment the full locking block below it (scannerCard.classList.add("locked") etc.)
-```
-
-### 4. `billing.html` and `billing_cn.html`
-Remove the `<script>window.location.replace(...)` redirect at the top of each file.
-
-### 5. `index.html` and `index_cn.html`
-Four changes:
-
-**a) Restore announcement bar text:**
-- EN: `First 7 Days Free · Contact: support@baizora.com`
-- CN: `完全免费试用七天 · 联系我们：support@baizora.com`
-
-**b) Restore nav "Plans" link; remove "Full Dashboard" nav link:**
-- EN: uncomment `<a href="pricing.html" class="nav-btn">Plans</a>`, remove the `Full Dashboard` nav `<a>` tag
-- CN: uncomment `<a href="pricing_cn.html" class="nav-btn">价格方案</a>`, remove `完整数据` nav `<a>` tag
-
-**c) Restore hero primary CTA button:**
-- EN: change `View Full Dashboard — No Sign-up` → `Free Preview (No Sign-up)`, `href="baizora_main_form_free.html"`
-- CN: change `查看完整数据 — 无需注册` → `免费预览（无需注册）`, `href="baizora_main_form_free_cn.html"`
-
-**d) Restore hero secondary CTA button:**
-- EN: change `View Full Dashboard` → `Free Preview`, `href="baizora_main_form_free.html"`
-- CN: change `查看完整数据` → `免费预览`, `href="baizora_main_form_free_cn.html"`
-
-### 6. `index_news.html` and `index_news_cn.html`
-Restore login gate (currently commented out):
-```js
-// Uncomment this:
-// if (!user) { window.location.href = "login.html"; return; }  // or login_cn.html
-```
-
-### 7. Scanner
-Confirm a paid data provider is active before re-enabling billing. Do NOT charge users while on yfinance data.
-
-## Data Provider Status (as of 2026-06-02)
-
-- **Massive:** $2000/mo commercial license (50% discount still = $1000/mo) — too expensive with no paying customers yet; **ruled out**
-- **AlphaVantage:** $500/mo with 50% startup discount (~$250/mo) — potential candidate, inquiry in progress
-- **EODHD:** inquiry sent 2026-06-02; Egor confirmed client-facing display = redistribution license (awaiting pricing)
-- **Tiingo:** inquiry sent 2026-06-02 (awaiting reply)
-- **FMP:** inquiry sent 2026-06-02 (awaiting reply)
-- **Intrinio:** inquiry sent 2026-06-02 (awaiting reply)
-- **yfinance:** currently active — free, ToS-gray, viable bridge. Do NOT re-enable billing while on yfinance.
-- **Scanner paused** until a cost-appropriate provider is confirmed; do NOT re-enable billing until then
+- **Billing live** — Tiingo scanner active since 2026-06-07; billing/pricing pages live with Monthly ($9.99) and Yearly ($99) plans via Stripe
 
 ---
 
@@ -492,6 +377,47 @@ New rolling file at `data/score_history.json` — maintained by scanner, consume
 ### CN Market News Query Fix
 
 Removed `战争` (war) from CN Google News query in both `functions/index.js` (line 221, `/api/market-news`) and `scanner_tiingo.py` (`_fetch_market_headlines`). `战争` pulled historical war articles (e.g., 抗美援朝). Replaced with `美股` + `通胀`. CF redeployed — 1-hour cache clears naturally.
+
+---
+
+## What Was Done 2026-06-19
+
+### Holiday Detection — IEX Timestamp Check (No Hardcoded Holidays)
+
+On Juneteenth (market closed), live IEX refresh was overriding scan's `PriceChange1D` with 0%.
+
+**Fix:** CF `/api/iex-quotes` now returns `ts: q.lastSaleTimestamp ?? q.quoteTimestamp ?? null` per ticker. All dashboards (`baizora_main_form.html`, `_cn.html`, `_free.html`, `_free_cn.html`, `top-price-movers.html`, `unusual-volume.html`) check if the IEX timestamp's ET date matches today's ET date before applying live data. If mismatch (holiday/closure), scan's `PriceChange1D` is preserved. `isMarketOpen()` reverted to simple weekday/hours check — no hardcoded holiday lists.
+
+### Free Tier — Purely Delayed Data
+
+Removed live price refresh entirely from `baizora_main_form_freetier.html` and `baizora_main_form_freetier_cn.html`. Dead `IEX_CF`, `_liveIex`, `_SPLIT_ADJ`, `isMarketOpen`, `refreshDashPrices` blocks deleted (~300 lines total). Free tier shows scan data as-is — no confusing mix of today's price vs 2-session-old change %.
+
+### CN News Query Fix
+
+Removed `战争` from both CF (`_MARKET_NEWS_QUERY_ZH`) and `scanner_tiingo.py` (`_fetch_market_headlines`). Was pulling irrelevant historical war articles. Added `美股` and `通胀`.
+
+### Google News User-Agent Fix
+
+CF `/api/market-news` was returning 0 items — GCP IPs blocked by Google News when using generic `Baizora/1.0` UA. Fixed by switching to full Chrome UA string.
+
+### Announcement Bar Updates
+
+- EN: `Free Version (no signup, 2 sessions delay) · First 7 Days Free for New Subscribers · support@baizora.com`
+- CN: `免费版（无需注册，延迟两个交易日）· 新订阅用户前七天免费 · support@baizora.com`
+- CN delay text unified to `延迟两个交易日` everywhere (was mixing `延迟两期` / `延迟2个交易日`).
+
+### Billing & Pricing Pages
+
+- `billing.html` / `billing_cn.html`: Monthly + Yearly only (no free cards). Yearly description: everything in monthly + better value long-term + price locked for a year + ideal for stable long-term users. Titles: "Baizora | Billing" / "贝佐拉 | 订阅管理".
+- `pricing.html` / `pricing_cn.html`: 7 timeframes (1D–1Y), "Live pricing · daily scoring after market close". Comparison table has 5 columns: **Free Preview** · **Free Tier** · **Trial · 7 Days** · **Subscription**. Differentiating rows first, shared-feature rows at bottom. Free Preview data freshness = Current (live IEX + latest.json).
+- Google News CF User-Agent fixed: was `Baizora/1.0` (blocked by Google on GCP IPs) → now full Chrome UA string; news returns 6 items again.
+
+### Product Terminology (Canonical)
+
+- **Free Preview** = `baizora_main_form_free.html` — 3 tickers, current data (live IEX), no signup
+- **Free Tier** = `baizora_main_form_freetier.html` — all 500+ tickers, 2-session delay, no signup, no live refresh
+- **Free Trial** = 7-day trial for new subscribers (requires payment method, once per email)
+- **Subscription** = Monthly $9.99 / Yearly $99
 
 ---
 
@@ -764,7 +690,6 @@ Two-part fix:
 ## Next Time: What to Check
 
 1. **Chat widget mobile test result** — user was going to test `chat-widget.js?v=8` on another phone. Confirm whether bottom:90px + transform:translateZ(0) fixed both "not visible on page open" and "scrolls with page until middle". If button is still not fixed: next step is JS scroll listener fallback (position:absolute updated on every scroll event as last resort).
-2. **Re-enable billing + paid gate** — Tiingo scanner has been live since 2026-06-07 with clean compare log. After confirming clean runs for ~1 week, re-enable billing per the revert checklist above. Also remove the mobile `mobile-dash-btn` button and drawer link from `index.html` / `index_cn.html` (see `assets/revert_billing_checklist.html` sections e/f/g).
 2. **Tiingo attribution** — ✓ DONE. Present in `baizora_main_form.html` (line 906), individual stock pages, and homepage. `dashboard.html` shows no market data so no attribution needed there.
 3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify EPS and mktcap drop to expected post-split values and compare log stays clean.
 4. **Remaining EPS=None tickers** — BRK-B is structural (no EDGAR data after 2013); others may be IFRS filers. Investigate if any are solvable from EDGAR without a paid source.
