@@ -550,7 +550,7 @@
       if(mLinks) mLinks.innerHTML='<a href="../dashboard_cn.html" style="'+mStyle+'">个人主页</a>';
     } else {
       if(loginBtn){ loginBtn.textContent='登录'; loginBtn.className='nav-btn nav-btn-primary'; loginBtn.href='../login_cn.html'; loginBtn.onclick=null; }
-      if(dashBtn) dashBtn.style.display='none';
+      if(dashBtn) dashBtn.style.display='inline-block';
       if(mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'">登录</a>'+'<a href="../signup_cn.html" style="'+mStyle+'color:var(--electric-bright);font-weight:600;">免费注册</a>';
     }
   });
