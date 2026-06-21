@@ -1087,12 +1087,13 @@
     /* ── STATUS ── */
     function updateStatus() {
       statusText.textContent = loadedDate;
+      const dateSuffix = loadedDate && loadedDate !== "—" ? ` · ${loadedDate}` : "";
       if (activeTab === "watchlist") {
-        rowCount.textContent = `${watchlist.size} SAVED`;
+        rowCount.textContent = `${watchlist.size} SAVED${dateSuffix}`;
       } else {
         const rows  = activeTab === "sp500" ? spRows.length : ndRows.length;
         const label = activeTab === "sp500" ? "S&P 500" : "Nasdaq 100";
-        rowCount.textContent = `${rows} SYMBOLS · ${label}`;
+        rowCount.textContent = `${rows} SYMBOLS · ${label}${dateSuffix}`;
       }
     }
 

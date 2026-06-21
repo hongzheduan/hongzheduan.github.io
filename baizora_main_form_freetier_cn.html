@@ -1094,15 +1094,15 @@
 
     /* ── STATUS ── */
     function updateStatus() {
+      statusText.textContent = loadedDate;
+      const dateSuffix = loadedDate && loadedDate !== "—" ? ` · ${loadedDate}` : "";
       if (activeTab === "watchlist") {
-        statusText.textContent = loadedDate;
-        rowCount.textContent = `${watchlist.size} 已保存`;
+        rowCount.textContent = `${watchlist.size} 已保存${dateSuffix}`;
         return;
       }
       const rows  = activeTab === "sp500" ? spRows.length : ndRows.length;
       const label = activeTab === "sp500" ? "标普500" : "纳斯达克100";
-      statusText.textContent = loadedDate;
-      rowCount.textContent = `${rows} 支股票 · ${label}`;
+      rowCount.textContent = `${rows} 支股票 · ${label}${dateSuffix}`;
     }
 
     /* ── TAB ── */
