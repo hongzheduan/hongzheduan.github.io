@@ -1836,35 +1836,38 @@
       }
     }
 
-    document.getElementById("candleTimeframes").addEventListener("click", e => {
-      const btn = e.target.closest(".tf-btn");
-      if (!btn || !_modalTicker) return;
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      _renderModalChart(_modalTicker, parseInt(btn.dataset.tf));
-    });
-
     function closeTickerModal() {
       document.getElementById("tickerModal").style.display = "none";
       document.body.style.overflow = "";
     }
 
-    document.getElementById("modalClose").addEventListener("click", closeTickerModal);
-    document.getElementById("tickerModal").addEventListener("click", e => {
-      if (e.target === document.getElementById("tickerModal")) closeTickerModal();
-    });
-    document.addEventListener("keydown", e => { if (e.key === "Escape") closeTickerModal(); });
-    document.getElementById("tableArea").addEventListener("click", e => {
-      const starBtn = e.target.closest(".star-btn");
-      if (starBtn) {
-        const ticker = starBtn.dataset.watch;
-        if (watchlist.has(ticker)) watchlist.delete(ticker); else watchlist.add(ticker);
-        saveWatchlist();
-        render();
-        return;
-      }
-      const td = e.target.closest("td.ticker-cell");
-      if (td) openTickerModal(td.dataset.ticker);
+    // Modal elements are defined after this script block, so register their
+    // listeners after DOM is fully parsed to avoid null.addEventListener errors.
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("candleTimeframes").addEventListener("click", e => {
+        const btn = e.target.closest(".tf-btn");
+        if (!btn || !_modalTicker) return;
+        document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        _renderModalChart(_modalTicker, parseInt(btn.dataset.tf));
+      });
+      document.getElementById("modalClose").addEventListener("click", closeTickerModal);
+      document.getElementById("tickerModal").addEventListener("click", e => {
+        if (e.target === document.getElementById("tickerModal")) closeTickerModal();
+      });
+      document.addEventListener("keydown", e => { if (e.key === "Escape") closeTickerModal(); });
+      document.getElementById("tableArea").addEventListener("click", e => {
+        const starBtn = e.target.closest(".star-btn");
+        if (starBtn) {
+          const ticker = starBtn.dataset.watch;
+          if (watchlist.has(ticker)) watchlist.delete(ticker); else watchlist.add(ticker);
+          saveWatchlist();
+          render();
+          return;
+        }
+        const td = e.target.closest("td.ticker-cell");
+        if (td) openTickerModal(td.dataset.ticker);
+      });
     });
 
     /* ── LIVE PRICE REFRESH (10-min, market hours only) ── */
