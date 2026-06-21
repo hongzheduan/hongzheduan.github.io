@@ -103,6 +103,7 @@
       color: var(--gold-light);
       font-weight: 500;
     }
+    .ann-br { display: none; }
 
     @keyframes shimmer {
       0%, 100% { background-position: 0% 0%; }
@@ -869,6 +870,8 @@
       .footer-links { justify-content: center; }
       .announcement { font-size: 10px; padding: 8px 12px; letter-spacing: 0.06em; }
       .ann-email { display: none; }
+      .ann-sep { display: none; }
+      .ann-br { display: inline; }
       .fact-bar { flex-wrap: wrap; }
       .fact-item { min-width: 50%; border-bottom: 1px solid var(--border); }
       .fact-item:nth-child(odd) { border-right: 1px solid var(--border); }
@@ -1149,7 +1152,7 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  &nbsp; Free Version (no signup, 2 sessions delay) &nbsp;·&nbsp; First 7 Days Free for New Subscribers<span class="ann-email"> &nbsp;·&nbsp; support@baizora.com</span>
+  First 7 days free for new subscribers<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">Free version available, no signup needed
 </div>
 
 <header>
