@@ -744,8 +744,9 @@
         <span id="statusText">Loading…</span>
       </div>
       <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:4px 10px;border-radius:999px;">Free · 2 sessions delayed</span>
-      <a href="login.html" class="logout-btn" style="text-decoration:none;">Sign in</a>
-      <a href="signup.html" style="display:inline-flex;align-items:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;padding:5px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-decoration:none;">⚡ Subscribe</a>
+      <span id="navUserEmail" style="display:none;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);"></span>
+      <a href="login.html" class="logout-btn" id="navLoginBtn" style="text-decoration:none;">Sign In</a>
+      <a href="signup.html" id="navSubscribeBtn" style="display:inline-flex;align-items:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;padding:5px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-decoration:none;">⚡ Subscribe</a>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -760,7 +761,7 @@
     <button onclick="show('readme', document.querySelectorAll('.tab-btn')[3]); toggleMenu();">README</button>
     <button onclick="show('membership', document.querySelectorAll('.tab-btn')[4]); toggleMenu();">MEMBERSHIP CHANGE</button>
     <a href="index.html">Home</a>
-    <a href="login.html" style="display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);">Sign in</a>
+    <a href="login.html" id="mobileLoginBtn" style="display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);">Sign In</a>
   </div>
 
   <!-- Toolbar — NEW timeframes: 1D 2W 1M 3M 6M 9M 1Y -->
@@ -1878,6 +1879,39 @@
   <script>
     window.addEventListener("beforeinstallprompt", e => e.preventDefault());
     if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); }
+  </script>
+
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    onAuthStateChanged(auth, user => {
+      const loginBtn       = document.getElementById("navLoginBtn");
+      const emailEl        = document.getElementById("navUserEmail");
+      const mobileLoginBtn = document.getElementById("mobileLoginBtn");
+      const subscribeBtn   = document.getElementById("navSubscribeBtn");
+
+      if (user) {
+        emailEl.textContent = user.email;
+        emailEl.style.display = "inline";
+        loginBtn.textContent = "Sign Out";
+        loginBtn.href = "#";
+        loginBtn.onclick = e => { e.preventDefault(); signOut(auth).then(() => window.location.href = "index.html"); };
+        mobileLoginBtn.textContent = "Sign Out";
+        mobileLoginBtn.href = "#";
+        mobileLoginBtn.onclick = e => { e.preventDefault(); signOut(auth).then(() => window.location.href = "index.html"); };
+        if (subscribeBtn) subscribeBtn.href = "billing.html";
+      } else {
+        emailEl.style.display = "none";
+        loginBtn.textContent = "Sign In";
+        loginBtn.href = "login.html";
+        loginBtn.onclick = null;
+        mobileLoginBtn.textContent = "Sign In";
+        mobileLoginBtn.href = "login.html";
+        mobileLoginBtn.onclick = null;
+      }
+    });
   </script>
 
   <!-- TICKER MODAL -->
