@@ -732,21 +732,22 @@
       </nav>
     </div>
 
-    <div class="header-right">
-      <div class="status-badge">
-        <div class="status-dot loading" id="statusDot"></div>
-        <span id="statusText">Loading…</span>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <div class="header-right">
+        <div class="status-badge">
+          <div class="status-dot loading" id="statusDot"></div>
+          <span id="statusText">Loading…</span>
+        </div>
+        <a href="index_cn.html" class="nav-btn">首页</a>
+        <a href="dashboard_cn.html" class="nav-btn">个人主页</a>
+        <a href="login_cn.html" class="nav-btn" id="navLoginLogout">登录</a>
+        <!-- <a href="pricing_cn.html" class="nav-btn nav-btn-upgrade">⚡ Upgrade</a> -->
       </div>
-      <a href="index_cn.html" class="nav-btn">首页</a>
-      <a href="dashboard_cn.html" class="nav-btn">个人主页</a>
       <span id="navUserEmail" style="display:none;width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;align-items:center;justify-content:center;flex-shrink:0;cursor:default;" title=""></span>
-      <a href="login_cn.html" class="nav-btn" id="navLoginLogout">登录</a>
-      <!-- <a href="pricing_cn.html" class="nav-btn nav-btn-upgrade">⚡ Upgrade</a> -->
+      <button class="hamburger" id="freeHamburger" onclick="toggleFreeMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <!-- Mobile hamburger -->
-    <button class="hamburger" id="freeHamburger" onclick="toggleFreeMenu()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
   </header>
 
   <!-- Mobile tab strip (hidden — navigation is in the drawer) -->

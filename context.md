@@ -325,6 +325,73 @@ Applied to all 4 dashboard files (`baizora_main_form.html`, `baizora_main_form_c
 
 ---
 
+## What Was Done 2026-06-21
+
+### User Avatar Circle — Replaced Email Display
+
+All pages with a signed-in state now show a 28px solid blue (#3b82f6) circle with the user's capitalized initial instead of the raw email address (saves nav space; still disambiguates accounts). Hover title shows the full email address.
+
+**HTML pattern (all pages):**
+```html
+<span id="navUserEmail" style="display:none;width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;align-items:center;justify-content:center;flex-shrink:0;cursor:default;" title=""></span>
+```
+`display: inline-flex` set in JS (not CSS) so `align-items`/`justify-content` work.
+
+**JS pattern:**
+```js
+const emailEl = document.getElementById("navUserEmail");
+if (emailEl) {
+  emailEl.textContent = user.email[0].toUpperCase();
+  emailEl.title = user.email;
+  emailEl.style.display = "inline-flex";
+}
+```
+
+**Files updated:** `index.html`, `index_cn.html`, `baizora_main_form.html`, `baizora_main_form_cn.html`, `baizora_main_form_free.html`, `baizora_main_form_free_cn.html`, `baizora_main_form_freetier.html`, `baizora_main_form_freetier_cn.html`, `dashboard.html`, `dashboard_cn.html`, `account.html`, `account_cn.html`, `unusual-volume.html`, `top-price-movers.html`, `index_news.html`, `index_news_cn.html`.
+
+`dashboard.html`/`_cn.html`, `index_news.html`/`_cn.html` used a different CSS class `.user-email` — replaced that class definition with the avatar circle styles.
+
+`baizora_main_form.html`/`_cn.html` had NO email element before — avatar span added from scratch before `.dash-btn` in `header-right`.
+
+**Mobile:** `#navUserEmail { display: none !important; }` in portrait and landscape ≤640px media blocks on all dashboard pages.
+
+### Top Movers Panel Grid Fix
+
+Row border-bottom was ending early before the Baizora Score column because `min-width: 580px` was less than the actual 626px computed grid width.
+
+- `.sh-header` and `.sh-row` grid template last column: `64px` → `76px`
+- `min-width: 580px` → `640px` on both panels
+
+Applied to `index.html` and `index_cn.html`.
+
+### Mobile Card Gap Reduction (index.html / index_cn.html)
+
+Gap between the Sparklines card and the Index News card on mobile portrait was ~100px.
+
+- `.features { padding: 60px 20px; }` → `padding: 60px 20px 24px;`
+- Added `.bottom-cta { padding: 20px 20px 60px; }` in the mobile media block
+
+### Toolbar Separator Hidden on Portrait
+
+Added `.toolbar-sep { display: none; }` to portrait CSS in 4 dashboard files:
+`baizora_main_form.html`, `baizora_main_form_cn.html`, `baizora_main_form_free.html`, `baizora_main_form_free_cn.html`.
+(Already done for freetier files in prior session.)
+
+### Chat Widget Desktop Raised
+
+Desktop chat button was overlapping the About/FAQ footer links at bottom of scroll.
+
+- `chat-widget.js` desktop button: `bottom:24px` → `bottom:76px`
+- `chat-widget.js` desktop panel: `bottom:92px` → `bottom:144px`
+- Mobile (≤480px) unchanged: button `bottom:90px`, panel `bottom:130px`
+- Cache bust: `chat-widget.js` → `?v=9` in `index.html`, `index_cn.html`, `baizora_main_form_free.html`, `baizora_main_form_free_cn.html`
+
+### faq_cn.html — 首页 Button Always Visible
+
+`assets/faq_cn.html` logged-out auth branch was hiding `navDashBtn` (the 首页 link). Fixed so 首页 shows in both logged-in and logged-out states.
+
+---
+
 ## What Was Done 2026-06-19
 
 ### Top Price Movers Panel (Homepage Hero)
