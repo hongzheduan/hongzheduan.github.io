@@ -800,7 +800,7 @@
         <div class="status-dot loading" id="statusDot"></div>
         <span id="statusText">加载中…</span>
       </div>
-      <span id="navUserEmail" style="display:none;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);"></span>
+      <span id="navUserEmail" style="display:none;width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;align-items:center;justify-content:center;flex-shrink:0;cursor:default;" title=""></span>
       <a href="login_cn.html" class="logout-btn" id="navLoginBtn" style="text-decoration:none;">登录</a>
       <a href="signup_cn.html" id="navSubscribeBtn" style="display:inline-flex;align-items:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;padding:5px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-decoration:none;">订阅</a>
     </div>
@@ -1971,8 +1971,8 @@
 
       if (user) {
         document.getElementById("signInPrompt").classList.remove("visible");
-        emailEl.textContent = user.email;
-        emailEl.style.display = "inline";
+        emailEl.textContent = user.email[0].toUpperCase(); emailEl.title = user.email;
+        emailEl.style.display = "inline-flex";
         loginBtn.textContent = "退出登录";
         loginBtn.href = "#";
         loginBtn.onclick = e => { e.preventDefault(); signOut(auth).then(() => window.location.href = "index_cn.html"); };

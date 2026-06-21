@@ -418,7 +418,7 @@
     <a href="pricing.html" class="nav-btn">Plans</a>
     <a href="signup.html" class="nav-btn" id="navRegisterBtn">Register for Free</a>
     <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
-    <span id="navUserEmail" style="font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;letter-spacing:0.05em;display:none;"></span>
+    <span id="navUserEmail" style="display:none;width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;align-items:center;justify-content:center;flex-shrink:0;cursor:default;" title=""></span>
     <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign in</a>
   </div>
 
@@ -541,7 +541,7 @@
 
     if (user) {
       if (dashBtn) dashBtn.style.display = 'inline-flex';
-      if (emailEl) { emailEl.textContent = user.email; emailEl.style.display = 'inline'; }
+      if (emailEl) { emailEl.textContent = user.email[0].toUpperCase(); emailEl.title = user.email; emailEl.style.display = 'inline-flex'; }
       const regBtn = document.getElementById('navRegisterBtn');
       if (regBtn) regBtn.style.display = 'none';
       if (btn) {

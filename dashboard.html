@@ -98,10 +98,19 @@
     }
 
     .user-email {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: #94a3b8;
-      letter-spacing: 0.05em;
+      display: inline-flex;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: default;
     }
 
     .nav-btn {
@@ -484,7 +493,7 @@
       if (!user) { window.location.href = "login.html"; return; }
 
       // Fill header email
-      document.getElementById("headerEmail").textContent = user.email;
+      const hEl = document.getElementById("headerEmail"); hEl.textContent = user.email[0].toUpperCase(); hEl.title = user.email;
 
       // Greeting
       const name = user.email.split("@")[0];
