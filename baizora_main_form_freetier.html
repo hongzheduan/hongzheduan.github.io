@@ -839,12 +839,12 @@
           <p>
             Signals are informational only — not buy, sell, or hold recommendations.
             Use the window buttons to switch timeframes (1D through 1Y). The 1D view shows today's 1-day metrics. All other windows show that window's total price change plus max single-day stats.
-            Hover any column header to see its description. Click a ticker to open its candlestick chart and fundamentals.
+            Hover any column header to see its description. Click a ticker to view its fundamentals: PE, EPS, Beta &amp; sector.
           </p>
           <table class="col-table">
             <colgroup><col style="width:160px"><col></colgroup>
             <tr><th>Column</th><th>Description</th></tr>
-            <tr><td>TICKER</td><td>Stock symbol — click to open candlestick chart with PE, EPS, Beta, volatility &amp; sector</td></tr>
+            <tr><td>TICKER</td><td>Stock symbol — click to view PE, EPS, Beta, volatility &amp; sector</td></tr>
             <tr><td>1Y TREND</td><td>1-year normalized price sparkline. <strong>&#9650; Triangle</strong> = highest-volume day (green=price up, red=price down). <strong>&#9679; Circle</strong> = highest-price-change day (green=volume up, red=volume down).</td></tr>
             <tr><td>PRICE</td><td>Latest closing price in USD</td></tr>
             <tr><td>VOL(M)</td><td>Trading volume in millions of shares for the most recent session</td></tr>
@@ -1464,7 +1464,7 @@
     ══════════════════════════════════════════ */
 
     const COL_DESCS = {
-      "Ticker":          { label: "Ticker",    desc: "Stock symbol. Click to open 1-year candlestick chart with PE, EPS, Beta, volatility, and sector." },
+      "Ticker":          { label: "Ticker",    desc: "Stock symbol — click to view PE, EPS, Beta, volatility &amp; sector." },
       "Spark1Y":         { label: "1Y Trend",  desc: "1-year normalized price sparkline. ▲ Triangle = highest-volume day (green=price up, red=price down). ● Circle = highest-price-change day (green=volume up, red=volume down)." },
       "Price":           { label: "Price",     desc: "Latest closing price in USD." },
       "VolumeM":         { label: "Vol (M)",   desc: "Trading volume in millions of shares for the most recent session." },
