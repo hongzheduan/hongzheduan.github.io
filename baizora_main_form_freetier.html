@@ -1810,15 +1810,21 @@
     function _renderModalChart(ticker, tf) {
       _modalTicker = ticker;
       const rawCandles = candleData?.data?.[ticker];
-      const dates      = candleData?.dates;
+      let dates        = candleData?.dates;
       const canvas     = document.getElementById("candleCanvas");
       const noData     = document.getElementById("candleNoData");
       if (rawCandles && rawCandles.length > 0 && dates) {
+        // Cap candles at the free-tier data date so chart never shows
+        // more recent sessions than the delayed table data.
+        if (loadedDate) {
+          const cap = dates.findIndex(d => d > loadedDate);
+          if (cap !== -1) dates = dates.slice(0, cap);
+        }
         // Left-pad with nulls when ticker has fewer bars than the shared dates array
         // so each null becomes an empty space at the correct calendar position.
         const candles = rawCandles.length < dates.length
           ? new Array(dates.length - rawCandles.length).fill(null).concat(rawCandles)
-          : rawCandles;
+          : rawCandles.slice(0, dates.length);
         const slice = Math.min(tf, dates.length);
         const slicedDates   = dates.slice(-slice);
         const slicedCandles = candles.slice(-slice);
