@@ -131,8 +131,8 @@
       z-index: 200;
     }
 
-    @media (max-width: 768px) and (orientation: portrait) {
-      .site-top { position: fixed; top: 0; left: 0; right: 0; }
+    @media (max-width: 768px) {
+      .site-top { position: fixed; top: 0; left: 0; right: 100vw; min-width: 100vw; }
       .hero { padding-top: var(--site-top-h, 120px); }
     }
 
@@ -1491,6 +1491,18 @@
 </script>
 
 <script>
+  /* Set hero top offset to actual fixed site-top height */
+  function setSiteTopHeight() {
+    const st = document.querySelector(".site-top");
+    if (st && window.innerWidth <= 768) {
+      const h = st.getBoundingClientRect().height;
+      document.documentElement.style.setProperty("--site-top-h", (h + 4) + "px");
+    }
+  }
+  setSiteTopHeight();
+  window.addEventListener("resize", setSiteTopHeight);
+  window.addEventListener("load", setSiteTopHeight);
+
   /* Mobile menu */
   function toggleMenu() {
     const drawer  = document.getElementById("mobileDrawer");
@@ -1500,17 +1512,6 @@
     drawer.style.maxHeight = (window.innerHeight - bottom) + "px";
     drawer.classList.toggle("open");
   }
-
-  /* Set hero offset to actual fixed header height */
-  function setSiteTopHeight() {
-    const siteTop = document.querySelector(".site-top");
-    if (siteTop) {
-      const h = siteTop.getBoundingClientRect().height;
-      document.documentElement.style.setProperty("--site-top-h", (h + 8) + "px");
-    }
-  }
-  setSiteTopHeight();
-  window.addEventListener("resize", setSiteTopHeight);
 
   // Use both click and touchend for reliable mobile response
   const hamburgerBtn = document.getElementById("hamburger");
