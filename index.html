@@ -133,7 +133,7 @@
 
     @media (max-width: 768px) and (orientation: portrait) {
       .site-top { position: fixed; top: 0; left: 0; right: 0; }
-      .hero { padding-top: 105px; }
+      .hero { padding-top: 110px !important; }
     }
 
     /* ── HEADER ── */
@@ -867,6 +867,7 @@
       .footer-row { flex-direction: column; align-items: center; text-align: center; }
       .footer-links { justify-content: center; }
       .announcement { font-size: 10px; padding: 8px 12px; letter-spacing: 0.06em; }
+      .ann-email { display: none; }
       .fact-bar { flex-wrap: wrap; }
       .fact-item { min-width: 50%; border-bottom: 1px solid var(--border); }
       .fact-item:nth-child(odd) { border-right: 1px solid var(--border); }
@@ -1147,7 +1148,7 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  &nbsp; Free Version (no signup, 2 sessions delay) &nbsp;·&nbsp; First 7 Days Free for New Subscribers &nbsp;·&nbsp; support@baizora.com
+  &nbsp; Free Version (no signup, 2 sessions delay) &nbsp;·&nbsp; First 7 Days Free for New Subscribers<span class="ann-email"> &nbsp;·&nbsp; support@baizora.com</span>
 </div>
 
 <header>
