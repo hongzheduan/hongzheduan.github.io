@@ -132,8 +132,8 @@
     }
 
     @media (max-width: 768px) {
-      .site-top { position: fixed; top: 0; left: 0; right: 100vw; min-width: 100vw; }
-      .hero { padding-top: var(--site-top-h, 120px); }
+      .site-top { position: fixed; top: 0; left: 0; right: 0; width: 100%; }
+      .hero { padding-top: var(--site-top-h, 110px) !important; }
     }
 
     /* ── HEADER ── */
@@ -819,7 +819,8 @@
       footer { padding: 24px 20px; }
       .footer-row { flex-direction: column; align-items: center; text-align: center; }
       .footer-links { justify-content: center; }
-      .announcement { font-size: 10px; padding: 8px 12px; letter-spacing: 0.06em; }
+      .announcement { font-size: 10px; padding: 8px 12px; letter-spacing: 0.06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .ann-email { display: none; }
       .fact-bar { flex-wrap: wrap; }
       .fact-item { min-width: 50%; border-bottom: 1px solid var(--border); }
       .fact-item:nth-child(odd) { border-right: 1px solid var(--border); }
@@ -1099,7 +1100,7 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  &nbsp; 免费版（无需注册，延迟两个交易日）&nbsp;·&nbsp; 新订阅用户前七天免费 &nbsp;·&nbsp; support@baizora.com
+  &nbsp; 免费版（无需注册，延迟两个交易日）&nbsp;·&nbsp; 新订阅用户前七天免费 <span class="ann-email">&nbsp;·&nbsp; support@baizora.com</span>
 </div>
 
 <header>
@@ -1491,17 +1492,19 @@
 </script>
 
 <script>
-  /* Set hero top offset to actual fixed site-top height */
+  /* Measure actual fixed header height and apply to hero */
   function setSiteTopHeight() {
-    const st = document.querySelector(".site-top");
-    if (st && window.innerWidth <= 768) {
-      const h = st.getBoundingClientRect().height;
-      document.documentElement.style.setProperty("--site-top-h", (h + 4) + "px");
-    }
+    if (window.innerWidth > 768) return;
+    var st = document.querySelector(".site-top");
+    if (!st) return;
+    var h = st.getBoundingClientRect().height;
+    if (h > 0) document.documentElement.style.setProperty("--site-top-h", (h + 8) + "px");
   }
   setSiteTopHeight();
-  window.addEventListener("resize", setSiteTopHeight);
+  document.addEventListener("DOMContentLoaded", setSiteTopHeight);
   window.addEventListener("load", setSiteTopHeight);
+  setTimeout(setSiteTopHeight, 300);
+  window.addEventListener("resize", setSiteTopHeight);
 
   /* Mobile menu */
   function toggleMenu() {
