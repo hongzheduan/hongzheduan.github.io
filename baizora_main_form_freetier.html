@@ -148,10 +148,26 @@
     .dash-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
     .dash-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--electric-bright); background: rgba(59,130,246,0.06); }
 
+    /* ── TAB ROW ── */
+    .tab-row {
+      position: sticky;
+      top: 56px;
+      z-index: 60;
+      flex-shrink: 0;
+      height: 40px;
+      background: rgba(6, 13, 31, 0.97);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 4px;
+    }
+
     /* ── TOOLBAR ── */
     .toolbar {
       position: sticky;
-      top: 56px;
+      top: 96px;
       z-index: 50;
       flex-shrink: 0;
       height: 44px;
@@ -565,7 +581,7 @@
     }
     @media (max-width: 640px) {
       header { position: fixed; top: 0; left: 0; right: 0; padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
-      .header-divider, .tab-nav, .status-badge, .logout-btn, .dash-btn { display: none !important; }
+      .header-divider, .tab-row, .status-badge, .logout-btn, .dash-btn { display: none !important; }
       .hamburger { display: flex; }
       .toolbar { padding: 6px 10px; gap: 6px; margin-top: 56px; }
       .mobile-search-bar { margin-top: 0; }
@@ -585,7 +601,7 @@
     }
     @media (max-width: 960px) and (orientation: landscape) {
       header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
-      .header-divider, .tab-nav, .status-badge, .logout-btn, .dash-btn { display: none !important; }
+      .header-divider, .tab-row, .status-badge, .logout-btn, .dash-btn { display: none !important; }
       .hamburger { display: flex; }
       th:first-child { position: sticky; left: 0; z-index: 30; }
       td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
@@ -729,13 +745,7 @@
         <span class="logo-text">Baiz<span>ora</span></span>
       </a>
       <div class="header-divider"></div>
-      <nav class="tab-nav">
-        <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
-        <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
-        <button class="tab-btn" onclick="show('watchlist', this)">★ Watchlist</button>
-        <button class="tab-btn" onclick="show('readme', this)">README</button>
-        <button class="tab-btn" onclick="show('membership', this)">MEMBERSHIP CHANGE</button>
-      </nav>
+      <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:4px 10px;border-radius:999px;">Free · 2 sessions delayed</span>
     </div>
 
     <div class="header-right">
@@ -743,7 +753,6 @@
         <div class="status-dot loading" id="statusDot"></div>
         <span id="statusText">Loading…</span>
       </div>
-      <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:4px 10px;border-radius:999px;">Free · 2 sessions delayed</span>
       <span id="navUserEmail" style="display:none;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);"></span>
       <a href="login.html" class="logout-btn" id="navLoginBtn" style="text-decoration:none;">Sign In</a>
       <a href="signup.html" id="navSubscribeBtn" style="display:inline-flex;align-items:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;padding:5px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-decoration:none;">⚡ Subscribe</a>
@@ -752,6 +761,15 @@
       <span></span><span></span><span></span>
     </button>
   </header>
+
+  <!-- Tab row (desktop) -->
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
+    <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
+    <button class="tab-btn" onclick="show('watchlist', this)">★ Watchlist</button>
+    <button class="tab-btn" onclick="show('readme', this)">README</button>
+    <button class="tab-btn" onclick="show('membership', this)">MEMBERSHIP CHANGE</button>
+  </div>
 
   <!-- Mobile drawer -->
   <div class="mobile-drawer" id="mobileDrawer">
