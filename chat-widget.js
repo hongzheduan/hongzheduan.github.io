@@ -32,7 +32,7 @@
   var styleEl = document.createElement('style');
   styleEl.textContent = [
     '#bzw-btn{',
-      'position:fixed;bottom:24px;right:24px;z-index:9999;',
+      'position:fixed;bottom:76px;right:24px;z-index:9999;',
       'height:52px;padding:0 18px 0 12px;border-radius:26px;',
       'background:linear-gradient(135deg,#3b82f6,#1d4ed8);',
       'border:none;cursor:pointer;',
@@ -49,7 +49,7 @@
     '@keyframes bzw-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}',
 
     '#bzw-panel{',
-      'position:fixed;bottom:92px;right:24px;z-index:9998;',
+      'position:fixed;bottom:144px;right:24px;z-index:9998;',
       'width:360px;height:520px;',
       'max-width:calc(100vw - 32px);max-height:calc(100vh - 120px);',
       'background:#060d1f;',
