@@ -447,7 +447,7 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       header { padding: 0 16px; }
-      .header-right .nav-btn { display: none; }
+      .header-right .nav-btn, #navUserEmail { display: none !important; }
       .hamburger { display: flex; }
       .page { padding: 32px 16px 60px; }
       .action-grid { grid-template-columns: 1fr; }
@@ -466,6 +466,7 @@
     </a>
     <div class="header-right">
       <a href="dashboard.html" class="nav-btn">↩ Dashboard</a>
+      <span id="navUserEmail" style="display:none;width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;align-items:center;justify-content:center;flex-shrink:0;cursor:default;" title=""></span>
       <button class="nav-btn nav-btn-danger" id="headerLogoutBtn" style="display:none;" onclick="doLogout()">↪ Sign out</button>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
@@ -690,6 +691,7 @@
         document.getElementById("mainContent").style.display = "none";
         document.getElementById("notLoggedIn").style.display = "block";
         document.getElementById("headerLogoutBtn").style.display = "none";
+        document.getElementById("navUserEmail").style.display = "none";
         return;
       }
 
@@ -697,6 +699,7 @@
       document.getElementById("mainContent").style.display = "block";
       document.getElementById("notLoggedIn").style.display = "none";
       document.getElementById("headerLogoutBtn").style.display = "inline-flex";
+      const eA = document.getElementById("navUserEmail"); eA.textContent = user.email[0].toUpperCase(); eA.title = user.email; eA.style.display = "inline-flex";
 
       // Fill account info
       document.getElementById("accountEmail").textContent  = user.email;
