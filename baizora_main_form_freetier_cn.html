@@ -741,6 +741,40 @@
       line-height: 1; transition: color 0.15s; vertical-align: middle;
     }
     .star-btn:hover, .star-btn.starred { color: #f59e0b; }
+
+    /* ── SIGN-IN PROMPT ── */
+    #signInPrompt {
+      display: none; position: fixed; inset: 0; z-index: 9000;
+      background: rgba(6,13,31,0.7); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    #signInPrompt.visible { display: flex; }
+    #signInPromptCard {
+      background: #0d1e3d; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px; padding: 32px 28px 24px; max-width: 340px; width: 90%;
+      text-align: center;
+    }
+    #signInPromptCard .sip-icon { font-size: 28px; margin-bottom: 12px; }
+    #signInPromptCard .sip-title {
+      font-family: 'DM Serif Display', serif; font-size: 20px;
+      color: #f8fafc; margin-bottom: 8px;
+    }
+    #signInPromptCard .sip-sub {
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+      color: #94a3b8; margin-bottom: 24px; line-height: 1.5;
+    }
+    #signInPromptCard .sip-btns { display: flex; gap: 10px; justify-content: center; }
+    #signInPromptCard .sip-signin {
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+      background: var(--electric); color: #fff; border: none; border-radius: 8px;
+      padding: 9px 20px; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    #signInPromptCard .sip-dismiss {
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+      background: transparent; color: #64748b;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+      padding: 9px 16px; cursor: pointer;
+    }
   </style>
 </head>
 
@@ -956,9 +990,14 @@
     let watchlist = new Set(JSON.parse(localStorage.getItem("baizora_watchlist") || "[]"));
 
     function saveWatchlist() {
-      const tickers = [...watchlist];
-      localStorage.setItem("baizora_watchlist", JSON.stringify(tickers));
+      localStorage.setItem("baizora_watchlist", JSON.stringify([...watchlist]));
     }
+
+    window._ftClearWatchlist = function() {
+      watchlist.clear();
+      localStorage.removeItem("baizora_watchlist");
+      render();
+    };
     let loadedDate    = "";
     let searchQuery   = "";
 
@@ -1885,9 +1924,17 @@
         const starBtn = e.target.closest(".star-btn");
         if (starBtn) {
           const ticker = starBtn.dataset.watch;
-          if (watchlist.has(ticker)) watchlist.delete(ticker); else watchlist.add(ticker);
-          saveWatchlist();
-          render();
+          if (watchlist.has(ticker)) {
+            watchlist.delete(ticker);
+            saveWatchlist();
+            render();
+          } else if (window._ftUser) {
+            watchlist.add(ticker);
+            saveWatchlist();
+            render();
+          } else {
+            document.getElementById("signInPrompt").classList.add("visible");
+          }
           return;
         }
         const td = e.target.closest("td.ticker-cell");
@@ -1911,12 +1958,14 @@
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     onAuthStateChanged(auth, user => {
+      window._ftUser = user || null;
       const loginBtn       = document.getElementById("navLoginBtn");
       const emailEl        = document.getElementById("navUserEmail");
       const mobileLoginBtn = document.getElementById("mobileLoginBtn");
       const subscribeBtn   = document.getElementById("navSubscribeBtn");
 
       if (user) {
+        document.getElementById("signInPrompt").classList.remove("visible");
         emailEl.textContent = user.email;
         emailEl.style.display = "inline";
         loginBtn.textContent = "退出登录";
@@ -1927,6 +1976,7 @@
         mobileLoginBtn.onclick = e => { e.preventDefault(); signOut(auth).then(() => window.location.href = "index_cn.html"); };
         if (subscribeBtn) subscribeBtn.href = "billing_cn.html";
       } else {
+        if (window._ftClearWatchlist) window._ftClearWatchlist();
         emailEl.style.display = "none";
         loginBtn.textContent = "登录";
         loginBtn.href = "login_cn.html";
@@ -1956,6 +2006,19 @@
       <canvas id="candleCanvas"></canvas>
       <div id="candleNoData">暂无图表数据</div>
       <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:18px;"></div>
+    </div>
+  </div>
+
+  <!-- SIGN-IN PROMPT -->
+  <div id="signInPrompt">
+    <div id="signInPromptCard">
+      <div class="sip-icon">★</div>
+      <div class="sip-title">登录后保存自选股</div>
+      <div class="sip-sub">登录后可跨设备同步您的自选股。</div>
+      <div class="sip-btns">
+        <a href="login_cn.html" class="sip-signin">登录</a>
+        <button class="sip-dismiss" onclick="document.getElementById('signInPrompt').classList.remove('visible')">稍后再说</button>
+      </div>
     </div>
   </div>
 
