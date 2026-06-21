@@ -594,7 +594,8 @@
       .header-divider, .tab-row, .status-badge, .logout-btn, .dash-btn, #navUserEmail, #navSubscribeBtn, .free-badge-long { display: none !important; }
       .free-badge-short { display: inline !important; }
       .hamburger { display: flex; }
-      .toolbar { padding: 6px 10px; gap: 6px; }
+      .toolbar { padding: 6px 10px; gap: 6px; top: 56px; }
+      .mobile-search-bar { width: 100%; background: transparent; border-bottom: none; padding: 2px 0 0; }
       .window-btn { padding: 3px 7px; font-size: 10px; white-space: nowrap; }
       .toolbar-search { display: none; }
       #readme, #membership { padding: 24px 16px; }
@@ -851,14 +852,13 @@
       <input type="text" id="tickerSearch" placeholder="搜索代码…" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
     </div>
     <span class="row-count" id="rowCount"></span>
-  </div>
-
-  <!-- Mobile Search Bar -->
-  <div class="mobile-search-bar" id="mobileSearchBar">
-    <svg class="mobile-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <input type="text" id="tickerSearchMobile" placeholder="搜索代码…" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+    <!-- Mobile Search Bar (inside toolbar so it sticks with it) -->
+    <div class="mobile-search-bar" id="mobileSearchBar">
+      <svg class="mobile-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="tickerSearchMobile" placeholder="搜索代码…" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+    </div>
   </div>
 
   <!-- Mobile rotate hint -->
