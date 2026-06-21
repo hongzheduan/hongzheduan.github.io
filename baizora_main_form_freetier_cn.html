@@ -847,12 +847,12 @@
           <p>
             信号仅供参考，不构成买入、卖出或持有建议。
             使用周期按钮切换时间窗口（1天至1年）。1天视图显示当日指标，其他周期显示该窗口的总价格变动及单日最大值统计。
-            悬停列标题查看说明，点击代码查看基本面数据。
+            悬停列标题查看说明，点击代码查看K线图及基本面数据。
           </p>
           <table class="col-table">
             <colgroup><col style="width:160px"><col></colgroup>
             <tr><th>列名</th><th>说明</th></tr>
-            <tr><td>代码</td><td>股票代码 — 点击查看市盈率、EPS、Beta、波动率及行业信息</td></tr>
+            <tr><td>代码</td><td>股票代码 — 点击查看K线图，以及市盈率、EPS、Beta、波动率及行业信息</td></tr>
             <tr><td>年趋势线</td><td>一年标准化价格走势图。<strong>&#9650; 三角形 </strong> = 最大成交量上涨日（绿色=价格上涨，红色=价格下跌）。 <strong>&#9679; 圆圈</strong> = 价格上涨最大日（绿色=成交量上升，红色=成交量下降）。</td></tr>
             <tr><td>价格</td><td>最新收盘价（美元）</td></tr>
             <tr><td>成交量（百万）</td><td>最近交易日以百万股为单位的成交量</td></tr>
@@ -1473,7 +1473,7 @@
     ══════════════════════════════════════════ */
 
     const COL_DESCS = {
-      "Ticker":          { label: "代码",    desc: "股票代码 — 点击查看市盈率、EPS、Beta、波动率及行业信息。" },
+      "Ticker":          { label: "代码",    desc: "股票代码 — 点击查看K线图，以及市盈率、EPS、Beta、波动率及行业信息。" },
       "Spark1Y":         { label: "年趋势线",  desc: "一年标准化价格走势图。▲ 三角形 = 成交量最高日（绿色=价格上涨，红色=价格下跌）。● 圆圈 = 价格变动最大日（绿色=成交量上升，红色=成交量下降）。" },
       "Price":           { label: "价格",     desc: "最新收盘价（美元）。" },
       "VolumeM":         { label: "成交量(M)",   desc: "最近交易日以百万股为单位的成交量" },
@@ -1626,6 +1626,10 @@
       .then(r => r.json())
       .then(d => {
         candleData = d;
+        if (_modalTicker) {
+          const activeTf = document.querySelector('.tf-btn.active');
+          _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 63);
+        }
       })
       .catch(() => {});
 
