@@ -268,7 +268,7 @@
     .mobile-drawer {
       display: none;
       position: fixed;
-      left: 0; right: 0;
+      left: 0; right: 0; width: 100vw;
       z-index: 199;
       background: rgba(6, 13, 31, 0.98);
       border-bottom: 1px solid var(--border);
@@ -1492,7 +1492,6 @@
 </script>
 
 <script>
-  /* Measure actual fixed header height and apply to hero */
   function setSiteTopHeight() {
     if (window.innerWidth > 768) return;
     var st = document.querySelector(".site-top");
