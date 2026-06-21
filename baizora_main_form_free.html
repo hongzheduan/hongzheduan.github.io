@@ -728,7 +728,7 @@
           <table class="col-table">
             <colgroup><col style="width:160px"><col></colgroup>
             <tr><th>Column</th><th>Description</th></tr>
-            <tr><td>TICKER</td><td>Stock symbol — hover for PE, Market Cap, EPS, Volatility, and sector comparison</td></tr>
+            <tr><td>TICKER</td><td>Stock symbol — click to open candlestick chart with PE, EPS, Beta, volatility &amp; sector</td></tr>
             <tr><td>1Y TREND</td><td>1-year normalized price sparkline. <strong>&#9650; Triangle</strong> = highest-volume day (green=price up, red=price down). <strong>&#9679; Circle</strong> = highest-price-change day (green=volume up, red=volume down).</td></tr>
             <tr><td>PRICE</td><td>Latest closing price in USD</td></tr>
             <tr><td>VOL(M)</td><td>Trading volume in millions of shares for the most recent session</td></tr>
@@ -762,7 +762,7 @@
             <tr><th>Column</th><th>Description</th></tr>
             <tr><td>Mkt Cap ($B)</td><td>Market capitalisation in billions of USD</td></tr>
             <tr><td>P/E</td><td>Trailing price-to-earnings ratio. Blank if earnings are negative or unavailable</td></tr>
-            <tr><td>Sector Avg PE</td><td>Average P/E of all stocks in the same sector within the S&amp;P 500 and Nasdaq-100 universe. Shown in the ticker hover tooltip</td></tr>
+            <tr><td>Sector Avg PE</td><td>Average P/E of all stocks in the same sector within the S&amp;P 500 and Nasdaq-100 universe. Shown in the ticker detail panel</td></tr>
             <tr><td>EPS</td><td>Trailing twelve-month earnings per share in USD. Positive = profitable</td></tr>
             <tr><td>Beta</td><td>30-day beta — sensitivity of the stock's price to broad market moves. Beta &gt; 1 means higher volatility than the market</td></tr>
             <tr><td>PE vs Sector</td><td>This stock's P/E relative to its sector average, as a percentage difference. Positive = premium; negative = discount. Sector average is calculated from S&amp;P 500 and Nasdaq-100 members only</td></tr>
@@ -1302,7 +1302,7 @@
     ══════════════════════════════════════════ */
 
     const COL_DESCS = {
-      "Ticker":          { label: "Ticker",    desc: "Stock symbol. Click to open candlestick chart (3M / 6M / 1Y). Hover for fundamentals: PE, market cap, EPS, volatility, and sector comparison." },
+      "Ticker":          { label: "Ticker",    desc: "Stock symbol — click to open candlestick chart with PE, EPS, Beta, volatility &amp; sector." },
       "Spark1Y":         { label: "1Y Trend",  desc: "1-year normalized price sparkline. ▲ Triangle = highest-volume day (green=price up, red=price down). ● Circle = highest-price-change day (green=volume up, red=volume down)." },
       "Price":           { label: "Price",     desc: "Latest closing price in USD." },
       "VolumeM":         { label: "Vol (M)",   desc: "Trading volume in millions of shares for the most recent session." },
