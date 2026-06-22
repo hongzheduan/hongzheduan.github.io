@@ -2028,7 +2028,7 @@ function buildSparkPath(arr) {
 
   (async () => {
     try {
-      const r = await fetch(CF + "/market-news");
+      const r = await fetch("data/market_news.json?" + Date.now());
       if (!r.ok) throw new Error(r.status);
       _news = await r.json();
       renderNews(_news);

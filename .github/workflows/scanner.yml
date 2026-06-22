@@ -119,6 +119,8 @@ jobs:
           cp data/score_history.json   "$TMPBAK/" 2>/dev/null || true
           cp data/daily_briefing.txt    "$TMPBAK/" 2>/dev/null || true
           cp data/daily_briefing_cn.txt "$TMPBAK/" 2>/dev/null || true
+          cp data/market_news.json      "$TMPBAK/" 2>/dev/null || true
+          cp data/market_news_cn.json   "$TMPBAK/" 2>/dev/null || true
           find archive -name "results_*.csv" -exec cp {} "$TMPBAK/" \; 2>/dev/null || true
           find archive -name "compare_*.log" -exec cp {} "$TMPBAK/" \; 2>/dev/null || true
 
@@ -141,6 +143,8 @@ jobs:
           cp "$TMPBAK/score_history.json"    data/ 2>/dev/null || true
           cp "$TMPBAK/daily_briefing.txt"    data/ 2>/dev/null || true
           cp "$TMPBAK/daily_briefing_cn.txt" data/ 2>/dev/null || true
+          cp "$TMPBAK/market_news.json"      data/ 2>/dev/null || true
+          cp "$TMPBAK/market_news_cn.json"   data/ 2>/dev/null || true
           find "$TMPBAK" -name "results_*.csv" -exec cp {} archive/ \; 2>/dev/null || true
           find "$TMPBAK" -name "compare_*.log" -exec cp {} archive/ \; 2>/dev/null || true
 
@@ -161,6 +165,8 @@ jobs:
           git add data/score_history.json              2>/dev/null || true
           git add -f data/daily_briefing.txt            2>/dev/null || true
           git add -f data/daily_briefing_cn.txt         2>/dev/null || true
+          git add -f data/market_news.json              2>/dev/null || true
+          git add -f data/market_news_cn.json           2>/dev/null || true
           # results_*.csv are pushed gzipped to scanner-archive repo, not committed here
           git add -f archive/compare_*.log             2>/dev/null || true
           git add archive/worklog.md                   2>/dev/null || true

@@ -1906,7 +1906,7 @@
 
   (async () => {
     try {
-      const r = await fetch(CF + "/market-news?lang=zh");
+      const r = await fetch("data/market_news_cn.json?" + Date.now());
       if (!r.ok) throw new Error(r.status);
       _news = await r.json();
       renderNews(_news);

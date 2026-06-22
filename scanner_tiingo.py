@@ -49,6 +49,8 @@ OUTPUT_CSV    = os.path.join(ARCHIVE_DIR, f"results_{DATE_STR}.csv")
 DIGEST_JSON   = os.path.join(DATA_DIR,    "daily_digest.json")
 BRIEFING_TXT     = os.path.join(DATA_DIR, "daily_briefing.txt")
 BRIEFING_TXT_CN  = os.path.join(DATA_DIR, "daily_briefing_cn.txt")
+MARKET_NEWS_JSON    = os.path.join(DATA_DIR, "market_news.json")
+MARKET_NEWS_CN_JSON = os.path.join(DATA_DIR, "market_news_cn.json")
 SCORE_HISTORY    = os.path.join(DATA_DIR, "score_history.json")
 
 SCRAPE_HEADERS = {
@@ -629,10 +631,13 @@ def cleanup_old_archives():
             pass
 
 
-def _fetch_market_headlines(n=5, lang="en"):
-    """Fetch top financial headlines from Google News RSS for the daily briefing text."""
+def _fetch_market_news_items(n=6, lang="en"):
+    """Fetch top financial headlines from Google News RSS. Returns (fetched_str, items).
+    items: [{title, source, link, date}] — same format as /api/market-news CF response.
+    """
     try:
         import urllib.request
+        from email.utils import parsedate_to_datetime
         if lang == "zh":
             # 股市 利率 美联储 财报 美股 关税 通胀 — no 战争 (too broad, pulls historical war articles)
             query = "%E8%82%A1%E5%B8%82+OR+%E5%88%A9%E7%8E%87+OR+%E7%BE%8E%E8%81%94%E5%82%A8+OR+%E8%B4%A2%E6%8A%A5+OR+%E7%BE%8E%E8%82%A1+OR+%E5%85%B3%E7%A8%8E+OR+%E9%80%9A%E8%83%80"
@@ -645,18 +650,32 @@ def _fetch_market_headlines(n=5, lang="en"):
             xml_bytes = resp.read()
         root = ET.fromstring(xml_bytes)
         items = []
-        for item in root.iter("item"):
-            title = (item.findtext("title") or "").strip()
-            source_el = item.find("source")
+        for el in root.iter("item"):
+            title = (el.findtext("title") or "").strip()
+            source_el = el.find("source")
             source = source_el.text.strip() if source_el is not None and source_el.text else ""
+            link = (el.findtext("link") or "").strip()
+            pub_date = (el.findtext("pubDate") or "").strip()
+            try:
+                date_str = parsedate_to_datetime(pub_date).strftime("%Y-%m-%d")
+            except Exception:
+                date_str = ""
             if title:
-                items.append(f"  • {title}" + (f" — {source}" if source else ""))
+                items.append({"title": title, "source": source, "link": link, "date": date_str})
             if len(items) >= n:
                 break
-        return items
+        et_tz = pytz.timezone("America/New_York")
+        fetched = datetime.now(et_tz).strftime("%m/%d/%Y, %I:%M %p ET")
+        return fetched, items
     except Exception as e:
         print(f"[digest] news fetch failed: {e}")
-        return []
+        return "", []
+
+
+def _fetch_market_headlines(n=5, lang="en"):
+    """Return news as text lines for the daily briefing .txt file."""
+    _, items = _fetch_market_news_items(n, lang)
+    return [f"  • {it['title']}" + (f" — {it['source']}" if it['source'] else "") for it in items]
 
 
 # =========================
@@ -2324,7 +2343,11 @@ def export_daily_digest(df):
         print(f"Digest JSON: {len(digest['top_gainers'])} gainers, {len(digest['top_volume'])} volume spikes")
 
         # Build downloadable text briefing
-        headlines = _fetch_market_headlines(5)
+        fetched_en, items_en = _fetch_market_news_items(6, "en")
+        with open(MARKET_NEWS_JSON, "w", encoding="utf-8") as f:
+            json.dump({"fetched": fetched_en, "items": items_en}, f, ensure_ascii=False)
+        print(f"Market news JSON: {len(items_en)} items")
+        headlines = [f"  • {it['title']}" + (f" — {it['source']}" if it['source'] else "") for it in items_en[:5]]
         line = "─" * 54
         txt  = f"BAIZORA DAILY MARKET BRIEFING — {market_date}\n{line}\n"
         txt += f"S&P 500 & Nasdaq-100  ·  516 stocks tracked\n"
@@ -2350,7 +2373,11 @@ def export_daily_digest(df):
         print("Briefing text written.")
 
         # CN version
-        headlines_cn = _fetch_market_headlines(5, lang="zh")
+        fetched_cn, items_cn = _fetch_market_news_items(6, "zh")
+        with open(MARKET_NEWS_CN_JSON, "w", encoding="utf-8") as f:
+            json.dump({"fetched": fetched_cn, "items": items_cn}, f, ensure_ascii=False)
+        print(f"Market news CN JSON: {len(items_cn)} items")
+        headlines_cn = [f"  • {it['title']}" + (f" — {it['source']}" if it['source'] else "") for it in items_cn[:5]]
         txt_cn  = f"贝佐拉每日市场简报 — {market_date}\n{line}\n"
         txt_cn += f"标普500 & 纳斯达克100  ·  追踪516支股票\n"
         txt_cn += f"行情时间：{scan_time}\n\n"
