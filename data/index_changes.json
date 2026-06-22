@@ -1,7 +1,36 @@
 {
   "trackedSince": "2026-01-20",
-  "lastChecked": "2026-06-20",
+  "lastChecked": "2026-06-22",
   "entries": [
+    {
+      "date": "2026-06-22",
+      "sp500": {
+        "added": [
+          "FLEX",
+          "MRVL"
+        ],
+        "removed": [
+          "CPB",
+          "POOL"
+        ]
+      },
+      "nasdaq100": {
+        "added": [
+          "ALAB",
+          "CRWV",
+          "NBIS",
+          "RKLB",
+          "TER"
+        ],
+        "removed": [
+          "CHTR",
+          "CTSH",
+          "INSM",
+          "VRSK",
+          "ZS"
+        ]
+      }
+    },
     {
       "date": "2026-06-05",
       "sp500": {
