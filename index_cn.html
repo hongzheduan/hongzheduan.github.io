@@ -1110,8 +1110,14 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  新订阅用户前七天免费<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">免费版无需注册即可查看
+  新订阅用户前七天免费<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">完整数据更新至：<span id="ann-date">…</span>
 </div>
+<script>
+fetch('data/latest.json').then(r=>r.json()).then(d=>{
+  const el=document.getElementById('ann-date');
+  if(el&&d.date){const[y,m,day]=d.date.split('-');el.textContent=y+'年'+parseInt(m)+'月'+parseInt(day)+'日';}
+}).catch(()=>{});
+</script>
 
 <header>
   <a href="index_cn.html" class="logo-wrap">

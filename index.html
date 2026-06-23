@@ -1152,8 +1152,14 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  First 7 days free for new subscribers<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">Free version available, no signup needed
+  First 7 days free for new subscribers<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">Analysis updated: <span id="ann-date">…</span>
 </div>
+<script>
+fetch('data/latest.json').then(r=>r.json()).then(d=>{
+  const el=document.getElementById('ann-date');
+  if(el&&d.date){const[y,m,day]=d.date.split('-');const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];el.textContent=mn[+m-1]+' '+day+', '+y;}
+}).catch(()=>{});
+</script>
 
 <header>
   <a href="./" class="logo-wrap">

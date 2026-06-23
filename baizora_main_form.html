@@ -1051,7 +1051,7 @@
           render();
           updateStatus();
           loadIndexChanges();
-          if (isMarketOpen()) refreshDashPrices();
+          if (isWeekdayET()) refreshDashPrices();
           setInterval(() => { if (isMarketOpen()) refreshDashPrices(); }, 10_000);
         })
         .catch(err => {
@@ -1663,7 +1663,7 @@
       .then(r => r.json())
       .then(d => {
         candleData = d;
-        if (isMarketOpen()) refreshDashPrices();
+        if (isWeekdayET()) refreshDashPrices();
       })
       .catch(() => {});
 
@@ -1929,6 +1929,12 @@
         if (et.getDay() === 0 || et.getDay() === 6) return false;
         const m = et.getHours() * 60 + et.getMinutes();
         return m >= 570 && m < 960;
+      } catch(e) { return false; }
+    }
+    function isWeekdayET() {
+      try {
+        const d = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'})).getDay();
+        return d >= 1 && d <= 5;
       } catch(e) { return false; }
     }
 
