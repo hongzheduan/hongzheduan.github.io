@@ -667,7 +667,7 @@
 
   function renderVolTable() {
     if (!volRows.length) return;
-    const liveNote = volLiveLoaded ? ' · Prices 15-min delayed' : '';
+    const liveNote = volLiveLoaded ? ' · Prices live' : '';
     if (volDate) {
       document.getElementById('dataDateLabel').textContent =
         'As of ' + volDate + ' · ' + volRows.length + ' stocks shown · S&P 500 & Nasdaq-100' + liveNote;
@@ -695,7 +695,7 @@
               <th>TICKER</th>
               <th class="company-name">COMPANY</th>
               <th class="center">INDEX</th>
-              <th class="right">PRICE${volLiveLoaded ? '<br><span style="font-size:9px;color:#64748b;font-weight:400;letter-spacing:0">15-min delayed</span>' : ''}</th>
+              <th class="right">PRICE${volLiveLoaded ? '<br><span style="font-size:9px;color:#64748b;font-weight:400;letter-spacing:0">live</span>' : ''}</th>
               <th class="right">1D P CHG%</th>
               <th>1D VOL CHG%</th>
               <th class="right">VOL/MA21</th>
@@ -703,7 +703,7 @@
           </thead>
           <tbody>${tbody}</tbody>
         </table>
-        <div class="table-footer">Sorted by 1-day volume change · Data as of ${volDate}${volLiveLoaded ? ' · Prices 15-min delayed' : ''} · For informational purposes only</div>
+        <div class="table-footer">Sorted by 1-day volume change · Data as of ${volDate}${volLiveLoaded ? ' · Prices live' : ''} · For informational purposes only</div>
       `;
   }
 
