@@ -708,13 +708,13 @@ No login required. Shows the top 3 stocks by daily price increase. Includes live
 - Baizora reports TTM diluted GAAP EPS — different from "adjusted" or "non-GAAP" figures on other platforms (GAAP includes one-time charges, restructuring costs, write-downs)
 
 ## BETA ANALYSIS (INITIAL EOD UPDATE)
-- Between 4:00 PM ET (market close) and 6:30–7:00 PM ET (full scan), dashboard auto-runs a client-side "beta" analysis using live EOD data from Tiingo
-- Homepage shows: "Analysis (beta) updated: [today's date], full update 6:30–7:00 PM ET"
-- Beta updates: Price, 1D P CHG%, Vol(M), 1D V CHG%, Price/MA21, Vol/MA21, today's candlestick bar
-- NOT updated in beta: multi-week stats (2W–1Y), scores, sparklines — these need full historical data
-- After full scan: homepage shows "Analysis (final) updated: [date]" — all columns refreshed
-- Before 4 PM ET on trading days: shows "Analysis updated: [prev date] (current session updates 6:30–7:00 PM ET)"
-- Weekends/holidays: no beta label, just shows last scan date
+- Between 4:00 PM ET (market close) and 6–7 PM ET (full scan), Baizora runs a server-side "beta" scan using live EOD quotes from Tiingo IEX — a full recalculation, not just a few columns
+- Homepage shows: "Analysis (beta) updated: [today's date], full update 6–7 PM ET"
+- Beta updates EVERYTHING: all prices, 1D changes, multi-week stats (2W–1Y), all scores, sparklines, MA ratios
+- One limitation: volume may be slightly lower than final (closing auction volume not yet settled at scan time)
+- After full scan with official EOD data: homepage shows "Analysis (final) updated: [date]" — volume corrected
+- From 9:30 AM ET on trading days (before 4 PM): shows "Analysis updated: [prev date] (current session updates 6–7 PM ET)"
+- Before 9:30 AM ET or weekends/holidays: just shows last scan date, no session note
 
 ## SPARKLINE MARKERS (1Y TREND column)
 - ▲ Triangle = highest-volume day in past year. Green = price was up that day; red = price was down
@@ -817,13 +817,13 @@ const CHAT_SYSTEM_CN = `你是贝佐拉（Baizora）的客服助手，贝佐拉�
 - 贝佐拉使用TTM摊薄GAAP每股收益，与其他平台的"调整后"或"非GAAP"数据不同（GAAP包含一次性费用、重组成本等）
 
 ## 初步分析（Beta分析）
-- 在美股收盘（下午4:00 ET）至完整扫描完成（下午6:30–7:00）之间，仪表板自动运行客户端"初步分析"，使用Tiingo实时收盘数据
-- 首页显示："分析(初步)更新至：[今日日期]，完整数据下午6:30–7:00更新"
-- 初步分析更新内容：价格、日价格变化、成交量(M)、日成交量变化、价格/MA21、量/MA21、今日K线柱
-- 初步分析不更新：多周期统计（2周至1年）、评分、走势图——这些需要完整历史数据
-- 完整扫描完成后：首页显示"分析(最终)更新至：[日期]"，所有数据全部刷新
-- 下午4:00前的交易日：显示"分析更新至：[上次日期]（今日完整数据下午6:30–7:00更新）"
-- 周末/节假日：不显示beta标签，只显示最近扫描日期
+- 在美股收盘（下午4:00 ET）至完整扫描完成（下午6–7时）之间，贝佐拉运行服务端"初步(beta)"扫描，使用Tiingo IEX实时收盘报价——完整重新计算，非仅更新几列
+- 首页显示："分析(初步)更新至：[今日日期]，完整数据下午6–7时更新"
+- 初步分析更新所有内容：价格、日涨跌幅、多周期统计（2周至1年）、所有评分、走势图、均线比值
+- 一项局限：成交量可能略低于最终值（收盘竞价成交量尚未结算）
+- 完整扫描（含官方EOD数据）完成后：首页显示"分析(最终)更新至：[日期]"，成交量已修正
+- 交易日上午9:30至下午4:00：显示"分析更新至：[上次日期]（今日完整数据下午6–7时更新）"
+- 上午9:30前或周末/节假日：仅显示最近扫描日期，无当日提示
 
 ## 走势图标记（年趋势线列）
 - ▲ 三角形 = 过去一年成交量最高的交易日。绿色 = 当日价格上涨；红色 = 当日价格下跌

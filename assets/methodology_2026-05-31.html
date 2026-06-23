@@ -222,19 +222,18 @@
       </ul>
       <p>Running every night (including weekends) ensures the fundamentals cache is kept warm and the dashboard reflects the latest available data at all times.</p>
 
-      <h3>Initial EOD Beta Analysis (Client-Side)</h3>
-      <p>Independent of the server-side scanner, the dashboard performs a lightweight <strong>client-side "beta" analysis</strong> immediately after market close on any weekday. When a user loads the dashboard between <strong>4:00 PM ET</strong> (market close) and the full scan completing (~6:30–7:00 PM ET), the browser fires a single batch request to the <code>/api/iex-quotes</code> Cloud Function, which returns live end-of-day OHLCV quotes from Tiingo for all visible tickers.</p>
-      <p>Using those quotes, the dashboard derives and updates in-memory:</p>
+      <h3>Initial EOD Beta Analysis (Server-Side)</h3>
+      <p>Immediately after market close, a dedicated <strong>server-side "beta" scan</strong> runs on GitHub Actions (scheduled ~4:00 PM ET). Unlike the full scan, it skips the Tiingo EOD bulk fetch and instead fetches live end-of-day quotes from <strong>Tiingo IEX</strong> for all 516 tickers in a single batch call. These quotes are injected as today's synthetic OHLCV bar into the in-memory data pipeline — nothing is written to the on-disk cache.</p>
+      <p>Because the full historical cache is already on disk (built by prior scans), the beta run performs a <strong>complete recalculation</strong> of every metric:</p>
       <ul>
-        <li><strong>Price</strong> — today's closing price (replaces previous session's close from <code>latest.json</code>)</li>
-        <li><strong>1D P CHG%</strong> — <code>(today_close / prev_close − 1) × 100</code>, using the scanner's stored close as the reference</li>
-        <li><strong>Vol (M)</strong> — today's volume in millions</li>
-        <li><strong>1D V CHG%</strong> — <code>(today_vol / prev_vol − 1) × 100</code></li>
-        <li><strong>Price/MA21</strong> — <code>today_close × prev_ratio / prev_close</code> (MA21 back-calculated from the scanner's stored ratio; approximate, auto-corrected by full scan)</li>
-        <li><strong>Vol/MA21</strong> — <code>today_vol × prev_ratio / prev_vol</code> (same approximation)</li>
-        <li><strong>Candlestick chart</strong> — today's OHLCV bar appended to <code>candles.json</code> data in memory</li>
+        <li>All prices and 1D changes</li>
+        <li>All multi-week stats (2W, 1M, 3M, 6M, 9M, 1Y)</li>
+        <li>All seven scores (Baizora Score, Turn Score, RS, Breakout, Momentum, Vol Pressure, Trend)</li>
+        <li>Sparklines (1Y trend updated with today's close)</li>
+        <li>Price/MA21 and Vol/MA21 ratios</li>
       </ul>
-      <p>Multi-week stats, scores, and sparklines are not updated in the beta pass — they require full historical data available only after the server-side scan completes. The homepage announcement reflects the current state: <em>"Analysis (beta) updated"</em> during the beta window, <em>"Analysis (final) updated"</em> once <code>latest.json</code> is published by the scanner.</p>
+      <p><strong>One limitation:</strong> Volume figures may be slightly lower than official EOD values. The NYSE/Nasdaq closing auction (4:00–4:05 PM ET) adds a burst of additional volume that is not yet reflected in the IEX real-time quote at scan time. The full scan at ~6–7 PM ET uses official Tiingo EOD data with complete volume and overwrites <code>latest.json</code> (without the <code>"beta": true</code> flag).</p>
+      <p>The homepage announcement reflects the current state: <em>"Analysis (beta) updated"</em> once the beta <code>latest.json</code> is committed (identified by <code>"beta": true</code> in the payload), <em>"Analysis (final) updated"</em> once the full scan overwrites it. Before 9:30 AM ET or on weekends/holidays, no session note is shown.</p>
 
       <h3>Market Closure Detection</h3>
       <p>On weekdays, before fetching new data, the pipeline probes Tiingo for the current day's SPY data. If the probe returns no results on what should be a trading day, the run aborts and the existing <code>latest.json</code> is left unchanged. This handles unexpected market closures (e.g. the January 2025 Jimmy Carter state funeral holiday).</p>

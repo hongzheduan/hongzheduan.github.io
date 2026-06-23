@@ -447,6 +447,39 @@ Removed `战争` (war) from CN Google News query in both `functions/index.js` (l
 
 ---
 
+## What Was Done 2026-06-22
+
+### EOD Beta Analysis — Full Feature Rollout
+
+Implemented end-to-end "beta analysis" pipeline: between market close (4 PM ET) and the full scanner run (6:30–7 PM ET), the dashboard performs a client-side initial analysis using live EOD data from Tiingo.
+
+**Dashboard (`baizora_main_form.html` + `_cn.html`):**
+- Added `isWeekdayET()` — Mon–Fri check regardless of time; replaces `isMarketOpen()` for the startup IEX fetch so it fires after market close too
+- EOD enrichment in `refreshDashPrices()`: when `_isTodayIex` is true (IEX timestamp matches today's ET date), updates VolumeM, VolumeChange1D, PriceVsMA21_1D, VolumeVsMA21_1D from live OHLCV
+- MA21 back-calculation: `MA21 = r.Price / r._origPvMA`, then `new_PriceVsMA21 = d.last × r._origPvMA / r.Price` (ratio, not %)
+- `_orig*` fields stored on row objects before first overwrite so back-calculations always use scanner's reference values
+- `_liveRenderDone` flag: one full `render()` call after first successful today's-data fetch to update all enriched columns in the table
+
+**Announcement bar (index.html + index_cn.html):**
+Three states driven by `latest.json` date vs today's ET date + `afterClose` flag (≥960 min = 4:00 PM ET):
+1. Pre-close / non-trading: "Analysis updated: [prev date] (current session updates 6:30–7:00 PM ET)"
+2. Beta (after 4 PM ET, before scanner): "Analysis (beta) updated: [today], full update 6:30–7:00 PM ET"
+3. Final (scanner ran today): "Analysis (final) updated: [today]"
+CN uses 下午 before times, 分析(初步)/分析(最终), fmt returns "YYYY年M月D日". Full NYSE holiday set (2025–2027) added to both scripts.
+
+**FAQ (`assets/faq.html` + `_cn.html`):**
+New Q&A explaining the beta window, which columns update, what doesn't (multi-week stats, scores, sparklines), and that final replaces beta once scan completes.
+
+**Methodology (`assets/methodology_2026-05-31.html`):**
+New "Initial EOD Beta Analysis (Client-Side)" subsection under Daily Processing Flow — covers batch IEX request trigger, all derived column formulas, MA21 approximation note, and announcement state descriptions.
+
+**Chat system prompts (`functions/index.js`):**
+Added `## BETA ANALYSIS` section to both `CHAT_SYSTEM_EN` and `CHAT_SYSTEM_CN`. Assistant can now explain the three announcement states, which columns update in beta, what's deferred to full scan, and how weekends/holidays behave.
+
+**Commit:** `153c0cb` — all 8 files; functions deployed to Firebase Cloud Functions.
+
+---
+
 ## What Was Done 2026-06-19
 
 ### Holiday Detection — IEX Timestamp Check (No Hardcoded Holidays)
