@@ -1157,7 +1157,17 @@
 <script>
 fetch('data/latest.json').then(r=>r.json()).then(d=>{
   const el=document.getElementById('ann-date');
-  if(el&&d.date){const[y,m,day]=d.date.split('-');const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];el.textContent=mn[+m-1]+' '+day+', '+y;}
+  if(!el||!d.date) return;
+  const[y,m,day]=d.date.split('-');
+  const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const fmt=mn[+m-1]+' '+day+', '+y;
+  const et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));
+  const todayStr=et.getFullYear()+'-'+String(et.getMonth()+1).padStart(2,'0')+'-'+String(et.getDate()).padStart(2,'0');
+  const holidays=new Set(['2025-01-01','2025-01-20','2025-02-17','2025-04-18','2025-05-26','2025-06-19','2025-07-04','2025-09-01','2025-11-27','2025-12-25','2026-01-01','2026-01-19','2026-02-16','2026-04-03','2026-05-25','2026-06-19','2026-07-03','2026-09-07','2026-11-26','2026-12-25','2027-01-01','2027-01-18','2027-02-15','2027-04-02','2027-05-31','2027-06-18','2027-07-05','2027-09-06','2027-11-25','2027-12-24']);
+  const dow=et.getDay();
+  const isTradingDay=dow>=1&&dow<=5&&!holidays.has(todayStr);
+  if(d.date===todayStr||!isTradingDay){el.textContent=fmt;}
+  else{el.innerHTML=fmt+' <span style="opacity:0.65">(current session updates 6:30–7:00 PM ET)</span>';}
 }).catch(()=>{});
 </script>
 
