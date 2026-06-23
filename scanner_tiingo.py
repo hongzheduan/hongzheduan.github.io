@@ -893,7 +893,7 @@ def fetch_iex_snapshot(tickers):
     et_tz    = pytz.timezone('America/New_York')
     today_et = datetime.now(et_tz).strftime("%Y-%m-%d")
 
-    CHUNK = 400
+    CHUNK = 100
     out   = {}
     for start in range(0, len(tiingo_tickers), CHUNK):
         chunk = tiingo_tickers[start:start + CHUNK]
