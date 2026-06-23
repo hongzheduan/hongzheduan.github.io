@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-06-23
 Threshold: >10% for all metrics
-299 flagged diffs above threshold
+300 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -91,8 +91,9 @@ VOLUME  -- 237 flagged (>10%)
     CI       ours=1.40  yf=0.76  diff=84.1% ***
 
 ------------------------------------------------------------
-MKTCAP  -- 7 flagged (>10%)
-  FLAGGED (top 7 of 7):
+MKTCAP  -- 8 flagged (>10%)
+  FLAGGED (top 8 of 8):
+    DD       ours=$19.13B  yf=$6.30B  diff=203.6% ***
     PCG      ours=$44.94B  yf=$36.93B  diff=21.7% ***
     CHTR     ours=$16.20B  yf=$20.64B  diff=21.5% ***
     SPG      ours=$70.28B  yf=$82.36B  diff=14.7% ***
@@ -101,6 +102,7 @@ MKTCAP  -- 7 flagged (>10%)
     BXP      ours=$10.26B  yf=$11.47B  diff=10.6% ***
     CCL      ours=$35.58B  yf=$39.78B  diff=10.6% ***
   TOP 10 LARGEST DIFF:
+    DD       ours=$19.13B  yf=$6.30B  diff=203.6% ***
     PCG      ours=$44.94B  yf=$36.93B  diff=21.7% ***
     CHTR     ours=$16.20B  yf=$20.64B  diff=21.5% ***
     SPG      ours=$70.28B  yf=$82.36B  diff=14.7% ***
@@ -110,7 +112,6 @@ MKTCAP  -- 7 flagged (>10%)
     CCL      ours=$35.58B  yf=$39.78B  diff=10.6% ***
     ACN      ours=$84.78B  yf=$77.72B  diff=9.1%
     WDAY     ours=$30.68B  yf=$28.43B  diff=7.9%
-    RKLB     ours=$55.05B  yf=$59.43B  diff=7.4%
 
 ------------------------------------------------------------
 PE  -- 24 flagged (>10%)
