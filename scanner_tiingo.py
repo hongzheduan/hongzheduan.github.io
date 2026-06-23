@@ -2866,7 +2866,7 @@ if __name__ == "__main__":
     if BETA_RUN:
         et_now = datetime.now(pytz.timezone('America/New_York'))
         et_min = et_now.hour * 60 + et_now.minute
-        if et_min < 15 * 60:  # safety: don't run before 3:00 PM ET
+        if not FORCE_RUN and et_min < 15 * 60:  # FORCE_RUN bypasses for local testing
             print(f"BETA_RUN: too early ({et_now.strftime('%H:%M ET')}) — market not closed yet. Exiting.")
             sys.exit(0)
         print(f"BETA_RUN — IEX snapshot mode, running at {et_now.strftime('%H:%M ET')}")
