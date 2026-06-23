@@ -1910,6 +1910,7 @@
     const IEX_CF = 'https://us-central1-baizora.cloudfunctions.net/api/iex-quotes';
     const _prevDashPrices = {};
     const _liveIex = {};
+    let _liveRenderDone = false;
 
     // Split adjustments loaded from data/splits.json (written nightly by scanner).
     // Keyed by ticker → ratio (e.g. KLAC: 10 for 10-for-1 split).
@@ -1984,6 +1985,17 @@
         const chg = refPrice ? +((d.last - refPrice) / refPrice * 100).toFixed(2) : (d.chgPct ?? null);
         if (_isTodayIex) r._liveChgPct = chg;
         if (_isTodayIex && chg != null) correctedChgPct[r.Ticker] = chg;
+        // EOD enrichment: derive volume + MA21 ratio columns from live IEX data
+        if (_isTodayIex && d.volume) {
+          if (r._origVolumeM === undefined) r._origVolumeM = r.VolumeM;
+          if (r._origPvMA    === undefined) r._origPvMA    = r.PriceVsMA21_1D;
+          if (r._origVvMA    === undefined) r._origVvMA    = r.VolumeVsMA21_1D;
+          const todayVol = d.volume, prevVol = (r._origVolumeM ?? 0) * 1e6;
+          r.VolumeM = +(todayVol / 1e6).toFixed(2);
+          if (prevVol > 0) r.VolumeChange1D = +((todayVol / prevVol - 1) * 100).toFixed(2);
+          if (r.Price && r._origPvMA) r.PriceVsMA21_1D = +(d.last * r._origPvMA / r.Price).toFixed(3);
+          if (prevVol > 0 && r._origVvMA) r.VolumeVsMA21_1D = +(todayVol * r._origVvMA / prevVol).toFixed(3);
+        }
       });
 
       // Surgical price-cell update (instant, no scroll reset)
@@ -2070,6 +2082,8 @@
         const activeTf = document.querySelector('.tf-btn.active');
         _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
       }
+      // First successful EOD enrichment: re-render table so volume/MA21 columns update
+      if (_isTodayIex && !_liveRenderDone) { _liveRenderDone = true; render(); }
     }
 
   </script>

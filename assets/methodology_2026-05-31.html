@@ -222,6 +222,20 @@
       </ul>
       <p>Running every night (including weekends) ensures the fundamentals cache is kept warm and the dashboard reflects the latest available data at all times.</p>
 
+      <h3>Initial EOD Beta Analysis (Client-Side)</h3>
+      <p>Independent of the server-side scanner, the dashboard performs a lightweight <strong>client-side "beta" analysis</strong> immediately after market close on any weekday. When a user loads the dashboard between <strong>4:00 PM ET</strong> (market close) and the full scan completing (~6:30–7:00 PM ET), the browser fires a single batch request to the <code>/api/iex-quotes</code> Cloud Function, which returns live end-of-day OHLCV quotes from Tiingo for all visible tickers.</p>
+      <p>Using those quotes, the dashboard derives and updates in-memory:</p>
+      <ul>
+        <li><strong>Price</strong> — today's closing price (replaces previous session's close from <code>latest.json</code>)</li>
+        <li><strong>1D P CHG%</strong> — <code>(today_close / prev_close − 1) × 100</code>, using the scanner's stored close as the reference</li>
+        <li><strong>Vol (M)</strong> — today's volume in millions</li>
+        <li><strong>1D V CHG%</strong> — <code>(today_vol / prev_vol − 1) × 100</code></li>
+        <li><strong>Price/MA21</strong> — <code>today_close × prev_ratio / prev_close</code> (MA21 back-calculated from the scanner's stored ratio; approximate, auto-corrected by full scan)</li>
+        <li><strong>Vol/MA21</strong> — <code>today_vol × prev_ratio / prev_vol</code> (same approximation)</li>
+        <li><strong>Candlestick chart</strong> — today's OHLCV bar appended to <code>candles.json</code> data in memory</li>
+      </ul>
+      <p>Multi-week stats, scores, and sparklines are not updated in the beta pass — they require full historical data available only after the server-side scan completes. The homepage announcement reflects the current state: <em>"Analysis (beta) updated"</em> during the beta window, <em>"Analysis (final) updated"</em> once <code>latest.json</code> is published by the scanner.</p>
+
       <h3>Market Closure Detection</h3>
       <p>On weekdays, before fetching new data, the pipeline probes Tiingo for the current day's SPY data. If the probe returns no results on what should be a trading day, the run aborts and the existing <code>latest.json</code> is left unchanged. This handles unexpected market closures (e.g. the January 2025 Jimmy Carter state funeral holiday).</p>
       <p>Regular NYSE holidays are computed algorithmically and skipped without an API probe. Weekend runs bypass the market probe and proceed directly to using cached OHLCV data.</p>
