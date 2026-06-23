@@ -1167,11 +1167,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   const etMin=et.getHours()*60+et.getMinutes();
   const afterOpen=etMin>=570, afterClose=etMin>=960;
   const dim='opacity:0.65';
-  if(d.date===todayStr&&!d.beta){
-    el.innerHTML='Analysis <span style="'+dim+'">(final)</span> updated: '+fmt(todayStr);
-  } else if((d.date===todayStr&&d.beta)||(isTradingDay&&afterClose)){
-    el.innerHTML='Analysis <span style="'+dim+'">(beta)</span> updated: '+fmt(todayStr)+'<span style="'+dim+'">, full update 6–7 PM ET</span>';
-  } else if(isTradingDay&&afterOpen){
+  if(isTradingDay&&afterOpen&&!afterClose&&d.date!==todayStr){
     el.innerHTML='Analysis updated: '+fmt(d.date)+'<span style="'+dim+'"> (current session updates 6–7 PM ET)</span>';
   } else {
     el.textContent='Analysis updated: '+fmt(d.date);

@@ -2052,6 +2052,11 @@ def scan():
             if len(df) < 2:
                 continue
 
+            # Beta run: IEX volume is exchange-only (~2-5% of consolidated tape).
+            # Carry forward prev day's consolidated volume so VolumeM / MA21_VOL are sane.
+            if BETA_RUN and len(df) >= 2:
+                df.at[df.index[-1], "Volume"] = df.iloc[-2]["Volume"]
+
             df["MA21_PRICE"] = df["Close"].rolling(21).mean()
             df["MA21_VOL"]   = df["Volume"].rolling(21).mean()
 
@@ -2070,10 +2075,19 @@ def scan():
                 (latest["Close"] - prev["Close"]) / prev["Close"]
                 if prev["Close"] not in [0, None] and not pd.isna(prev["Close"]) else None
             )
-            volume_change_1d = (
-                (latest["Volume"] - prev["Volume"]) / prev["Volume"]
-                if prev["Volume"] not in [0, None] and not pd.isna(prev["Volume"]) else None
-            )
+            # Beta: today's volume = prev day's (carried forward), so compare prev vs prev-prev
+            # to show the last real session's volume change rather than 0 or null.
+            if BETA_RUN:
+                prev2 = df.iloc[-3] if len(df) >= 3 else None
+                volume_change_1d = (
+                    (prev["Volume"] - prev2["Volume"]) / prev2["Volume"]
+                    if prev2 is not None and prev2["Volume"] not in [0, None] and not pd.isna(prev2["Volume"]) else None
+                )
+            else:
+                volume_change_1d = (
+                    (latest["Volume"] - prev["Volume"]) / prev["Volume"]
+                    if prev["Volume"] not in [0, None] and not pd.isna(prev["Volume"]) else None
+                )
 
             if has_ma:
                 price_vs_ma21_1d  = latest["Close"]  / latest["MA21_PRICE"]
@@ -2357,8 +2371,7 @@ def export(df, beta=False):
         "count":  len(df),
         "data":   df.to_dict(orient="records"),
     }
-    if beta:
-        payload["beta"] = True
+    # No beta flag — announcement bar uses a simple 2-state display
 
     with open(OUTPUT_JSON, "w") as f:
         json.dump(payload, f, indent=2)
@@ -2940,17 +2953,17 @@ if __name__ == "__main__":
     # 6. Export results to latest.json (+ archive CSV and free-tier rotation for normal runs)
     export(df, beta=BETA_RUN)
 
+    # 6b. Export candle data (both beta and full runs — beta has today's IEX O/H/L/C + prev-session volume)
+    export_candles(candles_out, trading_days)
+
     if not BETA_RUN:
-        # 6b. Export daily digest + downloadable briefing for homepage card
+        # 6c. Export daily digest + downloadable briefing for homepage card
         export_daily_digest(df)
 
-        # 6c. Export rolling 5-session BaizScore history for homepage top-10 card
+        # 6d. Export rolling 5-session BaizScore history for homepage top-10 card
         export_score_history(df)
 
-        # 7. Export candle data
-        export_candles(candles_out, trading_days)
-
-        # 8. Index membership news
+        # 6e. Index membership news
         fetch_and_save_index_news()
 
         # 9. Diagnostic comparison vs Yahoo Finance (internal only — never served to users)

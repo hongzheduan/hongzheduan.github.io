@@ -1124,11 +1124,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   const etMin=et.getHours()*60+et.getMinutes();
   const afterOpen=etMin>=570, afterClose=etMin>=960;
   const dim='opacity:0.65';
-  if(d.date===todayStr&&!d.beta){
-    el.innerHTML='分析<span style="'+dim+'">(最终)</span>更新至：'+fmt(todayStr);
-  } else if((d.date===todayStr&&d.beta)||(isTradingDay&&afterClose)){
-    el.innerHTML='分析<span style="'+dim+'">(初步)</span>更新至：'+fmt(todayStr)+'<span style="'+dim+'">, 完整数据下午6–7时更新</span>';
-  } else if(isTradingDay&&afterOpen){
+  if(isTradingDay&&afterOpen&&!afterClose&&d.date!==todayStr){
     el.innerHTML='分析更新至：'+fmt(d.date)+'<span style="'+dim+'">（今日完整数据下午6–7时更新）</span>';
   } else {
     el.textContent='分析更新至：'+fmt(d.date);

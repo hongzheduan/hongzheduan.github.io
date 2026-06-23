@@ -707,12 +707,16 @@ No login required. Shows the top 3 stocks by daily price increase. Includes live
 - EPS, P/E, sector: sourced from SEC EDGAR XBRL filings, refreshed ~weekly (updates when companies file new 10-Q/10-K quarterly reports)
 - Baizora reports TTM diluted GAAP EPS — different from "adjusted" or "non-GAAP" figures on other platforms (GAAP includes one-time charges, restructuring costs, write-downs)
 
-## BETA ANALYSIS (INITIAL EOD UPDATE)
-- Between 4:00 PM ET (market close) and 6–7 PM ET (full scan), Baizora runs a server-side "beta" scan using live EOD quotes from Tiingo IEX — a full recalculation, not just a few columns
-- Homepage shows: "Analysis (beta) updated: [today's date], full update 6–7 PM ET"
-- Beta updates EVERYTHING: all prices, 1D changes, multi-week stats (2W–1Y), all scores, sparklines, MA ratios
-- One limitation: volume may be slightly lower than final (closing auction volume not yet settled at scan time)
-- After full scan with official EOD data: homepage shows "Analysis (final) updated: [date]" — volume corrected
+## LIVE INTRADAY UPDATES (market hours only)
+- During market hours (9:30 AM – 4:00 PM ET, weekdays), PRICE and 1D P CHG% update every 10 seconds from live quotes
+- All other columns — PRICE/MA21, VOL(M), 1D V CHG%, VOL/MA21 — reflect the most recent EOD scan and do NOT update intraday
+- After 4:00 PM ET: no live updates of any kind; all columns show scanner EOD data
+
+## INITIAL EOD UPDATE (4–7 PM window)
+- Between 4:00 PM ET (market close) and 6–7 PM ET (full scan), Baizora runs a server-side scan using live EOD quotes from Tiingo IEX — a full recalculation for all 500+ stocks
+- Homepage shows: "Analysis updated: [today's date]" — same format as the full scan, no beta/final labels
+- Updates all price-related metrics: prices, 1D price changes, multi-week stats (2W–1Y), all scores, sparklines, Price/MA21
+- Volume columns (VOL(M), 1D V CHG%, VOL/MA21) carry forward the previous session's official closing figures — IEX does not provide consolidated tape volume; corrected by full scan at 6–7 PM ET
 - From 9:30 AM ET on trading days (before 4 PM): shows "Analysis updated: [prev date] (current session updates 6–7 PM ET)"
 - Before 9:30 AM ET or weekends/holidays: just shows last scan date, no session note
 
@@ -816,12 +820,16 @@ const CHAT_SYSTEM_CN = `你是贝佐拉（Baizora）的客服助手，贝佐拉�
 - EPS、市盈率、行业：来自 SEC EDGAR XBRL 申报文件，约每周刷新（公司提交新的10-Q/10-K季报/年报时更新）
 - 贝佐拉使用TTM摊薄GAAP每股收益，与其他平台的"调整后"或"非GAAP"数据不同（GAAP包含一次性费用、重组成本等）
 
-## 初步分析（Beta分析）
-- 在美股收盘（下午4:00 ET）至完整扫描完成（下午6–7时）之间，贝佐拉运行服务端"初步(beta)"扫描，使用Tiingo IEX实时收盘报价——完整重新计算，非仅更新几列
-- 首页显示："分析(初步)更新至：[今日日期]，完整数据下午6–7时更新"
-- 初步分析更新所有内容：价格、日涨跌幅、多周期统计（2周至1年）、所有评分、走势图、均线比值
-- 一项局限：成交量可能略低于最终值（收盘竞价成交量尚未结算）
-- 完整扫描（含官方EOD数据）完成后：首页显示"分析(最终)更新至：[日期]"，成交量已修正
+## 盘中实时更新（仅限交易时段）
+- 交易时段（美东时间上午9:30 – 下午4:00，工作日），价格和日价格变化每10秒从实时报价更新一次
+- 其他所有列——价格/MA21、成交量(M)、日成交量变化、量/MA21——反映最近一次EOD扫描数据，盘中不实时更新
+- 下午4:00后：无任何实时更新，所有列均显示EOD扫描数据
+
+## 初步EOD更新（下午4–7时窗口）
+- 在美股收盘（下午4:00 ET）至完整扫描完成（下午6–7时）之间，贝佐拉运行服务端扫描，使用Tiingo IEX实时收盘报价——对500+支股票完整重新计算
+- 首页显示："分析更新至：[今日日期]"——与完整扫描格式相同，无初步/最终标签
+- 更新所有价格相关指标：价格、日价格涨跌幅、多周期统计（2周至1年）、所有评分、走势图、价格/MA21
+- 成交量列（成交量(M)、日成交量变化、量/MA21）沿用上一交易日官方收盘数据——IEX不提供全市场合并成交量；下午6–7时完整扫描后修正
 - 交易日上午9:30至下午4:00：显示"分析更新至：[上次日期]（今日完整数据下午6–7时更新）"
 - 上午9:30前或周末/节假日：仅显示最近扫描日期，无当日提示
 
