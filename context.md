@@ -100,6 +100,7 @@ Example Technology sector: simple mean was 62.9x → weighted harmonic mean is 3
 
 | Cron | ET Time | Days | What runs |
 |---|---|---|---|
+| `40 17 * * 1-5` | **3:40 PM** | Mon–Fri | Beta IEX snapshot (`BETA_RUN=1`, `SKIP_EDGAR=1`) — ~10 min before close; data ready by ~4:05 PM |
 | `30 20 * * 1-5` | **4:30 PM** | Mon–Fri | Market scan + videos (`SKIP_EDGAR=1`, `PROBE_RETRIES=2` — retries at 5:00 PM if no data) |
 | `30 21 * * 1-5` | **5:30 PM** | Mon–Fri | Market scan only (`SKIP_EDGAR=1`, `PROBE_RETRIES=1`) |
 | `30 22 * * 1-5` | **6:30 PM** | Mon–Fri | Market scan only (`SKIP_EDGAR=1`, `PROBE_RETRIES=1`) |
@@ -444,6 +445,46 @@ New rolling file at `data/score_history.json` — maintained by scanner, consume
 ### CN Market News Query Fix
 
 Removed `战争` (war) from CN Google News query in both `functions/index.js` (line 221, `/api/market-news`) and `scanner_tiingo.py` (`_fetch_market_headlines`). `战争` pulled historical war articles (e.g., 抗美援朝). Replaced with `美股` + `通胀`. CF redeployed — 1-hour cache clears naturally.
+
+---
+
+## What Was Done 2026-06-23
+
+### IEX Enrichment Bug Fix — Volume Columns Were Wrong
+
+**Root cause:** Tiingo `/iex` endpoint returns exchange-specific volume only (~2–5% of consolidated tape). Client-side enrichment was overwriting `VolumeM`, `VolumeChange1D`, `VolumeVsMA21_1D`, and `PriceVsMA21_1D` with IEX-derived values, causing ~100% VChg% and <1M Vol for all tickers. The page-load IEX call was also gated on `isWeekdayET()` (Mon–Fri any time), so it fired after market close and overwrote the correct 6 PM EOD scan data.
+
+**Fixes:**
+- Removed all volume and PriceVsMA21_1D updates from `refreshDashPrices()` — IEX now drives **only Price and PriceChange1D** (`_liveChgPct`)
+- Changed both page-load IEX calls from `isWeekdayET()` → `isMarketOpen()` in `baizora_main_form.html` + `_cn.html`
+- Applies to both full dashboards (free pages had no volume enrichment)
+
+### Beta Scan Improvements
+
+**Volume fix (`scanner_tiingo.py`):**
+- Beta scan carries forward prev-session's consolidated volume into today's row before MA computation (IEX volume unusable)
+- `VolumeChange1D` in beta now shows prev vs prev-prev (last real session's change) instead of null
+- Removed `"beta": true` from `latest.json` export — announcement bar no longer needs it
+
+**Candles in beta:**
+- `export_candles()` now runs in both BETA_RUN and full runs
+- Beta candle has today's IEX O/H/L/C + prev-session volume as proxy → chart fully usable 4–6 PM
+- Full 6:30 PM scan overwrites with correct consolidated volume
+
+**Beta cron shifted 10 min earlier:**
+- `"0 18 * * 1-5"` → `"50 17 * * 1-5"` (targets ~3:50 PM ET actual vs ~4 PM before)
+- Reduces window where users see yesterday's data after market close
+- Schedule-match `elif` in `scanner.yml` updated to match
+
+### Announcement Bar — 2 States
+
+Simplified from 4 states (beta/final/market-open-stale/default) to 2:
+1. `isTradingDay && afterOpen && !afterClose && d.date !== todayStr` → "Analysis updated: [prev date] (current session updates 6–7 PM ET)"
+2. Everything else → "Analysis updated: [date]" — no beta/final labels, no today's-date special case
+
+Applied to `index.html` and `index_cn.html`. FAQ and chat robot knowledge updated in `assets/faq.html`, `assets/faq_cn.html`, `functions/index.js`.
+
+**Commit:** `4dfc41a` — 9 files.
 
 ---
 
