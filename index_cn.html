@@ -1982,7 +1982,9 @@ fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
 
   function dotClass(rank) {
     if (rank == null) return 'miss';
-    return rank <= 10 ? 'top10' : 'top50';
+    if (rank <= 10) return 'top10';
+    if (rank <= 50) return 'top50';
+    return 'miss';
   }
 
   fetch('data/score_history.json').then(r => r.json()).then(d => {
