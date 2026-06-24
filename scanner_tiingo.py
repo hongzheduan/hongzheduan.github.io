@@ -2506,13 +2506,13 @@ def export_score_history(df):
     try:
         market_date = df["Date"].iloc[0] if len(df) and "Date" in df.columns else DATE_STR
 
-        # Today's top-50 BaizScore ranks — used for the rank-history dots
+        # BaizScore ranks for all tickers — used for dots and score display
         df_s = df[df["BaizScore"].notna()].copy()
         df_s = df_s.sort_values("BaizScore", ascending=False).reset_index(drop=True)
         df_s["_rank"] = range(1, len(df_s) + 1)
-        top50_ranks = {row["Ticker"]: int(row["_rank"]) for _, row in df_s.head(50).iterrows()}
-        score_map   = {row["Ticker"]: (round(float(row["BaizScore"]), 1), int(row["_rank"]))
-                       for _, row in df_s.head(50).iterrows()}
+        all_ranks = {row["Ticker"]: int(row["_rank"]) for _, row in df_s.iterrows()}
+        score_map = {row["Ticker"]: (round(float(row["BaizScore"]), 1), int(row["_rank"]))
+                     for _, row in df_s.iterrows()}
 
         # Load existing history and update with today's ranks
         history = {"sessions": [], "session_ranks": []}
@@ -2524,10 +2524,10 @@ def export_score_history(df):
                 pass
 
         if history["sessions"] and history["sessions"][0] == market_date:
-            history["session_ranks"][0] = {"date": market_date, "ranks": top50_ranks}
+            history["session_ranks"][0] = {"session": market_date, "ranks": all_ranks}
         else:
             history["sessions"].insert(0, market_date)
-            history["session_ranks"].insert(0, {"date": market_date, "ranks": top50_ranks})
+            history["session_ranks"].insert(0, {"session": market_date, "ranks": all_ranks})
 
         history["sessions"]      = history["sessions"][:5]
         history["session_ranks"] = history["session_ranks"][:5]
