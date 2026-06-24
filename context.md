@@ -1,5 +1,61 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-06-24
+
+### Beta Scan Window — Guard Logic Flipped
+
+**Root cause:** Beta cron fires at 12:00 PM ET (`0 16 * * 1-5`). GH Actions delay is typically 2–4h, putting the actual start at 2–4 PM ET. Today delay was only ~1.5h → scan started at ~1:30 PM ET. Old guard (`et_min < 15 * 60`) exited if before 3:00 PM → scan skipped, only `worklog.md` committed → users saw yesterday's prices all day.
+
+**Fix (`scanner_tiingo.py`):** Flipped the guard from "exit if too early" to "exit if too late":
+```python
+if not FORCE_RUN and et_min >= 15 * 60 + 55:  # exit if 3:55 PM ET or later
+    print(f"BETA_RUN: too late — after 3:55 PM ET, skipping (4:30 PM scan will handle EOD). Exiting.")
+```
+Window is now 12:00 PM – 3:54 PM ET. Any GH delay landing in this range runs the beta. If GH delays past 3:55 PM, the 4:30 PM full scan handles EOD instead.
+
+**Commit:** `6795b91`
+
+### Top Price Movers Panel — Score & Rank Dots Bugs Fixed
+
+**Bug 1 — BaizScore showed `—` for all top10:** `score_map` was built from `df_s.head(50)` only. Price movers outside the top-50 BaizScore got `None`. Fixed by removing `head(50)` — `score_map` now covers all ranked tickers.
+
+**Bug 2 — `dotClass()` wrong threshold:** Function was `rank <= 10 ? 'top10' : 'top50'` — any non-null rank (including 300+) got orange. Fixed to:
+```js
+if (rank <= 10) return 'top10';
+if (rank <= 50) return 'top50';
+return 'miss';
+```
+
+**Bug 3 — `session_ranks` key was `"date"` not `"session"`:** Scanner wrote `{"date": ..., "ranks": ...}` but JS reads `sr.get('session')`. Fixed in scanner; patched existing JSON.
+
+**Bug 4 — `session_ranks` only stored top-50 ranks:** Expanded to store all ~516 ranks per session so dots show actual rank numbers even for tickers ranked 51+.
+
+**Data patch:** All 5 sessions in `score_history.json` rebuilt with full rank maps from `latest.json`, `latest_d1.json`, `free_tier.json`, and git history (`75556b5` = Jun 17, `bfb85a2` = Jun 16).
+
+**Commits:** `25e0162`, `1806972`
+
+### Announcement Bar — Simplified to Single Condition
+
+Old logic: show "current session updates 6–7 PM ET" only between 9:30 AM and 4:00 PM ET on trading days. After 4 PM the message disappeared even though data hadn't updated yet.
+
+**Fix:** Show pending message any time on a trading day when `latest.json` date ≠ today. Cleared once the scan writes today's date.
+```js
+if (isTradingDay && d.date !== todayStr) {
+  // show "Analysis updated: [prev date] (current session updates 6–7 PM ET)"
+}
+```
+Removed unused `afterOpen`/`afterClose` variables. Applied to `index.html` and `index_cn.html`.
+
+**Commit:** `a588b86`
+
+### Free Tier — Removed "live" Tags
+
+Removed `<span class='live-tag'>live</span>` / `实时` from the Price and 1D P CHG% column headers in `baizora_main_form_freetier.html` and `baizora_main_form_freetier_cn.html`. Free tier has no live refresh (2-session delayed data only).
+
+**Commit:** `b11fce5`
+
+---
+
 ## Status: Tiingo scanner LIVE (2026-06-07) — dashboard free to logged-in users
 
 `scanner_tiingo.py` is live in production. Two daily cron runs (6 PM ET preliminary; 8 PM ET final + videos).
@@ -485,6 +541,22 @@ Simplified from 4 states (beta/final/market-open-stale/default) to 2:
 Applied to `index.html` and `index_cn.html`. FAQ and chat robot knowledge updated in `assets/faq.html`, `assets/faq_cn.html`, `functions/index.js`.
 
 **Commit:** `4dfc41a` — 9 files.
+
+### Video Commit Step — `--autostash` Fix
+
+`scanner.yml` "Commit latest videos for homepage download" step was failing with `error: cannot rebase: You have unstaged changes` because generated video files (`latest_video_en.mp4`, `latest_video_cn.mp4`, `latest_video_meta.json`) sat in the working tree when `git rebase origin/main` ran. Fixed both the video commit step and the "Log skipped videos" step with `git rebase --autostash origin/main`.
+
+**Commit:** `6d715f4`
+
+### Beta Scan — Keep Last Session's Date in `latest.json`
+
+After the beta scan, `latest.json` was showing today's date even though only Price and PriceChange1D were truly from today (IEX). Volume, scores, multi-week stats are all from the previous session. Since Price is already labeled "live" in the UI, the correct behavior is to keep the date as the last closed session's date — consistent with how financial terminals work.
+
+**Fix (`scanner_tiingo.py`, `export()`):** When `beta=True`, read the existing `latest.json` and carry forward its `date` field instead of writing today's `DATE_STR`. Side effect: announcement bar state 1 ("Analysis updated: [yesterday], current session updates 6–7 PM ET") stays active all afternoon until the 6:30 PM full scan writes today's date.
+
+`candles.json` is unaffected — it still carries today's IEX intraday bar with today's date for the candlestick chart.
+
+**Commit:** `e7e68b0`
 
 ---
 
