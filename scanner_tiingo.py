@@ -2887,8 +2887,8 @@ if __name__ == "__main__":
     if BETA_RUN:
         et_now = datetime.now(pytz.timezone('America/New_York'))
         et_min = et_now.hour * 60 + et_now.minute
-        if not FORCE_RUN and et_min < 15 * 60:  # FORCE_RUN bypasses for local testing
-            print(f"BETA_RUN: too early ({et_now.strftime('%H:%M ET')}) — market not closed yet. Exiting.")
+        if not FORCE_RUN and et_min >= 15 * 60 + 55:  # FORCE_RUN bypasses for local testing
+            print(f"BETA_RUN: too late ({et_now.strftime('%H:%M ET')}) — after 3:55 PM ET, skipping (4:30 PM scan will handle EOD). Exiting.")
             sys.exit(0)
         print(f"BETA_RUN — IEX snapshot mode, running at {et_now.strftime('%H:%M ET')}")
         _TIINGO_LAST_DATE = DATE_STR
