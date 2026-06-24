@@ -275,7 +275,7 @@ jobs:
         if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
         run: |
           git fetch origin main
-          git rebase origin/main
+          git rebase --autostash origin/main
           git add -f data/latest_video_en.mp4 2>/dev/null || true
           git add -f data/latest_video_cn.mp4 2>/dev/null || true
           git add data/latest_video_meta.json 2>/dev/null || true
@@ -295,7 +295,7 @@ jobs:
           done
           [ -z "$SKIPPED" ] && exit 0
           git fetch origin main
-          git rebase origin/main
+          git rebase --autostash origin/main
           echo "  no-video (no qualifying stocks):$SKIPPED" >> archive/worklog.md
           git add archive/worklog.md
           git commit -m "log: video skipped — no qualifying stocks"
