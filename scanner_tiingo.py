@@ -2361,6 +2361,14 @@ def export(df, beta=False):
 
     market_date = df["Date"].iloc[0] if len(df) and "Date" in df.columns else DATE_STR
 
+    if beta:
+        # Keep last closed session's date — price is live, date reflects the last full EOD session
+        try:
+            with open(OUTPUT_JSON) as f:
+                market_date = json.load(f).get("date", market_date)
+        except Exception:
+            pass
+
     if not beta:
         df.to_csv(OUTPUT_CSV, index=False)
         _rotate_free_tier(market_date)
