@@ -54,6 +54,21 @@ Removed `<span class='live-tag'>live</span>` / `实时` from the Price and 1D P 
 
 **Commit:** `b11fce5`
 
+### DD 1-for-3 Reverse Stock Split (effective 2026-06-24)
+
+DuPont (NYSE: DD) completed a 1-for-3 reverse split. Pre-split close: $46.67; post-split price: ~$140. EDGAR lags on both shares (~410M → ~137M) and EPS (-$0.07 → -$0.21) until Q2 2026 10-Q (~Aug 2026).
+
+**Scanner fixes (`scanner_tiingo.py`):**
+
+- `SHARES_OUTSTANDING_OVERRIDE`: `lambda s: s // 3 if s > 200_000_000 else s` — fires while EDGAR reports pre-split ~410M; auto-heals once EDGAR shows post-split ~137M.
+- EPS guard: `if abs(eps) < 0.20: eps = round(eps * 3, 4)` — fires while EDGAR reports pre-split EPS ~-0.07; auto-heals once EDGAR reports post-split ~-0.21 (abs = 0.21 > 0.20).
+
+**Why `splits.json` doesn't help here:** `update_splits_file()` converts Tiingo's `splitFactor = 0.333` to `ratio: 3` (same encoding as a 3-for-1 forward split). The dashboard auto-heal checks `obsRatio ≈ ratio (3)` — for a reverse split `obsRatio ≈ 0.33`, so it never fires. Forward splits do work with `splits.json` for intraday display; reverse splits need a manual `workflow_dispatch` to write the correct Tiingo split-adjusted prices. Modal stats (market cap, EPS, PE) always need scanner-side guards regardless of split direction.
+
+**Intraday fix:** Triggered `workflow_dispatch` manually after pushing the scanner fix. Tiingo retroactively applies the split adjustment to all historical prices on the effective date, so `latest.json` was rewritten with the correct split-adjusted data in one shot.
+
+**Commit:** `375646b` (rebased to `8823fe6` after pull)
+
 ---
 
 ## Status: Tiingo scanner LIVE (2026-06-07) — dashboard free to logged-in users
