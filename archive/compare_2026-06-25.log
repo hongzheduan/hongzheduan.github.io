@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-06-25
 Threshold: >10% for all metrics
-304 flagged diffs above threshold
+303 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -58,8 +58,8 @@ PRICE  -- 0 flagged (>10%)
     ADBE     ours=193.41  yf=193.41  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 241 flagged (>10%)
-  FLAGGED (top 20 of 241):
+VOLUME  -- 240 flagged (>10%)
+  FLAGGED (top 20 of 240):
     SLB      ours=21.24  yf=10.38  diff=104.7% ***
     CBRE     ours=2.32  yf=1.15  diff=102.2% ***
     CNC      ours=5.80  yf=2.99  diff=94.0% ***
