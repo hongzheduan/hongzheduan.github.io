@@ -1,5 +1,42 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-06-25 (Afternoon Session)
+
+### Beta Scan — Critical Fix (Empty Dashboard Bug)
+
+**Root cause:** Beta scan (`BETA_RUN=1`) ran on GitHub Actions at 18:07 UTC (2:07 PM ET). GitHub Actions gives a fresh VM on every run — the per-ticker OHLCV cache (`data/ohlcv_tiingo_cache/`) is gitignored and not present. Without cached bars, every ticker had `len(df) < 2` and was skipped → `df` empty → `latest.json` written with 0 rows → dashboard showed empty table.
+
+**Bad commit:** `6cae540` — `latest.json` went from 517 rows → 0 rows; `candles.json` dates included 2026-06-25 but data was `{}`.
+
+**Fix — Beta scan rewritten as IEX overlay (`scanner_tiingo.py`, `__main__`):**
+
+The `BETA_RUN` block now exits via `sys.exit(0)` after a self-contained overlay, never reaching `scan()`:
+1. Reads existing `latest.json` (517 rows from last EOD session)
+2. Calls `fetch_iex_snapshot()` — exits without update if snapshot empty (holiday/closed)
+3. Updates only `Price` and `PriceChange1D` per ticker; all other metrics stay from last EOD scan
+4. Writes updated `latest.json` keeping the previous session's date
+5. Appends today's intraday bar to `candles.json`: IEX OHLC + prev-session volume as proxy; tickers missing from IEX get a flat placeholder to maintain `dates.length == bars.length`
+
+**Data restore:** `data/latest.json` and `data/candles.json` restored from `6353571` (last good state).
+
+**Commits:** `6d59b3c` (fix + restore)
+
+### Homepage Sparkline Demo — Live Data, No Hardcoding
+
+**Before:** Two hardcoded SVG paths for NVDA (uptrend) and TSLA (downtrend).
+
+**After:** Single WDC row, 56px tall (combined height of the two old rows), driven by real data from `latest.json`.
+
+**Changes:**
+- `TICKERS = ["WDC"]` — swap to any ticker by editing one line in `index.html` and `index_cn.html`
+- `buildSparkSvg` now accepts `H` parameter (height). Reads `svg.getAttribute('height')` and also calls `svg.setAttribute('viewBox', ...)` so the coordinate space matches the element height. `py` formula: `(H - 4) - ((val-mn)/rng) * (H - 8)` — uses full vertical range regardless of height.
+- SVG element: `<svg width="200" height="56" fill="none">` — no hardcoded path; JS fills `innerHTML` on load
+- Description text updated (EN + CN) to emphasize that green ▲ + ● together historically precede strong advances
+
+**Commits:** `005a7b9`
+
+---
+
 ## What Was Done 2026-06-25
 
 ### Individual Stock Pages — Chart & Description Fixes
