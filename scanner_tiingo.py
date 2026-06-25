@@ -2895,8 +2895,107 @@ if __name__ == "__main__":
         if not FORCE_RUN and et_min >= 15 * 60 + 55:  # FORCE_RUN bypasses for local testing
             print(f"BETA_RUN: too late ({et_now.strftime('%H:%M ET')}) — after 3:55 PM ET, skipping (4:30 PM scan will handle EOD). Exiting.")
             sys.exit(0)
-        print(f"BETA_RUN — IEX snapshot mode, running at {et_now.strftime('%H:%M ET')}")
-        _TIINGO_LAST_DATE = DATE_STR
+        print(f"BETA_RUN — IEX overlay mode, running at {et_now.strftime('%H:%M ET')}")
+
+        # Load existing latest.json — beta overlays IEX prices onto last session's data
+        # (OHLCV cache is gitignored and not available on GitHub Actions runners)
+        try:
+            with open(OUTPUT_JSON) as f:
+                existing = json.load(f)
+            prev_rows = existing.get("data", [])
+        except Exception as e:
+            print(f"BETA_RUN: cannot read {OUTPUT_JSON}: {e}")
+            sys.exit(1)
+
+        if not prev_rows:
+            print("BETA_RUN: no existing data to update")
+            sys.exit(0)
+
+        tickers_in_data = [r["Ticker"] for r in prev_rows]
+        print("BETA_RUN — fetching IEX snapshot …")
+        iex_snapshot = fetch_iex_snapshot(tickers_in_data)
+
+        if not iex_snapshot:
+            print("BETA_RUN: IEX snapshot empty (market closed / holiday?) — no update")
+            sys.exit(0)
+
+        print(f"BETA_RUN: IEX snapshot has {len(iex_snapshot)} tickers")
+
+        # Update Price and PriceChange1D from live IEX; all other metrics stay from last EOD scan
+        updated_rows = []
+        for r in prev_rows:
+            ticker = r["Ticker"]
+            if ticker in iex_snapshot:
+                bar  = iex_snapshot[ticker]
+                live = bar["c"]
+                scan_close = r.get("Price") or 0
+                if scan_close > 0:
+                    chg1d = round((live - scan_close) / scan_close * 100, 4)
+                else:
+                    chg1d = r.get("PriceChange1D")
+                r = dict(r)
+                r["Price"] = round(live, 4)
+                if chg1d is not None:
+                    r["PriceChange1D"] = round(chg1d, 4)
+            updated_rows.append(r)
+
+        payload = {
+            "date":   existing.get("date", DATE_STR),  # keep last closed session's date
+            "status": "Updated",
+            "count":  len(updated_rows),
+            "data":   updated_rows,
+        }
+        with open(OUTPUT_JSON, "w") as f:
+            json.dump(payload, f, indent=2)
+        print(f"BETA_RUN: exported {len(updated_rows)} rows (Price + PriceChange1D live)")
+
+        # Append today's IEX intraday bar to candles.json
+        try:
+            candles_path = os.path.join(DATA_DIR, "candles.json")
+            with open(candles_path) as f:
+                candles_json = json.load(f)
+            prev_dates   = candles_json.get("dates", [])
+            candles_data = candles_json.get("data", {})
+
+            if DATE_STR not in prev_dates:
+                new_dates = list(prev_dates) + [DATE_STR]
+                if len(new_dates) > 252:
+                    new_dates = new_dates[-252:]
+
+                new_candles_data = {}
+                for ticker, bars in candles_data.items():
+                    if not bars:
+                        new_candles_data[ticker] = bars
+                        continue
+                    if ticker in iex_snapshot:
+                        bar      = iex_snapshot[ticker]
+                        prev_vol = bars[-1][4] if bars[-1] else 0
+                        new_bar  = [
+                            round(float(bar["o"]), 2),
+                            round(float(bar["h"]), 2),
+                            round(float(bar["l"]), 2),
+                            round(float(bar["c"]), 2),
+                            int(prev_vol),
+                        ]
+                    else:
+                        # No IEX data for this ticker: flat placeholder using last close
+                        last    = bars[-1]
+                        new_bar = [last[3], last[3], last[3], last[3], 0]
+                    new_bars = list(bars) + [new_bar]
+                    if len(new_bars) > len(new_dates):
+                        new_bars = new_bars[-len(new_dates):]
+                    new_candles_data[ticker] = new_bars
+
+                with open(candles_path, "w") as f:
+                    json.dump({"date": DATE_STR, "dates": new_dates, "data": new_candles_data}, f)
+                print(f"BETA_RUN: candles updated with {DATE_STR} bar ({len(iex_snapshot)} live, rest flat)")
+            else:
+                print(f"BETA_RUN: {DATE_STR} already in candles.json — skipping candles update")
+        except Exception as e:
+            print(f"BETA_RUN: candles update failed — {e}")
+            import traceback; traceback.print_exc()
+
+        sys.exit(0)
 
     elif FORCE_RUN:
         print("FORCE_RUN=1 — skipping market probe, using latest available Tiingo data.")
