@@ -190,12 +190,13 @@ jobs:
       - name: Regenerate stock pages
         if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1'
         run: |
+          git fetch origin main
+          git rebase --autostash origin/main
           python generate_stock_pages.py
           git add stocks/*.html 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No stock page changes"
           else
-            git rebase --autostash origin/main
             git commit -m "auto update stock pages $(date -u)"
             git push origin HEAD:main
           fi
