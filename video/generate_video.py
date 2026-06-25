@@ -1978,8 +1978,8 @@ def scene_screenshot(path):
     return img
 
 
-_SS_EN = str(SCRIPT_DIR / "baizora_homepage_Screenshot.png")
-_SS_CN = str(SCRIPT_DIR / "baizora_homepage_Screenshot_cn.png")
+_SS_EN = str(SCRIPT_DIR / "baizora_homepage_Screenshot_2.png")
+_SS_CN = str(SCRIPT_DIR / "baizora_homepage_Screenshot_cn_2.png")
 _SS_MEMBERSHIP_NEWS   = str(SCRIPT_DIR / "membership_news_screenshot.png")
 _SS_MEMBERSHIP_CHANGE = str(SCRIPT_DIR / "membership_change_screenshot.png")
 
