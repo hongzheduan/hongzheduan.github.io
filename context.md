@@ -1,5 +1,57 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-06-25
+
+### Individual Stock Pages — Chart & Description Fixes
+
+**Problem 1 — Stale chart data:** `generate_stock_pages.py` was never called from `scanner.yml`. OHLCV data was embedded inline at generation time and never refreshed — pages were 20 days stale.
+
+**Fix 1 — Runtime `candles.json` fetch (`_SCRIPT_TEMPLATE`):**
+```js
+fetch('../data/candles.json').then(function(r){return r.json();}).then(function(cj){
+  var d = (cj.data||{})[TICKER], ds = cj.dates||[];
+  if (!d || !d.length || ds.length !== d.length) return;
+  DATES = ds; OHLCV = d;
+  renderChart();
+  // also updates .scan-date, #chartSectionTitle, and summary box "today (date)"
+}).catch(function(){});
+```
+Inserted right after `var TICKER = "__TICKER__"` in the template so it fires on every page load. Inline DATES/OHLCV are kept as the initial render; the fetch re-renders with current data.
+
+**Fix 2 — Daily regeneration (`scanner.yml`):**
+Added "Regenerate stock pages" step after "Commit updated data", runs on all non-beta, non-EDGAR-only scans:
+```yaml
+- name: Regenerate stock pages
+  if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1'
+  run: |
+    python generate_stock_pages.py
+    git add stocks/*.html ...
+    git rebase --autostash origin/main
+    git commit -m "auto update stock pages ..."
+    git push origin HEAD:main
+```
+
+**Problem 2 — No date in description:** First sentence said "is declining -3.1% today" with no date context.
+
+**Fix — `generate_summary(row, scan_date)`:** Added `_format_date_nice(date_str)` helper; description now reads:
+`"AMAZON COM INC (AMZN) is gaining +0.1% today (June 24, 2026), trading at $234.27."`
+Runtime JS also patches this via `.replace(/today \([^)]+\)/, 'today (' + fmt + ')')` when candles.json is fresher.
+
+**Other fixes:**
+- `id="chartSectionTitle"` on chart section title div — runtime JS updates it
+- `WMT` and `MU` added to `FEATURED_TICKERS` (were in `TOP10_NASDAQ` peer cards but not generated)
+- All 22 stock pages regenerated locally with Jun 24 data before push
+
+**Commits:** `2731588`, `b44ae4a` (rebase), `c0535b9`
+
+### Video Ad Screenshots Updated
+
+`video/generate_video.py` lines 1981–1982: switched from `baizora_homepage_Screenshot.png` / `_cn.png` to `baizora_homepage_Screenshot_2.png` / `_cn_2.png` to reflect recent homepage redesign.
+
+**Commit:** `c0535b9`
+
+---
+
 ## What Was Done 2026-06-24
 
 ### Beta Scan Window — Guard Logic Flipped
