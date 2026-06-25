@@ -2,6 +2,7 @@
 """Generate individual stock pages for featured S&P 500 / Nasdaq-100 tickers."""
 
 import json
+from datetime import datetime
 from pathlib import Path
 
 ROOT_DIR     = Path(__file__).parent
@@ -13,7 +14,7 @@ TOP10_NASDAQ = ["NVDA", "GOOGL", "AAPL", "MSFT", "AMZN", "AVGO", "TSLA", "META",
 
 FEATURED_TICKERS = [
     "NVDA", "TSLA", "AAPL", "MSFT", "META", "GOOGL", "AMZN",
-    "NFLX", "AMD", "AVGO", "ORCL", "CRM", "NOW", "PLTR",
+    "WMT", "MU", "NFLX", "AMD", "AVGO", "ORCL", "CRM", "NOW", "PLTR",
     "UBER", "ABNB", "COIN", "PANW", "CRWD", "SMCI",
 ]
 
@@ -130,6 +131,26 @@ _SCRIPT_TEMPLATE = r"""
 
   /* ---- Live IEX prices (market hours only) ---- */
   var TICKER = "__TICKER__";
+
+  // Fetch latest candles.json — keeps chart current without page regeneration
+  (function() {
+    fetch('../data/candles.json').then(function(r) { return r.json(); }).then(function(cj) {
+      var d  = (cj.data || {})[TICKER];
+      var ds = cj.dates || [];
+      if (!d || !d.length || ds.length !== d.length) return;
+      DATES = ds; OHLCV = d;
+      renderChart();
+      var ld = new Date(ds[ds.length - 1] + 'T12:00:00');
+      var fmt = ld.toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'});
+      var sd = document.querySelector('.scan-date');
+      if (sd) sd.textContent = 'Data as of ' + fmt + ' · Updated daily after market close';
+      var ct = document.getElementById('chartSectionTitle');
+      if (ct) ct.textContent = '1-Year Candlestick & Volume  ·  Scan date: ' + ds[ds.length - 1];
+      var sb = document.querySelector('.summary-box');
+      if (sb) sb.innerHTML = sb.innerHTML.replace(/today \([^)]+\)/, 'today (' + fmt + ')');
+    }).catch(function() {});
+  })();
+
   var IEX    = "https://us-central1-baizora.cloudfunctions.net/api/iex-quotes";
 
   function isMarketOpen() {
@@ -190,7 +211,13 @@ def build_page_script(ticker, candle_dates_json, candle_ohlcv_json):
             .replace('"__TICKER__"', json.dumps(ticker)))
 
 
-def generate_summary(row):
+def _format_date_nice(date_str):
+    """'2026-06-24' → 'June 24, 2026'"""
+    dt = datetime.strptime(date_str, "%Y-%m-%d")
+    return f"{dt.strftime('%B')} {dt.day}, {dt.year}"
+
+
+def generate_summary(row, scan_date):
     ticker  = row["Ticker"]
     name    = row.get("CompanyName", ticker)
     price   = row.get("Price", 0) or 0
@@ -211,6 +238,7 @@ def generate_summary(row):
     sign1d = "+" if pc1d >= 0 else ""
     sign1y = "+" if pc1y >= 0 else ""
     sign3m = "+" if pc3m >= 0 else ""
+    date_label = _format_date_nice(scan_date)
 
     if in_sp and in_ndq:
         idx_str = "a member of both the S&P 500 and Nasdaq-100"
@@ -234,7 +262,7 @@ def generate_summary(row):
                        f"with the {sector} sector average of {pe_sect:.1f}.")
 
     return (
-        f"{name} ({ticker}) is {dir1d} {sign1d}{pc1d:.1f}% today, "
+        f"{name} ({ticker}) is {dir1d} {sign1d}{pc1d:.1f}% today ({date_label}), "
         f"trading at ${price:,.2f}. "
         f"Over the past year the stock is {sign1y}{pc1y:.1f}%, "
         f"with a {sign3m}{pc3m:.1f}% move over the last three months. "
@@ -286,7 +314,7 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
 
     color1d = "#22c55e" if pc1d >= 0 else "#ef4444"
     sign1d  = "+" if pc1d >= 0 else ""
-    summary = generate_summary(row)
+    summary = generate_summary(row, scan_date)
 
     # Inline OHLCV data for the canvas chart
     candle_dates_json = json.dumps(candle_dates or [])
@@ -486,7 +514,7 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
     </div>
   </div>
 
-  <div class="section-title">1-Year Candlestick &amp; Volume &nbsp;·&nbsp; Scan date: {scan_date}</div>
+  <div class="section-title" id="chartSectionTitle">1-Year Candlestick &amp; Volume &nbsp;·&nbsp; Scan date: {scan_date}</div>
   <div class="chart-box">
     <canvas id="stockChart"></canvas>
   </div>
