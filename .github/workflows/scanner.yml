@@ -64,7 +64,7 @@ jobs:
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "30 20 * * 1-5" ]; then
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
-            echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
+            echo "SKIP_EDGAR="    >> $GITHUB_ENV   # run EDGAR (~6:30 PM ET actual, after 5:30 PM SEC cutoff)
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
             echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 4:30, retry at 5:00
           elif [ "$EVENT" = "workflow_dispatch" ]; then
