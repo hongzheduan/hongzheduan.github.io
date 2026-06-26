@@ -47,6 +47,18 @@ Three places updated in `scanner.yml`:
 | `0 4 * * 2-6` | 11:00 PM | ~11 PM | `11PM-full` | yes (safety net) |
 | `0 5 * * 0,6` | midnight | ~1 AM ET | `EDGAR-only` | yes |
 
+### HON 1-for-2 Reverse Split (effective 2026-06-29)
+
+Honeywell (HON) set June 29, 2026 as the effective date for a 1-for-2 reverse split. Symptom: our market cap was $146.5B vs YF's ~$73B (2× too high). Root cause: Tiingo already priced in the post-split level (~$229.77 = 2× pre-split price), but EDGAR still reports pre-split shares (~638M). Market cap = 2× price × pre-split shares = 2× correct.
+
+**Implied shares from data:** `$146.53B / $229.77 = 637.7M` — confirms EDGAR pre-split count. Post-split target: ~319M.
+
+**Scanner fixes (`scanner_tiingo.py`):**
+- `SHARES_OUTSTANDING_OVERRIDE`: `"HON": lambda s: (s or 0) // 2 if (s or 0) > 400_000_000 else s` — halves EDGAR ~638M → ~319M; threshold 400M sits between pre/post-split counts; auto-heals when EDGAR reports post-split ~319M
+- EPS guard: `if ticker == "HON" and abs(eps) < 4.0: eps = round(eps * 2, 4)` — pre-split EPS ~$3.21 → $6.43; threshold 4.0 sits between pre/post-split EPS; auto-heals when EDGAR reports post-split EPS ~$6.43 (abs > 4.0) after Q2/Q3 2026 10-Q (~Aug 2026)
+
+**Commit:** `d1452e5` (rebased to `1c6054d`)
+
 ---
 
 ## What Was Done 2026-06-25 (Afternoon Session)
