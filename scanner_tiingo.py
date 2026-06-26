@@ -775,6 +775,7 @@ SHARES_OUTSTANDING_OVERRIDE = {
     "CVNA": lambda s: (s or 0) * 5  if (s or 0) < 250_000_000 else s,   # 5-for-1 split May 2026; EDGAR pre-split ~219M Class A; heals after Q2 2026 10-Q
     "KLAC": lambda s: (s or 0) * 10 if (s or 0) < 500_000_000 else s,   # 10-for-1 split Jun 2026; EDGAR pre-split ~130.6M; heals after Q2 2026 10-Q
     "DD":   lambda s: (s or 0) // 3 if (s or 0) > 200_000_000 else s,   # 1-for-3 reverse split Jun 2026; EDGAR pre-split ~410M; heals after Q2 2026 10-Q
+    "HON":  lambda s: (s or 0) // 2 if (s or 0) > 400_000_000 else s,   # 1-for-2 reverse split Jun 29 2026; EDGAR pre-split ~638M; heals after Q2/Q3 2026 10-Q
 }
 
 
@@ -1408,6 +1409,8 @@ def _get_edgar_fundamentals(ticker):
         eps = round(eps / 10, 4)
     if ticker == "DD" and eps is not None and abs(eps) < 0.20:   # 1-for-3 reverse split Jun 2026; pre-split EPS ~-0.07; heals when EDGAR reports post-split EPS ~-0.21 (abs > 0.20) after Q2 2026 10-Q
         eps = round(eps * 3, 4)
+    if ticker == "HON" and eps is not None and abs(eps) < 4.0:   # 1-for-2 reverse split Jun 29 2026; pre-split EPS ~$3.21; heals when EDGAR reports post-split EPS ~$6.43 (abs > 4.0) after Q2/Q3 2026 10-Q
+        eps = round(eps * 2, 4)
 
     # ADS ratio corrections: EDGAR reports per ordinary share; Tiingo prices are per ADS.
     # Divide shares by ratio → market cap = (ordinary_shares / ratio) × ADS_price.
@@ -2793,6 +2796,7 @@ def compare_with_yfinance(df):
         "  CVNA    EDGAR EPS ÷ 5     (5-for-1 split May 2026; auto-disables after Q2 2026 10-Q)",
         "  KLAC    EDGAR EPS ÷ 10    (10-for-1 split Jun 2026; auto-disables after Q2 2026 10-Q)",
         "  DD      EDGAR EPS × 3     (1-for-3 reverse split Jun 2026; pre-split EPS ~-0.07; auto-disables when EDGAR EPS abs > 0.20 after Q2 2026 10-Q)",
+        "  HON     EDGAR EPS × 2     (1-for-2 reverse split Jun 29 2026; pre-split EPS ~$3.21; auto-disables when EDGAR EPS abs > 4.0 after Q2/Q3 2026 10-Q)",
         "",
         "EPS / PE — inline XBRL fallback (company_facts has no data; we parse filing HTML):",
         "  V                    US 10-Q/10-K  USD        EPS ~11.18",
