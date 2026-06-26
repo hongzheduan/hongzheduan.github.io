@@ -813,7 +813,7 @@
   <div class="tab-row">
     <button class="tab-btn active" onclick="show('sp500', this)">标普500</button>
     <button class="tab-btn" onclick="show('nasdaq', this)">纳斯达克100</button>
-    <button class="tab-btn" onclick="show('watchlist', this)">★ 自选股</button>
+    <button class="tab-btn" onclick="showUpsell()">★ 自选股</button>
     <button class="tab-btn" onclick="show('readme', this)">说明</button>
     <button class="tab-btn" onclick="show('membership', this)">成分股变动</button>
   </div>
@@ -822,7 +822,7 @@
   <div class="mobile-drawer" id="mobileDrawer">
     <button onclick="show('sp500', document.querySelectorAll('.tab-btn')[0]); toggleMenu();">标普500</button>
     <button onclick="show('nasdaq', document.querySelectorAll('.tab-btn')[1]); toggleMenu();">纳斯达克100</button>
-    <button onclick="show('watchlist', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">★ 自选股</button>
+    <button onclick="showUpsell(); toggleMenu();">★ 自选股</button>
     <button onclick="show('readme', document.querySelectorAll('.tab-btn')[3]); toggleMenu();">说明</button>
     <button onclick="show('membership', document.querySelectorAll('.tab-btn')[4]); toggleMenu();">成分股变动</button>
     <a href="index_cn.html">首页</a>
@@ -1511,8 +1511,8 @@
       searchQuery = val.trim().toUpperCase();
       render();
     }
-    document.getElementById("tickerSearch").addEventListener("input", (e) => onSearch(e.target.value));
-    document.getElementById("tickerSearchMobile").addEventListener("input", (e) => onSearch(e.target.value));
+    document.getElementById("tickerSearch").addEventListener("focus", (e) => { showUpsell(); e.target.blur(); });
+    document.getElementById("tickerSearchMobile").addEventListener("focus", (e) => { showUpsell(); e.target.blur(); });
 
     /* ── MOBILE MENU ── */
     window.toggleMenu = function() {
@@ -1927,23 +1927,24 @@
       document.getElementById("tableArea").addEventListener("click", e => {
         const starBtn = e.target.closest(".star-btn");
         if (starBtn) {
-          const ticker = starBtn.dataset.watch;
-          if (watchlist.has(ticker)) {
-            watchlist.delete(ticker);
-            saveWatchlist();
-            render();
-          } else if (window._ftUser) {
-            watchlist.add(ticker);
-            saveWatchlist();
-            render();
-          } else {
-            document.getElementById("signInPrompt").classList.add("visible");
-          }
+          showUpsell();
           return;
         }
         const td = e.target.closest("td.ticker-cell");
         if (td) openTickerModal(td.dataset.ticker);
       });
+
+    /* ── UPSELL MODAL ── */
+    window.showUpsell = function() {
+      document.getElementById("upsellModal").style.display = "flex";
+    };
+    document.getElementById("upsellClose").addEventListener("click", function() {
+      document.getElementById("upsellModal").style.display = "none";
+    });
+    document.getElementById("upsellModal").addEventListener("click", function(e) {
+      if (e.target === this) this.style.display = "none";
+    });
+
     });
 
     /* ── LIVE PRICE REFRESH (10-min, market hours only) ── */
@@ -2026,6 +2027,18 @@
         <a href="login_cn.html" class="sip-signin">登录</a>
         <button class="sip-dismiss" onclick="document.getElementById('signInPrompt').classList.remove('visible')">稍后再说</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 仅订阅用户可用的功能提示弹窗 -->
+  <div id="upsellModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+    <div style="background:#0d1e3d;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px 28px;max-width:360px;width:90%;text-align:center;position:relative;">
+      <button id="upsellClose" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#64748b;font-size:18px;cursor:pointer;line-height:1;">✕</button>
+      <div style="font-size:28px;margin-bottom:12px;">⭐</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;margin-bottom:8px;">仅订阅用户可用</div>
+      <p style="font-size:14px;color:#94a3b8;margin:0 0 24px;">自选股和代码搜索功能仅对订阅用户开放。立即开始 7 天免费试用，解锁全部功能。</p>
+      <a href="signup_cn.html" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:10px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px;">开始免费试用 →</a>
+      <a href="login_cn.html" style="font-size:13px;color:#60a5fa;text-decoration:none;">已订阅？登录 →</a>
     </div>
   </div>
 
