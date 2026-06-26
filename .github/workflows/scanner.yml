@@ -2,7 +2,7 @@
 
 on:
   schedule:
-    - cron: "0 16 * * 1-5"    # 12:00 PM ET weekdays — beta IEX snapshot (~3:40 PM ET actual due to GH delay)
+    - cron: "0 17 * * 1-5"    # 1:00 PM ET weekdays — beta IEX snapshot (~4:00 PM ET actual due to GH delay); exits if started ≥3:55 PM ET
     - cron: "30 20 * * 1-5"   # 4:30 PM ET weekdays  — preliminary data + videos (retries at 5:00 PM)
     - cron: "30 21 * * 1-5"   # 5:30 PM ET weekdays  — retry if 4:30 PM data not yet available
     - cron: "30 22 * * 1-5"   # 6:30 PM ET weekdays  — final data
