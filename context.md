@@ -1,5 +1,54 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-06-26
+
+### Free Tier — Watchlist & Search Gated with Upsell Modal
+
+Disabled watchlist and ticker search in `baizora_main_form_freetier.html` + `_cn.html`. Clicking either now shows an upsell modal.
+
+**Touchpoints intercepted:**
+- **Watchlist tab** (desktop + mobile drawer): `onclick` → `showUpsell()`
+- **Star (☆) buttons**: tableArea click handler → `showUpsell()` (removed all toggle/sign-in logic)
+- **Search inputs**: replaced `input` listeners with `focus` listeners → `showUpsell()` + `e.target.blur()`
+
+**Upsell modal:** "Full Version Only" / "仅完整版可用" — copy clarifies it's a page limitation, not a subscriber gate (even subscribers can't use these on the free tier page). Primary CTA → `pricing.html` / `pricing_cn.html`. Secondary link is auth-aware: signed out → sign in; signed in → "Go to Full Dashboard" / "前往完整版".
+
+`window.showUpsell` defined inside `DOMContentLoaded`, checks `window._ftUser` at call time to set secondary link.
+
+**Commits:** `475cd6e`, `99f0f8b`, `6135a6f`, `2bec6e7`
+
+### video/.gitignore — Archive Directory Ignored
+
+`video/archive/` was untracked (old screenshots + locally-generated mp4s). Added `archive/` to `video/.gitignore`.
+
+**Commit:** `005f16d`
+
+### Scanner Schedule Changes
+
+**Beta cron delayed 1 hour:** `0 16` → `0 17` (1:00 PM ET scheduled, ~3 PM ET actual with GH delay). Exit guard unchanged: exits if started ≥3:55 PM ET.
+
+Three places updated in `scanner.yml`:
+1. Cron trigger: `0 16` → `0 17`
+2. Env-setup elif: `"0 16 * * 1-5"` → `"0 17 * * 1-5"`
+3. Worklog RUN_TYPE elif: `"0 18 * * 1-5"` → `"0 17 * * 1-5"`, renamed `400PM-beta` → `100PM-beta` (all RUN_TYPE labels now use scheduled ET time consistently)
+
+**EDGAR moved to 4:30 PM scan:** Removed `SKIP_EDGAR=1` from the `30 20 * * 1-5` block. Now runs EDGAR at ~6:30 PM ET actual — after SEC's 5:30 PM same-day filing cutoff, capturing all day's 10-Q/10-K filings. 5:30 PM and 6:30 PM retry scans use `SKIP_EDGAR=1` (read cache committed by 4:30 PM run). 11 PM run kept as safety net for days when 4:30 PM fails (uses previous session's cache). EDGAR costs ~5–8 min per run; runs at ~6 req/sec, well under SEC's 10 req/sec limit.
+
+**Commits:** `7903653`, `798ee41`, `ec12b32`, `682b8de`
+
+### Current Scanner Schedule (as of 2026-06-26)
+
+| Cron (UTC) | Scheduled ET | Approx actual ET | RUN_TYPE | EDGAR |
+|---|---|---|---|---|
+| `0 17 * * 1-5` | 1:00 PM | ~3 PM | `100PM-beta` | no |
+| `30 20 * * 1-5` | 4:30 PM | ~6:30 PM | `430PM-scan` | **yes** |
+| `30 21 * * 1-5` | 5:30 PM | ~7:30 PM | `530PM-scan` | no (cache) |
+| `30 22 * * 1-5` | 6:30 PM | ~8:30 PM | `630PM-scan` | no (cache) |
+| `0 4 * * 2-6` | 11:00 PM | ~11 PM | `11PM-full` | yes (safety net) |
+| `0 5 * * 0,6` | midnight | ~1 AM ET | `EDGAR-only` | yes |
+
+---
+
 ## What Was Done 2026-06-25 (Afternoon Session)
 
 ### Beta Scan — Critical Fix (Empty Dashboard Bug)
