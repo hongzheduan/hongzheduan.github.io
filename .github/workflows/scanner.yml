@@ -103,7 +103,7 @@ jobs:
           EVENT="${{ github.event_name }}"
           if   [ "$SCHEDULE" = "0 5 * * 0,6"  ]; then RUN_TYPE="EDGAR-only"
           elif [ "$SCHEDULE" = "0 4 * * 2-6" ]; then RUN_TYPE="11PM-full"
-          elif [ "$SCHEDULE" = "0 17 * * 1-5" ]; then RUN_TYPE="300PM-beta"
+          elif [ "$SCHEDULE" = "0 17 * * 1-5" ]; then RUN_TYPE="100PM-beta"
           elif [ "$SCHEDULE" = "30 20 * * 1-5" ]; then RUN_TYPE="430PM-scan"
           elif [ "$SCHEDULE" = "30 21 * * 1-5" ]; then RUN_TYPE="530PM-scan"
           elif [ "$SCHEDULE" = "30 22 * * 1-5" ]; then RUN_TYPE="630PM-scan"
