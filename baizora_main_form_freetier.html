@@ -1931,6 +1931,14 @@
 
     /* ── UPSELL MODAL ── */
     window.showUpsell = function() {
+      const link = document.getElementById("upsellSecondary");
+      if (window._ftUser) {
+        link.href = "baizora_main_form.html";
+        link.textContent = "Go to Full Dashboard →";
+      } else {
+        link.href = "login.html";
+        link.textContent = "Already subscribed? Sign in →";
+      }
       document.getElementById("upsellModal").style.display = "flex";
     };
     document.getElementById("upsellClose").addEventListener("click", function() {
@@ -2032,7 +2040,7 @@
       <div style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;margin-bottom:8px;">Full Version Only</div>
       <p style="font-size:14px;color:#94a3b8;margin:0 0 24px;">Watchlist and Ticker Search are only available in the full version — not in the Free Tier. Start a 7-day free trial to unlock the full dashboard.</p>
       <a href="pricing.html" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:10px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px;">Start Free Trial →</a>
-      <a href="login.html" style="font-size:13px;color:#60a5fa;text-decoration:none;">Already subscribed? Sign in →</a>
+      <a id="upsellSecondary" href="login.html" style="font-size:13px;color:#60a5fa;text-decoration:none;">Already subscribed? Sign in →</a>
     </div>
   </div>
 
