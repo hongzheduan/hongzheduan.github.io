@@ -31,6 +31,7 @@ ARCHIVE_DIR      = "archive"
 OHLCV_CACHE_DIR  = os.path.join(DATA_DIR, "ohlcv_tiingo_cache")
 FUND_CACHE_FILE  = os.path.join(DATA_DIR, "fundamentals_cache.json")
 FUND_CACHE_TTL_DAYS = 0  # always re-fetch EDGAR every run; no stale data risk
+SPLIT_GUARDS_FILE = os.path.join(DATA_DIR, "split_guards.csv")
 
 os.makedirs(DATA_DIR,        exist_ok=True)
 os.makedirs(ARCHIVE_DIR,     exist_ok=True)
@@ -764,18 +765,52 @@ TICKER_SECTOR_OVERRIDE = {
     "AMCR":  "Basic Materials",
 }
 
+def _load_split_guards():
+    """Load split_guards.csv, drop expired rows, rewrite file, return active rows as list of dicts."""
+    import csv
+    today = DATE_STR
+    active = []
+    if not os.path.exists(SPLIT_GUARDS_FILE):
+        return active
+    with open(SPLIT_GUARDS_FILE, newline="") as f:
+        rows = list(csv.DictReader(f))
+    for row in rows:
+        if row["remove_date"] > today:
+            active.append(row)
+    if len(active) < len(rows):
+        expired = [r["ticker"] for r in rows if r not in active]
+        print(f"[split_guards] Auto-removed expired guards: {expired}")
+        with open(SPLIT_GUARDS_FILE, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=["ticker","direction","ratio","action_date","remove_date","shares_threshold","eps_threshold"])
+            writer.writeheader()
+            writer.writerows(active)
+    return active
+
+_SPLIT_GUARDS = _load_split_guards()
+_SPLIT_GUARDS_BY_TICKER = {r["ticker"]: r for r in _SPLIT_GUARDS}
+
+
 # Shares outstanding overrides for tickers where EDGAR only reports one share class
 # but total economic units are larger (LP/LLC units, multi-class structures).
 # BRK-B excluded (own special case). GOOG/GOOGL excluded (EDGAR covers both classes).
+def _make_shares_lambda(direction, ratio, threshold):
+    ratio = int(ratio)
+    threshold = int(threshold)
+    if direction == "forward":
+        return lambda s: (s or 0) * ratio if (s or 0) < threshold else s
+    else:
+        return lambda s: (s or 0) // ratio if (s or 0) > threshold else s
+
 SHARES_OUTSTANDING_OVERRIDE = {
     "IBKR": 1_697_000_000,  # permanent: Class A 445M + IBG LLC membership units (~75% private stake)
     "BX":   1_222_000_000,  # permanent: Class A 742M + Blackstone Holdings LP units
     # Conditional (lambda): uses override only while EDGAR lags; auto-heals once 10-Q is filed
     "DVN":  lambda s: 1_153_000_000 if (s or 0) < 800_000_000 else s,  # Coterra merger May 2026; EDGAR pre-merger ~621M; heals after Q2 2026 10-Q
-    "CVNA": lambda s: (s or 0) * 5  if (s or 0) < 250_000_000 else s,   # 5-for-1 split May 2026; EDGAR pre-split ~219M Class A; heals after Q2 2026 10-Q
-    "KLAC": lambda s: (s or 0) * 10 if (s or 0) < 500_000_000 else s,   # 10-for-1 split Jun 2026; EDGAR pre-split ~130.6M; heals after Q2 2026 10-Q
-    "DD":   lambda s: (s or 0) // 3 if (s or 0) > 200_000_000 else s,   # 1-for-3 reverse split Jun 2026; EDGAR pre-split ~410M; heals after Q2 2026 10-Q
-    "HON":  lambda s: (s or 0) // 2 if (s or 0) > 400_000_000 else s,   # 1-for-2 reverse split Jun 29 2026; EDGAR pre-split ~638M; heals after Q2/Q3 2026 10-Q
+    **{
+        r["ticker"]: _make_shares_lambda(r["direction"], r["ratio"], r["shares_threshold"])
+        for r in _SPLIT_GUARDS
+        if r.get("shares_threshold")
+    },
 }
 
 
@@ -1401,16 +1436,17 @@ def _get_edgar_fundamentals(ticker):
     # Special-case adjustments
     if ticker == "BRK-B" and eps is not None:
         eps = round(eps / 1500, 4)
-    if ticker == "BKNG" and eps is not None and eps > 25:
-        eps = round(eps / 25, 4)
-    if ticker == "CVNA" and eps is not None and eps > 4:
-        eps = round(eps / 5, 4)
-    if ticker == "KLAC" and eps is not None and eps > 10:
-        eps = round(eps / 10, 4)
-    if ticker == "DD" and eps is not None and abs(eps) < 0.20:   # 1-for-3 reverse split Jun 2026; pre-split EPS ~-0.07; heals when EDGAR reports post-split EPS ~-0.21 (abs > 0.20) after Q2 2026 10-Q
-        eps = round(eps * 3, 4)
-    if ticker == "HON" and eps is not None and abs(eps) < 4.0:   # 1-for-2 reverse split Jun 29 2026; pre-split EPS ~$3.21; heals when EDGAR reports post-split EPS ~$6.43 (abs > 4.0) after Q2/Q3 2026 10-Q
-        eps = round(eps * 2, 4)
+
+    # Split EPS guards — driven by data/split_guards.csv; auto-expire on remove_date
+    if eps is not None and ticker in _SPLIT_GUARDS_BY_TICKER:
+        g = _SPLIT_GUARDS_BY_TICKER[ticker]
+        if g.get("eps_threshold"):
+            ratio = int(g["ratio"])
+            threshold = float(g["eps_threshold"])
+            if g["direction"] == "forward" and eps > threshold:
+                eps = round(eps / ratio, 4)
+            elif g["direction"] == "reverse" and abs(eps) < threshold:
+                eps = round(eps * ratio, 4)
 
     # ADS ratio corrections: EDGAR reports per ordinary share; Tiingo prices are per ADS.
     # Divide shares by ratio → market cap = (ordinary_shares / ratio) × ADS_price.
