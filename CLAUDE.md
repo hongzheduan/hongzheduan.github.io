@@ -268,7 +268,7 @@ color: var(--gold-light);
 | Sign In | 登录 |
 | Sign Out | 退出登录 |
 | Register for Free | 免费注册 |
-| Dashboard | 控制台 |
+| Dashboard | 个人主页 |
 | My Account | 我的账户 |
 | Plans | 价格方案 |
 | About | 平台简介 |
