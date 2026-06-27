@@ -766,28 +766,38 @@ TICKER_SECTOR_OVERRIDE = {
 }
 
 def _load_split_guards():
-    """Load split_guards.csv, drop expired rows, rewrite file, return active rows as list of dicts."""
+    """Load split_guards.csv and return all rows as list of dicts. No pruning at load time."""
+    import csv
+    if not os.path.exists(SPLIT_GUARDS_FILE):
+        return []
+    with open(SPLIT_GUARDS_FILE, newline="") as f:
+        return list(csv.DictReader(f))
+
+def _prune_split_guards():
+    """Remove guards that no longer fired this EDGAR run AND are past earliest_remove.
+    Called after a full EDGAR fetch (not on SKIP_EDGAR runs). A guard that didn't fire
+    means EDGAR now reports post-split values — safe to drop. If EDGAR stops filing,
+    the guard keeps firing and is never removed."""
     import csv
     today = DATE_STR
-    active = []
-    if not os.path.exists(SPLIT_GUARDS_FILE):
-        return active
-    with open(SPLIT_GUARDS_FILE, newline="") as f:
-        rows = list(csv.DictReader(f))
-    for row in rows:
-        if row["remove_date"] > today:
-            active.append(row)
-    if len(active) < len(rows):
-        expired = [r["ticker"] for r in rows if r not in active]
-        print(f"[split_guards] Auto-removed expired guards: {expired}")
+    to_keep = []
+    removed = []
+    for r in _SPLIT_GUARDS:
+        ticker = r["ticker"]
+        if today >= r["earliest_remove"] and ticker not in _SPLIT_GUARDS_FIRED:
+            removed.append(ticker)
+        else:
+            to_keep.append(r)
+    if removed:
+        print(f"[split_guards] Condition-healed, removing: {removed}")
         with open(SPLIT_GUARDS_FILE, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=["ticker","direction","ratio","action_date","remove_date","shares_threshold","eps_threshold"])
+            writer = csv.DictWriter(f, fieldnames=["ticker","direction","ratio","action_date","earliest_remove","shares_threshold","eps_threshold"])
             writer.writeheader()
-            writer.writerows(active)
-    return active
+            writer.writerows(to_keep)
 
 _SPLIT_GUARDS = _load_split_guards()
 _SPLIT_GUARDS_BY_TICKER = {r["ticker"]: r for r in _SPLIT_GUARDS}
+_SPLIT_GUARDS_FIRED = set()   # populated during EDGAR fetch; used by _prune_split_guards()
 
 
 # Shares outstanding overrides for tickers where EDGAR only reports one share class
@@ -1437,16 +1447,27 @@ def _get_edgar_fundamentals(ticker):
     if ticker == "BRK-B" and eps is not None:
         eps = round(eps / 1500, 4)
 
-    # Split EPS guards — driven by data/split_guards.csv; auto-expire on remove_date
-    if eps is not None and ticker in _SPLIT_GUARDS_BY_TICKER:
+    # Split EPS + shares guards — driven by data/split_guards.csv; condition-based auto-removal
+    if ticker in _SPLIT_GUARDS_BY_TICKER:
         g = _SPLIT_GUARDS_BY_TICKER[ticker]
-        if g.get("eps_threshold"):
-            ratio = int(g["ratio"])
-            threshold = float(g["eps_threshold"])
-            if g["direction"] == "forward" and eps > threshold:
+        ratio = int(g["ratio"])
+        direction = g["direction"]
+        # EPS guard
+        if eps is not None and g.get("eps_threshold"):
+            eps_thr = float(g["eps_threshold"])
+            if direction == "forward" and eps > eps_thr:
                 eps = round(eps / ratio, 4)
-            elif g["direction"] == "reverse" and abs(eps) < threshold:
+                _SPLIT_GUARDS_FIRED.add(ticker)
+            elif direction == "reverse" and abs(eps) < eps_thr:
                 eps = round(eps * ratio, 4)
+                _SPLIT_GUARDS_FIRED.add(ticker)
+        # Shares condition check (guard applied via SHARES_OUTSTANDING_OVERRIDE lambda)
+        if shares_outstanding is not None and g.get("shares_threshold"):
+            s_thr = int(g["shares_threshold"])
+            if direction == "forward" and shares_outstanding < s_thr:
+                _SPLIT_GUARDS_FIRED.add(ticker)
+            elif direction == "reverse" and shares_outstanding > s_thr:
+                _SPLIT_GUARDS_FIRED.add(ticker)
 
     # ADS ratio corrections: EDGAR reports per ordinary share; Tiingo prices are per ADS.
     # Divide shares by ratio → market cap = (ordinary_shares / ratio) × ADS_price.
@@ -2057,6 +2078,7 @@ def scan():
     tiingo_meta = prefetch_tiingo_meta(tickers)
     if not SKIP_EDGAR:
         prefetch_fundamentals(tickers, tiingo_meta)
+        _prune_split_guards()
     else:
         print("SKIP_EDGAR=1 — using cached fundamentals, skipping EDGAR fetch")
 
