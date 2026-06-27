@@ -17,6 +17,18 @@ Disabled watchlist and ticker search in `baizora_main_form_freetier.html` + `_cn
 
 **Commits:** `475cd6e`, `99f0f8b`, `6135a6f`, `2bec6e7`
 
+### Free Tier — Dashboard Button (logged-in users)
+
+Added a "Dashboard" / "个人主页" button to both free tier pages, visible only when logged in.
+
+- **Desktop header**: blue button between avatar and Sign Out → `dashboard.html` / `dashboard_cn.html`
+- **Mobile drawer**: link above Subscribe → same destinations
+- Hidden (`display:none`) by default; shown via `onAuthStateChanged` when `user` is truthy; hidden again on sign-out
+- Element IDs: `navDashBtn` (desktop), `mobileDashBtn` (drawer)
+- CN label: "个人主页" (not "控制台" — updated CLAUDE.md translation table to match)
+
+**Commits:** `6bc8d79`, `af40440`, `c7c3c66`
+
 ### video/.gitignore — Archive Directory Ignored
 
 `video/archive/` was untracked (old screenshots + locally-generated mp4s). Added `archive/` to `video/.gitignore`.
