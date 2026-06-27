@@ -59,6 +59,34 @@ Honeywell (HON) set June 29, 2026 as the effective date for a 1-for-2 reverse sp
 
 **Commit:** `d1452e5` (rebased to `1c6054d`)
 
+### Split Guards — Data-Driven CSV System
+
+Replaced hardcoded split guards in `scanner_tiingo.py` with a data-driven `data/split_guards.csv`. Motivation: hardcoded guards accumulate forever; CSV enables automatic condition-based cleanup and makes adding new splits a one-line change with no code edits.
+
+**`data/split_guards.csv` columns:**
+`ticker, direction, ratio, action_date, earliest_remove, shares_threshold, eps_threshold`
+
+**Auto-removal logic (condition-based, not date-based):**
+- `earliest_remove` = minimum date before removal is considered (~4 months after split, past Q2/Q3 10-Q season)
+- Guard removed only when: `today >= earliest_remove` AND guard did NOT fire on this EDGAR run
+- If EDGAR stops filing → condition keeps firing → guard stays forever (safe)
+- If EDGAR updates to post-split values → condition stops firing → auto-removed after earliest_remove
+
+**Key scanner changes (`scanner_tiingo.py`):**
+- `_load_split_guards()` — reads CSV at module load, no pruning at load time
+- `_SPLIT_GUARDS_FIRED = set()` — populated during EDGAR fetch when either EPS or shares condition triggers
+- `_prune_split_guards()` — called after `prefetch_fundamentals()` on non-SKIP_EDGAR runs; rewrites CSV without healed rows
+- `_make_shares_lambda()` — builds shares override lambdas from CSV data dynamically
+- EPS guard block replaced with generic loop over `_SPLIT_GUARDS_BY_TICKER`
+- Shares condition also checked in `_get_edgar_fundamentals()` to populate `_SPLIT_GUARDS_FIRED`
+- Permanent overrides (IBKR, BX, DVN, BRK-B) remain hardcoded — no expiry date
+
+**BKNG shares_threshold:** Added `500000000` (pre-split ~40M, post-split ~1B). Confirmed no-op — EDGAR already filed post-split shares in Q1 2026 10-Q. Guard will auto-remove after Oct 1.
+
+**`_get_post_filing_split_factor()` note:** The automatic forward-split shares multiplier skips ratios > 20 (spin-off filter), so BKNG's 25-for-1 split is NOT handled by this mechanism. Manual CSV guard is the correct approach.
+
+**Commits:** `421da7e` → `714ad50`, `2187260`, `03cc3fa`
+
 ---
 
 ## What Was Done 2026-06-25 (Afternoon Session)
