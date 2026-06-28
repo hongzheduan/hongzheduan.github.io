@@ -403,14 +403,16 @@
       <img src="assets/baize_favicon_v2.png" alt="Baizora">
       <span class="brand-cn">贝佐拉</span>
     </a>
-    <div class="header-right">
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <div class="header-right">
+        <!-- <a href="account_cn.html" class="nav-btn">我的账户</a> -->
+        <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ 退出登录</button>
+      </div>
       <span class="user-email" id="headerEmail"></span>
-      <!-- <a href="account_cn.html" class="nav-btn">我的账户</a> -->
-      <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ 退出登录</button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
   </header>
 
   <!-- Mobile drawer -->

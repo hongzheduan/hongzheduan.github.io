@@ -393,14 +393,16 @@
       <img src="assets/baize_favicon_v2.png" alt="Baizora">
       <span class="logo-text">Baiz<span>ora</span></span>
     </a>
-    <div class="header-right">
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <div class="header-right">
+        <!-- <a href="account.html" class="nav-btn">Account</a> -->
+        <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ Sign out</button>
+      </div>
       <span class="user-email" id="headerEmail"></span>
-      <!-- <a href="account.html" class="nav-btn">Account</a> -->
-      <button class="nav-btn nav-btn-danger" onclick="doLogout()">↪ Sign out</button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
   </header>
 
   <!-- Mobile drawer -->
