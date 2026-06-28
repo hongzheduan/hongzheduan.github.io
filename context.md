@@ -1,5 +1,66 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-06-28
+
+### Homepage NVDA Chart — Volume Panel + X-Axis Fix
+
+Canvas height increased from 120px → 160px in `index.html` and `index_cn.html`.
+
+**Volume bars:** Canvas split into price (78%) + volume (22%) with 4px gap. Volume bars color-matched to candlestick direction at 35% opacity (`rgba(34,197,94,0.35)` / `rgba(239,68,68,0.35)`).
+
+**X-axis label fix (mobile crowding):** Replaced month-boundary-only triggering with `lastLabelX` pixel-distance tracking (36px minimum gap). Labels now auto-thin on narrow mobile screens without overlapping.
+
+**Date parsing:** `new Date(d + 'T12:00:00')` to avoid UTC/local timezone boundary misclassifying months at midnight.
+
+**Chart card text:** "updated daily" (EN) → "updated in real time"; "每日更新" (CN) → "实时更新".
+
+### Homepage Fact Bar — "Access Tiers"
+
+`index.html` + `index_cn.html`: Changed "2× Plans (tax incl.)" → "Access Tiers" / "访问层级" (sub-line removed). Avoids money mention on the quick stat bar.
+
+### Disclaimer — Liability Clause Bridging Language
+
+`assets/disclaimer.html` + `assets/disclaimer_cn.html`: Added bridging sentence so the liability cap is explicitly subordinate to the exclusion clause:
+
+**EN:** "To the extent any liability is not excluded by the foregoing, Baizora's total liability for any claim arising out of or related to this platform or its data shall not exceed..."
+
+**CN:** "在上述免责条款未能完全排除责任的情况下，贝佐拉对任何...所承担的全部责任..."
+
+### FAQ Overhaul (`assets/faq.html` + `assets/faq_cn.html`)
+
+- Account creation: references "Register for Free" button on homepage (removed old "Sign In → Create one" flow)
+- Dashboard question renamed: "How do I access my dashboard and analysis results?" (was "my dashboard")
+- "new/unsubscribed users" → "unsubscribed users" (no distinction — all unsubscribed land on subscription page)
+- Free trial: added credit card restriction — once per email address **and once per credit card**; EN: "once per email address and once per payment method"; CN: "每张信用卡仅限一次"
+- Data freshness: reference announcement bar ("checking the **announcement bar at the top of the homepage** — it shows 'Analysis updated: [date]'") instead of vague "if data looks stale"
+- EPS/PE fundamentals: "refreshed approximately once per week" → "refreshed from SEC EDGAR on every daily scan"
+- Added **Stock Splits** paragraph: forward splits corrected same trading day; reverse splits may lag 1–2 days while SEC EDGAR updates shares + EPS
+- Watchlist: rewritten as subscription-only, cloud-synced via Firestore, not available in Free Tier (removed local storage fallback)
+- Added AI assistant nudge paragraph below "Frequently Asked Questions" header
+- Added `<script src="../chat-widget.js?v=10" data-lang="en/cn"></script>` before `</body>` (chat widget was missing from FAQ pages)
+
+### AI Assistant System Prompts Updated (`functions/index.js`)
+
+`CHAT_SYSTEM_EN` + `CHAT_SYSTEM_CN` aligned with all FAQ changes:
+- `## FREE PREVIEW` → `## FREE TIER` — all 500+ stocks, 2-session delay, no watchlist/search in Free Tier
+- Step 4: "new/unsubscribed" → "unsubscribed"
+- Data schedule: EDGAR refreshed on every daily scan (not ~weekly)
+- Data freshness: reference announcement bar at top of homepage
+- Added `## STOCK SPLITS` section: forward same-day; reverse 1–2 day lag while EDGAR updates
+- Watchlist: subscription-only, cloud-sync, no local storage fallback
+- Troubleshooting: announcement bar for "data not updated today"
+
+Cloud Functions redeployed after edits.
+
+### CN Pages — Bilingual Contact Note
+
+Added `（中英文）` / `支持中英文。` to contact email mentions across all CN pages:
+- `assets/faq_cn.html`, `assets/about_cn.html` — "支持中英文。" appended to contact-card paragraph
+- `assets/terms_cn.html`, `assets/privacy_cn.html`, `assets/disclaimer_cn.html` — "（中英文）" after `support@baizora.com`
+- `index_cn.html` — footer "联系我们" line: "support@baizora.com（中英文）"
+
+---
+
 ## What Was Done 2026-06-27
 
 ### Free Preview Retired — Replaced by Free Tier Everywhere
@@ -1163,4 +1224,3 @@ Two-part fix:
 4. **Remaining EPS=None tickers** — BRK-B is structural (no EDGAR data after 2013); others may be IFRS filers. Investigate if any are solvable from EDGAR without a paid source.
 5. **yfinance compare log** — remaining flagged EPS diffs (OXY, MLM, CI etc.) are GAAP one-time items vs adjusted EPS. These are correct and expected — not bugs.
 6. **FUND_CACHE_TTL_DAYS = 0** — EDGAR now always re-fetches every run. Cache file is still written but never read back. No further cache management needed.
-7. **FAQ watchlist section** — user asked to update FAQ to reflect that watchlist now syncs across devices via Firestore (was previously described as local-only). Check `assets/faq.html` and `assets/faq_cn.html`.
