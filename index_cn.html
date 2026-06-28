@@ -1201,8 +1201,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
         <div class="fact-item">
           <div class="fact-num">2<span class="accent">×</span></div>
-          <div class="fact-label">价格方案</div>
-          <div class="fact-sub">(价格均含税)</div>
+          <div class="fact-label">访问层级</div>
         </div>
       </div>
     </div><!-- /hero-left -->
@@ -1327,11 +1326,11 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         <div class="card-icon" style="background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.25);">◐</div>
         <h3>点击任意股票查看K线图</h3>
       </div>
-      <p>在控制台中点击任意代码，即可查看3个月、6个月或1年的完整K线图——覆盖所有标普500和纳斯达克100成分股，每日更新。</p>
+      <p>在控制台中点击任意代码，即可查看3个月、6个月或1年的完整K线图——覆盖所有标普500和纳斯达克100成分股，实时更新。</p>
       <div style="margin-top:12px;">
         <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;color:#64748b;margin-bottom:5px;">NVDA &nbsp;·&nbsp; 1年K线图</div>
-        <canvas id="hpNvdaCanvas" style="width:100%;height:120px;display:block;border-radius:8px;background:rgba(6,13,31,0.7);border:1px solid rgba(255,255,255,0.06);"></canvas>
-        <div id="hpNvdaNoData" style="display:none;height:120px;align-items:center;justify-content:center;color:#64748b;font-size:11px;font-family:'DM Mono',monospace;">—</div>
+        <canvas id="hpNvdaCanvas" style="width:100%;height:160px;display:block;border-radius:8px;background:rgba(6,13,31,0.7);border:1px solid rgba(255,255,255,0.06);"></canvas>
+        <div id="hpNvdaNoData" style="display:none;height:160px;align-items:center;justify-content:center;color:#64748b;font-size:11px;font-family:'DM Mono',monospace;">—</div>
       </div>
     </div>
 
@@ -1434,14 +1433,21 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     var ctx = canvas.getContext("2d");
     ctx.scale(dpr, dpr);
     var W = rect.width, H = rect.height;
-    var pad = { top: 12, right: 10, bottom: 22, left: 54 };
-    var cW = W - pad.left - pad.right, cH = H - pad.top - pad.bottom;
+    var pad = { top: 12, right: 10, bottom: 18, left: 54 };
+    var cW = W - pad.left - pad.right;
+    var totalH = H - pad.top - pad.bottom;
+    var volH = Math.floor(totalH * 0.22);
+    var gap = 4;
+    var priceH = totalH - volH - gap;
     var n = candles.length;
     var minP = Infinity, maxP = -Infinity;
     candles.forEach(function(c) { if (c[1] > maxP) maxP = c[1]; if (c[2] < minP) minP = c[2]; });
     var buf = (maxP - minP) * 0.05 || 1;
     var lo = minP - buf, hi = maxP + buf;
-    var toY = function(p) { return pad.top + cH * (1 - (p - lo) / (hi - lo)); };
+    var toY = function(p) { return pad.top + priceH * (1 - (p - lo) / (hi - lo)); };
+    var maxV = 0;
+    candles.forEach(function(c) { if ((c[4] || 0) > maxV) maxV = c[4] || 0; });
+    var volTop = pad.top + priceH + gap;
     var slotW = cW / n, cndW = Math.max(1, slotW * 0.65);
     var toX = function(i) { return pad.left + i * slotW + (slotW - cndW) / 2; };
     ctx.clearRect(0, 0, W, H);
@@ -1454,17 +1460,22 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       ctx.fillStyle = "#64748b";
       ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 4, y + 3);
     }
-    ctx.textAlign = "center"; var lastMo = -1;
+    ctx.textAlign = "center";
+    var lastLabelX = -999;
     dates.forEach(function(d, i) {
-      var mo = new Date(d).getMonth();
-      if (mo !== lastMo) {
-        lastMo = mo;
-        ctx.fillStyle = "#64748b";
-        ctx.fillText(new Date(d).toLocaleDateString("zh-CN", { month: "short" }), toX(i) + cndW / 2, H - 4);
+      var dt = new Date(d + 'T12:00:00');
+      var prevDt = i > 0 ? new Date(dates[i-1] + 'T12:00:00') : null;
+      if (!prevDt || dt.getMonth() !== prevDt.getMonth()) {
+        var x = toX(i) + cndW / 2;
+        if (x - lastLabelX >= 36) {
+          ctx.fillStyle = "#64748b";
+          ctx.fillText(dt.toLocaleDateString("zh-CN", { month: "short" }), x, H - 4);
+          lastLabelX = x;
+        }
       }
     });
     candles.forEach(function(candle, i) {
-      var o = candle[0], h = candle[1], l = candle[2], c = candle[3];
+      var o = candle[0], h = candle[1], l = candle[2], c = candle[3], v = candle[4];
       var green = c >= o, x = toX(i), mid = x + cndW / 2;
       ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
       ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
@@ -1472,6 +1483,11 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
       var bTop = toY(Math.max(o, c)), bH = Math.max(1, toY(Math.min(o, c)) - bTop);
       ctx.fillRect(x, bTop, cndW, bH); ctx.strokeRect(x, bTop, cndW, bH);
+      if (v && maxV > 0) {
+        var vh = Math.max(1, (v / maxV) * volH);
+        ctx.fillStyle = green ? "rgba(34,197,94,0.35)" : "rgba(239,68,68,0.35)";
+        ctx.fillRect(x, volTop + volH - vh, cndW, vh);
+      }
     });
   }
   function loadChart() {
