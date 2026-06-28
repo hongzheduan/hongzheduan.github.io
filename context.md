@@ -1,5 +1,55 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-06-27
+
+### Free Preview Retired — Replaced by Free Tier Everywhere
+
+Free Preview (`baizora_main_form_free.html` / `_cn.html`) has been removed from all navigation across the site. Files kept on disk for possible future use.
+
+**Pages updated (links changed from Free Preview → Free Tier):**
+- 22 stock pages (`stocks/*.html`) + `generate_stock_pages.py` template
+- `index.html` / `index_cn.html` — hero CTA + compact CTA buttons
+- `dashboard.html` / `dashboard_cn.html` — tool card + quick link removed entirely
+- `top-price-movers.html` / `unusual-volume.html` — inline text + CTA button
+- `assets/faq.html` / `assets/faq_cn.html` — see below
+
+**robots.txt:** Old free preview files added to `Disallow` (files kept, just de-indexed).
+
+**sitemap.xml:** Free Preview entries replaced with Free Tier; all `lastmod` dates bumped to `2026-06-27`.
+
+### Pricing Comparison Table — Free Preview Column Removed
+
+`pricing.html` and `pricing_cn.html`: dropped the "Free Preview" column from the comparison table. Now **3 columns: Free Tier · Trial · Subscription** (was 4).
+
+### Membership Changes Tab — Gated (Not Removed)
+
+In `baizora_main_form_freetier.html` + `_cn.html`, the MEMBERSHIP CHANGE / 成分股变动 tab button is kept visible but now calls `showUpsell('membership')` / `showUpsell('membership')` instead of navigating to the section.
+
+**Feature-specific modal text:**
+- EN: "Membership Change history is only available in the full version — not in the Free Tier. Start a 7-day free trial to unlock the full dashboard."
+- CN: "成分股变动历史仅在完整版中提供，免费版不支持此功能。开始 7 天免费试用，解锁完整数据看板。"
+
+**Implementation:** `showUpsell(feature)` now accepts an optional `feature` param. `_upsellDesc` dict maps `'membership'` and `'default'` keys. `#upsellDesc` added to the `<p>` tag in both EN and CN modals so JS can update it dynamically. Existing Watchlist/Search callers unchanged (no param → default text).
+
+### FAQ Updates (`assets/faq.html` + `assets/faq_cn.html`)
+
+- "How does the free preview work?" → "How does the Free Tier work?" — rewritten to describe 500+ stocks, 2-session delay, what requires subscription
+- "Do I need to sign up?" answer updated — now links to `baizora_main_form_freetier.html`, correctly describes delay
+- "How do I access my dashboard?" — removed mention of free preview, now references Free Tier
+- Removed "What is the beta analysis…" FAQ item from both EN and CN
+- JSON-LD schema updated to match in both files
+- **Bug fix (`faq_cn.html`):** Logged-out auth branch was incorrectly showing `navDashBtn` — fixed to `display:none`
+
+### Dashboard Header — Avatar Circle Mobile Fix
+
+`dashboard.html` + `dashboard_cn.html`: The `#headerEmail` avatar circle was a direct flex child of `<header>` (which has `justify-content: space-between`), placing it in the middle of the header on mobile.
+
+**Fix:** Wrapped `header-right` + `#headerEmail` + `hamburger` in `<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">` — same wrapper pattern used on other pages. Avatar now sits beside the hamburger at the far right on mobile.
+
+**Commits:** `f975bf6` (main batch), `3138a8e` (dashboard mobile fix)
+
+---
+
 ## What Was Done 2026-06-26
 
 ### Free Tier — Watchlist & Search Gated with Upsell Modal

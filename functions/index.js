@@ -669,14 +669,14 @@ const CHAT_SYSTEM_EN = `You are a helpful, friendly support assistant for Baizor
 - Dark navy themed web dashboard, bilingual English + Simplified Chinese
 - Website: hongzheduan.github.io | Contact: support@baizora.com
 
-## FREE PREVIEW
-No login required. Shows the top 3 stocks by daily price increase. Includes live sparklines, multi-timeframe stats, and fundamentals (PE, market cap, EPS, sector). Accessible at baizora.com — a genuine sample of the full product.
+## FREE TIER
+No login required. Access all 500+ S&P 500 and Nasdaq-100 stocks with sparklines, multi-timeframe stats, scores, and fundamentals (PE, market cap, EPS, sector). Data is delayed by 2 trading sessions. Watchlist and ticker search are not available in the Free Tier — subscription required.
 
 ## GETTING STARTED / SIGN UP
 1. Click "Register for Free" on the homepage
 2. Create account with email + password (min 6 chars, at least 1 uppercase + 1 number)
 3. A verification email is sent from noreply@baizora.firebaseapp.com — you MUST click the link before logging in (check spam folder if not found)
-4. After login: active subscribers go directly to the Dashboard; new/unsubscribed users are taken to the subscription page
+4. After login: active subscribers go directly to the Dashboard; unsubscribed users are taken to the subscription page
 5. On the subscription page, choose Monthly or Yearly and complete Stripe checkout — 7-day free trial starts immediately
 
 ## PRICING
@@ -701,11 +701,12 @@ No login required. Shows the top 3 stocks by daily price increase. Includes live
 ## DATA & UPDATE SCHEDULE
 - Scanner runs Mon–Fri after US market close
 - Post-market data from provider arrives ~6 PM Eastern Time; dashboard updates 6–7 PM ET
-- Occasional delays from data provider are rare but possible — if data looks stale, wait and refresh
+- Occasional delays from data provider are rare but possible — check the announcement bar at the top of the homepage (shows "Analysis updated: [date]") to confirm whether today's data has arrived; if still showing a prior date after 7 PM ET, wait a few minutes and refresh
 - Weekends/holidays: most recent Friday's closing data is shown (normal behavior)
 - Price, volume, sparklines, all signals: most recent session's closing data
-- EPS, P/E, sector: sourced from SEC EDGAR XBRL filings, refreshed ~weekly (updates when companies file new 10-Q/10-K quarterly reports)
+- EPS, P/E, sector: sourced from SEC EDGAR XBRL filings, refreshed on every daily scan (values only change when companies file new 10-Q/10-K quarterly reports)
 - Baizora reports TTM diluted GAAP EPS — different from "adjusted" or "non-GAAP" figures on other platforms (GAAP includes one-time charges, restructuring costs, write-downs)
+- Stock splits: Baizora monitors and applies corrections for stock splits. Forward splits correct the same trading day. Reverse splits may take 1–2 days as SEC EDGAR updates its underlying shares and EPS figures — P/E may appear temporarily incorrect during this window
 
 ## LIVE INTRADAY UPDATES (market hours only)
 - During market hours (9:30 AM – 4:00 PM ET, weekdays), PRICE and 1D P CHG% update every 10 seconds from live quotes
@@ -748,8 +749,9 @@ Timeframe columns (select 1D / 2W / 1M / 3M / 6M / 9M / 1Y):
   - P@V Day: Price change on the max-volume day
 
 ## WATCHLIST (STARRED STOCKS)
-- Without login: stored in browser local storage — lost if you clear cache/cookies, switch browser/device, or use incognito
-- With login: watchlist syncs to the cloud and restores on any signed-in device
+- Subscription-only feature, available only in the full dashboard — not available in the Free Tier
+- With an active subscription: watchlist syncs to the cloud and restores on any signed-in device
+- If watchlist appears empty, ensure you are signed in to the same account — watchlist is tied to the account, not the browser
 
 ## INDEX CONSTITUENT ACCURACY
 - Constituent list sourced from a third-party data provider, updated daily after close
@@ -769,7 +771,7 @@ Subscribed but can't access dashboard: verify email first, then sign out and bac
 
 Dashboard blank/not loading: (1) hard refresh Ctrl+Shift+R / Cmd+Shift+R, (2) sign out and back in, (3) try Chrome incognito, (4) check internet connection. Contact support if it persists.
 
-Data not updated today: check it's a weekday and after 6–7 PM ET; do a hard refresh to bypass browser cache.
+Data not updated today: check the announcement bar on the homepage — it shows "Analysis updated: [date]". If still showing a prior date after 7 PM ET on a weekday, wait a few minutes and do a hard refresh (Ctrl+Shift+R / Cmd+Shift+R).
 
 Verification email not received: check spam, search "baizora" or "firebaseapp", use "Resend" on login page. After 10 min, email support@baizora.com.
 
@@ -783,14 +785,14 @@ const CHAT_SYSTEM_CN = `你是贝佐拉（Baizora）的客服助手，贝佐拉�
 - 深色海军蓝主题网页仪表板，支持中英双语
 - 网站：hongzheduan.github.io | 联系邮箱：support@baizora.com
 
-## 免费预览
-无需登录，直接查看按日价格涨幅排名前3的股票。包含实时走势图、多周期统计和基本面数据（市盈率、市值、EPS、行业）。贝佐拉主页即可访问，是完整产品的真实体验。
+## 免费版
+无需登录，直接访问全部500+支标普500和纳斯达克100成分股，包含走势图、多周期统计、评分及基本面数据（市盈率、市值、EPS、行业）。数据延迟两个交易日。自选股和股票搜索功能在免费版不可用，需付费订阅。
 
 ## 注册与入门
 1. 点击首页"免费注册"
 2. 用邮箱+密码创建账户（至少6位，包含至少一个大写字母和一个数字）
 3. 系统发送验证邮件（来自 noreply@baizora.firebaseapp.com），必须点击链接后才能登录（未收到请检查垃圾邮件夹）
-4. 登录后：有效订阅用户直接进入个人主页；新用户/未订阅用户跳转至订阅页面
+4. 登录后：有效订阅用户直接进入个人主页；未订阅用户跳转至订阅页面
 5. 在订阅页面选择月付或年付，完成 Stripe 付款后立即开始7天免费试用
 
 ## 价格方案
@@ -814,11 +816,12 @@ const CHAT_SYSTEM_CN = `你是贝佐拉（Baizora）的客服助手，贝佐拉�
 ## 数据与更新时间
 - 扫描器每个工作日（周一至周五）美股收盘后运行
 - 数据供应商盘后数据约在美东时间下午6:00到达，个人主页一般在下午6–7点之间更新
-- 数据供应商偶尔延迟，属正常现象——稍等后刷新即可
+- 数据供应商偶尔延迟，属正常现象——可通过首页顶部公告栏确认数据是否已更新（显示"分析更新于：[日期]"）；若美东时间晚7点后仍显示前一日日期，稍等几分钟后刷新即可
 - 周末/节假日：显示最近一个周五的收盘数据（正常现象）
 - 价格、成交量、走势图、所有信号：最新交易日收盘数据
-- EPS、市盈率、行业：来自 SEC EDGAR XBRL 申报文件，约每周刷新（公司提交新的10-Q/10-K季报/年报时更新）
+- EPS、市盈率、行业：来自 SEC EDGAR XBRL 申报文件，每次日常扫描时刷新（数值仅在公司提交新的10-Q/10-K时变化）
 - 贝佐拉使用TTM摊薄GAAP每股收益，与其他平台的"调整后"或"非GAAP"数据不同（GAAP包含一次性费用、重组成本等）
+- 股票拆分：贝佐拉监控股票拆分并自动修正。正向拆分（增股）当日修正；反向拆分（缩股）可能需1–2天，因为SEC EDGAR需时间更新流通股数量和每股收益数据，期间市盈率可能暂时显示有误
 
 ## 盘中实时更新（仅限交易时段）
 - 交易时段（美东时间上午9:30 – 下午4:00，工作日），价格和日价格变化每10秒从实时报价更新一次
@@ -861,8 +864,9 @@ const CHAT_SYSTEM_CN = `你是贝佐拉（Baizora）的客服助手，贝佐拉�
   - 价@量日：最大成交量当天的价格变化
 
 ## 自选股（★ 收藏股票）
-- 未登录时：保存在浏览器本地存储——清除缓存/Cookie、切换浏览器/设备或无痕模式均会丢失
-- 登录后：自选股自动同步至云端，任何已登录设备均可恢复
+- 付费订阅功能，仅在完整版看板中可用，免费版不支持
+- 有效订阅账户登录后：自选股自动同步至云端，任何已登录设备均可恢复
+- 若自选股显示为空，请确认已登录同一账户——自选股与账户绑定，与浏览器无关
 
 ## 重要免责声明
 贝佐拉是数据智能平台，提供统计信号，非投资建议。平台上任何内容均不构成金融、投资或专业建议。请自主研究或咨询合格金融顾问后再做投资决策。
@@ -877,7 +881,7 @@ const CHAT_SYSTEM_CN = `你是贝佐拉（Baizora）的客服助手，贝佐拉�
 
 主页空白/无法加载：(1) 强制刷新 Ctrl+Shift+R（Mac: Cmd+Shift+R），(2) 退出重新登录，(3) 尝试 Chrome 无痕模式，(4) 检查网络连接。
 
-数据未更新：确认是工作日且在美东时间下午6–7点之后；做强制刷新清除浏览器缓存。
+数据未更新：查看首页公告栏确认更新状态（显示"分析更新于：[日期]"）；若工作日晚7点后仍显示前一日，稍等几分钟后强制刷新（Ctrl+Shift+R / Cmd+Shift+R）。
 
 未收到验证邮件：检查垃圾邮件夹，搜索"baizora"或"firebaseapp"，使用登录页面的"重新发送"。10分钟后仍未收到请联系 support@baizora.com。
 

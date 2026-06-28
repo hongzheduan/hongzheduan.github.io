@@ -152,6 +152,7 @@
   <div class="eyebrow">◈ &nbsp; Help Center</div>
   <h1>Frequently asked <em>questions</em></h1>
   <p class="intro">Everything you need to know about Baizora — how the platform works, how to manage your subscription, and how to get the most out of the data.</p>
+  <p style="font-family:'DM Sans',sans-serif;font-size:14px;color:#94a3b8;line-height:1.7;margin-top:-32px;margin-bottom:48px;">All questions listed here — and anything else about the platform — can be answered by our AI assistant. Click the <strong style="color:#f8fafc;">Ask</strong> button in the bottom-right corner, available 24/7. If it can't help, reach us at <a href="mailto:support@baizora.com" style="color:#60a5fa;text-decoration:none;">support@baizora.com</a>.</p>
 
   <!-- Getting Started -->
   <div class="faq-section">
@@ -185,7 +186,7 @@
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        Click <strong>Sign in</strong> on the homepage, then <strong>Create one</strong> on the login page. Enter your email and a password (minimum 6 characters, at least one uppercase letter and one number).<br><br>
+        Click <strong>Register for Free</strong> on the homepage. Enter your email and a password (minimum 6 characters, at least one uppercase letter and one number).<br><br>
         After signing up, we send a <strong>verification email</strong> to your address. You must click the link in that email before you can log in. This ensures your account is protected and your email is valid.
         <div class="highlight">✓ Check your spam folder if you don't see it</div>
       </div></div>
@@ -193,7 +194,7 @@
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
-        <span class="q-text">How do I access my dashboard?</span>
+        <span class="q-text">How do I access my dashboard and analysis results?</span>
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
@@ -201,7 +202,7 @@
         — <strong>After logging in</strong> — active subscribers are taken directly to the dashboard.<br>
         — <strong>From any page</strong> — click the <strong>Dashboard</strong> button in the top-right navigation when signed in.<br>
         — <strong>Direct link</strong> — <a href="../dashboard.html">baizora.com/dashboard</a><br><br>
-        The dashboard shows your main tools: the <strong>full scanner</strong> (all 500+ symbols, all timeframes, current data) and a link to the <strong>Free Tier</strong> (all symbols, 2-session delay, no login required).
+        The dashboard shows your main tools: the <strong>Price &amp; Volume Scanner</strong> (all 500+ symbols, all timeframes, current data) and a link to the <strong>Free Tier</strong> (all symbols, 2-session delay, no login required).
       </div></div>
     </div>
 
@@ -213,8 +214,7 @@
       <div class="faq-a"><div class="faq-a-inner">
         When you sign in, Baizora automatically checks your subscription status and routes you accordingly:<br><br>
         <strong>Active subscriber</strong> → taken directly to your Dashboard, where all tools are available.<br>
-        <strong>New or unsubscribed user</strong> → taken to the subscription page to choose a plan and get started.<br><br>
-        This means new users land exactly where they need to be — one click from starting their free trial — without having to hunt for the billing page themselves.
+        <strong>Unsubscribed user</strong> → taken to the subscription page to choose a plan and get started.
       </div></div>
     </div>
 
@@ -226,7 +226,7 @@
       <div class="faq-a"><div class="faq-a-inner">
         When you subscribe for the first time, you get <strong>7 full days of unrestricted access</strong> to the complete platform — no limitations, no partial data.<br><br>
         You may cancel at any time during the trial via <a href="../account.html">your account page</a> or the Stripe billing portal, and <strong>no charges will be applied</strong>. After 7 days, your subscription begins automatically at $9.99/month or $99/year depending on the plan you selected.<br><br>
-        <strong>The free trial is available once per email address.</strong> Re-subscribing with the same email after cancellation will start a paid subscription immediately with no trial period.
+        <strong>The free trial is available once per email address and once per payment method.</strong> Re-subscribing with the same email or the same card after cancellation will start a paid subscription immediately with no trial period.
         <!-- <div class="highlight">✓ No charge until trial ends</div> -->
       </div></div>
     </div>
@@ -242,8 +242,9 @@
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        The scanner runs on weekdays (Mon–Fri) after US market close. Post-market data from our data provider typically arrives around <strong>6:00 PM Eastern Time</strong>, so the dashboard normally updates between <strong>6–7 PM ET</strong>. In rare cases, delays on the data provider's side may push this later — if the data looks stale, wait a bit and refresh again. Weekend data carries forward the most recent Friday closing data.<br><br>
-        Price, volume, sparklines, and all score signals reflect the most recent session's closing data. Fundamental data — EPS, P/E ratio, and sector — is refreshed from SEC EDGAR approximately once per week.<br><br>
+        The scanner runs on weekdays (Mon–Fri) after US market close. Post-market data from our data provider typically arrives around <strong>6:00 PM Eastern Time</strong>, so the dashboard normally updates between <strong>6–7 PM ET</strong>. Weekend data carries forward the most recent Friday closing data.<br><br>
+        You can always tell whether today's data has arrived by checking the <strong>announcement bar at the top of the homepage</strong> — it shows "Analysis updated: [date]". If it still shows a prior date after 7 PM ET, a delay on the data provider's side may be the cause; wait a few minutes and refresh.<br><br>
+        Price, volume, sparklines, and all score signals reflect the most recent session's closing data. Fundamental data — EPS, P/E ratio, and sector — is refreshed from SEC EDGAR on every daily scan.<br><br>
         <strong>During market hours (9:30 AM – 4:00 PM ET):</strong> The <strong>PRICE</strong> and <strong>1D P CHG%</strong> columns update every 10 seconds from live quotes. All other columns — PRICE/MA21, VOL(M), 1D V CHG%, VOL/MA21 — reflect the most recent EOD scan and do not update intraday.
       </div></div>
     </div>
@@ -256,7 +257,8 @@
       <div class="faq-a"><div class="faq-a-inner">
         EPS is sourced directly from <strong>SEC EDGAR XBRL filings</strong> — the authoritative US GAAP financial data submitted to regulators by every public company. EDGAR is updated when companies file new quarterly (10-Q) or annual (10-K) reports, typically once every three months.<br><br>
         The scanner runs nightly and refreshes EDGAR fundamentals on a rolling basis. In practice, EPS changes are infrequent — they only shift when a new 10-Q or 10-K is filed — so the data stays current with actual corporate filings.<br><br>
-        <strong>Note on GAAP vs. adjusted EPS:</strong> Baizora reports <strong>trailing twelve months (TTM) diluted GAAP EPS</strong>. This differs from the "adjusted" or "non-GAAP" figures commonly shown on other financial platforms. GAAP EPS includes one-time charges, restructuring costs, and write-downs that adjusted figures exclude. For some companies this can result in meaningfully different P/E ratios.
+        <strong>Note on GAAP vs. adjusted EPS:</strong> Baizora reports <strong>trailing twelve months (TTM) diluted GAAP EPS</strong>. This differs from the "adjusted" or "non-GAAP" figures commonly shown on other financial platforms. GAAP EPS includes one-time charges, restructuring costs, and write-downs that adjusted figures exclude. For some companies this can result in meaningfully different P/E ratios.<br><br>
+        <strong>Stock splits:</strong> Baizora monitors for stock splits and applies corrections to keep EPS, market cap, and P/E ratios accurate. Forward splits are generally corrected on the same trading day. Reverse splits may take 1–2 days longer, as SEC EDGAR needs time to update the underlying shares outstanding and EPS figures — during this window, the affected stock's P/E may appear temporarily incorrect.
       </div></div>
     </div>
 
@@ -326,11 +328,8 @@
         <span class="q-icon">+</span>
       </div>
       <div class="faq-a"><div class="faq-a-inner">
-        When you use Baizora without signing in, your watchlist (the ★ starred stocks) is stored in your <strong>browser's local storage</strong> — it is not tied to an account. This means:<br><br>
-        — Clearing your browser cache or cookies will erase it.<br>
-        — Switching to a different browser or device will show an empty watchlist.<br>
-        — Using private/incognito mode will not carry over your saved stocks.<br><br>
-        <strong>To keep your watchlist safe across devices</strong>, sign in to your Baizora account. Once logged in, your watchlist is automatically synced to the cloud and will be restored on any device you sign in to.
+        The watchlist (★ starred stocks) is a <strong>subscription-only feature</strong> available in the full dashboard. It is not available in the Free Tier.<br><br>
+        Once signed in with an active subscription, your watchlist is <strong>automatically synced to the cloud</strong> and restored on any device you sign in to. If your starred stocks appear missing, make sure you are signed in to the same account — the watchlist is tied to your account, not your browser.
       </div></div>
     </div>
   </div>
@@ -559,5 +558,6 @@
     }
   });
 </script>
+<script src="../chat-widget.js?v=10" data-lang="en"></script>
 </body>
 </html>
