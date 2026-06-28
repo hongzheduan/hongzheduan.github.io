@@ -747,21 +747,23 @@
       </nav>
     </div>
 
-    <div class="header-right">
-      <div class="status-badge">
-        <div class="status-dot loading" id="statusDot"></div>
-        <span id="statusText">加载中…</span>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <div class="header-right">
+        <div class="status-badge">
+          <div class="status-dot loading" id="statusDot"></div>
+          <span id="statusText">加载中…</span>
+        </div>
+        <a href="dashboard_cn.html" class="dash-btn">个人主页</a>
+        <button class="logout-btn" id="logoutBtn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          退出登录
+        </button>
       </div>
       <span id="navUserEmail" style="display:none;width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;align-items:center;justify-content:center;flex-shrink:0;cursor:default;" title=""></span>
-      <a href="dashboard_cn.html" class="dash-btn">个人主页</a>
-      <button class="logout-btn" id="logoutBtn">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        退出登录
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="菜单">
+        <span></span><span></span><span></span>
       </button>
     </div>
-    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="菜单">
-      <span></span><span></span><span></span>
-    </button>
   </header>
 
   <!-- Mobile drawer -->

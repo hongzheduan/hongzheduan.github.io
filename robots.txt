@@ -13,4 +13,8 @@ Disallow: /baizora_main_form_cn.html
 Disallow: /success.html
 Disallow: /success_cn.html
 
+# Retired pages (files kept but no longer promoted)
+Disallow: /baizora_main_form_free.html
+Disallow: /baizora_main_form_free_cn.html
+
 Sitemap: https://baizora.com/sitemap.xml

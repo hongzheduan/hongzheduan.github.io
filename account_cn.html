@@ -474,14 +474,16 @@
       <img src="assets/baize_favicon_v2.png" alt="Baizora">
       <span class="brand-cn">贝佐拉</span>
     </a>
-    <div class="header-right">
-      <a href="dashboard_cn.html" class="nav-btn">↩ 个人主页</a>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <div class="header-right">
+        <a href="dashboard_cn.html" class="nav-btn">↩ 个人主页</a>
+        <button class="nav-btn nav-btn-danger" id="headerLogoutBtn" style="display:none;" onclick="doLogout()">↪ 退出登录</button>
+      </div>
       <span id="navUserEmail" style="display:none;width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;align-items:center;justify-content:center;flex-shrink:0;cursor:default;" title=""></span>
-      <button class="nav-btn nav-btn-danger" id="headerLogoutBtn" style="display:none;" onclick="doLogout()">↪ 退出登录</button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
   </header>
 
   <!-- Mobile drawer -->

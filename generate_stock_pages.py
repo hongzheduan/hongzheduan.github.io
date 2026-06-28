@@ -467,7 +467,7 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
     <span class="logo-text">Baiz<span style="color:#3b82f6;">ora</span></span>
   </a>
   <div class="nav-links">
-    <a href="../baizora_main_form_free.html" class="nav-btn">Free Preview</a>
+    <a href="../baizora_main_form_freetier.html" class="nav-btn">Free Tier</a>
     <a href="../pricing.html" class="nav-btn nav-btn-primary">Start Free Trial</a>
   </div>
 </nav>

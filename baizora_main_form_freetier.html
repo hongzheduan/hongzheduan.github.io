@@ -581,7 +581,7 @@
     }
     @media (max-width: 640px) {
       header { position: fixed; top: 0; left: 0; right: 0; padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
-      .header-divider, .tab-row, .status-badge, .logout-btn, .dash-btn, #navSubscribeBtn, .free-badge-long { display: none !important; }
+      .header-divider, .tab-row, .status-badge, .logout-btn, .dash-btn, #navSubscribeBtn, #navDashBtn, .free-badge-long { display: none !important; }
       .free-badge-short { display: inline !important; }
       .hamburger { display: flex; }
       .toolbar { padding: 6px 10px; gap: 6px; margin-top: 56px; top: 56px; }
@@ -785,19 +785,21 @@
       <span class="free-badge-long" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:4px 10px;border-radius:999px;">Free · 2 sessions delayed</span><span class="free-badge-short" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:4px 8px;border-radius:999px;">Free</span>
     </div>
 
-    <div class="header-right">
-      <div class="status-badge">
-        <div class="status-dot loading" id="statusDot"></div>
-        <span id="statusText">Loading…</span>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <div class="header-right">
+        <div class="status-badge">
+          <div class="status-dot loading" id="statusDot"></div>
+          <span id="statusText">Loading…</span>
+        </div>
+        <a href="dashboard.html" id="navDashBtn" style="display:none;align-items:center;background:#3b82f6;color:#fff;border:none;padding:5px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-decoration:none;">Dashboard</a>
+        <span id="navUserEmail" style="display:none;width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;align-items:center;justify-content:center;flex-shrink:0;cursor:default;" title=""></span>
+        <a href="login.html" class="logout-btn" id="navLoginBtn" style="text-decoration:none;">Sign In</a>
+        <a href="signup.html" id="navSubscribeBtn" style="display:inline-flex;align-items:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;padding:5px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-decoration:none;">Subscribe</a>
       </div>
-      <span id="navUserEmail" style="display:none;width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;align-items:center;justify-content:center;flex-shrink:0;cursor:default;" title=""></span>
-      <a href="dashboard.html" id="navDashBtn" style="display:none;align-items:center;background:#3b82f6;color:#fff;border:none;padding:5px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-decoration:none;">Dashboard</a>
-      <a href="login.html" class="logout-btn" id="navLoginBtn" style="text-decoration:none;">Sign In</a>
-      <a href="signup.html" id="navSubscribeBtn" style="display:inline-flex;align-items:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;padding:5px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-decoration:none;">Subscribe</a>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
   </header>
 
   <!-- Tab row (desktop) -->
@@ -806,7 +808,7 @@
     <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
     <button class="tab-btn" onclick="showUpsell()">★ Watchlist</button>
     <button class="tab-btn" onclick="show('readme', this)">README</button>
-    <button class="tab-btn" onclick="show('membership', this)">MEMBERSHIP CHANGE</button>
+    <button class="tab-btn" onclick="showUpsell('membership')">MEMBERSHIP CHANGE</button>
   </div>
 
   <!-- Mobile drawer -->
@@ -815,7 +817,7 @@
     <button onclick="show('nasdaq', document.querySelectorAll('.tab-btn')[1]); toggleMenu();">Nasdaq 100</button>
     <button onclick="showUpsell(); toggleMenu();">★ Watchlist</button>
     <button onclick="show('readme', document.querySelectorAll('.tab-btn')[3]); toggleMenu();">README</button>
-    <button onclick="show('membership', document.querySelectorAll('.tab-btn')[4]); toggleMenu();">MEMBERSHIP CHANGE</button>
+    <button onclick="showUpsell('membership'); toggleMenu();">MEMBERSHIP CHANGE</button>
     <a href="index.html">Home</a>
     <a href="dashboard.html" id="mobileDashBtn" style="display:none;color:#60a5fa;font-weight:600;">Dashboard</a>
     <a href="signup.html" id="mobileSubscribeBtn" style="color:#f59e0b;font-weight:600;">Subscribe</a>
@@ -1932,7 +1934,11 @@
       });
 
     /* ── UPSELL MODAL ── */
-    window.showUpsell = function() {
+    const _upsellDesc = {
+      membership: "Membership Change history is only available in the full version — not in the Free Tier. Start a 7-day free trial to unlock the full dashboard.",
+      default:    "Watchlist and Ticker Search are only available in the full version — not in the Free Tier. Start a 7-day free trial to unlock the full dashboard."
+    };
+    window.showUpsell = function(feature) {
       const link = document.getElementById("upsellSecondary");
       if (window._ftUser) {
         link.href = "baizora_main_form.html";
@@ -1941,6 +1947,7 @@
         link.href = "login.html";
         link.textContent = "Already subscribed? Sign in →";
       }
+      document.getElementById("upsellDesc").textContent = _upsellDesc[feature] || _upsellDesc.default;
       document.getElementById("upsellModal").style.display = "flex";
     };
     document.getElementById("upsellClose").addEventListener("click", function() {
@@ -2046,7 +2053,7 @@
       <button id="upsellClose" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#64748b;font-size:18px;cursor:pointer;line-height:1;">✕</button>
       <div style="font-size:28px;margin-bottom:12px;">⭐</div>
       <div style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;margin-bottom:8px;">Full Version Only</div>
-      <p style="font-size:14px;color:#94a3b8;margin:0 0 24px;">Watchlist and Ticker Search are only available in the full version — not in the Free Tier. Start a 7-day free trial to unlock the full dashboard.</p>
+      <p id="upsellDesc" style="font-size:14px;color:#94a3b8;margin:0 0 24px;">Watchlist and Ticker Search are only available in the full version — not in the Free Tier. Start a 7-day free trial to unlock the full dashboard.</p>
       <a href="pricing.html" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:10px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px;">Start Free Trial →</a>
       <a id="upsellSecondary" href="login.html" style="font-size:13px;color:#60a5fa;text-decoration:none;">Already subscribed? Sign in →</a>
     </div>
