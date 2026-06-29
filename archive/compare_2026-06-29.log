@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-06-29
 Threshold: >10% for all metrics
-257 flagged diffs above threshold
+256 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -59,8 +59,8 @@ PRICE  -- 0 flagged (>10%)
     ACN      ours=124.74  yf=124.74  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 195 flagged (>10%)
-  FLAGGED (top 20 of 195):
+VOLUME  -- 194 flagged (>10%)
+  FLAGGED (top 20 of 194):
     CAG      ours=158.29  yf=20.39  diff=676.2% ***
     L        ours=0.81  yf=0.42  diff=93.0% ***
     GE       ours=5.07  yf=2.92  diff=73.8% ***
