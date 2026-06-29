@@ -76,6 +76,30 @@ Cloud Functions redeployed after each round.
 
 ---
 
+### Free Tier Delay — Dashboard Card Text Fix
+
+`dashboard.html` and `dashboard_cn.html` Free Tier tool-card description updated from "2 trading sessions" → "2 weeks" (EN) / "2个交易日" → "约两周" (CN).
+
+**Commit:** `7336c4a`
+
+---
+
+### Market News — Live CF Fetch + Hourly Refresh
+
+**Problem:** `index.html` and `index_cn.html` were loading `data/market_news.json` (static file, written once per nightly scan). On weekends and during the trading day, the news card stayed stale for up to 24 hours.
+
+**Fix:**
+- **CF (`functions/index.js`):** `/api/market-news` now returns up to **10 items** (was 6). Already has 1-hour in-memory cache.
+- **Frontend (`index.html` + `index_cn.html`):** Replaced static-JSON fetch with `_fetchNews()` function that:
+  - Tries `https://us-central1-baizora.cloudfunctions.net/api/market-news` (EN) or `...?lang=zh` (CN) first, with 8-second timeout.
+  - Falls back to static `data/market_news.json` / `data/market_news_cn.json` if CF fails.
+  - Called on page load and via `setInterval` every 60 minutes for open tabs.
+- Card still displays 6 items (`slice(0, 6)` in `renderNews`); CF stores all 10 in `_news` object.
+
+**Commit:** `b9165ec`
+
+---
+
 ## What Was Done 2026-06-28
 
 ### Homepage NVDA Chart — Volume Panel + X-Axis Fix
