@@ -215,7 +215,13 @@
   function addMsg(text, role) {
     var el = document.createElement('div');
     el.className = 'bzw-m ' + (role === 'user' ? 'bzw-usr' : 'bzw-bot');
-    el.textContent = text;
+    if (role !== 'user') {
+      var safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      el.innerHTML = safe.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">$1</a>');
+    } else {
+      el.textContent = text;
+    }
     msgsEl.appendChild(el);
     msgsEl.scrollTop = msgsEl.scrollHeight;
     return el;
