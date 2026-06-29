@@ -315,21 +315,44 @@ jobs:
           git commit -m "log: video skipped — no qualifying stocks"
           git push origin main
 
-      - name: Push gzipped CSV to scanner-archive
+      - name: Push gzipped CSV+JSON to scanner-archive; update free_tier.json (10-session delay)
         if: env.IS_HOLIDAY != 'True' && github.event.schedule == '0 4 * * 2-6'
         env:
           ARCHIVE_PAT: ${{ secrets.ARCHIVE_PAT }}
         run: |
           CSV=$(find archive -name "results_*.csv" | sort | tail -1)
           [ -z "$CSV" ] && exit 0
+
+          # Gzip CSV and latest.json with the scan date
           gzip -k "$CSV"
-          GZ="${CSV}.gz"
+          DATE_STR=$(python3 -c "import json; print(json.load(open('data/latest.json'))['date'])")
+          gzip -c data/latest.json > "latest_${DATE_STR}.json.gz"
+
+          # Push both to scanner-archive
           git clone "https://hongzheduan:${ARCHIVE_PAT}@github.com/hongzheduan/scanner-archive.git" /tmp/scanner-archive
-          cp "$GZ" /tmp/scanner-archive/
+          cp "${CSV}.gz" /tmp/scanner-archive/
+          cp "latest_${DATE_STR}.json.gz" /tmp/scanner-archive/
           cd /tmp/scanner-archive
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add .
-          git diff --cached --quiet && exit 0
-          git commit -m "archive $(basename $GZ)"
-          git push
+          if ! git diff --cached --quiet; then
+            git commit -m "archive ${DATE_STR}"
+            git push
+          fi
+
+          # Update free_tier.json: serve data from 10 trading sessions ago
+          SNAPS=($(ls latest_????-??-??.json.gz 2>/dev/null | sort))
+          COUNT=${#SNAPS[@]}
+          [ $COUNT -eq 0 ] && exit 0
+          IDX=$(( COUNT >= 10 ? COUNT - 10 : 0 ))
+          TARGET=${SNAPS[$IDX]}
+
+          cd "$GITHUB_WORKSPACE"
+          gunzip -c "/tmp/scanner-archive/$TARGET" > data/free_tier.json
+          git add data/free_tier.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: free_tier ← ${TARGET%.json.gz} (10-session delay)"
+            git pull --rebase origin main
+            git push
+          fi

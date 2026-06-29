@@ -2398,11 +2398,10 @@ def check_data_quality(df, candles_out, trading_days):
 # =========================
 
 def _rotate_free_tier(new_market_date):
-    """3-slot circular buffer: latest_d1.json → free_tier.json, latest.json → latest_d1.json.
-    Only rotates when the incoming scan is for a new market date."""
+    """Rotates latest.json → latest_d1.json (used by score_history for prior-session top movers).
+    free_tier.json is updated separately by the scanner-archive YAML step (10-session delay)."""
     import shutil
-    d1_path        = os.path.join(DATA_DIR, "latest_d1.json")
-    free_tier_path = os.path.join(DATA_DIR, "free_tier.json")
+    d1_path = os.path.join(DATA_DIR, "latest_d1.json")
 
     if not os.path.exists(OUTPUT_JSON):
         return
@@ -2414,10 +2413,8 @@ def _rotate_free_tier(new_market_date):
     except Exception:
         return
 
-    if os.path.exists(d1_path):
-        shutil.copy2(d1_path, free_tier_path)
     shutil.copy2(OUTPUT_JSON, d1_path)
-    print(f"[rotate] free_tier←{existing_date}, d1←{existing_date}, new latest←{new_market_date}")
+    print(f"[rotate] d1←{existing_date}, new latest←{new_market_date}")
 
 
 def export(df, beta=False):
