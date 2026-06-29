@@ -2996,6 +2996,7 @@ if __name__ == "__main__":
                 else:
                     chg1d = r.get("PriceChange1D")
                 r = dict(r)
+                r["PrevClose"] = scan_close  # preserve EOD close for frontend 1D chg% reference
                 r["Price"] = round(live, 4)
                 if chg1d is not None:
                     r["PriceChange1D"] = round(chg1d, 4)

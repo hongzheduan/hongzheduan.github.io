@@ -1557,7 +1557,8 @@
       if (_isTodayIex) document.querySelectorAll('td.chg1d-cell[data-ticker]').forEach(tc => {
         const d = q[tc.dataset.ticker]; if (!d?.last) return;
         const r = allRows.find(x => x.Ticker === tc.dataset.ticker); if (!r?.Price) return;
-        const chg = +((d.last - r.Price) / r.Price * 100).toFixed(2);
+        const prevClose = r.PrevClose ?? r.Price;
+        const chg = +((d.last - prevClose) / prevClose * 100).toFixed(2);
         tc.textContent = (chg >= 0 ? '+' : '') + chg + '%';
         tc.className = tc.className.replace(/\b(positive|negative|neutral)\b/g, chg > 0 ? 'positive' : chg < 0 ? 'negative' : 'neutral');
       });

@@ -1981,9 +1981,10 @@
         const d = q[r.Ticker]; if (!d?.last) return;
         r._livePrice   = d.last;
         r._priceDir    = dirs[r.Ticker] || '';
+        const prevClose = r.PrevClose ?? r.Price;
         const ratio = _SPLIT_ADJ[r.Ticker];
-        const obsRatio = (ratio && r.Price && d.last) ? r.Price / d.last : 0;
-        const refPrice = (obsRatio > ratio * 0.8 && obsRatio < ratio * 1.2) ? r.Price / ratio : r.Price;
+        const obsRatio = (ratio && prevClose && d.last) ? prevClose / d.last : 0;
+        const refPrice = (obsRatio > ratio * 0.8 && obsRatio < ratio * 1.2) ? prevClose / ratio : prevClose;
         const chg = refPrice ? +((d.last - refPrice) / refPrice * 100).toFixed(2) : (d.chgPct ?? null);
         if (_isTodayIex) r._liveChgPct = chg;
         if (_isTodayIex && chg != null) correctedChgPct[r.Ticker] = chg;
