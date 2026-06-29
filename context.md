@@ -2,6 +2,22 @@
 
 ## What Was Done 2026-06-29
 
+### 1D P CHG% Wrong After Beta Scan (Bug Fix)
+
+**Root cause:** The beta scan (`scanner_tiingo.py`, runs ~1–3 PM ET) overwrites `r["Price"]` with today's intraday IEX price. The frontend live refresh code then uses `r.Price` as the "previous close" reference when computing 1D P CHG%, giving a tiny number (e.g. 0.5–1%) instead of the real change from yesterday's EOD close (e.g. 4–10%).
+
+**Fix — two parts:**
+- **Backend (`scanner_tiingo.py`):** Before overwriting `r["Price"]`, store the original EOD close: `r["PrevClose"] = scan_close`. One line added before `r["Price"] = round(live, 4)`.
+- **Frontend (all 4 dashboard files):** Use `r.PrevClose ?? r.Price` as the reference instead of `r.Price`.
+  - `baizora_main_form.html` / `baizora_main_form_cn.html`: `const prevClose = r.PrevClose ?? r.Price` then use `prevClose` in the split-adj `obsRatio` + `refPrice` calculation.
+  - `baizora_main_form_free.html` / `baizora_main_form_free_cn.html`: same one-liner before `chg` calculation (free pages no longer on homepage but fixed for consistency).
+
+**Timing note:** Fix takes effect the next time the beta scan runs (next trading day ~1–3 PM ET). Until then `r.PrevClose` is absent and the frontend falls back to `r.Price` (old behavior).
+
+**Commits:** `19a3b99` (fix), `d2ab7b0` (context)
+
+---
+
 ### Homepage — Index News "View All" Subscription Gate
 
 The "View all" link in the "Index Membership News & Records" card (`index.html` + `index_cn.html`) previously navigated directly to `index_news.html` / `index_news_cn.html`. That page redirects non-logged-in users to `login.html` and unsubscribed users to `billing.html`, which felt abrupt.
