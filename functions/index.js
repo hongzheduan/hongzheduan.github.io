@@ -237,7 +237,7 @@ app.get("/market-news", async (req, res) => {
     });
     const xml = await resp.text();
     if (!xml.includes("<item>")) console.warn("market-news: 0 items from Google RSS. status:", resp.status, "preview:", xml.slice(0, 200));
-    const parsed = _parseRssItems(xml);
+    const parsed = _parseRssItems(xml).filter(it => !it.title.includes("?"));
     const items = parsed.slice(0, 10).map(it => ({
       title: it.title,
       source: it.source,
