@@ -1,5 +1,65 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-06-29
+
+### Homepage — Index News "View All" Subscription Gate
+
+The "View all" link in the "Index Membership News & Records" card (`index.html` + `index_cn.html`) previously navigated directly to `index_news.html` / `index_news_cn.html`. That page redirects non-logged-in users to `login.html` and unsubscribed users to `billing.html`, which felt abrupt.
+
+**New behavior:** Clicking "View all" now runs an async subscription check first. Non-subscribed users (logged in or not) see a modal instead of navigating.
+
+**Modal content:**
+- Not logged in: gold "Subscribe →" button → `pricing.html` / `pricing_cn.html` + blue "Already subscribed? Sign in →" secondary link
+- Logged in, not subscribed: gold "Subscribe →" only (sign-in link hidden)
+- Logged in, subscribed/trialing: navigates directly to `index_news.html` / `index_news_cn.html`
+
+**Implementation (`index.html` + `index_cn.html`):**
+- `hpViewAll(e)` async function: calls `e.preventDefault()` always; checks `firebase.auth().currentUser`; if user exists, fetches `/api/get-user?uid=...` and checks `subscriptionStatus`; if active/trialing navigates; otherwise shows modal
+- No try/catch — network errors fail naturally
+- Modal HTML placed at end of body with inline `onclick` on ✕ button and overlay (`document.getElementById('hpGateModal').style.display='none'`) — avoids `addEventListener` timing issue where script runs before modal HTML is in the DOM
+- `#hpGateSignin` is the secondary sign-in link; hidden via `style.display='none'` for logged-in unsubscribed users
+
+**Commit:** `e897ce3`
+
+### AI Assistant — FAQ Routing, Clickable Links, Cost Optimisation
+
+Three rounds of changes to `functions/index.js` and `chat-widget.js`:
+
+**Round 1 — Shorter responses + link-first (`d980f5e`):**
+- `max_tokens` 1024 → 300 (hard cap, ~70% output cost reduction)
+- Added `RESPONSE STYLE` rule: 1–3 sentences max, link by topic (About, FAQ, Pricing, Signup, Account), FAQ when unsure, email only for account-specific issues
+- Link destination matched to question topic:
+  - "What is Baizora?" / general → `baizora.com/assets/about.html` (EN) / `about_cn.html` (CN)
+  - Feature questions (scores, columns, data, watchlist) → FAQ with named section, e.g. "See 'Data & Updates' in our FAQ at baizora.com/assets/faq.html"
+  - Pricing/plans → `pricing.html`, Sign up → `signup.html`, Account/billing → `account.html`
+- **If unsure → link to FAQ**, not support email. Email only for clear account-specific issues (login failure, billing charge, subscription not activating)
+
+**Round 2 — Clickable links in chat widget (`24af281`):**
+- `chat-widget.js` v11: `addMsg` now parses `[text](url)` markdown into `<a target="_blank">` tags for bot messages. User messages still use `textContent` (XSS-safe). HTML-escaped first, then regex applied.
+- Prompts updated to use `[text](url)` syntax and explicitly suppress `**bold**` formatting.
+- Cache-buster bumped `?v=10` → `?v=11` across all 6 HTML files.
+
+**Round 3 — Full FAQ routing, no inline explanations (`5f2d5ca`, `c7f26ae`):**
+- Added all 25 exact FAQ question titles (EN + CN) to both prompts.
+- Key rule: "The knowledge sections below are for reference only — do NOT use them to compose answers. If a FAQ item covers it, respond with ONE sentence pointing there by name."
+- Example response: *See 'How is the data updated?' in our [FAQ](https://baizora.com/assets/faq.html).*
+- Prompt topic → page routing: "What is Baizora?" → `about.html`; features/data/troubleshooting → FAQ by exact title; pricing → `pricing.html`; account → `account.html`.
+
+**Round 4 — Strip all knowledge sections from prompts (`0f6ae4c`):**
+- Removed all 15 detailed knowledge sections (FREE TIER, PRICING, DATA & UPDATE SCHEDULE, SPARKLINE MARKERS, DASHBOARD COLUMNS, TROUBLESHOOTING, etc.) from both EN and CN prompts.
+- Prompts reduced from ~2,000 tokens to ~400 tokens — 5× cheaper per call on input cost alone.
+- Philosophy: the AI's only job is to route to the right FAQ item or page. The FAQ itself is the content — no reason to duplicate it in the prompt.
+- AI now has no knowledge to compose answers from; it can only return one sentence with a link.
+- Example: "PE is different from other sites" → *See 'How current is the P/E and EPS data?' in our [FAQ](...).*
+
+**Cost estimate (Haiku 4.5, after Round 4):** ~$0.0003 per question (~400 token prompt + ~40 token output) → roughly **30,000+ questions per $10**.
+
+**Prompt caching — noted, NOT yet implemented:** `cache_control: { type: "ephemeral" }` on the system prompt would further reduce cached input tokens to ~10% within a 5-minute window. One-line change, deferred at user's request.
+
+Cloud Functions redeployed after each round.
+
+---
+
 ## What Was Done 2026-06-28
 
 ### Homepage NVDA Chart — Volume Panel + X-Axis Fix
