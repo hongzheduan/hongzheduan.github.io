@@ -229,10 +229,8 @@ app.get("/market-news", async (req, res) => {
     if (cache.data && (now - cache.ts) < _MARKET_NEWS_TTL) {
       return res.json(cache.data);
     }
-    const [hl, gl, ceid, query] = lang === "zh"
-      ? ["zh-CN", "CN", "CN:zh-Hans", _MARKET_NEWS_QUERY_ZH]
-      : ["en-US", "US", "US:en", _MARKET_NEWS_QUERY];
-    const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=${hl}&gl=${gl}&ceid=${ceid}`;
+    // Always fetch EN RSS (US-focused sources); translate titles for zh
+    const url = `https://news.google.com/rss/search?q=${encodeURIComponent(_MARKET_NEWS_QUERY)}&hl=en-US&gl=US&ceid=US:en`;
     const resp = await fetch(url, {
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" },
       signal: AbortSignal.timeout(10000),
@@ -246,6 +244,14 @@ app.get("/market-news", async (req, res) => {
       link: it.link,
       date: new Date(it.pubDate).toISOString().slice(0, 10),
     }));
+    if (lang === "zh") {
+      for (const it of items) {
+        const suffix = " - " + it.source;
+        const clean = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title;
+        it.title_cn = await _translateToZh(clean);
+        await new Promise(r => setTimeout(r, 80));
+      }
+    }
     const fetched_et = new Intl.DateTimeFormat("en-US", {
       timeZone: "America/New_York", month: "2-digit", day: "2-digit",
       hour: "2-digit", minute: "2-digit", hour12: true,

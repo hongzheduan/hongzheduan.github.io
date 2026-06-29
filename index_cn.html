@@ -1913,9 +1913,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   function renderNews(newsData) {
     const el = document.getElementById("digestNews"); if (!el) return;
     if (!newsData || !newsData.items || !newsData.items.length) { el.innerHTML = '<div class="digest-msg">—</div>'; return; }
-    el.innerHTML = newsData.items.slice(0, 6).map(it =>
-      `<div class="digest-news-item"><a href="${it.link}" target="_blank" rel="noopener" class="digest-news-link">${it.title}</a><div class="digest-news-meta">${it.source || ""}${it.date ? " · " + it.date : ""}</div></div>`
-    ).join("");
+    el.innerHTML = newsData.items.slice(0, 6).map(it => {
+      const title = it.title_cn || it.title;
+      return `<div class="digest-news-item"><a href="${it.link}" target="_blank" rel="noopener" class="digest-news-link">${title}</a><div class="digest-news-meta">${it.source || ""}${it.date ? " · " + it.date : ""}</div></div>`;
+    }).join("");
   }
 
   (async () => {
