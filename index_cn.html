@@ -1943,11 +1943,20 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     }
   })();
 
-  (async () => {
+  const _NEWS_CF = "https://us-central1-baizora.cloudfunctions.net/api/market-news?lang=zh";
+  async function _fetchNews() {
     try {
-      const r = await fetch("data/market_news_cn.json?" + Date.now());
-      if (!r.ok) throw new Error(r.status);
-      _news = await r.json();
+      let data;
+      try {
+        const r = await fetch(_NEWS_CF, { signal: AbortSignal.timeout(8000) });
+        if (!r.ok) throw new Error(r.status);
+        data = await r.json();
+      } catch(e) {
+        const r = await fetch("data/market_news_cn.json?" + Date.now());
+        if (!r.ok) throw new Error(r.status);
+        data = await r.json();
+      }
+      _news = data;
       renderNews(_news);
       const note = document.getElementById("digestScanNote");
       if (note && _digest && _digest.scan_time) {
@@ -1957,7 +1966,9 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       const el = document.getElementById("digestNews");
       if (el) el.innerHTML = '<div class="digest-msg">—</div>';
     }
-  })();
+  }
+  _fetchNews();
+  setInterval(_fetchNews, 60 * 60 * 1000);
 })();
 
 fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
