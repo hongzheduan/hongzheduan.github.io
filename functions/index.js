@@ -667,7 +667,7 @@ const CHAT_SYSTEM_EN = `You are a helpful, friendly support assistant for Baizor
 - Tracks all S&P 500 + Nasdaq-100 constituents (~500+ large-cap US equities)
 - Daily data updated after US market close on weekdays (Mon–Fri)
 - Dark navy themed web dashboard, bilingual English + Simplified Chinese
-- Website: hongzheduan.github.io | Contact: support@baizora.com
+- Website: baizora.com | Contact: support@baizora.com
 
 ## FREE TIER
 No login required. Access all 500+ S&P 500 and Nasdaq-100 stocks with sparklines, multi-timeframe stats, scores, and fundamentals (PE, market cap, EPS, sector). Data is delayed by 2 trading sessions. Watchlist and ticker search are not available in the Free Tier — subscription required.
@@ -783,7 +783,7 @@ const CHAT_SYSTEM_CN = `你是贝佐拉（Baizora）的客服助手，贝佐拉�
 - 追踪标普500和纳斯达克100所有成分股（约500+支美股大盘股）
 - 数据在每个工作日（周一至周五）美股收盘后更新
 - 深色海军蓝主题网页仪表板，支持中英双语
-- 网站：hongzheduan.github.io | 联系邮箱：support@baizora.com
+- 网站：baizora.com | 联系邮箱：support@baizora.com
 
 ## 免费版
 无需登录，直接访问全部500+支标普500和纳斯达克100成分股，包含走势图、多周期统计、评分及基本面数据（市盈率、市值、EPS、行业）。数据延迟两个交易日。自选股和股票搜索功能在免费版不可用，需付费订阅。
