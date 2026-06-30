@@ -2346,8 +2346,9 @@ def export(df):
     df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
 
     market_date = df["Date"].iloc[0] if len(df) and "Date" in df.columns else DATE_STR
+    output_csv  = os.path.join(ARCHIVE_DIR, f"results_{market_date}.csv")
 
-    df.to_csv(OUTPUT_CSV, index=False)
+    df.to_csv(output_csv, index=False)
     _rotate_free_tier(market_date)
 
     payload = {
