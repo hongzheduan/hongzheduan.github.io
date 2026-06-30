@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-06-30
 Threshold: >10% for all metrics
-262 flagged diffs above threshold
+263 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -59,8 +59,8 @@ PRICE  -- 0 flagged (>10%)
     ADI      ours=397.17  yf=397.17  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 203 flagged (>10%)
-  FLAGGED (top 20 of 203):
+VOLUME  -- 204 flagged (>10%)
+  FLAGGED (top 20 of 204):
     OMC      ours=8.90  yf=3.02  diff=195.1% ***
     TPR      ours=2.98  yf=1.28  diff=133.6% ***
     HAL      ours=11.40  yf=5.36  diff=112.9% ***
