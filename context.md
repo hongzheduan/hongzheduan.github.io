@@ -56,6 +56,26 @@ HON (Honeywell) completed a 1-for-2 reverse split on 2026-06-29. Two symptoms:
 
 ---
 
+### IEX Refresh Extended to 8 PM ET + Auto-Reload on Scan Land
+
+**IEX window extended (`baizora_main_form.html` + `_cn.html`, commit `0ac2dd0`):**
+`isMarketOpen()` upper bound changed from 960 min (4:00 PM) to 1200 min (8:00 PM ET). IEX `last` field is a static value after close — stays at the closing price until next trading day. Extending the window covers the 4:00–6:30 PM gap left by removing the beta scan. The 0% PriceChange1D issue from before was caused by the beta scan overwriting `r.Price` with IEX live price; without beta scan, `r.Price` is always yesterday's EOD close so the formula `(live - r.Price) / r.Price` gives the correct 1D change. The LIVE badge in column headers also stays visible until 8 PM (same `isMarketOpen()` call).
+
+**Auto-reload on scan land (`baizora_main_form.html` + `_cn.html`, commit `c265550`):**
+Added 5-minute `setInterval` after dashboard data loads:
+```js
+setInterval(() => {
+  fetch("data/latest.json?" + Date.now()).then(r => r.json()).then(d => {
+    if (d.date && d.date !== loadedDate) location.reload();
+  }).catch(() => {});
+}, 5 * 60 * 1000);
+```
+When the 6:30 PM scan commits new `latest.json` with today's date, the next poll detects the date change and reloads the page automatically — users get fresh scores, volume, multi-week metrics without manual refresh. `?Date.now()` cache-buster prevents GitHub Pages CDN from serving stale data.
+
+**Why needed:** Announcement bar is on the homepage, not the dashboard. Users in the results page have no signal that new data has landed except the date in the toolbar. Auto-reload removes that friction.
+
+---
+
 ### LIVE Badge — Conditional on Market Hours
 
 `baizora_main_form.html` and `baizora_main_form_cn.html`: the `<span class='live-tag'>live</span>` / `实时` in the PRICE and 1D P CHG% column headers is now conditional on `isMarketOpen()`.
