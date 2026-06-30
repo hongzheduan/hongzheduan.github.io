@@ -1061,8 +1061,9 @@
           render();
           updateStatus();
           loadIndexChanges();
-          if (isMarketOpen()) refreshDashPrices();
-          setInterval(() => { if (isMarketOpen()) refreshDashPrices(); }, 10_000);
+          const _todayET = new Date().toLocaleDateString('en-CA', {timeZone:'America/New_York'});
+          if (isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
+          setInterval(() => { if (isMarketOpen() && loadedDate !== _todayET) refreshDashPrices(); }, 10_000);
           setInterval(() => {
             fetch("data/latest.json?" + Date.now()).then(r => r.json()).then(d => {
               if (d.date && d.date !== loadedDate) location.reload();
@@ -1679,7 +1680,7 @@
       .then(r => r.json())
       .then(d => {
         candleData = d;
-        if (isWeekdayET()) refreshDashPrices();
+        if (isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
       })
       .catch(() => {});
 
