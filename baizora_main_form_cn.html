@@ -1063,6 +1063,11 @@
           loadIndexChanges();
           if (isMarketOpen()) refreshDashPrices();
           setInterval(() => { if (isMarketOpen()) refreshDashPrices(); }, 10_000);
+          setInterval(() => {
+            fetch("data/latest.json?" + Date.now()).then(r => r.json()).then(d => {
+              if (d.date && d.date !== loadedDate) location.reload();
+            }).catch(() => {});
+          }, 5 * 60 * 1000);
         })
         .catch(err => {
           clearTimeout(tid);
