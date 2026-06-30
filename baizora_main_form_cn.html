@@ -1936,7 +1936,7 @@
         const et = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
         if (et.getDay() === 0 || et.getDay() === 6) return false;
         const m = et.getHours() * 60 + et.getMinutes();
-        return m >= 570 && m < 960;
+        return m >= 570 && m < 1200;
       } catch(e) { return false; }
     }
     function isWeekdayET() {
