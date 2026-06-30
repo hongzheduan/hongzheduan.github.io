@@ -1726,8 +1726,8 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
       const spark    = r.Spark1Y || [];
       const n        = Math.max(spark.length - 1, 1);
-      const triIdx   = Math.min(r['1YMaxVolumeChangeDay'] || 0, n);
-      const dotIdx   = Math.min(r['1YMaxPriceChangeDay']  || 0, n);
+      const triIdx   = Math.max(0, n - Math.min(r['1YMaxVolumeChangeDay'] || 0, n));
+      const dotIdx   = Math.max(0, n - Math.min(r['1YMaxPriceChangeDay']  || 0, n));
       const triColor = (r['1YPriceChangeAtMaxVolume'] || 0) >= 0 ? '#22c55e' : '#ef4444';
       const dotColor = (r['1YVolumeChangeAtMaxPrice']  || 0) >  0 ? '#22c55e' : '#ef4444';
 
@@ -2002,11 +2002,13 @@ fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
     const dc = dotCol || '#22c55e';
     let markers = '';
     if (triIdx != null && triIdx < data.length) {
-      const tx = posX(triIdx), ty = posY(data[triIdx]);
+      const ai = data.length - 1 - triIdx;
+      const tx = posX(ai), ty = posY(data[ai]);
       markers += `<polygon points="${tx},${ty-6} ${tx-3.5},${ty} ${tx+3.5},${ty}" fill="${tc}" stroke="rgba(6,13,31,0.9)" stroke-width="1"/>`;
     }
     if (dotIdx != null && dotIdx < data.length) {
-      const dx = posX(dotIdx), dy = posY(data[dotIdx]);
+      const ai = data.length - 1 - dotIdx;
+      const dx = posX(ai), dy = posY(data[ai]);
       markers += `<circle cx="${dx}" cy="${dy}" r="4" fill="${dc}" opacity="0.25"/><circle cx="${dx}" cy="${dy}" r="2.5" fill="${dc}" stroke="rgba(6,13,31,0.9)" stroke-width="1.1"/>`;
     }
     return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none"><polyline points="${pts}" stroke="${col}" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>${markers}</svg>`;
