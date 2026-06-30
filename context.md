@@ -1,5 +1,36 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-06-30
+
+### Free Tier 10-Session Delay — Backfill & Bug Fixes
+
+**Problem:** Free tier was showing today's data (2026-06-29) instead of 2-week-old data. Root cause: scanner-archive had only 1 file (`latest_2026-06-29.json.gz`), so `IDX = max(0, COUNT-10) = 0` → oldest = newest = Jun 29.
+
+**Fix 1 — Backfill scanner-archive:**
+- Wrote `backfill_archive.py` (one-time script, now deleted) — reads all 111 commits of `data/latest.json` from git history, deduplicates by market date, writes `latest_YYYY-MM-DD.json.gz` for each unique date.
+- Generated 42 sessions from 2026-04-28 through 2026-06-29.
+- User pushed 41 files (Apr 28–Jun 26) to scanner-archive; Jun 29 was already there.
+- COUNT = 42 → IDX = 32 → `latest_2026-06-15.json.gz` (10 sessions before Jun 29 ✓).
+- Applied immediately: `data/free_tier.json` set to Jun 15 data; pushed live.
+
+**Fix 2 — CSV archive date bug (`scanner_tiingo.py`, commit `1fd8d05`):**
+- `OUTPUT_CSV` was a module-level constant using `DATE_STR` (script import time). On midnight ET runs (11 PM ET = midnight in summer EDT), `DATE_STR = next calendar day`, so CSVs were named `results_2026-06-30.csv` for Jun 29 data.
+- Fix: compute `output_csv = os.path.join(ARCHIVE_DIR, f"results_{market_date}.csv")` inside `export()` using the actual market date from the data.
+
+**Fix 3 — scanner.yml archive step (commit `1fd8d05`):**
+- Old: `CSV=$(find archive -name "results_*.csv" | sort | tail -1)` — picked wrong-dated file.
+- New: `DATE_STR=$(python3 -c "import json; print(json.load(open('data/latest.json'))['date'])")` first, then `CSV="archive/results_${DATE_STR}.csv"` — always matches market date.
+- Removed CSV.gz push from scanner-archive; now pushes only `latest_*.json.gz` (CSV was redundant).
+- Step renamed from "Push gzipped CSV+JSON" to "Push JSON".
+
+**Misnamed file cleanup:** User manually renamed `results_2026-06-30.csv.gz` → `results_2026-06-29.csv.gz` in scanner-archive via GitHub web UI.
+
+**Verification pending:** Tonight's 11 PM scan (Tue Jul 1 4 AM UTC) will push `latest_2026-06-30.json.gz` to scanner-archive (COUNT → 43) and update `free_tier.json` to `latest_2026-06-16.json.gz` (still ~10 sessions old). User will verify free_tier shows 2-week-old data after that run.
+
+**How the delay stabilizes:** IDX = COUNT - 10 means free_tier always shows data 9 sessions before the newest. Each nightly 11 PM run rolls it forward by 1 session. Delay is permanently ~9-10 trading sessions (~2 calendar weeks).
+
+---
+
 ## What Was Done 2026-06-29 (Session 2)
 
 ### Beta Scan Removed Entirely
