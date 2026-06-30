@@ -22,7 +22,6 @@ TIINGO_API_KEY   = os.environ.get("TIINGO_API_KEY", "")
 TIINGO_BASE      = "https://api.tiingo.com"
 SKIP_EDGAR       = os.environ.get("SKIP_EDGAR",  "").lower() in ("1", "true", "yes")
 EDGAR_ONLY       = os.environ.get("EDGAR_ONLY",  "").lower() in ("1", "true", "yes")
-BETA_RUN         = os.environ.get("BETA_RUN",    "").lower() in ("1", "true", "yes")
 
 DATE_STR         = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d")
 _TIINGO_LAST_DATE = DATE_STR   # updated by __main__ to the last date Tiingo actually has data for
@@ -928,56 +927,6 @@ def fetch_bulk_latest(tickers):
     return out
 
 
-def fetch_iex_snapshot(tickers):
-    """
-    Fetch Tiingo IEX real-time snapshot for all tickers (BETA_RUN mode).
-    Returns {internal_ticker: {o,h,l,c,v}} using today's IEX data.
-    Volume may be slightly lower than official EOD (closing auction not yet settled).
-    Tickers with no today timestamp are excluded so stale bars don't corrupt 1D metrics.
-    """
-    tiingo_tickers     = [_to_tiingo_ticker(TICKER_ALIASES.get(t, t)) for t in tickers]
-    tiingo_to_internal = {_to_tiingo_ticker(TICKER_ALIASES.get(t, t)): t for t in tickers}
-    et_tz    = pytz.timezone('America/New_York')
-    today_et = datetime.now(et_tz).strftime("%Y-%m-%d")
-
-    CHUNK = 100
-    out   = {}
-    for start in range(0, len(tiingo_tickers), CHUNK):
-        chunk = tiingo_tickers[start:start + CHUNK]
-        data  = _tiingo_get("/iex", params={"tickers": ",".join(chunk)})
-        if not data:
-            continue
-        for q in data:
-            tiingo_tk = (q.get("ticker") or "").lower()
-            internal  = tiingo_to_internal.get(tiingo_tk)
-            if not internal:
-                continue
-            ts = q.get("lastSaleTimestamp") or q.get("quoteTimestamp")
-            if ts:
-                try:
-                    ts_dt = datetime.fromisoformat(ts.replace("Z", "+00:00")).astimezone(et_tz)
-                    if ts_dt.strftime("%Y-%m-%d") != today_et:
-                        continue  # stale — holiday or pre-market
-                except Exception:
-                    pass
-            last = q.get("last") or q.get("tngoLast")
-            vol  = q.get("volume")
-            if last is None or not vol:
-                continue
-            o = q.get("open")
-            h = q.get("high")
-            l = q.get("low")
-            last_f = round(float(last), 4)
-            out[internal] = {
-                "o": round(float(o), 4) if o is not None else last_f,
-                "h": round(float(h), 4) if h is not None else last_f,
-                "l": round(float(l), 4) if l is not None else last_f,
-                "c": last_f,
-                "v": float(vol),
-            }
-
-    print(f"IEX snapshot: {len(out)}/{len(tickers)} tickers have today's data")
-    return out
 
 
 def get_trading_days(from_date, to_date):
@@ -2058,13 +2007,8 @@ def scan():
     to_date   = _TIINGO_LAST_DATE
     from_date = (datetime.now(pytz.timezone('America/New_York')) - timedelta(days=730)).strftime("%Y-%m-%d")
 
-    iex_snapshot = {}
-    if BETA_RUN:
-        print("BETA_RUN — fetching IEX snapshot instead of Tiingo EOD …")
-        iex_snapshot = fetch_iex_snapshot(tickers)
-    else:
-        # Build / update per-ticker OHLCV cache
-        build_ohlcv_cache(tickers, from_date)
+    # Build / update per-ticker OHLCV cache
+    build_ohlcv_cache(tickers, from_date)
 
     # Fetch Tiingo split history and write data/splits.json
     # Runs on full scan AND weekend EDGAR-only runs (splits announced well before effective date)
@@ -2086,11 +2030,6 @@ def scan():
     trading_days = get_trading_days(from_date, to_date)
     print("Loading OHLCV cache into memory …")
     daily_data = load_ohlcv_cache_into_memory(tickers, trading_days)
-
-    if BETA_RUN and iex_snapshot:
-        for ticker, bar in iex_snapshot.items():
-            daily_data.setdefault(DATE_STR, {})[ticker] = bar
-        print(f"BETA_RUN: injected {len(iex_snapshot)} IEX synthetic bars for {DATE_STR}")
 
     print(f"Loaded {len(daily_data)} days. Processing {len(tickers)} tickers …")
 
@@ -2116,11 +2055,6 @@ def scan():
             if len(df) < 2:
                 continue
 
-            # Beta run: IEX volume is exchange-only (~2-5% of consolidated tape).
-            # Carry forward prev day's consolidated volume so VolumeM / MA21_VOL are sane.
-            if BETA_RUN and len(df) >= 2:
-                df.at[df.index[-1], "Volume"] = df.iloc[-2]["Volume"]
-
             df["MA21_PRICE"] = df["Close"].rolling(21).mean()
             df["MA21_VOL"]   = df["Volume"].rolling(21).mean()
 
@@ -2139,19 +2073,10 @@ def scan():
                 (latest["Close"] - prev["Close"]) / prev["Close"]
                 if prev["Close"] not in [0, None] and not pd.isna(prev["Close"]) else None
             )
-            # Beta: today's volume = prev day's (carried forward), so compare prev vs prev-prev
-            # to show the last real session's volume change rather than 0 or null.
-            if BETA_RUN:
-                prev2 = df.iloc[-3] if len(df) >= 3 else None
-                volume_change_1d = (
-                    (prev["Volume"] - prev2["Volume"]) / prev2["Volume"]
-                    if prev2 is not None and prev2["Volume"] not in [0, None] and not pd.isna(prev2["Volume"]) else None
-                )
-            else:
-                volume_change_1d = (
-                    (latest["Volume"] - prev["Volume"]) / prev["Volume"]
-                    if prev["Volume"] not in [0, None] and not pd.isna(prev["Volume"]) else None
-                )
+            volume_change_1d = (
+                (latest["Volume"] - prev["Volume"]) / prev["Volume"]
+                if prev["Volume"] not in [0, None] and not pd.isna(prev["Volume"]) else None
+            )
 
             if has_ma:
                 price_vs_ma21_1d  = latest["Close"]  / latest["MA21_PRICE"]
@@ -2417,22 +2342,13 @@ def _rotate_free_tier(new_market_date):
     print(f"[rotate] d1←{existing_date}, new latest←{new_market_date}")
 
 
-def export(df, beta=False):
+def export(df):
     df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
 
     market_date = df["Date"].iloc[0] if len(df) and "Date" in df.columns else DATE_STR
 
-    if beta:
-        # Keep last closed session's date — price is live, date reflects the last full EOD session
-        try:
-            with open(OUTPUT_JSON) as f:
-                market_date = json.load(f).get("date", market_date)
-        except Exception:
-            pass
-
-    if not beta:
-        df.to_csv(OUTPUT_CSV, index=False)
-        _rotate_free_tier(market_date)
+    df.to_csv(OUTPUT_CSV, index=False)
+    _rotate_free_tier(market_date)
 
     payload = {
         "date":   market_date,
@@ -2440,12 +2356,11 @@ def export(df, beta=False):
         "count":  len(df),
         "data":   df.to_dict(orient="records"),
     }
-    # No beta flag — announcement bar uses a simple 2-state display
 
     with open(OUTPUT_JSON, "w") as f:
         json.dump(payload, f, indent=2)
 
-    print("Export complete:", len(df), "(beta)" if beta else "")
+    print("Export complete:", len(df))
 
 
 # =========================
@@ -2940,124 +2855,15 @@ if __name__ == "__main__":
     FORCE_RUN = os.environ.get("FORCE_RUN", "").lower() in ("1", "true", "yes")
 
     today = datetime.now(pytz.timezone('America/New_York')).date()
-    if not FORCE_RUN and not BETA_RUN and is_market_holiday(today):
+    if not FORCE_RUN and is_market_holiday(today):
         print(f"Market holiday ({today}) — skipping scan.")
         sys.exit(0)
 
-    if today.weekday() >= 5 and not FORCE_RUN and not BETA_RUN:
+    if today.weekday() >= 5 and not FORCE_RUN:
         print(f"Weekend ({today}) — cron should not fire; skipping.")
         sys.exit(0)
 
-    if BETA_RUN:
-        et_now = datetime.now(pytz.timezone('America/New_York'))
-        et_min = et_now.hour * 60 + et_now.minute
-        if not FORCE_RUN and et_min >= 15 * 60 + 55:  # FORCE_RUN bypasses for local testing
-            print(f"BETA_RUN: too late ({et_now.strftime('%H:%M ET')}) — after 3:55 PM ET, skipping (4:30 PM scan will handle EOD). Exiting.")
-            sys.exit(0)
-        print(f"BETA_RUN — IEX overlay mode, running at {et_now.strftime('%H:%M ET')}")
-
-        # Load existing latest.json — beta overlays IEX prices onto last session's data
-        # (OHLCV cache is gitignored and not available on GitHub Actions runners)
-        try:
-            with open(OUTPUT_JSON) as f:
-                existing = json.load(f)
-            prev_rows = existing.get("data", [])
-        except Exception as e:
-            print(f"BETA_RUN: cannot read {OUTPUT_JSON}: {e}")
-            sys.exit(1)
-
-        if not prev_rows:
-            print("BETA_RUN: no existing data to update")
-            sys.exit(0)
-
-        tickers_in_data = [r["Ticker"] for r in prev_rows]
-        print("BETA_RUN — fetching IEX snapshot …")
-        iex_snapshot = fetch_iex_snapshot(tickers_in_data)
-
-        if not iex_snapshot:
-            print("BETA_RUN: IEX snapshot empty (market closed / holiday?) — no update")
-            sys.exit(0)
-
-        print(f"BETA_RUN: IEX snapshot has {len(iex_snapshot)} tickers")
-
-        # Update Price and PriceChange1D from live IEX; all other metrics stay from last EOD scan
-        updated_rows = []
-        for r in prev_rows:
-            ticker = r["Ticker"]
-            if ticker in iex_snapshot:
-                bar  = iex_snapshot[ticker]
-                live = bar["c"]
-                scan_close = r.get("Price") or 0
-                if scan_close > 0:
-                    chg1d = round((live - scan_close) / scan_close * 100, 4)
-                else:
-                    chg1d = r.get("PriceChange1D")
-                r = dict(r)
-                r["PrevClose"] = scan_close  # preserve EOD close for frontend 1D chg% reference
-                r["Price"] = round(live, 4)
-                if chg1d is not None:
-                    r["PriceChange1D"] = round(chg1d, 4)
-            updated_rows.append(r)
-
-        payload = {
-            "date":   existing.get("date", DATE_STR),  # keep last closed session's date
-            "status": "Updated",
-            "count":  len(updated_rows),
-            "data":   updated_rows,
-        }
-        with open(OUTPUT_JSON, "w") as f:
-            json.dump(payload, f, indent=2)
-        print(f"BETA_RUN: exported {len(updated_rows)} rows (Price + PriceChange1D live)")
-
-        # Append today's IEX intraday bar to candles.json
-        try:
-            candles_path = os.path.join(DATA_DIR, "candles.json")
-            with open(candles_path) as f:
-                candles_json = json.load(f)
-            prev_dates   = candles_json.get("dates", [])
-            candles_data = candles_json.get("data", {})
-
-            if DATE_STR not in prev_dates:
-                new_dates = list(prev_dates) + [DATE_STR]
-                if len(new_dates) > 252:
-                    new_dates = new_dates[-252:]
-
-                new_candles_data = {}
-                for ticker, bars in candles_data.items():
-                    if not bars:
-                        new_candles_data[ticker] = bars
-                        continue
-                    if ticker in iex_snapshot:
-                        bar      = iex_snapshot[ticker]
-                        prev_vol = bars[-1][4] if bars[-1] else 0
-                        new_bar  = [
-                            round(float(bar["o"]), 2),
-                            round(float(bar["h"]), 2),
-                            round(float(bar["l"]), 2),
-                            round(float(bar["c"]), 2),
-                            int(prev_vol),
-                        ]
-                    else:
-                        # No IEX data for this ticker: flat placeholder using last close
-                        last    = bars[-1]
-                        new_bar = [last[3], last[3], last[3], last[3], 0]
-                    new_bars = list(bars) + [new_bar]
-                    if len(new_bars) > len(new_dates):
-                        new_bars = new_bars[-len(new_dates):]
-                    new_candles_data[ticker] = new_bars
-
-                with open(candles_path, "w") as f:
-                    json.dump({"date": DATE_STR, "dates": new_dates, "data": new_candles_data}, f)
-                print(f"BETA_RUN: candles updated with {DATE_STR} bar ({len(iex_snapshot)} live, rest flat)")
-            else:
-                print(f"BETA_RUN: {DATE_STR} already in candles.json — skipping candles update")
-        except Exception as e:
-            print(f"BETA_RUN: candles update failed — {e}")
-            import traceback; traceback.print_exc()
-
-        sys.exit(0)
-
-    elif FORCE_RUN:
+    if FORCE_RUN:
         print("FORCE_RUN=1 — skipping market probe, using latest available Tiingo data.")
         data_confirmed = True
         _discover = _tiingo_get(
@@ -3104,12 +2910,11 @@ if __name__ == "__main__":
 
     print("Running Baizora scanner (Tiingo) …")
 
-    if not BETA_RUN:
-        # 1. Update index lists, detect membership changes
-        _, _, changes_entry = update_and_detect_changes()
+    # 1. Update index lists, detect membership changes
+    _, _, changes_entry = update_and_detect_changes()
 
-        # 2. Write index_changes.json
-        load_update_index_changes(changes_entry)
+    # 2. Write index_changes.json
+    load_update_index_changes(changes_entry)
 
     # 3. (archive cleanup disabled — all daily CSVs kept in git permanently)
 
@@ -3118,30 +2923,28 @@ if __name__ == "__main__":
 
     print(df.head(10))
 
-    # 5. Data quality check (skip for beta — no candles/archive written)
-    if not BETA_RUN:
-        check_data_quality(df, candles_out, trading_days)
+    # 5. Data quality check
+    check_data_quality(df, candles_out, trading_days)
 
-    # 6. Export results to latest.json (+ archive CSV and free-tier rotation for normal runs)
-    export(df, beta=BETA_RUN)
+    # 6. Export results to latest.json + archive CSV + free-tier rotation
+    export(df)
 
-    # 6b. Export candle data (both beta and full runs — beta has today's IEX O/H/L/C + prev-session volume)
+    # 6b. Export candle data
     export_candles(candles_out, trading_days)
 
-    if not BETA_RUN:
-        # 6c. Export daily digest + downloadable briefing for homepage card
-        export_daily_digest(df)
+    # 6c. Export daily digest + downloadable briefing for homepage card
+    export_daily_digest(df)
 
-        # 6d. Export rolling 5-session BaizScore history for homepage top-10 card
-        export_score_history(df)
+    # 6d. Export rolling 5-session BaizScore history for homepage top-10 card
+    export_score_history(df)
 
-        # 6e. Index membership news
-        fetch_and_save_index_news()
+    # 6e. Index membership news
+    fetch_and_save_index_news()
 
-        # 9. Diagnostic comparison vs Yahoo Finance (internal only — never served to users)
-        try:
-            compare_with_yfinance(df)
-        except Exception as _e:
-            print(f"[compare] skipped: {_e}")
+    # 9. Diagnostic comparison vs Yahoo Finance (internal only — never served to users)
+    try:
+        compare_with_yfinance(df)
+    except Exception as _e:
+        print(f"[compare] skipped: {_e}")
 
     print("Done")
