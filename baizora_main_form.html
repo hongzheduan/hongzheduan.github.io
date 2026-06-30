@@ -1310,7 +1310,7 @@
 
       // For 1D view: show 1D-specific cols; for other windows: show window price change + window stats only
       const oneDayCols = is1D ? `
-        ${thSort("PriceChange1D",   "1D P CHG%<span class='live-tag'>live</span>",  "group-start")}
+        ${thSort("PriceChange1D",   "1D P CHG%" + (isMarketOpen() ? "<span class='live-tag'>live</span>" : ""),  "group-start")}
         ${thSort("PriceVsMA21_1D",  "PRICE/MA21", "group-start")}
         ${thSort("VolumeChange1D",  "1D V CHG%")}
         ${thSort("VolumeVsMA21_1D", "VOL/MA21")}` : "";
@@ -1318,7 +1318,7 @@
       const head = `<thead><tr>
         ${thSort("Ticker",          "Ticker")}
         ${thStatic("Spark1Y",       "1Y Trend")}
-        ${thSort("Price",           "Price<span class='live-tag'>live</span>")}
+        ${thSort("Price",           "Price" + (isMarketOpen() ? "<span class='live-tag'>live</span>" : ""))}
         ${thSort("VolumeM",         "Vol (M)")}
         ${oneDayCols}
         ${windowHead}
