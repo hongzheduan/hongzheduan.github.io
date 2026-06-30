@@ -1,5 +1,75 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-06-29 (Session 2)
+
+### Beta Scan Removed Entirely
+
+**Decision:** Beta scan was causing incorrect `PriceChange1D` values on split days (HON +45.69% instead of -6%) and added complexity. Removed completely.
+
+**`scanner_tiingo.py` changes (commit `74f0fee`):**
+- Removed `BETA_RUN` constant
+- Removed `fetch_iex_snapshot()` function (~50 lines)
+- Removed `if BETA_RUN:` IEX injection block from `scan()`, volume carry-forward, BETA_RUN volume_change_1d branch
+- Removed entire `if BETA_RUN:` block in `__main__` (holiday/weekend checks simplified, ~110-line beta block deleted)
+- `export()` simplified: always writes CSV + rotates free-tier; `beta` parameter removed
+- All post-scan steps (`update_and_detect_changes`, `check_data_quality`, `export_daily_digest`, `export_score_history`, `fetch_and_save_index_news`) now run unconditionally
+
+**`scanner.yml` changes (commit `74f0fee`):**
+- Removed `cron: "0 17 * * 1-5"` schedule entry
+- Removed `elif [ "$SCHEDULE" = "0 17 * * 1-5" ]; then BETA_RUN=1 ...` env block
+- Removed `BETA_RUN: ${{ env.BETA_RUN }}` from env passed to Python
+- Removed `elif [ "$SCHEDULE" = "0 17 * * 1-5" ]; then RUN_TYPE="100PM-beta"` from worklog
+
+**Impact:** 4:00–6:00 PM ET gap — IEX client refresh stops at 4 PM, full EOD scan doesn't land until ~6:30 PM ET. Users see prior day's data during this window. Two options discussed but not yet implemented:
+1. Extend `isMarketOpen()` to 4:30 PM (client still catches closing price)
+2. Restore narrower beta scan that only overlays closing IEX prices without touching `PriceChange1D`
+
+**Client-side live price refresh (`refreshDashPrices`) is unchanged** — still fires every 10s during `isMarketOpen()` (9:30 AM–4:00 PM ET), showing live IEX prices during the trading day.
+
+---
+
+### HON Reverse Split Fixes
+
+HON (Honeywell) completed a 1-for-2 reverse split on 2026-06-29. Two symptoms:
+1. `PriceChange1D` showed +45.69% (actual: -6%)
+2. `EPS` showed ~$6 (should be ~$12.86 post-split)
+
+**EPS fix (commit `9c14359`):**
+- `data/split_guards.csv`: HON `eps_threshold` changed 4.0 → 8.0. Pre-split EPS ~$6; old threshold `6 < 4.0 = False` (guard never fired); new `6 < 8.0 = True` → `eps = 6 × 2 = 12` ✓
+- `data/splits.json`: HON entry added `{ "ratio": 2, "date": "2026-06-29" }` (marker only — reverse splits don't trigger frontend auto-heal since `obsRatio ≈ 1.06`, not ≈ 2)
+
+**PriceChange1D still wrong after fix:** Tiingo had not yet retroactively adjusted HON's historical `adjClose` series. OHLCV cache (gitignored, rebuilt fresh each run) got Friday's `adjClose = $156.4` from Tiingo API, while today's close is $227.8, giving `(227.8 - 156.4)/156.4 = 45.69%`. This is a Tiingo source data propagation delay — will self-correct on tomorrow's scan once Tiingo updates historical series.
+
+---
+
+### CN Market News — EN RSS + Translation
+
+**Problem:** CN 市场简报 was fetching from Chinese Google News RSS (`hl=zh-CN&gl=CN`), which returned non-US-stock content.
+
+**Fix (`functions/index.js`, deployed):**
+- Both EN and CN now fetch the same EN RSS (US-focused sources)
+- When `?lang=zh`: each title is passed through `_translateToZh()` (Google Translate free API) with 80ms gaps; result stored as `it.title_cn`
+- 30 items stored (was 6 → 10 → 30). Card shows 6; download gets 30 for manual curation
+- `index_cn.html` `renderNews()`: uses `it.title_cn || it.title` as display title
+
+**Commits:** `b9165ec`, `1e6f1b1`
+
+---
+
+### LIVE Badge — Conditional on Market Hours
+
+`baizora_main_form.html` and `baizora_main_form_cn.html`: the `<span class='live-tag'>live</span>` / `实时` in the PRICE and 1D P CHG% column headers is now conditional on `isMarketOpen()`.
+
+```js
+${thSort("Price", "Price" + (isMarketOpen() ? "<span class='live-tag'>live</span>" : ""))}
+```
+
+Since `isMarketOpen()` is called at render time, the badge appears/disappears dynamically without a page reload (e.g., next sort click after 4 PM ET hides it).
+
+**Commit:** `6dc933d`
+
+---
+
 ## What Was Done 2026-06-29
 
 ### 1D P CHG% Wrong After Beta Scan (Bug Fix)
@@ -259,11 +329,10 @@ Three places updated in `scanner.yml`:
 
 **Commits:** `7903653`, `798ee41`, `ec12b32`, `682b8de`
 
-### Current Scanner Schedule (as of 2026-06-26)
+### Current Scanner Schedule (updated 2026-06-29 — beta scan removed)
 
 | Cron (UTC) | Scheduled ET | Approx actual ET | RUN_TYPE | EDGAR |
 |---|---|---|---|---|
-| `0 17 * * 1-5` | 1:00 PM | ~3 PM | `100PM-beta` | no |
 | `30 20 * * 1-5` | 4:30 PM | ~6:30 PM | `430PM-scan` | **yes** |
 | `30 21 * * 1-5` | 5:30 PM | ~7:30 PM | `530PM-scan` | no (cache) |
 | `30 22 * * 1-5` | 6:30 PM | ~8:30 PM | `630PM-scan` | no (cache) |
