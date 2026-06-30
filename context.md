@@ -25,9 +25,40 @@
 
 **Misnamed file cleanup:** User manually renamed `results_2026-06-30.csv.gz` → `results_2026-06-29.csv.gz` in scanner-archive via GitHub web UI.
 
-**Verification pending:** Tonight's 11 PM scan (Tue Jul 1 4 AM UTC) will push `latest_2026-06-30.json.gz` to scanner-archive (COUNT → 43) and update `free_tier.json` to `latest_2026-06-16.json.gz` (still ~10 sessions old). User will verify free_tier shows 2-week-old data after that run.
+**Verification pending:** Tonight's 11 PM scan will push `latest_2026-06-30.json.gz` to scanner-archive (COUNT → 43) and update `free_tier.json` to `latest_2026-06-16.json.gz` (still ~10 sessions old). User will verify free_tier shows 2-week-old data after that run.
 
 **How the delay stabilizes:** IDX = COUNT - 10 means free_tier always shows data 9 sessions before the newest. Each nightly 11 PM run rolls it forward by 1 session. Delay is permanently ~9-10 trading sessions (~2 calendar weeks).
+
+---
+
+### 0% PriceChange1D After Scanner Auto-Reload — Fixed
+
+**Root cause:** The 8 PM `isMarketOpen()` extension (June 29, commit `0ac2dd0`) created a new bug. After the ~6:30 PM scanner run commits today's date to `latest.json`, the 5-min auto-reload poll fires and reloads the page. After reload, `loadedDate = today`. But `isMarketOpen()` was still true until 8 PM, so `refreshDashPrices()` kept firing every 10s. IEX `last` = today's closing price = scanner's `r.Price` → `_liveChgPct = 0` for all tickers → all 1D changes showed 0%.
+
+**Fix (`baizora_main_form.html` + `baizora_main_form_cn.html`, commit `3ce7474`):**
+Added `loadedDate !== _todayET` guard to all IEX refresh call sites:
+```js
+const _todayET = new Date().toLocaleDateString('en-CA', {timeZone:'America/New_York'});
+if (isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
+setInterval(() => { if (isMarketOpen() && loadedDate !== _todayET) refreshDashPrices(); }, 10_000);
+```
+- Before scanner runs: `loadedDate = yesterday` → IEX fires, shows live prices during 4–6:30 PM gap ✓
+- After scanner auto-reload: `loadedDate = today` → IEX suppressed → scanner's correct `PriceChange1D` shown ✓
+- `isMarketOpen()` upper bound stays at 1200 min (8 PM ET) — unchanged.
+
+Also fixed CN candles callback which was still using `isWeekdayET()` instead of `isMarketOpen()`.
+
+Users already on the page seeing 0% need a manual hard refresh to pick up the new code. Future page loads and tomorrow's scan auto-reload are handled automatically.
+
+---
+
+### HON Tiingo Data Inconsistency (Investigation, No Code Fix)
+
+During the pre-spin-off period (May–June 28), Tiingo maintained two inconsistent series for HON:
+- **Daily price endpoint** (stored as `Price` in `latest.json`): returned actual combined-company market price (~$210–$233)
+- **Historical adjClose series** (stored in `candles.json`, rebuilt fresh each scan): already adjusted for the upcoming spin-off, showing ~$100–$163 (HON stub value only)
+
+Result: `free_tier.json` (June 15 data) shows `Price: $227.41` while the candlestick chart shows ~$162 for the same date. This is a Tiingo upstream inconsistency, not a scanner bug. The 45.69% `PriceChange1D` in June 29's data was also Tiingo-caused (spin-off factor applied to June 26 adjClose but not the reverse split factor yet). Both issues self-correct once Tiingo completes retroactive adjustment of HON's historical series (expected tonight's scan).
 
 ---
 
@@ -1444,3 +1475,5 @@ Two-part fix:
 4. **Remaining EPS=None tickers** — BRK-B is structural (no EDGAR data after 2013); others may be IFRS filers. Investigate if any are solvable from EDGAR without a paid source.
 5. **yfinance compare log** — remaining flagged EPS diffs (OXY, MLM, CI etc.) are GAAP one-time items vs adjusted EPS. These are correct and expected — not bugs.
 6. **FUND_CACHE_TTL_DAYS = 0** — EDGAR now always re-fetches every run. Cache file is still written but never read back. No further cache management needed.
+7. **4–6 PM ET data gap + 0% PriceChange1D** — ✓ RESOLVED (commit `3ce7474`, 2026-06-30). `isMarketOpen()` stays at 8 PM (1200 min). Added `loadedDate !== _todayET` guard to all IEX refresh call sites — IEX suppressed after scanner auto-reload, live prices still shown 4–6:30 PM before scan lands.
+8. **HON candlestick chart shape** — Verify tonight's scan rebuilds `candles.json` with Tiingo's fully-corrected HON historical series (should show $200+ range consistent with current price, not the ~$137–$163 pre-adjustment range).
