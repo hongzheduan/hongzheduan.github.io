@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-01
 Threshold: >10% for all metrics
-294 flagged diffs above threshold
+296 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -64,7 +64,6 @@ VOLUME — systematic offset:
 ------------------------------------------------------------
 PRICE  -- 0 flagged (>10%)
   TOP 10 LARGEST DIFF:
-    DTE      ours=152.37  yf=150.57  diff=1.2%
     CRWV     ours=85.69  yf=85.69  diff=0.0%
     SATS     ours=103.92  yf=103.92  diff=0.0%
     ERIE     ours=249.26  yf=249.26  diff=0.0%
@@ -74,10 +73,11 @@ PRICE  -- 0 flagged (>10%)
     ABNB     ours=147.31  yf=147.31  diff=0.0%
     ABT      ours=92.18  yf=92.18  diff=0.0%
     ACGL     ours=98.55  yf=98.55  diff=0.0%
+    ACN      ours=131.13  yf=131.13  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 240 flagged (>10%)
-  FLAGGED (top 20 of 240):
+VOLUME  -- 242 flagged (>10%)
+  FLAGGED (top 20 of 242):
     JPM      ours=14.81  yf=5.20  diff=185.0% ***
     AEE      ours=2.95  yf=1.55  diff=90.1% ***
     YUM      ours=2.65  yf=1.44  diff=84.6% ***
