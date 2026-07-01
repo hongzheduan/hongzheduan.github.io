@@ -1675,12 +1675,6 @@ def _parse_eps_from_latest_filing(cik):
                                                  prefer_ifrs=prefer)
             return ann_entries or []
 
-        # Path 1: four full quarters — convert each to USD and sum
-        if len(quarters) >= 4:
-            vals = [_to_usd(v, c) for _, (v, c) in quarters[:4]]
-            if all(x is not None for x in vals):
-                return round(sum(vals), 4)
-
         def _best_ann_hit():
             # Sort by end_date desc, then prefer USD over CNY (avoids FX conversion noise).
             # 20-F comparative tables list oldest year first; without sorting we'd pick FY-2.
@@ -1689,7 +1683,12 @@ def _parse_eps_from_latest_filing(cik):
                              reverse=True)
             return next(((v, c) for _, d, v, c in entries if 300 < d < 400), None)
 
-        # Path 2: three quarters + Q4 derived from annual (annual − 9M YTD)
+        # Path 1: quarters since the last annual + Q4 derived from annual − 9M YTD.
+        # Must run before the naive 4-quarter sum below: Q4 is never filed as its own
+        # 10-Q (it's folded into the 10-K), so quarters[:4] would silently swap in a
+        # stale year-ago quarter instead of the real Q4, corrupting TTM (e.g. KKR
+        # summed Q1'26+Q3'25+Q2'25+Q1'25 = 1.56, skipping Q4'25 entirely; correct
+        # TTM with Q4'25 derived from annual−9M is 2.93).
         if ann_filing and len(quarters) >= 3:
             ann_end = ann_filing[2]
             ann_hit = _best_ann_hit()
@@ -1703,6 +1702,12 @@ def _parse_eps_from_latest_filing(cik):
                     partial_vals = [_to_usd(v, c) for _, (v, c) in quarters[:3]]
                     if q4_usd is not None and all(x is not None for x in partial_vals):
                         return round(sum(partial_vals) + q4_usd, 4)
+
+        # Path 2: four full quarters — last resort when no usable annual figure exists.
+        if len(quarters) >= 4:
+            vals = [_to_usd(v, c) for _, (v, c) in quarters[:4]]
+            if all(x is not None for x in vals):
+                return round(sum(vals), 4)
 
         # Path 3: annual only (20-F / 40-F land here)
         ann_hit = _best_ann_hit()
