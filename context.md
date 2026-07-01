@@ -1,5 +1,36 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-07-01
+
+### EPS Fallback Path Skipped Q4 — KKR/BRK-B/V/ERIE/STZ/HSY Fixed
+
+**Root cause:** `_parse_eps_from_latest_filing()` (`scanner_tiingo.py`, the inline-XBRL fallback used when EDGAR `company_facts` has no standard EPS tags for a ticker) checked its naive "sum the 4 most recent quarter end-dates found" path *before* its correct "3 quarters + Q4 derived from annual − 9M YTD" path. Since no company ever files Q4 as a standalone 10-Q (it's folded into the 10-K), the naive path always had ≥4 distinct end-dates available — it silently reached back to a stale year-ago quarter to fill the gap — and fired first, skipping the real Q4 every time it ran.
+
+**Fix (commit `973b985`):** Reordered the two paths — no logic rewritten, just swapped which one runs first — so the derived-Q4 path now takes priority, matching the ordering already used (and never buggy) in the primary EDGAR path (`_get_edgar_fundamentals`).
+
+**Verified via live production run** (`_get_edgar_fundamentals()` called directly for the full 517-ticker S&P 500 + Nasdaq-100 universe, not a proxy check). Six tickers were silently wrong and are now fixed:
+
+| Ticker | Before | After |
+|---|---|---|
+| KKR | 1.56 | 2.93 ✓ matches yfinance |
+| BRK-B | 26.83 | 33.59 ✓ matches yfinance |
+| V | 11.18 | 11.47 |
+| ERIE | 12.37 | 10.93 |
+| STZ | 11.82 | 9.61 |
+| HSY | 4.90 | 5.37 |
+
+**Not affected** — same fallback function, but these file 20-F/40-F/6-K and never a 10-Q, so the `quarters` dict is always empty and they go straight to the annual-only Path 3 (no Q4 to skip): ARM, ASML, CCEP, FER, PDD, NBIS.
+
+**Still `EPS=None`** — pre-existing gaps, unrelated to this bug: ARES, TRI (both filed Form 25-NSE, being delisted), FDXF (FedEx Freight spinoff, only 8-K/Form 4 filed so far — no 10-Q/10-K yet).
+
+**Debug-compare log comment updated** (`scanner_tiingo.py` ~line 2777) to reflect the corrected ticker list and explain the fix inline.
+
+**Note — the fallback-ticker set is not static:** HSY and NBIS were *not* in the 2026-06-07 "EPS=None (13 tickers)" list further below in this file, meaning they only started hitting this fallback sometime in the following weeks (most likely `company_facts` data aging past the primary path's 2-year recency window). Don't trust a hardcoded snapshot of which tickers use the fallback — re-verify live if it matters again.
+
+**Verification pending:** tonight's ~11 PM ET safety-net run (`0 4 * * 2-6`, full EDGAR refresh) will pick this up automatically — `FUND_CACHE_TTL_DAYS=0` means every EDGAR-enabled run re-fetches fresh, no manual cache wipe needed. **Check tomorrow** that `data/fundamentals_cache.json` shows the corrected EPS values above for KKR/BRK-B/V/ERIE/STZ/HSY.
+
+---
+
 ## What Was Done 2026-06-30
 
 ### Free Tier 10-Session Delay — Backfill & Bug Fixes
@@ -670,7 +701,7 @@ Dashboard free for any logged-in user (no subscription check).
 - **Annual across all fields:** Best annual is tracked across all 4 fields before falling back — no early return from stale data in first field.
 
 **Special cases:**
-- `BRK-B`: Berkshire stopped tagging EPS in EDGAR XBRL after 2013. Quarterly date filter (`end >= today-2yr`) correctly returns `eps=None` — no stale Class A data. BRK-B does not appear in PE/EPS display.
+- `BRK-B`: **Outdated as of 2026-07-01** — `company_facts` still has no recent EPS tags (correctly returns `eps=None` there), but BRK-B now resolves via the inline-XBRL fallback (`_parse_eps_from_latest_filing`), same as V/ERIE/KKR/STZ. Raw fallback value is Class-A-scale (~50,390), then `÷1500` → Class B EPS ~33.59. See the 2026-07-01 section at the top of this file for the Q4-derivation bug that affected this ticker too.
 - `BKNG`: 25-for-1 stock split April 2026 → divide by 25. Guard `eps > 25` auto-disables once Q2 2026 10-Q is filed (~Aug 2026) with post-split EPS.
 - `CVNA`: 5-for-1 stock split May 2026 (2026-05-08). Q1 2026 10-Q filed 2026-04-29 (pre-split). Guard: `eps > 4 → eps / 5`. Auto-disables once Q2 2026 10-Q (post-split) is filed (~Aug 2026).
 - `KLAC`: 10-for-1 stock split 2026-06-12. Guard: `eps > 10 → eps / 10`. EDGAR already shows post-split shares (~1.3B). Auto-disables once Q4 FY2026 10-K or next 10-Q is filed with post-split EPS.
@@ -1484,7 +1515,8 @@ Two-part fix:
 1. **Chat widget mobile test result** — user was going to test `chat-widget.js?v=8` on another phone. Confirm whether bottom:90px + transform:translateZ(0) fixed both "not visible on page open" and "scrolls with page until middle". If button is still not fixed: next step is JS scroll listener fallback (position:absolute updated on every scroll event as last resort).
 2. **Tiingo attribution** — ✓ DONE. Present in `baizora_main_form.html` (line 906), individual stock pages, and homepage. `dashboard.html` shows no market data so no attribution needed there.
 3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify EPS and mktcap drop to expected post-split values and compare log stays clean.
-4. **Remaining EPS=None tickers** — BRK-B is structural (no EDGAR data after 2013); others may be IFRS filers. Investigate if any are solvable from EDGAR without a paid source.
+4. **Remaining EPS=None tickers** — ✓ RESOLVED for BRK-B (now via inline-XBRL fallback, see 2026-07-01 section). Still genuinely unavailable: ARES/TRI (Form 25-NSE delisting) and FDXF (no 10-Q/10-K filed yet, recent spinoff).
+9. **Verify tomorrow (2026-07-02):** confirm tonight's ~11 PM ET run committed the corrected EPS fallback values (KKR 2.93, BRK-B 33.59, V 11.47, ERIE 10.93, STZ 9.61, HSY 5.37) into `data/fundamentals_cache.json` / `data/latest.json`. See 2026-07-01 section at top for full context.
 5. **yfinance compare log** — remaining flagged EPS diffs (OXY, MLM, CI etc.) are GAAP one-time items vs adjusted EPS. These are correct and expected — not bugs.
 6. **FUND_CACHE_TTL_DAYS = 0** — EDGAR now always re-fetches every run. Cache file is still written but never read back. No further cache management needed.
 7. **4–6 PM ET data gap + 0% PriceChange1D** — ✓ RESOLVED (commit `3ce7474`, 2026-06-30). `isMarketOpen()` stays at 8 PM (1200 min). Added `loadedDate !== _todayET` guard to all IEX refresh call sites — IEX suppressed after scanner auto-reload, live prices still shown 4–6:30 PM before scan lands.
