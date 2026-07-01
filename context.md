@@ -52,6 +52,18 @@ Users already on the page seeing 0% need a manual hard refresh to pick up the ne
 
 ---
 
+### Homepage Sparkline Markers — Wrong Position Fixed
+
+**Root cause:** Scanner computes `1YMaxVolumeChangeDay` and `1YMaxPriceChangeDay` as **days ago** (`n - 1 - idx`, 0 = most recent bar). The homepage's `miniSpark` (Top Price Movers panel) and `buildSparkSvg` (1Y Trend demo sparkline) were using these values as **direct left-to-right array indices** (0 = oldest), placing ▲ and ● on the mirror-image position of where they belong.
+
+The dashboard's `renderSparkline` was correct all along — it applies `idxFromDays(daysAgo) = n - 1 - daysAgo` before computing marker positions.
+
+**Fix (`index.html` + `index_cn.html`, commit `5110a1c`):**
+- `miniSpark`: `const ai = data.length - 1 - triIdx/dotIdx` before calling `posX(ai)` / `posY(data[ai])`
+- `buildSparkSvg` call site: `triIdx = Math.max(0, n - Math.min(daysAgo, n))` (equivalent conversion)
+
+---
+
 ### HON Tiingo Data Inconsistency (Investigation, No Code Fix)
 
 During the pre-spin-off period (May–June 28), Tiingo maintained two inconsistent series for HON:
@@ -1477,3 +1489,4 @@ Two-part fix:
 6. **FUND_CACHE_TTL_DAYS = 0** — EDGAR now always re-fetches every run. Cache file is still written but never read back. No further cache management needed.
 7. **4–6 PM ET data gap + 0% PriceChange1D** — ✓ RESOLVED (commit `3ce7474`, 2026-06-30). `isMarketOpen()` stays at 8 PM (1200 min). Added `loadedDate !== _todayET` guard to all IEX refresh call sites — IEX suppressed after scanner auto-reload, live prices still shown 4–6:30 PM before scan lands.
 8. **HON candlestick chart shape** — Verify tonight's scan rebuilds `candles.json` with Tiingo's fully-corrected HON historical series (should show $200+ range consistent with current price, not the ~$137–$163 pre-adjustment range).
+9. **Homepage sparkline markers** — ✓ RESOLVED (commit `5110a1c`, 2026-06-30). `miniSpark` and `buildSparkSvg` on homepage were treating days-ago values as left-to-right array indices, placing ▲/● on the wrong end. Fixed with `data.length - 1 - daysAgo` conversion. Dashboard `renderSparkline` was already correct via `idxFromDays`.
