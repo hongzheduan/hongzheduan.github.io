@@ -1073,7 +1073,7 @@
           if (staleBanner) {
             if (json.partialUpdate && (json.staleTickers || []).length) {
               const n = json.staleTickers.length;
-              staleBanner.textContent = `⚠ 数据部分更新 — ${n} 支股票数据尚未刷新,暂时隐藏。请30分钟后再查看。`;
+              staleBanner.textContent = `⚠ 数据部分更新 — ${n} 支股票数据尚未刷新,暂时隐藏。通常30分钟内更新。`;
               staleBanner.style.display = "block";
             } else {
               staleBanner.style.display = "none";
