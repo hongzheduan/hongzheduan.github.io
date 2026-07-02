@@ -1,5 +1,25 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-07-01 (continued)
+
+### SATS Sat 8 Days Stale, Silently — Per-Ticker Staleness Exclusion + Index Weight Filter Added
+
+**Discovery:** while investigating the earlier stale-data incident, an empirical check of the live `data/latest.json` found `SATS` (EchoStar) carrying data from `2026-06-23` — 8 days old — while the top-level `date` said `2026-07-01` and `status: "Updated"`. All other 516 tickers were correctly current. Nothing anywhere in the pipeline validated per-ticker date consistency.
+
+**Root cause 1 — Slickcharts index-membership lag:** EchoStar changed its ticker to `ECHO` on 2026-06-24 and left the S&P 500, but `slickcharts.com/sp500` still listed a row for `SATS` a week later at `0.00%` weight, `$0.00` price (confirmed by scraping the live page — 503 rows instead of the correct 502, with SATS as the last/zombie row). `fetch_index_tickers()` (`scanner_tiingo.py:480`) now parses the Weight column and skips any row with weight `<= 0`. This lets the *pre-existing* `update_and_detect_changes()` / `index_changes.json` mechanism auto-record the removal on the next scan — already surfaced in the dashboard's "MEMBERSHIP CHANGE" tab, no new UI needed for that part.
+
+**Root cause 2 — no per-ticker recency validation, anywhere:** the SPY probe only confirms SPY itself is current; `check_data_quality()` only checks big 1D swings / thin candle counts / missing cache files — never date staleness. Tiingo can publish EOD data incrementally per-ticker, and a ticker whose bar hasn't landed yet just silently carries its old data through an otherwise "successful" run.
+
+**Fix (commit `e39982b`):**
+- After `scan()` returns in `__main__` (~line 2958), any row whose `Date` doesn't exactly match the confirmed `_TIINGO_LAST_DATE` is dropped from `df` and `candles_out` — **any mismatch at all (≥1 day) excludes the ticker**, per explicit instruction: showing nothing for a ticker is better than showing wrong same-day-looking data for it.
+- Excluded tickers are tracked in a new module global `_STALE_TICKERS_EXCLUDED` and written into `export()`'s payload as `partialUpdate: bool` + `staleTickers: [...]`.
+- `baizora_main_form.html` / `_cn.html`: new `.stale-banner` element (reuses the documented announcement-bar gradient) shows/hides in `loadDashboard()` based on `json.partialUpdate`, naming the excluded tickers so subscribers know why something's temporarily missing instead of assuming it vanished.
+- **Not yet extended to** `baizora_main_form_free*.html` / freetier variants — lower priority since those already show delayed/limited data.
+
+A later scheduled or manual run naturally re-includes an excluded ticker once Tiingo catches up — no special recovery logic needed, every run re-evaluates from scratch.
+
+---
+
 ## What Was Done 2026-07-01
 
 ### EPS Fallback Path Skipped Q4 — KKR/BRK-B/V/ERIE/STZ/HSY Fixed
@@ -1538,10 +1558,11 @@ Two-part fix:
 2. **Tiingo attribution** — ✓ DONE. Present in `baizora_main_form.html` (line 906), individual stock pages, and homepage. `dashboard.html` shows no market data so no attribution needed there.
 3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify EPS and mktcap drop to expected post-split values and compare log stays clean.
 4. **Remaining EPS=None tickers** — ✓ RESOLVED for BRK-B (now via inline-XBRL fallback, see 2026-07-01 section). Still genuinely unavailable: ARES/TRI (Form 25-NSE delisting) and FDXF (no 10-Q/10-K filed yet, recent spinoff).
-9. **EPS fallback fix** — ✓ CONFIRMED in production same-day (2026-07-01). See top of file.
-10. **New 500PM-scan slot** — added 2026-07-01 to catch Tiingo publication delays between the 4:30 PM and 5:30 PM runs. Watch a few sessions to confirm it actually helps (vs. 4:30 PM data just always being ready by 5:30 PM anyway, making it redundant).
 5. **yfinance compare log** — remaining flagged EPS diffs (OXY, MLM, CI etc.) are GAAP one-time items vs adjusted EPS. These are correct and expected — not bugs.
 6. **FUND_CACHE_TTL_DAYS = 0** — EDGAR now always re-fetches every run. Cache file is still written but never read back. No further cache management needed.
 7. **4–6 PM ET data gap + 0% PriceChange1D** — ✓ RESOLVED (commit `3ce7474`, 2026-06-30). `isMarketOpen()` stays at 8 PM (1200 min). Added `loadedDate !== _todayET` guard to all IEX refresh call sites — IEX suppressed after scanner auto-reload, live prices still shown 4–6:30 PM before scan lands.
 8. **HON candlestick chart shape** — Verify tonight's scan rebuilds `candles.json` with Tiingo's fully-corrected HON historical series (should show $200+ range consistent with current price, not the ~$137–$163 pre-adjustment range).
 9. **Homepage sparkline markers** — ✓ RESOLVED (commit `5110a1c`, 2026-06-30). `miniSpark` and `buildSparkSvg` on homepage were treating days-ago values as left-to-right array indices, placing ▲/● on the wrong end. Fixed with `data.length - 1 - daysAgo` conversion. Dashboard `renderSparkline` was already correct via `idxFromDays`.
+10. **EPS fallback fix** — ✓ CONFIRMED in production same-day (2026-07-01). See top of file.
+11. **New 500PM-scan slot** — added 2026-07-01 to catch Tiingo publication delays between the 4:30 PM and 5:30 PM runs. Watch a few sessions to confirm it actually helps (vs. 4:30 PM data just always being ready by 5:30 PM anyway, making it redundant).
+12. **Stale-ticker exclusion + 0%-weight index filter** — added 2026-07-01 (commit `e39982b`), not yet verified against a live scan run. Check next scan: (a) SATS should drop out of `data/sp500_symbols.txt` and appear in `data/index_changes.json` as a removal; (b) if any ticker is genuinely excluded, confirm the `.stale-banner` renders correctly on both EN/CN dashboards and `partialUpdate`/`staleTickers` appear in `data/latest.json`; (c) watch for false positives — a ticker legitimately halted/thin-traded for a full day would also get excluded by this logic, which is intended but worth confirming isn't over-triggering.
