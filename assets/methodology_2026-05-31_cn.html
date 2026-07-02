@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>贝佐拉 — 数据与方法论</title>
+  <link rel="icon" href="baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:#060d1f; --navy-mid:#0d1e3d; --navy-light:#162847;
+      --electric:#3b82f6; --electric-bright:#60a5fa;
+      --gold:#f59e0b; --gold-light:#fcd34d;
+      --green:#22c55e; --red:#ef4444;
+      --white:#f8fafc; --muted:#94a3b8;
+      --dim:#94a3b8; --border:rgba(255,255,255,0.07);
+      --border-bright:rgba(255,255,255,0.12);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+    .glow{position:fixed;top:0;left:50%;transform:translateX(-50%);width:900px;height:500px;background:radial-gradient(ellipse at center,rgba(59,130,246,0.14) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+    /* HEADER */
+    header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);background:rgba(6,13,31,0.92);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+    .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-wrap img{height:36px;}
+    .brand-cn{font-size:18px;font-weight:700;letter-spacing:4px;background:linear-gradient(90deg,var(--white),var(--electric-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+    .back-btn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);text-decoration:none;border:1px solid var(--border);padding:6px 14px;border-radius:7px;transition:all 0.2s;}
+    .back-btn:hover{color:var(--electric-bright);border-color:rgba(59,130,246,0.4);}
+
+    /* LAYOUT */
+    .wrapper{position:relative;z-index:10;display:grid;grid-template-columns:220px 1fr;max-width:1100px;margin:0 auto;padding:48px 32px 100px;gap:56px;}
+    @media(max-width:820px){.wrapper{grid-template-columns:1fr;padding:32px 20px 80px;} .toc{display:none;}}
+
+    /* TABLE OF CONTENTS */
+    .toc{position:sticky;top:80px;align-self:start;}
+    .toc-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#94a3b8;margin-bottom:16px;}
+    .toc a{display:block;font-family:'DM Sans',sans-serif;font-size:13px;color:#94a3b8;text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid rgba(255,255,255,0.1);transition:all 0.15s;line-height:1.4;}
+    .toc a:hover,.toc a.active{color:var(--electric-bright);border-left-color:var(--electric);}
+    .toc a.sub{padding-left:22px;font-size:12px;}
+
+    /* CONTENT */
+    .content{}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);border:1px solid rgba(59,130,246,0.25);background:rgba(59,130,246,0.06);padding:6px 14px;border-radius:999px;margin-bottom:20px;}
+    h1{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,48px);line-height:1.1;letter-spacing:-0.02em;color:var(--white);margin-bottom:8px;}
+    .doc-meta{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--dim);margin-bottom:52px;}
+
+    .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.25),transparent);margin:52px 0;}
+
+    /* SECTIONS */
+    .doc-section{margin-bottom:48px;scroll-margin-top:80px;}
+    .section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);margin-bottom:14px;}
+    h2{font-family:'DM Serif Display',serif;font-size:28px;letter-spacing:-0.02em;color:var(--white);margin-bottom:18px;}
+    h3{font-family:'DM Sans',sans-serif;font-size:15.5px;font-weight:600;color:#e2e8f0;margin:26px 0 10px;padding-left:10px;border-left:3px solid var(--electric);opacity:0.95;}
+    p{font-size:15px;color:#cbd5e1;line-height:1.85;margin-bottom:16px;}
+    p:last-child{margin-bottom:0;}
+    ul,ol{padding-left:20px;margin-bottom:16px;}
+    li{font-size:14.5px;color:#cbd5e1;line-height:1.8;margin-bottom:6px;}
+    strong{color:#f1f5f9;font-weight:600;}
+    code{font-family:'DM Mono',monospace;font-size:12.5px;background:rgba(59,130,246,0.15);color:#93c5fd;padding:2px 8px;border-radius:4px;border:1px solid rgba(59,130,246,0.2);}
+
+    /* CARD */
+    .card{background:rgba(13,30,61,0.7);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:22px 26px;margin:16px 0;position:relative;overflow:hidden;}
+    .card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.5),transparent);}
+
+    /* FORMULA */
+    .formula{background:rgba(6,13,31,0.9);border:1px solid rgba(59,130,246,0.3);border-radius:10px;padding:18px 22px;margin:16px 0;font-family:'DM Mono',monospace;font-size:13px;color:#93c5fd;line-height:1.8;}
+    .formula .comment{color:#94a3b8;}
+
+    /* TABLE */
+    .data-table{width:100%;border-collapse:collapse;margin:16px 0;}
+    .data-table th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
+    .data-table td{font-size:13.5px;color:#cbd5e1;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);}
+    .data-table td:first-child{font-family:'DM Mono',monospace;font-size:12.5px;color:#93c5fd;}
+    .data-table tr:hover td{background:rgba(59,130,246,0.04);}
+    .data-table tr:last-child td{border-bottom:none;}
+
+    /* NOTE */
+    .note{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:16px 20px;margin:16px 0;font-size:14px;color:#fde68a;line-height:1.8;}
+    .note strong{color:#fcd34d;}
+
+    /* FOOTER */
+    footer{position:relative;z-index:10;border-top:1px solid var(--border);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+    .footer-left{font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);}
+    .footer-links{display:flex;gap:20px;}
+    .footer-links a{font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);text-decoration:none;transition:color 0.2s;}
+    .footer-links a:hover{color:var(--electric-bright);}
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+
+<header>
+  <a href="../index_cn.html" class="logo-wrap">
+    <img src="baize_favicon_v2.png" alt="Baizora">
+    <span class="brand-cn">贝佐拉</span>
+  </a>
+  <a href="../index_cn.html" class="back-btn">← 返回首页</a>
+</header>
+
+<div class="wrapper">
+
+  <!-- TABLE OF CONTENTS -->
+  <nav class="toc">
+    <div class="toc-title">目录</div>
+    <a href="#overview">概述</a>
+    <a href="#universe">数据范围</a>
+    <a class="sub" href="#membership">指数成分变动</a>
+    <a href="#sources">数据来源</a>
+    <a href="#pipeline">扫描流程</a>
+    <a class="sub" href="#completeness">数据完整性保护机制</a>
+    <a href="#ohlcv">价格与成交量</a>
+    <a class="sub" href="#ohlcv-cache">OHLCV 缓存</a>
+    <a class="sub" href="#volume-note">成交量定义</a>
+    <a href="#metrics">计算指标</a>
+    <a class="sub" href="#timeframes">时间窗口</a>
+    <a class="sub" href="#1d">单日指标</a>
+    <a class="sub" href="#period">区间指标</a>
+    <a href="#fundamentals">基本面数据</a>
+    <a class="sub" href="#eps">每股收益(TTM)</a>
+    <a class="sub" href="#eps-example">EPS 计算示例</a>
+    <a class="sub" href="#eps-fallback">内嵌 XBRL 备用方案</a>
+    <a class="sub" href="#pe">市盈率</a>
+    <a class="sub" href="#mktcap">市值</a>
+    <a class="sub" href="#beta">贝塔系数与波动率</a>
+    <a href="#sectors">行业分类</a>
+    <a class="sub" href="#sector-avg">行业平均市盈率</a>
+    <a href="#scores">评分体系</a>
+    <a href="#output">输出格式</a>
+    <a href="#limitations">已知局限性</a>
+    <a href="#services">服务与基础设施</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <div class="eyebrow">◈ &nbsp; 内部文档</div>
+    <h1>数据与方法论</h1>
+    <div class="doc-meta">贝佐拉 &nbsp;·&nbsp; 版本 2026-07-01 &nbsp;·&nbsp; 保密文件</div>
+
+    <!-- ── OVERVIEW ── -->
+    <div class="doc-section" id="overview">
+      <div class="section-label">01 — 概述</div>
+      <h2>贝佐拉是什么</h2>
+      <p>贝佐拉是一个覆盖美国大盘股的每日股票量价分析平台。每个交易日收盘后,自动化扫描程序会为标普500和纳斯达克100指数中的每一只股票抓取价格、成交量和基本面数据,计算一套标准化的指标,并将结果发布为公开的 JSON 数据源,供仪表盘调用。</p>
+      <p>平台在<strong>1天到1年</strong>共七个时间窗口中呈现<strong>价格动量</strong>、<strong>成交量活跃度</strong>和<strong>相对估值</strong>信号,帮助用户一目了然地识别突破、趋势变化和行业相对价值。</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── UNIVERSE ── -->
+    <div class="doc-section" id="universe">
+      <div class="section-label">02 — 数据范围</div>
+      <h2>覆盖的证券</h2>
+      <p>扫描程序覆盖标普500和纳斯达克100成分股列表的<strong>并集</strong>(已去重)。截至2026年7月,共计<strong>516只股票</strong>。这一数字会随指数成分变动而变化——参见<a href="#membership">指数成分变动</a>。</p>
+
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>指数</th><th>大致数量</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>标普500</td><td>502</td><td>按流通市值计算的美国最大公司</td></tr>
+            <tr><td>纳斯达克100</td><td>101</td><td>纳斯达克上市的100家最大非金融公司</td></tr>
+            <tr><td>并集(去重)</td><td>516</td><td>属于任一或两个指数的股票</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>所有证券均为美股上市的普通股(包括部分在美上市的外国注册公司,如 ASML、BKNG、CCEP、NBIS)。扫描程序不覆盖 ETF、优先股、认股权证或固定收益产品。</p>
+
+      <h3 id="membership">指数成分变动</h3>
+      <p>每次扫描运行开始时,都会从 Slickcharts(<code>slickcharts.com/sp500</code>、<code>slickcharts.com/nasdaq100</code>)重新抓取成分股列表。任何权重为 <strong>0%</strong> 的条目都会被视为过期/已摘牌的残留列表项并被剔除——Slickcharts 有时会在指数实际变动后数天仍保留已离场成分股的条目(曾观察到 EchoStar/<code>SATS</code> 的案例:该公司已于 2026-06-24 将股票代码改为 <code>ECHO</code> 并退出标普500,但一周后 Slickcharts 上仍显示其 <code>0.00%</code> 权重的条目)。</p>
+      <p>新增和移除是通过与扫描程序<strong>自身此前保存的股票列表</strong>做差异比对得出的(而非每次都与 Slickcharts 的原始表格比对),因此一只已离场的股票只会被记录为"移除"一次——即便 Slickcharts 一直保留其残留条目也不会重复记录。变动会被写入 <code>data/index_changes.json</code>,并在仪表盘的"成分变动"标签页中展示。</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SOURCES ── -->
+    <div class="doc-section" id="sources">
+      <div class="section-label">03 — 数据来源</div>
+      <h2>数据从何而来</h2>
+
+      <h3>Tiingo(市场数据)</h3>
+      <p>所有价格和成交量数据均通过商业 API 授权从 <strong>Tiingo</strong> 获取。Tiingo 为美股提供经过拆股和分红调整的日线 OHLCV 数据。</p>
+      <ul>
+        <li><strong>批量日线接口</strong> — 一次 API 调用即可返回全部股票的最新收盘数据。</li>
+        <li><strong>单只股票历史接口</strong> — 首次扫描时获取最长2年的日线历史;此后为增量更新。</li>
+        <li><strong>调整后价格</strong> — 所有 OHLCV 数据均已做拆股与分红调整。</li>
+      </ul>
+
+      <h3>美国证监会 EDGAR(每股收益、股本、行业)</h3>
+      <p>每股收益、流通股本以及 SIC 行业分类均直接来自 <strong>SEC EDGAR XBRL API</strong>——由美国证券交易委员会提供的免费公开 API。基本面数据不依赖任何第三方数据商。</p>
+      <ul>
+        <li>EPS 接口:<code>data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json</code></li>
+        <li>行业/股本接口:<code>data.sec.gov/submissions/CIK{cik}.json</code></li>
+        <li>XBRL 概念:<code>us-gaap/EarningsPerShareDiluted</code>(主要字段;完整字段优先级见 EPS 章节)</li>
+        <li>所有数据均按美国通用会计准则(US GAAP)口径披露。</li>
+      </ul>
+      <p>当 Tiingo 的元数据接口不可用时,公司名称会通过 EDGAR CIK 映射表(<code>company_tickers.json</code>)作为备用方案解析。</p>
+
+      <h3>Firebase 与 Stripe</h3>
+      <p>用户身份验证由 <strong>Firebase Auth</strong> 处理。订阅计费使用 <strong>Stripe</strong>。两者均不参与市场数据处理。</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── PIPELINE ── -->
+    <div class="doc-section" id="pipeline">
+      <div class="section-label">04 — 扫描流程</div>
+      <h2>每日处理流程</h2>
+
+      <h3>运行时间表</h3>
+      <p>扫描程序以 <strong>GitHub Actions 工作流</strong>的形式运行,工作日按五个时段执行(均为美东时间;因 CI 排队延迟,实际执行时间通常比计划时间晚1-2小时):</p>
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>计划时间</th><th>用途</th><th>EDGAR 重新抓取</th></tr></thead>
+          <tbody>
+            <tr><td>下午4:30</td><td>主要收盘扫描 + 视频生成</td><td>完整重新抓取</td></tr>
+            <tr><td>下午5:00</td><td>重试——若4:30已完整更新则整体跳过</td><td>使用缓存</td></tr>
+            <tr><td>下午5:30</td><td>重试——无论前几轮结果如何都会执行</td><td>使用缓存</td></tr>
+            <tr><td>下午6:30</td><td>重试——无论前几轮结果如何都会执行</td><td>使用缓存</td></tr>
+            <tr><td>晚上11:00</td><td>兜底运行——使用当前可获取的任何数据强制执行</td><td>完整重新抓取</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>周六和周日,还会额外执行一次约凌晨1点(美东时间)的运行,仅刷新 SEC EDGAR 基本面数据(不进行市场扫描),确保休市期间基本面缓存依然保持最新。</p>
+      <p>工作日设置多个重试时段的原因是:Tiingo 并不总能同时为全部股票发布完整的收盘数据——详见下方<a href="#completeness">数据完整性保护机制</a>。</p>
+
+      <h3>休市检测</h3>
+      <p>在抓取新数据之前,程序会先探测 Tiingo 当天的 SPY 数据是否就绪。如果未能确认当日数据,会每隔30分钟重试一次(重试次数因时段而异),若始终无法确认则放弃本轮运行,保持 <code>latest.json</code> 不变。该机制既能应对常规的数据发布延迟,也能应对突发性休市(如2025年1月因吉米·卡特国葬导致的休市)。</p>
+      <p>常规的纽交所假期通过算法自动计算并跳过,无需 API 探测。晚上11点的兜底运行以及手动触发的运行会完全绕过假期检测和数据就绪探测,直接使用当前可获取的数据。</p>
+
+      <h3>每次运行的步骤</h3>
+      <ol>
+        <li><strong>更新指数成分</strong> — 重新抓取标普500/纳斯达克100成分股列表,过滤掉权重为0%的条目,检测并记录新增/移除的股票。</li>
+        <li><strong>更新 OHLCV 缓存</strong> — 一次批量 Tiingo API 调用获取全部股票的最新收盘数据;首次扫描时对缺失的历史数据进行补全。</li>
+        <li><strong>加载基本面数据</strong> — 启用 EDGAR 的运行会始终为每只股票重新抓取最新数据(无基本面缓存有效期——见<a href="#eps-cache">基本面数据新鲜度</a>);仅使用缓存的运行则读取最近一次启用 EDGAR 的运行所提交的基本面数据。</li>
+        <li><strong>将 OHLCV 加载到内存</strong> — 各股票的缓存文件仅加载一次到共享字典中;每个指标计算均从内存而非磁盘读取。</li>
+        <li><strong>计算指标</strong> — 对范围内的每一只股票:重建价格/成交量序列,计算所有时间窗口的指标、基本面数据和评分。</li>
+        <li><strong>剔除过期股票</strong> — 在发布之前,剔除所抓取数据日期与已确认的市场日期不一致的股票(详见下文)。</li>
+        <li><strong>后处理</strong> — 计算行业平均市盈率(按市值加权的调和平均数),在全部股票范围内计算 RSScore 和 MomentumScore 的百分位排名。</li>
+        <li><strong>数据质量检查</strong> — 标记单日价格变动超过25%(可能是缓存缺口)、K线少于200根,或缓存文件为空的股票。</li>
+        <li><strong>导出</strong> — 写入 <code>data/latest.json</code>、<code>data/candles.json</code>,以及一份带日期的 CSV 存档到 <code>archive/</code>。</li>
+      </ol>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── COMPLETENESS ── -->
+    <div class="doc-section" id="completeness">
+      <div class="section-label">04b — 数据完整性</div>
+      <h2>数据完整性保护机制</h2>
+      <p>Tiingo 并不总是在同一时刻为范围内的每只股票都发布完整的收盘数据——有些股票可能比其他股票延迟数分钟到数小时,偶尔更久。以下两项保护机制用于防止这种情况导致输出错误或标注误导性的数据。</p>
+
+      <h3>逐股票的过期数据剔除</h3>
+      <p>上文提到的市场就绪探测<strong>仅确认 SPY 本身</strong>拥有当日数据——并不能保证其他每只股票也是如此。每次扫描计算出结果后,系统会将每只股票所抓取的数据日期与已确认的市场日期进行比对。<strong>只要出现任何不一致——哪怕仅相差一天——该股票就会被整体排除在本轮输出之外</strong>,而不是让它带着"看起来是当日数据"的标签发布过期的价格/成交量。</p>
+      <p>发布的 <code>data/latest.json</code> 中会携带两个反映该机制的额外字段:</p>
+      <div class="formula">
+partialUpdate: true | false   <span class="comment">// 若本轮有任何股票被剔除,则为 true</span>
+staleTickers: ["股票代码", ...] <span class="comment">// 被剔除的具体股票(如有)</span>
+      </div>
+      <p>当 <code>partialUpdate</code> 为 true 时,仪表盘顶部会显示一条琥珀色提示(仅显示数量,不列出具体股票名——如果同时有大量股票受影响,列出全部名称会撑爆提示条),说明数据通常会在约30分钟内更新,但不会承诺确切时间。一旦后续运行(无论是定时还是手动触发)获取到该股票的最新数据,它会自动重新出现——无需任何特殊的恢复操作。</p>
+
+      <h3>重试效率优化</h3>
+      <p>如果下午4:30的运行已经实现了完整更新(<code>partialUpdate: false</code>),下午5:00的重试时段会直接跳过本轮扫描——既然没有需要补漏的内容,重新扫描一遍全部股票只会得到完全相同的结果。下午5:30和6:30的时段则始终无条件执行,作为当晚后续时间里针对任何仍未解决问题的兜底保障。</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── OHLCV ── -->
+    <div class="doc-section" id="ohlcv">
+      <div class="section-label">05 — 价格与成交量数据</div>
+      <h2>OHLCV 缓存</h2>
+
+      <div id="ohlcv-cache">
+        <h3>缓存结构</h3>
+        <p>每只股票对应一个 JSON 文件:<code>data/ohlcv_tiingo_cache/{股票代码}.json</code>。每个文件包含该股票完整的 OHLCV 历史记录,以 <code>{date, open, high, low, close, volume}</code> 记录列表形式按日期升序排列。文件采用增量更新——新的数据只会被追加,不会重写历史记录。</p>
+        <p>缓存保留<strong>最长2年的日线历史</strong>(约504个交易日)。首次扫描某只股票时,尚无缓存文件,会从 Tiingo 补全完整历史。后续扫描仅从批量日线接口追加最新一根K线。</p>
+      </div>
+
+      <div id="volume-note">
+        <h3>成交量定义</h3>
+        <p>Tiingo 的收盘数据按交易所数据源提供的口径报告股票成交量。根据具体证券和交易所的披露惯例,成交量数字可能包含盘前和盘后的场外交易量,而不仅仅是常规交易时段的成交量。因此,报告的成交量通常系统性地高于只显示常规交易时段成交量的平台。这并非错误——它反映的是更广义的每日市场活跃度。</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── METRICS ── -->
+    <div class="doc-section" id="metrics">
+      <div class="section-label">06 — 计算指标</div>
+      <h2>价格与成交量计算方法</h2>
+
+      <div id="timeframes">
+        <h3>时间窗口</h3>
+        <p>所有多日指标均按固定数量的<strong>交易日</strong>(而非自然日)计算:</p>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>标签</th><th>交易日数</th><th>大致对应自然天数</th></tr></thead>
+            <tbody>
+              <tr><td>2周</td><td>10</td><td>2周</td></tr>
+              <tr><td>1月</td><td>21</td><td>1个月</td></tr>
+              <tr><td>3月</td><td>63</td><td>3个月</td></tr>
+              <tr><td>6月</td><td>126</td><td>6个月</td></tr>
+              <tr><td>9月</td><td>189</td><td>9个月</td></tr>
+              <tr><td>1年</td><td>252</td><td>1年</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>只有当某只股票拥有至少对应数量的交易日缓存数据时,该窗口的指标才会被计算。若历史数据不足,该字段为 <code>null</code>。</p>
+      </div>
+
+      <div id="1d">
+        <h3>单日指标</h3>
+        <div class="formula">
+PriceChange1D  = (Close[t] − Close[t-1]) / Close[t-1] × 100   <span class="comment">(百分比)</span>
+VolumeChange1D = (Volume[t] − Volume[t-1]) / Volume[t-1] × 100 <span class="comment">(百分比)</span>
+PriceVsMA21    = Close[t] / mean(Close[t-20 … t])
+VolumeVsMA21   = Volume[t] / mean(Volume[t-20 … t])
+        </div>
+        <p><code>PriceVsMA21</code> 和 <code>VolumeVsMA21</code> 均为比值(1.0 表示恰好等于21日均值)。大于1.0表示当日数值高于近期均值。</p>
+        <h4>实时价格与单日涨跌幅(仅限仪表盘)</h4>
+        <p>已登录仪表盘使用 Tiingo IEX 实时报价,每 <strong>10秒</strong>刷新一次<strong>价格</strong>和<strong>日涨跌幅</strong>两列,生效时段为工作日<strong>美东时间上午9:30至晚上8:00</strong>(<code>isMarketOpen()</code>——刻意延伸至下午4:00收盘之后,以便在当晚下午4:00至6:30这段扫描结果尚未落地的空档期内,继续显示实时价格)。实时涨跌幅计算公式为:</p>
+        <div class="formula">
+日涨跌幅(实时) = (IEX_last − scanClose) / scanClose × 100
+        </div>
+        <p>其中 <code>scanClose</code> 为 <code>latest.json</code> 中记录的前一晚收盘价。IEX 的 <code>prevClose</code> 字段被刻意弃用,因为它在拆股当天可能过期或未经调整。</p>
+        <p>一旦新一轮扫描结果落地、页面自动刷新后(每5分钟轮询一次),<code>scanClose</code> 本身就会变成当天的收盘价——此时仪表盘会在剩余的8点时段内停止叠加 IEX 实时数据(否则用当天收盘价与自身比较会导致所有单日涨跌幅显示为0%),转而显示扫描程序自身计算出的 <code>PriceChange1D</code>。</p>
+        <h4>拆股修正</h4>
+        <p>在正向拆股生效当天,Tiingo IEX 会立即返回拆股后的价格,而 <code>latest.json</code> 中仍保留拆股前的收盘价。若不加修正,会导致出现巨大的虚假单日跌幅。仪表盘会自动修正该问题:</p>
+        <ul>
+          <li>仪表盘加载时会获取 <code>data/splits.json</code>,其中包含过去6个月内比例≥2的正向拆股信息,数据源自 Tiingo 的 <code>/tiingo/daily/{ticker}/splits</code> 接口,并在每次夜间扫描和每个周末凌晨的 EDGAR 运行中刷新。</li>
+          <li>对于拆股表中的每只股票,仪表盘会检查观测到的比例 <code>scanClose / IEX_last ≈ splitRatio(±20%)</code>是否成立。若成立,则在计算涨跌幅之前,将参考价格调整为 <code>scanClose / splitRatio</code>。</li>
+          <li>一旦拆股后的夜间扫描运行,<code>latest.json</code> 会更新为拆股后的收盘价,比例趋近于1,该修正机制便会自动失效——无需人工干预。</li>
+        </ul>
+      </div>
+
+      <div id="period">
+        <h3>区间指标(按时间窗口)</h3>
+        <p>对于每个窗口 <em>W</em>(例如3月 = 最近63个交易日),以下指标均从切片 <code>df.iloc[-W:]</code> 中计算得出:</p>
+        <div class="formula">
+{W}PriceChange  = (Close[-1] − Close[0]) / Close[0] × 100  <span class="comment">(区间首尾涨跌幅)</span>
+{W}MaxPriceChange  = 区间内单日最大涨跌幅 × 100
+{W}MaxPriceChangeDay  = 单日最大涨幅发生在几个交易日之前
+{W}MaxVolumeChange  = 区间内单日最大成交量变化 × 100
+{W}MaxVolumeChangeDay  = 单日最大成交量激增发生在几个交易日之前
+{W}PriceChangeAtMaxVolume  = 成交量最高当日的价格涨跌幅
+{W}VolumeChangeAtMaxPrice  = 价格涨幅最大当日的成交量变化
+        </div>
+        <p>"天数"字段均从窗口的<em>末端</em>开始计数(0 = 最近一个交易日,1 = 前一交易日,以此类推)。</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── FUNDAMENTALS ── -->
+    <div class="doc-section" id="fundamentals">
+      <div class="section-label">07 — 基本面数据</div>
+      <h2>每股收益、市盈率、市值、贝塔系数与波动率</h2>
+
+      <div id="eps">
+        <h3>每股收益 — TTM 计算方法</h3>
+        <p>EPS 采用<strong>过去十二个月(TTM)摊薄后的 GAAP 每股收益</strong>,数据来自 SEC EDGAR XBRL 文件。之所以以摊薄每股收益作为主要字段,是为了与雅虎财经和标普指数所采用的行业标准方法保持一致。以下概念字段按顺序依次尝试,遇到第一个有数据的字段即停止:</p>
+        <ol>
+          <li><code>EarningsPerShareDiluted</code> <strong>(主要字段)</strong></li>
+          <li><code>EarningsPerShareBasic</code> — 若摊薄数据不可用时的备用字段</li>
+          <li><code>IncomeLossFromContinuingOperationsPerDilutedShare</code> — REIT 必需字段</li>
+          <li><code>IncomeLossFromContinuingOperationsPerBasicShare</code></li>
+        </ol>
+
+        <h3>年初至今累计披露的识别</h3>
+        <p>许多公司(如默克、雪佛龙)在10-Q中披露的是<strong>年初至今累计EPS</strong>,而非单季度数值。扫描程序通过比较披露期间的长度来识别这种情况:</p>
+        <ul>
+          <li>期间约90天 → 真实单季度数值,直接使用。</li>
+          <li>期间约180天 → 上半年累计;第二季度 = 上半年 − 第一季度。</li>
+          <li>期间约270天 → 前三季度累计;第三季度 = 前三季度累计 − 上半年。</li>
+        </ul>
+
+        <h3>从年度10-K推导第四季度数据</h3>
+        <p>第四季度EPS从不会单独出现在10-Q中,需通过以下方式推导:</p>
+        <div class="formula">
+第四季度 = 年度10-K − 前三季度累计(10-Q)
+TTM = 最近第一季度 + 最近第二季度 + 最近第三季度 + 推导出的第四季度
+        </div>
+        <p>该方法能正确处理财年结束月份非12月的公司(如苹果、英伟达、好市多等),此时最新的年度10-K所覆盖的自然年度与最新几份10-Q并不相同。</p>
+        <p>用于查找"前三季度累计"匹配项的搜索会使用<strong>完整的历史10-Q记录</strong>(不设时效限制),而TTM季度求和则只使用过去两年内的记录。这种区分确保了即便某公司最新的10-K已超出两年滚动窗口,第四季度推导路径也总能找到与之匹配的正确的"前三季度累计"披露记录——同时又不会让TTM求和暴露在遥远财年的过期季度数据风险之下。</p>
+
+        <h3 id="eps-example">实例分析:CI(信诺集团)— TTM 与一次性收益的关系</h3>
+        <p>本例说明了TTM计算在实践中的运作方式,以及我们的EPS为何可能与雅虎财经等第三方数据源出现合理的差异。</p>
+        <p>截至2026年6月的扫描,EDGAR 中 CI 在 <code>form=10-Q</code> 下的 <code>EarningsPerShareDiluted</code> 记录如下:</p>
+        <div class="formula">
+2025年第二季度 (截至=2025-06-30,期间≈90天):   5.71   <span class="comment">(单季度数值)</span>
+2025年第三季度 (截至=2025-09-30,期间≈90天):   6.98   <span class="comment">(单季度数值)</span>
+2026年第一季度 (截至=2026-03-31,期间≈90天):   6.26   <span class="comment">(单季度数值)</span>
+        </div>
+        <p>2025年第四季度不在任何10-Q中,是从10-K推导得出的:</p>
+        <div class="formula">
+前三季度累计 (10-Q,起始=2025-01-01,截至=2025-09-30,期间≈273天): ~19.01
+2025财年 (10-K,截至=2025-12-31):                                  ~23.67
+推导出的第四季度 = 23.67 − 19.01 = ~4.66
+
+TTM = 6.26 + 6.98 + 5.71 + 4.66 = <strong>23.61</strong>
+        </div>
+        <p>同期雅虎财经披露的 <code>trailingEps = 113.71</code>,对应市盈率仅2.5倍——对一家大型健康险公司而言,这样的估值低得难以置信。而我们计算出的12.3倍市盈率与CI的历史区间相符。</p>
+        <p>最可能的解释是:雅虎财经的EPS数据来源于<strong>2024财年10-K</strong>,其中包含信诺出售其"联邦医疗保险优势计划"及补充福利业务给美国医疗服务公司(HCSC)所产生的一笔巨额一次性税后收益。这笔收益大幅拉高了2024年披露的GAAP每股收益,远超公司经常性盈利水平。到2026年6月,我们的TTM窗口已经完全滚动越过了这一事件,正确反映了信诺约每股5-7美元的常态季度盈利水平。</p>
+        <div class="note">
+          <strong>关键要点:</strong>TTM每股收益是一个滚动窗口。同一只股票在不同的四个季度组合下,EPS和市盈率可能大相径庭。当一笔巨额一次性收益或支出滚出TTM窗口后,我们基于EDGAR推导出的数值就会与那些锚定在较旧年度10-K上的数据源产生分歧——而我们的数字通常更能代表该公司的经常性盈利能力。
+        </div>
+
+        <h3 id="eps-fallback">内嵌 XBRL 文件备用方案</h3>
+        <p>少数股票尽管定期向SEC披露文件,但其EDGAR company_facts API 中并没有 <code>EarningsPerShareDiluted</code> 系列数据。对于这些股票,扫描程序会退而求其次,直接从主披露文件(<code>.htm</code>)中内嵌的XBRL数据解析EPS。截至2026年7月,共有11只股票适用此方案:<strong>KKR、BRK-B、V、ERIE、STZ、HSY</strong>(美国境内披露方)以及 <strong>ARM、ASML、CCEP、FER、PDD、NBIS</strong>(境外披露方)。这份名单并非固定不变——会随着 company_facts 数据老化或披露方调整标记方式而变化,因此每次都从实时EDGAR数据重新判定,而非硬编码。</p>
+        <p>该备用方案沿用与主路径相同的TTM构建优先级——关键在于,<strong>第四季度推导路径(前三季度 + 年度 − 前三季度累计)始终优先于"直接汇总任意可获得的4个季度日期"这种简单粗暴的兜底方式</strong>。第四季度从不会单独以10-Q形式披露(它被并入了10-K),因此简单汇总方式一旦执行,就会悄悄用一个过期的去年同期季度数据替代真实的第四季度——这一问题在2026年7月被发现并针对六只股票修复(修复前,KKR的TTM每股收益被低估了约2倍)。</p>
+        <ul>
+          <li><strong>美国境内披露方(10-Q / 10-K)</strong> — 获取并解析最近最多4份10-Q;每当自上一份年度报告以来披露的真实季度数不足4个(这是常见情况)时,第四季度就会从年度10-K中推导得出。</li>
+          <li><strong>境外披露方(20-F / 40-F / 6-K)</strong> — 这些公司不存在季度披露,因此备用方案直接使用最近一份年度数据。例如:<strong>ASML、CCEP、FER、PDD</strong>(20-F),<strong>NBIS</strong>(6-K,由外国私人发行人提交)。</li>
+        </ul>
+        <h3>披露币种识别与汇率换算</h3>
+        <p>境外披露方以其本国货币披露EPS(ASML/CCEP/FER为欧元,PDD为人民币)。扫描程序会自动从每个内嵌XBRL标签的 <code>unitRef</code> 属性中识别披露币种,该属性通过文件的单位定义解析为 ISO 4217 货币代码(例如 <code>&lt;xbrli:measure&gt;iso4217:EUR&lt;/xbrli:measure&gt;</code>)。</p>
+        <p>随后,EPS会使用每次扫描获取一次的欧洲央行(ECB)每日参考汇率(来自免费、无需API密钥、每个交易日更新的 <strong>Frankfurter API</strong>)换算为美元:</p>
+        <div class="formula">
+EPS_美元 = EPS_本币 × 汇率
+        </div>
+        <p>汇率会在扫描运行期间缓存于内存中。若汇率获取失败,当次运行中非美元披露方的EPS将保持为空。</p>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>股票代码</th><th>披露文件类型</th><th>币种</th><th>EPS(美元,2026年7月)</th></tr></thead>
+            <tbody>
+              <tr><td>KKR</td><td>10-Q / 10-K</td><td>USD</td><td>2.93</td></tr>
+              <tr><td>BRK-B</td><td>10-Q / 10-K</td><td>USD</td><td>33.59(已 ÷1500,详见"特殊情况")</td></tr>
+              <tr><td>V</td><td>10-Q / 10-K</td><td>USD</td><td>11.47</td></tr>
+              <tr><td>ERIE</td><td>10-Q / 10-K</td><td>USD</td><td>10.93</td></tr>
+              <tr><td>STZ</td><td>10-Q / 10-K</td><td>USD</td><td>随新季度/年报披露而变化</td></tr>
+              <tr><td>HSY</td><td>10-Q / 10-K</td><td>USD</td><td>5.37</td></tr>
+              <tr><td>ARM</td><td>20-F</td><td>USD</td><td>0.85</td></tr>
+              <tr><td>ASML</td><td>20-F</td><td>EUR → USD</td><td>28.13</td></tr>
+              <tr><td>CCEP</td><td>20-F</td><td>EUR → USD</td><td>4.85</td></tr>
+              <tr><td>FER</td><td>20-F</td><td>EUR → USD</td><td>1.41</td></tr>
+              <tr><td>PDD</td><td>20-F</td><td>CNY → USD</td><td>9.44(已按ADS×4比例调整)</td></tr>
+              <tr><td>NBIS</td><td>6-K</td><td>USD</td><td>0.33</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>特殊情况</h3>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>股票代码</th><th>调整方式</th><th>原因</th></tr></thead>
+            <tbody>
+              <tr><td>BRK-B</td><td>EDGAR EPS ÷ 1500</td><td>EDGAR(通过内嵌XBRL备用方案)按A类股口径披露伯克希尔的EPS(约5万美元量级);B类股为A类股的1/1500</td></tr>
+              <tr><td>PDD</td><td>股本 ÷ 4,EPS × 4</td><td>1份ADS = 4份普通股;EDGAR按普通股口径披露,Tiingo则按ADS定价</td></tr>
+              <tr><td>BKNG</td><td>EDGAR EPS ÷ 25(若EPS &gt; 25)</td><td>2026年4月25拆1拆股。一旦EDGAR反映拆股后数据,该防护逻辑会自动失效</td></tr>
+              <tr><td>CVNA</td><td>EDGAR EPS ÷ 5(若EPS &gt; 4)</td><td>2026年5月5拆1拆股。一旦EDGAR反映拆股后数据,该防护逻辑会自动失效</td></tr>
+              <tr><td>KLAC</td><td>EDGAR EPS ÷ 10(若EPS &gt; 10)</td><td>2026年6月10拆1拆股。一旦EDGAR反映拆股后数据,该防护逻辑会自动失效</td></tr>
+              <tr><td>DD</td><td>EDGAR EPS × 3(若|EPS| &lt; 0.20)</td><td>2026年6月<strong>反向</strong>1股并3股——该股处于亏损状态,因此防护逻辑检查数值是否接近零,而非设置上限阈值</td></tr>
+              <tr><td>HON</td><td>EDGAR EPS × 2(若|EPS| &lt; 8.0)</td><td>2026年6月反向1股并2股</td></tr>
+              <tr><td>ARES、TRI</td><td>EPS = null</td><td>两者均于2026年5月提交了25-NSE表格(摘牌通知)</td></tr>
+              <tr><td>FDXF</td><td>EPS = null</td><td>联邦快递货运业务分拆公司(2026年6月)——目前仅披露了8-K和Form 4,尚无10-Q或10-K</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>全部五个拆股防护逻辑(BKNG、CVNA、KLAC、DD、HON)都存放在 <code>data/split_guards.csv</code> 中,均为条件触发式而非基于日期:一旦EDGAR自身披露的EPS/股本数据跨过与拆股后规模相符的阈值,防护逻辑就会自动移除自身,因此一旦某公司下一份10-Q反映了拆股情况,便无需人工清理。新增一个拆股防护只需在CSV中添加一行,无需修改代码。</p>
+      </div>
+
+      <div id="pe">
+        <h3>市盈率(P/E)</h3>
+        <div class="formula">
+市盈率 = Close[t] / EPS_TTM   <span class="comment">(每次扫描时用当前价格与缓存的EPS实时计算)</span>
+        </div>
+        <p>市盈率每次扫描都会用最新价格重新计算,因此即便自上次基本面刷新以来EPS未变化,市盈率仍能反映当前市场估值。若EPS为空、为零或为负,市盈率将设为 <code>null</code>。</p>
+      </div>
+
+      <div id="mktcap">
+        <h3>市值</h3>
+        <div class="formula">
+市值 = 流通股本 × Close[t]   <span class="comment">(每次扫描时用当前价格重新计算)</span>
+        </div>
+        <p>流通股本数据来自 <strong>SEC EDGAR XBRL</strong>,通过 <code>companyfacts</code> API 中的 <code>dei/EntityCommonStockSharesOutstanding</code> 概念获取。以下数据源按顺序依次尝试,均要求披露日期在过去两年以内:</p>
+        <ol>
+          <li><code>dei/EntityCommonStockSharesOutstanding</code> — 封面页DEI字段;期末数量 <strong>(主要来源)</strong></li>
+          <li><code>us-gaap/CommonStockSharesOutstanding</code> — 资产负债表对应字段</li>
+          <li>解析最近一份10-Q或10-K封面页中的内嵌XBRL数据</li>
+          <li><code>us-gaap/WeightedAverageNumberOfSharesOutstandingBasic</code> — TTM平均值;最后的备选方案</li>
+        </ol>
+        <p>使用<strong>当前收盘价</strong>相乘(而非存储数据商提供的市值数字),确保即便股本未发生变化,展示的市值也能在每次扫描中保持最新。第三方缓存的市值数字可能滞后于重大回购活动数周甚至数月。</p>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>股票代码</th><th>调整后股本</th><th>原因</th></tr></thead>
+            <tbody>
+              <tr><td>BRK-B</td><td>A类股等效值</td><td>特殊计算方式,合并A类股和B类股;EDGAR仅按A类股口径披露</td></tr>
+              <tr><td>BX</td><td>1,222,000,000</td><td>EDGAR仅披露A类股(约7.42亿);黑石控股有限合伙单位额外增加约4.8亿等效股份</td></tr>
+              <tr><td>IBKR</td><td>1,697,000,000</td><td>公开A类股加上创始实体持有的约75% IBG LLC会员权益单位</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>市值以<strong>十亿美元</strong>为单位发布于 <code>latest.json</code> 中,并作为行业平均市盈率调和平均数计算中的权重因子。</p>
+      </div>
+
+      <div id="beta">
+        <h3>贝塔系数</h3>
+        <div class="formula">
+贝塔系数 = Cov(个股收益率, SPY收益率) / Var(SPY收益率)
+       <span class="comment">— 过去252个交易日(1年)的日收益率</span>
+        </div>
+        <p>SPY数据每次扫描都会通过单独的API调用重新获取(不在OHLCV缓存中,因为SPY本身不属于扫描范围)。该请求最多重试<strong>8次</strong>并采用指数退避策略以应对限流。若重试全部失败后仍无法获取SPY数据,程序会记录"SPY fetch returned no data — beta will be None"日志(可在GitHub Actions运行日志中查看),当次运行所有股票的贝塔系数均为空。若某只股票历史数据不足60天,其贝塔系数同样为空。</p>
+
+        <h3>30日年化波动率</h3>
+        <div class="formula">
+30日波动率 = StdDev(最近30日收益率) × √252
+        </div>
+        <p>使用最近30个交易日的收盘价对收盘价收益率计算,乘以√252进行年化处理。</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SECTORS ── -->
+    <div class="doc-section" id="sectors">
+      <div class="section-label">08 — 行业分类</div>
+      <h2>行业如何被分配</h2>
+
+      <p>行业分配遵循两级优先顺序:</p>
+      <ol>
+        <li><strong>股票代码覆盖表</strong> — 一个包含46只股票的硬编码字典,这些股票由SIC推导出的行业存在偏差(外国注册、近期新纳入指数、重组后公司等原因)。该表优先级高于其他所有逻辑。</li>
+        <li><strong>SIC对行业映射表</strong> — <strong>SEC EDGAR</strong> 通过其 <code>submissions</code> API 为每家公司返回SIC(标准行业分类)描述字符串。一张静态查找表将256种SIC描述(加上针对未收录情况的关键词模糊匹配)映射到11个与GICS对齐的行业。</li>
+      </ol>
+
+      <h3>行业列表</h3>
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>行业</th><th>大致股票数量</th><th>示例</th></tr></thead>
+          <tbody>
+            <tr><td>科技</td><td>98</td><td>AAPL、MSFT、NVDA、GOOGL、ACN、LRCX</td></tr>
+            <tr><td>金融服务</td><td>75</td><td>JPM、BAC、V、MA、BRK-B、PYPL</td></tr>
+            <tr><td>工业</td><td>62</td><td>BA、CAT、HON、LMT、NOC、RTX、UPS</td></tr>
+            <tr><td>非必需消费品</td><td>60</td><td>AMZN、TSLA、BKNG、ABNB、CCL、UBER</td></tr>
+            <tr><td>医疗保健</td><td>59</td><td>JNJ、LLY、UNH、DHR、TMO、ABBV</td></tr>
+            <tr><td>必需消费品</td><td>37</td><td>WMT、PG、KO、PEP、COST、MO</td></tr>
+            <tr><td>公用事业</td><td>31</td><td>NEE、DUK、SO、AEP、EXC</td></tr>
+            <tr><td>房地产</td><td>31</td><td>AMT、PLD、EQIX、SPG、CSGP</td></tr>
+            <tr><td>基础材料</td><td>31</td><td>LIN、APD、FCX、NEM、DOW、AMCR</td></tr>
+            <tr><td>能源</td><td>21</td><td>XOM、CVX、COP、SLB、EOG</td></tr>
+            <tr><td>通信服务</td><td>11</td><td>META、GOOGL、NFLX、DIS、T、VZ</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="sector-avg">
+        <h3>行业平均市盈率 — 市值加权调和平均数</h3>
+        <p>行业平均市盈率按各行业内个股市盈率的<strong>市值加权调和平均数</strong>计算,数学上等价于用行业总市值除以行业隐含总盈利:</p>
+        <div class="formula">
+行业平均市盈率 = Σ(市值_i) / Σ(市值_i / 市盈率_i)
+              = 行业总市值 / 行业隐含总盈利
+        </div>
+        <p>这与标普用于其行业指数的方法相同。相比简单算术平均数,该方法要稳健得多——简单平均容易被高市盈率的异常值扭曲(例如单一一只600倍市盈率的股票就足以主导简单平均结果)。</p>
+        <p><strong>相对行业市盈率(PE_vs_Sector)</strong>计算方式为:</p>
+        <div class="formula">
+相对行业市盈率 = (市盈率_i − 行业平均市盈率) / 行业平均市盈率 × 100   <span class="comment">(百分比)</span>
+        </div>
+        <div class="note">
+          <strong>关于通信服务行业的说明:</strong>AT&amp;T和Verizon市值巨大(各约1200-1600亿美元),市盈率较低(约10倍)。由于行业平均值按市值加权,这两只股票占据主导地位,将行业平均值拉低至约10倍。这准确反映了按市值加权的指数投资者在该行业中的实际体验。
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SCORES ── -->
+    <div class="doc-section" id="scores">
+      <div class="section-label">09 — 评分体系</div>
+      <h2>四项综合评分</h2>
+
+      <h3>突破评分(0–100)</h3>
+      <p>衡量相对于近期均值的即时价格和成交量动量。数值越高代表短期突破信号越强。</p>
+      <div class="formula">
+分量1 = min(33, max(0, (PriceVsMA21 − 1) × 200))   <span class="comment">(价格高于MA21均线)</span>
+分量2 = min(33, max(0, 日涨跌幅% × 3))         <span class="comment">(当日价格波动)</span>
+分量3 = min(34, max(0, (VolumeVsMA21 − 1) × 25))   <span class="comment">(成交量放大)</span>
+突破评分 = round(分量1 + 分量2 + 分量3)
+      </div>
+
+      <h3>量能压力评分(−100 至 +100)</h3>
+      <p>综合成交量强度与价格方向。正值 = 放量上涨(买盘压力);负值 = 放量下跌(卖盘压力)。</p>
+      <div class="formula">
+方向 = +1(若日涨跌幅 &gt; 0)、−1(若 &lt; 0)、否则为 0
+量能压力评分 = clamp((VolumeVsMA21 − 1) × 方向 × 100, −100, 100)
+      </div>
+
+      <h3>趋势评分(0–100)</h3>
+      <p>六个时间窗口(2周、1月、3月、6月、9月、1年)中价格上涨的窗口占比,以百分比表示。100 = 全部窗口均上涨;0 = 全部窗口均下跌。历史数据不足导致为空的窗口按0计算。</p>
+      <div class="formula">
+趋势评分 = count(各窗口涨跌幅 &gt; 0 的数量) / 6 × 100
+      </div>
+
+      <h3>相对强度评分(1–99,百分位)</h3>
+      <p>衡量相对于范围内所有其他股票的价格动量。基于六个时间窗口的加权原始得分计算出<strong>百分位排名</strong>:</p>
+      <div class="formula">
+原始RS得分 = 0.40×3月涨跌幅 + 0.20×6月涨跌幅
+      + 0.20×9月涨跌幅 + 0.20×1年涨跌幅
+相对强度评分 = percentile_rank(原始RS得分, 全部516只股票) × 98 + 1   <span class="comment">(缩放至1–99)</span>
+      </div>
+      <p>权重侧重于3个月窗口(学术文献中最具预测力的动量周期),同时保留长期背景信息。</p>
+
+      <h3>动量评分(0–100,百分位)</h3>
+      <p>与相对强度评分类似,但更侧重短期窗口,用于捕捉近期加速迹象:</p>
+      <div class="formula">
+原始动量得分 = 0.35×1月涨跌幅 + 0.25×3月涨跌幅
+            + 0.20×6月涨跌幅 + 0.20×1年涨跌幅
+动量评分 = percentile_rank(原始动量得分, 全部516只股票) × 100
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── OUTPUT ── -->
+    <div class="doc-section" id="output">
+      <div class="section-label">10 — 输出格式</div>
+      <h2>发布的数据文件</h2>
+
+      <h3>data/latest.json</h3>
+      <p>仪表盘使用的主数据文件,每次扫描成功后发布。顶层结构如下:</p>
+      <div class="formula">
+{
+  "date": "YYYY-MM-DD",
+  "status": "Updated",
+  "count": 516,
+  "partialUpdate": false,
+  "staleTickers": [],
+  "data": [ { ...每只股票一个对象... } ]
+}
+      </div>
+      <p><code>partialUpdate</code> / <code>staleTickers</code> 反映的是上文<a href="#completeness">数据完整性保护机制</a>中所述的逐股票过期数据剔除机制——详情请参见该章节。</p>
+      <p>每只股票对象包含:<code>Ticker</code>、<code>Date</code>、<code>Price</code>、<code>VolumeM</code>、各时间窗口的单日及区间指标、<code>PE</code>、<code>EPS</code>、<code>MarketCap</code>(单位十亿美元)、<code>Beta</code>、<code>Volatility30D</code>、<code>Sector</code>、<code>SectorAvgPE</code>、<code>PE_vs_Sector</code>、<code>CompanyName</code>、<code>Spark1Y</code>(归一化后的收盘价序列),以及四项综合评分。</p>
+
+      <h3>仪表盘 — 股票详情弹窗</h3>
+      <p>点击任意一行股票会打开弹窗,展示:1年K线图、当前价格及单日涨跌幅(绿涨红跌)、以及包含市盈率、每股收益、成交量、贝塔系数、30日波动率、市值、行业和1月/3月/1年涨跌幅(按颜色区分)的数据面板。弹窗数据读取自 <code>latest.json</code> 中的同一行记录;K线图数据来自 <code>data/candles.json</code>。</p>
+
+      <h3>仪表盘 — 自选股</h3>
+      <p>用户可以为任意一行股票加星(☆ → ★)以保存至个人自选股列表。已保存的股票代码存储在浏览器 <code>localStorage</code> 的 <code>"baizora_watchlist"</code> 键下,在同一浏览器中英文版和中文版仪表盘之间共享。专属的"★ 自选股"标签页会将主表格筛选为仅显示已保存的股票,并保留所有排序、筛选和时间窗口控件的完整功能。</p>
+
+      <h3>data/candles.json</h3>
+      <p>弹窗K线图使用的K线数据,与 <code>latest.json</code> 分开加载(独立存放以减小首屏加载体积)。</p>
+      <div class="formula">
+{
+  "date": "YYYY-MM-DD",
+  "dates": [ "YYYY-MM-DD", ... ],   <span class="comment">最近252个交易日</span>
+  "data": {
+    "AAPL": [ [open,high,low,close], ... ],
+    ...
+  }
+}
+      </div>
+
+      <h3>archive/results_YYYY-MM-DD.csv</h3>
+      <p>每次扫描的完整CSV快照,用于历史存档参考。仪表盘不会调用该文件。</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── LIMITATIONS ── -->
+    <div class="doc-section" id="limitations">
+      <div class="section-label">11 — 已知局限性</div>
+      <h2>数据缺口与边界情况</h2>
+
+      <h3>EPS 数据不可用(3只股票)</h3>
+      <p><strong>ARES</strong> 和 <strong>TRI</strong> 的EPS为空——两者均于2026年5月提交了25-NSE表格(摘牌通知)。<strong>FDXF</strong>(联邦快递货运分拆公司,2026年6月)EPS为空,单纯是因为尚未披露10-Q或10-K——目前只有一份8-K和几份Form 4。所有其他缺乏主路径company_facts EPS数据的股票,均通过内嵌XBRL备用方案获取数据——参见上文<a href="#eps-fallback">内嵌XBRL备用方案</a>。</p>
+
+      <h3>OHLCV 历史数据较短</h3>
+      <p>近期上市或近期分拆的股票在缓存中的干净交易日不足252天——截至2026年7月,这包括 <strong>FDXF</strong>(约24天)、<strong>Q</strong>(约165天)和 <strong>PSKY</strong>(派拉蒙天空之舞,约227天)。在缓存积累足够的日线历史之前,这些股票的长周期指标(9月、1年)均为空。</p>
+
+      <h3>拆股调整</h3>
+      <p>Tiingo会自动对历史K线追溯性地返回拆股调整后的价格。EDGAR的EPS和流通股本披露<strong>不会</strong>追溯调整——只有当公司披露下一份10-Q或10-K后,才会反映拆股后的股本数量。这会产生一个临时缺口(Tiingo已显示拆股后价格,而EDGAR仍显示拆股前的EPS/股本),由上文"特殊情况"中所述的条件触发式拆股防护逻辑自动弥合。</p>
+
+      <h3 id="eps-cache">基本面数据新鲜度</h3>
+      <p>公司基本面数据(EPS、行业、流通股本)<strong>不设缓存有效期</strong>——每次启用EDGAR的扫描运行(工作日下午4:30和晚上11点,以及周末的EDGAR专用运行)都会为每只股票重新从SEC EDGAR抓取最新数据,而非复用过期的本地缓存。下午5:00/5:30/6:30的重试时段则会复用最近一次启用EDGAR的运行所提交的基本面数据,而非重新抓取,因为EDGAR披露文件不会在日内发生变化。这意味着只要公司已经披露,市盈率就能反映当日的EPS,而不会因固定的缓存周期而滞后。</p>
+
+      <h3>K线图历史长度</h3>
+      <p><code>candles.json</code> 的日期窗口覆盖最近252个交易日。对于该窗口内干净OHLCV记录较少的股票,图表显示的K线会相应减少,横轴标签也会对应252天窗口的尾部区间。</p>
+
+      <h3>行业平均市盈率的计算范围</h3>
+      <p>行业平均市盈率仅基于贝佐拉覆盖范围内(标普500 + 纳斯达克100)的股票计算。这会使行业平均值相对整体市场偏高——该范围以大盘股和成长股为主。市值加权调和平均法通过将平均值锚定在最大市值公司的估值上来缓解这一问题,从而近似反映行业指数投资者的实际体验。</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── SERVICES ── -->
+    <div class="doc-section" id="services">
+      <div class="section-label">12 — 服务与基础设施</div>
+      <h2>服务技术栈</h2>
+      <p>贝佐拉完全构建于托管云服务之上,不依赖任何专用服务器。架构设计使得用户流量的增长不会显著推高基础设施成本。</p>
+
+      <table class="data-table">
+        <thead>
+          <tr><th>服务</th><th>作用</th><th>方案/成本</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>GitHub Pages</td><td>为全部HTML/JS/CSS及 <code>data/latest.json</code> 提供静态托管与全球CDN</td><td>免费</td></tr>
+          <tr><td>GitHub Actions</td><td>扫描定时任务(工作日美东时间4:30/5:00/5:30/6:30/晚上11点,周末约凌晨1点)、视频生成、存档推送</td><td>免费(每月2,000分钟)</td></tr>
+          <tr><td>scanner-archive 仓库</td><td>永久保存的压缩CSV存档(晚上11点运行每天生成1份),用于数据质量审计追溯</td><td>免费(私有仓库)</td></tr>
+          <tr><td>Google Cloud Functions</td><td><code>/api/iex-quotes</code> 实时报价接口;<code>/api/subscription</code> 订阅状态校验</td><td>Blaze按量付费(约每月0.10美元)</td></tr>
+          <tr><td>Firebase Auth</td><td>用户身份验证(邮箱/密码)</td><td>月活5万以内免费</td></tr>
+          <tr><td>Stripe</td><td>订阅计费(月付9.99美元或年付99美元);7天免费试用</td><td>每笔交易2.9% + 0.30美元</td></tr>
+          <tr><td>Tiingo</td><td>516只股票的收盘OHLCV数据与公司元数据;首页实时IEX报价</td><td>商业授权</td></tr>
+          <tr><td>SEC EDGAR</td><td>EPS(TTM摊薄GAAP口径)、流通股本、SIC行业、公司名称</td><td>免费(公开API)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>可扩展性</h3>
+      <p><strong>GitHub Pages</strong> 通过 Fastly CDN 提供服务,静态文件无并发用户数限制。软性带宽限制为每月100GB——按每次 <code>latest.json</code> 加载约5MB计算,可支撑每月约2万次完整页面加载。回访用户无需重新下载HTML/CSS/JS(浏览器已缓存),因此实际有效上限更高。GitHub不对Pages带宽收费。</p>
+
+      <p><strong>Google Cloud Functions</strong> 免费额度覆盖每月200万次调用。<code>/api/iex-quotes</code> 接口采用<strong>60秒内存缓存</strong>——无论首页同时在线用户数多少,该函数每分钟最多被调用一次(约每月31,680次),远低于免费额度上限。EDGAR和Tiingo仅由GitHub Actions(夜间批处理)调用,与用户流量完全解耦。</p>
+
+      <p><strong>Firebase Auth</strong> 在Blaze方案下月活5万用户以内免费。</p>
+
+      <h3>规模化成本</h3>
+      <div class="card">
+        <p style="margin-bottom:12px;"><strong>按每日1,000名活跃用户计算:</strong></p>
+        <ul>
+          <li>GitHub Pages:<strong>0美元</strong></li>
+          <li>Google Cloud Functions:<strong>0美元</strong>(远低于免费额度)</li>
+          <li>Firebase Auth:<strong>0美元</strong></li>
+          <li>基础设施总成本:<strong>约每月1-2美元</strong>(与当前一致)</li>
+          <li>Stripe手续费:若10%转化为付费用户(约100名订阅者 × 9.99美元),约<strong>每月32美元</strong></li>
+          <li>10%转化率下的净收入:约<strong>每月967美元</strong></li>
+        </ul>
+      </div>
+
+      <h3>何时需要调整架构</h3>
+      <ul>
+        <li><strong>亚秒级实时价格推送</strong> — 需要WebSocket服务。目前60秒轮询的方案是有意为之,已满足产品需求。</li>
+        <li><strong>持续超过每月100GB的流量</strong>(GitHub Pages)— 应对方式很简单:在服务端对 <code>latest.json</code> 做gzip压缩(体积可缩小约10倍,降至约500KB)。</li>
+      </ul>
+      <p>就目前规模而言,以上两种情况均不构成实际风险。</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div style="font-family:'DM Mono',monospace;font-size:11.5px;color:#94a3b8;line-height:1.8;">
+      本文档描述了贝佐拉自动化扫描程序截至2026年7月1日的内部方法论。方法与数据来源可能随时更新。本文档不构成任何投资建议。市场数据仅供参考之用。历史信号不预示未来表现。所有数据均来自公开披露文件(SEC EDGAR)及已获授权的商业市场数据提供商。
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div class="footer-left">© 2026 贝佐拉 &nbsp;·&nbsp; <a href="privacy_cn.html">隐私政策</a> &nbsp;·&nbsp; <a href="terms_cn.html">服务条款</a></div>
+  <div class="footer-links">
+    <a href="disclaimer_cn.html">免责声明</a>
+    <a href="faq_cn.html">常见问题</a>
+    <a href="mailto:support@baizora.com">support@baizora.com</a>
+  </div>
+</footer>
+
+</body>
+</html>
