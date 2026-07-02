@@ -117,8 +117,10 @@
     <div class="toc-title">Contents</div>
     <a href="#overview">Overview</a>
     <a href="#universe">Data Universe</a>
+    <a class="sub" href="#membership">Index Membership Changes</a>
     <a href="#sources">Data Sources</a>
     <a href="#pipeline">Scan Pipeline</a>
+    <a class="sub" href="#completeness">Data Completeness Safeguards</a>
     <a href="#ohlcv">Price &amp; Volume</a>
     <a class="sub" href="#ohlcv-cache">OHLCV Cache</a>
     <a class="sub" href="#volume-note">Volume Definition</a>
@@ -146,7 +148,7 @@
 
     <div class="eyebrow">◈ &nbsp; Internal Documentation</div>
     <h1>Data &amp; Methodology</h1>
-    <div class="doc-meta">BAIZORA &nbsp;·&nbsp; VERSION 2026-06-07 &nbsp;·&nbsp; CONFIDENTIAL</div>
+    <div class="doc-meta">BAIZORA &nbsp;·&nbsp; VERSION 2026-07-01 &nbsp;·&nbsp; CONFIDENTIAL</div>
 
     <!-- ── OVERVIEW ── -->
     <div class="doc-section" id="overview">
@@ -162,20 +164,24 @@
     <div class="doc-section" id="universe">
       <div class="section-label">02 — Data Universe</div>
       <h2>Covered Securities</h2>
-      <p>The scanner covers the <strong>union</strong> of the S&amp;P 500 and Nasdaq-100 constituent lists, deduplicated. As of May 2026 this produces <strong>516 tickers</strong>.</p>
+      <p>The scanner covers the <strong>union</strong> of the S&amp;P 500 and Nasdaq-100 constituent lists, deduplicated. As of July 2026 this produces <strong>516 tickers</strong>. This figure moves over time as index constituents change — see <a href="#membership">Index Membership Changes</a>.</p>
 
       <div class="card">
         <table class="data-table">
           <thead><tr><th>Index</th><th>Approx. Count</th><th>Notes</th></tr></thead>
           <tbody>
-            <tr><td>S&P 500</td><td>503</td><td>Largest US companies by float-adjusted market cap</td></tr>
+            <tr><td>S&P 500</td><td>502</td><td>Largest US companies by float-adjusted market cap</td></tr>
             <tr><td>Nasdaq-100</td><td>101</td><td>100 largest non-financial Nasdaq-listed companies</td></tr>
             <tr><td>Union (deduplicated)</td><td>516</td><td>Tickers in either or both indices</td></tr>
           </tbody>
         </table>
       </div>
 
-      <p>All securities are US-listed equities (common stock, some foreign-incorporated companies with US listings such as ASML, BKNG, CCEP). The scanner does not cover ETFs, preferred shares, warrants, or fixed income.</p>
+      <p>All securities are US-listed equities (common stock, some foreign-incorporated companies with US listings such as ASML, BKNG, CCEP, NBIS). The scanner does not cover ETFs, preferred shares, warrants, or fixed income.</p>
+
+      <h3 id="membership">Index Membership Changes</h3>
+      <p>Constituent lists are scraped fresh from Slickcharts (<code>slickcharts.com/sp500</code>, <code>slickcharts.com/nasdaq100</code>) at the start of every scan run. Any row reporting <strong>0% index weight</strong> is treated as a stale/delisted listing and excluded — Slickcharts can leave a departed constituent's row in its table for days after the actual index change (observed with EchoStar/<code>SATS</code>, which changed its ticker to <code>ECHO</code> and left the S&amp;P 500 on 2026-06-24 but still showed a <code>0.00%</code>-weight row a week later).</p>
+      <p>Additions and removals are diffed against the scanner's own previously-saved ticker list (not against Slickcharts' raw table each time), so a departed ticker is recorded as a removal exactly once — even if Slickcharts continues to display its zombie listing indefinitely. Changes are recorded in <code>data/index_changes.json</code> and surfaced in the dashboard's "MEMBERSHIP CHANGE" tab.</p>
     </div>
 
     <div class="divider"></div>
@@ -215,40 +221,59 @@
       <h2>Daily Processing Flow</h2>
 
       <h3>Schedule</h3>
-      <p>The scanner runs as a <strong>GitHub Actions workflow</strong> on a daily midnight UTC schedule, every day including weekends:</p>
-      <ul>
-        <li><strong>Weekdays at 22:00 UTC (6:00 PM ET)</strong> — preliminary scan shortly after NYSE close, allowing final trade prints to settle. Commits updated market data.</li>
-        <li><strong>Daily at 00:00 UTC (8:00 PM ET prior day)</strong> — final scan with video generation on weekdays. On weekends, carries forward the most recent Friday closing data and refreshes fundamentals if the cache has expired.</li>
-      </ul>
-      <p>Running every night (including weekends) ensures the fundamentals cache is kept warm and the dashboard reflects the latest available data at all times.</p>
-
-      <h3>Initial EOD Beta Analysis (Server-Side)</h3>
-      <p>Immediately after market close, a dedicated <strong>server-side "beta" scan</strong> runs on GitHub Actions (scheduled ~4:00 PM ET). Unlike the full scan, it skips the Tiingo EOD bulk fetch and instead fetches live end-of-day quotes from <strong>Tiingo IEX</strong> for all 516 tickers in a single batch call. These quotes are injected as today's synthetic OHLCV bar into the in-memory data pipeline — nothing is written to the on-disk cache.</p>
-      <p>Because the full historical cache is already on disk (built by prior scans), the beta run performs a <strong>complete recalculation</strong> of every metric:</p>
-      <ul>
-        <li>All prices and 1D changes</li>
-        <li>All multi-week stats (2W, 1M, 3M, 6M, 9M, 1Y)</li>
-        <li>All seven scores (Baizora Score, Turn Score, RS, Breakout, Momentum, Vol Pressure, Trend)</li>
-        <li>Sparklines (1Y trend updated with today's close)</li>
-        <li>Price/MA21 and Vol/MA21 ratios</li>
-      </ul>
-      <p><strong>One limitation:</strong> Volume figures may be slightly lower than official EOD values. The NYSE/Nasdaq closing auction (4:00–4:05 PM ET) adds a burst of additional volume that is not yet reflected in the IEX real-time quote at scan time. The full scan at ~6–7 PM ET uses official Tiingo EOD data with complete volume and overwrites <code>latest.json</code> (without the <code>"beta": true</code> flag).</p>
-      <p>The homepage announcement reflects the current state: <em>"Analysis (beta) updated"</em> once the beta <code>latest.json</code> is committed (identified by <code>"beta": true</code> in the payload), <em>"Analysis (final) updated"</em> once the full scan overwrites it. Before 9:30 AM ET or on weekends/holidays, no session note is shown.</p>
+      <p>The scanner runs as a <strong>GitHub Actions workflow</strong>, weekdays on a five-slot schedule (all times ET, actual execution typically 1–2 hours after the scheduled cron due to CI queue delay):</p>
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>Scheduled</th><th>Purpose</th><th>EDGAR refetch</th></tr></thead>
+          <tbody>
+            <tr><td>4:30 PM ET</td><td>Primary EOD scan + video generation</td><td>Full refetch</td></tr>
+            <tr><td>5:00 PM ET</td><td>Retry — skips entirely if 4:30 PM already landed a complete update</td><td>Cached</td></tr>
+            <tr><td>5:30 PM ET</td><td>Retry — always runs regardless of earlier slots</td><td>Cached</td></tr>
+            <tr><td>6:30 PM ET</td><td>Retry — always runs regardless of earlier slots</td><td>Cached</td></tr>
+            <tr><td>11:00 PM ET</td><td>Safety net — forces a run using whatever data is available</td><td>Full refetch</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>On Saturday and Sunday, an additional ~1 AM ET run refreshes SEC EDGAR fundamentals only (no market scan) so the fundamentals cache stays current even when markets are closed.</p>
+      <p>The multiple weekday retry slots exist because Tiingo does not always publish end-of-day data for the full universe simultaneously — see <a href="#completeness">Data Completeness Safeguards</a> below.</p>
 
       <h3>Market Closure Detection</h3>
-      <p>On weekdays, before fetching new data, the pipeline probes Tiingo for the current day's SPY data. If the probe returns no results on what should be a trading day, the run aborts and the existing <code>latest.json</code> is left unchanged. This handles unexpected market closures (e.g. the January 2025 Jimmy Carter state funeral holiday).</p>
-      <p>Regular NYSE holidays are computed algorithmically and skipped without an API probe. Weekend runs bypass the market probe and proceed directly to using cached OHLCV data.</p>
+      <p>Before fetching new data, the pipeline probes Tiingo for the current day's SPY bar. If the probe doesn't confirm same-day data, it retries every 30 minutes (up to a schedule-dependent number of attempts) before giving up and leaving <code>latest.json</code> unchanged for that run. This handles both ordinary publication delays and unexpected market closures (e.g. the January 2025 Jimmy Carter state funeral holiday).</p>
+      <p>Regular NYSE holidays are computed algorithmically and skipped without an API probe. The 11 PM ET and manual-trigger runs bypass both the holiday and probe checks entirely, proceeding with whatever data is currently available.</p>
 
       <h3>Steps per Run</h3>
       <ol>
-        <li><strong>Update OHLCV cache</strong> — one bulk Tiingo API call fetches the latest EOD bar for all 516 tickers; missing history is backfilled per-ticker on first scan.</li>
-        <li><strong>Load fundamentals</strong> — read from disk cache (8-day TTL, committed to git so it persists across runs). Fetch any missing or expired tickers from EDGAR.</li>
+        <li><strong>Update index membership</strong> — refetch S&amp;P 500 / Nasdaq-100 constituent lists, filter out 0%-weight listings, detect and record added/removed tickers.</li>
+        <li><strong>Update OHLCV cache</strong> — one bulk Tiingo API call fetches the latest EOD bar for all tickers in the universe; missing history is backfilled per-ticker on first scan.</li>
+        <li><strong>Load fundamentals</strong> — EDGAR-enabled runs always re-fetch every ticker fresh (no fundamentals cache TTL — see <a href="#eps-cache">Fundamentals Freshness</a>); cache-only runs read the fundamentals committed by the most recent EDGAR-enabled run.</li>
         <li><strong>Load OHLCV into memory</strong> — per-ticker cache files loaded once into a shared dict; each metric computation reads from memory rather than disk.</li>
-        <li><strong>Compute metrics</strong> — for each of 516 tickers: reconstruct price/volume series, calculate all timeframe metrics, fundamentals, scores.</li>
+        <li><strong>Compute metrics</strong> — for each ticker in the universe: reconstruct price/volume series, calculate all timeframe metrics, fundamentals, scores.</li>
+        <li><strong>Exclude stale tickers</strong> — drop any ticker whose fetched data doesn't match the confirmed market date (see below) before anything is published.</li>
         <li><strong>Post-process</strong> — compute sector average P/E (market-cap weighted harmonic mean), percentile-rank RSScore and MomentumScore across the full universe.</li>
         <li><strong>Data quality check</strong> — flag any ticker with &gt;25% 1D price change (likely a cache gap), &lt;200 candle bars, or empty cache files.</li>
         <li><strong>Export</strong> — write <code>data/latest.json</code>, <code>data/candles.json</code>, and a dated CSV to <code>archive/</code>.</li>
       </ol>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── COMPLETENESS ── -->
+    <div class="doc-section" id="completeness">
+      <div class="section-label">04b — Data Completeness</div>
+      <h2>Data Completeness Safeguards</h2>
+      <p>Tiingo does not always publish end-of-day data for every ticker in the universe at the same moment — some tickers can lag others by minutes to hours, occasionally longer. Two safeguards protect against this producing incorrect or misleadingly-labeled output.</p>
+
+      <h3>Per-Ticker Staleness Exclusion</h3>
+      <p>The market-readiness probe (above) only confirms that <strong>SPY</strong> itself has same-day data — it does not guarantee every other ticker does too. After each scan computes results, every ticker's fetched date is compared against the confirmed market date. <strong>Any mismatch at all — even a single day — excludes that ticker from the run's output entirely</strong>, rather than publishing it with outdated price/volume data under a same-day-looking label.</p>
+      <p>The published <code>data/latest.json</code> carries two additional fields reflecting this:</p>
+      <div class="formula">
+partialUpdate: true | false   <span class="comment">// true if any ticker was excluded this run</span>
+staleTickers: ["TICKER", ...] <span class="comment">// which tickers were excluded, if any</span>
+      </div>
+      <p>When <code>partialUpdate</code> is true, the dashboard shows an amber notice near the top of the page (count only, not ticker names — a full list would overflow the banner if many tickers were affected at once) noting that data typically catches up within about 30 minutes, without promising an exact timeline. An excluded ticker is automatically re-included the moment a later run (scheduled or manual) finds fresh data for it — no special recovery step is needed.</p>
+
+      <h3>Retry Efficiency</h3>
+      <p>The 5:00 PM ET retry slot skips its own rescan entirely if the 4:30 PM run already achieved a complete update (<code>partialUpdate: false</code>) — there's nothing left to catch, so re-scanning the full universe would just reproduce an identical result. The 5:30 PM and 6:30 PM slots always run regardless, as unconditional safety nets for anything still outstanding later in the evening.</p>
     </div>
 
     <div class="divider"></div>
@@ -306,11 +331,12 @@ VolumeVsMA21   = Volume[t] / mean(Volume[t-20 … t])
         </div>
         <p><code>PriceVsMA21</code> and <code>VolumeVsMA21</code> are ratios (1.0 = exactly at the 21-day moving average). Values above 1.0 indicate the current day is above the recent average.</p>
         <h4>Live Price &amp; 1D Change (dashboard only)</h4>
-        <p>The authenticated dashboard refreshes the <strong>PRICE</strong> and <strong>1D P CHG%</strong> columns every 60 seconds using Tiingo IEX real-time quotes. The live change is computed as:</p>
+        <p>The authenticated dashboard refreshes the <strong>PRICE</strong> and <strong>1D P CHG%</strong> columns every <strong>10 seconds</strong> using Tiingo IEX real-time quotes, active from <strong>9:30 AM to 8:00 PM ET</strong> on weekdays (<code>isMarketOpen()</code> — extended past the 4:00 PM close specifically to keep prices live through the 4:00–6:30 PM gap before that evening's scan lands). The live change is computed as:</p>
         <div class="formula">
 1D P CHG% (live) = (IEX_last − scanClose) / scanClose × 100
         </div>
         <p>where <code>scanClose</code> is the prior-night's closing price from <code>latest.json</code>. The IEX <code>prevClose</code> field is deliberately not used because it can be stale or unadjusted on split days.</p>
+        <p>Once a new scan lands and the page auto-reloads (polled every 5 minutes), <code>scanClose</code> itself becomes today's close — the dashboard then suppresses further IEX overlay for the rest of the 8 PM window (comparing today's close against itself would otherwise flatten every 1D change to 0%) and shows the scanner's own <code>PriceChange1D</code> instead.</p>
         <h4>Stock Split Correction</h4>
         <p>On forward-split effective dates, Tiingo IEX immediately returns the post-split price while <code>latest.json</code> still holds the pre-split close. Without correction, this causes a large artificial negative 1D change. The dashboard corrects this automatically:</p>
         <ul>
@@ -393,32 +419,35 @@ TTM = 6.26 + 6.98 + 5.71 + 4.66 = <strong>23.61</strong>
         </div>
 
         <h3 id="eps-fallback">Inline XBRL Filing Fallback</h3>
-        <p>A small number of tickers have no <code>EarningsPerShareDiluted</code> data in the EDGAR company_facts API, despite filing regularly with the SEC. For these tickers, the scanner falls back to parsing EPS directly from the inline XBRL embedded in the primary filing document (<code>.htm</code> file).</p>
-        <p>The fallback applies the same TTM algorithm as the primary path:</p>
+        <p>A small number of tickers have no <code>EarningsPerShareDiluted</code>-family data in the EDGAR company_facts API, despite filing regularly with the SEC. For these tickers, the scanner falls back to parsing EPS directly from the inline XBRL embedded in the primary filing document (<code>.htm</code> file). As of July 2026 this applies to 11 tickers: <strong>KKR, BRK-B, V, ERIE, STZ, HSY</strong> (US domestic filers) and <strong>ARM, ASML, CCEP, FER, PDD, NBIS</strong> (foreign filers). This set is not static — it changes as company_facts data ages or filers adjust their tagging, so it's re-derived from live EDGAR data rather than hardcoded.</p>
+        <p>The fallback applies the same TTM-construction priority as the primary path — critically, the <strong>Q4-derivation path (3 quarters + annual − 9M YTD) always takes priority over a naive "sum whatever 4 quarter dates are available" fallback</strong>. Q4 is never filed as its own 10-Q (it's folded into the 10-K), so a naive sum would silently substitute a stale year-ago quarter for the real Q4 whenever it ran — this was found and fixed for six tickers in July 2026 (KKR's TTM EPS was understated by roughly 2× before the fix).</p>
         <ul>
-          <li><strong>US domestic filers (10-Q / 10-K)</strong> — up to 4 recent 10-Q filings are fetched and parsed; TTM is built from 4 quarterly values with Q4 derived from the annual 10-K where needed. Example: <strong>V (Visa)</strong> → EPS 11.18, verified against YF 11.48.</li>
-          <li><strong>Foreign IFRS filers (20-F / 40-F)</strong> — no quarterly filings exist, so the fallback uses the most recent annual 20-F. Examples: <strong>ASML, CCEP, FER, PDD</strong>.</li>
+          <li><strong>US domestic filers (10-Q / 10-K)</strong> — up to 4 recent 10-Q filings are fetched and parsed; TTM is built with Q4 derived from the annual 10-K whenever fewer than 4 true quarters have been filed since the last annual (the common case).</li>
+          <li><strong>Foreign filers (20-F / 40-F / 6-K)</strong> — no quarterly filings exist for these, so the fallback uses the most recent annual figure directly. Examples: <strong>ASML, CCEP, FER, PDD</strong> (20-F), <strong>NBIS</strong> (6-K, furnished by a foreign private issuer).</li>
         </ul>
         <h3>Reporting Currency Detection &amp; FX Conversion</h3>
         <p>Foreign filers report EPS in their home currency (EUR for ASML/CCEP/FER, CNY for PDD). The scanner detects the reporting currency automatically from the <code>unitRef</code> attribute on each inline XBRL tag, which resolves to an ISO 4217 currency code via the filing's unit definitions (e.g. <code>&lt;xbrli:measure&gt;iso4217:EUR&lt;/xbrli:measure&gt;</code>).</p>
         <p>EPS is then converted to USD using daily ECB reference rates fetched once per scan from the <strong>Frankfurter API</strong> (free, no API key, updates each business day):</p>
         <div class="formula">
-EPS_USD = EPS_local × FX_rate   <span class="comment">(e.g. ASML: €19.90 × 1.157 = $23.02)</span>
+EPS_USD = EPS_local × FX_rate
         </div>
         <p>FX rates are cached in memory for the duration of the scan run. If the rate fetch fails, EPS for non-USD filers remains null for that run.</p>
         <div class="card">
           <table class="data-table">
-            <thead><tr><th>Ticker</th><th>Filing Type</th><th>Currency</th><th>EPS (USD, Jun 2026)</th></tr></thead>
+            <thead><tr><th>Ticker</th><th>Filing Type</th><th>Currency</th><th>EPS (USD, Jul 2026)</th></tr></thead>
             <tbody>
-              <tr><td>V</td><td>10-Q / 10-K</td><td>USD</td><td>11.18</td></tr>
-              <tr><td>ASML</td><td>20-F</td><td>EUR → USD</td><td>23.02</td></tr>
-              <tr><td>CCEP</td><td>20-F</td><td>EUR → USD</td><td>4.93</td></tr>
-              <tr><td>FER</td><td>20-F</td><td>EUR → USD</td><td>1.44</td></tr>
-              <tr><td>PDD</td><td>20-F</td><td>CNY → USD</td><td>1.52</td></tr>
-              <tr><td>ERIE</td><td>10-Q / 10-K</td><td>USD</td><td>12.37</td></tr>
-              <tr><td>KKR</td><td>10-Q / 10-K</td><td>USD</td><td>1.56</td></tr>
-              <tr><td>STZ</td><td>10-Q / 10-K</td><td>USD</td><td>11.82</td></tr>
-              <tr><td>ARM</td><td>10-Q / 10-K</td><td>USD</td><td>0.85</td></tr>
+              <tr><td>KKR</td><td>10-Q / 10-K</td><td>USD</td><td>2.93</td></tr>
+              <tr><td>BRK-B</td><td>10-Q / 10-K</td><td>USD</td><td>33.59 (post ÷1500, see Special Cases)</td></tr>
+              <tr><td>V</td><td>10-Q / 10-K</td><td>USD</td><td>11.47</td></tr>
+              <tr><td>ERIE</td><td>10-Q / 10-K</td><td>USD</td><td>10.93</td></tr>
+              <tr><td>STZ</td><td>10-Q / 10-K</td><td>USD</td><td>varies — updates as new quarters/annuals file</td></tr>
+              <tr><td>HSY</td><td>10-Q / 10-K</td><td>USD</td><td>5.37</td></tr>
+              <tr><td>ARM</td><td>20-F</td><td>USD</td><td>0.85</td></tr>
+              <tr><td>ASML</td><td>20-F</td><td>EUR → USD</td><td>28.13</td></tr>
+              <tr><td>CCEP</td><td>20-F</td><td>EUR → USD</td><td>4.85</td></tr>
+              <tr><td>FER</td><td>20-F</td><td>EUR → USD</td><td>1.41</td></tr>
+              <tr><td>PDD</td><td>20-F</td><td>CNY → USD</td><td>9.44 (post ADS×4 ratio)</td></tr>
+              <tr><td>NBIS</td><td>6-K</td><td>USD</td><td>0.33</td></tr>
             </tbody>
           </table>
         </div>
@@ -428,16 +457,19 @@ EPS_USD = EPS_local × FX_rate   <span class="comment">(e.g. ASML: €19.90 × 1
           <table class="data-table">
             <thead><tr><th>Ticker</th><th>Adjustment</th><th>Reason</th></tr></thead>
             <tbody>
-              <tr><td>BRK-B</td><td>EDGAR EPS ÷ 1500</td><td>EDGAR reports Berkshire EPS at Class A share level; Class B is 1/1500th of Class A</td></tr>
-              <tr><td>BKNG</td><td>EDGAR EPS ÷ 25 (if EPS &gt; 25)</td><td>25-for-1 stock split April 2026; EDGAR filings pre-split show EPS ~$150–170. Guard auto-disables once post-split 10-Q is filed (~Q2 2026)</td></tr>
-              <tr><td>CVNA</td><td>EDGAR EPS ÷ 5 (if EPS &gt; 4)</td><td>5-for-1 stock split May 2026; EDGAR filings pre-split show EPS ~$10. Guard auto-disables once post-split 10-Q is filed (~Q2 2026)</td></tr>
-              <tr><td>KLAC</td><td>EDGAR EPS ÷ 10 (if EPS &gt; 10)</td><td>10-for-1 stock split June 2026; EDGAR filings pre-split show EPS ~$25–30. EDGAR already updated with post-split share count (~1.3B). Guard auto-disables once post-split 10-Q is filed</td></tr>
-              <tr><td>CCEP, FER, TRI, ASML, PDD</td><td>EPS = null</td><td>Foreign IFRS filers; no US-GAAP EPS concepts in EDGAR XBRL</td></tr>
-              <tr><td>V (Visa)</td><td>EPS = null</td><td>No XBRL EPS data in EDGAR for this ticker</td></tr>
-              <tr><td>ERIE, ARES, KKR, STZ, ARM</td><td>EPS = null</td><td>EDGAR data unavailable or insufficient at time of last fundamentals refresh</td></tr>
+              <tr><td>BRK-B</td><td>EDGAR EPS ÷ 1500</td><td>EDGAR reports Berkshire EPS at Class A share level (via the inline XBRL fallback, ~$50k range); Class B is 1/1500th of Class A</td></tr>
+              <tr><td>PDD</td><td>Shares ÷ 4, EPS × 4</td><td>1 ADS = 4 ordinary shares; EDGAR reports per-ordinary-share, Tiingo prices per-ADS</td></tr>
+              <tr><td>BKNG</td><td>EDGAR EPS ÷ 25 (if EPS &gt; 25)</td><td>25-for-1 stock split April 2026. Guard auto-disables once EDGAR reflects post-split figures</td></tr>
+              <tr><td>CVNA</td><td>EDGAR EPS ÷ 5 (if EPS &gt; 4)</td><td>5-for-1 stock split May 2026. Guard auto-disables once EDGAR reflects post-split figures</td></tr>
+              <tr><td>KLAC</td><td>EDGAR EPS ÷ 10 (if EPS &gt; 10)</td><td>10-for-1 stock split June 2026. Guard auto-disables once EDGAR reflects post-split figures</td></tr>
+              <tr><td>DD</td><td>EDGAR EPS × 3 (if |EPS| &lt; 0.20)</td><td>1-for-3 <strong>reverse</strong> split June 2026 — a loss-making stock, so the guard checks magnitude near zero rather than an upper threshold</td></tr>
+              <tr><td>HON</td><td>EDGAR EPS × 2 (if |EPS| &lt; 8.0)</td><td>1-for-2 reverse split June 2026</td></tr>
+              <tr><td>ARES, TRI</td><td>EPS = null</td><td>Both filed Form 25-NSE (delisting notification) in May 2026</td></tr>
+              <tr><td>FDXF</td><td>EPS = null</td><td>FedEx Freight spinoff (June 2026) — only 8-K/Form 4 filed so far, no 10-Q/10-K yet</td></tr>
             </tbody>
           </table>
         </div>
+        <p>All five stock-split guards (BKNG, CVNA, KLAC, DD, HON) live in <code>data/split_guards.csv</code> and are condition-based, not date-based: each auto-removes itself once EDGAR's own reported EPS/shares figures cross a threshold consistent with the post-split scale, so no manual cleanup is needed once a company's next 10-Q reflects the split. Adding a new split guard is a one-line CSV addition, not a code change.</p>
       </div>
 
       <div id="pe">
@@ -499,8 +531,8 @@ Volatility30D = StdDev(daily_returns[-30:]) × √252
 
       <p>Sector assignment follows a two-step priority:</p>
       <ol>
-        <li><strong>Ticker override table</strong> — a hardcoded dict of 26 tickers whose SIC-derived sector is wrong (foreign incorporations, recent index additions, post-reorganisation companies). Takes precedence over all other logic.</li>
-        <li><strong>SIC-to-sector map</strong> — Polygon returns a SIC description string for each company. A static lookup table maps ~150 SIC descriptions to 11 GICS-aligned sectors.</li>
+        <li><strong>Ticker override table</strong> — a hardcoded dict of 46 tickers whose SIC-derived sector is wrong (foreign incorporations, recent index additions, post-reorganisation companies). Takes precedence over all other logic.</li>
+        <li><strong>SIC-to-sector map</strong> — <strong>SEC EDGAR</strong> returns a SIC (Standard Industrial Classification) description string for each company via its <code>submissions</code> API. A static lookup table maps 256 SIC descriptions (plus keyword-based fallback matching for anything not in the exact table) to 11 GICS-aligned sectors.</li>
       </ol>
 
       <h3>Sector List</h3>
@@ -508,17 +540,17 @@ Volatility30D = StdDev(daily_returns[-30:]) × √252
         <table class="data-table">
           <thead><tr><th>Sector</th><th>Tickers (approx.)</th><th>Examples</th></tr></thead>
           <tbody>
-            <tr><td>Technology</td><td>96</td><td>AAPL, MSFT, NVDA, GOOGL, ACN, LRCX</td></tr>
+            <tr><td>Technology</td><td>98</td><td>AAPL, MSFT, NVDA, GOOGL, ACN, LRCX</td></tr>
             <tr><td>Financial Services</td><td>75</td><td>JPM, BAC, V, MA, BRK-B, PYPL</td></tr>
-            <tr><td>Consumer Cyclical</td><td>61</td><td>AMZN, TSLA, BKNG, ABNB, CCL, UBER</td></tr>
-            <tr><td>Healthcare</td><td>60</td><td>JNJ, LLY, UNH, DHR, TMO, ABBV</td></tr>
-            <tr><td>Industrials</td><td>59</td><td>BA, CAT, HON, LMT, NOC, RTX, UPS</td></tr>
-            <tr><td>Consumer Defensive</td><td>38</td><td>WMT, PG, KO, PEP, COST, MO</td></tr>
-            <tr><td>Basic Materials</td><td>32</td><td>LIN, APD, FCX, NEM, DOW, AMCR</td></tr>
-            <tr><td>Real Estate</td><td>31</td><td>AMT, PLD, EQIX, SPG, CSGP</td></tr>
+            <tr><td>Industrials</td><td>62</td><td>BA, CAT, HON, LMT, NOC, RTX, UPS</td></tr>
+            <tr><td>Consumer Cyclical</td><td>60</td><td>AMZN, TSLA, BKNG, ABNB, CCL, UBER</td></tr>
+            <tr><td>Healthcare</td><td>59</td><td>JNJ, LLY, UNH, DHR, TMO, ABBV</td></tr>
+            <tr><td>Consumer Defensive</td><td>37</td><td>WMT, PG, KO, PEP, COST, MO</td></tr>
             <tr><td>Utilities</td><td>31</td><td>NEE, DUK, SO, AEP, EXC</td></tr>
+            <tr><td>Real Estate</td><td>31</td><td>AMT, PLD, EQIX, SPG, CSGP</td></tr>
+            <tr><td>Basic Materials</td><td>31</td><td>LIN, APD, FCX, NEM, DOW, AMCR</td></tr>
             <tr><td>Energy</td><td>21</td><td>XOM, CVX, COP, SLB, EOG</td></tr>
-            <tr><td>Communication Services</td><td>12</td><td>META, GOOGL, NFLX, DIS, T, VZ</td></tr>
+            <tr><td>Communication Services</td><td>11</td><td>META, GOOGL, NFLX, DIS, T, VZ</td></tr>
           </tbody>
         </table>
       </div>
@@ -599,10 +631,15 @@ MomentumScore = percentile_rank(RawMomentum, all 516 tickers) × 100
       <p>Primary data file consumed by the dashboard. Published after each successful scan. Top-level structure:</p>
       <div class="formula">
 {
-  "generated_at": "YYYY-MM-DD",
+  "date": "YYYY-MM-DD",
+  "status": "Updated",
+  "count": 516,
+  "partialUpdate": false,
+  "staleTickers": [],
   "data": [ { ...one object per ticker... } ]
 }
       </div>
+      <p><code>partialUpdate</code> / <code>staleTickers</code> reflect the per-ticker staleness exclusion described under <a href="#completeness">Data Completeness Safeguards</a> — see that section for details.</p>
       <p>Each ticker object contains: <code>Ticker</code>, <code>Date</code>, <code>Price</code>, <code>VolumeM</code>, all 1D and period metrics for each timeframe, <code>PE</code>, <code>EPS</code>, <code>MarketCap</code> (in $B), <code>Beta</code>, <code>Volatility30D</code>, <code>Sector</code>, <code>SectorAvgPE</code>, <code>PE_vs_Sector</code>, <code>CompanyName</code>, <code>Spark1Y</code> (normalised close series), and the four scores.</p>
 
       <h3>Dashboard — Ticker Modal</h3>
@@ -635,17 +672,17 @@ MomentumScore = percentile_rank(RawMomentum, all 516 tickers) × 100
       <div class="section-label">11 — Known Limitations</div>
       <h2>Data Gaps &amp; Edge Cases</h2>
 
-      <h3>EPS Not Available (2 Tickers)</h3>
-      <p><strong>ARES</strong> and <strong>TRI</strong> have null EPS. Both filed Form 25-NSE (notification of removal from listing) in May 2026 and are expected to be removed from the S&P 500 / Nasdaq-100 universe on the next index rebalance. All other previously-null tickers (V, CCEP, FER, ASML, PDD, ERIE, KKR, STZ, ARM) now have EPS populated via the inline XBRL filing fallback — see the Inline XBRL Fallback section above.</p>
+      <h3>EPS Not Available (3 Tickers)</h3>
+      <p><strong>ARES</strong> and <strong>TRI</strong> have null EPS — both filed Form 25-NSE (notification of removal from listing) in May 2026. <strong>FDXF</strong> (the FedEx Freight spinoff, June 2026) has null EPS simply because it hasn't filed a 10-Q or 10-K yet — only an 8-K and Form 4s so far. All other tickers without primary company_facts EPS data are populated via the inline XBRL filing fallback — see <a href="#eps-fallback">Inline XBRL Fallback</a> above.</p>
 
       <h3>Short OHLCV History</h3>
-      <p>BNY (Bank of New York Mellon, ticker changed from BK in 2025), BF-B, BRK-B, FISV, and Q have fewer than 252 clean trading days in the cache. Longer-period metrics (9M, 1Y) are null for these tickers and will fill in as the cache accumulates daily data going forward.</p>
+      <p>Recently-listed or recently-spun-off tickers have fewer than 252 clean trading days in the cache — as of July 2026 this is <strong>FDXF</strong> (~24 days), <strong>Q</strong> (~165 days), and <strong>PSKY</strong> (Paramount Skydance, ~227 days). Longer-period metrics (9M, 1Y) are null for these tickers until the cache accumulates enough daily history.</p>
 
       <h3>Stock Split Adjustments</h3>
-      <p>Polygon returns split-adjusted prices automatically. EDGAR EPS filings are not retroactively adjusted until the company files its next 10-Q or 10-K on a post-split share basis. For <strong>BKNG</strong> (25-for-1 split, April 2026), the scanner manually divides EDGAR EPS by 25 until the Q2 2026 10-Q is filed (expected August 2026), at which point EDGAR will self-correct and the guard condition will disable automatically.</p>
+      <p>Tiingo returns split-adjusted prices automatically, retroactively across historical bars. EDGAR EPS and shares-outstanding filings are <strong>not</strong> retroactively adjusted — they only reflect the post-split share count once the company files its next 10-Q or 10-K. This creates a temporary gap (Tiingo already shows post-split prices; EDGAR still shows pre-split EPS/shares) that the condition-based split guards described under <a href="#eps-fallback">Special Cases</a> bridge automatically.</p>
 
-      <h3>Fundamentals Cache TTL</h3>
-      <p>Company fundamentals (EPS, sector, shares outstanding) are cached with an <strong>8-day TTL</strong>. The cache file is committed to the repository and persists across daily scanner runs, so EDGAR is only re-fetched when the cache expires. P/E ratios may therefore reflect EPS up to 8 days old. In practice this introduces negligible error, since EDGAR XBRL data only changes when a company files a new 10-Q or 10-K (quarterly cadence).</p>
+      <h3 id="eps-cache">Fundamentals Freshness</h3>
+      <p>Company fundamentals (EPS, sector, shares outstanding) carry <strong>no cache TTL</strong> — every EDGAR-enabled scan run (4:30 PM and 11 PM ET weekdays, plus the weekend EDGAR-only run) re-fetches every ticker fresh from SEC EDGAR, rather than reusing a stale on-disk cache. The 5:00/5:30/6:30 PM retry slots reuse the fundamentals committed by the most recent EDGAR-enabled run rather than re-fetching, since EDGAR filings don't change intraday. This means P/E ratios reflect same-day EPS whenever a company has filed, rather than lagging by a fixed cache window.</p>
 
       <h3>Candle Chart History</h3>
       <p>The <code>candles.json</code> date window covers the most recent 252 trading days. For tickers with fewer clean OHLCV entries in that window, the chart will show fewer candles and the x-axis labels will correspond to the tail of the 252-day window.</p>
@@ -668,7 +705,7 @@ MomentumScore = percentile_rank(RawMomentum, all 516 tickers) × 100
         </thead>
         <tbody>
           <tr><td>GitHub Pages</td><td>Static site hosting + global CDN for all HTML/JS/CSS and <code>data/latest.json</code></td><td>Free</td></tr>
-          <tr><td>GitHub Actions</td><td>Nightly scanner cron (5 PM / 6 PM / 7 PM / 11 PM ET weekdays), video generation, archive push</td><td>Free (2,000 min/month)</td></tr>
+          <tr><td>GitHub Actions</td><td>Scanner cron (4:30 / 5:00 / 5:30 / 6:30 / 11 PM ET weekdays, ~1 AM ET weekends), video generation, archive push</td><td>Free (2,000 min/month)</td></tr>
           <tr><td>scanner-archive repo</td><td>Permanent gzipped CSV archive (1 file/day from 11 PM run) for data quality audit trail</td><td>Free (private repo)</td></tr>
           <tr><td>Google Cloud Functions</td><td><code>/api/iex-quotes</code> live price endpoint; <code>/api/subscription</code> auth check</td><td>Blaze pay-as-you-go (~$0.10/month)</td></tr>
           <tr><td>Firebase Auth</td><td>User authentication (email/password)</td><td>Free up to 50,000 MAU</td></tr>
@@ -709,7 +746,7 @@ MomentumScore = percentile_rank(RawMomentum, all 516 tickers) × 100
     <div class="divider"></div>
 
     <div style="font-family:'DM Mono',monospace;font-size:11.5px;color:#94a3b8;line-height:1.8;">
-      This document describes the internal methodology of Baizora's automated scanner as of June 7, 2026. Methods and data sources may be updated. Nothing in this document constitutes investment advice. Market data is provided for informational purposes only. Past signals do not predict future performance. All data is sourced from publicly available filings (SEC EDGAR) and licensed commercial market data providers.
+      This document describes the internal methodology of Baizora's automated scanner as of July 1, 2026. Methods and data sources may be updated. Nothing in this document constitutes investment advice. Market data is provided for informational purposes only. Past signals do not predict future performance. All data is sourced from publicly available filings (SEC EDGAR) and licensed commercial market data providers.
     </div>
 
   </main>
