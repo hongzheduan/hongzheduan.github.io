@@ -2947,6 +2947,20 @@ if __name__ == "__main__":
             print(f"Today's data not available after {PROBE_RETRIES} attempts — special closure or delay, skipping.")
             sys.exit(0)
 
+        # 5:00 PM slot only: skip if the 4:30 PM run already landed a complete,
+        # non-partial update — nothing left to catch. 5:30/6:30 PM stay unconditional
+        # safety nets regardless of what 5:00 PM finds (set via SKIP_IF_COMPLETE, only
+        # true for the 5:00 PM cron — see scanner.yml).
+        if os.environ.get("SKIP_IF_COMPLETE", "").lower() in ("1", "true", "yes"):
+            try:
+                with open(OUTPUT_JSON) as f:
+                    _existing = json.load(f)
+                if _existing.get("date") == _TIINGO_LAST_DATE and not _existing.get("partialUpdate", False):
+                    print(f"{_TIINGO_LAST_DATE} already fully updated (0 stale tickers) — skipping 5:00 PM rescan.")
+                    sys.exit(0)
+            except Exception:
+                pass
+
     print("Running Baizora scanner (Tiingo) …")
 
     # 1. Update index lists, detect membership changes

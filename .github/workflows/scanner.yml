@@ -68,11 +68,18 @@ jobs:
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+          elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then
+            # 5:00 PM ET weekdays — skip entirely if 4:30 PM already fully updated (0 stale tickers)
+            echo "EDGAR_ONLY="    >> $GITHUB_ENV
+            echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
+            echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+            echo "SKIP_IF_COMPLETE=1" >> $GITHUB_ENV
           else
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
-            echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 5:00 PM, 5:30 PM, and 6:30 PM: probe once and exit
+            echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 5:30 PM and 6:30 PM: probe once and exit, always run in full
           fi
 
       - name: Run scanner
@@ -83,6 +90,7 @@ jobs:
           SKIP_EDGAR: ${{ env.SKIP_EDGAR }}
           PROBE_RETRIES: ${{ env.PROBE_RETRIES }}
           FORCE_RUN: ${{ env.FORCE_RUN }}
+          SKIP_IF_COMPLETE: ${{ env.SKIP_IF_COMPLETE }}
         run: python scanner_tiingo.py
 
       - name: Commit updated data
