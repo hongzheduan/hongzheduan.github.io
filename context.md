@@ -1,5 +1,38 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-07-01 (session 3 — verification, banner wording, 500PM skip-if-complete)
+
+### Manual Trigger Confirmed Everything End-to-End
+
+Triggered `workflow_dispatch` via the GitHub REST API (no `gh` CLI available locally; used the OAuth token from `git credential fill` — `git`'s own stored credential, not a new secret) to verify the day's fixes in one real run rather than trusting local simulations. Run [28561542236](https://github.com/hongzheduan/hongzheduan.github.io/actions/runs/28561542236) completed successfully. Verified after pulling:
+
+| Check | Result |
+|---|---|
+| SATS removed from `data/sp500_symbols.txt` | ✓ 0 matches |
+| `data/index_changes.json` | ✓ new entry, recorded once: `{"sp500": {"removed": ["SATS"]}}` |
+| Ticker count | 516 (was 517) |
+| SATS in `latest.json` results | ✓ absent |
+| `partialUpdate` / `staleTickers` | `false` / `[]` — clean run |
+| EPS fallback fix still holding | ✓ KKR 2.93, BRK-B 33.59 |
+
+**Diff-mechanism confirmed non-repeating:** simulated two consecutive `update_and_detect_changes()` calls against a scratch copy of the data files (not the real repo) — run 1 detects and records the SATS removal (comparing our *old* file, pre-fix, against the freshly-filtered Slickcharts scrape); run 2 finds `changes: None`, because the diff is always *our own previously-written file* vs *today's scrape*, and our file self-updates to drop SATS after the first pass. Confirms Slickcharts continuing to show the zombie 0%-weight row indefinitely will **not** cause repeated daily "removed" entries.
+
+**index_changes.json rewritten multiple times/day, harmlessly:** `update_and_detect_changes()` runs as step 1 of every scan that reaches that point (4:30, 5:00 if not skipped, 5:30, 6:30, 11 PM, manual) — same two files overwritten in place each time, not new dated files. Most rewrites are content no-ops; `index_changes.json` only grows when the diff against the previous write actually differs.
+
+**False alarm — user didn't see the SATS entry in the "MEMBERSHIP CHANGE" tab:** live JSON was already correct (`curl` confirmed `entries[0]` had the SATS removal) — turned out to be GitHub Pages' CDN cache (`Cache-Control: max-age=600`) plus the browser's own cache. `loadIndexChanges()` fetches `data/index_changes.json` with no cache-busting query param (unlike the periodic `data/latest.json` re-check, which appends `?Date.now()`). Resolved with a hard refresh. **Worth considering:** add cache-busting to this fetch too if this recurs.
+
+### Partial-Update Banner Wording Iterated
+
+- `b8e4202`: switched from listing every excluded ticker by name to count-only ("N tickers pending fresh data and temporarily hidden") — naming would overflow the banner if dozens/hundreds were stale at once.
+- `cf308e2`: added "Check back in 30 minutes."
+- `394ea53`: softened to "Typically updates within 30 minutes" — a ticker can stay excluded across *multiple* scans (SATS was stale 8 days across many runs before its root cause was fixed), so a firm 30-min promise was misleading, especially on the last scan of the day.
+
+### 500PM-scan Skip-If-Complete (commit `0f917ed`)
+
+Added `SKIP_IF_COMPLETE=1`, set **only** in the `0 21 * * 1-5` (5:00 PM) branch of `scanner.yml`'s "Check market holiday and run type" step. In `scanner_tiingo.py`'s `__main__`, right after the SPY probe confirms data: if `data/latest.json` already shows today's date with `partialUpdate: false`, skip the rescan entirely (`sys.exit(0)`) rather than reproducing an identical result. **Deliberately not applied to 5:30/6:30 PM** — those stay unconditional safety nets regardless of what 5:00 PM finds, per explicit instruction. If the scan is skipped, the "Commit updated data" step still commits just the `archive/worklog.md` line (existing `git diff --cached --quiet` check handles this with no special-casing).
+
+---
+
 ## What Was Done 2026-07-01 (continued)
 
 ### SATS Sat 8 Days Stale, Silently — Per-Ticker Staleness Exclusion + Index Weight Filter Added
@@ -13,7 +46,7 @@
 **Fix (commit `e39982b`):**
 - After `scan()` returns in `__main__` (~line 2958), any row whose `Date` doesn't exactly match the confirmed `_TIINGO_LAST_DATE` is dropped from `df` and `candles_out` — **any mismatch at all (≥1 day) excludes the ticker**, per explicit instruction: showing nothing for a ticker is better than showing wrong same-day-looking data for it.
 - Excluded tickers are tracked in a new module global `_STALE_TICKERS_EXCLUDED` and written into `export()`'s payload as `partialUpdate: bool` + `staleTickers: [...]`.
-- `baizora_main_form.html` / `_cn.html`: new `.stale-banner` element (reuses the documented announcement-bar gradient) shows/hides in `loadDashboard()` based on `json.partialUpdate`, naming the excluded tickers so subscribers know why something's temporarily missing instead of assuming it vanished.
+- `baizora_main_form.html` / `_cn.html`: new `.stale-banner` element (reuses the documented announcement-bar gradient) shows/hides in `loadDashboard()` based on `json.partialUpdate`. Wording iterated same day — see the "Partial-Update Banner Wording Iterated" note below.
 - **Not yet extended to** `baizora_main_form_free*.html` / freetier variants — lower priority since those already show delayed/limited data.
 
 A later scheduled or manual run naturally re-includes an excluded ticker once Tiingo catches up — no special recovery logic needed, every run re-evaluates from scratch.
@@ -1565,4 +1598,5 @@ Two-part fix:
 9. **Homepage sparkline markers** — ✓ RESOLVED (commit `5110a1c`, 2026-06-30). `miniSpark` and `buildSparkSvg` on homepage were treating days-ago values as left-to-right array indices, placing ▲/● on the wrong end. Fixed with `data.length - 1 - daysAgo` conversion. Dashboard `renderSparkline` was already correct via `idxFromDays`.
 10. **EPS fallback fix** — ✓ CONFIRMED in production same-day (2026-07-01). See top of file.
 11. **New 500PM-scan slot** — added 2026-07-01 to catch Tiingo publication delays between the 4:30 PM and 5:30 PM runs. Watch a few sessions to confirm it actually helps (vs. 4:30 PM data just always being ready by 5:30 PM anyway, making it redundant).
-12. **Stale-ticker exclusion + 0%-weight index filter** — added 2026-07-01 (commit `e39982b`), not yet verified against a live scan run. Check next scan: (a) SATS should drop out of `data/sp500_symbols.txt` and appear in `data/index_changes.json` as a removal; (b) if any ticker is genuinely excluded, confirm the `.stale-banner` renders correctly on both EN/CN dashboards and `partialUpdate`/`staleTickers` appear in `data/latest.json`; (c) watch for false positives — a ticker legitimately halted/thin-traded for a full day would also get excluded by this logic, which is intended but worth confirming isn't over-triggering.
+12. **Stale-ticker exclusion + 0%-weight index filter** — ✓ VERIFIED via manual `workflow_dispatch` run same day (2026-07-01). SATS dropped from `sp500_symbols.txt`, recorded in `index_changes.json`, absent from `latest.json`, `partialUpdate: false`. Still open: watch for false positives where a ticker legitimately halted/thin-traded for a full day gets excluded by this logic too — intended behavior, but worth a real example to confirm it isn't over-triggering on ordinary low-volume days.
+13. **`index_changes.json` fetch has no cache-busting** — `loadIndexChanges()` in `baizora_main_form.html`/`_cn.html` caused a same-day false alarm (CDN + browser cache served a stale copy after a hard-refresh-free page load). Consider adding a `?` + timestamp query param like the periodic `latest.json` re-check already does, if this recurs.
