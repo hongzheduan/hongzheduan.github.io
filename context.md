@@ -27,7 +27,29 @@
 
 **Note — the fallback-ticker set is not static:** HSY and NBIS were *not* in the 2026-06-07 "EPS=None (13 tickers)" list further below in this file, meaning they only started hitting this fallback sometime in the following weeks (most likely `company_facts` data aging past the primary path's 2-year recency window). Don't trust a hardcoded snapshot of which tickers use the fallback — re-verify live if it matters again.
 
-**Verification pending:** tonight's ~11 PM ET safety-net run (`0 4 * * 2-6`, full EDGAR refresh) will pick this up automatically — `FUND_CACHE_TTL_DAYS=0` means every EDGAR-enabled run re-fetches fresh, no manual cache wipe needed. **Check tomorrow** that `data/fundamentals_cache.json` shows the corrected EPS values above for KKR/BRK-B/V/ERIE/STZ/HSY.
+**✓ CONFIRMED in production (2026-07-01 evening):** `data/fundamentals_cache.json` now shows KKR 2.93, BRK-B 33.59, V 11.47, ERIE 10.93, HSY 5.37 — all matching. STZ shows 10.50 (not 9.61) — expected drift from a new EDGAR filing landing between the fix and this check, not a regression.
+
+---
+
+### 4:30 PM Scan Had Stale (June 30) Data — Manually Triggered, Added 500PM-scan Retry
+
+**Symptom:** Tonight's 4:30 PM-scheduled scan (`430PM-scan`, ran ~6:15 PM ET) completed successfully — SPY readiness probe passed, 517 tickers processed, commits pushed — but `data/latest.json`'s `date` field stayed on `2026-06-30`. Dashboard showed all 1D price changes as 0%.
+
+**Root cause:** The SPY probe (`scanner_tiingo.py:2909-2932`) only confirms *SPY's* bar is same-day — it doesn't guarantee Tiingo has finished publishing EOD data for the other ~516 tickers. `latest.json`'s date comes from the actual fetched OHLCV data (`df["Date"].iloc[0]`, `scanner_tiingo.py:2353`), not from the probe, so the probe passing didn't mean the bulk data was ready. A 5:55 PM ET manual `workflow_dispatch` trigger hit the same not-yet-published data.
+
+**Also checked:** the "pages build and deployment" cancellation messages seen around this time were a red herring — confirmed via the GitHub Actions API that the *final* deployment (for the last commit in the batch) completed successfully; cancellations were just normal churn from three commits landing within 6 minutes of each other.
+
+**Resolution:** manually re-triggered `workflow_dispatch` once Tiingo had caught up — `data/latest.json` rolled to `2026-07-01` and 1D price changes came back.
+
+**Fix (commit `bffa5a7`):** Added a new **500PM-scan** cron slot (`0 21 * * 1-5`, scheduled 5:00 PM ET, actual ~7:00 PM ET) to `.github/workflows/scanner.yml`, sitting between the existing 4:30 PM and 5:30 PM runs. It falls through to the same generic retry branch as 530PM/630PM-scan — `SKIP_EDGAR=1` (no EDGAR refetch, since 4:30 PM already refreshed it), `PROBE_RETRIES=1`. Only 3 lines changed: the cron entry, a `RUN_TYPE="500PM-scan"` worklog case, and an updated comment.
+
+---
+
+### GIS Compare-Log Diff Explained (Not a Bug)
+
+`archive/compare_*.log` flagged `GIS ours=-0.160 yf=4.090 diff=103.9%`. Diff formula is `abs(ours - yf) / abs(yf)` (`scanner_tiingo.py:2748`) — checks out exactly (4.25/4.09 = 103.9%).
+
+Traced `ours=-0.160` to source: GIS filed a brand-new 10-K on **2026-07-01** (fiscal year ended 2026-05-31). Its own XBRL shows Q4 FY2026 (Mar–May 2026) diluted EPS = **-3.74** (a large one-time charge, likely goodwill/brand impairment), dragging full-year GAAP EPS to **-0.16** — an exact match to what EDGAR itself reports as the annual total. yfinance's `4.09` almost certainly hadn't ingested the just-filed 10-K yet, or reflects a non-GAAP "adjusted" EPS excluding the impairment. This is the documented "TTM window vs YF annual anchor" known-difference category (`scanner_tiingo.py` ~line 2788) — not a fallback-function bug like the KKR/BRK-B one above.
 
 ---
 
@@ -1516,7 +1538,8 @@ Two-part fix:
 2. **Tiingo attribution** — ✓ DONE. Present in `baizora_main_form.html` (line 906), individual stock pages, and homepage. `dashboard.html` shows no market data so no attribution needed there.
 3. **BKNG + CVNA split guards** — both auto-disable once Q2 2026 10-Q is filed (~Aug 2026). Verify EPS and mktcap drop to expected post-split values and compare log stays clean.
 4. **Remaining EPS=None tickers** — ✓ RESOLVED for BRK-B (now via inline-XBRL fallback, see 2026-07-01 section). Still genuinely unavailable: ARES/TRI (Form 25-NSE delisting) and FDXF (no 10-Q/10-K filed yet, recent spinoff).
-9. **Verify tomorrow (2026-07-02):** confirm tonight's ~11 PM ET run committed the corrected EPS fallback values (KKR 2.93, BRK-B 33.59, V 11.47, ERIE 10.93, STZ 9.61, HSY 5.37) into `data/fundamentals_cache.json` / `data/latest.json`. See 2026-07-01 section at top for full context.
+9. **EPS fallback fix** — ✓ CONFIRMED in production same-day (2026-07-01). See top of file.
+10. **New 500PM-scan slot** — added 2026-07-01 to catch Tiingo publication delays between the 4:30 PM and 5:30 PM runs. Watch a few sessions to confirm it actually helps (vs. 4:30 PM data just always being ready by 5:30 PM anyway, making it redundant).
 5. **yfinance compare log** — remaining flagged EPS diffs (OXY, MLM, CI etc.) are GAAP one-time items vs adjusted EPS. These are correct and expected — not bugs.
 6. **FUND_CACHE_TTL_DAYS = 0** — EDGAR now always re-fetches every run. Cache file is still written but never read back. No further cache management needed.
 7. **4–6 PM ET data gap + 0% PriceChange1D** — ✓ RESOLVED (commit `3ce7474`, 2026-06-30). `isMarketOpen()` stays at 8 PM (1200 min). Added `loadedDate !== _todayET` guard to all IEX refresh call sites — IEX suppressed after scanner auto-reload, live prices still shown 4–6:30 PM before scan lands.
