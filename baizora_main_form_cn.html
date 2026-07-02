@@ -138,6 +138,17 @@
 
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
+    .stale-banner {
+      display: none;
+      background: linear-gradient(90deg, #7c2d12, #92400e, #7c2d12);
+      color: var(--gold-light);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.03em;
+      text-align: center;
+      padding: 7px 16px;
+    }
+
     .logout-btn {
       background: transparent;
       border: 1px solid var(--border);
@@ -766,6 +777,8 @@
     </div>
   </header>
 
+  <div class="stale-banner" id="staleBanner"></div>
+
   <!-- Mobile drawer -->
   <div class="mobile-drawer" id="mobileDrawer">
     <button onclick="show('sp500', document.querySelectorAll('.tab-btn')[0]); toggleMenu();">标普500</button>
@@ -1056,6 +1069,16 @@
           loadedDate = json.date || "—";
           spRows = allRows.filter(x => x.InSP500);
           ndRows = allRows.filter(x => x.InNASDAQ100);
+          const staleBanner = document.getElementById("staleBanner");
+          if (staleBanner) {
+            if (json.partialUpdate && (json.staleTickers || []).length) {
+              const n = json.staleTickers.length;
+              staleBanner.textContent = `⚠ 数据部分更新 — ${n} 支股票数据尚未刷新,暂时隐藏:${json.staleTickers.join('、')}`;
+              staleBanner.style.display = "block";
+            } else {
+              staleBanner.style.display = "none";
+            }
+          }
           overlay.classList.add("hidden");
           statusDot.className = "status-dot";
           render();

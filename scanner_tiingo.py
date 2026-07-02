@@ -25,6 +25,8 @@ EDGAR_ONLY       = os.environ.get("EDGAR_ONLY",  "").lower() in ("1", "true", "y
 
 DATE_STR         = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d")
 _TIINGO_LAST_DATE = DATE_STR   # updated by __main__ to the last date Tiingo actually has data for
+_STALE_TICKERS_EXCLUDED = []   # tickers dropped by __main__ because Tiingo hadn't published
+                                # their bar for _TIINGO_LAST_DATE yet (partial-publish protection)
 DATA_DIR         = "data"
 ARCHIVE_DIR      = "archive"
 OHLCV_CACHE_DIR  = os.path.join(DATA_DIR, "ohlcv_tiingo_cache")
@@ -478,6 +480,10 @@ def sic_to_sector(sic_description):
 # =========================
 
 def fetch_index_tickers(url):
+    # Slickcharts columns: #, Company, Symbol, Weight, Price, Chg, % Chg.
+    # Delisted/renamed constituents (e.g. SATS→ECHO ticker change, Jun 2026) can linger
+    # in the table at 0.00% weight for days after the actual index removal — skip them
+    # rather than trusting the row's mere presence.
     try:
         response = requests.get(url, headers=SCRAPE_HEADERS, timeout=30)
         if response.status_code != 200:
@@ -490,8 +496,16 @@ def fetch_index_tickers(url):
         symbols = []
         for row in table.find_all("tr")[1:]:
             cols = row.find_all("td")
-            if len(cols) > 2:
+            if len(cols) > 3:
                 symbol = cols[2].text.strip()
+                weight_str = cols[3].text.strip().rstrip("%")
+                try:
+                    weight = float(weight_str)
+                except ValueError:
+                    weight = None
+                if weight is not None and weight <= 0:
+                    print(f"  Skipping {symbol}: 0% weight on {url} (stale/delisted listing)")
+                    continue
                 if symbol:
                     symbols.append(symbol)
         return symbols
@@ -2360,6 +2374,8 @@ def export(df):
         "date":   market_date,
         "status": "Updated",
         "count":  len(df),
+        "partialUpdate": bool(_STALE_TICKERS_EXCLUDED),
+        "staleTickers":  _STALE_TICKERS_EXCLUDED,
         "data":   df.to_dict(orient="records"),
     }
 
@@ -2943,6 +2959,21 @@ if __name__ == "__main__":
 
     # 4. Run scan
     df, candles_out, trading_days = scan()
+
+    # 4b. Exclude tickers Tiingo hasn't published for _TIINGO_LAST_DATE yet.
+    # Tiingo sometimes publishes EOD data incrementally across tickers rather than all at
+    # once — without this, a stale ticker's old bar silently rides along in an otherwise
+    # "Updated" payload (e.g. SATS sat 8 days stale on 2026-07-01 while 516/517 other
+    # tickers were current, with nothing flagging it). Any mismatch, even one day, is
+    # excluded — a later scheduled/manual run will pick it back up once Tiingo catches up.
+    if not df.empty and "Date" in df.columns:
+        stale_mask = df["Date"] != _TIINGO_LAST_DATE
+        _STALE_TICKERS_EXCLUDED = sorted(df.loc[stale_mask, "Ticker"].tolist())
+        if _STALE_TICKERS_EXCLUDED:
+            print(f"STALE DATA: excluding {len(_STALE_TICKERS_EXCLUDED)} ticker(s) not yet "
+                  f"updated to {_TIINGO_LAST_DATE}: {_STALE_TICKERS_EXCLUDED}")
+            df = df[~stale_mask].reset_index(drop=True)
+            candles_out = {t: c for t, c in candles_out.items() if t not in _STALE_TICKERS_EXCLUDED}
 
     print(df.head(10))
 
