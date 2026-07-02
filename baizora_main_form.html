@@ -1065,7 +1065,7 @@
           if (staleBanner) {
             if (json.partialUpdate && (json.staleTickers || []).length) {
               const n = json.staleTickers.length;
-              staleBanner.textContent = `⚠ Partial update — ${n} ticker${n === 1 ? '' : 's'} pending fresh data and temporarily hidden: ${json.staleTickers.join(', ')}`;
+              staleBanner.textContent = `⚠ Partial update — ${n} ticker${n === 1 ? '' : 's'} pending fresh data and temporarily hidden`;
               staleBanner.style.display = "block";
             } else {
               staleBanner.style.display = "none";
