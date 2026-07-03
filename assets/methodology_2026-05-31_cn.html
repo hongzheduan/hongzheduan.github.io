@@ -236,7 +236,7 @@
       <h3>每次运行的步骤</h3>
       <ol>
         <li><strong>更新指数成分</strong> — 重新抓取标普500/纳斯达克100成分股列表,过滤掉权重为0%的条目,检测并记录新增/移除的股票。</li>
-        <li><strong>更新 OHLCV 缓存</strong> — 一次批量 Tiingo API 调用获取全部股票的最新收盘数据;首次扫描时对缺失的历史数据进行补全。</li>
+        <li><strong>更新 OHLCV 缓存</strong> — 为全部股票逐一获取完整2年历史数据(实际生产环境中增量更新机制并未生效,原因见<a href="#ohlcv-cache">缓存结构</a>一节),随后再通过一次批量 Tiingo API 调用补充最新收盘数据。</li>
         <li><strong>加载基本面数据</strong> — 启用 EDGAR 的运行会始终为每只股票重新抓取最新数据(无基本面缓存有效期——见<a href="#eps-cache">基本面数据新鲜度</a>);仅使用缓存的运行则读取最近一次启用 EDGAR 的运行所提交的基本面数据。</li>
         <li><strong>将 OHLCV 加载到内存</strong> — 各股票的缓存文件仅加载一次到共享字典中;每个指标计算均从内存而非磁盘读取。</li>
         <li><strong>计算指标</strong> — 对范围内的每一只股票:重建价格/成交量序列,计算所有时间窗口的指标、基本面数据和评分。</li>
@@ -277,8 +277,8 @@ staleTickers: ["股票代码", ...] <span class="comment">// 被剔除的具体�
 
       <div id="ohlcv-cache">
         <h3>缓存结构</h3>
-        <p>每只股票对应一个 JSON 文件:<code>data/ohlcv_tiingo_cache/{股票代码}.json</code>。每个文件包含该股票完整的 OHLCV 历史记录,以 <code>{date, open, high, low, close, volume}</code> 记录列表形式按日期升序排列。文件采用增量更新——新的数据只会被追加,不会重写历史记录。</p>
-        <p>缓存保留<strong>最长2年的日线历史</strong>(约504个交易日)。首次扫描某只股票时,尚无缓存文件,会从 Tiingo 补全完整历史。后续扫描仅从批量日线接口追加最新一根K线。</p>
+        <p>每只股票对应一个 JSON 文件:<code>data/ohlcv_tiingo_cache/{股票代码}.json</code>。每个文件包含该股票完整的 OHLCV 历史记录,以 <code>{date, open, high, low, close, volume}</code> 记录列表形式按日期升序排列,最长保留<strong>2年的日线历史</strong>(约504个交易日)。</p>
+        <p>代码逻辑设计为增量更新:每只股票只需完整抓取一次2年历史,此后每次扫描仅通过批量接口追加当天新增的一根K线。但在实际生产环境中,这套增量机制并未真正生效——该缓存目录已被 <code>.gitignore</code>排除、不提交到仓库,且每次定时运行都在全新的 GitHub Actions 虚拟机上执行,没有任何机制将缓存目录保留到下一次运行。因此,每次运行(工作日最多5次)实际上都会为全部约516只股票逐一重新抓取完整的2年历史,而不是复用前一天的缓存再追加一根K线。</p>
       </div>
 
       <div id="volume-note">

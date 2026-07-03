@@ -244,7 +244,7 @@
       <h3>Steps per Run</h3>
       <ol>
         <li><strong>Update index membership</strong> — refetch S&amp;P 500 / Nasdaq-100 constituent lists, filter out 0%-weight listings, detect and record added/removed tickers.</li>
-        <li><strong>Update OHLCV cache</strong> — one bulk Tiingo API call fetches the latest EOD bar for all tickers in the universe; missing history is backfilled per-ticker on first scan.</li>
+        <li><strong>Update OHLCV cache</strong> — full 2-year per-ticker history is fetched for every ticker in the universe (see <a href="#ohlcv-cache">Cache Structure</a> for why the incremental path doesn't apply in production), then one bulk Tiingo API call adds the latest EOD bar.</li>
         <li><strong>Load fundamentals</strong> — EDGAR-enabled runs always re-fetch every ticker fresh (no fundamentals cache TTL — see <a href="#eps-cache">Fundamentals Freshness</a>); cache-only runs read the fundamentals committed by the most recent EDGAR-enabled run.</li>
         <li><strong>Load OHLCV into memory</strong> — per-ticker cache files loaded once into a shared dict; each metric computation reads from memory rather than disk.</li>
         <li><strong>Compute metrics</strong> — for each ticker in the universe: reconstruct price/volume series, calculate all timeframe metrics, fundamentals, scores.</li>
@@ -285,8 +285,8 @@ staleTickers: ["TICKER", ...] <span class="comment">// which tickers were exclud
 
       <div id="ohlcv-cache">
         <h3>Cache Structure</h3>
-        <p>One JSON file per ticker: <code>data/ohlcv_tiingo_cache/{TICKER}.json</code>. Each file contains the full OHLCV history for that ticker as a list of <code>{date, open, high, low, close, volume}</code> records, sorted ascending by date. Files are updated incrementally — new bars are appended without rewriting history.</p>
-        <p>The cache holds <strong>up to 2 years of daily history</strong> (~504 trading days). On first scan a ticker has no cache file and the full history is backfilled from Tiingo. Subsequent scans append only the new bar from the bulk daily endpoint.</p>
+        <p>One JSON file per ticker: <code>data/ohlcv_tiingo_cache/{TICKER}.json</code>. Each file contains the full OHLCV history for that ticker as a list of <code>{date, open, high, low, close, volume}</code> records, sorted ascending by date, capped at <strong>up to 2 years of daily history</strong> (~504 trading days).</p>
+        <p>The code path is designed to be incremental — fetch the full 2-year history once per ticker, then append only each day's new bar via a bulk call on later scans. In production this incremental path never actually engages: the cache directory is excluded from git (rebuilt on a fresh GitHub Actions runner for every scheduled run) and nothing persists it between runs. As a result, every run — up to 5 per trading day — refetches the full 2-year history for all ~516 tickers individually, rather than reusing a prior day's cache and adding one bar.</p>
       </div>
 
       <div id="volume-note">
