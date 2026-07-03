@@ -5,6 +5,7 @@ import time
 import json
 import os
 import glob
+import re
 import requests
 from bs4 import BeautifulSoup
 import sys
@@ -646,6 +647,65 @@ def cleanup_old_archives():
             pass
 
 
+_NEWS_DEDUP_STOPWORDS = {
+    "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
+    "to", "for", "on", "in", "of", "and", "or", "at", "by", "with", "from",
+    "today", "here", "here's", "what", "why", "how", "as", "it", "its",
+    "this", "that", "will", "you", "your", "s", "amp",
+}
+
+
+def _news_dedup_tokens(title):
+    """Normalizes a headline into a set of significant words for near-duplicate detection —
+    same idea as the exact-match dedup already used elsewhere, just fuzzy: strips punctuation
+    and numbers (dates/years vary between otherwise-identical wire-style stories) and drops
+    stopwords, so 'Is the stock market open today, July 3?' and 'Is stock market closed today?
+    Why you can't trade July 4' collapse to the same core token set."""
+    words = re.findall(r"[a-z]+", title.lower())
+    return {w for w in words if w not in _NEWS_DEDUP_STOPWORDS and len(w) > 1}
+
+
+# Recurring low-diversity story templates that many outlets all run near-simultaneously with
+# heavily paraphrased titles (e.g. "market open?" vs "market closed?" for the same holiday) —
+# word-overlap similarity alone misses these since the paraphrasing often swaps in literal
+# antonyms. Matched title -> a fixed cluster key; any two headlines sharing a key are treated
+# as the same story regardless of wording. Extend this list if new recurring templates show up.
+_NEWS_TOPIC_PATTERNS = [
+    ("market_hours_holiday", re.compile(r"stock market (?:open|close|closed)", re.IGNORECASE)),
+]
+
+
+def _news_topic_key(title):
+    for key, pattern in _NEWS_TOPIC_PATTERNS:
+        if pattern.search(title):
+            return key
+    return None
+
+
+def _dedup_similar_headlines(items, threshold=0.5):
+    """Drops near-duplicate headlines, keeping the first (freshest, since Google News RSS
+    returns newest-first) occurrence of each story cluster. Two signals: word-overlap (Jaccard)
+    similarity on significant terms, and known recurring low-diversity templates (see
+    _NEWS_TOPIC_PATTERNS) matched by keyword pattern rather than lexical overlap."""
+    kept = []
+    kept_tokens = []
+    kept_topic_keys = set()
+    for it in items:
+        topic_key = _news_topic_key(it["title"])
+        if topic_key and topic_key in kept_topic_keys:
+            continue
+        tokens = _news_dedup_tokens(it["title"])
+        if tokens and any(
+            len(tokens & other) / len(tokens | other) >= threshold for other in kept_tokens
+        ):
+            continue
+        kept.append(it)
+        kept_tokens.append(tokens)
+        if topic_key:
+            kept_topic_keys.add(topic_key)
+    return kept
+
+
 def _fetch_market_news_items(n=6, lang="en"):
     """Fetch top financial headlines from Google News RSS (always the international/English
     feed — same query the /api/market-news CF uses). Returns (fetched_str, items).
@@ -675,8 +735,10 @@ def _fetch_market_news_items(n=6, lang="en"):
                 date_str = ""
             if title:
                 items.append({"title": title, "source": source, "link": link, "date": date_str})
-            if len(items) >= n:
-                break
+        # Parse every item Google returned (not just the first n) before deduping — the
+        # near-duplicate filter needs the full pool so truncating to n afterward doesn't
+        # just cut off partway through a cluster of "same story, different outlet" headlines.
+        items = _dedup_similar_headlines(items)[:n]
         if lang == "zh":
             _translate_items_to_zh(items)
         et_tz = pytz.timezone("America/New_York")
