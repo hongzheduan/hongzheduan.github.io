@@ -1,0 +1,70 @@
+name: Market News Refresh
+
+# Refreshes data/market_news.json, data/market_news_cn.json, and the news section of
+# daily_briefing.txt / daily_briefing_cn.txt every hour, independent of the main scanner. The
+# homepage used to fetch this feed live from the /api/market-news Cloud Function, but Google
+# started bot-blocking the Cloud Function's GCP egress IP (HTTP 503) on 2026-07-02, leaving
+# that feed stuck on stale cached data. This job re-fetches from a GitHub Actions runner IP
+# (unaffected) so both the homepage card and the downloadable briefing stay in sync and fresh.
+
+on:
+  schedule:
+    - cron: "5 * * * *"   # 5 minutes past every hour
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-news:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Refresh market news
+        run: python news_refresh.py
+
+      - name: Commit updated news
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          TMPBAK=$(mktemp -d)
+          cp data/market_news.json      "$TMPBAK/" 2>/dev/null || true
+          cp data/market_news_cn.json   "$TMPBAK/" 2>/dev/null || true
+          cp data/daily_briefing.txt    "$TMPBAK/" 2>/dev/null || true
+          cp data/daily_briefing_cn.txt "$TMPBAK/" 2>/dev/null || true
+
+          git stash
+          git fetch origin main
+          git rebase origin/main
+
+          cp "$TMPBAK/market_news.json"      data/ 2>/dev/null || true
+          cp "$TMPBAK/market_news_cn.json"   data/ 2>/dev/null || true
+          cp "$TMPBAK/daily_briefing.txt"    data/ 2>/dev/null || true
+          cp "$TMPBAK/daily_briefing_cn.txt" data/ 2>/dev/null || true
+
+          git add -f data/market_news.json      2>/dev/null || true
+          git add -f data/market_news_cn.json   2>/dev/null || true
+          git add -f data/daily_briefing.txt    2>/dev/null || true
+          git add -f data/daily_briefing_cn.txt 2>/dev/null || true
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit, skipping push"
+          else
+            git commit -m "auto news refresh $(date -u)"
+            git push origin HEAD:main
+          fi

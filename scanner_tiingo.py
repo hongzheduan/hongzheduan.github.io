@@ -647,19 +647,17 @@ def cleanup_old_archives():
 
 
 def _fetch_market_news_items(n=6, lang="en"):
-    """Fetch top financial headlines from Google News RSS. Returns (fetched_str, items).
-    items: [{title, source, link, date}] — same format as /api/market-news CF response.
+    """Fetch top financial headlines from Google News RSS (always the international/English
+    feed — same query the /api/market-news CF uses). Returns (fetched_str, items).
+    items: [{title, source, link, date}]; when lang="zh" each item also gets a "title_cn"
+    translation so the CN briefing shows international coverage instead of Chinese-portal
+    results from a Chinese-language RSS query.
     """
     try:
         import urllib.request
         from email.utils import parsedate_to_datetime
-        if lang == "zh":
-            # 股市 利率 美联储 财报 美股 关税 通胀 — no 战争 (too broad, pulls historical war articles)
-            query = "%E8%82%A1%E5%B8%82+OR+%E5%88%A9%E7%8E%87+OR+%E7%BE%8E%E8%81%94%E5%82%A8+OR+%E8%B4%A2%E6%8A%A5+OR+%E7%BE%8E%E8%82%A1+OR+%E5%85%B3%E7%A8%8E+OR+%E9%80%9A%E8%83%80"
-            url = f"https://news.google.com/rss/search?q={query}&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
-        else:
-            query = "stock+market+OR+%22Federal+Reserve%22+OR+earnings+OR+war+OR+tariff+OR+inflation"
-            url = f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
+        query = "stock+market+OR+%22Federal+Reserve%22+OR+earnings+OR+war+OR+tariff+OR+inflation"
+        url = f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; Baizora/1.0)"})
         with urllib.request.urlopen(req, timeout=10) as resp:
             xml_bytes = resp.read()
@@ -679,12 +677,35 @@ def _fetch_market_news_items(n=6, lang="en"):
                 items.append({"title": title, "source": source, "link": link, "date": date_str})
             if len(items) >= n:
                 break
+        if lang == "zh":
+            _translate_items_to_zh(items)
         et_tz = pytz.timezone("America/New_York")
         fetched = datetime.now(et_tz).strftime("%m/%d/%Y, %I:%M %p ET")
         return fetched, items
     except Exception as e:
         print(f"[digest] news fetch failed: {e}")
         return "", []
+
+
+def _translate_items_to_zh(items):
+    """Adds a "title_cn" field to each item in place via _translate_to_zh (defined further down,
+    under INDEX MEMBERSHIP NEWS — same helper used for that feature's headline translation).
+    Retries once on failure so a transient network hiccup doesn't leave an English title in the
+    CN output."""
+    for it in items:
+        suffix = f" - {it['source']}" if it["source"] else ""
+        clean = it["title"][: -len(suffix)] if suffix and it["title"].endswith(suffix) else it["title"]
+        title_cn = ""
+        for attempt in range(2):
+            try:
+                title_cn = _translate_to_zh(clean)
+                if title_cn:
+                    break
+            except Exception:
+                pass
+            time.sleep(0.3)
+        it["title_cn"] = title_cn
+        time.sleep(0.08)
 
 
 def _fetch_market_headlines(n=5, lang="en"):
@@ -2398,6 +2419,54 @@ def export_candles(candles_out, trading_days):
     print(f"Candles export: {len(candles_out)} tickers, {len(dates)} dates")
 
 
+def _build_briefing_txt(market_date, scan_time, digest, headlines):
+    line = "─" * 54
+    txt  = f"BAIZORA DAILY MARKET BRIEFING — {market_date}\n{line}\n"
+    txt += f"S&P 500 & Nasdaq-100  ·  516 stocks tracked\n"
+    txt += f"Scan time: {scan_time}\n\n"
+    txt += "TOP GAINERS (1-Day)\n"
+    for r in digest["top_gainers"]:
+        sign = "+" if r["chg1d"] >= 0 else ""
+        name = (r["name"] or "")[:22]
+        txt += f"  {r['ticker']:<6} {name:<22}  ${r['price']:.2f}   {sign}{r['chg1d']:.2f}%\n"
+    txt += "\nTOP VOLUME SPIKES (1-Day)\n"
+    for r in digest["top_volume"]:
+        name  = (r["name"] or "")[:22]
+        vol_s = f"{r['vol']:.1f}M" if r["vol"] else "—"
+        txt += f"  {r['ticker']:<6} {name:<22}  +{r['volchg']:.0f}%   Vol: {vol_s}\n"
+    if headlines:
+        txt += "\nMARKET NEWS\n"
+        for h in headlines:
+            txt += h + "\n"
+    txt += f"\n{line}\nBaizora — S&P 500 & Nasdaq-100 Daily Analytics\nhttps://baizora.com\nNot financial advice.\n"
+    return txt
+
+
+def _build_briefing_txt_cn(market_date, scan_time, digest, headlines_cn):
+    line = "─" * 54
+    txt_cn  = f"贝佐拉每日市场简报 — {market_date}\n{line}\n"
+    txt_cn += f"标普500 & 纳斯达克100  ·  追踪516支股票\n"
+    txt_cn += f"行情时间：{scan_time}\n\n"
+    txt_cn += "涨幅榜（日内）\n"
+    for r in digest["top_gainers"]:
+        sign = "+" if r["chg1d"] >= 0 else ""
+        name = (r["name"] or "")[:22]
+        txt_cn += f"  {r['ticker']:<6} {name:<22}  ${r['price']:.2f}   {sign}{r['chg1d']:.2f}%\n"
+    txt_cn += "\n成交量飙升（日内）\n"
+    for r in digest["top_volume"]:
+        name  = (r["name"] or "")[:22]
+        vol_s = f"{r['vol']:.1f}M" if r["vol"] else "—"
+        txt_cn += f"  {r['ticker']:<6} {name:<22}  +{r['volchg']:.0f}%   成交量: {vol_s}\n"
+    if headlines_cn:
+        txt_cn += "\n市场资讯\n"
+        for h in headlines_cn:
+            txt_cn += h + "\n"
+    else:
+        txt_cn += "\n市场资讯\n  （每日更新于 baizora.com）\n"
+    txt_cn += f"\n{line}\n贝佐拉 — 标普500 & 纳斯达克100 每日行情分析\nhttps://baizora.com\n本内容不构成投资建议。\n"
+    return txt_cn
+
+
 def export_daily_digest(df):
     """Write daily_digest.json (for card display) and daily_briefing.txt (for download)."""
     try:
@@ -2429,65 +2498,35 @@ def export_daily_digest(df):
             json.dump(digest, f)
         print(f"Digest JSON: {len(digest['top_gainers'])} gainers, {len(digest['top_volume'])} volume spikes")
 
-        # Build downloadable text briefing
-        fetched_en, items_en = _fetch_market_news_items(6, "en")
+        # Build downloadable text briefing — Google News RSS (international sources), up to 30 headlines
+        fetched_en, items_en = _fetch_market_news_items(30, "en")
         with open(MARKET_NEWS_JSON, "w", encoding="utf-8") as f:
             json.dump({"fetched": fetched_en, "items": items_en}, f, ensure_ascii=False)
         print(f"Market news JSON: {len(items_en)} items")
-        headlines = [f"  • {it['title']}" + (f" — {it['source']}" if it['source'] else "") for it in items_en[:5]]
-        line = "─" * 54
-        txt  = f"BAIZORA DAILY MARKET BRIEFING — {market_date}\n{line}\n"
-        txt += f"S&P 500 & Nasdaq-100  ·  516 stocks tracked\n"
-        txt += f"Scan time: {scan_time}\n\n"
-        txt += "TOP GAINERS (1-Day)\n"
-        for r in digest["top_gainers"]:
-            sign = "+" if r["chg1d"] >= 0 else ""
-            name = (r["name"] or "")[:22]
-            txt += f"  {r['ticker']:<6} {name:<22}  ${r['price']:.2f}   {sign}{r['chg1d']:.2f}%\n"
-        txt += "\nTOP VOLUME SPIKES (1-Day)\n"
-        for r in digest["top_volume"]:
-            name  = (r["name"] or "")[:22]
-            vol_s = f"{r['vol']:.1f}M" if r["vol"] else "—"
-            txt += f"  {r['ticker']:<6} {name:<22}  +{r['volchg']:.0f}%   Vol: {vol_s}\n"
-        if headlines:
-            txt += "\nMARKET NEWS\n"
-            for h in headlines:
-                txt += h + "\n"
-        txt += f"\n{line}\nBaizora — S&P 500 & Nasdaq-100 Daily Analytics\nhttps://baizora.com\nNot financial advice.\n"
+        headlines = [f"  • {it['title']}" + (f" — {it['source']}" if it['source'] else "") for it in items_en]
 
         with open(BRIEFING_TXT, "w", encoding="utf-8") as f:
-            f.write(txt)
+            f.write(_build_briefing_txt(market_date, scan_time, digest, headlines))
         print("Briefing text written.")
 
-        # CN version
-        fetched_cn, items_cn = _fetch_market_news_items(6, "zh")
+        # CN version — same international headlines as EN, translated (not a Chinese-language RSS query).
+        # Items that fail translation even after retry are dropped rather than shown in English,
+        # so the CN download/card never mixes in an untranslated headline.
+        import copy
+        items_cn_all = copy.deepcopy(items_en)
+        _translate_items_to_zh(items_cn_all)
+        items_cn = [it for it in items_cn_all if it.get("title_cn")]
+        n_dropped = len(items_cn_all) - len(items_cn)
+        if n_dropped:
+            print(f"[digest] dropped {n_dropped} CN headline(s) that failed translation")
+        fetched_cn = fetched_en
         with open(MARKET_NEWS_CN_JSON, "w", encoding="utf-8") as f:
             json.dump({"fetched": fetched_cn, "items": items_cn}, f, ensure_ascii=False)
         print(f"Market news CN JSON: {len(items_cn)} items")
-        headlines_cn = [f"  • {it['title']}" + (f" — {it['source']}" if it['source'] else "") for it in items_cn[:5]]
-        txt_cn  = f"贝佐拉每日市场简报 — {market_date}\n{line}\n"
-        txt_cn += f"标普500 & 纳斯达克100  ·  追踪516支股票\n"
-        txt_cn += f"行情时间：{scan_time}\n\n"
-        txt_cn += "涨幅榜（日内）\n"
-        for r in digest["top_gainers"]:
-            sign = "+" if r["chg1d"] >= 0 else ""
-            name = (r["name"] or "")[:22]
-            txt_cn += f"  {r['ticker']:<6} {name:<22}  ${r['price']:.2f}   {sign}{r['chg1d']:.2f}%\n"
-        txt_cn += "\n成交量飙升（日内）\n"
-        for r in digest["top_volume"]:
-            name  = (r["name"] or "")[:22]
-            vol_s = f"{r['vol']:.1f}M" if r["vol"] else "—"
-            txt_cn += f"  {r['ticker']:<6} {name:<22}  +{r['volchg']:.0f}%   成交量: {vol_s}\n"
-        if headlines_cn:
-            txt_cn += "\n市场资讯\n"
-            for h in headlines_cn:
-                txt_cn += h + "\n"
-        else:
-            txt_cn += "\n市场资讯\n  （每日更新于 baizora.com）\n"
-        txt_cn += f"\n{line}\n贝佐拉 — 标普500 & 纳斯达克100 每日行情分析\nhttps://baizora.com\n本内容不构成投资建议。\n"
+        headlines_cn = [f"  • {it['title_cn']}" + (f" — {it['source']}" if it['source'] else "") for it in items_cn]
 
         with open(BRIEFING_TXT_CN, "w", encoding="utf-8") as f:
-            f.write(txt_cn)
+            f.write(_build_briefing_txt_cn(market_date, scan_time, digest, headlines_cn))
         print("CN briefing text written.")
     except Exception as e:
         import traceback

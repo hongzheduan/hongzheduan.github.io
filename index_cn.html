@@ -1944,20 +1944,14 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     }
   })();
 
-  const _NEWS_CF = "https://us-central1-baizora.cloudfunctions.net/api/market-news?lang=zh";
+  // Reads the static file kept fresh by the hourly news_refresh.yml GitHub Action, rather than
+  // calling the /api/market-news Cloud Function live — Google has been bot-blocking that
+  // function's GCP egress IP (HTTP 503) since 2026-07-02, so the live path was stuck on stale data.
   async function _fetchNews() {
     try {
-      let data;
-      try {
-        const r = await fetch(_NEWS_CF, { signal: AbortSignal.timeout(8000) });
-        if (!r.ok) throw new Error(r.status);
-        data = await r.json();
-      } catch(e) {
-        const r = await fetch("data/market_news_cn.json?" + Date.now());
-        if (!r.ok) throw new Error(r.status);
-        data = await r.json();
-      }
-      _news = data;
+      const r = await fetch("data/market_news_cn.json?" + Date.now());
+      if (!r.ok) throw new Error(r.status);
+      _news = await r.json();
       renderNews(_news);
       const note = document.getElementById("digestScanNote");
       if (note && _digest && _digest.scan_time) {
@@ -1969,7 +1963,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     }
   }
   _fetchNews();
-  setInterval(_fetchNews, 60 * 60 * 1000);
+  setInterval(_fetchNews, 10 * 60 * 1000);
 })();
 
 fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
