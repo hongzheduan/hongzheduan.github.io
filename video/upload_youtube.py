@@ -184,10 +184,11 @@ def make_meta(video_type, date):
         )
     if video_type == "volume_spikes":
         title = random.choice([
-            f"Volume Spikes — S&P 500 & Nasdaq-100 — {date}",
-            f"Unusual Volume Today — S&P 500 & Nasdaq-100 — {date}",
-            f"Big Volume Moves — Large-Cap Stocks — {date}",
-            f"Today's Volume Alerts — S&P 500 & Nasdaq-100 — {date}",
+            f"Top Volume Stocks Today — {date}",
+            f"Top Unusual Volume Stocks Today — {date}",
+            f"Today's Biggest Volume Movers — {date}",
+            f"Stocks With Unusual Volume Today — {date}",
+            f"Top Volume Breakouts Today — {date}",
         ])
         return (
             title,
@@ -198,11 +199,14 @@ def make_meta(video_type, date):
         label = tf["label_en"]
         short = tf["label_short"]
         window = tf["window_en"]
+        num, unit = label.split("-")
+        numeral_window = f"{num} {unit}" if num == "1" else f"{num} {unit}s"
         title = random.choice([
-            f"{label} Best Performers — S&P 500 & Nasdaq-100 — {date}",
-            f"Top {label} Gainers — Large-Cap Stocks — {date}",
-            f"Best Large-Cap Returns — Trailing {label} — {date}",
-            f"{label} Price Leaders — S&P 500 & Nasdaq-100 — {date}",
+            f"Top {label} Winners — {date}",
+            f"Best Performing Stocks ({numeral_window}) — {date}",
+            f"Top Stock Winners Over {numeral_window} — {date}",
+            f"Top {label} Performers — {date}",
+            f"Best Large-Cap Stocks ({label} Returns) — {date}",
         ])
         return (
             title,
@@ -210,10 +214,11 @@ def make_meta(video_type, date):
         )
     if video_type == "volume_spikes_cn":
         title = random.choice([
-            f"今日成交量异动 — S&P 500 & 纳斯达克100 — {date}",
-            f"大盘股异常成交量 — {date}",
-            f"今日成交量异动股票 — 美股大盘 — {date}",
-            f"S&P 500 & 纳斯达克100 成交量异动 — {date}",
+            f"今日成交量最高股票 — {date}",
+            f"今日成交量最异常股票 — {date}",
+            f"今日成交量最大异动股票 — {date}",
+            f"今日成交量异常股票 — {date}",
+            f"今日成交量突破股票 — {date}",
         ])
         return (
             title,
@@ -224,10 +229,11 @@ def make_meta(video_type, date):
         label_cn = tf["label_cn"]
         window_cn = tf["window_cn"]
         title = random.choice([
-            f"过去{label_cn}最佳表现股票 — S&P 500 & 纳斯达克100 — {date}",
-            f"大盘股{label_cn}领涨榜 — {date}",
-            f"过去{window_cn}涨幅最大的大盘股 — {date}",
-            f"{label_cn}价格领跑者 — S&P 500 & 纳斯达克100 — {date}",
+            f"{label_cn}涨幅冠军股票 — {date}",
+            f"表现最佳股票（{window_cn}）— {date}",
+            f"过去{window_cn}涨幅最大股票 — {date}",
+            f"{label_cn}表现最佳股票 — {date}",
+            f"最佳大盘股（{label_cn}收益）— {date}",
         ])
         return (
             title,
@@ -237,7 +243,7 @@ def make_meta(video_type, date):
         wtf   = _wednesday_tf(date)
         label = wtf["label_en"]
         title = random.choice([
-            f"{label} High Breakouts — S&P 500 & Nasdaq-100 — {date}",
+            f"{label} High Breakouts — {date}",
             f"Large-Caps Reclaiming Their {label} High — {date}",
             f"New {label} High After {wtf['min_drawdown']}%+ Pullback — {date}",
             f"Breakout Alert: {label} Highs Crossed — {date}",
@@ -250,7 +256,7 @@ def make_meta(video_type, date):
         wtf      = _wednesday_tf(date)
         label_cn = wtf["label_cn"]
         title = random.choice([
-            f"{label_cn}新高突破 — S&P 500 & 纳斯达克100 — {date}",
+            f"{label_cn}新高突破 — {date}",
             f"大盘股突破{label_cn}高点 — {date}",
             f"{wtf['min_drawdown']}%回调后创{label_cn}新高 — {date}",
             f"突破警报：{label_cn}高点首次被突破 — {date}",
@@ -263,11 +269,14 @@ def make_meta(video_type, date):
         ttf   = _thursday_tf(date)
         label = ttf["label_en"]
         window = ttf["window_en"]
+        num, unit = label.split("-")
+        numeral_window = f"{num} {unit}" if num == "1" else f"{num} {unit}s"
         title = random.choice([
-            f"{label} Volume Record Stocks — S&P 500 & Nasdaq-100 — {date}",
-            f"Biggest {label} Trading Days — Large Caps — {date}",
-            f"Today's Record Volume Movers — S&P 500 & Nasdaq-100 — {date}",
-            f"Stocks Hitting Their {label} Volume Peak — {date}",
+            f"Stocks Hitting New {label} Volume Highs — {date}",
+            f"New {label} Volume Leaders — {date}",
+            f"Highest Trading Volume in {numeral_window} — {date}",
+            f"{label} Volume Breakouts — {date}",
+            f"Record {label} Trading Volume — {date}",
         ])
         return (
             title,
@@ -278,10 +287,11 @@ def make_meta(video_type, date):
         label_cn = ttf["label_cn"]
         window_cn = ttf["window_cn"]
         title = random.choice([
-            f"{label_cn}成交量记录股票 — S&P 500 & 纳斯达克100 — {date}",
-            f"大盘股过去{label_cn}最大单日成交量 — {date}",
-            f"今日{label_cn}成交量记录 — S&P 500 & 纳斯达克100 — {date}",
-            f"创下{label_cn}成交量峰值的大盘股 — {date}",
+            f"创下{label_cn}成交量新高的股票 — {date}",
+            f"{label_cn}成交量新领跑股票 — {date}",
+            f"过去{window_cn}最高交易量 — {date}",
+            f"{label_cn}成交量突破股票 — {date}",
+            f"创纪录{label_cn}交易量股票 — {date}",
         ])
         return (
             title,
@@ -289,10 +299,11 @@ def make_meta(video_type, date):
         )
     if video_type == "index_spotlight":
         title = random.choice([
-            f"Index Spotlight — New S&P 500 & Nasdaq-100 Member — {date}",
-            f"How Is This New Index Member Performing? — {date}",
-            f"New to the S&P 500 or Nasdaq-100 — Performance Since Joining — {date}",
-            f"Index Addition Watch — S&P 500 & Nasdaq-100 — {date}",
+            f"New Index Members — {date}",
+            f"Newest S&P 500 & Nasdaq-100 Members — {date}",
+            f"New Index Additions — {date}",
+            f"Recent Index Additions — {date}",
+            f"Fresh Index Members — {date}",
         ])
         return (
             title,
@@ -300,10 +311,11 @@ def make_meta(video_type, date):
         )
     if video_type == "index_spotlight_cn":
         title = random.choice([
-            f"指数聚焦 — 标普500/纳斯达克100新成员表现 — {date}",
-            f"这只新晋指数成员表现如何？ — {date}",
-            f"加入标普500或纳斯达克100后的走势追踪 — {date}",
-            f"指数新成员观察 — 纳入后涨幅回顾 — {date}",
+            f"新晋指数成员 — {date}",
+            f"标普500/纳斯达克100最新成员 — {date}",
+            f"新纳入指数成分股 — {date}",
+            f"近期指数新增成分股 — {date}",
+            f"最新指数成员 — {date}",
         ])
         return (
             title,
