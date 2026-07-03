@@ -1,0 +1,2141 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DWEPM8KFM9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-DWEPM8KFM9');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baizora | Dashboard</title>
+  <link rel="icon" href="assets/baize_favicon_v2.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#060d1f">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-surface: #0a1628;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --white: #ffffff;
+      --muted: #cbd5e1;
+      --border: rgba(255,255,255,0.09);
+      --border-bright: rgba(255,255,255,0.12);
+      --positive: #64c487;
+      --negative: #c46464;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-shrink: 0;
+      height: 56px;
+      background: rgba(6, 13, 31, 0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      gap: 16px;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .header-left img { height: 36px; }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+    .logo-text span { color: var(--electric); }
+
+    .header-divider { width: 1px; height: 20px; background: var(--border-bright); margin: 0 4px; }
+
+    .tab-nav { display: flex; align-items: center; gap: 2px; }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--white); border-color: var(--border-bright); background: rgba(255,255,255,0.04); }
+    .tab-btn.active { color: var(--electric-bright); border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.08); }
+
+    .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 2s ease infinite; }
+    .status-dot.loading { background: var(--electric-bright); }
+    .status-dot.error   { background: var(--negative); animation: none; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .stale-banner {
+      display: none;
+      background: linear-gradient(90deg, #7c2d12, #92400e, #7c2d12);
+      color: var(--gold-light);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.03em;
+      text-align: center;
+      padding: 7px 16px;
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .logout-btn:hover { border-color: rgba(239,68,68,0.4); color: #fca5a5; background: rgba(239,68,68,0.06); }
+    .dash-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .dash-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--electric-bright); background: rgba(59,130,246,0.06); }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      position: sticky;
+      top: 56px;
+      z-index: 50;
+      flex-shrink: 0;
+      height: 44px;
+      background: rgba(10, 22, 40, 1);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+    }
+
+    .toolbar-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .window-btns { display: flex; gap: 4px; }
+
+    .window-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .window-btn:hover { border-color: var(--border-bright); color: var(--white); }
+    .window-btn.active { background: var(--electric); border-color: var(--electric); color: white; }
+
+    .toolbar-sep { width: 1px; height: 16px; background: var(--border); }
+
+    .toolbar-search {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .toolbar-search input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--white);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      padding: 4px 10px 4px 26px;
+      width: 160px;
+      outline: none;
+      transition: border-color 0.2s, width 0.2s, background 0.2s;
+    }
+    .toolbar-search input:focus { border-color: rgba(59,130,246,0.4); width: 210px; background: rgba(59,130,246,0.04); }
+    .toolbar-search input::placeholder { color: #475569; }
+    .toolbar-search-icon { position: absolute; left: 8px; color: #475569; pointer-events: none; }
+
+    .row-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-left: 12px;
+    }
+
+    /* ── TABLE AREA ── */
+    .table-area { position: relative; z-index: 10; overflow: auto; -webkit-overflow-scrolling: touch; will-change: scroll-position; flex: 1; min-height: 0; }
+
+    .table-area::-webkit-scrollbar { width: 6px; height: 6px; }
+    .table-area::-webkit-scrollbar-track { background: transparent; }
+    .table-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+    .table-area::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 12px; }
+
+    thead { position: sticky; top: 0; z-index: 20; }
+
+    th {
+      background: rgba(10, 22, 40, 0.98);
+      border-bottom: 1px solid var(--border-bright);
+      border-right: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      white-space: nowrap;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #e2e8f0;
+      user-select: none;
+      transition: color 0.15s, background 0.15s;
+    }
+    th:hover { color: var(--electric-bright); background: rgba(10,22,40,1); }
+    th.sorted { color: var(--electric-bright); }
+    th:last-child { border-right: none; }
+    th.no-sort { cursor: default; }
+    th.no-sort:hover { color: #e2e8f0; background: rgba(10,22,40,0.98); }
+
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+      font-size: 12px;
+      color: #94a3b8;
+      transition: background 0.1s;
+    }
+    td:last-child { border-right: none; }
+    tr:hover td { background: rgba(59,130,246,0.04); }
+
+    td.spark-cell { padding: 4px 12px; vertical-align: middle; }
+
+    .ticker-cell {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-color: rgba(59,130,246,0.35);
+      text-decoration-style: dotted;
+      text-underline-offset: 3px;
+    }
+    .ticker-cell:hover { color: var(--electric-bright); text-decoration-color: var(--electric-bright); text-decoration-style: solid; }
+
+    .price-cell { font-family: 'DM Mono', monospace; color: #94a3b8; font-weight: 400; }
+
+    .positive { color: var(--positive); font-family: 'DM Mono', monospace; }
+    .negative { color: var(--negative); font-family: 'DM Mono', monospace; }
+    .neutral  { color: #94a3b8;         font-family: 'DM Mono', monospace; }
+
+    th.group-start { border-left: 2px solid rgba(59,130,246,0.2); }
+    th.col-baiz { color: var(--gold); border-right: 1px solid rgba(245,158,11,0.2); }
+    th.col-baiz:hover { color: var(--gold-light); }
+    td.col-baiz { font-weight: 700; border-right: 1px solid rgba(245,158,11,0.12); }
+    th.col-turn { color: #60a5fa; border-right: 1px solid rgba(96,165,250,0.2); }
+    th.col-turn:hover { color: #93c5fd; }
+    td.col-turn { font-weight: 700; border-right: 1px solid rgba(96,165,250,0.12); }
+    td.group-start { border-left: 2px solid rgba(59,130,246,0.1); }
+
+    /* ── INFO PANEL ── */
+    #readme { padding: 32px 40px; }
+    .info-panels { display: flex; gap: 20px; align-items: flex-start; }
+    .info-left, .info-right { flex: 1; min-width: 0; background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 28px; overflow-x: hidden; overflow-wrap: break-word; word-break: break-word; }
+
+    #readme h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    #readme .readme-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 20px;
+    }
+
+    #readme p { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; font-weight: 300; }
+
+    #readme .col-table { width: 100%; border-collapse: collapse; margin-top: 16px; table-layout: fixed; }
+
+    #readme .col-table th {
+      background: rgba(13,30,61,0.6);
+      font-size: 10px;
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-bright);
+      cursor: default;
+    }
+    #readme .col-table th:hover { color: #475569; background: rgba(13,30,61,0.6); }
+
+    #readme .col-table td { font-size: 12px; padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--muted); }
+    #readme .col-table td:first-child { font-family: 'DM Mono', monospace; color: var(--electric-bright); font-size: 11px; cursor: default; }
+    #readme .col-table td:last-child { white-space: normal; overflow-wrap: break-word; word-break: break-word; }
+
+    /* ── INDEX CHANGES ── */
+    .change-entry { margin-bottom: 12px; padding: 12px 14px; background: rgba(13,30,61,0.6); border: 1px solid var(--border); border-radius: 8px; }
+    .change-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); margin-bottom: 6px; }
+    .change-index-label { font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin: 6px 0 3px; }
+    .change-row { font-family: 'DM Mono', monospace; font-size: 12px; margin-left: 6px; line-height: 1.6; }
+    .change-row.added { color: var(--green); }
+    .change-row.removed { color: var(--red); }
+    .change-name { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 300; color: #94a3b8; margin-left: 8px; }
+    .no-changes-msg { font-size: 12px; color: #64748b; font-style: italic; }
+    .changes-checked { margin-bottom: 14px; font-family: 'DM Mono', monospace; font-size: 10px; color: #94a3b8; }
+
+    /* ── MEMBERSHIP CHANGE PANEL ── */
+    #membership { padding: 32px 40px; }
+    .membership-wrap { max-width: 700px; background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
+    #membership h2 { font-family: 'DM Serif Display', serif; font-size: 28px; letter-spacing: -0.02em; color: var(--white); margin-bottom: 8px; }
+    #membership .readme-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 20px; }
+    #membership p { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 20px; font-weight: 300; }
+
+    /* ── LOADING OVERLAY ── */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      background: rgba(6,13,31,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      backdrop-filter: blur(4px);
+    }
+    .loading-overlay.hidden { display: none; }
+
+    .loader {
+      width: 32px; height: 32px;
+      border: 2px solid var(--border-bright);
+      border-top-color: var(--electric);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .sort-arrow { opacity: 0.5; }
+    th.sorted .sort-arrow { opacity: 1; }
+    .live-tag { font-size:9px; color:#22c55e; font-family:'DM Mono',monospace; font-weight:400; letter-spacing:0.02em; opacity:0.75; vertical-align:middle; margin-left:3px; }
+
+    /* ── TOOLTIPS ── */
+    .bz-tooltip {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .bz-tooltip.visible { opacity: 1; transform: translateY(0); }
+
+    .col-tooltip {
+      background: rgba(10, 22, 40, 0.97);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      max-width: 260px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      backdrop-filter: blur(12px);
+    }
+    .col-tooltip .tt-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 5px;
+    }
+    .col-tooltip .tt-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .ticker-tooltip {
+      background: rgba(10, 22, 40, 0.98);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      min-width: 240px;
+      max-width: 300px;
+      box-shadow: 0 16px 50px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+    }
+    .ticker-tooltip .tt-header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ticker-tooltip .tt-sym { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: var(--white); letter-spacing: 0.06em; }
+    .ticker-tooltip .tt-sector { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); font-weight: 300; }
+    .ticker-tooltip .tt-rows { display: flex; flex-direction: column; gap: 6px; }
+    .ticker-tooltip .tt-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+    .ticker-tooltip .tt-key { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; flex-shrink: 0; }
+    .ticker-tooltip .tt-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--white); text-align: right; }
+    .ticker-tooltip .tt-val.positive { color: var(--positive); }
+    .ticker-tooltip .tt-val.negative { color: var(--negative); }
+    .ticker-tooltip .tt-val.muted    { color: var(--muted); }
+    .ticker-tooltip .tt-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+    .tt-loading { font-family: 'DM Mono', monospace; font-size: 11px; color: #334155; letter-spacing: 0.08em; text-align: center; padding: 6px 0; }
+
+    /* ── MOBILE HAMBURGER ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 5px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      flex-shrink: 0;
+    }
+    .hamburger span { display: block; width: 18px; height: 2px; background: var(--muted); border-radius: 2px; }
+
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      top: 56px;
+      left: 0; right: 0;
+      background: rgba(6,13,31,0.98);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      z-index: 90;
+      flex-direction: column;
+      padding: 8px;
+      gap: 4px;
+      overflow-y: auto;
+      max-height: calc(100vh - 56px);
+    }
+    .mobile-drawer.open { display: flex; }
+    .mobile-drawer a, .mobile-drawer button {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(59,130,246,0.08); color: var(--white); }
+    .mobile-drawer .m-danger { border-color: rgba(239,68,68,0.2); color: #fca5a5; }
+
+    /* ── MOBILE SEARCH ── */
+    .mobile-search-bar {
+      display: none;
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+      padding: 7px 10px;
+      background: rgba(10, 22, 40, 0.9);
+      border-bottom: 1px solid var(--border);
+    }
+    .mobile-search-bar input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      padding: 8px 12px 8px 34px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .mobile-search-bar input::placeholder { color: #475569; }
+    .mobile-search-bar input:focus { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.04); }
+    .mobile-rotate-hint {
+      display: none;
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      color: #64748b;
+      padding: 5px 12px;
+      background: rgba(10,22,40,0.9);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .mobile-search-icon {
+      position: absolute;
+      left: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #475569;
+      pointer-events: none;
+    }
+
+    /* Cards hidden on desktop; table hidden on mobile */
+    #sp500Cards, #nasdaqCards, #watchlistCards { display: none; }
+
+    @media (max-width: 768px) {
+      .toolbar { flex-wrap: wrap; height: auto; }
+      .toolbar-label { display: none; }
+      .row-count { font-size: 9px; white-space: nowrap; width: 100%; margin-left: 0; padding-bottom: 2px; }
+    }
+    @media (max-width: 640px) {
+      header { position: fixed; top: 0; left: 0; right: 0; padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
+      .header-divider, .tab-nav, .status-badge, .logout-btn, .dash-btn { display: none !important; }
+      .hamburger { display: flex; }
+      .toolbar { padding: 6px 10px; gap: 6px; margin-top: 56px; }
+      .mobile-search-bar { margin-top: 0; }
+      .window-btn { padding: 3px 7px; font-size: 10px; white-space: nowrap; }
+      .toolbar-sep, .toolbar-search { display: none; }
+      #readme, #membership { padding: 24px 16px; }
+      .info-panels { flex-direction: column; gap: 16px; }
+      .info-left, .info-right { flex: none; width: 100%; }
+      .membership-wrap { max-width: none; width: 100%; box-sizing: border-box; }
+      th:first-child { position: sticky; left: 0; z-index: 30; }
+      td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
+      tr:hover td.ticker-cell { background: #081229; }
+      .mobile-search-bar { display: block; }
+      .mobile-rotate-hint { display: block; }
+      #sp500Table, #nasdaqTable, #watchlistTable { display: none !important; }
+      #sp500Cards, #nasdaqCards, #watchlistCards { display: block !important; }
+    }
+    @media (max-width: 960px) and (orientation: landscape) {
+      header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
+      .header-divider, .tab-nav, .status-badge, .logout-btn, .dash-btn { display: none !important; }
+      .hamburger { display: flex; }
+      th:first-child { position: sticky; left: 0; z-index: 30; }
+      td.ticker-cell { position: sticky; left: 0; z-index: 5; background: #060d1f; box-shadow: 2px 0 8px rgba(0,0,0,0.5); }
+      tr:hover td.ticker-cell { background: #081229; }
+    }
+
+    /* ── CARD GRID (mobile) ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .stock-card {
+      background: rgba(13, 30, 61, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      will-change: transform;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .card-ticker {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--white);
+      letter-spacing: 0.05em;
+    }
+
+    .card-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .card-price {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--white);
+    }
+
+    .card-chg {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .card-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      border-top: 1px solid var(--border);
+      padding-top: 6px;
+    }
+
+    .card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    .card-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+    }
+    /* ── TICKER MODAL ── */
+    #tickerModal {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(6,13,31,0.88);
+      display: none; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    #modalCard {
+      background: #0d1e3d;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      width: min(820px,100%); max-height: 90vh;
+      overflow-y: auto; padding: 28px; position: relative;
+    }
+    #modalClose {
+      position: absolute; top: 16px; right: 18px;
+      background: none; border: none;
+      color: #64748b; font-size: 20px; cursor: pointer; line-height: 1;
+    }
+    #modalClose:hover { color: #fff; }
+    #candleTimeframes { display: flex; gap: 6px; margin-bottom: 8px; }
+    .tf-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
+    .tf-btn.active, .tf-btn:hover { background: rgba(59,130,246,0.2); border-color: #3b82f6; color: #60a5fa; }
+    #candleCanvas { width: 100%; height: 280px; display: block; border-radius: 8px; }
+    #candleNoData {
+      width: 100%; height: 280px; display: none;
+      align-items: center; justify-content: center;
+      color: #64748b; font-size: 14px;
+      background: rgba(255,255,255,0.02); border-radius: 8px;
+    }
+    .chart-btn {
+      background: none; border: none; cursor: pointer;
+      color: rgba(96,165,250,0.4); padding: 0 0 0 5px;
+      line-height: 1; transition: color 0.15s; vertical-align: middle;
+      display: inline-flex; align-items: center;
+    }
+    .ticker-cell:hover .chart-btn { color: var(--electric-bright); }
+
+    .star-btn {
+      background: none; border: none; cursor: pointer;
+      color: #475569; font-size: 12px; padding: 0 0 0 5px;
+      line-height: 1; transition: color 0.15s; vertical-align: middle;
+    }
+    .star-btn:hover, .star-btn.starred { color: #f59e0b; }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <a href="./" style="display:flex; align-items:center; text-decoration:none; gap:10px;">
+        <img src="assets/baize_favicon_v2.png" alt="Baizora">
+        <span class="logo-text">Baiz<span>ora</span></span>
+      </a>
+      <div class="header-divider"></div>
+      <nav class="tab-nav">
+        <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
+        <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
+        <button class="tab-btn" onclick="show('watchlist', this)">★ Watchlist</button>
+        <button class="tab-btn" onclick="show('readme', this)">README</button>
+        <button class="tab-btn" onclick="show('membership', this)">MEMBERSHIP CHANGE</button>
+      </nav>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <div class="header-right">
+        <div class="status-badge">
+          <div class="status-dot loading" id="statusDot"></div>
+          <span id="statusText">Loading…</span>
+        </div>
+        <a href="dashboard.html" class="dash-btn">Dashboard</a>
+        <button class="logout-btn" id="logoutBtn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign out
+        </button>
+      </div>
+      <span id="navUserEmail" style="display:none;width:28px;height:28px;border-radius:50%;background:#3b82f6;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;align-items:center;justify-content:center;flex-shrink:0;cursor:default;" title=""></span>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="stale-banner" id="staleBanner"></div>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <button onclick="show('sp500', document.querySelectorAll('.tab-btn')[0]); toggleMenu();">S&P 500</button>
+    <button onclick="show('nasdaq', document.querySelectorAll('.tab-btn')[1]); toggleMenu();">Nasdaq 100</button>
+    <button onclick="show('watchlist', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">★ Watchlist</button>
+    <button onclick="show('readme', document.querySelectorAll('.tab-btn')[3]); toggleMenu();">README</button>
+    <button onclick="show('membership', document.querySelectorAll('.tab-btn')[4]); toggleMenu();">MEMBERSHIP CHANGE</button>
+    <a href="dashboard.html">Dashboard</a>
+    <button class="m-danger" id="drawerLogout">↪ Sign out</button>
+  </div>
+
+  <!-- Toolbar — NEW timeframes: 1D 2W 1M 3M 6M 9M 1Y -->
+  <div class="toolbar" id="toolbar">
+    <span class="toolbar-label">Window</span>
+    <div class="window-btns">
+      <button class="window-btn active" onclick="setWindow('1D', this)">1D</button>
+      <button class="window-btn" onclick="setWindow('2W', this)">2W</button>
+      <button class="window-btn" onclick="setWindow('1M', this)">1M</button>
+      <button class="window-btn" onclick="setWindow('3M', this)">3M</button>
+      <button class="window-btn" onclick="setWindow('6M', this)">6M</button>
+      <button class="window-btn" onclick="setWindow('9M', this)">9M</button>
+      <button class="window-btn" onclick="setWindow('1Y', this)">1Y</button>
+      <button class="window-btn" onclick="setWindow('SCORES', this)" style="margin-left:8px;border-color:rgba(96,165,250,0.35);color:#60a5fa;">SCORES</button>
+      <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:4px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">FUND</button>
+    </div>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-search">
+      <svg class="toolbar-search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="tickerSearch" placeholder="Search ticker…" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+    </div>
+    <span class="row-count" id="rowCount"></span>
+  </div>
+
+  <!-- Mobile Search Bar -->
+  <div class="mobile-search-bar" id="mobileSearchBar">
+    <svg class="mobile-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="tickerSearchMobile" placeholder="Search ticker…" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+  </div>
+
+  <!-- Mobile rotate hint -->
+  <div class="mobile-rotate-hint">Rotate to landscape for full table detail</div>
+
+  <!-- Table Area -->
+  <div class="table-area" id="tableArea">
+
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loader"></div>
+      <div class="loading-text">Fetching signals…</div>
+    </div>
+
+    <div id="sp500" class="section active">
+      <table id="sp500Table"></table>
+      <div id="sp500Cards"></div>
+    </div>
+
+    <div id="nasdaq" class="section">
+      <table id="nasdaqTable"></table>
+      <div id="nasdaqCards"></div>
+    </div>
+
+    <div id="watchlist" class="section">
+      <table id="watchlistTable"></table>
+      <div id="watchlistCards"></div>
+      <div id="watchlistEmpty" style="padding:60px 20px;text-align:center;color:#64748b;font-size:14px;">
+        No tickers saved yet — click ☆ on any row to add to your watchlist.
+      </div>
+    </div>
+
+    <div id="readme" class="section">
+      <div class="info-panels">
+
+        <!-- Left: Signal Reference -->
+        <div class="info-left">
+          <div class="readme-label">◈ &nbsp; Documentation</div>
+          <h2>Signal Reference</h2>
+          <p>
+            Baizora scans S&P 500 and Nasdaq-100 constituents daily after market close.
+            Each row reflects a stock's price and volume behavior relative to recent history
+            using consistent statistical comparisons over rolling windows.
+          </p>
+          <p>
+            Signals are informational only — not buy, sell, or hold recommendations.
+            Use the window buttons to switch timeframes (1D through 1Y). The 1D view shows today's 1-day metrics. All other windows show that window's total price change plus max single-day stats.
+            Hover any column header to see its description. Click a ticker to open its candlestick chart and fundamentals.
+          </p>
+          <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
+            <tr><th>Column</th><th>Description</th></tr>
+            <tr><td>TICKER</td><td>Stock symbol — click to open candlestick chart with PE, EPS, Beta, volatility &amp; sector</td></tr>
+            <tr><td>1Y TREND</td><td>1-year normalized price sparkline. <strong>&#9650; Triangle</strong> = highest-volume day (green=price up, red=price down). <strong>&#9679; Circle</strong> = highest-price-change day (green=volume up, red=volume down).</td></tr>
+            <tr><td>PRICE</td><td>Latest closing price in USD</td></tr>
+            <tr><td>VOL(M)</td><td>Trading volume in millions of shares for the most recent session</td></tr>
+            <tr><td>1D P CHG%</td><td>Price change (%) vs the previous session's closing price</td></tr>
+            <tr><td>PRICE/MA21</td><td>Current price as a ratio of the 21-day moving average. Values above 1 indicate price above the MA</td></tr>
+            <tr><td>1D V CHG%</td><td>Volume change (%) vs the previous session's volume</td></tr>
+            <tr><td>VOL/MA21</td><td>Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity</td></tr>
+            <tr><td>P CHG%</td><td>Total price change (%) from start of selected window to today — only shown for 2W and longer</td></tr>
+            <tr><td>MAX P CHG%</td><td>Largest single-day price increase (%) within the selected window</td></tr>
+            <tr><td>MAX P% Day</td><td>Days ago when the max price increase occurred within the selected window</td></tr>
+            <tr><td>V@P Day</td><td>Volume change on the highest-price-increase day within the selected window</td></tr>
+            <tr><td>MAX V CHG%</td><td>Largest single-day volume increase within the selected window</td></tr>
+            <tr><td>MAX V% Day</td><td>Days ago when the max volume increase occurred within the selected window</td></tr>
+            <tr><td>P@V Day</td><td>Price change on the highest-volume-increase day within the selected window</td></tr>
+          </table>
+
+          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; Scores (SCORES Tab)</div>
+          <p>Seven composite scores calculated daily from the same price and volume data. All scores are recalculated after every market close. Scores above 50 are highlighted green; below 50 are red. Vol Pressure uses 0 as its midpoint. Turn Score uses 50 / 25 as its signal thresholds.</p>
+          <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
+            <tr><th>Score</th><th>Calculation &amp; Interpretation</th></tr>
+            <tr><td>Baizora (0–100)</td><td>Weighted composite of all five signals: <strong>RS 30% + Momentum 25% + Breakout 20% + Trend 15% + Vol Pressure 10%</strong>. Use as a quick-glance overall ranking. Sort descending to surface the strongest broad setups.</td></tr>
+            <tr><td>Turn (0–100)</td><td>Weak-to-strong reversal signal: <strong>Breakout × (1 − RS/100) × VolPressure</strong>. Peaks when a historically weak stock (low RS) shows strong recent breakout action backed by buying volume. ▲ 50+ = strong signal; → 25–49 = emerging; below 25 = no signal. Drops to 0 when volume pressure is negative.</td></tr>
+            <tr><td>RS (1–99)</td><td>Relative Strength — percentile rank across all 500+ stocks. Formula: <strong>40% × 3M + 20% × 6M + 20% × 9M + 20% × 1Y</strong> price change, then ranked. 99 = top 1% of performers; 1 = bottom 1%.</td></tr>
+            <tr><td>Breakout (0–100)</td><td>Three signals combined: <strong>price above MA21</strong> (0–33 pts, scaled by distance above the average) + <strong>today's price gain</strong> (0–33 pts) + <strong>volume above MA21</strong> (0–34 pts). 100 = all three firing at full strength simultaneously.</td></tr>
+            <tr><td>Momentum (0–100)</td><td>Percentile rank of weighted cross-timeframe price change: <strong>35% × 1M + 25% × 3M + 20% × 6M + 20% × 1Y</strong>. Favours stocks with consistent strength across every window, not just one-day pops. 100 = strongest sustained momentum in the universe.</td></tr>
+            <tr><td>Vol Pressure (−100 to 100)</td><td>Accumulation vs distribution: <strong>(Vol/MA21 − 1) × price direction × 100</strong>. Positive = elevated volume on an up day (buying pressure). Negative = elevated volume on a down day (distribution). Near 0 = low volume or mixed signal.</td></tr>
+            <tr><td>Trend (0–100)</td><td>Trend Consistency — percentage of the <strong>6 timeframes (2W, 1M, 3M, 6M, 9M, 1Y)</strong> showing a positive price change. 100 = all 6 pointing up; 0 = all pointing down. Separates stocks in genuine sustained uptrends from choppy or reversing ones.</td></tr>
+          </table>
+
+          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; Fundamentals (FUND Tab)</div>
+          <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
+            <tr><th>Column</th><th>Description</th></tr>
+            <tr><td>Mkt Cap ($B)</td><td>Market capitalisation in billions of USD</td></tr>
+            <tr><td>P/E</td><td>Trailing price-to-earnings ratio. Blank if earnings are negative or unavailable</td></tr>
+            <tr><td>EPS</td><td>Trailing twelve-month earnings per share in USD. Positive = profitable</td></tr>
+            <tr><td>Beta</td><td>30-day beta — sensitivity of the stock's price to broad market moves. Beta &gt; 1 means higher volatility than the market</td></tr>
+            <tr><td>PE vs Sector</td><td>This stock's P/E relative to its sector average, as a percentage difference. Positive = premium; negative = discount. Sector average is calculated from S&amp;P 500 and Nasdaq-100 members only</td></tr>
+            <tr><td>Sector Avg PE</td><td>Average P/E of all stocks in the same sector within the S&amp;P 500 and Nasdaq-100 universe. Shown in the ticker detail panel</td></tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="membership" class="section">
+      <div class="membership-wrap">
+        <div class="readme-label">◈ &nbsp; Index Changes</div>
+        <h2>Membership Changes</h2>
+        <p>Additions and removals from the S&P 500 and Nasdaq-100, tracked daily. Full history kept since 2026.</p>
+        <p style="font-size:12px;color:#64748b;margin-top:-10px;">Data sourced from a third-party provider, checked each trading day after market close. If the source data contains a temporary error that self-corrects within 3 days, the affected record is automatically removed.</p>
+        <div id="indexChangesPanel"><span class="no-changes-msg">Loading…</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <p style="text-align:center;font-size:11px;color:#475569;padding:14px 0 10px;letter-spacing:0.04em;">Market Data Sourced by <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#475569;text-decoration:none;">Tiingo.com</a></p>
+
+  <!-- Tooltips -->
+  <div class="bz-tooltip col-tooltip" id="colTooltip">
+    <div class="tt-label" id="colTooltipLabel"></div>
+    <div class="tt-desc"  id="colTooltipDesc"></div>
+  </div>
+
+
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, getDoc, setDoc }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    /* ── CHART ICON ── */
+    const CHART_BTN = `<button class="chart-btn" title="View Chart" aria-label="View chart"><svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><line x1="2.5" y1="1" x2="2.5" y2="10" stroke="currentColor" stroke-width="0.9"/><rect x="1" y="3.5" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.5"/><line x1="7" y1="0.5" x2="7" y2="10.5" stroke="currentColor" stroke-width="0.9"/><rect x="5.5" y="2" width="3" height="6" rx="0.4" fill="currentColor"/><line x1="11.5" y1="1" x2="11.5" y2="9.5" stroke="currentColor" stroke-width="0.9"/><rect x="10" y="3" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.7"/></svg></button>`;
+
+    /* ── STATE ── */
+    let spRows = [], ndRows = [], allRows = [];
+    let activeTab     = "sp500";
+    let sortKey       = "PriceChange1D";
+    let sortAsc       = false;
+    let currentWindow = "1D";
+    let loadedDate    = "";
+    let searchQuery   = "";
+
+    /* ── WATCHLIST ── */
+    let currentUser = null;
+    let watchlist = new Set(JSON.parse(localStorage.getItem("baizora_watchlist") || "[]"));
+
+    function saveWatchlist() {
+      const tickers = [...watchlist];
+      localStorage.setItem("baizora_watchlist", JSON.stringify(tickers));
+      if (currentUser) {
+        setDoc(doc(db, "users", currentUser.uid), { watchlist: tickers }, { merge: true })
+          .catch(e => console.warn("Watchlist cloud save failed:", e));
+      }
+    }
+
+    async function loadCloudWatchlist(uid) {
+      try {
+        const snap = await getDoc(doc(db, "users", uid));
+        if (snap.exists() && Array.isArray(snap.data().watchlist)) {
+          watchlist = new Set(snap.data().watchlist);
+          localStorage.setItem("baizora_watchlist", JSON.stringify([...watchlist]));
+        } else if (watchlist.size > 0) {
+          // Firestore has no watchlist yet — seed it from localStorage so other devices sync
+          setDoc(doc(db, "users", uid), { watchlist: [...watchlist] }, { merge: true })
+            .catch(e => console.warn("Watchlist initial cloud seed failed:", e));
+        }
+      } catch (e) {
+        console.warn("Watchlist cloud load failed, using local:", e);
+      }
+    }
+
+    /* ── DOM ── */
+    const statusDot  = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const rowCount   = document.getElementById("rowCount");
+    const overlay    = document.getElementById("loadingOverlay");
+    const toolbar    = document.getElementById("toolbar");
+
+    /* ── AUTH ── */
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      if (user) await loadCloudWatchlist(user.uid);
+      if (!user) { window.location.href = "login.html"; return; }
+      const emailEl = document.getElementById("navUserEmail");
+      if (emailEl) { emailEl.textContent = user.email[0].toUpperCase(); emailEl.title = user.email; emailEl.style.display = 'inline-flex'; }
+      user.getIdToken().then(token =>
+        fetch("https://us-central1-baizora.cloudfunctions.net/api/subscription",
+              { headers: { Authorization: "Bearer " + token } })
+        .then(r => r.json())
+        .then(d => { if (d.status !== "active") window.location.href = "billing.html"; else loadDashboard(); })
+        .catch(() => loadDashboard())
+      );
+    });
+
+    /* ── INDEX CHANGES ── */
+    function renderIndexChanges(entries, trackedSince, lastChecked) {
+      const panel = document.getElementById("indexChangesPanel");
+      if (!panel) return;
+      const checkedLine = lastChecked ? `<div class="changes-checked">Last checked: ${lastChecked}</div>` : '';
+      if (!entries || entries.length === 0) {
+        const since = trackedSince ? `since ${trackedSince}` : 'since we began tracking';
+        panel.innerHTML = `${checkedLine}<span class="no-changes-msg">No membership changes recorded ${since}.</span>`;
+        return;
+      }
+      const nameMap = {};
+      allRows.forEach(r => { if (r.Ticker && r.CompanyName) nameMap[r.Ticker] = r.CompanyName; });
+
+      function fmtTicker(sym, cls) {
+        const name = nameMap[sym];
+        return `<div class="change-row ${cls}">${cls === 'added' ? '+' : '−'} ${sym}${name ? `<span class="change-name">${name}</span>` : ''}</div>`;
+      }
+
+      let html = checkedLine;
+      for (const entry of entries) {
+        const sp = entry.sp500 || {};
+        const nd = entry.nasdaq100 || {};
+        html += `<div class="change-entry"><div class="change-date">${entry.date}</div>`;
+        if ((sp.added || []).length || (sp.removed || []).length) {
+          html += `<div class="change-index-label">S&amp;P 500</div>`;
+          (sp.added || []).forEach(s => { html += fmtTicker(s, 'added'); });
+          (sp.removed || []).forEach(s => { html += fmtTicker(s, 'removed'); });
+        }
+        if ((nd.added || []).length || (nd.removed || []).length) {
+          html += `<div class="change-index-label">Nasdaq-100</div>`;
+          (nd.added || []).forEach(s => { html += fmtTicker(s, 'added'); });
+          (nd.removed || []).forEach(s => { html += fmtTicker(s, 'removed'); });
+        }
+        html += '</div>';
+      }
+      panel.innerHTML = html;
+    }
+
+    function loadIndexChanges() {
+      fetch("data/index_changes.json")
+        .then(r => r.json())
+        .then(data => renderIndexChanges(data.entries || [], data.trackedSince || "", data.lastChecked || ""))
+        .catch(() => {
+          const panel = document.getElementById("indexChangesPanel");
+          if (panel) panel.innerHTML = '<span class="no-changes-msg">Change history not yet available.</span>';
+        });
+    }
+
+    /* ── LOAD ── */
+    function loadDashboard() {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 15000);
+      fetch("data/latest_yfinance.json", { signal: ctrl.signal })
+        .then(r => r.json())
+        .then(json => {
+          clearTimeout(tid);
+          allRows    = json.data || [];
+          loadedDate = json.date || "—";
+          spRows = allRows.filter(x => x.InSP500);
+          ndRows = allRows.filter(x => x.InNASDAQ100);
+          const staleBanner = document.getElementById("staleBanner");
+          if (staleBanner) {
+            if (json.partialUpdate && (json.staleTickers || []).length) {
+              const n = json.staleTickers.length;
+              staleBanner.textContent = `⚠ Partial update — ${n} ticker${n === 1 ? '' : 's'} pending fresh data and temporarily hidden. Typically updates within 30 minutes.`;
+              staleBanner.style.display = "block";
+            } else {
+              staleBanner.style.display = "none";
+            }
+          }
+          overlay.classList.add("hidden");
+          statusDot.className = "status-dot";
+          render();
+          updateStatus();
+          loadIndexChanges();
+          const _todayET = new Date().toLocaleDateString('en-CA', {timeZone:'America/New_York'});
+          if (isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
+          setInterval(() => { if (isMarketOpen() && loadedDate !== _todayET) refreshDashPrices(); }, 10_000);
+          setInterval(() => {
+            fetch("data/latest_yfinance.json?" + Date.now()).then(r => r.json()).then(d => {
+              if (d.date && d.date !== loadedDate) location.reload();
+            }).catch(() => {});
+          }, 5 * 60 * 1000);
+        })
+        .catch(err => {
+          clearTimeout(tid);
+          console.error(err);
+          overlay.classList.add("hidden");
+          statusDot.className = "status-dot error";
+          statusText.textContent = "Failed to load";
+        });
+    }
+
+    /* ── STATUS ── */
+    function updateStatus() {
+      statusText.textContent = loadedDate;
+      if (activeTab === "watchlist") {
+        rowCount.textContent = `${watchlist.size} SAVED`;
+      } else {
+        const rows  = activeTab === "sp500" ? spRows.length : ndRows.length;
+        const label = activeTab === "sp500" ? "S&P 500" : "Nasdaq 100";
+        rowCount.textContent = `${rows} SYMBOLS · ${label}`;
+      }
+    }
+
+    /* ── TAB ── */
+    window.show = function(id, btn) {
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      btn.classList.add("active");
+      activeTab = id;
+      toolbar.style.display = (id === "readme" || id === "membership") ? "none" : "flex";
+      document.getElementById("mobileSearchBar").style.display = (id === "readme" || id === "membership") ? "none" : "";
+      updateStatus();
+    };
+
+    /* ── WINDOW ── */
+    window.setWindow = function(w, btn) {
+      currentWindow = w;
+      document.querySelectorAll(".window-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      render();
+    };
+
+    /* ── SORT ── */
+    window.sortBy = function(key) {
+      if (sortKey === key) sortAsc = !sortAsc;
+      else { sortKey = key; sortAsc = false; }
+      render();
+    };
+
+    function sorted(arr) {
+      return [...arr].sort((a, b) => {
+        let A = a[sortKey] ?? 0;
+        let B = b[sortKey] ?? 0;
+        if (typeof A === "string") return sortAsc ? A.localeCompare(B) : B.localeCompare(A);
+        return sortAsc ? A - B : B - A;
+      });
+    }
+
+    /* ── HELPERS ── */
+    function colorClass(v) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return "neutral";
+      if (n > 0) return "positive";
+      if (n < 0) return "negative";
+      return "neutral";
+    }
+    function scoreClass(v, mid) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return "neutral";
+      return n > mid ? "positive" : n < mid ? "negative" : "neutral";
+    }
+    function turnFmt(v) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return { cls: "neutral", html: "—" };
+      if (n >= 50) return { cls: "positive", html: `<span style="font-size:9px;margin-right:2px;">▲</span>${n}` };
+      if (n >= 25) return { cls: "neutral",  html: `<span style="color:#f59e0b;font-size:9px;margin-right:2px;">→</span>${n}` };
+      return { cls: "negative", html: String(n) };
+    }
+
+    function arrow(key) {
+      if (sortKey !== key) return `<span class="sort-arrow"> ↕</span>`;
+      return `<span class="sort-arrow">${sortAsc ? " ↑" : " ↓"}</span>`;
+    }
+
+    function thSort(key, label, extraClass = "") {
+      const cls = [sortKey === key ? "sorted" : "", extraClass].filter(Boolean).join(" ");
+      return `<th class="${cls}" onclick="sortBy('${key}')" data-col="${key}">${label}${arrow(key)}</th>`;
+    }
+
+    function thStatic(dataCol, label, extraClass = "") {
+      const cls = ["no-sort", extraClass].filter(Boolean).join(" ");
+      return `<th class="${cls}" data-col="${dataCol}">${label}</th>`;
+    }
+
+    /* -- SPARKLINE (Spark1Y) with two markers --
+       Triangle (^) = max-volume day   (green=price UP, red=price DOWN)
+       Circle   (o) = max-price day    (green=volume UP, red=volume DOWN)
+    -- */
+    function renderSparkline(data, maxVolDay, priceAtMaxVol, maxPriceDay, volAtMaxPrice, W = 110, H = 28) {
+      const PAD = 5;
+
+      if (!data || data.length < 2) {
+        return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="#1e293b" stroke-width="1"/></svg>`;
+      }
+
+      const n = data.length;
+      const stepX = W / (n - 1);
+
+      const points = data.map((v, i) => ({
+        x: +(i * stepX).toFixed(2),
+        y: +(PAD + (1 - v) * (H - PAD * 2)).toFixed(2)
+      }));
+
+      const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x},${p.y}`).join(" ");
+      const lineColor = data[n - 1] >= data[0] ? "#22c55e" : "#ef4444";
+
+      function idxFromDays(daysAgo) {
+        const d = Math.round(parseFloat(daysAgo));
+        return Math.max(0, Math.min(n - 1, n - 1 - d));
+      }
+
+      /* MARKER 1: max-volume day — upward triangle
+         green if price was UP on that day, red if DOWN */
+      let volMarker = "";
+      if (maxVolDay != null && !isNaN(parseFloat(maxVolDay))) {
+        const idx   = idxFromDays(maxVolDay);
+        const cx    = points[idx].x;
+        const cy    = points[idx].y;
+        const col   = (priceAtMaxVol != null && parseFloat(priceAtMaxVol) >= 0) ? "#22c55e" : "#ef4444";
+        const s = 4.5;  // half-base size
+        const apex = cy - s * 1.5;
+        const bL   = cx - s;
+        const bR   = cx + s;
+        const bY   = cy + s * 0.6;
+        volMarker = `<polygon points="${cx},${apex} ${bL},${bY} ${bR},${bY}"
+          fill="${col}" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>`;
+      }
+
+      /* MARKER 2: max-price day — filled circle with bright ring
+         green if volume was UP on that day, red if DOWN */
+      let priceMarker = "";
+      if (maxPriceDay != null && !isNaN(parseFloat(maxPriceDay))) {
+        const idx   = idxFromDays(maxPriceDay);
+        const cx    = points[idx].x;
+        const cy    = points[idx].y;
+        const col   = (volAtMaxPrice != null && parseFloat(volAtMaxPrice) >= 0) ? "#22c55e" : "#ef4444";
+        /* outer glow ring + filled inner dot */
+        priceMarker = `
+          <circle cx="${cx}" cy="${cy}" r="5.5" fill="${col}" opacity="0.25"/>
+          <circle cx="${cx}" cy="${cy}" r="3.2" fill="${col}" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>`;
+      }
+
+      return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none" style="display:block;">
+        <path d="${linePath}" stroke="${lineColor}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+        ${priceMarker}
+        ${volMarker}
+      </svg>`;
+    }
+
+    /* ── BUILD TABLE ── */
+    function buildTable(arr, w) {
+      arr = sorted(arr);
+
+      /* ── SCORES VIEW ── */
+      if (w === "SCORES") {
+        const head = `<thead><tr>
+          ${thSort("Ticker",          "Ticker")}
+          ${thStatic("Spark1Y",       "1Y Trend")}
+          ${thSort("BaizScore",        "Baizora", "col-baiz")}
+          ${thSort("TurnScore",        "Turn",    "col-turn")}
+          ${thSort("RSScore",         "RS")}
+          ${thSort("BreakoutScore",   "Breakout")}
+          ${thSort("MomentumScore",   "Momentum")}
+          ${thSort("VolPressureScore","Vol Pressure")}
+          ${thSort("TrendScore",      "Trend")}
+        </tr></thead>`;
+        const rows = arr.slice(0, 600).map(r => {
+          const sparkSVG = renderSparkline(
+            r.Spark1Y,
+            r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+            r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
+          );
+          return `<tr>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+            <td class="spark-cell">${sparkSVG}</td>
+            <td class="col-baiz ${scoreClass(r.BaizScore, 50)}">${r.BaizScore ?? "—"}</td>
+            ${(t => `<td class="col-turn ${t.cls}">${t.html}</td>`)(turnFmt(r.TurnScore))}
+            <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
+            <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
+            <td class="${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</td>
+            <td class="${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</td>
+            <td class="${scoreClass(r.TrendScore, 50)}">${r.TrendScore ?? "—"}</td>
+          </tr>`;
+        }).join("");
+        return head + "<tbody>" + rows + "</tbody>";
+      }
+
+      /* ── FUNDAMENTALS VIEW ── */
+      if (w === "FUND") {
+        const head = `<thead><tr>
+          ${thSort("Ticker",        "Ticker")}
+          ${thStatic("Spark1Y",     "1Y Trend")}
+          ${thSort("MarketCap",     "Mkt Cap ($B)")}
+          ${thSort("PE",            "P/E")}
+          ${thSort("SectorAvgPE",   "Sector Avg PE")}
+          ${thSort("EPS",           "EPS")}
+          ${thSort("Beta",          "Beta")}
+          ${thSort("Volatility30D", "Vol 30D")}
+          ${thSort("PE_vs_Sector",  "PE vs Sector")}
+          ${thSort("Sector",        "Sector")}
+        </tr></thead>`;
+        const rows = arr.slice(0, 600).map(r => {
+          const sparkSVG = renderSparkline(
+            r.Spark1Y,
+            r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+            r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
+          );
+          const peVs = r.PE_vs_Sector;
+          return `<tr>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+            <td class="spark-cell">${sparkSVG}</td>
+            <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
+            <td class="${colorClass(0)}">${r.PE != null ? r.PE.toFixed(1) : "—"}</td>
+            <td class="neutral">${r.SectorAvgPE != null ? r.SectorAvgPE.toFixed(1) : "—"}</td>
+            <td class="${colorClass(r.EPS)}">${r.EPS != null ? r.EPS.toFixed(2) : "—"}</td>
+            <td class="neutral">${r.Beta != null ? r.Beta.toFixed(2) : "—"}</td>
+            <td class="neutral">${r.Volatility30D != null ? (r.Volatility30D * 100).toFixed(1) + "%" : "—"}</td>
+            <td class="${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</td>
+            <td class="neutral" style="font-size:11px;color:#94a3b8;">${r.Sector || "—"}</td>
+          </tr>`;
+        }).join("");
+        return head + "<tbody>" + rows + "</tbody>";
+      }
+
+      const is1D = (w === "1D");
+
+      /* Window column headers */
+      let windowHead = "";
+      if (is1D) {
+        // 1D view: no rolling-window cols at all (1D cols already shown above)
+        windowHead = "";
+      } else {
+        // Non-1D: show window price change first, then existing rolling stats
+        windowHead = `
+          ${thSort(`${w}PriceChange`,            "P CHG%",   "group-start")}
+          ${thSort(`${w}MaxPriceChange`,         "MAX P CHG%")}
+          ${thSort(`${w}MaxPriceChangeDay`,       "MAX P% Day")}
+          ${thSort(`${w}VolumeChangeAtMaxPrice`,  "V@P Day")}
+          ${thSort(`${w}MaxVolumeChange`,         "MAX V CHG%")}
+          ${thSort(`${w}MaxVolumeChangeDay`,      "MAX V% Day")}
+          ${thSort(`${w}PriceChangeAtMaxVolume`,  "P@V Day")}`;
+      }
+
+      // For 1D view: show 1D-specific cols; for other windows: show window price change + window stats only
+      const oneDayCols = is1D ? `
+        ${thSort("PriceChange1D",   "1D P CHG%" + (isMarketOpen() ? "<span class='live-tag'>live</span>" : ""),  "group-start")}
+        ${thSort("PriceVsMA21_1D",  "PRICE/MA21", "group-start")}
+        ${thSort("VolumeChange1D",  "1D V CHG%")}
+        ${thSort("VolumeVsMA21_1D", "VOL/MA21")}` : "";
+
+      const head = `<thead><tr>
+        ${thSort("Ticker",          "Ticker")}
+        ${thStatic("Spark1Y",       "1Y Trend")}
+        ${thSort("Price",           "Price" + (isMarketOpen() ? "<span class='live-tag'>live</span>" : ""))}
+        ${thSort("VolumeM",         "Vol (M)")}
+        ${oneDayCols}
+        ${windowHead}
+      </tr></thead>`;
+
+      const rows = arr.slice(0, 600).map(r => {
+        const pc1  = r._liveChgPct ?? r.PriceChange1D;
+        const vc1  = r.VolumeChange1D;
+        const pma  = r.PriceVsMA21_1D;
+        const vma  = r.VolumeVsMA21_1D;
+
+        /* Sparkline always uses Spark1Y + 1Y max-volume info */
+        const sparkSVG = renderSparkline(
+          r.Spark1Y,
+          r["1YMaxVolumeChangeDay"],
+          r["1YPriceChangeAtMaxVolume"],
+          r["1YMaxPriceChangeDay"],
+          r["1YVolumeChangeAtMaxPrice"]
+        );
+
+        /* Rolling window cells */
+        let windowCells = "";
+        if (is1D) {
+          // 1D view: no rolling window cells (1D cols handled by oneDayTds above)
+          windowCells = "";
+        } else {
+          const chgP = r[`${w}PriceChange`];      // total price change over window
+          const maxP = r[`${w}MaxPriceChange`];
+          const pDay = r[`${w}MaxPriceChangeDay`];
+          const vAtP = r[`${w}VolumeChangeAtMaxPrice`];
+          const maxV = r[`${w}MaxVolumeChange`];
+          const vDay = r[`${w}MaxVolumeChangeDay`];
+          const pAtV = r[`${w}PriceChangeAtMaxVolume`];
+
+          const fmt = v => (v ?? "—");
+
+          windowCells = `
+            <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
+            <td class="${colorClass(maxP)}">${fmt(maxP)}%</td>
+            <td class="neutral">${fmt(pDay)}</td>
+            <td class="${colorClass(vAtP)}">${fmt(vAtP)}%</td>
+            <td class="${colorClass(maxV)}">${fmt(maxV)}%</td>
+            <td class="neutral">${fmt(vDay)}</td>
+            <td class="${colorClass(pAtV)}">${fmt(pAtV)}%</td>`;
+        }
+
+        // 1D-specific cells (only shown in 1D view)
+        const oneDayTds = is1D ? `
+          <td class="${colorClass(pc1)} group-start chg1d-cell" data-ticker="${r.Ticker}">${pc1 != null ? pc1 + '%' : '—'}</td>
+          <td class="${colorClass(pma - 1)} group-start">${pma}</td>
+          <td class="${colorClass(vc1)}">${vc1}%</td>
+          <td class="${colorClass(vma - 1)}">${vma}</td>` : "";
+
+        return `<tr>
+          <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+          <td class="spark-cell">${sparkSVG}</td>
+          <td class="price-cell" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price)?.toFixed(2) ?? "—"}</td>
+          <td class="neutral">${r.VolumeM ?? "—"}</td>
+          ${oneDayTds}
+          ${windowCells}
+        </tr>`;
+      }).join("");
+
+      return head + "<tbody>" + rows + "</tbody>";
+    }
+
+    /* ── BUILD CARDS (mobile) ── */
+    function buildCards(arr, w) {
+      arr = sorted(arr);
+      const is1D = w === "1D";
+      const fmtP = v => v != null ? (v > 0 ? "+" : "") + v + "%" : "—";
+      const fmtV = v => v != null ? v : "—";
+
+      const cards = arr.slice(0, 600).map(r => {
+        const pc1 = r._liveChgPct ?? r.PriceChange1D;
+        const vc1 = r.VolumeChange1D;
+        const pma = r.PriceVsMA21_1D;
+        const vma = r.VolumeVsMA21_1D;
+
+        const spark = renderSparkline(
+          r.Spark1Y,
+          r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+          r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"],
+          72, 22
+        );
+
+        let priceChgDisplay, statsHTML;
+
+        if (w === "SCORES") {
+          priceChgDisplay = `<span class="card-chg card-live-chg ${colorClass(pc1)}" data-ticker="${r.Ticker}">${fmtP(pc1)}</span>`;
+          statsHTML = `
+            <div class="card-row"><span class="card-label" style="color:#f59e0b;">Baizora</span><span class="card-val ${scoreClass(r.BaizScore, 50)}" style="font-weight:700;">${r.BaizScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label" style="color:#60a5fa;">Turn</span><span class="card-val ${turnFmt(r.TurnScore).cls}" style="font-weight:700;">${turnFmt(r.TurnScore).html}</span></div>
+            <div class="card-row"><span class="card-label">RS</span><span class="card-val ${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">Breakout</span><span class="card-val ${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">Momentum</span><span class="card-val ${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">Vol Press</span><span class="card-val ${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</span></div>`;
+        } else if (w === "FUND") {
+          const pe    = r.PE;
+          const eps   = r.EPS;
+          const mcap  = r.MarketCap;
+          const peVs  = r.PE_vs_Sector;
+          priceChgDisplay = `<span class="card-chg card-live-chg ${colorClass(pc1)}" data-ticker="${r.Ticker}">${fmtP(pc1)}</span>`;
+          statsHTML = `
+            <div class="card-row"><span class="card-label">P/E</span><span class="card-val">${pe != null ? pe.toFixed(1) : "—"}</span></div>
+            <div class="card-row"><span class="card-label">EPS</span><span class="card-val ${colorClass(eps)}">${eps != null ? eps.toFixed(2) : "—"}</span></div>
+            <div class="card-row"><span class="card-label">Mkt Cap</span><span class="card-val">${mcap != null ? mcap.toFixed(1) + "B" : "—"}</span></div>
+            <div class="card-row"><span class="card-label">PE/Sec</span><span class="card-val ${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</span></div>`;
+        } else if (is1D) {
+          priceChgDisplay = `<span class="card-chg card-live-chg ${colorClass(pc1)}" data-ticker="${r.Ticker}">${fmtP(pc1)}</span>`;
+          statsHTML = `
+            <div class="card-row"><span class="card-label">Vol Chg</span><span class="card-val ${colorClass(vc1)}">${fmtP(vc1)}</span></div>
+            <div class="card-row"><span class="card-label">P/MA21</span><span class="card-val ${colorClass(pma - 1)}">${fmtV(pma)}</span></div>
+            <div class="card-row"><span class="card-label">V/MA21</span><span class="card-val ${colorClass(vma - 1)}">${fmtV(vma)}</span></div>`;
+        } else {
+          const chgP = r[`${w}PriceChange`];
+          const maxP = r[`${w}MaxPriceChange`];
+          const maxV = r[`${w}MaxVolumeChange`];
+          priceChgDisplay = `<span class="card-chg ${colorClass(chgP)}">${fmtP(chgP)}</span>`;
+          statsHTML = `
+            <div class="card-row"><span class="card-label">Max P</span><span class="card-val ${colorClass(maxP)}">${fmtP(maxP)}</span></div>
+            <div class="card-row"><span class="card-label">Max V</span><span class="card-val ${colorClass(maxV)}">${fmtP(maxV)}</span></div>
+            <div class="card-row"><span class="card-label">1D P</span><span class="card-val ${colorClass(pc1)}">${fmtP(pc1)}</span></div>`;
+        }
+
+        return `<div class="stock-card">
+          <div class="card-header">
+            <span class="card-ticker">${r.Ticker}</span>
+            ${spark}
+            <button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>
+          </div>
+          <div class="card-price-row">
+            <span class="card-price" data-ticker="${r.Ticker}" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price) != null ? '$' + (r._livePrice ?? r.Price).toFixed(2) : '—'}</span>
+            ${priceChgDisplay}
+          </div>
+          <div class="card-stats">${statsHTML}</div>
+        </div>`;
+      }).join("");
+
+      return `<div class="card-grid">${cards}</div>`;
+    }
+
+    /* ── RENDER ── */
+    function render() {
+      const w = currentWindow;
+      const filter = r => !searchQuery || r.Ticker.includes(searchQuery);
+      const sp = spRows.filter(filter);
+      const nd = ndRows.filter(filter);
+      const wl = allRows.filter(r => watchlist.has(r.Ticker) && filter(r));
+      document.getElementById("sp500Table").innerHTML     = buildTable(sp, w);
+      document.getElementById("nasdaqTable").innerHTML    = buildTable(nd, w);
+      document.getElementById("sp500Cards").innerHTML     = buildCards(sp, w);
+      document.getElementById("nasdaqCards").innerHTML    = buildCards(nd, w);
+      document.getElementById("watchlistTable").innerHTML = buildTable(wl, w);
+      document.getElementById("watchlistCards").innerHTML = buildCards(wl, w);
+      document.getElementById("watchlistEmpty").style.display = wl.length === 0 ? "block" : "none";
+      updateStatus();
+    }
+
+    /* ── SEARCH ── */
+    function onSearch(val) {
+      searchQuery = val.trim().toUpperCase();
+      render();
+    }
+    document.getElementById("tickerSearch").addEventListener("input", (e) => onSearch(e.target.value));
+    document.getElementById("tickerSearchMobile").addEventListener("input", (e) => onSearch(e.target.value));
+
+    /* ── LOGOUT ── */
+    const doLogout = async () => { await signOut(auth); window.location.href = "login.html"; };
+    document.getElementById("logoutBtn").onclick = doLogout;
+
+    /* ── MOBILE MENU ── */
+    window.toggleMenu = function() {
+      const drawer = document.getElementById("mobileDrawer");
+      const header = document.querySelector("header");
+      drawer.style.top = header.getBoundingClientRect().bottom + "px";
+      drawer.classList.toggle("open");
+    };
+    document.getElementById("drawerLogout").onclick = doLogout;
+    document.addEventListener("click", (e) => {
+      const drawer = document.getElementById("mobileDrawer");
+      const btn    = document.getElementById("hamburger");
+      if (drawer.classList.contains("open") && !drawer.contains(e.target) && !btn.contains(e.target)) {
+        drawer.classList.remove("open");
+      }
+    });
+
+
+    /* ══════════════════════════════════════════
+       TOOLTIP SYSTEM
+    ══════════════════════════════════════════ */
+
+    const COL_DESCS = {
+      "Ticker":          { label: "Ticker",    desc: "Stock symbol. Click to open 1-year candlestick chart with PE, EPS, Beta, volatility, and sector." },
+      "Spark1Y":         { label: "1Y Trend",  desc: "1-year normalized price sparkline. ▲ Triangle = highest-volume day (green=price up, red=price down). ● Circle = highest-price-change day (green=volume up, red=volume down)." },
+      "Price":           { label: "Price",     desc: "Latest closing price in USD." },
+      "VolumeM":         { label: "Vol (M)",   desc: "Trading volume in millions of shares for the most recent session." },
+      "PriceChange1D":   { label: "1D P CHG%",       desc: "Price change (%) vs the previous session's closing price." },
+      "VolumeChange1D":  { label: "1D V CHG%",   desc: "Volume change (%) vs the previous session's volume." },
+      "PriceVsMA21_1D":  { label: "PRICE/MA21",    desc: "Current price as a ratio of the 21-day moving average. Values above 1 indicate price above the MA." },
+      "VolumeVsMA21_1D": { label: "VOL/MA21",    desc: "Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity." },
+      "MarketCap":       { label: "Mkt Cap ($B)", desc: "Market capitalisation in billions of USD." },
+      "PE":              { label: "P/E",           desc: "Trailing price-to-earnings ratio. Blank if earnings are negative or unavailable." },
+      "SectorAvgPE":     { label: "Sector Avg PE", desc: "Average P/E of all stocks in the same sector within the S&P 500 and Nasdaq-100 universe." },
+      "EPS":             { label: "EPS",           desc: "Trailing twelve-month earnings per share in USD." },
+      "Beta":            { label: "Beta",          desc: "1-year daily beta vs SPY. Measures how much this stock moves relative to the S&P 500. Beta > 1 = amplifies market moves; Beta < 1 = more stable than the market." },
+      "Volatility30D":   { label: "Vol 30D",       desc: "30-day annualised price volatility. Measures the stock's own price swings regardless of market direction. High volatility = wider daily price swings." },
+      "PE_vs_Sector":    { label: "PE vs Sector",  desc: "This stock's P/E relative to its sector average, expressed as a percentage. Positive = trading at a premium to sector peers; negative = discount. Sector average is calculated from S&P 500 and Nasdaq-100 members only." },
+      "Sector":          { label: "Sector",        desc: "GICS sector classification." },
+      "BaizScore":       { label: "Baizora",        desc: "Baizora Score (0–100). A weighted composite of all five signals: RS 30% + Momentum 25% + Breakout 20% + Trend 15% + Vol Pressure 10%. Use it as a quick-glance ranking — green (>50) = above-average across the board, red (<50) = below-average. Sort by this column to surface the strongest setups." },
+      "TurnScore":       { label: "Turn",           desc: "Turn Score (0–100). Identifies stocks potentially turning from weak to strong. Formula: Breakout × (1 − RS/100) × VolPressure. ▲ 50+ = strong early-turn signal (green). → 25–49 = emerging signal worth watching (amber). Below 25 = no meaningful reversal signal (red). Drops to 0 when volume pressure is negative — no buying confirmation." },
+      "RSScore":         { label: "RS",            desc: "Relative Strength (1–99). How this stock's recent price performance compares to all 500+ peers. Green (>50) = outperforming the field; red (<50) = underperforming. 99 = top 1% strongest, 1 = weakest." },
+      "BreakoutScore":   { label: "Breakout",      desc: "Breakout Score (0–100). Measures today's breakout intensity: price above 21-day average + today's price gain + volume spike — all combined. Green (>50) = active breakout signal. 100 = all three signals firing at once." },
+      "MomentumScore":   { label: "Momentum",      desc: "Momentum Score (0–100). Ranks how consistently this stock has been rising across 1M, 3M, 6M, and 1Y. Green (>50) = stronger than most peers across multiple timeframes. 100 = top momentum in the universe." },
+      "VolPressureScore":{ label: "Vol Pressure",  desc: "Volume Pressure (−100 to 100). Is heavy volume flowing in or out? Green = buying pressure (high volume on an up day). Red = selling pressure (high volume on a down day). Near 0 = light or neutral volume." },
+      "TrendScore":      { label: "Trend",         desc: "Trend Score (0–100). Counts how many of the 6 timeframes (2W → 1Y) show a positive return. Green (>50) = majority of periods trending up. 100 = all 6 windows rising. 0 = all falling." },
+    };
+
+    function getWindowColDesc(key, w) {
+      if (key === `${w}PriceChange`)            return { label: "P CHG%",    desc: `Total price change (%) from the start of the ${w} window to today.` };
+      if (key === `${w}MaxPriceChange`)         return { label: "MAX P CHG%",    desc: `Largest single-day price increase (%) within the ${w} window.` };
+      if (key === `${w}MaxVolumeChange`)        return { label: "MAX V CHG%",    desc: `Largest single-day volume increase (%) within the ${w} window.` };
+      if (key === `${w}MaxPriceChangeDay`)      return { label: "MAX P% Day",   desc: `Days ago when the maximum price increase occurred in the ${w} window.` };
+      if (key === `${w}MaxVolumeChangeDay`)     return { label: "MAX V% Day",   desc: `Days ago when the maximum volume increase occurred in the ${w} window.` };
+      if (key === `${w}PriceChangeAtMaxVolume`) return { label: "P@V Day",   desc: `Price change (%) on the highest-volume day in the ${w} window.` };
+      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: "V@P Day", desc: `Volume change (%) on the highest-price-increase day in the ${w} window.` };
+      return null;
+    }
+
+    function positionTooltip(el, x, y, above = false) {
+      if (el.style.display === "none") return;
+      const margin = 12;
+      el.style.left = "0px";
+      el.style.top  = "0px";
+      el.style.visibility = "hidden";
+      el.style.display = "block";
+      const tw = el.offsetWidth, elh = el.offsetHeight;
+      const vw = window.innerWidth,  vh = window.innerHeight;
+      let left = x + margin;
+      let top = above ? y - elh - margin : y + margin;
+      if (above && top < margin) top = y + margin;
+      if (!above && top + elh > vh - margin) top = y - elh - margin;
+      if (left + tw > vw - margin) left = x - tw - margin;
+      if (left < margin) left = margin;
+      if (top  < margin) top  = margin;
+      el.style.left = left + "px";
+      el.style.top  = top  + "px";
+      el.style.visibility = "visible";
+    }
+
+    /* Column header tooltip */
+    const colTip   = document.getElementById("colTooltip");
+    const colLabel = document.getElementById("colTooltipLabel");
+    const colDesc  = document.getElementById("colTooltipDesc");
+    let colHideTimer = null;
+
+    function positionColTooltip(el, thEl) {
+      const margin = 6;
+      el.style.left = "0px";
+      el.style.top  = "0px";
+      el.style.visibility = "hidden";
+      el.style.display = "block";
+      const tw = el.offsetWidth, th = el.offsetHeight;
+      const rect = thEl.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      // Show just below the header, aligned to its left edge
+      let left = rect.left;
+      let top  = rect.bottom + margin;
+      // Clamp horizontally
+      if (left + tw > vw - margin) left = vw - tw - margin;
+      if (left < margin) left = margin;
+      // If no room below, show above
+      if (top + th > vh - margin) top = rect.top - th - margin;
+      if (top < margin) top = margin;
+      el.style.left = left + "px";
+      el.style.top  = top  + "px";
+      el.style.visibility = "visible";
+    }
+
+    document.getElementById("tableArea").addEventListener("mouseover", (e) => {
+      const thEl = e.target.closest("th[data-col]");
+      if (!thEl || thEl.classList.contains("no-sort") && !thEl.dataset.col) return;
+      const key = thEl.dataset.col;
+      if (!key) return;
+      clearTimeout(colHideTimer);
+      const info = COL_DESCS[key] || getWindowColDesc(key, currentWindow);
+      if (!info) return;
+      colLabel.textContent = info.label;
+      colDesc.textContent  = info.desc;
+      colTip.style.display = "";
+      positionColTooltip(colTip, thEl);
+      colTip.classList.add("visible");
+    });
+
+    document.getElementById("tableArea").addEventListener("mousemove", (e) => {
+      const thEl = e.target.closest("th[data-col]");
+      if (!thEl || !thEl.dataset.col) return;
+      colTip.style.display = "";
+      positionColTooltip(colTip, thEl);
+    });
+
+    document.getElementById("tableArea").addEventListener("mouseout", (e) => {
+      const thEl = e.target.closest("th[data-col]");
+      if (!thEl) return;
+      colHideTimer = setTimeout(() => colTip.classList.remove("visible"), 80);
+    });
+
+
+    function fmt(v, suffix = "", decimals = 2) {
+      if (v == null || v === "" || v === undefined) return "—";
+      const n = parseFloat(v);
+      if (isNaN(n)) return String(v);
+      return n.toFixed(decimals) + suffix;
+    }
+
+    function fmtBillion(v) {
+      if (v == null || v === "" || v === undefined) return "—";
+      const n = parseFloat(v);
+      if (isNaN(n)) return "—";
+      if (Math.abs(n) >= 1000) return (n / 1000).toFixed(2) + "T";
+      if (Math.abs(n) >= 1)    return n.toFixed(2) + "B";
+      return (n * 1000).toFixed(0) + "M";
+    }
+
+    function valClass(v) {
+      const n = parseFloat(v);
+      if (isNaN(n)) return "muted";
+      return n > 0 ? "positive" : n < 0 ? "negative" : "muted";
+    }
+
+    function ttRow(key, value, valCls = "") {
+      return `<div class="tt-row"><span class="tt-key">${key}</span><span class="tt-val ${valCls}">${value}</span></div>`;
+    }
+
+    document.addEventListener("touchstart", (e) => {
+      if (e.target.closest("th[data-col]")) return;
+      colTip.classList.remove("visible");
+    }, { passive: true });
+
+    /* ── CANDLES DATA ── */
+    let candleData = null;
+    fetch("data/candles.json")
+      .then(r => r.json())
+      .then(d => {
+        candleData = d;
+        if (isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
+      })
+      .catch(() => {});
+
+    /* ── CALENDAR GAP FILLER ── */
+    // US market holidays 2024-2027 (NYSE observed dates)
+    const _HOLIDAYS = new Set([
+      '2024-01-01','2024-01-15','2024-02-19','2024-03-29','2024-05-27','2024-06-19',
+      '2024-07-04','2024-09-02','2024-11-28','2024-12-25',
+      '2025-01-01','2025-01-20','2025-02-17','2025-04-18','2025-05-26','2025-06-19',
+      '2025-07-04','2025-09-01','2025-11-27','2025-12-25',
+      '2026-01-01','2026-01-19','2026-02-16','2026-04-03','2026-05-25','2026-06-19',
+      '2026-07-03','2026-09-07','2026-11-26','2026-12-25',
+      '2027-01-01','2027-01-18','2027-02-15','2027-04-02','2027-05-31','2027-06-18',
+      '2027-07-05','2027-09-06','2027-11-25','2027-12-24',
+    ]);
+    function fillCalendarGaps(dates, candles) {
+      const rd = [], rc = [];
+      for (let i = 0; i < dates.length; i++) {
+        if (i > 0) {
+          const prev = new Date(dates[i-1] + 'T12:00:00Z');
+          const curr = new Date(dates[i]   + 'T12:00:00Z');
+          const d = new Date(prev);
+          d.setUTCDate(d.getUTCDate() + 1);
+          while (d < curr) {
+            const dow = d.getUTCDay();
+            const ds  = d.toISOString().slice(0, 10);
+            if (dow !== 0 && dow !== 6 && !_HOLIDAYS.has(ds)) {
+              rd.push(ds); rc.push(null);
+            }
+            d.setUTCDate(d.getUTCDate() + 1);
+          }
+        }
+        rd.push(dates[i]); rc.push(candles[i]);
+      }
+      return { dates: rd, candles: rc };
+    }
+
+    /* ── CANDLESTICK RENDERER ── */
+    function renderCandleChart(canvas, candles, dates) {
+      const dpr  = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width  = rect.width  * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext("2d");
+      ctx.scale(dpr, dpr);
+      const W = rect.width, H = rect.height;
+      const hasVol = candles.some(c => c && c[4] > 0);
+      const volH   = hasVol ? Math.round(H * 0.22) : 0;
+      const gap    = hasVol ? 6 : 0;
+      const pad    = { top: 20, right: 16, bottom: 28, left: 58 };
+      const priceH = H - pad.top - pad.bottom - volH - gap;
+      const n      = candles.length;
+      const slotW  = (W - pad.left - pad.right) / n;
+      const cndW   = Math.max(1, slotW * 0.65);
+      const toX    = i => pad.left + i * slotW + (slotW - cndW) / 2;
+      let minP = Infinity, maxP = -Infinity;
+      candles.forEach(c => { if (!c) return; const [,h,l] = c; if(h>maxP) maxP=h; if(l<minP) minP=l; });
+      const buf  = (maxP - minP) * 0.05 || 1;
+      const lo   = minP - buf, hi = maxP + buf;
+      const toY  = p => pad.top + priceH * (1 - (p - lo) / (hi - lo));
+      ctx.clearRect(0, 0, W, H);
+      ctx.font = `11px 'DM Mono', monospace`;
+      ctx.textAlign = "right";
+      for (let i = 0; i <= 4; i++) {
+        const p = lo + (hi - lo) * (i / 4);
+        const y = toY(p);
+        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+        ctx.fillStyle = "#64748b";
+        ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 5, y + 4);
+      }
+      const latestDate = new Date(dates[dates.length - 1] + 'T12:00:00');
+      ctx.font = `10px 'DM Mono', monospace`;
+      ctx.fillStyle = "#475569";
+      ctx.fillText(
+        latestDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+        W - pad.right, pad.top - 4
+      );
+      ctx.font = `11px 'DM Mono', monospace`;
+      ctx.textAlign = "center";
+      let lastMo = -1, lastYr = -1, moCount = 0;
+      dates.forEach((d, i) => {
+        const dt = new Date(d + 'T12:00:00');
+        const mo = dt.getMonth(), yr = dt.getFullYear();
+        const isLast = i === n - 1;
+        if (n < 100) {
+          if (i % Math.round(n / 6) !== 0 && !isLast) return;
+          ctx.fillStyle = isLast ? "#94a3b8" : "#64748b";
+          ctx.fillText(dt.toLocaleDateString("en-US", { month: "short", day: "numeric" }), toX(i) + cndW / 2, H - 8);
+        } else {
+          if (mo === lastMo && !isLast) return;
+          if (!isLast) { lastMo = mo; moCount++; }
+          if (n >= 200 && moCount % 2 === 0 && !isLast) return;
+          const moName = dt.toLocaleDateString("en-US", { month: "short" });
+          const label  = isLast
+            ? dt.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            : (yr !== lastYr ? `${moName} '${String(yr).slice(-2)}` : moName);
+          if (!isLast) lastYr = yr;
+          ctx.fillStyle = isLast ? "#94a3b8" : "#64748b";
+          ctx.fillText(label, toX(i) + cndW / 2, H - 8);
+        }
+      });
+      candles.forEach((c, i) => {
+        if (!c) return;
+        const [o, h, l, cv] = c;
+        const green = cv >= o;
+        const x = toX(i), mid = x + cndW / 2;
+        ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
+        ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
+        const bTop = toY(Math.max(o, cv));
+        const bH   = Math.max(1, toY(Math.min(o, cv)) - bTop);
+        ctx.fillRect(x, bTop, cndW, bH);
+        ctx.strokeRect(x, bTop, cndW, bH);
+      });
+      if (hasVol) {
+        const volTop = pad.top + priceH + gap;
+        const maxVol = Math.max(...candles.map(c => c ? c[4] || 0 : 0));
+        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad.left, volTop); ctx.lineTo(W - pad.right, volTop); ctx.stroke();
+        ctx.fillStyle = "#475569"; ctx.font = `9px 'DM Mono', monospace`;
+        ctx.textAlign = "right";
+        ctx.fillText("VOL", pad.left - 5, volTop + 9);
+        candles.forEach((c, i) => {
+          if (!c || !c[4]) return;
+          const [o,,, cv, v] = c;
+          const green = cv >= o;
+          const bH = Math.round((v / maxVol) * (volH - 4));
+          ctx.fillStyle = green ? "rgba(34,197,94,0.45)" : "rgba(239,68,68,0.45)";
+          ctx.fillRect(toX(i), volTop + (volH - 4) - bH, cndW, bH);
+        });
+      }
+    }
+
+    /* ── TICKER MODAL ── */
+    function openTickerModal(ticker) {
+      const r = allRows.find(x => x.Ticker === ticker);
+      if (!r) return;
+      document.getElementById("modalTicker").textContent = ticker;
+      document.getElementById("modalName").textContent   = r.CompanyName || "";
+      const liveP = _liveIex[ticker]?.last;
+      document.getElementById("modalPrice").textContent = (liveP ?? r.Price) != null ? "$" + (liveP ?? r.Price).toFixed(2) : "";
+      const pc1 = r._liveChgPct ?? r.PriceChange1D;
+      const pc1El = document.getElementById("modalPriceChange");
+      if (pc1 != null) {
+        pc1El.textContent = (pc1 >= 0 ? "+" : "") + pc1.toFixed(2) + "%";
+        pc1El.style.color = pc1 >= 0 ? "#22c55e" : "#ef4444";
+      } else {
+        pc1El.textContent = "";
+      }
+      const fmtChg = v => v != null
+        ? [(v >= 0 ? "+" : "") + v + "%", v >= 0 ? "#22c55e" : "#ef4444"]
+        : ["—", "#94a3b8"];
+      const [m1v, m1c] = fmtChg(r["1MPriceChange"]);
+      const [m3v, m3c] = fmtChg(r["3MPriceChange"]);
+      const [y1v, y1c] = fmtChg(r["1YPriceChange"]);
+      const stats = [
+        ["P/E",     r.PE     != null ? r.PE.toFixed(1)                              : "—"],
+        ["EPS",     r.EPS    != null ? r.EPS.toFixed(2)                             : "—"],
+        ["Volume",  r.VolumeM != null ? r.VolumeM.toFixed(1)+"M"                   : "—"],
+        ["Beta",    r.Beta   != null ? r.Beta.toFixed(2)                            : "—"],
+        ["Vol 30D", r.Volatility30D != null ? (r.Volatility30D*100).toFixed(1)+"%" : "—"],
+        ["Mkt Cap", r.MarketCap != null ? "$"+r.MarketCap.toFixed(1)+"B"            : "—"],
+        ["Sector",  r.Sector || "—"],
+        ["1M CHG%", m1v, m1c],
+        ["3M CHG%", m3v, m3c],
+        ["1Y CHG%", y1v, y1c],
+      ];
+      document.getElementById("modalStats").innerHTML = stats.map(([k,v,c]) =>
+        `<div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 14px;">
+          <div style="color:#64748b;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:.06em;">${k}</div>
+          <div style="color:${c||'#fff'};font-size:14px;margin-top:4px;">${v}</div>
+        </div>`
+      ).join("");
+      document.getElementById("tickerModal").style.display = "flex";
+      document.body.style.overflow = "hidden";
+
+      // reset timeframe to 3M on each open
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "63"));
+
+      requestAnimationFrame(() => {
+        _renderModalChart(ticker, 63);
+      });
+    }
+
+    let _modalTicker = null;
+    function _renderModalChart(ticker, tf) {
+      _modalTicker = ticker;
+      const rawCandles = candleData?.data?.[ticker];
+      const dates      = candleData?.dates;
+      const canvas     = document.getElementById("candleCanvas");
+      const noData     = document.getElementById("candleNoData");
+      if (rawCandles && rawCandles.length > 0 && dates) {
+        // Left-pad with nulls when ticker has fewer bars than the shared dates array
+        // so each null becomes an empty space at the correct calendar position.
+        const candles = rawCandles.length < dates.length
+          ? new Array(dates.length - rawCandles.length).fill(null).concat(rawCandles)
+          : rawCandles;
+        const slice = Math.min(tf, dates.length);
+        const slicedDates   = dates.slice(-slice);
+        const slicedCandles = candles.slice(-slice);
+        // Insert null entries for weekday trading days missing from the data
+        const filled = fillCalendarGaps(slicedDates, slicedCandles);
+        canvas.style.display = "block"; noData.style.display = "none";
+        renderCandleChart(canvas, filled.candles, filled.dates);
+      } else {
+        canvas.style.display = "none"; noData.style.display = "flex";
+      }
+    }
+
+    document.getElementById("candleTimeframes").addEventListener("click", e => {
+      const btn = e.target.closest(".tf-btn");
+      if (!btn || !_modalTicker) return;
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      _renderModalChart(_modalTicker, parseInt(btn.dataset.tf));
+    });
+
+    function closeTickerModal() {
+      document.getElementById("tickerModal").style.display = "none";
+      document.body.style.overflow = "";
+    }
+
+    document.getElementById("modalClose").addEventListener("click", closeTickerModal);
+    document.getElementById("tickerModal").addEventListener("click", e => {
+      if (e.target === document.getElementById("tickerModal")) closeTickerModal();
+    });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeTickerModal(); });
+    document.getElementById("tableArea").addEventListener("click", e => {
+      const starBtn = e.target.closest(".star-btn");
+      if (starBtn) {
+        const ticker = starBtn.dataset.watch;
+        if (watchlist.has(ticker)) watchlist.delete(ticker); else watchlist.add(ticker);
+        saveWatchlist();
+        render();
+        return;
+      }
+      const td = e.target.closest("td.ticker-cell");
+      if (td) openTickerModal(td.dataset.ticker);
+    });
+
+    /* ── LIVE PRICE REFRESH (10-min, market hours only) ── */
+    const IEX_CF = 'https://us-central1-baizora.cloudfunctions.net/api/iex-quotes';
+    const _prevDashPrices = {};
+    const _liveIex = {};
+    let _liveRenderDone = false;
+
+    // Split adjustments loaded from data/splits.json (written nightly by scanner).
+    // Keyed by ticker → ratio (e.g. KLAC: 10 for 10-for-1 split).
+    let _SPLIT_ADJ = {};
+    fetch('data/splits.json').then(r => r.ok ? r.json() : {}).then(data => {
+      const cutoff = new Date();
+      cutoff.setMonth(cutoff.getMonth() - 6);
+      const cutoffStr = cutoff.toISOString().slice(0, 10);
+      Object.entries(data).forEach(([t, v]) => {
+        if (v.ratio >= 2 && v.date >= cutoffStr) _SPLIT_ADJ[t] = v.ratio;
+      });
+    }).catch(() => {});
+
+    function isMarketOpen() {
+      try {
+        const et = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+        if (et.getDay() === 0 || et.getDay() === 6) return false;
+        const m = et.getHours() * 60 + et.getMinutes();
+        return m >= 570 && m < 1200;
+      } catch(e) { return false; }
+    }
+    function isWeekdayET() {
+      try {
+        const d = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'})).getDay();
+        return d >= 1 && d <= 5;
+      } catch(e) { return false; }
+    }
+
+    async function refreshDashPrices() {
+      if (!allRows.length) return;
+      const tickers = [...new Set(allRows.map(r => r.Ticker))];
+      const results = await Promise.all(
+        Array.from({length: Math.ceil(tickers.length / 150)}, (_, i) =>
+          fetch(`${IEX_CF}?tickers=${tickers.slice(i*150, (i+1)*150).join(',')}`)
+            .then(r => r.ok ? r.json() : {}).catch(() => ({}))
+        )
+      );
+      const q = Object.assign({}, ...results);
+      if (!Object.keys(q).length) return;
+
+      // Don't override PriceChange1D when IEX data isn't from today ET (handles holidays & unexpected closures)
+      const _firstTs = Object.values(q).find(v => v.ts)?.ts;
+      const _isTodayIex = (() => {
+        if (!_firstTs) return true;
+        try {
+          const et = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+          const qt = new Date(new Date(_firstTs).toLocaleString('en-US', {timeZone:'America/New_York'}));
+          return et.getFullYear()===qt.getFullYear() && et.getMonth()===qt.getMonth() && et.getDate()===qt.getDate();
+        } catch(e) { return true; }
+      })();
+
+      // Direction vs previous refresh
+      const dirs = {};
+      tickers.forEach(t => {
+        const newP = q[t]?.last;
+        if (newP && _prevDashPrices[t] != null)
+          dirs[t] = newP > _prevDashPrices[t] ? 'up' : newP < _prevDashPrices[t] ? 'dn' : '';
+        if (newP) { _prevDashPrices[t] = newP; _liveIex[t] = q[t]; }
+      });
+
+      // Persist live price + direction + chgPct on row objects so render() picks them up
+      // Use authoritative scan close for chgPct, with explicit split adjustments for known splits.
+      // Auto-heals once the nightly scanner updates r.Price to the post-split close.
+      const correctedChgPct = {};
+      allRows.forEach(r => {
+        const d = q[r.Ticker]; if (!d?.last) return;
+        r._livePrice   = d.last;
+        r._priceDir    = dirs[r.Ticker] || '';
+        const prevClose = r.PrevClose ?? r.Price;
+        const ratio = _SPLIT_ADJ[r.Ticker];
+        const obsRatio = (ratio && prevClose && d.last) ? prevClose / d.last : 0;
+        const refPrice = (obsRatio > ratio * 0.8 && obsRatio < ratio * 1.2) ? prevClose / ratio : prevClose;
+        const chg = refPrice ? +((d.last - refPrice) / refPrice * 100).toFixed(2) : (d.chgPct ?? null);
+        if (_isTodayIex) r._liveChgPct = chg;
+        if (_isTodayIex && chg != null) correctedChgPct[r.Ticker] = chg;
+        // IEX only drives Price and PriceChange1D (_liveChgPct above).
+        // PriceVsMA21_1D, all volume columns: scanner EOD data only.
+      });
+
+      // Surgical price-cell update (instant, no scroll reset)
+      document.querySelectorAll('td.ticker-cell[data-ticker]').forEach(tc => {
+        const t = tc.dataset.ticker;
+        const d = q[t]; if (!d?.last) return;
+        const pc = tc.parentElement?.querySelector('td.price-cell');
+        if (!pc) return;
+        pc.textContent = d.last.toFixed(2);
+        pc.style.color = dirs[t] === 'up' ? '#22c55e' : dirs[t] === 'dn' ? '#ef4444' : '';
+      });
+
+      // Surgical 1D P CHG% update (table)
+      document.querySelectorAll('td.chg1d-cell[data-ticker]').forEach(tc => {
+        const chgPct = correctedChgPct[tc.dataset.ticker];
+        if (chgPct == null) return;
+        tc.textContent = (chgPct >= 0 ? '+' : '') + chgPct + '%';
+        tc.className = tc.className.replace(/\b(positive|negative|neutral)\b/, chgPct > 0 ? 'positive' : chgPct < 0 ? 'negative' : 'neutral');
+      });
+
+      // Surgical card price update (mobile)
+      document.querySelectorAll('span.card-price[data-ticker]').forEach(sp => {
+        const t = sp.dataset.ticker;
+        const d = q[t]; if (!d?.last) return;
+        sp.textContent = '$' + d.last.toFixed(2);
+        sp.style.color = dirs[t] === 'up' ? '#22c55e' : dirs[t] === 'dn' ? '#ef4444' : '';
+      });
+
+      // Surgical card 1D chg update (mobile — only spans showing pc1, not period windows)
+      document.querySelectorAll('span.card-live-chg[data-ticker]').forEach(sp => {
+        const chgPct = correctedChgPct[sp.dataset.ticker];
+        if (chgPct == null) return;
+        sp.textContent = (chgPct >= 0 ? '+' : '') + chgPct + '%';
+        sp.className = sp.className.replace(/\b(positive|negative|neutral)\b/, chgPct > 0 ? 'positive' : chgPct < 0 ? 'negative' : 'neutral');
+      });
+
+      // Update candleData for every ticker so modal sees current bars
+      const _d = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+      const todayET = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
+      if (candleData?.data && candleData.dates) {
+        const lastDate = candleData.dates[candleData.dates.length - 1];
+        const isToday  = lastDate === todayET;
+        if (isToday) {
+          // Scanner already wrote today's OHLCV; only update the close (live price).
+          // Updating open/high/low/volume from IEX can corrupt the scanner's
+          // accurate regular-session data with premarket/extended-hours values.
+          tickers.forEach(t => {
+            const d = q[t]; if (!d?.last) return;
+            const bars = candleData.data[t]; if (!bars?.length) return;
+            const bar = bars[bars.length - 1];
+            bar[3] = d.last;
+            if (d.last < bar[2]) bar[2] = d.last; // extend low if price dropped below scanner's low
+            if (d.last > bar[1]) bar[1] = d.last; // extend high if price rose above scanner's high
+          });
+        } else {
+          // Append today bar to ALL tickers so candleData.dates stays aligned.
+          // Tickers without a live quote get a flat carry-forward bar.
+          Object.keys(candleData.data).forEach(t => {
+            const bars = candleData.data[t]; if (!bars?.length) return;
+            const prev = bars[bars.length - 1][3];
+            const d = q[t];
+            bars.push([
+              d?.open ?? prev,
+              d?.high ?? d?.open ?? prev,
+              d?.low  ?? d?.open ?? prev,
+              d?.last ?? prev,
+              d?.volume ?? 0
+            ]);
+          });
+          candleData.dates.push(todayET);
+        }
+      }
+
+      // Refresh open modal header + chart
+      if (_modalTicker && document.getElementById('tickerModal').style.display !== 'none') {
+        const d = q[_modalTicker];
+        if (d?.last != null)
+          document.getElementById('modalPrice').textContent = '$' + d.last.toFixed(2);
+        if (d?.chgPct != null) {
+          const el = document.getElementById('modalPriceChange');
+          el.textContent = (d.chgPct >= 0 ? '+' : '') + d.chgPct.toFixed(2) + '%';
+          el.style.color = d.chgPct >= 0 ? '#22c55e' : '#ef4444';
+        }
+        const activeTf = document.querySelector('.tf-btn.active');
+        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+      }
+      // First successful EOD enrichment: re-render table so volume/MA21 columns update
+      if (_isTodayIex && !_liveRenderDone) { _liveRenderDone = true; render(); }
+    }
+
+  </script>
+
+  <script>
+    window.addEventListener("beforeinstallprompt", e => e.preventDefault());
+    if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); }
+  </script>
+
+  <!-- TICKER MODAL -->
+  <div id="tickerModal">
+    <div id="modalCard">
+      <button id="modalClose">✕</button>
+      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
+        <span id="modalTicker" style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:#fff;letter-spacing:.05em;"></span>
+        <span id="modalPrice"  style="font-size:18px;color:#60a5fa;font-weight:600;"></span>
+        <span id="modalPriceChange" style="font-size:15px;font-weight:600;"></span>
+      </div>
+      <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
+      <div id="candleTimeframes">
+        <button class="tf-btn active" data-tf="63">3M</button>
+        <button class="tf-btn" data-tf="126">6M</button>
+        <button class="tf-btn" data-tf="252">1Y</button>
+      </div>
+      <canvas id="candleCanvas"></canvas>
+      <div id="candleNoData">No chart data available yet</div>
+      <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:18px;"></div>
+    </div>
+  </div>
+
+</body>
+</html>

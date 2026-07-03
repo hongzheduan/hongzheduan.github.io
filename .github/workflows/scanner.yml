@@ -15,6 +15,10 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Master switch: also run scanner_yfinance.py (testing/backup comparison) on the
+  # 11PM-full scheduled run and on manual workflow_dispatch runs. Set to "" to run
+  # only scanner_tiingo.py (the normal production scan), unchanged either way.
+  RUN_YFINANCE_BACKUP_SWITCH: "1"
 
 jobs:
   run-scanner:
@@ -56,6 +60,7 @@ jobs:
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+            echo "RUN_YFINANCE_BACKUP=${{ env.RUN_YFINANCE_BACKUP_SWITCH }}" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "30 20 * * 1-5" ]; then
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR="    >> $GITHUB_ENV   # run EDGAR (~6:30 PM ET actual, after 5:30 PM SEC cutoff)
@@ -68,6 +73,7 @@ jobs:
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+            echo "RUN_YFINANCE_BACKUP=${{ env.RUN_YFINANCE_BACKUP_SWITCH }}" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then
             # 5:00 PM ET weekdays — skip entirely if 4:30 PM already fully updated (0 stale tickers)
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
@@ -93,6 +99,11 @@ jobs:
           SKIP_IF_COMPLETE: ${{ env.SKIP_IF_COMPLETE }}
         run: python scanner_tiingo.py
 
+      - name: Run yfinance backup scanner (testing)
+        if: env.IS_HOLIDAY != 'True' && env.RUN_YFINANCE_BACKUP == '1'
+        continue-on-error: true
+        run: python scanner_yfinance.py
+
       - name: Commit updated data
         if: env.IS_HOLIDAY != 'True' || env.EDGAR_ONLY == '1'
         run: |
@@ -116,6 +127,7 @@ jobs:
           # (git stash pop can silently fail on conflict, losing files like compare_*.log)
           TMPBAK=$(mktemp -d)
           cp data/latest.json          "$TMPBAK/" 2>/dev/null || true
+          cp data/latest_yfinance.json "$TMPBAK/" 2>/dev/null || true
           cp data/latest_d1.json       "$TMPBAK/" 2>/dev/null || true
           cp data/free_tier.json       "$TMPBAK/" 2>/dev/null || true
           cp data/candles.json         "$TMPBAK/" 2>/dev/null || true
@@ -140,6 +152,7 @@ jobs:
 
           # Restore — overwrite whatever remote had with our fresh scanner output
           cp "$TMPBAK/latest.json"           data/ 2>/dev/null || true
+          cp "$TMPBAK/latest_yfinance.json"  data/ 2>/dev/null || true
           cp "$TMPBAK/latest_d1.json"        data/ 2>/dev/null || true
           cp "$TMPBAK/free_tier.json"        data/ 2>/dev/null || true
           cp "$TMPBAK/candles.json"          data/ 2>/dev/null || true
@@ -162,6 +175,7 @@ jobs:
           echo "$WORKLOG_ENTRY" >> archive/worklog.md
 
           git add data/latest.json                     2>/dev/null || true
+          git add data/latest_yfinance.json            2>/dev/null || true
           git add data/latest_d1.json                  2>/dev/null || true
           git add data/free_tier.json                  2>/dev/null || true
           git add data/candles.json                    2>/dev/null || true
