@@ -2342,13 +2342,21 @@ def generate_narration(scene_scripts, total_sec, output_wav, ffmpeg_path,
 
         # Phase 2 — place clips sequentially; never overlap
         earliest_next = 0.0
-        for pref_start, clip in clips:
+        for i, (pref_start, clip) in enumerate(clips):
             if clip is None:
                 continue
             actual_start   = max(pref_start, earliest_next)
             clip_dur       = len(clip) / sr
             earliest_next  = actual_start + clip_dur + GAP
             s = int(actual_start * sr); e = min(s + len(clip), n)
+            if e <= s:
+                print(f"    [narration] WARNING: scene {i} narration dropped entirely — "
+                      f"cumulative speech ({actual_start:.1f}s) ran past the video's "
+                      f"{total_sec:.1f}s length. Shorten earlier lines or lengthen scenes.")
+            elif e - s < len(clip):
+                print(f"    [narration] WARNING: scene {i} narration cut off "
+                      f"({(len(clip) - (e - s)) / sr:.1f}s trimmed off the end) — "
+                      f"cumulative speech ran past the video's {total_sec:.1f}s length.")
             if e > s:
                 audio[s:e] += clip[:e-s] * 0.90
 
@@ -2376,7 +2384,7 @@ def get_ffmpeg():
         )
 
 
-def encode(frames, output, xfade_frames=30, tts_voice="en-US-ChristopherNeural"):
+def encode(frames, output, xfade_frames=30, tts_voice="en-US-ChristopherNeural", tts_rate="+20%"):
     """
     frames: list of (Image, hold_sec [, subtitle [, narration]])
       subtitle   (str) — burned into frame as an overlay bar
@@ -2429,7 +2437,7 @@ def encode(frames, output, xfade_frames=30, tts_voice="en-US-ChristopherNeural")
 
         print("  Generating narration (TTS)...")
         generate_narration(scene_scripts, total_sec + 0.5, narr_wav, ffmpeg,
-                           voice=tts_voice)
+                           voice=tts_voice, rate=tts_rate)
 
         # Mix: narration full volume, music at 18 % under it
         cmd = [
@@ -3995,31 +4003,31 @@ WEDNESDAY_TF_ROTATION = [
         "label_en": "1-Month",  "label_short": "1M",  "window_en": "one month",
         "label_cn": "一个月",    "window_cn": "一个月",   "spark_days": 21,
         "high_hdr": "1M HIGH",  "high_hdr_cn": "月高价",    "peak_label_cn": "月高点",
-        "title_cn": "一月新高突破",  "min_drawdown": 10,
+        "title_cn": "一月新高突破",  "min_drawdown": 20,
     },
     {
         "label_en": "3-Month",  "label_short": "3M",  "window_en": "three months",
         "label_cn": "三个月",    "window_cn": "三个月",   "spark_days": 63,
         "high_hdr": "3M HIGH",  "high_hdr_cn": "三月高价",  "peak_label_cn": "三月高点",
-        "title_cn": "三月新高突破",  "min_drawdown": 10,
+        "title_cn": "三月新高突破",  "min_drawdown": 20,
     },
     {
         "label_en": "6-Month",  "label_short": "6M",  "window_en": "six months",
         "label_cn": "六个月",    "window_cn": "六个月",   "spark_days": 126,
         "high_hdr": "6M HIGH",  "high_hdr_cn": "六月高价",  "peak_label_cn": "六月高点",
-        "title_cn": "六月新高突破",  "min_drawdown": 10,
+        "title_cn": "六月新高突破",  "min_drawdown": 20,
     },
     {
         "label_en": "9-Month",  "label_short": "9M",  "window_en": "nine months",
         "label_cn": "九个月",    "window_cn": "九个月",   "spark_days": 189,
         "high_hdr": "9M HIGH",  "high_hdr_cn": "九月高价",  "peak_label_cn": "九月高点",
-        "title_cn": "九月新高突破",  "min_drawdown": 10,
+        "title_cn": "九月新高突破",  "min_drawdown": 20,
     },
     {
         "label_en": "1-Year",   "label_short": "1Y",  "window_en": "twelve months",
         "label_cn": "一年",      "window_cn": "十二个月", "spark_days": None,
         "high_hdr": "1Y HIGH",  "high_hdr_cn": "年高价",    "peak_label_cn": "年高点",
-        "title_cn": "一年新高突破",  "min_drawdown": 10,
+        "title_cn": "一年新高突破",  "min_drawdown": 20,
     },
 ]
 
