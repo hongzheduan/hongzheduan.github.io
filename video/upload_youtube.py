@@ -23,6 +23,32 @@ import sys
 import time
 from pathlib import Path
 
+SCRIPT_DIR = Path(__file__).parent
+COVERING_DIR = SCRIPT_DIR / "covering"
+
+# Same weekday mapping as generate_shorts.py's cover_path_for() — duplicated (not
+# imported) since this script is meant to stay a standalone upload utility.
+_WEEKDAY_BY_TYPE = {
+    "volume_spikes": "Monday",
+    "best_performer": "Tuesday",
+    "6m_breakout": "Wednesday",
+    "1y_vol_peak": "Thursday",
+    "index_spotlight": "Friday",
+}
+
+
+def cover_path_for(video_type, date_obj):
+    """Picks one of the 4 pre-made cover images for this video type's weekday,
+    rotating by calendar day (not upload count) so re-running for the same date
+    always picks the same cover. Returns None if no cover set exists for this type."""
+    base_type = video_type[:-3] if video_type.endswith("_cn") else video_type
+    weekday = _WEEKDAY_BY_TYPE.get(base_type)
+    if not weekday:
+        return None
+    variant = date_obj.toordinal() % 4 + 1
+    path = COVERING_DIR / f"{weekday}_{variant}.png"
+    return path if path.exists() else None
+
 
 _TUESDAY_TF_ROTATION = [
     {"label_en": "2-Week",   "label_short": "2W", "window_en": "two weeks",     "label_cn": "两周",   "window_cn": "两周"},
@@ -88,7 +114,23 @@ def build_credentials():
     )
 
 
-def upload(file_path, title, description, privacy, category_id="22"):
+def set_thumbnail(youtube, video_id, thumbnail_path):
+    """Sets a custom thumbnail on an already-uploaded video. Non-fatal on failure —
+    custom thumbnails require a phone-verified channel, so an unverified channel (or
+    any other API hiccup) should log a warning and let the rest of the upload stand,
+    not fail the whole run over a cosmetic image."""
+    import googleapiclient.http
+    try:
+        media = googleapiclient.http.MediaFileUpload(str(thumbnail_path), mimetype="image/png")
+        youtube.thumbnails().set(videoId=video_id, media_body=media).execute()
+        print(f"  Thumbnail set: {thumbnail_path.name}")
+    except Exception as e:
+        print(f"  WARNING: failed to set thumbnail ({e.__class__.__name__}: {e}) — "
+              f"video uploaded fine, thumbnail left as YouTube's auto-picked frame. "
+              f"(Custom thumbnails require a phone-verified channel.)")
+
+
+def upload(file_path, title, description, privacy, category_id="22", thumbnail_path=None):
     try:
         import googleapiclient.discovery
         import googleapiclient.http
@@ -137,6 +179,10 @@ def upload(file_path, title, description, privacy, category_id="22"):
 
     video_id = response["id"]
     print(f"  Done → https://youtu.be/{video_id}")
+
+    if thumbnail_path:
+        set_thumbnail(youtube, video_id, thumbnail_path)
+
     return video_id
 
 
@@ -338,7 +384,12 @@ def main():
         sys.exit(1)
 
     title, description = make_meta(args.type, args.date)
-    video_id = upload(args.file, title, description, args.privacy)
+    # All 10 video types are Shorts now (vertical, <60s) — #Shorts reinforces the
+    # Shorts-shelf placement signal YouTube already infers from aspect ratio/duration.
+    description = f"{description}\n\n#Shorts"
+    date_obj = datetime.date.fromisoformat(args.date)
+    thumbnail_path = cover_path_for(args.type, date_obj)
+    video_id = upload(args.file, title, description, args.privacy, thumbnail_path=thumbnail_path)
     if video_id:
         print(f"YOUTUBE_URL=https://youtu.be/{video_id}")
 

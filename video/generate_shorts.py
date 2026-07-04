@@ -187,116 +187,111 @@ def scene_hook_generic(scan_date, lang, lines_en, lines_cn, sub_en, sub_cn, bg_s
     return img
 
 
-# ── Scene 2: Condensed top-5 table ─────────────────────────────────────────────────
+# ── Scene 2': one stock at a time — name, number, and its 1Y trend together ────────
 
-def scene_top5_table(rows, scan_date, lang, title_en, title_cn, sub_en, sub_cn, value_key,
-                      gold_leader=True):
-    """Generic condensed top-N scene (N up to 5) — Monday (volume spikes) and Tuesday
-    (best performer) always have 5 rows; Thursday's volume-record category is a rare
-    event that some days only turns up 1-3 qualifying stocks, so the footer position
-    is based on the actual row count rather than a hardcoded 5."""
-    img, draw = new_frame_s()
-
-    title = title_en if lang == "en" else title_cn
-    f_title = load_headline_font(56) if lang == "en" else load_font_cn(44, bold=True)
-    centered_s(draw, 60, title, f_title, GOLD_LIGHT)
-    sub = sub_en if lang == "en" else sub_cn
-    centered_s(draw, 140, sub, load_font(22, mono=True) if lang == "en" else load_font_cn(20), DIM)
-    hline_s(draw, 190)
-
-    row_h = 300
-    region_top, region_bottom = 220, 1760
-    shown = rows[:5]
-    # Monday/Tuesday/Wednesday always have 5 rows filling this region top-down; but
-    # Thursday's volume-record category is a rare event that some days only turns up
-    # 1-3 qualifying stocks, which would otherwise leave a large dead zone below a
-    # table pinned to the top — so sparse tables are vertically centered instead.
-    if len(shown) < 4:
-        block_h = len(shown) * row_h
-        top = region_top + max(0, (region_bottom - region_top - block_h) // 2)
-    else:
-        top = region_top
-    f_rank = load_headline_font(44)
-    f_tkr = load_font(52, bold=True)
-    f_coy = load_font_cn(24) if lang == "cn" else load_font(24)
-    f_pct = load_headline_font(60)
-
-    for i, row in enumerate(shown):
-        y = top + i * row_h
-        if i % 2 == 0:
-            draw.rectangle([40, y, SW - 40, y + row_h - 24], fill=NAVY_MID)
-
-        rank_col = (GOLD_LIGHT if i == 0 else MUTED)
-        draw.text((70, y + 30), str(i + 1), font=f_rank, fill=rank_col)
-
-        ticker = row.get("Ticker", "")
-        draw.text((160, y + 24), ticker, font=f_tkr, fill=WHITE)
-
-        name = (row.get("CompanyName") or "")
-        if len(name) > 26:
-            name = name[:23] + "..."
-        draw.text((160, y + 90), name, font=f_coy, fill=MUTED)
-
-        v = row.get(value_key)
-        c = GOLD_LIGHT if (gold_leader and i == 0) else pct_color(v)
-        txt = pct_str(v)
-        pw = tw(draw, txt, f_pct)
-        draw.text((SW - 70 - pw, y + 46), txt, font=f_pct, fill=c)
-
-    hline_s(draw, top + len(shown) * row_h - 10)
-    cta = "Full list at baizora.com" if lang == "en" else "完整榜单请见 baizora.com"
-    centered_s(draw, top + len(shown) * row_h + 24, cta, load_font(26, bold=True) if lang == "en" else load_font_cn(24, bold=True), ELEC_BRIGHT)
-    return img
+_CANDLES_CACHE = None
 
 
-# ── Scene 2b: quick trend chart for a top mover ────────────────────────────────────
+def _load_candles():
+    """data/candles.json: per-ticker daily OHLCV (~252 bars, matches the real
+    dashboard's 1Y candlestick view) — loaded once and reused across all 3 cards."""
+    global _CANDLES_CACHE
+    if _CANDLES_CACHE is None:
+        with open(SCRIPT_DIR.parent / "data" / "candles.json") as f:
+            _CANDLES_CACHE = json.load(f)
+    return _CANDLES_CACHE
 
-def scene_trend_short(rows, scan_date, lang="en", row_index=0, pct_key="1YPriceChange",
-                       period_label_en="1-YEAR", period_footer_en="PAST 12 MONTHS",
-                       period_label_cn="一年", period_footer_cn="过去十二个月",
-                       spark_days=None):
-    """Generic version of the trend scene — Monday's calls (implicit full 1-year) keep
-    working via the defaults; Tuesday and others pass whichever timeframe is in that
-    week's rotation so the chart matches the % figure actually being narrated."""
+
+def _blend_over_navy(fg, alpha=0.35):
+    return tuple(round(bg * (1 - alpha) + c * alpha) for bg, c in zip(NAVY, fg))
+
+
+_VOL_GREEN = _blend_over_navy(GREEN)
+_VOL_RED = _blend_over_navy(RED)
+
+
+def _draw_candles_with_volume(img, draw, ticker, region):
+    """Real 1-year daily OHLCV candlesticks + a volume panel underneath (price ~78%
+    / volume ~22%, volume bars color-matched to candle direction at reduced opacity)
+    — same visual language as the real dashboard's candlestick chart, replacing the
+    close-only sparkline so the card shows actual price action, not a smoothed line."""
+    bars = _load_candles().get("data", {}).get(ticker) or []
+    if len(bars) < 2:
+        return
+    x0, y0, x1, y1 = region
+    gap = 4
+    price_h = round((y1 - y0) * 0.78)
+    price_y0, price_y1 = y0, y0 + price_h
+    vol_y0, vol_y1 = price_y1 + gap, y1
+
+    highs = [b[1] for b in bars]
+    lows = [b[2] for b in bars]
+    vols = [b[4] for b in bars]
+    mn_v, mx_v = min(lows), max(highs)
+    if mx_v <= mn_v:
+        return
+    max_vol = max(vols) or 1
+
+    n = len(bars)
+    slot_w = (x1 - x0) / n
+    body_w = max(1.0, slot_w * 0.6)
+
+    def py(v):
+        return price_y1 - (v - mn_v) / (mx_v - mn_v) * (price_y1 - price_y0)
+
+    for i, (o, h, l, c, v) in enumerate(bars):
+        cx = x0 + (i + 0.5) * slot_w
+        up = c >= o
+        color = BRIGHT_GREEN if up else BRIGHT_RED
+        draw.line([(cx, py(h)), (cx, py(l))], fill=color, width=1)
+        top, bot = py(max(o, c)), py(min(o, c))
+        if bot - top < 1:
+            bot = top + 1
+        draw.rectangle([cx - body_w / 2, top, cx + body_w / 2, bot], fill=color)
+
+        vh = (v / max_vol) * (vol_y1 - vol_y0)
+        vol_color = _VOL_GREEN if up else _VOL_RED
+        draw.rectangle([cx - body_w / 2, vol_y1 - vh, cx + body_w / 2, vol_y1], fill=vol_color)
+
+
+def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=True):
+    """Hero card for a single ticker — replaces the old shared 5-row table so the
+    Short shows one stock at a time (name + the narrated metric + its 1-year
+    candlestick trend, all together) instead of a static list everyone's narrated
+    line points at identically. sub_en/sub_cn label whichever metric value_key is."""
     img, draw = new_frame_s()
     dot_grid_s(draw)
-    top_row = rows[row_index]
-    ticker = top_row.get("Ticker", "")
-    pc = top_row.get(pct_key)
-    color = BRIGHT_GREEN if (pc or 0) >= 0 else BRIGHT_RED
 
-    title = f"{ticker} — {period_label_en} TREND" if lang == "en" else f"{ticker} — {period_label_cn}走势"
-    f_title = load_headline_font(60) if lang == "en" else load_font_cn(48, bold=True)
-    centered_s(draw, 110, title, f_title, GOLD_LIGHT)
+    rank_col = GOLD_LIGHT if (gold_leader and rank == 1) else MUTED
+    centered_s(draw, 80, f"#{rank}", load_font(32, mono=True, bold=True), rank_col)
 
-    name = (top_row.get("CompanyName") or "")
-    centered_s(draw, 220, name, load_font(26) if lang == "en" else load_font_cn(24), MUTED)
+    ticker = row.get("Ticker", "")
+    f_tkr = load_headline_font(90) if lang == "en" else load_font_cn(72, bold=True)
+    centered_s(draw, 145, ticker, f_tkr, WHITE)
 
-    full_spark = top_row.get("Spark1Y") or []
-    spark = full_spark[-spark_days:] if spark_days and len(full_spark) > spark_days else full_spark
-    region = (110, 340, SW - 110, SH - 480)
-    if len(spark) >= 2:
-        mn_v, mx_v = min(spark), max(spark)
-        if mx_v > mn_v:
-            n = len(spark)
-            x0, y0, x1, y1 = region
-            pad = 0.08
-            pts = []
-            for i, v in enumerate(spark):
-                px = x0 + i / (n - 1) * (x1 - x0)
-                py = y1 - ((v - mn_v) / (mx_v - mn_v)) * (y1 - y0) * (1 - 2 * pad) - (y1 - y0) * pad
-                pts.append((px, py))
-            _glow_line(img, draw, pts, color, width=8, glow_radius=20)
+    name = (row.get("CompanyName") or "")
+    if len(name) > 30:
+        name = name[:27] + "..."
+    centered_s(draw, 270, name, load_font(28) if lang == "en" else load_font_cn(26), MUTED)
 
-    f_pct = load_headline_font(120)
-    pct_y = SH - 440
-    pct_text = pct_str(pc)
+    v = row.get(value_key)
+    color = BRIGHT_GREEN if (v or 0) >= 0 else BRIGHT_RED
+    # Trend region height cut to 3/4 of the original (350 -> SH-560) span, anchored
+    # at the same top so the freed space collapses upward instead of leaving the
+    # chart floating in the middle of a now-oversized box.
+    full_h = (SH - 560) - 350
+    region = (110, 350, SW - 110, 350 + round(full_h * 0.75))
+    _draw_candles_with_volume(img, draw, ticker, region)
+
+    f_pct = load_headline_font(130)
+    pct_y = region[3] + 40
+    pct_text = pct_str(v)
     centered_s(draw, pct_y, pct_text, f_pct, color)
     # Anton's glyph bbox top isn't flush with 0 (unlike most fonts) — use the actual
-    # bbox bottom, not draw-y + th(), or the next line collides with the glyph tail.
+    # bbox bottom, not draw-y + th(), or the label below collides with the glyph tail.
     pct_bottom = pct_y + draw.textbbox((0, 0), pct_text, font=f_pct)[3]
-    centered_s(draw, pct_bottom + 30, period_footer_en if lang == "en" else period_footer_cn,
-               load_font(26, mono=True) if lang == "en" else load_font_cn(24), DIM)
+    sub = sub_en if lang == "en" else sub_cn
+    centered_s(draw, pct_bottom + 30, sub, load_font(24, mono=True) if lang == "en" else load_font_cn(22), DIM)
     return img
 
 
@@ -357,43 +352,6 @@ def scene_member_spotlight_short(member, scan_date, lang="en"):
     return img
 
 
-# ── Scene 2c/2d: real dashboard screenshots (hero, then results table) ─────────────
-
-_SCREENSHOTS_EN = [SCRIPT_DIR / "EN_screenshot1.png", SCRIPT_DIR / "EN_screenshot2.png"]
-_SCREENSHOTS_CN = [SCRIPT_DIR / "CN_screenshot1.png", SCRIPT_DIR / "CN_screenshot2.png"]
-_SCREENSHOTS_MEMBERCHANGE_EN = [SCRIPT_DIR / "EN_memberchange1.png", SCRIPT_DIR / "EN_memberchange2.png"]
-_SCREENSHOTS_MEMBERCHANGE_CN = [SCRIPT_DIR / "CN_memberchange1.png", SCRIPT_DIR / "CN_memberchange2.png"]
-
-
-def scene_dashboard_short(scan_date, lang="en", heading="", caption="", index=0, screenshots=None):
-    img, draw = new_frame_s()
-    dot_grid_s(draw)
-
-    f_head = load_headline_font(52) if lang == "en" else load_font_cn(42, bold=True)
-    centered_s(draw, 90, heading, f_head, GOLD_LIGHT)
-
-    if screenshots is not None:
-        paths = screenshots
-    else:
-        paths = _SCREENSHOTS_EN if lang == "en" else _SCREENSHOTS_CN
-    p = paths[index]
-    if p.exists():
-        ss = Image.open(str(p)).convert("RGB")
-        iw, ih = ss.size
-        max_w = SW - 140
-        scale = max_w / iw
-        nw, nh = int(iw * scale), int(ih * scale)
-        ss = ss.resize((nw, nh), Image.LANCZOS)
-        sx, sy = (SW - nw) // 2, 220
-        draw.rectangle([sx - 8, sy - 8, sx + nw + 8, sy + nh + 8], outline=ELECTRIC, width=4)
-        img.paste(ss, (sx, sy))
-        caption_y = sy + nh + 60
-    else:
-        caption_y = 700
-
-    centered_s(draw, caption_y, caption, load_font(28, bold=True) if lang == "en" else load_font_cn(26, bold=True), MUTED)
-    centered_s(draw, caption_y + 60, "baizora.com", load_font(38), ELECTRIC)
-    return img
 
 
 # ── Scene 3: Baizora ad / outro (final 5 seconds) ─────────────────────────────────
@@ -449,6 +407,107 @@ def scene_ad_short(scan_date, lang="en"):
     return img
 
 
+# ── Ad reel (replaces the old static ad card as the main CTA scene) ────────────────
+# Shared across every weekday's Short (same reel, not per-weekday): a real still of
+# the ranked dashboard, a real screen recording, then a real still of a ticker's
+# detail modal — one continuous pitch narrated across all three. scene_ad_short
+# still runs immediately after, unchanged, as a brief silent brand card — "end on
+# the previous slide" per explicit instruction, rather than cutting straight from
+# real footage to black.
+#
+# CN has its own dashboard still and screen recording (advertise_cn_0.png,
+# advertise_1_cn.mp4); no CN-specific ticker-detail still exists yet, so CN
+# reuses the EN advertise_2.png for that third slot until one is made.
+
+_AD_ASSETS_EN = [
+    ("image", SCRIPT_DIR / "advertise_0.png", 1.3),
+    ("video", SCRIPT_DIR / "advertise_1.mp4", None),
+    ("image", SCRIPT_DIR / "advertise_2.png", 1.3),
+]
+_AD_ASSETS_CN = [
+    ("image", SCRIPT_DIR / "advertise_cn_0.png", 1.3),
+    ("video", SCRIPT_DIR / "advertise_1_cn.mp4", None),
+    ("image", SCRIPT_DIR / "advertise_2.png", 1.3),
+]
+
+# "Contain" box every ad asset is scaled into (aspect preserved, no cropping) so the
+# image stills and the video clip all read as one consistent inset frame despite
+# having different native aspect ratios.
+_AD_BOX_W, _AD_BOX_H = 940, 1320
+_AD_BOX_Y0 = 230
+
+# Leads with "Baizora" so viewers know who's advertising from the first word.
+# One flowing sentence (not disconnected fragments) — measured at the Shorts TTS
+# rate (+40%) to land safely inside the ad footage (~11.9s EN reel / ~11.1s CN
+# fallback clip; narration starts ~0.55s in — see generate_narration()'s
+# pref_start convention), with room to spare rather than cutting it close. Covers
+# the full pitch: every S&P 500 and Nasdaq-100 stock in one table, one day to one
+# year, volume spikes, top performers, daily membership-change flags, and key
+# events marked on the trend line. No "baizora dot com" here on purpose — the CTA
+# is said once, at the very end (_AD_PITCH2_EN/_CN), not repeated mid-reel.
+_AD_PITCH_EN = ("Baizora brings every S&P 500 and Nasdaq-100 stock into one table, "
+                "one day to one year — volume spikes, top performers, membership "
+                "changes, key events marked on the trend.")
+_AD_PITCH_CN = ("贝佐拉一张表整合标普500和纳斯达克100全部股票，单日到一年——"
+                 "成交量异动、领涨股、成分股变动，关键事件标注趋势线。")
+
+# Second, shorter beat for the last ~3-4s of the ad reel (the advertise_2.png still),
+# once the main pitch above has already finished — pitches the per-stock detail page
+# instead of the platform-wide table, and is where the baizora.com CTA is actually
+# said (only once, at the end). Kept terse: only ~4s of runway is left before the
+# reel hands off to the silent outro card.
+_AD_PITCH2_EN = "Full stock detail in thirty seconds — baizora dot com."
+_AD_PITCH2_CN = "半分钟看懂个股全部信息。baizora点com。"
+
+
+def _contain_dims(sw, sh, box_w, box_h):
+    scale = min(box_w / sw, box_h / sh)
+    nw, nh = round(sw * scale), round(sh * scale)
+    return nw - nw % 2, nh - nh % 2
+
+
+def _frame_ad_asset(asset_img, lang, heading):
+    """Composites one ad-reel visual (already-scaled RGB image, still or extracted
+    video frame) onto the shared navy portrait template — heading, bordered inset,
+    'baizora.com' caption below — so all three parts of the reel read as one
+    continuous sequence despite differing source aspect ratios."""
+    img, draw = new_frame_s()
+    dot_grid_s(draw)
+    f_head = load_headline_font(50) if lang == "en" else load_font_cn(40, bold=True)
+    centered_s(draw, 110, heading, f_head, GOLD_LIGHT)
+    vw, vh = asset_img.size
+    x = (SW - vw) // 2
+    draw.rectangle([x - 8, _AD_BOX_Y0 - 8, x + vw + 8, _AD_BOX_Y0 + vh + 8], outline=ELECTRIC, width=4)
+    img.paste(asset_img, (x, _AD_BOX_Y0))
+    centered_s(draw, _AD_BOX_Y0 + vh + 60, "baizora.com", load_font(40), ELECTRIC)
+    return img
+
+
+def build_ad_reel(lang="en"):
+    """Returns a list of frames-list entries (image entries: composed Image + fixed
+    hold_sec; the video entry: list of composed frames + its exact decoded duration)
+    for the shared ad reel. Meant to be the same three-part sequence for every
+    weekday video, spliced in right before the final scene_ad_short outro card."""
+    from generate_video import load_video_clip_frames
+
+    heading = "SEE BAIZORA LIVE" if lang == "en" else "看看贝佐拉的实时看板"
+    assets = _AD_ASSETS_CN if lang == "cn" else _AD_ASSETS_EN
+
+    entries = []
+    for kind, path, still_hold in assets:
+        if kind == "image":
+            src = Image.open(str(path)).convert("RGB")
+            nw, nh = _contain_dims(*src.size, _AD_BOX_W, _AD_BOX_H)
+            src = src.resize((nw, nh), Image.LANCZOS)
+            entries.append((_frame_ad_asset(src, lang, heading), still_hold, None, None))
+        else:
+            raw_frames, vw, vh, dur = load_video_clip_frames(
+                path, fit_w=_AD_BOX_W, max_h=_AD_BOX_H)
+            composed = [_frame_ad_asset(rf, lang, heading) for rf in raw_frames]
+            entries.append((composed, dur, None, None))
+    return entries
+
+
 _HOOK_NARRATION_EN = [
     "Today's stock market is showing some major volume spikes.",
     "The stock market just saw some serious volume spikes today.",
@@ -475,7 +534,7 @@ def _narrate_ticker_lines(rows, n=5):
         elif i == 1:
             lines.append(f"{ticker} follows, up {v:.0f} percent.")
         elif i == n - 1:
-            lines.append(f"And rounding out the top five, {ticker}, also up {v:.0f} percent.")
+            lines.append(f"And rounding things out, {ticker}, also up {v:.0f} percent.")
         else:
             lines.append(f"{ticker} is up {v:.0f} percent.")
     return lines
@@ -669,27 +728,11 @@ def _embed_cover(output, cover_path, ffmpeg_path=None):
     print(f"  [cover] embedded {Path(cover_path).name} as poster frame")
 
 
-def _describe_pct(v):
-    if v is None:
-        return "unavailable"
-    return f"up {v:.1f} percent" if v >= 0 else f"down {abs(v):.1f} percent"
-
-
-def _describe_pct_cn(v):
-    if v is None:
-        return "数据暂无"
-    return f"上涨{v:.1f}%" if v >= 0 else f"下跌{abs(v):.1f}%"
-
-
 def build_volume_spikes_short(data, output, lang="en"):
     date = data["date"]
     date_obj = datetime.date.fromisoformat(date)
-    rows = sorted(data["data"], key=lambda r: r.get("VolumeChange1D") or -9999, reverse=True)
+    rows = sorted(data["data"], key=lambda r: r.get("VolumeChange1D") or -9999, reverse=True)[:3]
 
-    table_img = scene_top5_table(
-        rows, date, lang, "VOLUME SPIKES", "成交量异动",
-        "VS 21-DAY AVERAGE VOLUME", "对比21日平均成交量", "VolumeChange1D",
-    )
     # Durations below = actually-measured edge-tts speech time at SHORTS_TTS_RATE (EN)
     # or SHORTS_TTS_VOICE_CN (CN) for this exact wording pattern, +~0.15s buffer each —
     # not estimates. Guessed budgets consistently ran short (e.g. the EN leader line
@@ -697,13 +740,13 @@ def build_volume_spikes_short(data, output, lang="en"):
     # which is what caused dropped/cut-off narration. If the narration templates in
     # _narrate_ticker_lines(_cn) change, re-measure rather than re-guess.
     if lang == "cn":
-        ticker_lines = _narrate_ticker_lines_cn(rows)
-        ticker_durs = [2.9, 3.25, 2.3, 2.55, 2.95]
+        ticker_lines = _narrate_ticker_lines_cn(rows, n=3)
+        ticker_durs = [2.8, 3.1, 3.5]
         hook_dur, hook_text = 3.15, random.choice(_HOOK_NARRATION_CN)
         tts_voice = SHORTS_TTS_VOICE_CN
     else:
-        ticker_lines = _narrate_ticker_lines(rows)
-        ticker_durs = [3.4, 2.75, 2.35, 2.4, 3.55]
+        ticker_lines = _narrate_ticker_lines(rows, n=3)
+        ticker_durs = [3.2, 2.7, 3.8]
         hook_dur, hook_text = 3.1, random.choice(_HOOK_NARRATION_EN)
         tts_voice = "en-US-ChristopherNeural"
 
@@ -712,43 +755,37 @@ def build_volume_spikes_short(data, output, lang="en"):
                             "S&P 500  ·  Nasdaq-100", "标普500 · 纳斯达克100", bg_style="bars"),
          hook_dur, None, hook_text),
     ]
-    for dur, line in zip(ticker_durs, ticker_lines):
-        frames.append((table_img, dur, None, line))
+    # One stock at a time (name + volume-change number + 1Y trend together) — replaces
+    # the old shared 5-row table so each narrated ticker gets its own hero card instead
+    # of all narration pointing at one static list.
+    for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        card = scene_stock_card(row, i + 1, lang, "VolumeChange1D",
+                                 "VS 21-DAY AVERAGE VOLUME", "对比21日平均成交量")
+        frames.append((card, dur, None, line))
 
-    head1 = "REAL DASHBOARD, LIVE DATA" if lang == "en" else "真实看板 · 实时数据"
-    cap1 = "500+ Stocks  ·  Daily Updates" if lang == "en" else "500+只股票 · 每日更新"
-    head2 = "EVERY STOCK, RANKED" if lang == "en" else "全部股票排名"
-    cap2 = "7 Timeframes  ·  Free 7-Day Trial" if lang == "en" else "7个时间维度 · 七天免费试用"
-
-    t0, t1 = rows[0], rows[1]
-    if lang == "cn":
-        trend1_line = f"来看{t0.get('Ticker','')}过去一年的走势，{_describe_pct_cn(t0.get('1YPriceChange'))}。"
-        trend2_line = f"再看{t1.get('Ticker','')}，同期{_describe_pct_cn(t1.get('1YPriceChange'))}。"
-        cta_line = "欢迎订阅，访问baizora.com。"
-        trend1_dur, trend2_dur = 3.9, 3.55
+    # Ad reel replaces the old dashboard-screenshot + static-card CTA: real footage
+    # (advertise_0.png -> advertise_1.mp4 -> advertise_2.png) with the condensed pitch
+    # narrated entirely across it (see _AD_PITCH_EN/_CN — measured to finish well
+    # before the reel ends). Ends on scene_ad_short (the previous static brand card)
+    # unchanged, silent, as the final slide — "end on the previous slide" per explicit
+    # instruction.
+    ad_entries = build_ad_reel(lang=lang)
+    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
+    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
+    first = ad_entries[0]
+    if len(ad_entries) > 1:
+        # 3-part reel (both languages): main pitch on the first still, the short
+        # second beat on the last still (advertise_2.png) — it only has ~3-4s of
+        # runway once the main pitch finishes, so it has to be terse.
+        ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
+        last = ad_entries[-1]
+        ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     else:
-        trend1_line = f"Here's {t0.get('Ticker','')}'s trend over the past year, {_describe_pct(t0.get('1YPriceChange'))}."
-        trend2_line = f"And {t1.get('Ticker','')}, {_describe_pct(t1.get('1YPriceChange'))} over the same period."
-        cta_line = "Subscribe, and visit baizora dot com."
-        trend1_dur, trend2_dur = 4.0, 3.4
-
-    # Screenshots + ad are 3 distinct, brief (~1s each) sequential scenes — not merged
-    # into one screen — but the "subscribe" narration starts on the first screenshot
-    # and is allowed to keep speaking across the cut into the second screenshot and the
-    # ad card (normal voice-over-a-cut), since ~2.5-2.7s of speech can't fit inside a
-    # single 1s scene without either rushing the line or cutting it off.
-    frames += [
-        (scene_trend_short(rows, date, lang=lang, row_index=0), trend1_dur,
-         None, trend1_line),
-        (scene_trend_short(rows, date, lang=lang, row_index=1), trend2_dur,
-         None, trend2_line),
-        (scene_dashboard_short(date, lang=lang, heading=head1, caption=cap1, index=0), 1.0,
-         None, cta_line),
-        (scene_dashboard_short(date, lang=lang, heading=head2, caption=cap2, index=1), 1.0,
-         None, None),
-        (scene_ad_short(date, lang=lang), 1.2,
-         None, None),
-    ]
+        # Fallback if a language's reel is ever a single clip with nowhere else to
+        # attach a second narration slot — both beats spoken back-to-back as one clip.
+        ad_entries[0] = (first[0], first[1], first[2], ad_pitch + " " + ad_pitch2)
+    frames += ad_entries
+    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("volume_spikes" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -761,15 +798,10 @@ def build_best_performer_short(data, output, lang="en"):
     date_obj = datetime.date.fromisoformat(date)
     tf = _tuesday_tf(date)
     key = tf["key"]
-    rows = sorted(data["data"], key=lambda r: r.get(key) or -9999, reverse=True)
+    rows = sorted(data["data"], key=lambda r: r.get(key) or -9999, reverse=True)[:3]
 
     window_en, window_cn = tf["window_en"], tf["window_cn"]
-    table_img = scene_top5_table(
-        rows, date, lang,
-        f"TOP {tf['label_en'].upper()} WINNERS", tf["title_cn"],
-        f"OVER THE PAST {window_en.upper()}", f"过去{window_cn}表现",
-        key,
-    )
+    sub_en, sub_cn = f"OVER THE PAST {window_en.upper()}", f"过去{window_cn}表现"
 
     # Durations = actually-measured edge-tts speech time (same measure-don't-guess
     # approach as Monday). Ticker phrasing here is intentionally shorter than Monday's
@@ -777,14 +809,14 @@ def build_best_performer_short(data, output, lang="en"):
     # rotation windows (6-Month, 1-Year) can run into the hundreds of percent, and the
     # longer template overran the 30s budget when tested against real data.
     if lang == "cn":
-        ticker_lines = _narrate_ticker_lines_best_cn(rows, key)
-        ticker_durs = [3.05, 3.20, 2.60, 2.35, 3.40]
+        ticker_lines = _narrate_ticker_lines_best_cn(rows, key, n=3)
+        ticker_durs = [3.05, 2.60, 3.40]
         hook_dur = 2.55
         hook_text = random.choice(_HOOK_NARRATION_BEST_CN).format(window=window_cn)
         tts_voice = SHORTS_TTS_VOICE_CN
     else:
-        ticker_lines = _narrate_ticker_lines_best(rows, key)
-        ticker_durs = [3.40, 3.00, 2.65, 2.45, 3.45]
+        ticker_lines = _narrate_ticker_lines_best(rows, key, n=3)
+        ticker_durs = [3.40, 2.65, 3.45]
         hook_dur = 2.60
         hook_text = random.choice(_HOOK_NARRATION_BEST_EN).format(window=window_en)
         tts_voice = "en-US-ChristopherNeural"
@@ -795,42 +827,23 @@ def build_best_performer_short(data, output, lang="en"):
                             "S&P 500  ·  Nasdaq-100", "标普500 · 纳斯达克100", bg_style="bull"),
          hook_dur, None, hook_text),
     ]
-    for dur, line in zip(ticker_durs, ticker_lines):
-        frames.append((table_img, dur, None, line))
+    # One stock at a time (name + the narrated % + its 1Y candlestick trend), same
+    # as Monday — replaces the old shared 5-row table.
+    for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn)
+        frames.append((card, dur, None, line))
 
-    head1 = "REAL DASHBOARD, LIVE DATA" if lang == "en" else "真实看板 · 实时数据"
-    cap1 = "500+ Stocks  ·  Daily Updates" if lang == "en" else "500+只股票 · 每日更新"
-    head2 = "EVERY STOCK, RANKED" if lang == "en" else "全部股票排名"
-    cap2 = "7 Timeframes  ·  Free 7-Day Trial" if lang == "en" else "7个时间维度 · 七天免费试用"
-
-    t0, t1 = rows[0], rows[1]
-    period_kwargs = dict(pct_key=key, period_label_en=tf["label_en"].upper(),
-                         period_footer_en=f"PAST {window_en.upper()}",
-                         period_label_cn=tf["label_cn"], period_footer_cn=f"过去{window_cn}",
-                         spark_days=tf["spark_days"])
-    if lang == "cn":
-        trend1_line = f"{t0.get('Ticker','')}的走势，上涨{t0.get(key) or 0:.0f}%。"
-        trend2_line = f"再看{t1.get('Ticker','')}，上涨{t1.get(key) or 0:.0f}%。"
-        cta_line = "欢迎订阅，访问baizora.com。"
-        trend1_dur, trend2_dur = 3.45, 3.20
-    else:
-        trend1_line = f"{t0.get('Ticker','')}'s trend, up {t0.get(key) or 0:.0f} percent."
-        trend2_line = f"And {t1.get('Ticker','')}, up {t1.get(key) or 0:.0f} percent."
-        cta_line = "Subscribe, and visit baizora dot com."
-        trend1_dur, trend2_dur = 3.70, 3.25
-
-    frames += [
-        (scene_trend_short(rows, date, lang=lang, row_index=0, **period_kwargs), trend1_dur,
-         None, trend1_line),
-        (scene_trend_short(rows, date, lang=lang, row_index=1, **period_kwargs), trend2_dur,
-         None, trend2_line),
-        (scene_dashboard_short(date, lang=lang, heading=head1, caption=cap1, index=0), 1.0,
-         None, cta_line),
-        (scene_dashboard_short(date, lang=lang, heading=head2, caption=cap2, index=1), 1.0,
-         None, None),
-        (scene_ad_short(date, lang=lang), 1.2,
-         None, None),
-    ]
+    # Ad reel, same as Monday: real footage (advertise_0/1/2) with the platform pitch,
+    # then a short second beat with the CTA, then the unchanged silent outro card.
+    ad_entries = build_ad_reel(lang=lang)
+    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
+    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
+    first = ad_entries[0]
+    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
+    last = ad_entries[-1]
+    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
+    frames += ad_entries
+    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("best_performer" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -846,34 +859,29 @@ def build_6m_breakout_short(data, output, lang="en"):
     # Ranked by pullback depth (not today's move) — the story is "how far did it fall
     # before reclaiming a new high", which is the stat that was missing from narration.
     breakouts.sort(key=lambda x: x.get("_drawdown") or 0, reverse=True)
-    rows = breakouts[:5]
+    rows = breakouts[:3]
 
     if len(rows) < 2:
         # Same real edge case build_6m_breakout() guards against in generate_video.py —
-        # some days have too few (or zero) qualifying breakout stocks to fill the table
-        # and the two trend scenes.
+        # some days have too few (or zero) qualifying breakout stocks to fill the cards.
         print(f"Not enough {tf['label_en']} breakout stocks today ({len(rows)} found), skipping Short.")
         return
 
-    # Table displays the pullback magnitude (as a negative %, in red) rather than
+    # Cards display the pullback magnitude (as a negative %, in red) rather than
     # today's price move — that's the headline stat for this category.
     for r in rows:
         r["_drawdown_display"] = -abs(r.get("_drawdown") or 0)
 
     window_en, window_cn = tf["window_en"], tf["window_cn"]
     label_en, label_cn = tf["label_en"], tf["label_cn"]
-    table_img = scene_top5_table(
-        rows, date, lang,
-        f"{label_en.upper()} HIGH BREAKOUTS", tf["title_cn"],
-        f"{tf['min_drawdown']}%+ DECLINE, NOW AT A NEW HIGH", f"跌超{tf['min_drawdown']}%，如今创新高",
-        "_drawdown_display", gold_leader=False,
-    )
+    sub_en = f"{tf['min_drawdown']}%+ DECLINE, NOW AT A NEW HIGH"
+    sub_cn = f"跌超{tf['min_drawdown']}%，如今创新高"
 
-    # Narrating only 3 (not 5) tickers — mentioning the pullback % AND the rotating
-    # timeframe (it cycles 1M/3M/6M/9M/1Y weekly, so it must be stated, not implied)
-    # makes each line longer, so the full 5-ticker cadence used on Monday/Tuesday
-    # doesn't fit the 30s budget here. Durations = actually-measured edge-tts speech
-    # time at SHORTS_TTS_RATE (see measure_wed4.py in scratch), +buffer.
+    # Narrating only 3 tickers — mentioning the pullback % AND the rotating timeframe
+    # (it cycles 1M/3M/6M/9M/1Y weekly, so it must be stated, not implied) makes each
+    # line longer, so the full 5-ticker cadence used on Monday/Tuesday doesn't fit the
+    # 30s budget here. Durations = actually-measured edge-tts speech time at
+    # SHORTS_TTS_RATE (see measure_wed4.py in scratch), +buffer.
     if lang == "cn":
         ticker_lines = _narrate_ticker_lines_pullback_cn(rows, label_cn)
         ticker_durs = [3.83, 3.97, 4.16]
@@ -895,43 +903,23 @@ def build_6m_breakout_short(data, output, lang="en"):
                             "S&P 500  ·  Nasdaq-100", "标普500 · 纳斯达克100", bg_style="bounceback"),
          hook_dur, None, hook_text),
     ]
-    for dur, line in zip(ticker_durs, ticker_lines):
-        frames.append((table_img, dur, None, line))
+    # One stock at a time (name + pullback % + its 1Y candlestick trend), same as
+    # Monday/Tuesday — replaces the old shared table.
+    for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        card = scene_stock_card(row, i + 1, lang, "_drawdown_display", sub_en, sub_cn, gold_leader=False)
+        frames.append((card, dur, None, line))
 
-    head1 = "REAL DASHBOARD, LIVE DATA" if lang == "en" else "真实看板 · 实时数据"
-    cap1 = "500+ Stocks  ·  Daily Updates" if lang == "en" else "500+只股票 · 每日更新"
-    head2 = "EVERY STOCK, RANKED" if lang == "en" else "全部股票排名"
-    cap2 = "7 Timeframes  ·  Free 7-Day Trial" if lang == "en" else "7个时间维度 · 七天免费试用"
-
-    t0, t1 = rows[0], rows[1]
-    window_key = f"{tf['label_short']}PriceChange"
-    period_kwargs = dict(pct_key=window_key, period_label_en=tf["label_en"].upper(),
-                         period_footer_en=f"PAST {window_en.upper()}",
-                         period_label_cn=tf["label_cn"], period_footer_cn=f"过去{window_cn}",
-                         spark_days=tf["spark_days"])
-    if lang == "cn":
-        trend1_line = f"{t0.get('Ticker','')}的走势，上涨{t0.get(window_key) or 0:.0f}%。"
-        trend2_line = f"再看{t1.get('Ticker','')}，上涨{t1.get(window_key) or 0:.0f}%。"
-        cta_line = "欢迎订阅，访问baizora.com。"
-        trend1_dur, trend2_dur = 2.60, 2.84
-    else:
-        trend1_line = f"{t0.get('Ticker','')}'s trend, up {t0.get(window_key) or 0:.0f} percent."
-        trend2_line = f"And {t1.get('Ticker','')}, up {t1.get(window_key) or 0:.0f} percent."
-        cta_line = "Subscribe, and visit baizora dot com."
-        trend1_dur, trend2_dur = 2.53, 2.70
-
-    frames += [
-        (scene_trend_short(rows, date, lang=lang, row_index=0, **period_kwargs), trend1_dur,
-         None, trend1_line),
-        (scene_trend_short(rows, date, lang=lang, row_index=1, **period_kwargs), trend2_dur,
-         None, trend2_line),
-        (scene_dashboard_short(date, lang=lang, heading=head1, caption=cap1, index=0), 1.0,
-         None, cta_line),
-        (scene_dashboard_short(date, lang=lang, heading=head2, caption=cap2, index=1), 1.0,
-         None, None),
-        (scene_ad_short(date, lang=lang), 1.5,
-         None, None),
-    ]
+    # Ad reel, same as Monday/Tuesday: real footage with the platform pitch, then a
+    # short second beat with the CTA, then the unchanged silent outro card.
+    ad_entries = build_ad_reel(lang=lang)
+    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
+    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
+    first = ad_entries[0]
+    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
+    last = ad_entries[-1]
+    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
+    frames += ad_entries
+    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("6m_breakout" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -959,19 +947,14 @@ def build_1y_vol_peak_short(data, output, lang="en"):
         if r.get(tf["vol_day_key"]) == 0:
             peaks.append(r)
     peaks.sort(key=lambda r: r.get(vol_key) or 0, reverse=True)
-    rows = peaks[:5]
+    rows = peaks[:3]
 
     if not rows:
         print(f"No {tf['label_en']} volume-record stocks today, skipping Short.")
         return
 
     window_en, window_cn = tf["window_en"], tf["window_cn"]
-    table_img = scene_top5_table(
-        rows, date, lang,
-        f"{tf['label_en'].upper()} VOLUME RECORDS", tf["title_cn"],
-        "TODAY'S VOLUME SURGE", "今日成交量激增",
-        vol_key,
-    )
+    sub_en, sub_cn = "TODAY'S VOLUME SURGE", "今日成交量激增"
 
     if lang == "cn":
         ticker_lines = _narrate_ticker_lines_vol_peak_cn(rows, vol_key)
@@ -985,7 +968,7 @@ def build_1y_vol_peak_short(data, output, lang="en"):
         tts_voice = "en-US-ChristopherNeural"
 
     # Per-row duration by position, not a flat per-day list — this category's row
-    # count varies day to day (1-5), so a hardcoded array sized for today's count
+    # count varies day to day (1-3), so a hardcoded array sized for today's count
     # wouldn't fit tomorrow. Budgets are grounded in the "leads/follows/finally"
     # phrasing's measured worst cases from Tuesday/Wednesday's identical templates.
     n = len(rows)
@@ -1004,44 +987,24 @@ def build_1y_vol_peak_short(data, output, lang="en"):
                             "S&P 500  ·  Nasdaq-100", "标普500 · 纳斯达克100", bg_style="highest"),
          hook_dur, None, hook_text),
     ]
-    for dur, line in zip(ticker_durs, ticker_lines):
-        frames.append((table_img, dur, None, line))
+    # One stock at a time (name + volume-change number + its 1Y candlestick trend),
+    # same as Monday/Tuesday/Wednesday — replaces the old shared table. Row count
+    # (1-3) is whatever qualified today, same row-count-awareness as before.
+    for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        card = scene_stock_card(row, i + 1, lang, vol_key, sub_en, sub_cn)
+        frames.append((card, dur, None, line))
 
-    head1 = "REAL DASHBOARD, LIVE DATA" if lang == "en" else "真实看板 · 实时数据"
-    cap1 = "500+ Stocks  ·  Daily Updates" if lang == "en" else "500+只股票 · 每日更新"
-    head2 = "EVERY STOCK, RANKED" if lang == "en" else "全部股票排名"
-    cap2 = "7 Timeframes  ·  Free 7-Day Trial" if lang == "en" else "7个时间维度 · 七天免费试用"
-
-    window_key = f"{tf['label_short']}PriceChange"
-    period_kwargs = dict(pct_key=window_key, period_label_en=tf["label_en"].upper(),
-                         period_footer_en=f"PAST {window_en.upper()}",
-                         period_label_cn=tf["label_cn"], period_footer_cn=f"过去{window_cn}",
-                         spark_days=tf["spark_days"])
-
-    n_trend = min(2, n)
-    trend_frames = []
-    for i in range(n_trend):
-        t = rows[i]
-        if lang == "cn":
-            prefix = f"{t.get('Ticker','')}的走势" if i == 0 else f"再看{t.get('Ticker','')}"
-            line = f"{prefix}，上涨{t.get(window_key) or 0:.0f}%。"
-        else:
-            prefix = f"{t.get('Ticker','')}'s trend" if i == 0 else f"And {t.get('Ticker','')}"
-            line = f"{prefix}, up {t.get(window_key) or 0:.0f} percent."
-        trend_frames.append(
-            (scene_trend_short(rows, date, lang=lang, row_index=i, **period_kwargs), 3.3, None, line)
-        )
-    frames += trend_frames
-
-    cta_line = "欢迎订阅，访问baizora.com。" if lang == "cn" else "Subscribe, and visit baizora dot com."
-    frames += [
-        (scene_dashboard_short(date, lang=lang, heading=head1, caption=cap1, index=0), 1.0,
-         None, cta_line),
-        (scene_dashboard_short(date, lang=lang, heading=head2, caption=cap2, index=1), 1.0,
-         None, None),
-        (scene_ad_short(date, lang=lang), 1.5,
-         None, None),
-    ]
+    # Ad reel, same as the other weekdays: real footage with the platform pitch, then
+    # a short second beat with the CTA, then the unchanged silent outro card.
+    ad_entries = build_ad_reel(lang=lang)
+    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
+    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
+    first = ad_entries[0]
+    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
+    last = ad_entries[-1]
+    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
+    frames += ad_entries
+    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("1y_vol_peak" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1083,16 +1046,8 @@ def build_index_spotlight_short(data, output, lang="en"):
 
     spotlight_img = scene_member_spotlight_short(member, date, lang)
 
-    head1 = "MEMBERSHIP CHANGE NEWS" if lang == "en" else "成分股变动资讯"
-    cap1 = "Track Every Addition & Removal" if lang == "en" else "追踪每一次调入调出"
-    head2 = "FULL CHANGE HISTORY" if lang == "en" else "完整变动记录"
-    cap2 = "Kept Since 2026  ·  Free 7-Day Trial" if lang == "en" else "自2026年起完整保存 · 七天免费试用"
-
     # Durations = actually-measured edge-tts speech time at SHORTS_TTS_RATE (see
-    # measure_fri.py in scratch), +buffer. The CTA explicitly names the "membership
-    # change news and records" feature shown in the screenshots (not a generic
-    # "subscribe" line), which runs longer than other weekdays' CTA — so the ad
-    # cluster (screenshot1+screenshot2+ad) is sized larger to fit it without rushing.
+    # measure_fri.py in scratch), +buffer.
     if lang == "cn":
         hook_dur = 4.2
         hook_text = random.choice(_HOOK_NARRATION_SPOTLIGHT_CN)
@@ -1103,14 +1058,6 @@ def build_index_spotlight_short(data, output, lang="en"):
         else:
             spot2_line = f"加入以来下跌{abs(perf):.0f}%。"
         spot2_dur = 2.6
-        # Split into two clips (not one run-on comma sentence) with a genuine ~1s
-        # pause between them — a frame's hold_sec only needs to exceed its own
-        # speech duration for the *next* clip's start to shift later by the excess
-        # (see generate_narration()'s actual_start/earliest_next placement logic),
-        # so ss1_dur = speech + 1.0s produces a clean 1-second beat before the CTA.
-        cta_line1 = "查看每一次成分股变动和完整记录。"
-        cta_line2 = "欢迎订阅，访问baizora.com。"
-        ss1_dur, ss2_dur = 3.8, 2.7
         tts_voice = SHORTS_TTS_VOICE_CN
     else:
         hook_dur = 4.0
@@ -1122,9 +1069,6 @@ def build_index_spotlight_short(data, output, lang="en"):
         else:
             spot2_line = f"It's down {abs(perf):.0f} percent since joining."
         spot2_dur = 2.7
-        cta_line1 = "See every membership change and full history."
-        cta_line2 = "Subscribe, and visit baizora dot com."
-        ss1_dur, ss2_dur = 3.6, 2.9
         tts_voice = "en-US-ChristopherNeural"
 
     frames = [
@@ -1133,14 +1077,21 @@ def build_index_spotlight_short(data, output, lang="en"):
          hook_dur, None, hook_text),
         (spotlight_img, spot1_dur, None, spot1_line),
         (spotlight_img, spot2_dur, None, spot2_line),
-        (scene_dashboard_short(date, lang=lang, heading=head1, caption=cap1, index=0,
-                               screenshots=_SCREENSHOTS_MEMBERCHANGE_EN if lang == "en" else _SCREENSHOTS_MEMBERCHANGE_CN),
-         ss1_dur, None, cta_line1),
-        (scene_dashboard_short(date, lang=lang, heading=head2, caption=cap2, index=1,
-                               screenshots=_SCREENSHOTS_MEMBERCHANGE_EN if lang == "en" else _SCREENSHOTS_MEMBERCHANGE_CN),
-         ss2_dur, None, cta_line2),
-        (scene_ad_short(date, lang=lang), 2.0, None, None),
     ]
+
+    # Ad reel, same as the other weekdays: real footage with the platform pitch, then
+    # a short second beat with the CTA, then the unchanged silent outro card. Replaces
+    # the old membership-change screenshot cluster (that content is now part of the
+    # shared reel's screen recording anyway).
+    ad_entries = build_ad_reel(lang=lang)
+    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
+    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
+    first = ad_entries[0]
+    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
+    last = ad_entries[-1]
+    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
+    frames += ad_entries
+    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("index_spotlight" + ("_cn" if lang == "cn" else ""), date_obj)

@@ -2384,9 +2384,39 @@ def get_ffmpeg():
         )
 
 
+def load_video_clip_frames(path, fit_w=None, max_h=None):
+    """Decodes an existing mp4 (e.g. a pre-rendered ad reel) into a list of RGB PIL
+    Images at the project's FPS, scaled to "contain" within fit_w wide and (if given)
+    max_h tall — aspect preserved, whichever dimension is more constraining wins.
+    Returns (frames, width, height, duration_sec) — duration is derived from the
+    actual decoded frame count, not the container's metadata, so it lines up exactly
+    with how many frames get written when the list is passed to encode()."""
+    import re
+    ffmpeg = get_ffmpeg()
+    probe = subprocess.run([ffmpeg, "-i", str(path)], capture_output=True, text=True).stderr
+    m = re.search(r"Video:.* (\d+)x(\d+)", probe)
+    sw, sh = int(m.group(1)), int(m.group(2))
+    fit_w = fit_w or sw
+    fit_h = round(sh * fit_w / sw / 2) * 2
+    if max_h and fit_h > max_h:
+        fit_h = max_h - (max_h % 2)
+        fit_w = round(sw * fit_h / sh / 2) * 2
+    cmd = [ffmpeg, "-i", str(path), "-vf", f"scale={fit_w}:{fit_h}",
+           "-r", str(FPS), "-f", "rawvideo", "-pix_fmt", "rgb24", "-"]
+    raw = subprocess.run(cmd, capture_output=True).stdout
+    frame_size = fit_w * fit_h * 3
+    n = len(raw) // frame_size
+    frames = [Image.frombytes("RGB", (fit_w, fit_h), raw[i * frame_size:(i + 1) * frame_size])
+              for i in range(n)]
+    return frames, fit_w, fit_h, n / FPS
+
+
 def encode(frames, output, xfade_frames=30, tts_voice="en-US-ChristopherNeural", tts_rate="+20%"):
     """
     frames: list of (Image, hold_sec [, subtitle [, narration]])
+      Image can also be a list of Images (one per output frame) to splice in a
+      pre-rendered clip via load_video_clip_frames() instead of holding one
+      static frame for hold_sec.
       subtitle   (str) — burned into frame as an overlay bar
       narration  (str) — spoken via TTS, placed at scene start
     Output: MP4 with video + background music + TTS narration mixed.
@@ -2418,13 +2448,24 @@ def encode(frames, output, xfade_frames=30, tts_voice="en-US-ChristopherNeural",
             img      = ft[0]
             hold_sec = ft[1]
             subtitle = ft[2] if len(ft) > 2 else None
-            for _ in range(int(hold_sec * FPS)):
-                save(img, subtitle)
+            if isinstance(img, list):
+                # Spliced-in clip (load_video_clip_frames) — one distinct image per
+                # output frame rather than one static image held for hold_sec.
+                n = int(hold_sec * FPS)
+                seq = (img + [img[-1]] * n)[:n]
+                for fr in seq:
+                    save(fr, subtitle)
+                cur_last = seq[-1]
+            else:
+                for _ in range(int(hold_sec * FPS)):
+                    save(img, subtitle)
+                cur_last = img
             if i < len(frames) - 1:
                 next_img = frames[i + 1][0]
+                next_first = next_img[0] if isinstance(next_img, list) else next_img
                 next_sub = frames[i + 1][2] if len(frames[i + 1]) > 2 else None
                 for t in range(xfade_frames):
-                    blend = Image.blend(img, next_img, t / xfade_frames)
+                    blend = Image.blend(cur_last, next_first, t / xfade_frames)
                     save(blend, subtitle if t < xfade_frames // 2 else next_sub)
 
         print(f"  Rendering {idx} frames ({total_sec:.1f}s)...")

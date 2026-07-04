@@ -243,8 +243,18 @@ jobs:
       - name: Generate daily videos
         if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
         run: |
+          # Shorts (vertical 9:16) replace the old landscape long-form videos as of
+          # 2026-07-04 — same output path convention (video/${type}.mp4) so every
+          # downstream step (copy/upload/skip-logging) below is unchanged.
           for type in $VIDEO_TYPES; do
-            python video/generate_video.py --type $type
+            if echo "$type" | grep -q "_cn$"; then
+              BASE_TYPE="${type%_cn}"
+              LANG="cn"
+            else
+              BASE_TYPE="$type"
+              LANG="en"
+            fi
+            python video/generate_shorts.py --type "$BASE_TYPE" --lang "$LANG" --output "video/${type}.mp4"
           done
           # Copy generated videos to fixed paths and write name metadata
           EN_NAME="" CN_NAME=""
