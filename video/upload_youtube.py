@@ -230,9 +230,9 @@ def make_meta(video_type, date):
         )
     if video_type == "volume_spikes":
         title = random.choice([
-            f"Top Volume Stocks Today — {date}",
+            f"Biggest Volume Spikes Today — {date}",
             f"Top Unusual Volume Stocks Today — {date}",
-            f"Today's Biggest Volume Movers — {date}",
+            f"Today's Biggest Volume Surges — {date}",
             f"Stocks With Unusual Volume Today — {date}",
             f"Top Volume Breakouts Today — {date}",
         ])
@@ -260,9 +260,9 @@ def make_meta(video_type, date):
         )
     if video_type == "volume_spikes_cn":
         title = random.choice([
-            f"今日成交量最高股票 — {date}",
+            f"今日成交量激增最多股票 — {date}",
             f"今日成交量最异常股票 — {date}",
-            f"今日成交量最大异动股票 — {date}",
+            f"今日成交量暴涨股票 — {date}",
             f"今日成交量异常股票 — {date}",
             f"今日成交量突破股票 — {date}",
         ])
