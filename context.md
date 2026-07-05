@@ -1,5 +1,23 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-07-05 — Shorts Cover/Thumbnail Investigation (mostly reverted) + Monday Title Fix (shipped, commit `5af58af`)
+
+**Starting point:** user reported that `video/covering/*.png` cover art (previously muxed into the mp4 as `attached_pic` container metadata by `_embed_cover()`) disappears when a Short is downloaded from YouTube and reposted to X.
+
+**Root-caused:** the attached-pic trick is container metadata, not real video pixels — X (and most re-encoders) ignore it and grab a frame from the actual video stream instead, which is why the cover vanished.
+
+**Also discovered while investigating (screenshot of YouTube Studio's Shorts shelf):** the cover isn't even reaching YouTube's own UI — `upload_youtube.py`'s `set_thumbnail()` → `youtube.thumbnails().set()` is a confirmed no-op for Shorts specifically (not a phone-verification issue as originally assumed when this was built in the 07-04 session). YouTube auto-picks its own mid-video frame for the Shorts shelf regardless.
+
+**Built and verified, then reverted:** implemented `_cover_frame()` (letterbox-fit cover into the 1080×1920 canvas, sampled-edge padding — same crop-vs-letterbox lesson as the original cover build) plus a ~2.1s held opening frame with a spoken "Baizora Report."/"贝佐拉报告。" stinger (edge-tts measured: EN 1.54s, CN 1.42s, no dead air, no overlap with the hook's own narration) across all 5 weekday builders, replacing `_embed_cover()`. Verified via a real test render (extracted frames + audio RMS analysis). **User then rejected the result on sight** — "showing the bold cover as part of the video is not good, it is only good as cover (not part of the video)" — and the work was fully reverted via `git checkout` before anything was committed. Do not re-attempt this specific approach (baking the cover in as a real played scene) without the user re-raising it.
+
+**Instagram/TikTok safe-zone truncation** (raised separately, same session): vertical video content near the top (~230px) and bottom (~370px) gets covered by the host app's own UI chrome on Reels/TikTok. Fixing it for real means reworking every scene builder to keep content inside a safe inner rect. User judged this too large a change for a problem scoped only to "not working in Instagram" — not pursued.
+
+**What actually shipped:** while reviewing `upload_youtube.py`'s `make_meta()` during this investigation, found that Monday's (`volume_spikes`/`volume_spikes_cn`) title lists had two variants ("Top Volume Stocks Today" / "Today's Biggest Volume Movers" + CN equivalents) that implied ranking by absolute trading volume. The actual metric is `VolumeChange1D` — 1-day % change vs the 21-day average (a spike, not raw top volume). Replaced with "Biggest Volume Spikes Today" / "Today's Biggest Volume Surges" (+ CN: "今日成交量激增最多股票" / "今日成交量暴涨股票"). All other weekday title lists (Tuesday/Wednesday/Thursday/Friday, EN+CN) were checked against their actual ranking logic and confirmed accurate — no changes needed there. `sp500_movers`/`nasdaq_movers` dead-code blocks in `make_meta()` (unused by `scanner.yml`'s `VIDEO_TYPES`) were left in place per user request.
+
+**Committed `e8017f9`, rebased cleanly onto automated news-refresh commits on `origin/main`, pushed as `5af58af`.**
+
+---
+
 ## What Was Done 2026-07-04 — Shorts Reworked (candlestick cards + shared ad reel) and Switched Into Production (shipped, live, commit `a8026ac`)
 
 ### Shorts rework — `video/generate_shorts.py`
