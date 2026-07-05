@@ -1,5 +1,46 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-07-04 — Shorts Reworked (candlestick cards + shared ad reel) and Switched Into Production (shipped, live, commit `a8026ac`)
+
+### Shorts rework — `video/generate_shorts.py`
+
+Substantial rework of the Shorts generator shipped 2026-07-03 (see section below), same session that also flipped the production switch described further down.
+
+**Per-stock hero cards replace the shared 5-row table (Monday-Thursday):** `scene_stock_card()` shows one ticker at a time — name, company name, the category's narrated metric as a big colored number, and (new) a **real 1-year daily candlestick chart with a volume panel underneath** (`_draw_candles_with_volume()`, reads `data/candles.json` directly — the close-only `Spark1Y` sparkline used everywhere else in this codebase was replaced, not reused, for this one scene). Candle direction coloring and a 35%-opacity volume panel match the real dashboard's chart language. Trend region height cut to 3/4 of its original span, anchored at the same top edge so the freed space collapses upward instead of leaving a gap. Row count is 3 for Monday/Tuesday/Wednesday; Thursday's volume-record category stays row-count-aware (1-3, whatever qualifies that day — confirmed via a real render that only found 1 stock, and the "There's only one today" narration path fired correctly).
+
+**Shared 3-part ad reel replaces the old dashboard-screenshot CTA cluster, on all 5 weekdays:** `build_ad_reel()` splices real footage — `advertise_0.png` (dashboard still) → `advertise_1.mp4` (screen recording) → `advertise_2.png` (ticker-detail-modal still) — each "contain"-fit into a shared bordered box so differing native aspect ratios still read as one continuous sequence. Required extending `generate_video.py`'s frame pipeline: new `load_video_clip_frames()` decodes any mp4 into contained-fit PIL frames, and `encode()`'s per-frame loop now accepts a list of images as one frames-list entry (spliced in frame-by-frame with real crossfades) instead of only a single static image — generic infra, not Shorts-only.
+
+**Narration for the ad reel went through several iterations before landing:**
+- Original single 10.87s `advertise.mp4` was replaced by the 3-part reel above once the user supplied the split assets.
+- The pitch script itself was rewritten multiple times chasing a genuine tension between "keep it professional/natural, don't compromise the message" and "must fit inside the ~12s ad footage" — every rewrite was mis-estimated by the assistant at least once and had to be corrected against actual `edge-tts` measurement (see `feedback_measure_tts_duration` memory) before it fit. Final structure: a longer platform-feature pitch spoken over the first still (mentions both indices, the 1-day-to-1-year range, one sortable table, volume spikes, top performers, daily membership-change flags, key events marked on the trend line — deliberately does **not** say "baizora.com"), then a short second beat over the last still where the CTA is actually said once, at the end, per explicit user instruction not to repeat the URL earlier over the "1yr trend slide."
+- Outro `scene_ad_short` logo card extended from 1.5s → 2.5s.
+
+**Friday (`index_spotlight`) is structurally different** — a single-member spotlight, not a top-N list — so its own join-marker spotlight chart (pre-join segment gray, post-join colored, gold join-date marker) was left completely untouched; only its ad section was swapped for the shared reel above, replacing its old membership-change screenshot cluster (whose content is now covered by the reel's own screen recording anyway).
+
+**Dead code fully deleted** (verified zero remaining call sites, not just deprecated-in-place): `scene_top5_table`, `scene_trend_short`, `scene_dashboard_short`, and the `_SCREENSHOTS_EN/CN` + `_SCREENSHOTS_MEMBERCHANGE_EN/CN` path constants.
+
+**CN status:** Monday-Thursday CN fully wired with real CN-specific ad-reel stills/video (`advertise_cn_0.png`, `advertise_1_cn.mp4`); the third slot reuses EN's `advertise_2.png` (no CN-specific ticker-detail still exists yet). All 10 combinations (5 weekdays × EN/CN) test-rendered clean, zero narration-truncation warnings.
+
+**Temporary debug stamps** (yellow weekday label, top-left of the hook frame, added to Tuesday-Friday only — Monday was already reviewed before the pattern started) were removed once the user confirmed review was finished.
+
+**Cover-art splitting (`video/covering/*.png`):** user supplied 2×2 grids of real designs for Tuesday and Wednesday to replace the Monday-placeholder duplicates. Tuesday's grid was already portrait (~2:3) — a straightforward center-crop to the existing 466×832 (9:16) convention worked with no content loss. Wednesday's grid was square with title text running edge-to-edge — the same center-crop approach was tested first and rejected (verified: turned "PULL-BACK" into "LL-BACK"), so those 4 were shrunk-and-letterboxed instead (scaled to fit width, padded top/bottom with each design's own sampled edge color rather than a fixed navy) to preserve the full artwork. `Thursday_1-4.png` / `Friday_1-4.png` are still Monday-placeholder duplicates, waiting on the user to supply grid images the same way.
+
+### Production switch — all YouTube uploads now Shorts, not landscape
+
+**Confirmed landscape videos were genuinely live before switching:** real `data/latest_video_en.mp4`/`_cn.mp4` at 1920×1080, real YouTube URLs in `data/latest_video_meta.json` (Thursday's "1Y Volume Peak" — `youtu.be/2aowEchvxtE` EN / `youtu.be/2jXyRY42ZdA` CN). This was a cutover of working production infrastructure, not standing up something new.
+
+**`.github/workflows/scanner.yml`** — "Generate daily videos" step changed from `python video/generate_video.py --type $type` to `python video/generate_shorts.py --type $BASE_TYPE --lang $LANG --output video/${type}.mp4` (base type derived by stripping a trailing `_cn`). Output path convention deliberately kept identical to the old landscape output, so the copy-to-`data/latest_video_en/cn.mp4`, YouTube-upload, and skip-logging steps needed **zero changes**.
+
+**`video/upload_youtube.py`** — added `cover_path_for()` (same weekday-rotation logic as `generate_shorts.py`'s own, duplicated not imported — kept as a standalone upload utility) and `set_thumbnail()`, calling `youtube.thumbnails().set(...)` after a successful upload. Wrapped in try/except that logs a warning and continues rather than failing the run — custom thumbnails require a **phone-verified YouTube channel**, verification status unconfirmed as of this write-up. `#Shorts` appended to every description, added once in `main()` so it applies uniformly across all 10 type/language combos. Considered tightening the long-form-style title/description copy for the shorter format, then explicitly decided **not necessary** — descriptions are ~300-400 chars against YouTube's 5000-char limit, the disclaimer paragraph does real compliance work, and length doesn't affect Shorts discovery differently than regular videos.
+
+**Operational gotcha:** `video/advertise_1.mp4` and `video/advertise_1_cn.mp4` (the ad reel's real screen-recording clips) are required runtime assets but fall under `video/.gitignore`'s blanket `*.mp4` rule (written for preview/test render outputs). Had to `git add -f` these two specifically — any future replacement of the ad-reel's video clips needs the same force-add, or the next scheduled run crashes on a missing-file error. The still-image assets weren't gitignored and staged normally.
+
+**Committed `a8026ac`, pushed to main** (rebased cleanly onto unrelated automated "auto news refresh" commits that had landed on `origin/main` in the meantime — different files, no conflicts).
+
+**Open follow-ups:** Thursday/Friday cover art still placeholder; thumbnail-set step's real success/failure on the live channel is unverified until the next scheduled run happens and its logs get checked.
+
+---
+
 ## What Was Done 2026-07-03 — YouTube Shorts Generator (all 5 weekdays, shipped) + isMarketOpen() Holiday-Check Fix (shipped, live)
 
 ### YouTube Shorts generator — `video/generate_shorts.py`
