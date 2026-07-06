@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-06
 Threshold: >10% for all metrics
-251 flagged diffs above threshold
+250 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -76,8 +76,8 @@ PRICE  -- 0 flagged (>10%)
     ADI      ours=388.83  yf=388.83  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 198 flagged (>10%)
-  FLAGGED (top 20 of 198):
+VOLUME  -- 197 flagged (>10%)
+  FLAGGED (top 20 of 197):
     ED       ours=2.10  yf=1.00  diff=110.1% ***
     MAA      ours=0.87  yf=0.42  diff=107.0% ***
     BR       ours=1.14  yf=0.59  diff=93.7% ***
@@ -94,7 +94,7 @@ VOLUME  -- 198 flagged (>10%)
     RVTY     ours=0.99  yf=0.62  diff=59.2% ***
     AVY      ours=0.60  yf=0.38  diff=58.2% ***
     RSG      ours=1.14  yf=0.72  diff=57.9% ***
-    EXPD     ours=0.85  yf=0.54  diff=57.6% ***
+    EXPD     ours=0.85  yf=0.54  diff=57.5% ***
     PLD      ours=3.15  yf=2.00  diff=57.5% ***
     WSM      ours=0.91  yf=0.58  diff=56.8% ***
     JCI      ours=3.18  yf=2.04  diff=56.1% ***
