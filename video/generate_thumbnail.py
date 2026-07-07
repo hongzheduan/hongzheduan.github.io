@@ -259,7 +259,7 @@ def thumb_volume_a(label, date, lang="en"):
     _bg_volume_bars(img, draw, (20, 90, 55), region=(0, TH - 260, TW, TH - 20))
     _icon_arrow_up(draw, TW - 160, 210, 90, BRIGHT_GREEN)
     f = load_headline_font(108)
-    _wrapped_headline(draw, 470, 90, ["TOP VOLUME", "STOCKS"], f, GOLD_LIGHT, line_gap=4)
+    _wrapped_headline(draw, 470, 90, ["BIGGEST VOLUME", "SPIKES"], f, GOLD_LIGHT, line_gap=4)
     _caption_banner(draw, 470, 320, "TODAY'S UNUSUAL ACTIVITY", ELECTRIC := (30, 64, 175), WHITE,
                     load_headline_font(30))
     _finish(draw, date, BRIGHT_GREEN)
