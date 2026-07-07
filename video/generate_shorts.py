@@ -751,7 +751,7 @@ def build_volume_spikes_short(data, output, lang="en"):
         tts_voice = "en-US-ChristopherNeural"
 
     frames = [
-        (scene_hook_generic(date, lang, ["TOP VOLUME", "STOCKS TODAY"], ["今日成交量", "最高股票"],
+        (scene_hook_generic(date, lang, ["BIGGEST VOLUME", "SPIKES TODAY"], ["今日成交量", "暴涨股票"],
                             "S&P 500  ·  Nasdaq-100", "标普500 · 纳斯达克100", bg_style="bars"),
          hook_dur, None, hook_text),
     ]
