@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-07
 Threshold: >10% for all metrics
-53 flagged diffs above threshold
+281 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -76,18 +76,39 @@ PRICE  -- 0 flagged (>10%)
     ADM      ours=78.20  yf=78.20  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 0 flagged (>10%)
+VOLUME  -- 228 flagged (>10%)
+  FLAGGED (top 20 of 228):
+    VTR      ours=3.74  yf=1.70  diff=120.0% ***
+    ETR      ours=2.39  yf=1.23  diff=94.5% ***
+    ABBV     ours=6.86  yf=3.66  diff=87.3% ***
+    SJM      ours=1.72  yf=0.94  diff=84.0% ***
+    SPGI     ours=2.82  yf=1.64  diff=71.6% ***
+    PNR      ours=1.79  yf=1.05  diff=70.3% ***
+    AIZ      ours=0.29  yf=0.18  diff=64.5% ***
+    EXR      ours=0.56  yf=0.35  diff=61.6% ***
+    ED       ours=1.80  yf=1.13  diff=59.1% ***
+    BDX      ours=1.74  yf=1.12  diff=55.3% ***
+    AEE      ours=1.39  yf=0.91  diff=53.2% ***
+    PM       ours=3.73  yf=2.47  diff=50.9% ***
+    UDR      ours=2.39  yf=1.59  diff=50.6% ***
+    IP       ours=4.43  yf=2.95  diff=50.4% ***
+    SHW      ours=2.37  yf=1.58  diff=50.2% ***
+    DG       ours=2.33  yf=1.55  diff=49.9% ***
+    GL       ours=0.61  yf=0.41  diff=49.3% ***
+    MAA      ours=0.63  yf=0.43  diff=48.1% ***
+    DD       ours=1.42  yf=0.96  diff=47.9% ***
+    BALL     ours=1.62  yf=1.10  diff=47.6% ***
   TOP 10 LARGEST DIFF:
-    C        ours=8.30  yf=9.22  diff=10.0%
-    DVA      ours=0.84  yf=0.91  diff=7.8%
-    PDD      ours=5.34  yf=5.79  diff=7.7%
-    KHC      ours=10.65  yf=11.48  diff=7.2%
-    APO      ours=3.87  yf=4.13  diff=6.2%
-    TFC      ours=7.06  yf=7.50  diff=5.8%
-    SPCX     ours=78.74  yf=83.31  diff=5.5%
-    ESS      ours=0.58  yf=0.61  diff=5.3%
-    ELV      ours=1.16  yf=1.22  diff=5.3%
-    EW       ours=4.19  yf=4.42  diff=5.2%
+    VTR      ours=3.74  yf=1.70  diff=120.0% ***
+    ETR      ours=2.39  yf=1.23  diff=94.5% ***
+    ABBV     ours=6.86  yf=3.66  diff=87.3% ***
+    SJM      ours=1.72  yf=0.94  diff=84.0% ***
+    SPGI     ours=2.82  yf=1.64  diff=71.6% ***
+    PNR      ours=1.79  yf=1.05  diff=70.3% ***
+    AIZ      ours=0.29  yf=0.18  diff=64.5% ***
+    EXR      ours=0.56  yf=0.35  diff=61.6% ***
+    ED       ours=1.80  yf=1.13  diff=59.1% ***
+    BDX      ours=1.74  yf=1.12  diff=55.3% ***
 
 ------------------------------------------------------------
 MKTCAP  -- 7 flagged (>10%)
