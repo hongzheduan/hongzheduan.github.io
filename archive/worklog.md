@@ -102,3 +102,4 @@
 2026-07-07 23:32 UTC  630PM-scan
 2026-07-08 06:54 UTC  11PM-full
 2026-07-08 21:55 UTC  430PM-scan
+  no-video (no qualifying stocks): 6m_breakout 6m_breakout_cn
