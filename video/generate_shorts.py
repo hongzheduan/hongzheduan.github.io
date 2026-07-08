@@ -403,7 +403,7 @@ def scene_ad_short(scan_date, lang="en"):
                    if lang == "en" else "仅供参考，不构成投资建议。")
     centered_s(draw, SH - 260, disclaimer, load_font(18) if lang == "en" else load_font_cn(18), VERY_DIM)
     centered_s(draw, SH - 220, f"Daily Scan: {scan_date}" if lang == "en" else f"每日扫描：{scan_date}",
-               load_font(18, mono=True), DIM)
+               load_font(18, mono=True) if lang == "en" else load_font_cn(18), DIM)
     return img
 
 
