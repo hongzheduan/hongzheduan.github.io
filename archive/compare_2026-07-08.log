@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-08
 Threshold: >10% for all metrics
-272 flagged diffs above threshold
+270 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -76,13 +76,13 @@ PRICE  -- 0 flagged (>10%)
     ADBE     ours=220.94  yf=220.94  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 219 flagged (>10%)
-  FLAGGED (top 20 of 219):
-    NSC      ours=0.65  yf=0.28  diff=128.1% ***
+VOLUME  -- 217 flagged (>10%)
+  FLAGGED (top 20 of 217):
+    NSC      ours=0.65  yf=0.29  diff=127.9% ***
     PG       ours=12.14  yf=5.82  diff=108.5% ***
     FDS      ours=0.97  yf=0.55  diff=77.2% ***
     EXPD     ours=0.75  yf=0.44  diff=71.0% ***
-    CTSH     ours=12.80  yf=7.59  diff=68.7% ***
+    CTSH     ours=12.80  yf=7.59  diff=68.6% ***
     BXP      ours=1.50  yf=0.91  diff=65.1% ***
     WEC      ours=2.40  yf=1.47  diff=63.8% ***
     ATO      ours=1.09  yf=0.67  diff=63.4% ***
@@ -99,11 +99,11 @@ VOLUME  -- 219 flagged (>10%)
     PRU      ours=1.25  yf=0.82  diff=52.2% ***
     HIG      ours=1.97  yf=1.30  diff=51.6% ***
   TOP 10 LARGEST DIFF:
-    NSC      ours=0.65  yf=0.28  diff=128.1% ***
+    NSC      ours=0.65  yf=0.29  diff=127.9% ***
     PG       ours=12.14  yf=5.82  diff=108.5% ***
     FDS      ours=0.97  yf=0.55  diff=77.2% ***
     EXPD     ours=0.75  yf=0.44  diff=71.0% ***
-    CTSH     ours=12.80  yf=7.59  diff=68.7% ***
+    CTSH     ours=12.80  yf=7.59  diff=68.6% ***
     BXP      ours=1.50  yf=0.91  diff=65.1% ***
     WEC      ours=2.40  yf=1.47  diff=63.8% ***
     ATO      ours=1.09  yf=0.67  diff=63.4% ***
