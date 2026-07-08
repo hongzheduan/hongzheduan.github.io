@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-08
 Threshold: >10% for all metrics
-269 flagged diffs above threshold
+272 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -76,9 +76,9 @@ PRICE  -- 0 flagged (>10%)
     ADBE     ours=220.94  yf=220.94  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 218 flagged (>10%)
-  FLAGGED (top 20 of 218):
-    NSC      ours=0.64  yf=0.28  diff=124.6% ***
+VOLUME  -- 219 flagged (>10%)
+  FLAGGED (top 20 of 219):
+    NSC      ours=0.65  yf=0.28  diff=128.1% ***
     PG       ours=12.14  yf=5.82  diff=108.5% ***
     FDS      ours=0.97  yf=0.55  diff=77.2% ***
     EXPD     ours=0.75  yf=0.44  diff=71.0% ***
@@ -87,19 +87,19 @@ VOLUME  -- 218 flagged (>10%)
     WEC      ours=2.40  yf=1.47  diff=63.8% ***
     ATO      ours=1.09  yf=0.67  diff=63.4% ***
     EIX      ours=1.89  yf=1.16  diff=63.2% ***
-    PH       ours=0.68  yf=0.42  diff=61.5% ***
     TMO      ours=1.71  yf=1.06  diff=60.9% ***
+    PH       ours=0.67  yf=0.42  diff=59.1% ***
     SRE      ours=3.10  yf=1.95  diff=58.7% ***
     INVH     ours=3.36  yf=2.12  diff=58.5% ***
     ALL      ours=1.55  yf=0.99  diff=56.5% ***
     ARE      ours=1.60  yf=1.03  diff=55.1% ***
     AVB      ours=0.81  yf=0.52  diff=55.0% ***
+    AES      ours=9.09  yf=5.92  diff=53.7% ***
     PEG      ours=2.15  yf=1.40  diff=53.4% ***
     PM       ours=3.38  yf=2.21  diff=53.3% ***
     PRU      ours=1.25  yf=0.82  diff=52.2% ***
-    HIG      ours=1.97  yf=1.30  diff=51.6% ***
   TOP 10 LARGEST DIFF:
-    NSC      ours=0.64  yf=0.28  diff=124.6% ***
+    NSC      ours=0.65  yf=0.28  diff=128.1% ***
     PG       ours=12.14  yf=5.82  diff=108.5% ***
     FDS      ours=0.97  yf=0.55  diff=77.2% ***
     EXPD     ours=0.75  yf=0.44  diff=71.0% ***
@@ -108,7 +108,7 @@ VOLUME  -- 218 flagged (>10%)
     WEC      ours=2.40  yf=1.47  diff=63.8% ***
     ATO      ours=1.09  yf=0.67  diff=63.4% ***
     EIX      ours=1.89  yf=1.16  diff=63.2% ***
-    PH       ours=0.68  yf=0.42  diff=61.5% ***
+    TMO      ours=1.71  yf=1.06  diff=60.9% ***
 
 ------------------------------------------------------------
 MKTCAP  -- 7 flagged (>10%)
@@ -133,8 +133,8 @@ MKTCAP  -- 7 flagged (>10%)
     RKLB     ours=$48.24B  yf=$52.08B  diff=7.4%
 
 ------------------------------------------------------------
-PE  -- 19 flagged (>10%)
-  FLAGGED (top 19 of 19):
+PE  -- 20 flagged (>10%)
+  FLAGGED (top 20 of 20):
     NBIS     ours=656.000  yf=83.262  diff=687.9% ***
     OXY      ours=13.500  yf=72.419  diff=81.4% ***
     ALNY     ours=142.510  yf=81.078  diff=75.8% ***
@@ -148,6 +148,7 @@ PE  -- 19 flagged (>10%)
     HAL      ours=25.710  yf=19.320  diff=33.1% ***
     LEN      ours=9.820  yf=13.102  diff=25.0% ***
     WEC      ours=18.420  yf=23.295  diff=20.9% ***
+    AMCR     ours=40.610  yf=33.831  diff=20.0% ***
     KMB      ours=17.420  yf=21.466  diff=18.8% ***
     COF      ours=48.970  yf=59.062  diff=17.1% ***
     C        ours=19.660  yf=16.983  diff=15.8% ***
@@ -167,8 +168,8 @@ PE  -- 19 flagged (>10%)
     TXT      ours=10.950  yf=17.143  diff=36.1% ***
 
 ------------------------------------------------------------
-EPS  -- 25 flagged (>10%)
-  FLAGGED (top 20 of 25):
+EPS  -- 26 flagged (>10%)
+  FLAGGED (top 20 of 26):
     PSKY     ours=-0.600  yf=0.030  diff=2100.0% ***
     OXY      ours=3.970  yf=0.740  diff=436.5% ***
     CRWD     ours=-0.120  yf=-0.040  diff=200.0% ***
