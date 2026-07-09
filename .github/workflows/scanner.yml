@@ -305,23 +305,23 @@ jobs:
           # for a video that didn't actually change.
           VID_DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
           EN_NAME="$EN_NAME" EN_DATE="$VID_DATE" CN_NAME="$CN_NAME" CN_DATE="$VID_DATE" python -c "
-import json, os
+          import json, os
 
-try:
-    meta = json.load(open('data/latest_video_meta.json'))
-except Exception:
-    meta = {'en': {'name': '', 'date': '', 'url': ''}, 'cn': {'name': '', 'date': '', 'url': ''}}
+          try:
+              meta = json.load(open('data/latest_video_meta.json'))
+          except Exception:
+              meta = {'en': {'name': '', 'date': '', 'url': ''}, 'cn': {'name': '', 'date': '', 'url': ''}}
 
-en_name = os.environ.get('EN_NAME', '')
-cn_name = os.environ.get('CN_NAME', '')
+          en_name = os.environ.get('EN_NAME', '')
+          cn_name = os.environ.get('CN_NAME', '')
 
-if en_name:
-    meta['en'] = {'name': en_name, 'date': os.environ['EN_DATE'], 'url': ''}
-if cn_name:
-    meta['cn'] = {'name': cn_name, 'date': os.environ['CN_DATE'], 'url': ''}
+          if en_name:
+              meta['en'] = {'name': en_name, 'date': os.environ['EN_DATE'], 'url': ''}
+          if cn_name:
+              meta['cn'] = {'name': cn_name, 'date': os.environ['CN_DATE'], 'url': ''}
 
-json.dump(meta, open('data/latest_video_meta.json', 'w'))
-"
+          json.dump(meta, open('data/latest_video_meta.json', 'w'))
+          "
 
       - name: Upload daily videos to YouTube
         if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
@@ -416,23 +416,23 @@ json.dump(meta, open('data/latest_video_meta.json', 'w'))
           # side's name/date/url exactly as it was rather than stamping today's
           # date on a video that didn't actually change.
           EN_NAME="$EN_NAME" EN_DATE="$NEWS_DATE" CN_NAME="$CN_NAME" CN_DATE="$NEWS_DATE" python -c "
-import json, os
+          import json, os
 
-try:
-    meta = json.load(open('data/latest_video_news_meta.json'))
-except Exception:
-    meta = {'en': {'name': '', 'date': '', 'url': ''}, 'cn': {'name': '', 'date': '', 'url': ''}}
+          try:
+              meta = json.load(open('data/latest_video_news_meta.json'))
+          except Exception:
+              meta = {'en': {'name': '', 'date': '', 'url': ''}, 'cn': {'name': '', 'date': '', 'url': ''}}
 
-en_name = os.environ.get('EN_NAME', '')
-cn_name = os.environ.get('CN_NAME', '')
+          en_name = os.environ.get('EN_NAME', '')
+          cn_name = os.environ.get('CN_NAME', '')
 
-if en_name:
-    meta['en'] = {'name': en_name, 'date': os.environ['EN_DATE'], 'url': ''}
-if cn_name:
-    meta['cn'] = {'name': cn_name, 'date': os.environ['CN_DATE'], 'url': ''}
+          if en_name:
+              meta['en'] = {'name': en_name, 'date': os.environ['EN_DATE'], 'url': ''}
+          if cn_name:
+              meta['cn'] = {'name': cn_name, 'date': os.environ['CN_DATE'], 'url': ''}
 
-json.dump(meta, open('data/latest_video_news_meta.json', 'w'))
-"
+          json.dump(meta, open('data/latest_video_news_meta.json', 'w'))
+          "
 
       - name: Upload news report to YouTube
         if: env.IS_HOLIDAY != 'True' && env.IS_NEWS_RUN == 'True'
