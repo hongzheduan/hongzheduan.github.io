@@ -108,3 +108,4 @@
 2026-07-08 23:40 UTC  630PM-scan
 2026-07-09 22:49 UTC  manual
 2026-07-09 23:08 UTC  manual
+  no-video (no qualifying stocks): 1y_vol_peak 1y_vol_peak_cn
