@@ -373,8 +373,6 @@
       window.location.href = "index_cn.html";
     };
 
-    const CF_NEWS = "https://us-central1-baizora.cloudfunctions.net/api/index-news";
-
     const CATEGORIES = [
       { key: "S&P 500 addition",    label: "S&P 500 — 新加入",       cls: "active-add" },
       { key: "S&P 500 removal",     label: "S&P 500 — 移除",         cls: "active-rem" },
@@ -388,14 +386,13 @@
     async function loadNews() {
       const container = document.getElementById("newsContainer");
       try {
-        let res = await fetch(CF_NEWS);
-        if (!res.ok) res = await fetch("data/index_news.json?t=" + Date.now());
+        // Reads the static file kept fresh by the hourly news_refresh.yml GitHub Action rather
+        // than calling the /index-news Cloud Function live — that CF does several sequential
+        // RSS fetches plus a per-item translation loop on every cache miss, which showed up as
+        // a multi-second wait on every page load.
+        const res = await fetch("data/index_news.json?t=" + Date.now());
         if (!res.ok) throw new Error("fetch failed");
         let data = await res.json();
-        if (!data.items || data.items.length === 0) {
-          const fb = await fetch("data/index_news.json?t=" + Date.now());
-          if (fb.ok) { const fbData = await fb.json(); if (fbData.items && fbData.items.length) data = fbData; }
-        }
 
         const _now = new Date();
         const _checked = _now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) + ' ' + _now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false }) + ' ET';

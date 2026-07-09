@@ -1,13 +1,21 @@
-"""Hourly refresh of data/market_news.json, data/market_news_cn.json, and the news section of
-the downloadable daily_briefing.txt / daily_briefing_cn.txt.
+"""Hourly refresh of data/market_news.json, data/market_news_cn.json, data/index_news.json,
+and the news section of the downloadable daily_briefing.txt / daily_briefing_cn.txt.
 
-Runs independently of the main scanner. The homepage used to fetch this feed live from the
-/api/market-news Cloud Function, but Google started returning HTTP 503 bot-block pages to
-the Cloud Function's GCP egress IP on 2026-07-02, so that live fetch has been stuck serving
+Runs independently of the main scanner. The homepage used to fetch the market-news feed live
+from the /api/market-news Cloud Function, but Google started returning HTTP 503 bot-block pages
+to the Cloud Function's GCP egress IP on 2026-07-02, so that live fetch has been stuck serving
 stale cached data ever since. This job re-fetches from a GitHub Actions runner IP (unaffected
 by that block, same as the main scanner) on its own cron cadence and writes the static JSON
-files the homepage reads directly, so the "Market News" section stays fresh independent of
-the Cloud Function's health.
+files the homepage reads directly, so those sections stay fresh independent of Cloud Function
+health or per-request latency.
+
+data/index_news.json (the homepage's "Index News" tabs) was still being served from the
+/index-news Cloud Function live on every page load as of 2026-07-09 — that endpoint does several
+sequential Google News RSS fetches plus a per-item translation loop on every cache miss (1-hour
+TTL), which is exactly the kind of multi-second synchronous wait users were seeing ("always need
+to wait to show"). Folded into this same hourly job (reusing scanner_tiingo's
+fetch_and_save_index_news, the same function the main scanner already calls once per scan) so the
+homepage can read the static file directly instead, same fix pattern as market news.
 
 The top-gainers/top-volume tables in the .txt briefing still only change once per scan (they
 need real price data), but the news list is rebuilt here every run using the same
@@ -21,6 +29,8 @@ import scanner_tiingo as s
 
 
 def main():
+    s.fetch_and_save_index_news()
+
     fetched_en, items_en = s._fetch_market_news_items(30, "en")
     if not items_en:
         print("news_refresh: 0 items fetched, leaving existing files untouched")
