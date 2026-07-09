@@ -281,9 +281,30 @@ jobs:
               fi
             fi
           done
+          # Merge rather than overwrite: if a type was skipped this run (e.g. too few
+          # qualifying stocks), data/latest_video_en.mp4 / _cn.mp4 above were never
+          # copied and still hold whatever was last published — so that side's
+          # name/date/url must stay as-is too, instead of advancing to today's date
+          # for a video that didn't actually change.
           VID_DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
-          printf '{"en":{"name":"%s","date":"%s","url":""},"cn":{"name":"%s","date":"%s","url":""}}' \
-            "$EN_NAME" "$VID_DATE" "$CN_NAME" "$VID_DATE" > data/latest_video_meta.json
+          EN_NAME="$EN_NAME" EN_DATE="$VID_DATE" CN_NAME="$CN_NAME" CN_DATE="$VID_DATE" python -c "
+import json, os
+
+try:
+    meta = json.load(open('data/latest_video_meta.json'))
+except Exception:
+    meta = {'en': {'name': '', 'date': '', 'url': ''}, 'cn': {'name': '', 'date': '', 'url': ''}}
+
+en_name = os.environ.get('EN_NAME', '')
+cn_name = os.environ.get('CN_NAME', '')
+
+if en_name:
+    meta['en'] = {'name': en_name, 'date': os.environ['EN_DATE'], 'url': ''}
+if cn_name:
+    meta['cn'] = {'name': cn_name, 'date': os.environ['CN_DATE'], 'url': ''}
+
+json.dump(meta, open('data/latest_video_meta.json', 'w'))
+"
 
       - name: Upload daily videos to YouTube
         if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''

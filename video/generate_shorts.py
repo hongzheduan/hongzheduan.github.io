@@ -625,7 +625,9 @@ def _narrate_ticker_lines_pullback(rows, label, n=3):
     for i, row in enumerate(rows[:n]):
         ticker = row.get("Ticker", "")
         dd = abs(row.get("_drawdown") or 0)
-        if n == 1 or i == 0:
+        if n == 1:
+            lines.append(f"There's only one today — {ticker}, down {dd:.0f} percent at its low, now at a new {label} high.")
+        elif i == 0:
             lines.append(f"{ticker} pulled back {dd:.0f} percent, then broke out to a new {label} high.")
         elif i == n - 1:
             lines.append(f"And {ticker}, down {dd:.0f} percent at its low, is also back at a new {label} high.")
@@ -640,7 +642,9 @@ def _narrate_ticker_lines_pullback_cn(rows, label_cn, n=3):
     for i, row in enumerate(rows[:n]):
         ticker = row.get("Ticker", "")
         dd = abs(row.get("_drawdown") or 0)
-        if n == 1 or i == 0:
+        if n == 1:
+            lines.append(f"今天只有一只——{ticker}，曾回调{dd:.0f}%，如今突破{label_cn}新高。")
+        elif i == 0:
             lines.append(f"{ticker}曾回调{dd:.0f}%，如今突破{label_cn}新高。")
         elif i == n - 1:
             lines.append(f"最后是{ticker}，曾回调{dd:.0f}%，同样创下{label_cn}新高。")
@@ -861,10 +865,8 @@ def build_6m_breakout_short(data, output, lang="en"):
     breakouts.sort(key=lambda x: x.get("_drawdown") or 0, reverse=True)
     rows = breakouts[:3]
 
-    if len(rows) < 2:
-        # Same real edge case build_6m_breakout() guards against in generate_video.py —
-        # some days have too few (or zero) qualifying breakout stocks to fill the cards.
-        print(f"Not enough {tf['label_en']} breakout stocks today ({len(rows)} found), skipping Short.")
+    if not rows:
+        print(f"No {tf['label_en']} breakout stocks today, skipping Short.")
         return
 
     # Cards display the pullback magnitude (as a negative %, in red) rather than
@@ -877,25 +879,45 @@ def build_6m_breakout_short(data, output, lang="en"):
     sub_en = f"{tf['min_drawdown']}%+ DECLINE, NOW AT A NEW HIGH"
     sub_cn = f"跌超{tf['min_drawdown']}%，如今创新高"
 
-    # Narrating only 3 tickers — mentioning the pullback % AND the rotating timeframe
-    # (it cycles 1M/3M/6M/9M/1Y weekly, so it must be stated, not implied) makes each
-    # line longer, so the full 5-ticker cadence used on Monday/Tuesday doesn't fit the
-    # 30s budget here. Durations = actually-measured edge-tts speech time at
-    # SHORTS_TTS_RATE (see measure_wed4.py in scratch), +buffer.
+    # Narrating only up to 3 tickers — mentioning the pullback % AND the rotating
+    # timeframe (it cycles 1M/3M/6M/9M/1Y weekly, so it must be stated, not implied)
+    # makes each line longer, so the full 5-ticker cadence used on Monday/Tuesday
+    # doesn't fit the 30s budget here. Durations are per-position, not a flat
+    # per-day array — row count varies 1-3 (some weeks/windows turn up only 1-2
+    # real pullback-then-breakout stocks), same row-count-awareness as Thursday's
+    # volume-record category. Budgets are actually-measured edge-tts speech time
+    # at SHORTS_TTS_RATE (see measure_wed4.py in scratch for the n=3 case; the n=1
+    # "There's only one today" line was measured directly: EN 4.97s, CN 4.44s), +buffer.
+    n = len(rows)
     if lang == "cn":
         ticker_lines = _narrate_ticker_lines_pullback_cn(rows, label_cn)
-        ticker_durs = [3.83, 3.97, 4.16]
+        def _dur(i):
+            if n == 1:
+                return 4.7
+            if i == 0:
+                return 3.83
+            if i == n - 1:
+                return 4.16
+            return 3.97
         hook_dur = 4.2
         hook_text = random.choice(_HOOK_NARRATION_PULLBACK_CN).format(
             min_drawdown=tf["min_drawdown"], window=window_cn)
         tts_voice = SHORTS_TTS_VOICE_CN
     else:
         ticker_lines = _narrate_ticker_lines_pullback(rows, label_en.lower())
-        ticker_durs = [3.94, 3.99, 4.81]
+        def _dur(i):
+            if n == 1:
+                return 5.2
+            if i == 0:
+                return 3.94
+            if i == n - 1:
+                return 4.81
+            return 3.99
         hook_dur = 4.3
         hook_text = random.choice(_HOOK_NARRATION_PULLBACK_EN).format(
             min_drawdown=tf["min_drawdown"], window=window_en)
         tts_voice = "en-US-ChristopherNeural"
+    ticker_durs = [_dur(i) for i in range(n)]
 
     frames = [
         (scene_hook_generic(date, lang, [f"{label_en.upper()} HIGH", f"AFTER {tf['min_drawdown']}%+ PULLBACK"],

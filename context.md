@@ -1,5 +1,39 @@
 # Baizora Scanner - Project Context
 
+## What Was Done 2026-07-08 (continued) — Wednesday `6m_breakout` Short Silently Missing When <2 Stocks Qualify, Fixed
+
+**Symptom (user-reported):** downloaded that day's homepage video (`data/latest_video_en.mp4`, meta dated 07-08) and it was actually Tuesday's `best_performer` content, not Wednesday's `6m_breakout`. Separately, today's Short was missing entirely from YouTube.
+
+**Root-caused end-to-end** (pulled the real GitHub Actions job logs via the REST API — not guessed — and re-ran today's actual `data/latest.json` through the real breakout-selection code):
+1. `WEDNESDAY_TF_ROTATION` (in `video/generate_video.py`) cycles 1M→3M→6M→9M→1Y by ISO week; this week (ISO week 28) landed on the 9-Month window.
+2. Only **1 stock** (TECH) had a genuine 20%+ pullback then a new 9-month high today. `build_6m_breakout_short()` in `video/generate_shorts.py` required `len(rows) >= 2` to proceed — with only 1 qualifier, it printed a skip message and returned with no output file at all.
+3. `scanner.yml`'s "Generate daily videos" step only copies `video/${type}.mp4` into `data/latest_video_en.mp4`/`_cn.mp4` when that file exists — since it was never created, the homepage-download files silently kept **Tuesday's** `best_performer` bytes.
+4. **The actual bug the user caught:** that same step's final block wrote `data/latest_video_meta.json`'s `date` field from `latest.json`'s date unconditionally, regardless of whether anything was actually regenerated. Confirmed on the live remote file: `{"en":{"name":"","date":"2026-07-08","url":""},...}` — empty name (proof nothing was built) but stamped with today's date anyway. That's what made a stale video look freshly updated. The missing YouTube upload was simply downstream of the same root cause (no file → nothing to upload → `url` stays empty).
+
+**Fix, three parts, all shipped together:**
+1. **`video/generate_video.py`** — `WEDNESDAY_TF_ROTATION`'s `min_drawdown` lowered from 20 → 10 for all 5 rotation windows, per explicit user instruction ("even one stock is still worth showing," and the lower bar surfaces far more candidates — today's 9-Month window went from 1 qualifier at 20% to 8 at 10%, confirmed by rerunning `_compute_breakouts` against real data). This isn't a reversion of the 2026-07-03 bug (where `min_drawdown` had *accidentally* regressed to 10) — it's a deliberate threshold change made with full knowledge of that history; see `project_youtube_shorts` memory for the distinction.
+2. **`video/generate_shorts.py`** — `build_6m_breakout_short()`'s guard relaxed from `len(rows) < 2` to `not rows` (skip only when zero qualify, never on exactly 1). User recalled that Thursday's `1y_vol_peak` category already has an explicit "There's only one today — TICKER..." narration flourish for its own single-stock case, and asked why Wednesday never got the same treatment — it hadn't. Added matching `n == 1` branches to `_narrate_ticker_lines_pullback` / `_cn`, with the new line's actual TTS duration measured via `edge-tts` + `ffprobe` rather than guessed (EN 4.97s measured → 5.2s budget, CN 4.44s → 4.7s budget), and converted the old fixed 3-element `ticker_durs` array into a row-count-aware `_dur(i)` closure mirroring Thursday's `build_1y_vol_peak_short()` pattern exactly. Verified narration output for n=1/2/3 all read correctly before committing.
+3. **`.github/workflows/scanner.yml`** — the video-meta write is now a merge instead of a blind overwrite: a small Python step reads the existing `data/latest_video_meta.json` first and only replaces the `en`/`cn` sub-object for whichever language actually produced a non-empty name this run (proof its video was really regenerated). The other language — or both, on a fully-skipped day — keeps its previous name/date/url exactly as it was, so a skipped video no longer claims today's date.
+
+---
+
+## What Was Done 2026-07-08 — Homepage Announcement Bar Missing 9:30 AM Gate, Fixed (shipped, commit `cfb67c4`)
+
+**Symptom found while reviewing the announcement bar logic:** the "Analysis updated: [prev date] (current session updates 6–7 PM ET)" note (`index.html` / `index_cn.html`, `#ann-status`) was showing all day long on any trading day whenever `latest.json`'s date lagged behind today — including pre-market hours (midnight, 3 AM, 8 AM), not just after the 9:30 AM open.
+
+**Root cause:** the live condition was just `isTradingDay && d.date!==todayStr` — no time-of-day check at all. An earlier iteration of this same bar (documented further down this file, dated during the now-removed EOD-beta era) had an `afterOpen` guard as part of a 3-state/2-state design, but it was dropped at some point during the beta-scan removal or 2-state simplification and never restored. Nothing else in the surrounding code referenced market-open time, so this had been silently wrong for a while with no user-visible complaint (the wording is only misleading pre-market, a low-traffic window).
+
+**Fix:** added `const afterOpen=(et.getHours()*60+et.getMinutes())>=570;` (9:30 AM ET) to both `index.html` and `index_cn.html`, ANDed into the existing condition: `isTradingDay&&afterOpen&&d.date!==todayStr`. No upper bound was added — the note still disappears naturally once `latest.json`'s date rolls to today, per explicit instruction ("until results get updated"), not via a fixed close-time cutoff.
+
+**Current live behavior (both EN/CN), as of this fix:**
+1. Before 9:30 AM ET: plain `"Analysis updated: [date]"`.
+2. 9:30 AM ET onward, trading day, results not yet updated: `"Analysis updated: [prev date] (current session updates 6–7 PM ET)"`.
+3. Once `latest.json`'s date matches today: plain `"Analysis updated: [today]"`.
+
+**Committed `c5fa588`, rebased cleanly onto same-day automated "auto news refresh" commits on `origin/main`, pushed as `cfb67c4`.**
+
+---
+
 ## What Was Done 2026-07-07 (continued) — Shorts Ad-Section Simplification (test-only, CN best_performer) + CN Date-Line Font Bug Fixed (shipped, not committed)
 
 **Context:** user asked to review the shared 3-part ad reel (`build_ad_reel()`) used across all 5 weekday Shorts, then asked for a CN test render exploring a much simpler ad treatment. Iterated live against rendered frames rather than guessing:
