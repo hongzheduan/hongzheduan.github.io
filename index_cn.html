@@ -1410,6 +1410,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         YouTube
       </a></span>
       <span class="footer-email">最新视频：<a id="videoWatchLink" href="data/latest_video_cn.mp4" target="_blank" class="footer-yt">最新视频</a> <a id="videoDownloadLink" href="data/latest_video_cn.mp4" download class="footer-yt" title="下载">↓</a></span>
+      <span class="footer-email">贝佐拉报告：<a id="newsVideoWatchLink" href="data/latest_video_news_cn.mp4" target="_blank" class="footer-yt">最新报告</a> <a id="newsVideoDownloadLink" href="data/latest_video_news_cn.mp4" download class="footer-yt" title="下载">↓</a></span>
     </div>
     <div class="footer-links">
       <a href="assets/privacy_cn.html">隐私政策</a>
@@ -1991,6 +1992,22 @@ fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
     }
   }
   if (dl && m.cn.url) dl.href = 'data/latest_video_cn.mp4';
+}).catch(() => {});
+
+fetch('data/latest_video_news_meta.json').then(r => r.json()).then(m => {
+  if (!m.cn) return;
+  const watch = document.getElementById('newsVideoWatchLink');
+  const dl    = document.getElementById('newsVideoDownloadLink');
+  const dateStr = m.cn.date ? ' (' + m.cn.date + ')' : '';
+  if (watch) {
+    watch.textContent = (m.cn.name || '最新报告') + dateStr;
+    if (m.cn.url) {
+      watch.href = m.cn.url;
+      fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent(m.cn.url) + '&format=json')
+        .then(r => r.json()).then(oe => { if (oe.title) watch.textContent = oe.title; }).catch(() => {});
+    }
+  }
+  if (dl && m.cn.url) dl.href = 'data/latest_video_news_cn.mp4';
 }).catch(() => {});
 
 // Top movers card

@@ -367,6 +367,28 @@ def make_meta(video_type, date):
             title,
             f"追踪一只近期加入标普500或纳斯达克100的成分股，截至{date}的完整表现。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
         )
+    if video_type == "news_report":
+        title = random.choice([
+            f"Daily Market News Recap — {date}",
+            f"Today's Top Market Headlines — {date}",
+            f"Baizora Report: Market News — {date}",
+            f"Market News Roundup — {date}",
+        ])
+        return (
+            title,
+            f"Today's top market news headlines, summarized — {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+        )
+    if video_type == "news_report_cn":
+        title = random.choice([
+            f"每日市场新闻速览 — {date}",
+            f"今日市场要闻 — {date}",
+            f"贝佐拉报告：市场新闻 — {date}",
+            f"市场新闻汇总 — {date}",
+        ])
+        return (
+            title,
+            f"今日市场重要新闻要点汇总 — {date}。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+        )
     raise ValueError(f"Unknown video type: {video_type}")
 
 

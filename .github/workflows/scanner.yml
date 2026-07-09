@@ -8,6 +8,7 @@ on:
     - cron: "30 22 * * 1-5"   # 6:30 PM ET weekdays  — final data
     - cron: "0 4 * * 2-6"    # 11 PM ET weekdays — full EDGAR + market scan, no videos
     - cron: "0 5 * * 0,6"    # midnight ET weekends — EDGAR refresh only
+    - cron: "0 20 * * 0,6"   # 4:00 PM ET weekends — Baizora Report news video only, no market scan
   workflow_dispatch:
 
 permissions:
@@ -52,6 +53,17 @@ jobs:
             echo "EDGAR_ONLY=1"    >> $GITHUB_ENV
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
+            echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+          elif [ "$SCHEDULE" = "0 20 * * 0,6" ]; then
+            # 4:00 PM ET weekends — Baizora Report news video only; no market scan
+            # needed (news content comes from data/market_news*.json, refreshed
+            # hourly every day by the separate news_refresh.py workflow)
+            echo "EDGAR_ONLY="    >> $GITHUB_ENV
+            echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
+            echo "SKIP_SCAN=1"    >> $GITHUB_ENV
+            echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "0 4 * * 2-6" ]; then
             # 11 PM ET weekdays — full EDGAR + market scan, no videos
@@ -59,12 +71,14 @@ jobs:
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
             echo "RUN_YFINANCE_BACKUP=${{ env.RUN_YFINANCE_BACKUP_SWITCH }}" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "30 20 * * 1-5" ]; then
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR="    >> $GITHUB_ENV   # run EDGAR (~6:30 PM ET actual, after 5:30 PM SEC cutoff)
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
             echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 4:30, retry at 5:00
           elif [ "$EVENT" = "workflow_dispatch" ]; then
             # manual trigger — full EDGAR refresh + market scan, no videos
@@ -72,6 +86,7 @@ jobs:
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
             echo "RUN_YFINANCE_BACKUP=${{ env.RUN_YFINANCE_BACKUP_SWITCH }}" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then
@@ -79,17 +94,19 @@ jobs:
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
             echo "SKIP_IF_COMPLETE=1" >> $GITHUB_ENV
           else
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 5:30 PM and 6:30 PM: probe once and exit, always run in full
           fi
 
       - name: Run scanner
-        if: env.IS_HOLIDAY != 'True' || env.EDGAR_ONLY == '1'
+        if: env.SKIP_SCAN != '1' && (env.IS_HOLIDAY != 'True' || env.EDGAR_ONLY == '1')
         env:
           TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
           EDGAR_ONLY: ${{ env.EDGAR_ONLY }}
@@ -105,7 +122,7 @@ jobs:
         run: python scanner_yfinance.py
 
       - name: Commit updated data
-        if: env.IS_HOLIDAY != 'True' || env.EDGAR_ONLY == '1'
+        if: env.SKIP_SCAN != '1' && (env.IS_HOLIDAY != 'True' || env.EDGAR_ONLY == '1')
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
@@ -203,7 +220,7 @@ jobs:
           fi
 
       - name: Regenerate stock pages
-        if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1'
+        if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1' && env.SKIP_SCAN != '1'
         run: |
           git fetch origin main
           git rebase --autostash origin/main
@@ -217,7 +234,7 @@ jobs:
           fi
 
       - name: Install video dependencies
-        if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True'
+        if: env.IS_HOLIDAY != 'True' && (env.IS_VIDEO_RUN == 'True' || env.IS_NEWS_RUN == 'True')
         run: |
           pip install -r video/requirements.txt
           sudo apt-get install -y fonts-noto-cjk
@@ -359,6 +376,117 @@ json.dump(meta, open('data/latest_video_meta.json', 'w'))
           echo "  no-video (no qualifying stocks):$SKIPPED" >> archive/worklog.md
           git add archive/worklog.md
           git commit -m "log: video skipped — no qualifying stocks"
+          git push origin main
+
+      - name: Generate news report videos
+        if: env.IS_HOLIDAY != 'True' && env.IS_NEWS_RUN == 'True'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # On the weekend news-only cron, SKIP_SCAN skips "Commit updated data"
+          # (which normally sets git identity + does the mid-job fetch/rebase) —
+          # set identity and pull explicitly here so this step reliably sees the
+          # latest data/market_news*.json (refreshed hourly by the separate
+          # news_refresh.py workflow, independent of this one).
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git fetch origin main
+          git rebase --autostash origin/main
+
+          # ET date, not the runner's UTC clock — this run isn't tied to a market
+          # scan (data/latest.json may be stale on the weekend cron), so the news
+          # report's own date must be computed independently.
+          NEWS_DATE=$(TZ='America/New_York' date +%Y-%m-%d)
+          python video/generate_news_report.py --lang en --output video/news_report_en.mp4 --date "$NEWS_DATE" || true
+          python video/generate_news_report.py --lang cn --output video/news_report_cn.mp4 --date "$NEWS_DATE" || true
+
+          EN_NAME="" CN_NAME=""
+          if [ -f video/news_report_en.mp4 ]; then
+            cp video/news_report_en.mp4 data/latest_video_news_en.mp4
+            EN_NAME="Daily Market News"
+          fi
+          if [ -f video/news_report_cn.mp4 ]; then
+            cp video/news_report_cn.mp4 data/latest_video_news_cn.mp4
+            CN_NAME="每日市场新闻"
+          fi
+
+          # Same merge-not-overwrite fix as the category-video meta (commit
+          # cfb67c4 / db8448a): if a language was skipped (e.g. the Claude API
+          # call failed, or no genuine stories survived filtering), leave that
+          # side's name/date/url exactly as it was rather than stamping today's
+          # date on a video that didn't actually change.
+          EN_NAME="$EN_NAME" EN_DATE="$NEWS_DATE" CN_NAME="$CN_NAME" CN_DATE="$NEWS_DATE" python -c "
+import json, os
+
+try:
+    meta = json.load(open('data/latest_video_news_meta.json'))
+except Exception:
+    meta = {'en': {'name': '', 'date': '', 'url': ''}, 'cn': {'name': '', 'date': '', 'url': ''}}
+
+en_name = os.environ.get('EN_NAME', '')
+cn_name = os.environ.get('CN_NAME', '')
+
+if en_name:
+    meta['en'] = {'name': en_name, 'date': os.environ['EN_DATE'], 'url': ''}
+if cn_name:
+    meta['cn'] = {'name': cn_name, 'date': os.environ['CN_DATE'], 'url': ''}
+
+json.dump(meta, open('data/latest_video_news_meta.json', 'w'))
+"
+
+      - name: Upload news report to YouTube
+        if: env.IS_HOLIDAY != 'True' && env.IS_NEWS_RUN == 'True'
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          NEWS_DATE=$(TZ='America/New_York' date +%Y-%m-%d)
+          for type in news_report news_report_cn; do
+            if [ -f "video/${type}.mp4" ]; then
+              OUT=$(python video/upload_youtube.py --file "video/${type}.mp4" --type "$type" --date "$NEWS_DATE")
+              echo "$OUT"
+              YT_URL=$(echo "$OUT" | grep '^YOUTUBE_URL=' | cut -d= -f2-)
+              if [ -n "$YT_URL" ]; then
+                if echo "$type" | grep -q "_cn$"; then
+                  python -c "import json,sys; m=json.load(open('data/latest_video_news_meta.json')); m['cn']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_news_meta.json','w'))" "$YT_URL"
+                else
+                  python -c "import json,sys; m=json.load(open('data/latest_video_news_meta.json')); m['en']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_news_meta.json','w'))" "$YT_URL"
+                fi
+              fi
+            else
+              echo "Skipping $type — no news report generated today"
+            fi
+          done
+
+      - name: Commit latest news report videos for homepage download
+        if: env.IS_HOLIDAY != 'True' && env.IS_NEWS_RUN == 'True'
+        run: |
+          git fetch origin main
+          git rebase --autostash origin/main
+          git add -f data/latest_video_news_en.mp4 2>/dev/null || true
+          git add -f data/latest_video_news_cn.mp4 2>/dev/null || true
+          git add data/latest_video_news_meta.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No news report video files changed, skipping commit"
+          else
+            git commit -m "auto update latest news report videos $(date -u)"
+            git push origin HEAD:main
+          fi
+
+      - name: Log skipped news report to worklog
+        if: env.IS_HOLIDAY != 'True' && env.IS_NEWS_RUN == 'True'
+        run: |
+          SKIPPED=""
+          for type in news_report news_report_cn; do
+            [ ! -f "video/${type}.mp4" ] && SKIPPED="$SKIPPED $type"
+          done
+          [ -z "$SKIPPED" ] && exit 0
+          git fetch origin main
+          git rebase --autostash origin/main
+          echo "  no-news-video (Claude API failed or no qualifying stories):$SKIPPED" >> archive/worklog.md
+          git add archive/worklog.md
+          git commit -m "log: news report video skipped"
           git push origin main
 
       - name: Push JSON to scanner-archive; update free_tier.json (10-session delay)

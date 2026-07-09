@@ -1450,6 +1450,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         YouTube
       </a></span>
       <span class="footer-email">Latest video: <a id="videoWatchLink" href="data/latest_video_en.mp4" target="_blank" class="footer-yt">latest video</a> <a id="videoDownloadLink" href="data/latest_video_en.mp4" download class="footer-yt" title="Download">↓</a></span>
+      <span class="footer-email">Baizora Report: <a id="newsVideoWatchLink" href="data/latest_video_news_en.mp4" target="_blank" class="footer-yt">latest report</a> <a id="newsVideoDownloadLink" href="data/latest_video_news_en.mp4" download class="footer-yt" title="Download">↓</a></span>
     </div>
     <div class="footer-links">
       <a href="assets/privacy.html">Privacy</a>
@@ -2118,6 +2119,22 @@ fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
     }
   }
   if (dl && m.en.url) dl.href = 'data/latest_video_en.mp4';
+}).catch(() => {});
+
+fetch('data/latest_video_news_meta.json').then(r => r.json()).then(m => {
+  if (!m.en) return;
+  const watch = document.getElementById('newsVideoWatchLink');
+  const dl    = document.getElementById('newsVideoDownloadLink');
+  const dateStr = m.en.date ? ' (' + m.en.date + ')' : '';
+  if (watch) {
+    watch.textContent = (m.en.name || 'latest report') + dateStr;
+    if (m.en.url) {
+      watch.href = m.en.url;
+      fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent(m.en.url) + '&format=json')
+        .then(r => r.json()).then(oe => { if (oe.title) watch.textContent = oe.title; }).catch(() => {});
+    }
+  }
+  if (dl && m.en.url) dl.href = 'data/latest_video_news_en.mp4';
 }).catch(() => {});
 
 </script>
