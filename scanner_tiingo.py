@@ -730,11 +730,22 @@ def _fetch_market_news_items(n=6, lang="en"):
             link = (el.findtext("link") or "").strip()
             pub_date = (el.findtext("pubDate") or "").strip()
             try:
-                date_str = parsedate_to_datetime(pub_date).strftime("%Y-%m-%d")
+                dt = parsedate_to_datetime(pub_date)
+                date_str = dt.strftime("%Y-%m-%d")
             except Exception:
+                dt = None
                 date_str = ""
             if title:
-                items.append({"title": title, "source": source, "link": link, "date": date_str})
+                items.append({"title": title, "source": source, "link": link, "date": date_str, "_dt": dt})
+        # Google News RSS for a broad multi-topic OR query is relevance-ranked, not strictly
+        # newest-first (confirmed 2026-07-10: a 07-09 headline showed up after a 07-08 one) —
+        # sort explicitly instead of trusting feed order. Items with an unparsable pubDate sort
+        # last rather than being placed arbitrarily. Sorted before dedup so "keep first
+        # occurrence of a cluster" in _dedup_similar_headlines actually keeps the freshest one,
+        # matching that function's own docstring assumption.
+        items.sort(key=lambda it: it["_dt"] or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
+        for it in items:
+            del it["_dt"]
         # Parse every item Google returned (not just the first n) before deduping — the
         # near-duplicate filter needs the full pool so truncating to n afterward doesn't
         # just cut off partway through a cluster of "same story, different outlet" headlines.
