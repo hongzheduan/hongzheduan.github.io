@@ -10,6 +10,11 @@ on:
     - cron: "0 5 * * 0,6"    # midnight ET weekends — EDGAR refresh only
     - cron: "0 20 * * 0,6"   # 4:00 PM ET weekends — Baizora Report news video only, no market scan
   workflow_dispatch:
+    inputs:
+      run_videos:
+        description: "Also generate today's category Short + news report videos (normally skipped on manual runs)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -81,12 +86,18 @@ jobs:
             echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
             echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 4:30, retry at 5:00
           elif [ "$EVENT" = "workflow_dispatch" ]; then
-            # manual trigger — full EDGAR refresh + market scan, no videos
+            # manual trigger — full EDGAR refresh + market scan; videos only if
+            # explicitly requested via the run_videos input (default: no videos)
             echo "FORCE_RUN=1"    >> $GITHUB_ENV
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
-            echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
-            echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
+            if [ "${{ github.event.inputs.run_videos }}" = "true" ]; then
+              echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
+              echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
+            else
+              echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+              echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
+            fi
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
             echo "RUN_YFINANCE_BACKUP=${{ env.RUN_YFINANCE_BACKUP_SWITCH }}" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then
