@@ -749,6 +749,7 @@
     .digest-news-link:hover { color: var(--electric-bright); }
     .digest-news-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: #475569; margin-top: 2px; }
     .digest-footer { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .digest-video-row { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
     .digest-scan-note { font-family: 'DM Mono', monospace; font-size: 10px; color: #475569; }
     .digest-dl { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: var(--electric-bright); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s; }
     .digest-dl:hover { opacity: 0.75; }
@@ -1383,6 +1384,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
           ↓ 下载
         </a>
       </div>
+      <div class="digest-video-row">
+        <a id="newsVideoWatchLink" href="data/latest_video_news_cn.mp4" target="_blank" class="digest-dl">▶ 每日财经新闻视频 — <span id="newsVideoDate">…</span></a>
+        <a id="newsVideoDownloadLink" href="data/latest_video_news_cn.mp4" download class="digest-dl" title="下载">↓</a>
+      </div>
     </div>
 
   </div>
@@ -1410,7 +1415,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         YouTube
       </a></span>
       <span class="footer-email">最新视频：<a id="videoWatchLink" href="data/latest_video_cn.mp4" target="_blank" class="footer-yt">最新视频</a> <a id="videoDownloadLink" href="data/latest_video_cn.mp4" download class="footer-yt" title="下载">↓</a></span>
-      <span class="footer-email">贝佐拉报告：<a id="newsVideoWatchLink" href="data/latest_video_news_cn.mp4" target="_blank" class="footer-yt">最新报告</a> <a id="newsVideoDownloadLink" href="data/latest_video_news_cn.mp4" download class="footer-yt" title="下载">↓</a></span>
     </div>
     <div class="footer-links">
       <a href="assets/privacy_cn.html">隐私政策</a>
@@ -1936,8 +1940,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       _digest = await r.json();
       const badge = document.getElementById("digestDate");
       if (badge && _digest.date) badge.textContent = _digest.date;
-      const note = document.getElementById("digestScanNote");
-      if (note && _digest.scan_time) note.textContent = "行情时间：" + _digest.scan_time;
       const dlBtn = document.getElementById("digestDlBtn");
       if (dlBtn && _digest.date) {
         dlBtn.download = "baizora-briefing-cn-" + _digest.date + ".txt";
@@ -1964,9 +1966,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       _news = await r.json();
       renderNews(_news);
       const note = document.getElementById("digestScanNote");
-      if (note && _digest && _digest.scan_time) {
-        note.textContent = "行情：" + _digest.scan_time + "  ·  资讯：" + (_news.fetched || "");
-      }
+      if (note && _news.fetched) note.textContent = "资讯：" + _news.fetched;
     } catch(e) {
       const el = document.getElementById("digestNews");
       if (el) el.innerHTML = '<div class="digest-msg">—</div>';
@@ -1994,17 +1994,11 @@ fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
 
 fetch('data/latest_video_news_meta.json').then(r => r.json()).then(m => {
   if (!m.cn) return;
-  const watch = document.getElementById('newsVideoWatchLink');
-  const dl    = document.getElementById('newsVideoDownloadLink');
-  const dateStr = m.cn.date ? ' (' + m.cn.date + ')' : '';
-  if (watch) {
-    watch.textContent = (m.cn.name || '最新报告') + dateStr;
-    if (m.cn.url) {
-      watch.href = m.cn.url;
-      fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent(m.cn.url) + '&format=json')
-        .then(r => r.json()).then(oe => { if (oe.title) watch.textContent = oe.title; }).catch(() => {});
-    }
-  }
+  const watch  = document.getElementById('newsVideoWatchLink');
+  const dl     = document.getElementById('newsVideoDownloadLink');
+  const dateEl = document.getElementById('newsVideoDate');
+  if (dateEl) dateEl.textContent = m.cn.date || '';
+  if (watch && m.cn.url) watch.href = m.cn.url;
   if (dl && m.cn.url) dl.href = 'data/latest_video_news_cn.mp4';
 }).catch(() => {});
 
