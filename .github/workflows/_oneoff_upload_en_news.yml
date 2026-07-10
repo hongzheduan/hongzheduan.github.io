@@ -1,0 +1,52 @@
+name: One-off — Upload EN News Video (recovery)
+
+# Temporary, single-purpose workflow: uploads the already-generated
+# data/latest_video_news_en.mp4 (committed today) to YouTube, working around
+# the news-report upload filename bug fixed in scanner.yml (d0e3c53). Deleted
+# once used — not part of the regular pipeline.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - run: pip install google-auth google-auth-oauthlib google-api-python-client Pillow
+
+      - name: Upload
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          OUT=$(python video/upload_youtube.py --file "data/latest_video_news_en.mp4" --type "news_report" --date "2026-07-09")
+          echo "$OUT"
+          YT_URL=$(echo "$OUT" | grep '^YOUTUBE_URL=' | cut -d= -f2-)
+          if [ -z "$YT_URL" ]; then
+            echo "Upload did not return a URL"
+            exit 1
+          fi
+          echo "YT_URL=$YT_URL" >> $GITHUB_ENV
+
+      - name: Patch meta JSON
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git fetch origin main
+          git rebase --autostash origin/main
+          python -c "import json; m=json.load(open('data/latest_video_news_meta.json')); m['en']['url']='$YT_URL'; json.dump(m,open('data/latest_video_news_meta.json','w'))"
+          git add data/latest_video_news_meta.json
+          git commit -m "manual upload: EN news report video ($YT_URL)"
+          git push origin HEAD:main
