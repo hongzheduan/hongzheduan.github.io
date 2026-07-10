@@ -306,13 +306,23 @@ def build_news_report(date_str, lang="en"):
         draw.text((ex, ey), eyebrow, font=f_eyebrow, fill=ELEC_BRIGHT)
         if lang == "en":
             f_head = load_font(100, serif=True)
-            centered_shadow(draw, 460, "BAIZORA REPORT", f_head, GOLD_LIGHT)
-            centered_shadow(draw, 590, "Today's market headlines", load_font(34), MUTED)
+            f_sub = load_font(44)
+            y = 400
+            for line in ("BAIZORA", "FINANCIAL NEWS"):
+                centered_shadow(draw, y, line, f_head, GOLD_LIGHT)
+                y += th(draw, line, f_head) + 16
+            y += 30
+            centered_shadow(draw, y, "Today's market headlines", f_sub, MUTED)
+            y += th(draw, "Today's market headlines", f_sub) + 24
         else:
             f_head = load_font_cn(84, bold=True)
-            centered_shadow(draw, 470, "贝佐拉报告", f_head, GOLD_LIGHT)
-            centered_shadow(draw, 600, "今日市场要闻", load_font_cn(32), MUTED)
-        centered_shadow(draw, 656, date_str, load_font(24, mono=True), MUTED)
+            f_sub = load_font_cn(38)
+            y = 460
+            centered_shadow(draw, y, "贝佐拉财经新闻", f_head, GOLD_LIGHT)
+            y += th(draw, "贝佐拉财经新闻", f_head) + 40
+            centered_shadow(draw, y, "今日市场要闻", f_sub, MUTED)
+            y += th(draw, "今日市场要闻", f_sub) + 24
+        centered_shadow(draw, y, date_str, load_font(24, mono=True), MUTED)
         mascot = render_mascot(820)
         mw, mh = mascot.size
         img.paste(mascot, ((SW - mw) // 2, SH - mh - 30), mascot)
@@ -321,8 +331,8 @@ def build_news_report(date_str, lang="en"):
     _MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July",
                     "August", "September", "October", "November", "December"]
     hook_text = (
-        f"Baizora Report — {_MONTH_NAMES[date_obj.month - 1]} {date_obj.day}." if lang == "en"
-        else f"贝佐拉报告——{date_obj.month}月{date_obj.day}日。"
+        f"Baizora Financial News — {_MONTH_NAMES[date_obj.month - 1]} {date_obj.day}." if lang == "en"
+        else f"贝佐拉财经新闻——{date_obj.month}月{date_obj.day}日。"
     )
     hook_dur = (estimate_duration_en if lang == "en" else estimate_duration_cn)(hook_text)
 
