@@ -359,6 +359,10 @@
     .tag-free    { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); color: var(--gold-light); }
     .tag-testing { background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.25); color: #fb923c; }
 
+    .tool-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; flex-wrap: wrap; }
+    .tool-footer .tool-tag { margin-top: 0; }
+    .tool-date { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.02em; color: #64748b; }
+
     /* ── ACCOUNT QUICK LINKS ── */
     .quick-links {
       display: grid;
@@ -443,7 +447,10 @@
         <div class="tool-icon">◎</div>
         <div class="tool-name">量价扫描仪</div>
         <div class="tool-desc">标普500和纳斯达克100每日信号。在当日和每个时间周期都可按价格变动、成交量等自由排序。</div>
-        <div class="tool-tag tag-live">● 上线中</div>
+        <div class="tool-footer">
+          <div class="tool-tag tag-live">● 上线中</div>
+          <span class="tool-date" id="scannerDate"></span>
+        </div>
       </a>
 
       <a href="index_news_cn.html" class="tool-card">
@@ -456,7 +463,10 @@
         <div class="tool-icon">◑</div>
         <div class="tool-name">免费版 · 完整结果</div>
         <div class="tool-desc">全部500+支股票，无需登录，数据延迟约两周。</div>
-        <div class="tool-tag" style="color:#f59e0b;background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);">⏱ 延迟数据</div>
+        <div class="tool-footer">
+          <div class="tool-tag" style="color:#f59e0b;background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);">⏱ 延迟数据</div>
+          <span class="tool-date" id="freeTierDate"></span>
+        </div>
       </a>
 
     </div>
@@ -561,6 +571,22 @@
         drawer.classList.remove("open");
       }
     });
+  </script>
+
+  <script>
+    (function() {
+      const fmt = s => { const [y, m, d] = s.split('-'); return y + '年' + parseInt(m) + '月' + parseInt(d) + '日'; };
+
+      fetch('data/latest.json').then(r => r.json()).then(d => {
+        const el = document.getElementById('scannerDate');
+        if (el && d.date) el.textContent = '更新至 ' + fmt(d.date);
+      }).catch(() => {});
+
+      fetch('data/free_tier.json').then(r => r.json()).then(d => {
+        const el = document.getElementById('freeTierDate');
+        if (el && d.date) el.textContent = '数据截至 ' + fmt(d.date);
+      }).catch(() => {});
+    })();
   </script>
 
   <script>

@@ -349,6 +349,10 @@
     .tag-free    { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); color: var(--gold-light); }
     .tag-testing { background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.25); color: #fb923c; }
 
+    .tool-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; flex-wrap: wrap; }
+    .tool-footer .tool-tag { margin-top: 0; }
+    .tool-date { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.02em; color: #64748b; }
+
     /* ── ACCOUNT QUICK LINKS ── */
     .quick-links {
       display: grid;
@@ -431,7 +435,10 @@
         <div class="tool-icon">◎</div>
         <div class="tool-name">Price &amp; Volume Scanner</div>
         <div class="tool-desc">Daily signals across S&amp;P 500 and Nasdaq-100. Sortable by price change, volume, max moves and more across 6 timeframes.</div>
-        <div class="tool-tag tag-live">● Live</div>
+        <div class="tool-footer">
+          <div class="tool-tag tag-live">● Live</div>
+          <span class="tool-date" id="scannerDate"></span>
+        </div>
       </a>
 
       <a href="index_news.html" class="tool-card">
@@ -444,7 +451,10 @@
         <div class="tool-icon">◑</div>
         <div class="tool-name">Free Tier · Full Results</div>
         <div class="tool-desc">All 500+ tickers, no login required. Data is delayed by 2 weeks.</div>
-        <div class="tool-tag" style="color:#f59e0b;background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);">⏱ Delayed</div>
+        <div class="tool-footer">
+          <div class="tool-tag" style="color:#f59e0b;background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);">⏱ Delayed</div>
+          <span class="tool-date" id="freeTierDate"></span>
+        </div>
       </a>
 
     </div>
@@ -549,6 +559,23 @@
         drawer.classList.remove("open");
       }
     });
+  </script>
+
+  <script>
+    (function() {
+      const mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const fmt = s => { const [y, m, d] = s.split('-'); return mn[+m - 1] + ' ' + d + ', ' + y; };
+
+      fetch('data/latest.json').then(r => r.json()).then(d => {
+        const el = document.getElementById('scannerDate');
+        if (el && d.date) el.textContent = 'Updated ' + fmt(d.date);
+      }).catch(() => {});
+
+      fetch('data/free_tier.json').then(r => r.json()).then(d => {
+        const el = document.getElementById('freeTierDate');
+        if (el && d.date) el.textContent = 'As of ' + fmt(d.date);
+      }).catch(() => {});
+    })();
   </script>
 
   <script>
