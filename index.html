@@ -2103,14 +2103,9 @@ fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
   if (!m.en) return;
   const watch = document.getElementById('videoWatchLink');
   const dl    = document.getElementById('videoDownloadLink');
-  const dateStr = m.en.date ? ' (' + m.en.date + ')' : '';
   if (watch) {
-    watch.textContent = (m.en.name || 'latest video') + dateStr;
-    if (m.en.url) {
-      watch.href = m.en.url;
-      fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent(m.en.url) + '&format=json')
-        .then(r => r.json()).then(oe => { if (oe.title) watch.textContent = oe.title; }).catch(() => {});
-    }
+    watch.textContent = m.en.date || 'latest video';
+    if (m.en.url) watch.href = m.en.url;
   }
   if (dl && m.en.url) dl.href = 'data/latest_video_en.mp4';
 }).catch(() => {});

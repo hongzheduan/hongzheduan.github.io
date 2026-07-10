@@ -1976,14 +1976,9 @@ fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
   if (!m.cn) return;
   const watch = document.getElementById('videoWatchLink');
   const dl    = document.getElementById('videoDownloadLink');
-  const dateStr = m.cn.date ? ' (' + m.cn.date + ')' : '';
   if (watch) {
-    watch.textContent = (m.cn.name || '最新视频') + dateStr;
-    if (m.cn.url) {
-      watch.href = m.cn.url;
-      fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent(m.cn.url) + '&format=json')
-        .then(r => r.json()).then(oe => { if (oe.title) watch.textContent = oe.title; }).catch(() => {});
-    }
+    watch.textContent = m.cn.date || '最新视频';
+    if (m.cn.url) watch.href = m.cn.url;
   }
   if (dl && m.cn.url) dl.href = 'data/latest_video_cn.mp4';
 }).catch(() => {});
