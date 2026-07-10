@@ -322,7 +322,7 @@ def build_news_report(date_str, lang="en"):
             y += th(draw, "贝佐拉财经新闻", f_head) + 40
             centered_shadow(draw, y, "今日市场要闻", f_sub, MUTED)
             y += th(draw, "今日市场要闻", f_sub) + 24
-        centered_shadow(draw, y, date_str, load_font(24, mono=True), MUTED)
+        centered_shadow(draw, y, date_str, load_font(32, mono=True), MUTED)
         mascot = render_mascot(820)
         mw, mh = mascot.size
         img.paste(mascot, ((SW - mw) // 2, SH - mh - 30), mascot)
