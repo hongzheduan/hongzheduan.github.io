@@ -748,9 +748,7 @@
     .digest-news-link { font-size: 11px; color: #e2e8f0; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; transition: color 0.15s; }
     .digest-news-link:hover { color: var(--electric-bright); }
     .digest-news-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: #475569; margin-top: 2px; }
-    .digest-footer { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .digest-video-row { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .digest-scan-note { font-family: 'DM Mono', monospace; font-size: 10px; color: #475569; }
+    .digest-video-row { margin-top: auto; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .digest-dl { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: var(--electric-bright); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s; }
     .digest-dl:hover { opacity: 0.75; }
     .digest-msg { font-size: 12px; color: #64748b; padding: 14px 0; text-align: center; }
@@ -1353,7 +1351,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <div class="hp-news-list" id="hpNewsList"><div class="hp-news-msg">加载中…</div></div>
       <div class="hp-news-footer">
         <span style="font-family:'DM Mono',monospace;font-size:10px;color:#64748b;" id="hpLastUpdated"></span>
-        <a href="index_news_cn.html" class="hp-news-viewall" onclick="return hpViewAll(event)">
+        <a href="index_news_cn.html" class="hp-news-viewall" onclick="return hpViewAll(event, 'index_news_cn.html', '成分股变动记录仅对订阅用户开放。')">
           查看全部
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -1375,18 +1373,18 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
       </div>
       <hr class="digest-div">
-      <div class="digest-news-label">市场资讯 <span style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每小时更新）</span></div>
+      <div class="digest-news-label">市场资讯 <span id="newsUpdatedNote" style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每小时更新）</span></div>
       <div id="digestNews"><div class="digest-msg">加载中…</div></div>
-      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#475569;margin-top:8px;letter-spacing:0.03em;">来自第三方媒体 · 不代表平台立场</div>
-      <div class="digest-footer">
-        <span class="digest-scan-note" id="digestScanNote"></span>
-        <a href="data/daily_briefing_cn.txt" id="digestDlBtn" class="digest-dl" title="下载今日简报文本文件">
-          ↓ 下载
-        </a>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#475569;letter-spacing:0.03em;">来自第三方媒体 · 不代表平台立场</span>
+        <a href="market_news_cn.html" id="digestViewAllBtn" onclick="return hpViewAll(event, 'market_news_cn.html', '市场资讯完整列表为订阅用户专享内容。')" class="digest-dl" title="查看全部市场资讯">查看全部 →</a>
       </div>
       <div class="digest-video-row">
-        <a id="newsVideoWatchLink" href="data/latest_video_news_cn.mp4" target="_blank" class="digest-dl">▶ 每日财经新闻视频 — <span id="newsVideoDate">…</span></a>
-        <a id="newsVideoDownloadLink" href="data/latest_video_news_cn.mp4" download class="digest-dl" title="下载">↓</a>
+        <a id="newsVideoWatchLink" href="data/latest_video_news_cn.mp4" target="_blank" class="digest-dl" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          <svg width="12" height="12" style="flex-shrink:0;" viewBox="0 0 24 24" fill="#ef4444"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+          贝佐拉独家财经新闻视频 — <span id="newsVideoDate">…</span>
+        </a>
+        <a id="newsVideoDownloadLink" href="data/latest_video_news_cn.mp4" download class="digest-dl" style="flex-shrink:0;" title="下载">↓</a>
       </div>
     </div>
 
@@ -1634,15 +1632,19 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     window.location.href = 'index_cn.html';
   }
 
-  async function hpViewAll(e) {
+  async function hpViewAll(e, target, message) {
     e.preventDefault();
+    target = target || 'index_news_cn.html';
+    message = message || '成分股变动记录仅对订阅用户开放。';
+    const msgEl = document.getElementById('hpGateMsg');
+    if (msgEl) msgEl.textContent = message;
     const user = firebase.auth().currentUser;
     if (user) {
       const res = await fetch('https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=' + user.uid);
       const data = await res.json();
       const status = data.subscriptionStatus || 'inactive';
       if (status === 'active' || status === 'trialing') {
-        window.location.href = 'index_news_cn.html';
+        window.location.href = target;
         return;
       }
       document.getElementById('hpGateSignin').style.display = 'none';
@@ -1940,12 +1942,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       _digest = await r.json();
       const badge = document.getElementById("digestDate");
       if (badge && _digest.date) badge.textContent = _digest.date;
-      const dlBtn = document.getElementById("digestDlBtn");
-      if (dlBtn && _digest.date) {
-        dlBtn.download = "baizora-briefing-cn-" + _digest.date + ".txt";
-        const todayET = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
-        if (_digest.date === todayET) dlBtn.style.color = '#64c487';
-      }
       renderGainers(_digest);
       renderVolume(_digest);
     } catch(e) {
@@ -1965,8 +1961,8 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       if (!r.ok) throw new Error(r.status);
       _news = await r.json();
       renderNews(_news);
-      const note = document.getElementById("digestScanNote");
-      if (note && _news.fetched) note.textContent = "资讯：" + _news.fetched;
+      const note = document.getElementById("newsUpdatedNote");
+      if (note && _news.fetched) note.textContent = "（每小时更新 · " + _news.fetched + "）";
     } catch(e) {
       const el = document.getElementById("digestNews");
       if (el) el.innerHTML = '<div class="digest-msg">—</div>';
@@ -2101,7 +2097,7 @@ fetch('data/latest_video_news_meta.json').then(r => r.json()).then(m => {
       <button onclick="document.getElementById('hpGateModal').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#64748b;font-size:18px;cursor:pointer;line-height:1;">✕</button>
       <div style="font-size:28px;margin-bottom:12px;">◈</div>
       <div style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;margin-bottom:8px;">需要订阅</div>
-      <p style="font-size:14px;color:#94a3b8;margin:0 0 24px;">成分股变动记录仅对订阅用户开放。</p>
+      <p id="hpGateMsg" style="font-size:14px;color:#94a3b8;margin:0 0 24px;">成分股变动记录仅对订阅用户开放。</p>
       <a href="pricing_cn.html" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:10px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px;">立即订阅 →</a>
       <a id="hpGateSignin" href="login_cn.html" style="font-size:13px;color:#60a5fa;text-decoration:none;">已有订阅？登录 →</a>
     </div>
