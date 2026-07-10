@@ -110,3 +110,4 @@
 2026-07-09 23:08 UTC  manual
   no-video (no qualifying stocks): 1y_vol_peak 1y_vol_peak_cn
   no-news-video (Claude API failed or no qualifying stories): news_report
+2026-07-10 07:57 UTC  11PM-full
