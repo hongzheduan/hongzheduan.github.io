@@ -2880,6 +2880,20 @@ def compare_with_yfinance(df):
             except (TypeError, ValueError):
                 continue
 
+    # Upcoming splits — announced/detected in data/splits.json but not yet effective.
+    # Surfaced here so a split_guards.csv row can be added proactively, before EDGAR
+    # lag causes a real market-cap/EPS discrepancy on the effective date.
+    upcoming_splits = []
+    try:
+        with open(SPLITS_PATH, encoding="utf-8") as f:
+            for tk, info in json.load(f).items():
+                d = info.get("date", "")
+                if d > DATE_STR:
+                    upcoming_splits.append((tk, info.get("ratio"), d))
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+    upcoming_splits.sort(key=lambda x: x[2])
+
     # Write log
     lines = [
         f"Tiingo vs yfinance comparison — {DATE_STR}",
@@ -2887,6 +2901,19 @@ def compare_with_yfinance(df):
     ]
     total_flagged = sum(1 for m in results for _, _, _, d in results[m] if d > THRESHOLD)
     lines.append(f"{total_flagged} flagged diffs above threshold")
+
+    if upcoming_splits:
+        lines += [
+            "",
+            "=" * 60,
+            "UPCOMING SPLITS (effective date not yet reached)",
+            "=" * 60,
+            "Add a data/split_guards.csv row before the effective date to avoid a",
+            "market-cap/EPS discrepancy once Tiingo adjusts prices but EDGAR still lags.",
+            "",
+        ]
+        for tk, ratio, d in upcoming_splits:
+            lines.append(f"  {tk:<8} ratio={ratio}  effective={d}")
 
     lines += [
         "",
