@@ -371,7 +371,7 @@ def make_meta(video_type, date):
         title = random.choice([
             f"Daily Market News Recap — {date}",
             f"Today's Top Market Headlines — {date}",
-            f"Baizora Financial News — {date}",
+            f"Market Pulse by Baizora — {date}",
             f"Market News Roundup — {date}",
         ])
         return (
@@ -382,7 +382,7 @@ def make_meta(video_type, date):
         title = random.choice([
             f"每日市场新闻速览 — {date}",
             f"今日市场要闻 — {date}",
-            f"贝佐拉财经新闻 — {date}",
+            f"市场脉动 · 贝佐拉出品 — {date}",
             f"市场新闻汇总 — {date}",
         ])
         return (

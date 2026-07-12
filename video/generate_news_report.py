@@ -307,21 +307,19 @@ def build_news_report(date_str, lang="en"):
         if lang == "en":
             f_head = load_font(100, serif=True)
             f_sub = load_font(44)
-            y = 400
-            for line in ("BAIZORA", "FINANCIAL NEWS"):
-                centered_shadow(draw, y, line, f_head, GOLD_LIGHT)
-                y += th(draw, line, f_head) + 16
-            y += 30
-            centered_shadow(draw, y, "Today's market headlines", f_sub, MUTED)
-            y += th(draw, "Today's market headlines", f_sub) + 24
+            y = 460
+            centered_shadow(draw, y, "MARKET PULSE", f_head, GOLD_LIGHT)
+            y += th(draw, "MARKET PULSE", f_head) + 40
+            centered_shadow(draw, y, "By Baizora — today's headlines", f_sub, MUTED)
+            y += th(draw, "By Baizora — today's headlines", f_sub) + 24
         else:
             f_head = load_font_cn(84, bold=True)
             f_sub = load_font_cn(38)
             y = 460
-            centered_shadow(draw, y, "贝佐拉财经新闻", f_head, GOLD_LIGHT)
-            y += th(draw, "贝佐拉财经新闻", f_head) + 40
-            centered_shadow(draw, y, "今日市场要闻", f_sub, MUTED)
-            y += th(draw, "今日市场要闻", f_sub) + 24
+            centered_shadow(draw, y, "市场脉动", f_head, GOLD_LIGHT)
+            y += th(draw, "市场脉动", f_head) + 40
+            centered_shadow(draw, y, "贝佐拉 · 今日市场要闻", f_sub, MUTED)
+            y += th(draw, "贝佐拉 · 今日市场要闻", f_sub) + 24
         centered_shadow(draw, y, date_str, load_font(32, mono=True), MUTED)
         mascot = render_mascot(820)
         mw, mh = mascot.size
@@ -331,8 +329,8 @@ def build_news_report(date_str, lang="en"):
     _MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July",
                     "August", "September", "October", "November", "December"]
     hook_text = (
-        f"Baizora Financial News — {_MONTH_NAMES[date_obj.month - 1]} {date_obj.day}." if lang == "en"
-        else f"贝佐拉财经新闻——{date_obj.month}月{date_obj.day}日。"
+        f"Market Pulse, by Baizora — {_MONTH_NAMES[date_obj.month - 1]} {date_obj.day}." if lang == "en"
+        else f"市场脉动，贝佐拉出品——{date_obj.month}月{date_obj.day}日。"
     )
     hook_dur = (estimate_duration_en if lang == "en" else estimate_duration_cn)(hook_text)
 
@@ -350,7 +348,7 @@ def build_news_report(date_str, lang="en"):
 
     outro_text = (
         "Get the full daily briefing, every headline, free at baizora dot com." if lang == "en"
-        else "获取完整每日简报和全部要闻，前往baizora点com，完全免费。"
+        else "获取完整每日简报和全部要闻，前往baizora点com。"
     )
     outro_dur = (estimate_duration_en if lang == "en" else estimate_duration_cn)(outro_text)
     frames.append((scene_ad_short(date_str, lang=lang), outro_dur, None, outro_text))
