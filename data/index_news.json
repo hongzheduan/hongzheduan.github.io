@@ -3,6 +3,14 @@
   "lookback_days": 90,
   "items": [
     {
+      "category": "S&P 500 addition",
+      "date": "2026-07-12",
+      "title": "MRVL Stock Jumps After-Hours On S&P 500 Inclusion - Stocktwits",
+      "source": "Stocktwits",
+      "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNZkxQLWRoVXAxVmVVNHMyNWNaLW9DeW1OcUdIZWYwd0h6ZU1iNXNpNDVYcEN6N3RxdDNzQW84cXJNRmdkZ3l1eG1YZUFuUkJXZDdUUm9FNWJ3SlZMSUo0NkdQSU5LbkhKTEQxOHNkblJWbFFYWVVwbmphTXNmV2wzMDlyOWF4cFNnbjVOd0RQb0xuRE12dHhKX0M3VU9VWlVCZVNFcUhZRXMtSU02ci1GSUtidm5MeGxi?oc=5",
+      "title_cn": "MRVL 股价盘后因标普 500 指数纳入而上涨"
+    },
+    {
       "category": "Nasdaq-100 addition",
       "date": "2026-07-12",
       "title": "SpaceX joins Nasdaq-100 as Starship, Falcon 9 hit milestones - MSN",
@@ -41,14 +49,6 @@
       "source": "Intellectia AI",
       "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxOTFl3ZFlNbGlGekNHb1ZHTFNBcXlYWk5FaXJCX2RTVzRyalZLLVF2aEdYZXFNaEZTaXVnc0JDZ1dkN1BZN0h0RFpHZk01YXY1emFPSi1Ja0JZVkNKOWpab3hNMmYyQWhpUkdadFRzc1RGaGRyUDRrXzlOa0ZTLU5CZC1MSWo5aEU?oc=5",
       "title_cn": "SpaceX 加入 Nasdaq-100：投资前景分析"
-    },
-    {
-      "category": "S&P 500 removal",
-      "date": "2026-07-09",
-      "title": "RDDT Stock Plunges After Hours On S&P 500 Exclusion: But Wells Fargo Forecasts $550M AI Deal Jackpot - Stocktwits",
-      "source": "Stocktwits",
-      "link": "https://news.google.com/rss/articles/CBMigAJBVV95cUxQaFZvZjVHamtiLVNJX19zNVlvT21zRHJvNmU5elZOWUtvMHE4TmlLRG14cjhjdjA2Q1BYM3N2TFRXR3hHMHNlRVp2R2xqSzdSd0JVMktDYjI2Z2c0b2RZVm5yZzExbjFvei02WXNXWHo0MlFyUElPQXlfc290VDA5aDA0Wi0yN082dXJVVkluZnFxUE1Ga1E2WWh4M2NYd25TM0VDOTJ0dUhWM1p6UmUwR01xMHpJT2puZGxBaGdzUktpLVptemhtVUl0Wnk4UEFSbGJNUWs0RjVRRVZMY2dSM2NGMmZfQnQ4TnJseFV4Rzdoc2szRi1sQVNUemRrZ1Yw?oc=5",
-      "title_cn": "RDDT 股价盘后暴跌，因标普 500 指数被排除在外：但富国银行预测人工智能交易大奖将高达 5.5 亿美元"
     },
     {
       "category": "Nasdaq-100 addition",
@@ -208,7 +208,7 @@
       "title": "SpaceX Stock Outlook as SPCX Crashes Below Debut Price Despite Nasdaq-100 Inclusion - CoinGape",
       "source": "CoinGape",
       "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOd2lYQi1SeG9FamJIUGJJTUkzdWQzWGdGNVBXeXFPMXRCQzF2aGFTeWNhMTNhZnJoVjZndWpqcEpwSkJWeTlvUy1kNVJmUmNGc3JwZEJ6X2ZBeFU4cHpzcGlkQVA0UmtxT3Y2Vk93RmVZS25OeVgyUTdfV2hCUnppUnM5TzM5VFJJWjB1UkJpa0N1VHM4dGYxalZWOA?oc=5",
-      "title_cn": "尽管被纳入纳斯达克 100 指数，但 SPCX 仍跌破发行价，SpaceX 股票前景"
+      "title_cn": "尽管纳斯达克 100 指数被纳入，但 SPCX 仍跌破上市价格，SpaceX 股票前景"
     },
     {
       "category": "Nasdaq-100 addition",
@@ -233,14 +233,6 @@
       "source": "finance.biggo.com",
       "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE56cEVXM3NHQVdIMWh6OElDQXdrdkJPb3c3VGY2bUhQM0pNcURCWlNhajJldDBHLWRBeklfdmRQSVJ1eXlvVHpjYWZpWm44ZTdpZVRGQTFKLUlOWXA1cHRnMFlpSWJ1WTdQTlpNamNBeFB1ZXlPTUE?oc=5",
       "title_cn": "纳指100指数未能大放异彩：SpaceX单日暴跌6.8%，创IPO后新低"
-    },
-    {
-      "category": "Nasdaq-100 addition",
-      "date": "2026-07-08",
-      "title": "SpaceX joins Nasdaq 100 – not everyone’s buying the hype - Business Post",
-      "source": "Business Post",
-      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPMVQzZnl3WlBrdlpjTjUzMTlSRmJXSFp6b29SOHdaMEVBY3RrNUxGMlQ0WXo0Y3pnSllXcTdxM2RqWFJOVGlfdzFfVDFydW5tYW01bFFzMFhMdy15N0JuUGJ4Zm1BYWNjbTItNTNPaktuLXFKbF9DWlpqU0pjeGNzMzh1c3RqT1BQY0NFTUxwLXo?oc=5",
-      "title_cn": "SpaceX 跻身纳斯达克 100 指数——但并非所有人都相信炒作"
     },
     {
       "category": "Nasdaq-100 addition",
@@ -544,7 +536,7 @@
       "title": "SpaceX joins Nasdaq-100 index, triggering passive fund buying - qz.com",
       "source": "qz.com",
       "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE10T2dDTzBlclJuSmVVcEhFNmFraFdYWDVHWDB3czZzc2pnb21Oaml1VXB2RnpEbVcxc3VBRGxTWDJLdG5kdkF2VFZreEZQVElKQWZzcFVpNERsNTZCQXA4S2lsdTBJcGsyX3dEZE9Rc2x1UUFF?oc=5",
-      "title_cn": "SpaceX 加入纳斯达克 100 指数，引发被动基金购买"
+      "title_cn": ""
     },
     {
       "category": "Nasdaq-100 addition",
@@ -561,6 +553,14 @@
       "source": "Breakingthenews.net",
       "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPZC0wV254cUMwWkhMSnZhbmJfbUlhT0FyTW9KanZWQTVfOFB0cmF6Mk1KSXlGaWRwUjhGeGg3QjU4Z3VndGJYVF9OUjhKckp0dGZZcDlVakNGX1JuLWdYY3FEcDhscHhQaGZRUGhSbnFiZkRNcGdtWlVvZlRTNGFHVlVPZ21hdlhfYlZ2Y0hB?oc=5",
       "title_cn": "SpaceX正式加入纳斯达克100指数"
+    },
+    {
+      "category": "Nasdaq-100 addition",
+      "date": "2026-07-07",
+      "title": "SpaceX shares tumble ahead of Nasdaq 100 inclusion as analysts start coverage - Investing.com Nigeria",
+      "source": "Investing.com Nigeria",
+      "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQT2NVd29jQTh1Mzl6ZEtyZ0FHaVVSQXRpYm1sTm1HZF93WTBEVTNYc09TNWRjQzZSSnhGelVrMGNiWVVJcE9YRDMyQ2ctN29vYTdOa2M0Z0RURkRScTNLcEJRZTBHUl9ZRjc0MEo1U1pLVEJ2eGZXTjJ2MFVKZnNZT25GQ3RCY0ZEa0JNeHpLaGZNSEJ1YlNLazZkQmhHTW84WjZzbWdyei15d0EwNVgxakFBcmtvdw?oc=5",
+      "title_cn": "随着分析师开始报道，SpaceX 股价在纳斯达克 100 指数成份股之前暴跌"
     },
     {
       "category": "Nasdaq-100 addition",
@@ -649,14 +649,6 @@
       "source": "Binance",
       "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1FanZHZ0FqSW1sNzRQMG9hbHhQa1hrMnZSRGdzNVNxa25pYkxleVFtTkVhdkZFbl9nbmhqaVN5MGhaVGdmZ3pKN0pNeHRxaUUwMWZlS3BLWENUbzY0eDZpdTNONTY?oc=5",
       "title_cn": "SpaceX 周二以 160 美元的价格加入纳斯达克 100 指数，较峰值 225 美元下跌 29%"
-    },
-    {
-      "category": "Nasdaq-100 addition",
-      "date": "2026-07-07",
-      "title": "SpaceX Joins Nasdaq 100, Poised to Trigger Billions of Dollars in Buying - bloomingbit",
-      "source": "bloomingbit",
-      "link": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFBUNWxiQjV5emQ1NmdHY3BoRmpaRmh3dWd1NVQ3VV94akpBeVI2eW9ES21UQVlkZTBKVVRPV3JjV0REcDZfRi1TNE9DRld2Zk52RjJnOA?oc=5",
-      "title_cn": "SpaceX 加入纳斯达克 100 指数，有望引发数十亿美元的收购"
     },
     {
       "category": "S&P 500 addition",
@@ -837,14 +829,6 @@
     {
       "category": "S&P 500 addition",
       "date": "2026-06-30",
-      "title": "SoFi Has Quietly Met the Bar for S&P 500 Inclusion. Here's What Index Entry Could Do for the Stock. - AOL.com",
-      "source": "AOL.com",
-      "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE5fOHliWDNHUGJTV2dyYVdHdmJwWGpvTnJVYlAtaEFqRHFHQVM5cE9rV2l4ZlphT3dHMVFOcklpWndLRzlGSk9pTkhiYmlZYzRWWWF0YnRhcl81MmRPLVl0YzVPQ2NmU0ZhMGE1dUNEd1llMnJL?oc=5",
-      "title_cn": "SoFi 已悄然达到标准普尔 500 指数纳入标准。以下是指数条目对股票的影响。"
-    },
-    {
-      "category": "S&P 500 addition",
-      "date": "2026-06-30",
       "title": "Mobility Global, Inc.(NYSE: MBGL) added to S&P 500 Growth - marketscreener.com",
       "source": "marketscreener.com",
       "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOUTBLQUFSWGZVUEVsQzlUYW9EYzBDalluT0dPQkFjdGlkWEQ4ZWRkRUQ3MnljcUN3enoxVFBpa3VxSGdmU05CQ3F0eWdZLU1QLU1KWldJRFFoZmNwSkhLOXRodFdkdnY5amh3TnpYeTY2cjRwbVpmbEZQTWpEVklRNUI3Yk0wd19kd0FpX3VkcU5oSzRnQWpjVHI1OFNIRHBOU291cTh1SWVPdw?oc=5",
@@ -929,6 +913,14 @@
       "source": "Yahoo Finance",
       "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQUWFRUDBSNHlrYW9Hc3l6Vjd5aXNBZm9TdWlVSS1GRWx5eEc2RVlPZWtNeDN2ZDNFSnJtU0Z5N1RRcTN3S1FTd1UtUWZYQ0dPSWtSS045WGFLT080Y1pPYktxeGtMaWVaeU40VWl1UkpFVEItdkpRaEZybGdaM296VDgxUng0cTV6bm9oNU9tX0dmWS1IZVdDTW85M08?oc=5",
       "title_cn": "SpaceX 股价在 7 月 7 日被纳入纳斯达克 100 指数之前上涨 (SPCX)"
+    },
+    {
+      "category": "Nasdaq-100 addition",
+      "date": "2026-06-29",
+      "title": "SpaceX Stock Options Are Now Cheap With Nasdaq-100 Inclusion Upcoming - Investor's Business Daily",
+      "source": "Investor's Business Daily",
+      "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPX1ZPUlE0N0lfVHhHRHdWMVFPb0w4UHFWRjlJVWlMOHdIVHl3eGpKa3psMTBiaVZ1enl0MkdMeDhHbHNpQm9lNjlzOGIwbGFmSXItWldidjQwQzVEQUdJYzJUVWlCMTUyaGpYVzdqaVNtWWx6Z3pYT1V5RV9seUgwQVlRTGZPdkN6ZDBtam54bGFXUDVYSDBKYTQ4cUlxaDFCTnI4VHl6QU84bWVNbGt2STJYRQ?oc=5",
+      "title_cn": "SpaceX 股票期权现在很便宜，纳斯达克 100 指数即将纳入其中"
     },
     {
       "category": "S&P 500 addition",
@@ -1077,26 +1069,10 @@
     {
       "category": "S&P 500 removal",
       "date": "2026-06-21",
-      "title": "The Campbell's Company(NasdaqGS:CPB) dropped from S&P 500 Packaged Foods & Meats (Sub Ind) - marketscreener.com",
-      "source": "marketscreener.com",
-      "link": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxQSmZ4NWlSMGttVWMwRUxZdF9wdGF6N1V0OXk5VjczalB3a3lob29RazFBTE1leFVvMXgtbEhYS3NmYmZxcUYxSGFoT0NUb1RMLWdyVlF0ZU44VnJSRXBXWHFRQjBZMHZmQTFPNHVJN0ZwNzB3VjZGX3o3LU0wdnR6anAxajN4cFJoc0tVMU5HdmUxOS16cUhwTmlPUUllYldzcFJKcXNDZ2pkR3ZrUlJhS05WbTRqUlBZMXRzRDk0eWFRaHNOMmNLVVJKUnFiNjR6V2hNWg?oc=5",
-      "title_cn": "The Campbell's Company（纳斯达克 GS：CPB）从标准普尔 500 包装食品和肉类（子行业）成分股中剔除"
-    },
-    {
-      "category": "S&P 500 removal",
-      "date": "2026-06-21",
       "title": "Pool Corporation(NasdaqGS:POOL) dropped from S&P 500 Consumer Discretionary Distribution & Retail (Industry Group) - marketscreener.com",
       "source": "marketscreener.com",
       "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQWjVZeDgteVdvLW01TFI0UnNXeGdOcllDclItTk5kTnBESGZYcVhpc0s4NTdvTHFJdlVOMklvYnJua2xiVm53LUd2UVoycDZYVEU2Rm9EUmxHMWt5RlNLemQ2SmktcVh2emY4cjNuaDJVR1QwUXVYeWhtOHRVRGZzWllJNGJINWNWUUN4NmpMNXFUSF9WYldlQlByUkZTS1djSURqLWs4VUtIR2VNNi15NXFweHhZSkRhTWV3RGpDaUUyQVVKdzNHMk9Jd2U4SGtKZFpZRlotUmFTaWFYRDVyVExNcw?oc=5",
       "title_cn": "Pool Corporation（纳斯达克GS：POOL）从标准普尔 500 指数非必需消费品分销和零售（行业组）中跌出"
-    },
-    {
-      "category": "S&P 500 removal",
-      "date": "2026-06-21",
-      "title": "Pool Corporation(NasdaqGS: POOL) dropped from S&P 500 Consumer Discretionary - marketscreener.com",
-      "source": "marketscreener.com",
-      "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQZVFFbG4yWFZZRmN2Sm84WmJuWHRDZzUtZER5LXdIU19jaDRENC1KV1lXRnNjeUpqVUdPQmswaDA2UWFydlNpTGt3ekEtbXVlZlN4a2lmRDI1OW51bEh0bDRfQVVhV1M1amJuSGdZc2VUUWRzMkV3RmZ3UjMzb2VsdTd5MW5fQjNXX2RKQlpCQlpXTzJXVnJUd0htcGFDZ2JSSkt3Ynh3WE5DcTZNUlFjTGZYeG1SZUNkSWY1NlY5OU1UTGNtU0E?oc=5",
-      "title_cn": "Pool Corporation（纳斯达克GS：POOL）从标准普尔 500 非必需消费品成分股中剔除"
     },
     {
       "category": "S&P 500 addition",
@@ -1160,7 +1136,7 @@
       "title": "Experts suggest revising S&P 500 inclusion rules to better reflect market realities without harming returns. - Pluang",
       "source": "Pluang",
       "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQVFJaQTk3QWNLbXZwSTR6S3pDc0lXZjdNbUpDRlZYeHlybEloUmVuQXVOamRpMVlkWnpBVzVIRTdLVG1VejN0LUJGNTJMUE1Mdk9xSDF2VzVONlROWm8wSUxGbWN1dWtGbWdkVjJORDNvMDRtd3htSU93eUktZmdhRg?oc=5",
-      "title_cn": "专家建议修改标准普尔 500 指数纳入规则，以更好地反映市场现实而不损害回报。"
+      "title_cn": ""
     },
     {
       "category": "S&P 500 addition",
@@ -1253,18 +1229,18 @@
     {
       "category": "S&P 500 addition",
       "date": "2026-06-08",
-      "title": "Marvell and Flex rise on S&P 500 inclusion announcement - Sherwood News",
-      "source": "Sherwood News",
-      "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOQ1BTZ1F0VDFSN29Td0dVY3hOa3dsLU5UMFVKbGJNQUZwNUlvTG5rT1pvSEJZc0d6TWpnWXNnUjEwVFJwT2dTTzkydWdISFZwU2J5VnVEazZoMkZ2ZDN6cE1NZ1JPMTZqSDRHME0yZ1k3aUpocmhFTncxVW1XbUw5VTN3MHRUaEg2QUxTZEU0bUpqSXEt?oc=5",
-      "title_cn": "Marvell 和 Flex 因宣布纳入标准普尔 500 指数而上涨"
-    },
-    {
-      "category": "S&P 500 addition",
-      "date": "2026-06-08",
       "title": "What history tells us about Marvell's upcoming S&P 500 inclusion - Yahoo Finance",
       "source": "Yahoo Finance",
       "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNV2Q3OXVEd1JUMHB6UUtSWGV6Y2hPY1RYdGJLaW9fOGJRNVRVVlkxdzRmaE13anNIYTZPcEZQWnNFRl9nZm9LVmpUZExORlAwS2pJN2k0ck8xc2MyYWRFb0FxNnY3azJ4YS0wUFYtYy1pQTlzVWxzMkNmZjRMM0tpM3ExVUJDd1A3aHJvY19tY1AxRDFnUmF2b2xHQXJiMVk0RnNDeVNOa3BJanIwbXc?oc=5",
       "title_cn": "关于 Marvell 即将纳入 S&P 500 指数的历史告诉我们什么"
+    },
+    {
+      "category": "S&P 500 addition",
+      "date": "2026-06-08",
+      "title": "Marvell and Flex rise on S&P 500 inclusion announcement - Sherwood News",
+      "source": "Sherwood News",
+      "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOQ1BTZ1F0VDFSN29Td0dVY3hOa3dsLU5UMFVKbGJNQUZwNUlvTG5rT1pvSEJZc0d6TWpnWXNnUjEwVFJwT2dTTzkydWdISFZwU2J5VnVEazZoMkZ2ZDN6cE1NZ1JPMTZqSDRHME0yZ1k3aUpocmhFTncxVW1XbUw5VTN3MHRUaEg2QUxTZEU0bUpqSXEt?oc=5",
+      "title_cn": "Marvell 和 Flex 因宣布纳入标准普尔 500 指数而上涨"
     },
     {
       "category": "S&P 500 addition",
@@ -1357,18 +1333,18 @@
     {
       "category": "S&P 500 addition",
       "date": "2026-06-05",
-      "title": "MRVL Stock Jumps After-Hours On S&P 500 Inclusion - Stocktwits",
-      "source": "Stocktwits",
-      "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNZkxQLWRoVXAxVmVVNHMyNWNaLW9DeW1OcUdIZWYwd0h6ZU1iNXNpNDVYcEN6N3RxdDNzQW84cXJNRmdkZ3l1eG1YZUFuUkJXZDdUUm9FNWJ3SlZMSUo0NkdQSU5LbkhKTEQxOHNkblJWbFFYWVVwbmphTXNmV2wzMDlyOWF4cFNnbjVOd0RQb0xuRE12dHhKX0M3VU9VWlVCZVNFcUhZRXMtSU02ci1GSUtidm5MeGxi?oc=5",
-      "title_cn": "MRVL 股价盘后因标普 500 指数纳入而上涨"
-    },
-    {
-      "category": "S&P 500 addition",
-      "date": "2026-06-05",
       "title": "Marvell stock pops after S&P 500 inclusion announcement - Investing.com",
       "source": "Investing.com",
       "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOYWpEelB2WG1iaExkY0JTbm1DdE9ZNmlZZ3UwbkFyX1dwbGVCSUxvU1BFZDlONlVxbmdBNHdjYjhyNUdETjR2OWl3aHg1WGdMMENjNWxPV1l2RFVRZjlrdWJqQWwxeGtWdDBYTVFiRU9adkZDeUhmV0tnUlVvTjdjMVVNOGlpNUxRSWhuZGNHbkhwV1FWc1g5VXRtV2pBZmZqaWljMDk1ZHNrNHl0Sy1CMg?oc=5",
       "title_cn": "宣布纳入标准普尔 500 指数后 Marvell 股价上涨"
+    },
+    {
+      "category": "S&P 500 removal",
+      "date": "2026-06-05",
+      "title": "RDDT Stock Plunges After Hours On S&P 500 Exclusion: But Wells Fargo Forecasts $550M AI Deal Jackpot - Stocktwits",
+      "source": "Stocktwits",
+      "link": "https://news.google.com/rss/articles/CBMigAJBVV95cUxQaFZvZjVHamtiLVNJX19zNVlvT21zRHJvNmU5elZOWUtvMHE4TmlLRG14cjhjdjA2Q1BYM3N2TFRXR3hHMHNlRVp2R2xqSzdSd0JVMktDYjI2Z2c0b2RZVm5yZzExbjFvei02WXNXWHo0MlFyUElPQXlfc290VDA5aDA0Wi0yN082dXJVVkluZnFxUE1Ga1E2WWh4M2NYd25TM0VDOTJ0dUhWM1p6UmUwR01xMHpJT2puZGxBaGdzUktpLVptemhtVUl0Wnk4UEFSbGJNUWs0RjVRRVZMY2dSM2NGMmZfQnQ4TnJseFV4Rzdoc2szRi1sQVNUemRrZ1Yw?oc=5",
+      "title_cn": "RDDT 股价盘后暴跌，因标普 500 指数被排除在外：但富国银行预测人工智能交易大奖将高达 5.5 亿美元"
     },
     {
       "category": "S&P 500 addition",
