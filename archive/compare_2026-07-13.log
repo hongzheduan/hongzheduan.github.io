@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-13
 Threshold: >10% for all metrics
-264 flagged diffs above threshold
+257 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -76,13 +76,12 @@ PRICE  -- 0 flagged (>10%)
     ABT      ours=92.11  yf=92.11  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 212 flagged (>10%)
-  FLAGGED (top 20 of 212):
+VOLUME  -- 207 flagged (>10%)
+  FLAGGED (top 20 of 207):
     BAX      ours=8.51  yf=4.26  diff=99.9% ***
     EOG      ours=3.81  yf=1.94  diff=96.4% ***
     SRE      ours=2.45  yf=1.29  diff=89.3% ***
     PGR      ours=2.52  yf=1.43  diff=76.4% ***
-    ED       ours=2.05  yf=1.16  diff=76.2% ***
     CMI      ours=0.67  yf=0.38  diff=76.0% ***
     O        ours=5.32  yf=3.07  diff=73.3% ***
     BXP      ours=0.89  yf=0.52  diff=71.7% ***
@@ -98,17 +97,18 @@ VOLUME  -- 212 flagged (>10%)
     PPL      ours=7.05  yf=4.52  diff=56.0% ***
     PM       ours=3.46  yf=2.22  diff=55.9% ***
     CVS      ours=7.19  yf=4.65  diff=54.6% ***
+    FTV      ours=1.81  yf=1.17  diff=54.2% ***
   TOP 10 LARGEST DIFF:
     BAX      ours=8.51  yf=4.26  diff=99.9% ***
     EOG      ours=3.81  yf=1.94  diff=96.4% ***
     SRE      ours=2.45  yf=1.29  diff=89.3% ***
     PGR      ours=2.52  yf=1.43  diff=76.4% ***
-    ED       ours=2.05  yf=1.16  diff=76.2% ***
     CMI      ours=0.67  yf=0.38  diff=76.0% ***
     O        ours=5.32  yf=3.07  diff=73.3% ***
     BXP      ours=0.89  yf=0.52  diff=71.7% ***
     EIX      ours=2.37  yf=1.40  diff=68.8% ***
     DVA      ours=0.78  yf=0.46  diff=67.8% ***
+    GD       ours=0.98  yf=0.60  diff=63.0% ***
 
 ------------------------------------------------------------
 MKTCAP  -- 6 flagged (>10%)
@@ -132,15 +132,14 @@ MKTCAP  -- 6 flagged (>10%)
     SMCI     ours=$16.64B  yf=$17.89B  diff=7.0%
 
 ------------------------------------------------------------
-PE  -- 20 flagged (>10%)
-  FLAGGED (top 20 of 20):
+PE  -- 19 flagged (>10%)
+  FLAGGED (top 19 of 19):
     NBIS     ours=637.910  yf=81.278  diff=684.8% ***
     OXY      ours=13.810  yf=74.068  diff=81.4% ***
     ALNY     ours=126.900  yf=72.559  diff=74.9% ***
     MLM      ours=13.580  yf=35.696  diff=62.0% ***
     NWS      ours=15.710  yf=39.759  diff=60.5% ***
     NWSA     ours=13.870  yf=35.101  diff=60.5% ***
-    BDX      ours=38.940  yf=26.846  diff=45.0% ***
     JCI      ours=26.030  yf=44.015  diff=40.9% ***
     NKE      ours=28.980  yf=20.838  diff=39.1% ***
     TXT      ours=10.900  yf=17.065  diff=36.1% ***
@@ -161,14 +160,14 @@ PE  -- 20 flagged (>10%)
     MLM      ours=13.580  yf=35.696  diff=62.0% ***
     NWS      ours=15.710  yf=39.759  diff=60.5% ***
     NWSA     ours=13.870  yf=35.101  diff=60.5% ***
-    BDX      ours=38.940  yf=26.846  diff=45.0% ***
     JCI      ours=26.030  yf=44.015  diff=40.9% ***
     NKE      ours=28.980  yf=20.838  diff=39.1% ***
     TXT      ours=10.900  yf=17.065  diff=36.1% ***
+    HAL      ours=25.890  yf=19.453  diff=33.1% ***
 
 ------------------------------------------------------------
-EPS  -- 26 flagged (>10%)
-  FLAGGED (top 20 of 26):
+EPS  -- 25 flagged (>10%)
+  FLAGGED (top 20 of 25):
     PSKY     ours=-0.600  yf=0.030  diff=2100.0% ***
     OXY      ours=3.970  yf=0.740  diff=436.5% ***
     CRWD     ours=-0.120  yf=-0.040  diff=200.0% ***
@@ -182,13 +181,13 @@ EPS  -- 26 flagged (>10%)
     TXT      ours=8.200  yf=5.240  diff=56.5% ***
     ALNY     ours=2.270  yf=3.970  diff=42.8% ***
     LEN      ours=8.510  yf=6.380  diff=33.4% ***
-    BDX      ours=3.950  yf=5.730  diff=31.1% ***
     NKE      ours=1.510  yf=2.100  diff=28.1% ***
     IP       ours=-6.600  yf=-5.190  diff=27.2% ***
     WEC      ours=6.310  yf=4.990  diff=26.5% ***
     HAL      ours=1.360  yf=1.810  diff=24.9% ***
     KMB      ours=6.370  yf=5.170  diff=23.2% ***
     COF      ours=3.920  yf=3.240  diff=21.0% ***
+    LYB      ours=-2.500  yf=-2.120  diff=17.9% ***
   TOP 10 LARGEST DIFF:
     PSKY     ours=-0.600  yf=0.030  diff=2100.0% ***
     OXY      ours=3.970  yf=0.740  diff=436.5% ***
