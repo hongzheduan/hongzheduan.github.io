@@ -38,7 +38,7 @@ SCRIPT_DIR = Path(__file__).parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from generate_video import (  # noqa: E402
-    load_font, load_font_cn, tw, th, encode,
+    load_font, load_font_cn, tw, th, encode, get_ffmpeg,
     WHITE, MUTED, DIM, GOLD_LIGHT, ELECTRIC, ELEC_BRIGHT, NAVY_LIGHT,
     _wrap_text, _wrap_text_cn,
 )
@@ -54,6 +54,18 @@ MASCOT_PATH = SCRIPT_DIR / "baize_mascot.png"
 MAX_STORIES = 10
 MIN_STORIES = 1
 TEXT_BAND_H = round(SH * 0.25)
+
+# EN reads at +20% (was +40%, same as the fast-cut weekday Shorts) — this
+# narrative news-recap format needs a slower, more natural pace than the
+# quick-cut category Shorts. CN pace wasn't flagged, left at SHORTS_TTS_RATE.
+NEWS_TTS_VOICE_EN = "en-US-ChristopherNeural"
+NEWS_TTS_RATE_EN = "+20%"
+
+
+def news_tts_params(lang):
+    if lang == "en":
+        return NEWS_TTS_VOICE_EN, NEWS_TTS_RATE_EN
+    return SHORTS_TTS_VOICE_CN, SHORTS_TTS_RATE
 
 _MASCOT_SRC = None
 
@@ -91,19 +103,40 @@ def news_bg_path_for_day(date_obj):
     return str(COVERING_DIR / f"News_{idx}.png")
 
 
-# ── Duration estimation (calibrated against real edge-tts measurements —
+# ── Duration measurement ────────────────────────────────────────────────
 # headlines/narration are dynamic per day, so hold_sec can't be hand-measured
-# like the fixed weekday templates; see project_announcement... no, see
-# project_youtube_shorts memory for the regression this came from) ────────
+# like the fixed weekday templates. This used to be a word-count regression
+# fit against sample edge-tts measurements, but that kept drifting out of
+# sync with reality: it needed a full re-fit every time the TTS rate
+# changed, and even freshly re-fit it still either overshot (dead air
+# before the next scene — the 2026-07-14 "beginning speaks slow, obvious
+# pause" report) or undershot (mid-word narration cutoffs) depending on how
+# generous the safety buffer was, because word count alone doesn't capture
+# per-line variance (punctuation-driven pauses, numbers, proper nouns).
+# Now measures the actual synthesized clip directly instead of guessing.
 
-def estimate_duration_en(text):
-    words = len(text.split())
-    return 0.218 * words + 2.4   # fitted slope/intercept + safety buffer
+NEWS_TTS_BUFFER = 0.25  # small fixed safety margin over the real measured duration
 
 
-def estimate_duration_cn(text):
-    chars = len(text)
-    return 0.132 * chars + 1.6
+def measure_tts_seconds(text, voice, rate):
+    """Synthesize `text` for real and return its actual duration in seconds
+    (+ NEWS_TTS_BUFFER). Same voice/rate must be passed to encode() below so
+    the measured value matches what actually gets muxed into the video."""
+    import asyncio
+    import re
+    import subprocess
+    import tempfile
+
+    import edge_tts
+
+    with tempfile.TemporaryDirectory() as tmp:
+        mp3 = str(Path(tmp) / "measure.mp3")
+        asyncio.run(edge_tts.Communicate(text, voice=voice, rate=rate).save(mp3))
+        out = subprocess.run([get_ffmpeg(), "-i", mp3], capture_output=True, text=True).stderr
+        m = re.search(r"Duration: (\d+):(\d+):([\d.]+)", out)
+        h, mnt, s = m.groups()
+        dur = int(h) * 3600 + int(mnt) * 60 + float(s)
+    return dur + NEWS_TTS_BUFFER
 
 
 # ── Claude Haiku 4.5: dedupe + filter + paraphrase ─────────────────────────
@@ -287,6 +320,7 @@ def build_news_report(date_str, lang="en"):
 
     date_obj = datetime.date.fromisoformat(date_str)
     bg_path = news_bg_path_for_day(date_obj)
+    tts_voice, tts_rate = news_tts_params(lang)
 
     def hook_scene():
         img, draw = new_frame_s()
@@ -329,10 +363,10 @@ def build_news_report(date_str, lang="en"):
     _MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July",
                     "August", "September", "October", "November", "December"]
     hook_text = (
-        f"Market Pulse, by Baizora — {_MONTH_NAMES[date_obj.month - 1]} {date_obj.day}." if lang == "en"
+        f"Market Pulse by Baizora, {_MONTH_NAMES[date_obj.month - 1]} {date_obj.day}." if lang == "en"
         else f"市场脉动，贝佐拉出品——{date_obj.month}月{date_obj.day}日。"
     )
-    hook_dur = (estimate_duration_en if lang == "en" else estimate_duration_cn)(hook_text)
+    hook_dur = measure_tts_seconds(hook_text, tts_voice, tts_rate)
 
     frames = [(hook_scene(), hook_dur, None, hook_text)]
     total = len(stories)
@@ -340,7 +374,7 @@ def build_news_report(date_str, lang="en"):
         headline = story["headline"]
         narration = story["narration"]
         source = story["source"]
-        dur = (estimate_duration_en if lang == "en" else estimate_duration_cn)(narration)
+        dur = measure_tts_seconds(narration, tts_voice, tts_rate)
         story_bg = news_bg_path_for_story(i)
         base = scene_news_card_base(i + 1, total, headline, source, story_bg, lang=lang)
         clip = bob_cycle_frames(base, dur)
@@ -350,7 +384,7 @@ def build_news_report(date_str, lang="en"):
         "Get the full daily briefing, every headline, free at baizora dot com." if lang == "en"
         else "获取完整每日简报和全部要闻，前往baizora点com。"
     )
-    outro_dur = (estimate_duration_en if lang == "en" else estimate_duration_cn)(outro_text)
+    outro_dur = measure_tts_seconds(outro_text, tts_voice, tts_rate)
     frames.append((scene_ad_short(date_str, lang=lang), outro_dur, None, outro_text))
 
     return frames
@@ -370,8 +404,8 @@ def main():
     if frames is None:
         return  # skip — no output file written, matches other categories' skip pattern
 
-    tts_voice = "en-US-ChristopherNeural" if args.lang == "en" else SHORTS_TTS_VOICE_CN
-    encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
+    tts_voice, tts_rate = news_tts_params(args.lang)
+    encode(frames, output, xfade_frames=3, tts_rate=tts_rate, tts_voice=tts_voice)
     print("Wrote", output)
 
 
