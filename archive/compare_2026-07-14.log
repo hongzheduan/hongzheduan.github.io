@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-14
 Threshold: >10% for all metrics
-282 flagged diffs above threshold
+283 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -132,8 +132,8 @@ MKTCAP  -- 6 flagged (>10%)
     SMCI     ours=$16.63B  yf=$17.89B  diff=7.0%
 
 ------------------------------------------------------------
-PE  -- 19 flagged (>10%)
-  FLAGGED (top 19 of 19):
+PE  -- 20 flagged (>10%)
+  FLAGGED (top 20 of 20):
     NBIS     ours=588.150  yf=74.938  diff=684.8% ***
     OXY      ours=13.750  yf=73.743  diff=81.4% ***
     ALNY     ours=123.900  yf=70.668  diff=75.3% ***
@@ -152,6 +152,7 @@ PE  -- 19 flagged (>10%)
     COF      ours=52.370  yf=63.166  diff=17.1% ***
     C        ours=19.070  yf=16.473  diff=15.8% ***
     BKNG     ours=26.250  yf=23.067  diff=13.8% ***
+    DRI      ours=20.740  yf=18.749  diff=10.6% ***
     EXC      ours=15.380  yf=17.187  diff=10.5% ***
   TOP 10 LARGEST DIFF:
     NBIS     ours=588.150  yf=74.938  diff=684.8% ***
