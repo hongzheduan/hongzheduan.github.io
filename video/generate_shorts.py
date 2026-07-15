@@ -476,6 +476,25 @@ def scene_member_spotlight_short(member, scan_date, lang="en", theme="dark"):
             r = 14
             draw.polygon([(jx, jy - r), (jx - r, jy + r), (jx + r, jy + r)], fill=GOLD)
 
+            # "JOINED {date}" label beside the marker — same dark-chip-with-gold-
+            # text treatment as the breakout chart's "PREV HIGH" pill (works on
+            # both themes unchanged, see _draw_candles_with_volume), flipping to
+            # the line's left when there isn't room on the right so it never
+            # runs off-canvas.
+            join_label = f"JOINED {member['join_date']}" if lang == "en" else f"加入日期 {member['join_date']}"
+            f_join = load_font(18, mono=True, bold=True) if lang == "en" else load_font_cn(18, bold=True)
+            jlbl_w = tw(draw, join_label, f_join)
+            pad = 6
+            gap = 20  # clears the triangle's r=14 half-width
+            if x1 - jx - gap >= jlbl_w + pad * 2:
+                jlbl_x = jx + gap
+            else:
+                jlbl_x = jx - gap - jlbl_w - pad * 2
+            jlbl_y = y0 + 8
+            draw.rectangle([jlbl_x, jlbl_y - pad, jlbl_x + jlbl_w + pad * 2, jlbl_y + 20 + pad],
+                            fill=NAVY, outline=GOLD, width=1)
+            draw.text((jlbl_x + pad, jlbl_y), join_label, font=f_join, fill=GOLD)
+
     f_pct = load_headline_font(120)
     pct_y = SH - 440
     pct_text = pct_str(perf)
@@ -516,11 +535,16 @@ def _draw_share_footer(img, draw, date, lang, caption, theme="dark"):
     # would need its own dark-on-light asset for the inverse case — bold text
     # alone reads better here regardless of theme. "Baizora" stays Latin-script
     # even on CN cards (brand name, not translated) — matches how the CN cards'
-    # own ad-reel CTA says "baizora点com", not a translated domain.
+    # own ad-reel CTA says "baizora点com", not a translated domain. Says
+    # "downloadable at baizora.com" (not just the bare domain) so the badge
+    # itself explains why someone would go there, not just where "there" is.
     brand_text = "Baizora"
-    domain_text = "  ·  baizora.com"
+    domain_text = "  ·  downloadable at baizora.com" if lang == "en" else "  ·  可在baizora.com下载"
     f_brand = load_font(22, bold=True)
-    f_domain = load_font(18, mono=True)
+    # CN domain text needs a CJK-capable font — a plain mono font here would
+    # render "可在...下载" as tofu boxes, the same class of bug already fixed
+    # once for the breakout chart's "前高" peak label.
+    f_domain = load_font(18, mono=True) if lang == "en" else load_font_cn(18)
     brand_w = tw(draw, brand_text, f_brand)
     domain_w = tw(draw, domain_text, f_domain)
     pad_x, pad_y = 18, 10
