@@ -210,11 +210,17 @@ _VOL_GREEN = _blend_over_navy(GREEN)
 _VOL_RED = _blend_over_navy(RED)
 
 
-def _draw_candles_with_volume(img, draw, ticker, region):
+def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_label=None, lang="en"):
     """Real 1-year daily OHLCV candlesticks + a volume panel underneath (price ~78%
     / volume ~22%, volume bars color-matched to candle direction at reduced opacity)
     — same visual language as the real dashboard's candlestick chart, replacing the
-    close-only sparkline so the card shows actual price action, not a smoothed line."""
+    close-only sparkline so the card shows actual price action, not a smoothed line.
+
+    peak_idx (optional): index into `bars` for the previous-high day (matches
+    row["_peak_idx"] from _compute_breakouts, which indexes the same tail(252)
+    window as candles.json — see generate_video.py's export_candles). When given,
+    draws the same gold dashed-line + dot "previous high" marker the landscape
+    video's scene_breakout_sparklines has always had, brought back for Shorts."""
     bars = _load_candles().get("data", {}).get(ticker) or []
     if len(bars) < 2:
         return
@@ -253,12 +259,48 @@ def _draw_candles_with_volume(img, draw, ticker, region):
         vol_color = _VOL_GREEN if up else _VOL_RED
         draw.rectangle([cx - body_w / 2, vol_y1 - vh, cx + body_w / 2, vol_y1], fill=vol_color)
 
+    if peak_idx is not None and 0 <= peak_idx < n:
+        pk_price = bars[peak_idx][3]  # close on the peak day, matches _compute_breakouts (Spark1Y/close-based)
+        pk_x = x0 + (peak_idx + 0.5) * slot_w
+        pk_y = py(pk_price)
+        draw.line([(pk_x, price_y0), (pk_x, price_y1)], fill=GOLD, width=1)
+        for ddx in range(0, round(x1 - x0), 8):
+            lx0 = x0 + ddx
+            lx1 = min(x0 + ddx + 4, x1)
+            draw.line([(lx0, pk_y), (lx1, pk_y)], fill=GOLD, width=1)
+        if peak_label:
+            # CN peak labels (e.g. "前高") need a CJK-capable font — a plain mono
+            # font here rendered CN text as tofu boxes, the same bug already fixed
+            # once for scene_ad_short's CN date line (see project memory).
+            f_lbl = load_font(20, mono=True, bold=True) if lang == "en" else load_font_cn(20, bold=True)
+            lbl_w = tw(draw, peak_label, f_lbl)
+            pad = 6
+            gap = 14  # clears the dot's r=7 radius
+            # Anchored beside the dot (not the chart's far edge, which could sit far
+            # from the marker it's meant to label) — flips to the dot's left when
+            # there isn't enough room on the right so it never runs off-canvas.
+            if x1 - pk_x - gap >= lbl_w + pad * 2:
+                lbl_x = pk_x + gap
+            else:
+                lbl_x = pk_x - gap - lbl_w - pad * 2
+            lbl_y = pk_y - 28 if pk_y - price_y0 > 30 else pk_y + 12
+            draw.rectangle([lbl_x, lbl_y - pad, lbl_x + lbl_w + pad * 2, lbl_y + 20 + pad],
+                            fill=NAVY, outline=GOLD, width=1)
+            draw.text((lbl_x + pad, lbl_y), peak_label, font=f_lbl, fill=GOLD)
+        draw.ellipse([pk_x - 7, pk_y - 7, pk_x + 7, pk_y + 7], fill=GOLD)
 
-def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=True):
+
+def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=True,
+                      peak_label_en=None, peak_label_cn=None):
     """Hero card for a single ticker — replaces the old shared 5-row table so the
     Short shows one stock at a time (name + the narrated metric + its 1-year
     candlestick trend, all together) instead of a static list everyone's narrated
-    line points at identically. sub_en/sub_cn label whichever metric value_key is."""
+    line points at identically. sub_en/sub_cn label whichever metric value_key is.
+
+    peak_label_en/cn (optional): when the row carries a "_peak_idx" (set by
+    _compute_breakouts for Wednesday's breakout category), passing a label here
+    draws the gold "previous high" dot + dashed line on the candlestick chart —
+    the same marker the landscape video's breakout scene has always had."""
     img, draw = new_frame_s()
     dot_grid_s(draw)
 
@@ -281,7 +323,9 @@ def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=Tru
     # chart floating in the middle of a now-oversized box.
     full_h = (SH - 560) - 350
     region = (110, 350, SW - 110, 350 + round(full_h * 0.75))
-    _draw_candles_with_volume(img, draw, ticker, region)
+    peak_idx = row.get("_peak_idx")
+    peak_label = (peak_label_en if lang == "en" else peak_label_cn) if peak_idx is not None else None
+    _draw_candles_with_volume(img, draw, ticker, region, peak_idx=peak_idx, peak_label=peak_label, lang=lang)
 
     f_pct = load_headline_font(130)
     pct_y = region[3] + 40
@@ -350,7 +394,6 @@ def scene_member_spotlight_short(member, scan_date, lang="en"):
     footer = "SINCE JOINING THE INDEX" if lang == "en" else "加入指数以来"
     centered_s(draw, pct_bottom + 30, footer, load_font(26, mono=True) if lang == "en" else load_font_cn(24), DIM)
     return img
-
 
 
 
@@ -602,13 +645,13 @@ def _narrate_ticker_lines_best_cn(rows, key, n=5):
 
 
 _HOOK_NARRATION_PULLBACK_EN = [
-    "These stocks pulled back at least {min_drawdown} percent, then broke out to a new {window} high.",
-    "A real pullback, then a new {window} high — here's today's setup.",
+    "These stocks pulled back at least {min_drawdown} percent, then broke out to a new {window} high within the past two weeks.",
+    "A real pullback, then a new {window} high, first crossed within the past two weeks.",
 ]
 
 _HOOK_NARRATION_PULLBACK_CN = [
-    "这些股票回调至少{min_drawdown}%，随后突破{window}新高。",
-    "先经历真实回调，再创下{window}新高，这就是今天的主角。",
+    "这些股票回调至少{min_drawdown}%，随后在过去两周内首次突破{window}新高。",
+    "先经历真实回调，再于两周内首次创下{window}新高，这就是今天的主角。",
 ]
 
 
@@ -876,8 +919,13 @@ def build_6m_breakout_short(data, output, lang="en"):
 
     window_en, window_cn = tf["window_en"], tf["window_cn"]
     label_en, label_cn = tf["label_en"], tf["label_cn"]
-    sub_en = f"{tf['min_drawdown']}%+ DECLINE, NOW AT A NEW HIGH"
-    sub_cn = f"跌超{tf['min_drawdown']}%，如今创新高"
+    # States the "first crossed in the past 2 weeks" recency criterion on-screen
+    # (persists across all 3 cards, right next to the gold peak marker it explains) —
+    # the landscape long-form video has always said this both on-screen and in
+    # narration; the Short previously said neither, which read as "why is this
+    # particular breakout the story today" being unexplained.
+    sub_en = f"{tf['min_drawdown']}%+ DECLINE, HIGH CROSSED IN PAST 2 WEEKS"
+    sub_cn = f"跌超{tf['min_drawdown']}%，两周内首次突破新高"
 
     # Narrating only up to 3 tickers — mentioning the pullback % AND the rotating
     # timeframe (it cycles 1M/3M/6M/9M/1Y weekly, so it must be stated, not implied)
@@ -899,7 +947,10 @@ def build_6m_breakout_short(data, output, lang="en"):
             if i == n - 1:
                 return 4.16
             return 3.97
-        hook_dur = 4.2
+        # hook_dur widened 4.2->5.2 after adding the "within the past two weeks"
+        # clause to both narration variants (edge-tts measured at SHORTS_TTS_RATE
+        # with window="一年": 4.63s / 4.87s, +buffer — was 3.60s/3.94s pre-change).
+        hook_dur = 5.2
         hook_text = random.choice(_HOOK_NARRATION_PULLBACK_CN).format(
             min_drawdown=tf["min_drawdown"], window=window_cn)
         tts_voice = SHORTS_TTS_VOICE_CN
@@ -913,7 +964,10 @@ def build_6m_breakout_short(data, output, lang="en"):
             if i == n - 1:
                 return 4.81
             return 3.99
-        hook_dur = 4.3
+        # hook_dur widened 4.3->5.3 after adding the "within the past two weeks"
+        # clause to both narration variants (edge-tts measured at SHORTS_TTS_RATE
+        # with window="one-year": 4.94s / 4.27s, +buffer — was 3.98s/3.53s pre-change).
+        hook_dur = 5.3
         hook_text = random.choice(_HOOK_NARRATION_PULLBACK_EN).format(
             min_drawdown=tf["min_drawdown"], window=window_en)
         tts_voice = "en-US-ChristopherNeural"
@@ -928,7 +982,11 @@ def build_6m_breakout_short(data, output, lang="en"):
     # One stock at a time (name + pullback % + its 1Y candlestick trend), same as
     # Monday/Tuesday — replaces the old shared table.
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
-        card = scene_stock_card(row, i + 1, lang, "_drawdown_display", sub_en, sub_cn, gold_leader=False)
+        # "PREV HIGH" / "前高" rather than tf's timeframe-specific header (e.g. "1Y
+        # HIGH") — the hook scene already states the timeframe ("1-YEAR HIGH"), so
+        # the marker itself just needs to say what the dot/line actually is.
+        card = scene_stock_card(row, i + 1, lang, "_drawdown_display", sub_en, sub_cn, gold_leader=False,
+                                 peak_label_en="PREV HIGH", peak_label_cn="前高")
         frames.append((card, dur, None, line))
 
     # Ad reel, same as Monday/Tuesday: real footage with the platform pitch, then a
