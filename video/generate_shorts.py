@@ -65,8 +65,8 @@ def cover_path_for(video_type, date_obj):
     return path if path.exists() else None
 
 
-def new_frame_s():
-    img = Image.new("RGB", (SW, SH), NAVY)
+def new_frame_s(bg=NAVY):
+    img = Image.new("RGB", (SW, SH), bg)
     return img, ImageDraw.Draw(img)
 
 
@@ -187,6 +187,25 @@ def scene_hook_generic(scan_date, lang, lines_en, lines_cn, sub_en, sub_cn, bg_s
     return img
 
 
+# ── Light theme (share cards only) ──────────────────────────────────────────────
+# The video and dashboard keep the dark-navy brand look everywhere; this palette
+# exists only for the standalone downloadable share images, which get their own
+# fully separate render (not a recolor of the dark video frame — swapping a navy
+# background for white needs real re-rendering, since text/candle/grid colors
+# tuned for contrast against navy don't automatically read on white).
+_LT_BG        = (248, 250, 252)   # slate-50
+_LT_GRID_DOT  = (226, 232, 240)   # slate-200
+_LT_GRID_LINE = (226, 232, 240)
+_LT_BORDER    = (203, 213, 225)   # slate-300
+_LT_TEXT_PRI  = (15, 23, 42)      # slate-900 — ticker, badge text
+_LT_TEXT_SEC  = (71, 85, 105)     # slate-600 — company name, captions
+_LT_TEXT_DIM  = (100, 116, 139)   # slate-500 — lighter than DIM (148,163,184) reads
+                                   # fine on navy but is too pale for good contrast on white
+_LT_AXIS_BG   = _LT_BG
+_LT_VOL_GREEN = (187, 247, 208)   # green-200 — a straight alpha-blend of GREEN over
+_LT_VOL_RED   = (254, 202, 202)   # red-200 — white washes out far more than over navy
+
+
 # ── Scene 2': one stock at a time — name, number, and its 1Y trend together ────────
 
 _CANDLES_CACHE = None
@@ -210,7 +229,7 @@ _VOL_GREEN = _blend_over_navy(GREEN)
 _VOL_RED = _blend_over_navy(RED)
 
 
-def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_label=None, lang="en"):
+def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_label=None, lang="en", theme="dark"):
     """Real 1-year daily OHLCV candlesticks + a volume panel underneath (price ~78%
     / volume ~22%, volume bars color-matched to candle direction at reduced opacity)
     — same visual language as the real dashboard's candlestick chart, replacing the
@@ -220,7 +239,23 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
     row["_peak_idx"] from _compute_breakouts, which indexes the same tail(252)
     window as candles.json — see generate_video.py's export_candles). When given,
     draws the same gold dashed-line + dot "previous high" marker the landscape
-    video's scene_breakout_sparklines has always had, brought back for Shorts."""
+    video's scene_breakout_sparklines has always had, brought back for Shorts.
+
+    theme="light" (share cards only): swaps candle/gridline/axis colors for the
+    light palette — GREEN/RED (not the neon BRIGHT_GREEN/BRIGHT_RED tuned for
+    navy) read as washed-out on white, and the axis backing chip needs to match
+    the light background instead of navy. The gold peak marker (line/dot/pill,
+    which is already a dark NAVY chip with GOLD text/outline) is left unchanged —
+    a dark accent chip reads fine as a highlight on a light card too."""
+    is_light = theme == "light"
+    candle_green = GREEN if is_light else BRIGHT_GREEN
+    candle_red = RED if is_light else BRIGHT_RED
+    vol_green = _LT_VOL_GREEN if is_light else _VOL_GREEN
+    vol_red = _LT_VOL_RED if is_light else _VOL_RED
+    grid_color = _LT_GRID_LINE if is_light else (28, 42, 68)
+    axis_bg = _LT_AXIS_BG if is_light else (6, 13, 31)
+    axis_text = _LT_TEXT_DIM if is_light else DIM
+
     bars = _load_candles().get("data", {}).get(ticker) or []
     if len(bars) < 2:
         return
@@ -245,10 +280,18 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
     def py(v):
         return price_y1 - (v - mn_v) / (mx_v - mn_v) * (price_y1 - price_y0)
 
+    # Faint reference gridlines at 3 price levels, drawn under the candles (not on
+    # top) so they read as scale, not clutter — labels for these are drawn last,
+    # after the peak marker, so they always stay legible on top of everything else.
+    grid_levels = [mn_v, (mn_v + mx_v) / 2, mx_v]
+    for lvl in grid_levels:
+        gy = py(lvl)
+        draw.line([(x0, gy), (x1, gy)], fill=grid_color, width=1)
+
     for i, (o, h, l, c, v) in enumerate(bars):
         cx = x0 + (i + 0.5) * slot_w
         up = c >= o
-        color = BRIGHT_GREEN if up else BRIGHT_RED
+        color = candle_green if up else candle_red
         draw.line([(cx, py(h)), (cx, py(l))], fill=color, width=1)
         top, bot = py(max(o, c)), py(min(o, c))
         if bot - top < 1:
@@ -256,8 +299,29 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
         draw.rectangle([cx - body_w / 2, top, cx + body_w / 2, bot], fill=color)
 
         vh = (v / max_vol) * (vol_y1 - vol_y0)
-        vol_color = _VOL_GREEN if up else _VOL_RED
+        vol_color = vol_green if up else vol_red
         draw.rectangle([cx - body_w / 2, vol_y1 - vh, cx + body_w / 2, vol_y1], fill=vol_color)
+
+    # "1Y TREND" label — same wording as the real dashboard's column header (see
+    # CLAUDE.md) — so the chart states its own timeframe instead of leaving a
+    # reader to guess how far back 252 daily candles actually go.
+    tf_label = "1Y TREND" if lang == "en" else "年趋势线"
+    f_tf = load_font(15, mono=True, bold=True) if lang == "en" else load_font_cn(15, bold=True)
+    draw.text((x0, price_y0 - 22), tf_label, font=f_tf, fill=axis_text)
+
+    # Price axis: dollar value at each of the 3 gridlines, right-aligned to the
+    # chart's right edge with a small backing chip so it stays readable regardless
+    # of what candles/peak-marker pill are behind it at that height.
+    f_axis = load_font(15, mono=True)
+    for idx, lvl in enumerate(grid_levels):
+        gy = py(lvl)
+        label = f"${lvl:,.0f}" if lvl >= 100 else f"${lvl:,.2f}"
+        lbl_w = tw(draw, label, f_axis)
+        pad = 4
+        ty = gy - 9 if idx < 2 else gy - 16  # keep the top level's chip from clipping above the panel
+        lx1 = x1 - 4
+        draw.rectangle([lx1 - lbl_w - pad * 2, ty - pad + 1, lx1, ty + 15 + pad - 1], fill=axis_bg)
+        draw.text((lx1 - lbl_w - pad, ty), label, font=f_axis, fill=axis_text)
 
     if peak_idx is not None and 0 <= peak_idx < n:
         pk_price = bars[peak_idx][3]  # close on the peak day, matches _compute_breakouts (Spark1Y/close-based)
@@ -291,7 +355,7 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
 
 
 def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=True,
-                      peak_label_en=None, peak_label_cn=None):
+                      peak_label_en=None, peak_label_cn=None, theme="dark"):
     """Hero card for a single ticker — replaces the old shared 5-row table so the
     Short shows one stock at a time (name + the narrated metric + its 1-year
     candlestick trend, all together) instead of a static list everyone's narrated
@@ -300,24 +364,32 @@ def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=Tru
     peak_label_en/cn (optional): when the row carries a "_peak_idx" (set by
     _compute_breakouts for Wednesday's breakout category), passing a label here
     draws the gold "previous high" dot + dashed line on the candlestick chart —
-    the same marker the landscape video's breakout scene has always had."""
-    img, draw = new_frame_s()
-    dot_grid_s(draw)
+    the same marker the landscape video's breakout scene has always had.
 
-    rank_col = GOLD_LIGHT if (gold_leader and rank == 1) else MUTED
+    theme="light" (share cards only): the video always renders theme="dark" —
+    this is a real re-render with swapped colors throughout, not a recolor of
+    an existing dark frame."""
+    is_light = theme == "light"
+    img, draw = new_frame_s(bg=_LT_BG if is_light else NAVY)
+    dot_grid_s(draw, color=_LT_GRID_DOT if is_light else (20, 35, 65))
+
+    rank_col = GOLD_LIGHT if (gold_leader and rank == 1) else (_LT_TEXT_DIM if is_light else MUTED)
     centered_s(draw, 80, f"#{rank}", load_font(32, mono=True, bold=True), rank_col)
 
     ticker = row.get("Ticker", "")
     f_tkr = load_headline_font(90) if lang == "en" else load_font_cn(72, bold=True)
-    centered_s(draw, 145, ticker, f_tkr, WHITE)
+    centered_s(draw, 145, ticker, f_tkr, _LT_TEXT_PRI if is_light else WHITE)
 
     name = (row.get("CompanyName") or "")
     if len(name) > 30:
         name = name[:27] + "..."
-    centered_s(draw, 270, name, load_font(28) if lang == "en" else load_font_cn(26), MUTED)
+    centered_s(draw, 270, name, load_font(28) if lang == "en" else load_font_cn(26), _LT_TEXT_SEC if is_light else MUTED)
 
     v = row.get(value_key)
-    color = BRIGHT_GREEN if (v or 0) >= 0 else BRIGHT_RED
+    if is_light:
+        color = GREEN if (v or 0) >= 0 else RED
+    else:
+        color = BRIGHT_GREEN if (v or 0) >= 0 else BRIGHT_RED
     # Trend region height cut to 3/4 of the original (350 -> SH-560) span, anchored
     # at the same top so the freed space collapses upward instead of leaving the
     # chart floating in the middle of a now-oversized box.
@@ -325,7 +397,7 @@ def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=Tru
     region = (110, 350, SW - 110, 350 + round(full_h * 0.75))
     peak_idx = row.get("_peak_idx")
     peak_label = (peak_label_en if lang == "en" else peak_label_cn) if peak_idx is not None else None
-    _draw_candles_with_volume(img, draw, ticker, region, peak_idx=peak_idx, peak_label=peak_label, lang=lang)
+    _draw_candles_with_volume(img, draw, ticker, region, peak_idx=peak_idx, peak_label=peak_label, lang=lang, theme=theme)
 
     f_pct = load_headline_font(130)
     pct_y = region[3] + 40
@@ -335,23 +407,31 @@ def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=Tru
     # bbox bottom, not draw-y + th(), or the label below collides with the glyph tail.
     pct_bottom = pct_y + draw.textbbox((0, 0), pct_text, font=f_pct)[3]
     sub = sub_en if lang == "en" else sub_cn
-    centered_s(draw, pct_bottom + 30, sub, load_font(24, mono=True) if lang == "en" else load_font_cn(22), DIM)
+    centered_s(draw, pct_bottom + 30, sub, load_font(24, mono=True) if lang == "en" else load_font_cn(22),
+               _LT_TEXT_DIM if is_light else DIM)
     return img
 
 
 # ── Scene 2b': Friday — 1-year trend with a join-date marker ───────────────────────
 
-def scene_member_spotlight_short(member, scan_date, lang="en"):
+def scene_member_spotlight_short(member, scan_date, lang="en", theme="dark"):
     """Portrait version of generate_video.py's scene_spotlight_sparkline — pre-join
     segment muted gray, post-join segment colored green/red, with a gold join marker,
-    so the "index inclusion changed the trajectory" story reads in one glance."""
-    img, draw = new_frame_s()
-    dot_grid_s(draw)
+    so the "index inclusion changed the trajectory" story reads in one glance.
+
+    theme="light" (share cards only) — see scene_stock_card's docstring; same
+    real-re-render approach, not a recolor."""
+    is_light = theme == "light"
+    img, draw = new_frame_s(bg=_LT_BG if is_light else NAVY)
+    dot_grid_s(draw, color=_LT_GRID_DOT if is_light else (20, 35, 65))
     row = member["row"]
     ticker = member["ticker"]
     perf = member["perf_since_join"]
     spark_idx = member["spark_idx"]
-    color = BRIGHT_GREEN if perf >= 0 else BRIGHT_RED
+    if is_light:
+        color = GREEN if perf >= 0 else RED
+    else:
+        color = BRIGHT_GREEN if perf >= 0 else BRIGHT_RED
 
     title = f"{ticker} — NEW MEMBER" if lang == "en" else f"{ticker} — 新晋成分股"
     f_title = load_headline_font(56) if lang == "en" else load_font_cn(46, bold=True)
@@ -359,7 +439,8 @@ def scene_member_spotlight_short(member, scan_date, lang="en"):
 
     name = (row.get("CompanyName") or "")
     idx_label = member["index_name"] if lang == "en" else ("纳斯达克100" if "Nasdaq" in member["index_name"] else "标普500")
-    centered_s(draw, 210, f"{name}  ·  {idx_label}", load_font(24) if lang == "en" else load_font_cn(22), MUTED)
+    centered_s(draw, 210, f"{name}  ·  {idx_label}", load_font(24) if lang == "en" else load_font_cn(22),
+               _LT_TEXT_SEC if is_light else MUTED)
 
     spark = row.get("Spark1Y") or []
     region = (110, 320, SW - 110, SH - 480)
@@ -380,7 +461,16 @@ def scene_member_spotlight_short(member, scan_date, lang="en"):
             if len(pre_pts) >= 2:
                 draw.line(pre_pts, fill=VERY_DIM, width=4)
             if len(post_pts) >= 2:
-                _glow_line(img, draw, post_pts, color, width=8, glow_radius=20)
+                if is_light:
+                    # _glow_line composites its blur against a black canvas — on
+                    # navy that bleed is invisible, but on a light card it shows
+                    # up as a dark smudge/halo around the line. The "neon glow"
+                    # look is inherently a dark-theme effect anyway (glows read as
+                    # light against black, not light against white), so the light
+                    # theme just draws a plain thicker line instead.
+                    draw.line(post_pts, fill=color, width=8, joint="curve")
+                else:
+                    _glow_line(img, draw, post_pts, color, width=8, glow_radius=20)
             jx, jy = pts[si]
             draw.line([(jx, y0), (jx, y1)], fill=GOLD, width=2)
             r = 14
@@ -392,9 +482,100 @@ def scene_member_spotlight_short(member, scan_date, lang="en"):
     centered_s(draw, pct_y, pct_text, f_pct, color)
     pct_bottom = pct_y + draw.textbbox((0, 0), pct_text, font=f_pct)[3]
     footer = "SINCE JOINING THE INDEX" if lang == "en" else "加入指数以来"
-    centered_s(draw, pct_bottom + 30, footer, load_font(26, mono=True) if lang == "en" else load_font_cn(24), DIM)
+    centered_s(draw, pct_bottom + 30, footer, load_font(26, mono=True) if lang == "en" else load_font_cn(24),
+               _LT_TEXT_DIM if is_light else DIM)
     return img
 
+
+# ── Shareable stock-card images (social media downloads) ───────────────────────────
+# Reuses the exact card already rendered for the video (scene_stock_card /
+# scene_member_spotlight_short) — same row/member data, so there's no risk of the
+# share image disagreeing with what the video actually shows (e.g. Friday's member
+# is picked once via random.choice and the share card is stamped from that same
+# object, not re-picked). This footer only adds what a standalone image needs that
+# the video doesn't: a one-line explanation of what it is, the date, and a quiet
+# brand mark — into the blank space every card already has below its content.
+
+def _draw_share_footer(img, draw, date, lang, caption, theme="dark"):
+    is_light = theme == "light"
+    y = SH - 210
+    hline_s(draw, y, x0=140, x1=SW - 140, color=_LT_BORDER if is_light else BORDER)
+    y += 34
+    f_cap = load_font(24) if lang == "en" else load_font_cn(22)
+    centered_s(draw, y, caption, f_cap, _LT_TEXT_SEC if is_light else MUTED)
+    y += 46
+    centered_s(draw, y, date, load_font(20, mono=True), _LT_TEXT_DIM if is_light else DIM)
+    y += 54
+    # Badge pill, not muted text — first pass blended into the card and read as an
+    # afterthought; a solid pill with bold text pops at a glance even at small
+    # gallery-thumbnail size. Colors invert per theme so the pill always contrasts
+    # against its own card: white pill + dark text on the dark card, dark pill +
+    # white text on the light card. Dropped the small logo icon here specifically:
+    # _load_logo_cutout's alpha comes from source brightness (bright pixels =
+    # opaque), so it's a light-on-dark icon that disappears on a light pill and
+    # would need its own dark-on-light asset for the inverse case — bold text
+    # alone reads better here regardless of theme. "Baizora" stays Latin-script
+    # even on CN cards (brand name, not translated) — matches how the CN cards'
+    # own ad-reel CTA says "baizora点com", not a translated domain.
+    brand_text = "Baizora"
+    domain_text = "  ·  baizora.com"
+    f_brand = load_font(22, bold=True)
+    f_domain = load_font(18, mono=True)
+    brand_w = tw(draw, brand_text, f_brand)
+    domain_w = tw(draw, domain_text, f_domain)
+    pad_x, pad_y = 18, 10
+    pill_w = brand_w + domain_w + pad_x * 2
+    pill_h = 44
+    px0 = (SW - pill_w) // 2
+    pill_bg = _LT_TEXT_PRI if is_light else (255, 255, 255)
+    brand_fill = (255, 255, 255) if is_light else (15, 23, 42)
+    domain_fill = (203, 213, 225) if is_light else (71, 85, 105)
+    draw.rounded_rectangle([px0, y, px0 + pill_w, y + pill_h], radius=pill_h // 2, fill=pill_bg)
+    draw.text((px0 + pad_x, y + pad_y - 1), brand_text, font=f_brand, fill=brand_fill)
+    draw.text((px0 + pad_x + brand_w, y + pad_y + 2), domain_text, font=f_domain, fill=domain_fill)
+
+
+_SHARE_CARD_MANIFEST = []  # populated by _save_share_card, drained by write_share_manifest()
+
+
+def _save_share_card(card_img, ticker, date, lang, caption, out_dir, video_type, idx, theme="light"):
+    """Stamps the footer onto a copy of an already-rendered card (never mutates the
+    frame passed in — the caller renders a fresh theme="light" card specifically
+    for this, not the dark video frame; see scene_stock_card's theme docstring)
+    and saves it to out_dir/{date}_{video_type}_{lang}_{idx}.png. Filenames are
+    date-stamped (unlike the "latest"-only videos) because the homepage gallery
+    keeps a rolling week of cards, not just today's — scanner.yml prunes anything
+    older than 7 days on each run so the folder/repo doesn't grow unbounded. Also
+    records ticker/caption into _SHARE_CARD_MANIFEST so main() can hand
+    scanner.yml the metadata needed to build the gallery (this Python code is the
+    only place that knows the caption text and which ticker each numbered card is)."""
+    share_img = card_img.copy()
+    share_draw = ImageDraw.Draw(share_img)
+    _draw_share_footer(share_img, share_draw, date, lang, caption, theme=theme)
+    filename = f"{date}_{video_type}_{lang}_{idx}.png"
+    out_path = Path(out_dir) / filename
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    share_img.save(out_path)
+    _SHARE_CARD_MANIFEST.append({
+        "file": filename, "date": date, "lang": lang, "video_type": video_type,
+        "ticker": ticker, "caption": caption,
+    })
+    return str(out_path)
+
+
+def write_share_manifest(out_dir, lang):
+    """Dumps this run's _SHARE_CARD_MANIFEST entries to out_dir/_manifest_{lang}.json
+    — a small per-invocation fragment (generate_shorts.py only ever builds one
+    type/lang per process, and scanner.yml calls it once per language) that
+    scanner.yml reads and merges into the rolling 7-day
+    data/latest_social_cards_meta.json used by the homepage gallery. Keyed by lang
+    (not a single fixed filename) so the EN and CN subprocess runs can't clobber
+    each other's fragment before scanner.yml gets to read both."""
+    if not _SHARE_CARD_MANIFEST:
+        return
+    path = Path(out_dir) / f"_manifest_{lang}.json"
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(_SHARE_CARD_MANIFEST, f, ensure_ascii=False)
 
 
 # ── Scene 3: Baizora ad / outro (final 5 seconds) ─────────────────────────────────
@@ -775,7 +956,7 @@ def _embed_cover(output, cover_path, ffmpeg_path=None):
     print(f"  [cover] embedded {Path(cover_path).name} as poster frame")
 
 
-def build_volume_spikes_short(data, output, lang="en"):
+def build_volume_spikes_short(data, output, lang="en", share_dir=None):
     date = data["date"]
     date_obj = datetime.date.fromisoformat(date)
     rows = sorted(data["data"], key=lambda r: r.get("VolumeChange1D") or -9999, reverse=True)[:3]
@@ -809,6 +990,11 @@ def build_volume_spikes_short(data, output, lang="en"):
         card = scene_stock_card(row, i + 1, lang, "VolumeChange1D",
                                  "VS 21-DAY AVERAGE VOLUME", "对比21日平均成交量")
         frames.append((card, dur, None, line))
+        if share_dir:
+            caption = "Unusual volume spike vs the 21-day average" if lang == "en" else "较21日均量的成交量异动"
+            light_card = scene_stock_card(row, i + 1, lang, "VolumeChange1D",
+                                           "VS 21-DAY AVERAGE VOLUME", "对比21日平均成交量", theme="light")
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "volume_spikes", i + 1)
 
     # Ad reel replaces the old dashboard-screenshot + static-card CTA: real footage
     # (advertise_0.png -> advertise_1.mp4 -> advertise_2.png) with the condensed pitch
@@ -840,7 +1026,7 @@ def build_volume_spikes_short(data, output, lang="en"):
         _embed_cover(output, cover)
 
 
-def build_best_performer_short(data, output, lang="en"):
+def build_best_performer_short(data, output, lang="en", share_dir=None):
     date = data["date"]
     date_obj = datetime.date.fromisoformat(date)
     tf = _tuesday_tf(date)
@@ -849,6 +1035,8 @@ def build_best_performer_short(data, output, lang="en"):
 
     window_en, window_cn = tf["window_en"], tf["window_cn"]
     sub_en, sub_cn = f"OVER THE PAST {window_en.upper()}", f"过去{window_cn}表现"
+    share_caption = (f"Top price gainer over the past {window_en}" if lang == "en"
+                      else f"过去{window_cn}表现最佳个股")
 
     # Durations = actually-measured edge-tts speech time (same measure-don't-guess
     # approach as Monday). Ticker phrasing here is intentionally shorter than Monday's
@@ -879,6 +1067,9 @@ def build_best_performer_short(data, output, lang="en"):
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
         card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn)
         frames.append((card, dur, None, line))
+        if share_dir:
+            light_card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn, theme="light")
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "best_performer", i + 1)
 
     # Ad reel, same as Monday: real footage (advertise_0/1/2) with the platform pitch,
     # then a short second beat with the CTA, then the unchanged silent outro card.
@@ -898,7 +1089,7 @@ def build_best_performer_short(data, output, lang="en"):
         _embed_cover(output, cover)
 
 
-def build_6m_breakout_short(data, output, lang="en"):
+def build_6m_breakout_short(data, output, lang="en", share_dir=None):
     date = data["date"]
     date_obj = datetime.date.fromisoformat(date)
     tf = _wednesday_tf(date)
@@ -919,13 +1110,6 @@ def build_6m_breakout_short(data, output, lang="en"):
 
     window_en, window_cn = tf["window_en"], tf["window_cn"]
     label_en, label_cn = tf["label_en"], tf["label_cn"]
-    # States the "first crossed in the past 2 weeks" recency criterion on-screen
-    # (persists across all 3 cards, right next to the gold peak marker it explains) —
-    # the landscape long-form video has always said this both on-screen and in
-    # narration; the Short previously said neither, which read as "why is this
-    # particular breakout the story today" being unexplained.
-    sub_en = f"{tf['min_drawdown']}%+ DECLINE, HIGH CROSSED IN PAST 2 WEEKS"
-    sub_cn = f"跌超{tf['min_drawdown']}%，两周内首次突破新高"
 
     # Narrating only up to 3 tickers — mentioning the pullback % AND the rotating
     # timeframe (it cycles 1M/3M/6M/9M/1Y weekly, so it must be stated, not implied)
@@ -982,12 +1166,29 @@ def build_6m_breakout_short(data, output, lang="en"):
     # One stock at a time (name + pullback % + its 1Y candlestick trend), same as
     # Monday/Tuesday — replaces the old shared table.
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        # Per-row real drawdown (e.g. "-32% DECLINE"), not the generic min_drawdown
+        # screening threshold (e.g. "10%+ DECLINE") — the threshold is just the
+        # cutoff for making the list, the real number is the actual story for this
+        # specific stock and is already the big colored number above this caption,
+        # so this just states it in words too rather than a repeated generic rule.
+        dd_abs = abs(row.get("_drawdown") or 0)
+        row_sub_en = f"{row.get('_drawdown_display', 0):.0f}% DECLINE, HIGH CROSSED IN PAST 2 WEEKS"
+        row_sub_cn = f"跌{dd_abs:.0f}%，两周内首次突破新高"
         # "PREV HIGH" / "前高" rather than tf's timeframe-specific header (e.g. "1Y
         # HIGH") — the hook scene already states the timeframe ("1-YEAR HIGH"), so
         # the marker itself just needs to say what the dot/line actually is.
-        card = scene_stock_card(row, i + 1, lang, "_drawdown_display", sub_en, sub_cn, gold_leader=False,
+        card = scene_stock_card(row, i + 1, lang, "_drawdown_display", row_sub_en, row_sub_cn, gold_leader=False,
                                  peak_label_en="PREV HIGH", peak_label_cn="前高")
         frames.append((card, dur, None, line))
+        if share_dir:
+            # label_en (e.g. "1-Year") not window_en (e.g. "twelve months") before
+            # "high" — window_en reads fine in "over the past twelve months" but
+            # turns into bad grammar ("twelve months high") as a compound modifier.
+            row_share_caption = (f"Real {dd_abs:.0f}% pullback, new {label_en.lower()} high within 2 weeks" if lang == "en"
+                                  else f"回调{dd_abs:.0f}%，两周内首次创{window_cn}新高")
+            light_card = scene_stock_card(row, i + 1, lang, "_drawdown_display", row_sub_en, row_sub_cn, gold_leader=False,
+                                           peak_label_en="PREV HIGH", peak_label_cn="前高", theme="light")
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, row_share_caption, share_dir, "6m_breakout", i + 1)
 
     # Ad reel, same as Monday/Tuesday: real footage with the platform pitch, then a
     # short second beat with the CTA, then the unchanged silent outro card.
@@ -1007,7 +1208,7 @@ def build_6m_breakout_short(data, output, lang="en"):
         _embed_cover(output, cover)
 
 
-def build_1y_vol_peak_short(data, output, lang="en"):
+def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
     """Thursday — stocks setting a new N-month volume record TODAY. Unlike Monday/
     Tuesday/Wednesday's always-full pools, this event is genuinely rare: most days
     only turn up 1-3 qualifying stocks (sometimes exactly 1), so both the table and
@@ -1035,6 +1236,8 @@ def build_1y_vol_peak_short(data, output, lang="en"):
 
     window_en, window_cn = tf["window_en"], tf["window_cn"]
     sub_en, sub_cn = "TODAY'S VOLUME SURGE", "今日成交量激增"
+    share_caption = (f"Biggest single-day volume in the past {window_en}" if lang == "en"
+                      else f"过去{window_cn}最大单日成交量")
 
     if lang == "cn":
         ticker_lines = _narrate_ticker_lines_vol_peak_cn(rows, vol_key)
@@ -1073,6 +1276,9 @@ def build_1y_vol_peak_short(data, output, lang="en"):
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
         card = scene_stock_card(row, i + 1, lang, vol_key, sub_en, sub_cn)
         frames.append((card, dur, None, line))
+        if share_dir:
+            light_card = scene_stock_card(row, i + 1, lang, vol_key, sub_en, sub_cn, theme="light")
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "1y_vol_peak", i + 1)
 
     # Ad reel, same as the other weekdays: real footage with the platform pitch, then
     # a short second beat with the CTA, then the unchanged silent outro card.
@@ -1103,7 +1309,7 @@ _HOOK_NARRATION_SPOTLIGHT_CN = [
 ]
 
 
-def build_index_spotlight_short(data, output, lang="en"):
+def build_index_spotlight_short(data, output, lang="en", share_dir=None):
     """Friday — spotlights one recently-added S&P 500 / Nasdaq-100 member and its
     price since joining. Unlike Monday-Thursday's ranked lists, this is a single-
     stock feature (member chosen at random, matching generate_video.py's landscape
@@ -1125,6 +1331,14 @@ def build_index_spotlight_short(data, output, lang="en"):
     perf = member["perf_since_join"]
 
     spotlight_img = scene_member_spotlight_short(member, date, lang)
+    if share_dir:
+        # Single card, not [:3] — Friday only ever spotlights the one member picked
+        # above, and the share image reuses that exact same pick (not a re-roll),
+        # rendered a second time in the light theme for the share image only.
+        share_caption = (f"Newest member of the {index_name}" if lang == "en"
+                          else f"{index_cn}最新成分股")
+        light_spotlight = scene_member_spotlight_short(member, date, lang, theme="light")
+        _save_share_card(light_spotlight, ticker, date, lang, share_caption, share_dir, "index_spotlight", 1)
 
     # Durations = actually-measured edge-tts speech time at SHORTS_TTS_RATE (see
     # measure_fri.py in scratch), +buffer.
@@ -1194,6 +1408,10 @@ def main():
     ap.add_argument("--output", default=None)
     ap.add_argument("--data", default=None)
     ap.add_argument("--lang", default="en", choices=["en", "cn"])
+    ap.add_argument("--share-dir", default=None,
+                     help="If set, also saves standalone watermarked PNGs of each "
+                          "card (for the homepage's downloadable-chart gallery) "
+                          "into this directory, plus a _manifest_{lang}.json fragment.")
     args = ap.parse_args()
 
     data_path = Path(args.data) if args.data else DATA_FILE
@@ -1204,7 +1422,9 @@ def main():
     Path(output).parent.mkdir(parents=True, exist_ok=True)
 
     print(f"Building SHORT [{args.type}]  ->  {output}")
-    BUILDERS[args.type](data, output, lang=args.lang)
+    BUILDERS[args.type](data, output, lang=args.lang, share_dir=args.share_dir)
+    if args.share_dir:
+        write_share_manifest(args.share_dir, args.lang)
 
 
 if __name__ == "__main__":

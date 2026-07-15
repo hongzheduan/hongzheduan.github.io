@@ -282,7 +282,7 @@ jobs:
               BASE_TYPE="$type"
               LANG="en"
             fi
-            python video/generate_shorts.py --type "$BASE_TYPE" --lang "$LANG" --output "video/${type}.mp4"
+            python video/generate_shorts.py --type "$BASE_TYPE" --lang "$LANG" --output "video/${type}.mp4" --share-dir data/social_cards
           done
           # Copy generated videos to fixed paths and write name metadata
           EN_NAME="" CN_NAME=""
@@ -334,6 +334,51 @@ jobs:
           json.dump(meta, open('data/latest_video_meta.json', 'w'))
           "
 
+      - name: Update share-card gallery (rolling 7 days)
+        if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
+        run: |
+          # generate_shorts.py (run above with --share-dir) drops one
+          # _manifest_{lang}.json fragment per language into data/social_cards/ —
+          # this merges both into the rolling gallery list the homepage reads,
+          # then prunes anything (both the json entries and the actual PNGs) older
+          # than 7 days so neither the repo nor the gallery grows unbounded.
+          python -c "
+          import json, glob, os
+          from datetime import date, timedelta
+
+          out_dir = 'data/social_cards'
+          meta_path = 'data/latest_social_cards_meta.json'
+          cutoff = (date.today() - timedelta(days=7)).isoformat()
+
+          try:
+              entries = json.load(open(meta_path, encoding='utf-8'))
+          except Exception:
+              entries = []
+
+          for frag_path in glob.glob(os.path.join(out_dir, '_manifest_*.json')):
+              entries.extend(json.load(open(frag_path, encoding='utf-8')))
+              os.remove(frag_path)
+
+          # De-dupe (a re-run for the same date/type/lang/idx overwrites the same
+          # file — keep the newest entry for that filename) and drop anything
+          # past the 7-day window, deleting the now-unreferenced PNG from disk too.
+          by_file = {}
+          for e in entries:
+              by_file[e['file']] = e
+          kept, dropped = [], []
+          for e in by_file.values():
+              (kept if e['date'] >= cutoff else dropped).append(e)
+          kept.sort(key=lambda e: (e['date'], e['video_type'], e['lang'], e['file']), reverse=True)
+
+          for e in dropped:
+              p = os.path.join(out_dir, e['file'])
+              if os.path.exists(p):
+                  os.remove(p)
+
+          json.dump(kept, open(meta_path, 'w', encoding='utf-8'), ensure_ascii=False)
+          print(f'Share-card gallery: {len(kept)} kept, {len(dropped)} pruned (older than {cutoff})')
+          "
+
       - name: Upload daily videos to YouTube
         if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
         env:
@@ -367,6 +412,10 @@ jobs:
           git add -f data/latest_video_en.mp4 2>/dev/null || true
           git add -f data/latest_video_cn.mp4 2>/dev/null || true
           git add data/latest_video_meta.json 2>/dev/null || true
+          # -A (not -f on a glob) so pruned share-card PNGs are staged as deletions
+          # too, not just new/changed files — keeps the repo from growing forever.
+          git add -A data/social_cards/ 2>/dev/null || true
+          git add data/latest_social_cards_meta.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No video files changed, skipping commit"
           else

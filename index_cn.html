@@ -753,6 +753,23 @@
     .digest-dl:hover { opacity: 0.75; }
     .digest-msg { font-size: 12px; color: #64748b; padding: 14px 0; text-align: center; }
 
+    /* ── SHARE-CARD GALLERY ── */
+    .share-gallery-section { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 0 40px 50px; }
+    .share-gallery-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 28px; }
+    .share-gallery-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
+    .share-gallery-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); margin-bottom: 4px; letter-spacing: -0.01em; }
+    .share-gallery-sub { font-size: 12px; color: #64748b; margin-bottom: 18px; }
+    .share-gallery-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; }
+    .share-card { flex: 0 0 148px; background: rgba(6,13,31,0.7); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; text-align: left; }
+    .share-card-thumb { width: 100%; height: 180px; object-fit: cover; object-position: top; display: block; background: #060d1f; }
+    .share-card-body { padding: 10px 10px 12px; }
+    .share-card-ticker { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--electric-bright); font-weight: 600; }
+    .share-card-cap { font-size: 10px; color: #64748b; margin: 4px 0 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .share-card-foot { display: flex; justify-content: space-between; align-items: center; }
+    .share-card-date { font-family: 'DM Mono', monospace; font-size: 9px; color: #475569; }
+    .share-card-dl { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); text-decoration: none; cursor: pointer; background: none; border: none; padding: 0; }
+    .share-card-dl:hover { opacity: 0.75; }
+
     /* ── CTA MINI ── */
     .cta-mini { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
     .cta-mini-tagline { font-size: 13px; color: #94a3b8; }
@@ -1401,6 +1418,27 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 </section>
 
+<section class="share-gallery-section">
+  <div class="share-gallery-panel">
+    <div class="share-gallery-eyebrow">◈ &nbsp; 图表精选</div>
+    <div class="share-gallery-heading">今日精选图表 — 免费下载</div>
+    <div class="share-gallery-sub">来自本周每日视频 · 登录后即可下载，用于社交媒体分享、演示或个人笔记</div>
+    <div class="share-gallery-row" id="shareGalleryRow"><div class="digest-msg">加载中…</div></div>
+  </div>
+</section>
+
+<!-- 图表下载登录提示 -->
+<div id="shareGateModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#0d1e3d;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px 28px;max-width:340px;width:90%;text-align:center;position:relative;">
+    <button onclick="document.getElementById('shareGateModal').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#64748b;font-size:18px;cursor:pointer;line-height:1;">✕</button>
+    <div style="font-size:28px;margin-bottom:12px;">◈</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;margin-bottom:8px;">登录后即可下载</div>
+    <p style="font-size:14px;color:#94a3b8;margin:0 0 24px;">注册免费账户即可下载贝佐拉每日股票图表。</p>
+    <a href="login_cn.html" style="display:flex;align-items:center;justify-content:center;background:var(--electric);color:#fff;padding:10px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px;">登录 →</a>
+    <a href="signup_cn.html" style="font-size:13px;color:#60a5fa;text-decoration:none;">还没有账户？免费注册 →</a>
+  </div>
+</div>
+
 <footer>
   <div class="footer-disclaimer">贝佐拉仅提供市场数据，供参考使用，不构成任何投资建议。</div>
   <div class="footer-disclaimer">行情数据由 <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#94a3b8;text-decoration:none;">Tiingo.com</a> 提供</div>
@@ -1995,6 +2033,46 @@ fetch('data/latest_video_news_meta.json').then(r => r.json()).then(m => {
   if (watch && m.cn.url) watch.href = m.cn.url;
   if (dl && m.cn.url) dl.href = 'data/latest_video_news_cn.mp4';
 }).catch(() => {});
+
+function shareCardDownload(file, ticker, dateStr) {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    document.getElementById('shareGateModal').style.display = 'flex';
+    return;
+  }
+  const a = document.createElement('a');
+  a.href = 'data/social_cards/' + file;
+  a.download = 'Baizora_' + ticker + '_' + dateStr + '.png';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+fetch('data/latest_social_cards_meta.json').then(r => r.json()).then(cards => {
+  const row = document.getElementById('shareGalleryRow');
+  if (!row) return;
+  const mine = (cards || []).filter(c => c.lang === 'cn').slice(0, 12);
+  if (!mine.length) { row.innerHTML = '<div class="digest-msg">暂无图表 — 请在今日视频发布后查看。</div>'; return; }
+  row.innerHTML = mine.map(c => {
+    const cap = (c.caption || '').replace(/</g, '&lt;');
+    const safeFile = c.file.replace(/'/g, "\\'");
+    const safeTicker = (c.ticker || '').replace(/'/g, "\\'");
+    return '<div class="share-card">' +
+      '<img class="share-card-thumb" src="data/social_cards/' + c.file + '" alt="' + c.ticker + ' chart" loading="lazy">' +
+      '<div class="share-card-body">' +
+        '<div class="share-card-ticker">' + c.ticker + '</div>' +
+        '<div class="share-card-cap">' + cap + '</div>' +
+        '<div class="share-card-foot">' +
+          '<span class="share-card-date">' + c.date + '</span>' +
+          '<button class="share-card-dl" title="下载" onclick="shareCardDownload(\'' + safeFile + '\',\'' + safeTicker + '\',\'' + c.date + '\')">下载 ↓</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}).catch(() => {
+  const row = document.getElementById('shareGalleryRow');
+  if (row) row.innerHTML = '<div class="digest-msg">暂无图表 — 请在今日视频发布后查看。</div>';
+});
 
 // Top movers card
 (function() {
