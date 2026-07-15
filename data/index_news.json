@@ -3,6 +3,14 @@
   "lookback_days": 90,
   "items": [
     {
+      "category": "S&P 500 addition",
+      "date": "2026-07-15",
+      "title": "What's next for FLEX after S&P 500 inclusion and AI-driven rally? - MSN",
+      "source": "MSN",
+      "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxNMmFKSzN6dGVwZW93ZFBXNVpweG9pOGJiWkJJaWxGQWhIeGtlUXZqTEVyOE54Y0RFdFB1ZDlNVmQtdVBjTWZKUlZvd1FINXkxdnVSTzhjV2lxR1RKYlZaN29RYWpvTjg1bklCV29tSXE0V2RiUUJheE5vMlJUY0pPRmpPSXlGWE1tVjc2WUNqcVZ4bFkwMWh0V1cxazdTX2VrMFFldG9nLVpPanZmRDRTZkZwX3VTVVZWeHBBM2ZTT0tpSDNiOUE?oc=5",
+      "title_cn": "在标准普尔 500 指数纳入和人工智能驱动的反弹之后，FLEX 的下一步是什么？"
+    },
+    {
       "category": "Nasdaq-100 addition",
       "date": "2026-07-15",
       "title": "📈💰#LITE Added To #Nasdaq-100, #MRNA #HUT #APLD #RKLB, #Earnings #HIMS #ASTS #LUNR, CtC May 11 2026 Ateba Gautier (4ViJQqeP9i) - Mshale",
@@ -25,14 +33,6 @@
       "source": "MSN",
       "link": "https://news.google.com/rss/articles/CBMi8gFBVV95cUxOd050LUVMSkZ4eU5rTUxGMUhvQXdGTl9ZYl91dThsalJnMzlGZGVnZVlST3NBdGJEZDZ2YXcyOU0zcXFLVFItWmNGMjM5TDZGYkx2d1lyelFqNXc2SmFVbnU1ZXRzOGN4RlR4OGo0Q1M2WFFSNmhpZUpGNlU2aWt6d2FLbTRaZmFUN3MzSGVlVHFaSnIxdDJFTVRtX25Mek85OTl0UjF2TW9vaHJtWnplZlZudklCaDhsUVNzZEYxenc0NURvYS1pRVJaSU1RUnd3azdodjN1V3drUUFDSm5pYUJGUUY5ZGtFVndDZkw0YTZydw?oc=5",
       "title_cn": "SpaceX 跻身纳斯达克 100 指数，可能引发 $4.3B 强制被动购买"
-    },
-    {
-      "category": "S&P 500 addition",
-      "date": "2026-07-13",
-      "title": "What's next for FLEX after S&P 500 inclusion and AI-driven rally? (FLEX:NASDAQ) - Seeking Alpha",
-      "source": "Seeking Alpha",
-      "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPWmV5eXRZdm9BRnJoVGRBS2VNbDM0bnUzMElkOTJnX0lEMjdjYTlwano1MU5vR3lveTBCWmJYdGtDVmZVMzM4akJtRmd6NzJIYmt5bFhFLTA0Tk9nN0FQMHRna2c0Tjc1dVRrYmdQejJZTEczNmFyOWpWYWFpUEktbUU3LVozSjA5YzRfRG9VZVI4M29ZQVB6SDZpNjRpNjdPLTVibjF4Y20?oc=5",
-      "title_cn": "在标准普尔 500 指数纳入和人工智能驱动的反弹之后，FLEX 的下一步是什么？ （灵活：纳斯达克）"
     },
     {
       "category": "Nasdaq-100 addition",
@@ -88,7 +88,7 @@
       "title": "SoFi Has Quietly Met the Bar for S&P 500 Inclusion. Here's What Index Entry Could Do for the Stock. - AOL.com",
       "source": "AOL.com",
       "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE5fOHliWDNHUGJTV2dyYVdHdmJwWGpvTnJVYlAtaEFqRHFHQVM5cE9rV2l4ZlphT3dHMVFOcklpWndLRzlGSk9pTkhiYmlZYzRWWWF0YnRhcl81MmRPLVl0YzVPQ2NmU0ZhMGE1dUNEd1llMnJL?oc=5",
-      "title_cn": "SoFi 已悄然达到标准普尔 500 指数纳入标准。以下是指数条目对股票的影响。"
+      "title_cn": "SoFi 已悄然达到标准普尔 500 指数纳入标准。以下是指数条目对股票的作用。"
     },
     {
       "category": "Nasdaq-100 addition",
@@ -765,18 +765,10 @@
     {
       "category": "S&P 500 removal",
       "date": "2026-07-02",
-      "title": "Mobility Global, Inc.(NYSE: MBGL) dropped from S&P 500 Equal Weighted - marketscreener.com",
+      "title": "Mobility Global, Inc.(NYSE: MBGL) dropped from S&P 500 Financials - marketscreener.com",
       "source": "marketscreener.com",
-      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxNaDdGQURkbFBQX3J2a2RlSWsxNEllNjJoVlR3SGVPdmdlNGw4aWtGeTNIMEpTZEFLWkdnMjQ4Q1Y0NG1uZHpqdUhSb2xGLUxGdkU3a1g0ei1sQkYybmU4R0MwTXFkZlFpNWZWWnk5WmctRDdwM015dG5ybXJBVWppMEx6a2RtZUVaZjF0akFsUExmYWdLYlVicHQ4aUtWVHhNT2FoaElEWGxERnpaSjMya2JSS3k4Z2hNVWc?oc=5",
-      "title_cn": "Mobility Global, Inc.（纽约证券交易所股票代码：MBGL）从标准普尔 500 等权重指数中跌出"
-    },
-    {
-      "category": "S&P 500 removal",
-      "date": "2026-07-02",
-      "title": "Mobility Global, Inc.(NYSE: MBGL) dropped from S&P 500 - marketscreener.com",
-      "source": "marketscreener.com",
-      "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPUVZpY1dxVHJLU1JsY0FZSXJtMWdyQXJ2bWNzRGdGV19BM1djbmhRbGtuOThObHJteTkzV2d0emhCOXhhN2J0X2NqMF82UkFfSDRxWUJHeTYxVFM2M0xJRmJNNUJVLWJNLUE4c0ZzTVA3Y3NiUHVaVzhCOU1YQmdlNGJPaDdxQ0ZSbG1NYjZuUVE5aER1aUlLdVBZRWRpb0theVA3S1Z3?oc=5",
-      "title_cn": "Mobility Global, Inc.（纽约证券交易所股票代码：MBGL）从标准普尔 500 指数中跌出"
+      "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPMEs4MjN6eHAtV3lwcGpsVVpoQjhfeXdLU2MxS0FkbUMtVW42cVpVNXFxV2JTcmliS0VlZUFjN0ZzRVM1a2tLcUx3amd0ZTN1bWFwTWwxS0FUMnY3RjdoWFlWeVJqN0NMNENMb0NtN2Y3YlIyRDRMWU91NS0waTd4M3Rlcm9mQ19ROFlVQTZ0cFZRS0Rfd2tiUjRjVzFGMmR1U2ZQTzdMNjg3WmJ3LWo0MnVXb3I?oc=5",
+      "title_cn": "Mobility Global, Inc.（纽约证券交易所股票代码：MBGL）从标准普尔 500 金融指数中跌出"
     },
     {
       "category": "Nasdaq-100 addition",
@@ -808,7 +800,7 @@
       "title": "Mobility Global, Inc.(NYSE: MBGL) added to S&P 500 Financial Services (Industry Group) - marketscreener.com",
       "source": "marketscreener.com",
       "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxPd0FvRzFvMEtfcTJqcjI1dWUxcWNsY0tHMnJSNkZsU0pjb0EzbHVxbGhMYTNxb0g2VWRXSUQzcHRjOEhVTWVrMlBrbVdqeEJGTlNwTVpGcVN5VGxzc1c3dWxvUGtzcnpvSF9MZXcwN1psbnY4UDh1MlozWU0zeXc3SHFLZFliYXR6Z29lY1Z5UWhwb1U0bkJyVTBvbVBHLTJ2UkdZZ25oVWhuSjRpU1RZaXVmbzlDVDZaMHZfZElkUFNGZTNaMG1Jc2xYQWpwQQ?oc=5",
-      "title_cn": "Mobility Global, Inc.（纽约证券交易所股票代码：MBGL）被纳入标准普尔 500 金融服务（行业组）成分股"
+      "title_cn": "Mobility Global, Inc.（纽约证券交易所代码：MBGL）被纳入标准普尔 500 金融服务（行业组）成分股"
     },
     {
       "category": "S&P 500 addition",
@@ -880,7 +872,7 @@
       "title": "SoFi Has Quietly Met the Bar for S&P 500 Inclusion. Here's What Index Entry Could Do for the Stock. - Yahoo Finance",
       "source": "Yahoo Finance",
       "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNSG1od05SZDIyWmpiNHhNS1NsMVo1Z3Y4ZkdLdndOQzhJZXlMeURhdkVxUVpNakVVdF8tZ19yYWpHOU4tbDdGRFp3TWRyaEtxdF82cEpNZF9JaUV6NG9kRWl1dDdkYVlaSzZoVEJBcDBRRFk4U084NnRGV0xQTFRaNHBCMEtvMG1YZF9oVUdBemo?oc=5",
-      "title_cn": "SoFi 已悄然达到标准普尔 500 指数纳入标准。以下是指数条目对股票的影响。"
+      "title_cn": "SoFi 已悄然达到标准普尔 500 指数纳入标准。以下是指数条目对股票的作用。"
     },
     {
       "category": "Nasdaq-100 addition",
@@ -1184,7 +1176,7 @@
       "title": "Assessing Marvell Technology (MRVL) Valuation After S&P 500 Inclusion And Rising AI Infrastructure Expectations - Yahoo Finance",
       "source": "Yahoo Finance",
       "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxORkwyTTdjOXNqaS1wX3RkUnZZWXcyUmU1Z2hjWnBnVC0yR3FmeW1MdldVYWNNdF9fNjl2NVBsaV82WkI3dHdfVHFyQVZrYUNxZWprTkhWa3MxcUI3QkYtNWJsd1lRSUFlb05YR0dBOVQtSHR2U1o4a3hXOGZCZ1hMUGFyNTZoVEhHQXUzRERGcU5LVnZaN0QtR1J1Wkw1ZUZzbkR4TGV3TnBWc1Fa?oc=5",
-      "title_cn": "评估 Marvell 技术 (MRVL) 纳入标准普尔 500 指数后的估值以及不断上升的 AI 基础设施预期"
+      "title_cn": "评估 Marvell 技术 (MRVL) 纳入标准普尔 500 指数后的估值以及不断上升的人工智能基础设施预期"
     },
     {
       "category": "Nasdaq-100 removal",
@@ -1345,6 +1337,14 @@
       "source": "Investor's Business Daily",
       "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxQdUxZbmZtN0pSY0thZGU4MVI3TzByY1BNYVNsc0RCV1g0WFVxU1FhVF9CVGRndExDa3Y2X3VrTHRPNUNvOVJYbWNBQ1NxUXNucTIwTERjaVk3Rlc3a1pObWNHeFNSX0NaM3VRQU8yRlFYdVc1S01zTkJnSXRtaEl5RVlCdXpVeDlUMmhSTEFjaXF3NzVDQWRCWW1NM1p5XzBCRnQ5LUppeFhfcnZKMFE?oc=5",
       "title_cn": "联邦快递货运完成分拆，加入标准普尔 500 指数和道琼斯运输指数"
+    },
+    {
+      "category": "S&P 500 removal",
+      "date": "2026-06-01",
+      "title": "EPAM Systems, Inc.(NYSE:EPAM) dropped from S&P 500 Software & Services (Industry Group) - marketscreener.com",
+      "source": "marketscreener.com",
+      "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxObmc4RmoyUTgza1ZMYmFqakptQVVIVVctakp0UnVUejFIYkNJcGhXRl84NlNqczlsd2tnTWRfQ1Uybk1yU2tLQ19ac3hoZlNlcVlIc3NMdDR5ZlRpVDhJcmtlM08xOUJjS1U0Z21ITEZrdnNVTVFibHJETXVfQzBoSnhZd19vZjdwUmFZN05tWENNNkZ1eGhkMzFUbXFqVkNTT09nREMzZzBaTlg4ZW5UUWRsOU5tZU5YNFNDQ0ZQZTlUZU91UVFRTE13aEZOUQ?oc=5",
+      "title_cn": "EPAM Systems, Inc.（纽约证券交易所股票代码：EPAM）从标准普尔 500 强软件与服务（行业组）中剔除"
     },
     {
       "category": "S&P 500 addition",
