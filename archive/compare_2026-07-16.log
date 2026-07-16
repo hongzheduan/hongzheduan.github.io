@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-16
 Threshold: >10% for all metrics
-242 flagged diffs above threshold
+241 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -76,8 +76,8 @@ PRICE  -- 0 flagged (>10%)
     ADI      ours=380.53  yf=380.53  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 184 flagged (>10%)
-  FLAGGED (top 20 of 184):
+VOLUME  -- 183 flagged (>10%)
+  FLAGGED (top 20 of 183):
     V        ours=8.69  yf=4.98  diff=74.3% ***
     SHW      ours=1.63  yf=0.95  diff=72.4% ***
     MET      ours=3.05  yf=1.78  diff=70.9% ***
