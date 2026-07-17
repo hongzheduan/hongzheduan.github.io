@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-17
 Threshold: >10% for all metrics
-304 flagged diffs above threshold
+298 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -72,12 +72,12 @@ PRICE  -- 0 flagged (>10%)
     FFIV     ours=409.10  yf=409.10  diff=0.0%
     A        ours=131.46  yf=131.46  diff=0.0%
     AAPL     ours=333.74  yf=333.74  diff=0.0%
-    ABBV     ours=254.49  yf=254.49  diff=0.0%
-    ABNB     ours=145.98  yf=145.98  diff=0.0%
+    ABT      ours=100.68  yf=100.68  diff=0.0%
+    ACGL     ours=101.35  yf=101.35  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 241 flagged (>10%)
-  FLAGGED (top 20 of 241):
+VOLUME  -- 235 flagged (>10%)
+  FLAGGED (top 20 of 235):
     EME      ours=1.53  yf=0.55  diff=180.7% ***
     GRMN     ours=1.90  yf=0.77  diff=146.2% ***
     NVR      ours=0.08  yf=0.03  diff=145.4% ***
