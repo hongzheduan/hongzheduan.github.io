@@ -47,14 +47,16 @@ jobs:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
-          YOUTUBE_SECONDARY_REFRESH_TOKEN: ${{ secrets.YOUTUBE_SECONDARY_REFRESH_TOKEN }}
+          YOUTUBE_CN_REFRESH_TOKEN: ${{ secrets.YOUTUBE_CN_REFRESH_TOKEN }}
         run: |
           UPLOADED=0
 
           # EN goes to the separate @baizorastock_EN channel via
-          # YOUTUBE_SECONDARY_REFRESH_TOKEN; CN stays on the original
-          # @baizorastock channel via YOUTUBE_REFRESH_TOKEN.
-          for pair in "en:data/latest_video_news_en.mp4:$YOUTUBE_SECONDARY_REFRESH_TOKEN:news_report" "cn:data/latest_video_news_cn.mp4:$YOUTUBE_REFRESH_TOKEN:news_report_cn"; do
+          # YOUTUBE_CN_REFRESH_TOKEN (that secret name is stale — the channel
+          # was renamed from CN to EN after it was created, the secret name
+          # just never followed); CN stays on the original @baizorastock
+          # channel via YOUTUBE_REFRESH_TOKEN.
+          for pair in "en:data/latest_video_news_en.mp4:$YOUTUBE_CN_REFRESH_TOKEN:news_report" "cn:data/latest_video_news_cn.mp4:$YOUTUBE_REFRESH_TOKEN:news_report_cn"; do
             IFS=':' read -r LANGKEY FILE TOKEN TYPE <<< "$pair"
 
             PENDING_DATE=$(LANGKEY="$LANGKEY" python -c "
