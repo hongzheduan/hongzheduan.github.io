@@ -69,7 +69,6 @@ jobs:
             echo "SKIP_SCAN=1"    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
-            echo "NEWS_UPLOAD_NOW=True" >> $GITHUB_ENV   # weekend: news videos upload immediately, as usual
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "0 4 * * 2-6" ]; then
             # 11 PM ET weekdays — full EDGAR + market scan, no videos
@@ -85,7 +84,6 @@ jobs:
             echo "SKIP_EDGAR="    >> $GITHUB_ENV   # run EDGAR (~6:30 PM ET actual, after 5:30 PM SEC cutoff)
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
-            echo "NEWS_UPLOAD_NOW=False" >> $GITHUB_ENV  # weekday: news videos deferred 12h, see delayed_news_upload.yml
             echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 4:30, retry at 5:00
           elif [ "$EVENT" = "workflow_dispatch" ]; then
             # manual trigger — full EDGAR refresh + market scan; videos only if
@@ -96,7 +94,6 @@ jobs:
             if [ "${{ github.event.inputs.run_videos }}" = "true" ]; then
               echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
               echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
-              echo "NEWS_UPLOAD_NOW=True" >> $GITHUB_ENV  # manual catch-up: upload immediately, don't defer further
             else
               echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
               echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
@@ -388,30 +385,22 @@ jobs:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
-          YOUTUBE_CN_REFRESH_TOKEN: ${{ secrets.YOUTUBE_CN_REFRESH_TOKEN }}
         run: |
           DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
           for type in $VIDEO_TYPES; do
-            if [ ! -f "video/${type}.mp4" ]; then
-              echo "Skipping $type — no qualifying stocks today"
-              continue
-            fi
-            # CN videos go to the separate @baizorastock_CN channel — same OAuth
-            # client (client id/secret shared), different refresh token, so we
-            # just swap YOUTUBE_REFRESH_TOKEN for this one call.
-            if echo "$type" | grep -q "_cn$"; then
-              OUT=$(YOUTUBE_REFRESH_TOKEN="$YOUTUBE_CN_REFRESH_TOKEN" python video/upload_youtube.py --file video/${type}.mp4 --type $type --date $DATE)
-            else
+            if [ -f "video/${type}.mp4" ]; then
               OUT=$(python video/upload_youtube.py --file video/${type}.mp4 --type $type --date $DATE)
-            fi
-            echo "$OUT"
-            YT_URL=$(echo "$OUT" | grep '^YOUTUBE_URL=' | cut -d= -f2-)
-            if [ -n "$YT_URL" ]; then
-              if echo "$type" | grep -q "_cn$"; then
-                python -c "import json,sys; m=json.load(open('data/latest_video_meta.json')); m['cn']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_meta.json','w'))" "$YT_URL"
-              else
-                python -c "import json,sys; m=json.load(open('data/latest_video_meta.json')); m['en']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_meta.json','w'))" "$YT_URL"
+              echo "$OUT"
+              YT_URL=$(echo "$OUT" | grep '^YOUTUBE_URL=' | cut -d= -f2-)
+              if [ -n "$YT_URL" ]; then
+                if echo "$type" | grep -q "_cn$"; then
+                  python -c "import json,sys; m=json.load(open('data/latest_video_meta.json')); m['cn']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_meta.json','w'))" "$YT_URL"
+                else
+                  python -c "import json,sys; m=json.load(open('data/latest_video_meta.json')); m['en']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_meta.json','w'))" "$YT_URL"
+                fi
               fi
+            else
+              echo "Skipping $type — no qualifying stocks today"
             fi
           done
 
@@ -511,33 +500,30 @@ jobs:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
-          YOUTUBE_CN_REFRESH_TOKEN: ${{ secrets.YOUTUBE_CN_REFRESH_TOKEN }}
         run: |
           NEWS_DATE=$(TZ='America/New_York' date +%Y-%m-%d)
-
-          # Both languages' news videos follow the same schedule: uploaded
-          # immediately on the weekend run (NEWS_UPLOAD_NOW=True), but deferred
-          # 12h on the weekday 4:30 PM ET run (NEWS_UPLOAD_NOW=False) so they
-          # don't post at the same moment as the category videos above — see
-          # .github/workflows/delayed_news_upload.yml, which picks up the
-          # already-committed data/latest_video_news_en.mp4 / _cn.mp4. CN goes
-          # to the separate @baizorastock_CN channel (same OAuth client, its
-          # own refresh token); EN stays on the main channel.
-          for pair in "news_report:video/news_report_en.mp4:$YOUTUBE_REFRESH_TOKEN:en" "news_report_cn:video/news_report_cn.mp4:$YOUTUBE_CN_REFRESH_TOKEN:cn"; do
-            IFS=':' read -r TYPE FILE TOKEN LANGKEY <<< "$pair"
-            if [ ! -f "$FILE" ]; then
+          # video/generate_news_report.py writes news_report_en.mp4 / news_report_cn.mp4
+          # (both suffixed), but make_meta() in upload_youtube.py keys titles off the
+          # bare "news_report" (EN) / "news_report_cn" (CN) --type values — so file name
+          # and --type diverge for EN specifically. Map them explicitly rather than
+          # assuming "$type.mp4" is the real file (that mismatch silently made every EN
+          # news video skip its own upload while CN uploaded fine).
+          for pair in "news_report:news_report_en" "news_report_cn:news_report_cn"; do
+            TYPE="${pair%%:*}"
+            FILE="${pair##*:}"
+            if [ -f "video/${FILE}.mp4" ]; then
+              OUT=$(python video/upload_youtube.py --file "video/${FILE}.mp4" --type "$TYPE" --date "$NEWS_DATE")
+              echo "$OUT"
+              YT_URL=$(echo "$OUT" | grep '^YOUTUBE_URL=' | cut -d= -f2-)
+              if [ -n "$YT_URL" ]; then
+                if echo "$TYPE" | grep -q "_cn$"; then
+                  python -c "import json,sys; m=json.load(open('data/latest_video_news_meta.json')); m['cn']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_news_meta.json','w'))" "$YT_URL"
+                else
+                  python -c "import json,sys; m=json.load(open('data/latest_video_news_meta.json')); m['en']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_news_meta.json','w'))" "$YT_URL"
+                fi
+              fi
+            else
               echo "Skipping $TYPE — no news report generated today"
-              continue
-            fi
-            if [ "$NEWS_UPLOAD_NOW" != "True" ]; then
-              echo "Deferring $TYPE upload 12h — see delayed_news_upload.yml"
-              continue
-            fi
-            OUT=$(YOUTUBE_REFRESH_TOKEN="$TOKEN" python video/upload_youtube.py --file "$FILE" --type "$TYPE" --date "$NEWS_DATE")
-            echo "$OUT"
-            YT_URL=$(echo "$OUT" | grep '^YOUTUBE_URL=' | cut -d= -f2-)
-            if [ -n "$YT_URL" ]; then
-              python -c "import json,sys; m=json.load(open('data/latest_video_news_meta.json')); m['$LANGKEY']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_news_meta.json','w'))" "$YT_URL"
             fi
           done
 
