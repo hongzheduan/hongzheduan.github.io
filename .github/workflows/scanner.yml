@@ -481,32 +481,28 @@ jobs:
             CN_NAME="每日市场新闻"
           fi
 
-          # Record what still needs uploading in a separate "pending" file
-          # instead of writing data/latest_video_news_meta.json directly here.
-          # meta.json is only ever updated at actual upload time (by the
-          # "Upload news report to YouTube" step below, or by
-          # delayed_news_upload.yml ~12h later) so the homepage keeps showing
-          # yesterday's real, working video/link the whole time a video is
-          # generated-but-not-yet-uploaded, instead of going blank. Merge
-          # (not overwrite) so a language skipped this run (Claude API failed,
-          # no genuine stories) leaves any earlier still-pending entry intact.
+          # Same merge-not-overwrite fix as the category-video meta (commit
+          # cfb67c4 / db8448a): if a language was skipped (e.g. the Claude API
+          # call failed, or no genuine stories survived filtering), leave that
+          # side's name/date/url exactly as it was rather than stamping today's
+          # date on a video that didn't actually change.
           EN_NAME="$EN_NAME" EN_DATE="$NEWS_DATE" CN_NAME="$CN_NAME" CN_DATE="$NEWS_DATE" python -c "
           import json, os
 
           try:
-              pending = json.load(open('data/latest_video_news_pending.json'))
+              meta = json.load(open('data/latest_video_news_meta.json'))
           except Exception:
-              pending = {}
+              meta = {'en': {'name': '', 'date': '', 'url': ''}, 'cn': {'name': '', 'date': '', 'url': ''}}
 
           en_name = os.environ.get('EN_NAME', '')
           cn_name = os.environ.get('CN_NAME', '')
 
           if en_name:
-              pending['en'] = {'name': en_name, 'date': os.environ['EN_DATE']}
+              meta['en'] = {'name': en_name, 'date': os.environ['EN_DATE'], 'url': ''}
           if cn_name:
-              pending['cn'] = {'name': cn_name, 'date': os.environ['CN_DATE']}
+              meta['cn'] = {'name': cn_name, 'date': os.environ['CN_DATE'], 'url': ''}
 
-          json.dump(pending, open('data/latest_video_news_pending.json', 'w'))
+          json.dump(meta, open('data/latest_video_news_meta.json', 'w'))
           "
 
       - name: Upload news report to YouTube
@@ -541,29 +537,7 @@ jobs:
             echo "$OUT"
             YT_URL=$(echo "$OUT" | grep '^YOUTUBE_URL=' | cut -d= -f2-)
             if [ -n "$YT_URL" ]; then
-              # Write the real meta entry (name+date+url together) only now,
-              # at actual upload success — and clear this language's pending
-              # marker since it's published.
-              LANGKEY="$LANGKEY" YT_URL="$YT_URL" NEWS_DATE="$NEWS_DATE" python -c "
-          import json, os
-
-          try:
-              meta = json.load(open('data/latest_video_news_meta.json'))
-          except Exception:
-              meta = {}
-          try:
-              pending = json.load(open('data/latest_video_news_pending.json'))
-          except Exception:
-              pending = {}
-
-          lang = os.environ['LANGKEY']
-          name = pending.get(lang, {}).get('name', '')
-          meta[lang] = {'name': name, 'date': os.environ['NEWS_DATE'], 'url': os.environ['YT_URL']}
-          pending.pop(lang, None)
-
-          json.dump(meta, open('data/latest_video_news_meta.json', 'w'))
-          json.dump(pending, open('data/latest_video_news_pending.json', 'w'))
-          "
+              python -c "import json,sys; m=json.load(open('data/latest_video_news_meta.json')); m['$LANGKEY']['url']=sys.argv[1]; json.dump(m,open('data/latest_video_news_meta.json','w'))" "$YT_URL"
             fi
           done
 
@@ -575,7 +549,6 @@ jobs:
           git add -f data/latest_video_news_en.mp4 2>/dev/null || true
           git add -f data/latest_video_news_cn.mp4 2>/dev/null || true
           git add data/latest_video_news_meta.json 2>/dev/null || true
-          git add data/latest_video_news_pending.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No news report video files changed, skipping commit"
           else
