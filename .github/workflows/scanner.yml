@@ -334,21 +334,23 @@ jobs:
           json.dump(meta, open('data/latest_video_meta.json', 'w'))
           "
 
-      - name: Update share-card gallery (rolling 7 days)
+      - name: Update share-card gallery (rolling 30 days)
         if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
         run: |
           # generate_shorts.py (run above with --share-dir) drops one
           # _manifest_{lang}.json fragment per language into data/social_cards/ —
-          # this merges both into the rolling gallery list the homepage reads,
-          # then prunes anything (both the json entries and the actual PNGs) older
-          # than 7 days so neither the repo nor the gallery grows unbounded.
+          # this merges both into the rolling gallery list. The homepage only
+          # shows the newest few (client-side slice), while chart_archive.html /
+          # chart_archive_cn.html (subscription-gated) show the full 30-day
+          # window from this same file — so prune at 30 days, not 7, so neither
+          # the repo nor the archive page's data grows unbounded.
           python -c "
           import json, glob, os
           from datetime import date, timedelta
 
           out_dir = 'data/social_cards'
           meta_path = 'data/latest_social_cards_meta.json'
-          cutoff = (date.today() - timedelta(days=7)).isoformat()
+          cutoff = (date.today() - timedelta(days=30)).isoformat()
 
           try:
               entries = json.load(open(meta_path, encoding='utf-8'))
@@ -361,7 +363,7 @@ jobs:
 
           # De-dupe (a re-run for the same date/type/lang/idx overwrites the same
           # file — keep the newest entry for that filename) and drop anything
-          # past the 7-day window, deleting the now-unreferenced PNG from disk too.
+          # past the 30-day window, deleting the now-unreferenced PNG from disk too.
           by_file = {}
           for e in entries:
               by_file[e['file']] = e

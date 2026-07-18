@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DWEPM8KFM9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-DWEPM8KFM9');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>贝佐拉 | 图表存档</title>
+  <meta name="description" content="贝佐拉每日视频中一个月的精选个股图表，免费下载用于社交媒体分享、演示或个人笔记。仅限订阅用户查看。">
+  <link rel="canonical" href="https://baizora.com/chart_archive_cn.html">
+  <link rel="alternate" hreflang="en" href="https://baizora.com/chart_archive.html">
+  <link rel="alternate" hreflang="zh-Hans" href="https://baizora.com/chart_archive_cn.html">
+  <link rel="alternate" hreflang="x-default" href="https://baizora.com/chart_archive.html">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-light: #162847;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --gold: #f59e0b;
+      --gold-light: #fcd34d;
+      --green: #22c55e;
+      --red: #ef4444;
+      --white: #ffffff;
+      --muted: #cbd5e1;
+      --border: rgba(255,255,255,0.09);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: rgba(6,13,31,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      gap: 12px;
+    }
+
+    .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+    .logo-wrap img { height: 36px; }
+    .brand-cn {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 8px; }
+
+    .user-email {
+      display: inline-flex;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: default;
+    }
+
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--white); background: rgba(59,130,246,0.08); }
+    .nav-btn-danger { border-color: rgba(239,68,68,0.2); color: #fca5a5; }
+    .nav-btn-danger:hover { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); }
+
+    /* ── PAGE ── */
+    .page { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    .page-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 8px;
+    }
+
+    .page-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(26px, 4vw, 36px);
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .page-sub { font-size: 13px; color: #94a3b8; font-weight: 300; margin-bottom: 24px; line-height: 1.7; }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .last-updated { font-family: 'DM Mono', monospace; font-size: 11px; color: #64748b; }
+
+    .archive-note { font-size: 11px; color: #475569; margin-bottom: 24px; }
+
+    /* chart grid */
+    .archive-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 16px;
+    }
+
+    .archive-card { background: rgba(13,30,61,0.6); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .archive-card-thumb { width: 100%; height: 200px; object-fit: cover; object-position: top; display: block; background: #060d1f; }
+    .archive-card-body { padding: 10px 12px 12px; }
+    .archive-card-ticker { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--electric-bright); font-weight: 600; }
+    .archive-card-cap { font-size: 10px; color: #64748b; margin: 4px 0 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .archive-card-foot { display: flex; justify-content: space-between; align-items: center; }
+    .archive-card-date { font-family: 'DM Mono', monospace; font-size: 9px; color: #475569; }
+    .archive-card-dl { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); text-decoration: none; cursor: pointer; background: none; border: none; padding: 0; }
+    .archive-card-dl:hover { opacity: 0.75; }
+
+    /* empty / loading */
+    .state-msg { font-size: 13px; color: #64748b; padding: 32px 0; text-align: center; grid-column: 1 / -1; }
+
+    @media (max-width: 640px) {
+      header { padding: 0 16px; }
+      .page { padding: 28px 16px 60px; }
+      .archive-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+      .archive-card-thumb { height: 160px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="./" class="logo-wrap">
+      <img src="assets/baize_favicon_v2.png" alt="贝佐拉">
+      <span class="brand-cn">贝佐拉</span>
+    </a>
+    <div class="header-right">
+      <span class="user-email" id="headerEmail"></span>
+      <a href="dashboard_cn.html" class="nav-btn">个人主页</a>
+      <button class="nav-btn nav-btn-danger" onclick="doLogout()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        退出登录
+      </button>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <div class="page-eyebrow">◈ &nbsp; 图表存档</div>
+    <h1 class="page-title">图表存档</h1>
+    <p class="page-sub">来自贝佐拉每日视频的一个月精选个股图表 — 免费下载，用于社交媒体分享、演示或个人笔记。</p>
+
+    <div class="meta-row">
+      <div class="section-label">◈ &nbsp; 近30天</div>
+      <div class="last-updated" id="lastUpdated">加载中…</div>
+    </div>
+
+    <div class="archive-note">分享时请保留图片中的贝佐拉（Baizora）水印。</div>
+
+    <div class="archive-grid" id="archiveGrid"><div class="state-msg">加载中…</div></div>
+
+  </div>
+
+  <!-- 图表大图预览 -->
+  <div id="chartLightbox" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px;" onclick="if(event.target===this)closeChartLightbox()">
+    <div style="position:relative;max-width:480px;width:100%;background:#0d1e3d;border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden;max-height:90vh;display:flex;flex-direction:column;">
+      <button onclick="closeChartLightbox()" style="position:absolute;top:10px;right:12px;background:rgba(6,13,31,0.7);border:none;color:#fff;font-size:16px;width:28px;height:28px;border-radius:50%;cursor:pointer;z-index:2;line-height:1;">✕</button>
+      <img id="lightboxImg" src="" alt="" style="width:100%;display:block;object-fit:contain;background:#060d1f;max-height:70vh;">
+      <div style="padding:14px 18px 18px;">
+        <div id="lightboxTicker" style="font-family:'DM Mono',monospace;font-size:13px;color:#60a5fa;font-weight:600;"></div>
+        <div id="lightboxCap" style="font-size:12px;color:#94a3b8;margin:4px 0 12px;line-height:1.4;"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span id="lightboxDate" style="font-family:'DM Mono',monospace;font-size:10px;color:#475569;"></span>
+          <button id="lightboxDlBtn" style="font-family:'DM Mono',monospace;font-size:12px;color:#60a5fa;background:none;border:none;cursor:pointer;padding:0;">下载 ↓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const API = "https://us-central1-baizora.cloudfunctions.net/api";
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = "login_cn.html"; return; }
+      const hEl = document.getElementById("headerEmail"); hEl.textContent = user.email[0].toUpperCase(); hEl.title = user.email;
+      try {
+        const res = await fetch(`${API}/get-user?uid=${user.uid}`);
+        const data = await res.json();
+        const status = data.subscriptionStatus || "inactive";
+        if (status !== "active" && status !== "trialing") {
+          window.location.href = "billing_cn.html"; return;
+        }
+      } catch(e) { /* network error — allow through */ }
+      loadArchive();
+    });
+
+    window.doLogout = async function() {
+      await signOut(auth);
+      window.location.href = "index_cn.html";
+    };
+
+    window.archiveDownload = function(file, ticker, dateStr) {
+      const a = document.createElement('a');
+      a.href = 'data/social_cards/' + file;
+      a.download = 'Baizora_' + ticker + '_' + dateStr + '.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    };
+
+    window.openChartLightbox = function(file, ticker, caption, dateStr) {
+      document.getElementById('lightboxImg').src = 'data/social_cards/' + file;
+      document.getElementById('lightboxImg').alt = ticker + ' 图表';
+      document.getElementById('lightboxTicker').textContent = ticker;
+      document.getElementById('lightboxCap').textContent = caption;
+      document.getElementById('lightboxDate').textContent = dateStr;
+      document.getElementById('lightboxDlBtn').onclick = function() { archiveDownload(file, ticker, dateStr); };
+      document.getElementById('chartLightbox').style.display = 'flex';
+    };
+
+    window.closeChartLightbox = function() {
+      document.getElementById('chartLightbox').style.display = 'none';
+    };
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    async function loadArchive() {
+      const grid = document.getElementById("archiveGrid");
+      try {
+        const res = await fetch("data/latest_social_cards_meta.json?t=" + Date.now());
+        if (!res.ok) throw new Error("fetch failed");
+        const cards = await res.json();
+
+        const _now = new Date();
+        const _checked = _now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) + ' ' + _now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false }) + ' ET';
+        document.getElementById("lastUpdated").textContent = "上次检查：" + _checked;
+
+        const mine = (cards || []).filter(c => c.lang === 'cn');
+        if (!mine.length) {
+          grid.innerHTML = '<div class="state-msg">暂无图表 — 请在今日视频发布后查看。</div>';
+          return;
+        }
+
+        grid.innerHTML = mine.map(c => {
+          const cap = escHtml(c.caption || '');
+          const safeFile = String(c.file).replace(/'/g, "\\'");
+          const safeTicker = String(c.ticker || '').replace(/'/g, "\\'");
+          const safeCap = String(c.caption || '').replace(/'/g, "\\'");
+          return '<div class="archive-card">' +
+            '<img class="archive-card-thumb" src="data/social_cards/' + c.file + '" alt="' + escHtml(c.ticker) + ' 图表" loading="lazy" style="cursor:pointer;" onclick="openChartLightbox(\'' + safeFile + '\',\'' + safeTicker + '\',\'' + safeCap + '\',\'' + c.date + '\')">' +
+            '<div class="archive-card-body">' +
+              '<div class="archive-card-ticker">' + escHtml(c.ticker) + '</div>' +
+              '<div class="archive-card-cap">' + cap + '</div>' +
+              '<div class="archive-card-foot">' +
+                '<span class="archive-card-date">' + escHtml(c.date) + '</span>' +
+                '<button class="archive-card-dl" title="下载" onclick="archiveDownload(\'' + safeFile + '\',\'' + safeTicker + '\',\'' + c.date + '\')">下载 ↓</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      } catch (e) {
+        grid.innerHTML = '<div class="state-msg">图表加载失败，请稍后重试。</div>';
+      }
+    }
+  </script>
+
+</body>
+</html>

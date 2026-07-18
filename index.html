@@ -1461,9 +1461,17 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 <section class="share-gallery-section">
   <div class="share-gallery-panel">
-    <div class="share-gallery-eyebrow">◈ &nbsp; Chart Highlights</div>
-    <div class="share-gallery-heading">Today's Featured Charts — Free to Download</div>
-    <div class="share-gallery-sub">From this week's daily videos · sign in to download for social media, presentations, or your own notes</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div class="share-gallery-eyebrow">◈ &nbsp; Chart Highlights</div>
+        <div class="share-gallery-heading">Today's Featured Charts — Free to Download</div>
+        <div class="share-gallery-sub">From this week's daily videos · sign in to download for social media, presentations, or your own notes</div>
+      </div>
+      <a href="chart_archive.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive.html', 'Chart Archive')">
+        View all
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
     <div class="share-gallery-row" id="shareGalleryRow"><div class="digest-msg">Loading…</div></div>
     <div class="share-gallery-note">Free to use and share — please keep the Baizora watermark intact.</div>
   </div>
@@ -1478,6 +1486,22 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <p style="font-size:14px;color:#94a3b8;margin:0 0 24px;">Create a free account to download Baizora's daily stock charts.</p>
     <a href="login.html" style="display:flex;align-items:center;justify-content:center;background:var(--electric);color:#fff;padding:10px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px;">Sign In →</a>
     <a href="signup.html" style="font-size:13px;color:#60a5fa;text-decoration:none;">New here? Create a free account →</a>
+  </div>
+</div>
+
+<!-- Chart preview lightbox -->
+<div id="chartLightbox" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px;" onclick="if(event.target===this)closeChartLightbox()">
+  <div style="position:relative;max-width:480px;width:100%;background:#0d1e3d;border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden;max-height:90vh;display:flex;flex-direction:column;">
+    <button onclick="closeChartLightbox()" style="position:absolute;top:10px;right:12px;background:rgba(6,13,31,0.7);border:none;color:#fff;font-size:16px;width:28px;height:28px;border-radius:50%;cursor:pointer;z-index:2;line-height:1;">✕</button>
+    <img id="lightboxImg" src="" alt="" style="width:100%;display:block;object-fit:contain;background:#060d1f;max-height:70vh;">
+    <div style="padding:14px 18px 18px;">
+      <div id="lightboxTicker" style="font-family:'DM Mono',monospace;font-size:13px;color:#60a5fa;font-weight:600;"></div>
+      <div id="lightboxCap" style="font-size:12px;color:#94a3b8;margin:4px 0 12px;line-height:1.4;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span id="lightboxDate" style="font-family:'DM Mono',monospace;font-size:10px;color:#475569;"></span>
+        <button id="lightboxDlBtn" style="font-family:'DM Mono',monospace;font-size:12px;color:#60a5fa;background:none;border:none;cursor:pointer;padding:0;">Download ↓</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2177,17 +2201,32 @@ function shareCardDownload(file, ticker, dateStr) {
   a.remove();
 }
 
+function openChartLightbox(file, ticker, caption, dateStr) {
+  document.getElementById('lightboxImg').src = 'data/social_cards/' + file;
+  document.getElementById('lightboxImg').alt = ticker + ' chart';
+  document.getElementById('lightboxTicker').textContent = ticker;
+  document.getElementById('lightboxCap').textContent = caption;
+  document.getElementById('lightboxDate').textContent = dateStr;
+  document.getElementById('lightboxDlBtn').onclick = function() { shareCardDownload(file, ticker, dateStr); };
+  document.getElementById('chartLightbox').style.display = 'flex';
+}
+
+function closeChartLightbox() {
+  document.getElementById('chartLightbox').style.display = 'none';
+}
+
 fetch('data/latest_social_cards_meta.json').then(r => r.json()).then(cards => {
   const row = document.getElementById('shareGalleryRow');
   if (!row) return;
-  const mine = (cards || []).filter(c => c.lang === 'en').slice(0, 12);
+  const mine = (cards || []).filter(c => c.lang === 'en').slice(0, 7);
   if (!mine.length) { row.innerHTML = '<div class="digest-msg">No charts yet — check back after today\'s video.</div>'; return; }
   row.innerHTML = mine.map(c => {
     const cap = (c.caption || '').replace(/</g, '&lt;');
     const safeFile = c.file.replace(/'/g, "\\'");
     const safeTicker = (c.ticker || '').replace(/'/g, "\\'");
+    const safeCap = (c.caption || '').replace(/'/g, "\\'");
     return '<div class="share-card">' +
-      '<img class="share-card-thumb" src="data/social_cards/' + c.file + '" alt="' + c.ticker + ' chart" loading="lazy">' +
+      '<img class="share-card-thumb" src="data/social_cards/' + c.file + '" alt="' + c.ticker + ' chart" loading="lazy" style="cursor:pointer;" onclick="openChartLightbox(\'' + safeFile + '\',\'' + safeTicker + '\',\'' + safeCap + '\',\'' + c.date + '\')">' +
       '<div class="share-card-body">' +
         '<div class="share-card-ticker">' + c.ticker + '</div>' +
         '<div class="share-card-cap">' + cap + '</div>' +

@@ -447,6 +447,12 @@
         <div class="tool-desc">Pending and recent additions and removals from S&amp;P 500 and Nasdaq-100, sourced from financial news. Updated daily after market close.</div>
       </a>
 
+      <a href="chart_archive.html" class="tool-card">
+        <div class="tool-icon" style="background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.2);">▤</div>
+        <div class="tool-name">Chart Archive</div>
+        <div class="tool-desc">One month of featured stock charts from Baizora's daily videos, free to download for social media, presentations, or your own notes.</div>
+      </a>
+
       <a href="baizora_main_form_freetier.html" class="tool-card">
         <div class="tool-icon">◑</div>
         <div class="tool-name">Free Tier · Full Results</div>
@@ -523,7 +529,8 @@
         } else {
           text.textContent = "No Active Subscription";
           [['a[href="baizora_main_form.html"]', '→ Please choose a plan to view'],
-           ['a[href="index_news.html"]',        '→ Please choose a plan to view']].forEach(([sel, msg]) => {
+           ['a[href="index_news.html"]',        '→ Please choose a plan to view'],
+           ['a[href="chart_archive.html"]',     '→ Please choose a plan to view']].forEach(([sel, msg]) => {
             const card = document.querySelector(sel);
             if (card) {
               card.classList.add("locked");

@@ -591,8 +591,9 @@ def write_share_manifest(out_dir, lang):
     """Dumps this run's _SHARE_CARD_MANIFEST entries to out_dir/_manifest_{lang}.json
     — a small per-invocation fragment (generate_shorts.py only ever builds one
     type/lang per process, and scanner.yml calls it once per language) that
-    scanner.yml reads and merges into the rolling 7-day
-    data/latest_social_cards_meta.json used by the homepage gallery. Keyed by lang
+    scanner.yml reads and merges into the rolling 30-day
+    data/latest_social_cards_meta.json used by the homepage gallery and the
+    subscription-gated chart archive page. Keyed by lang
     (not a single fixed filename) so the EN and CN subprocess runs can't clobber
     each other's fragment before scanner.yml gets to read both."""
     if not _SHARE_CARD_MANIFEST:
