@@ -1397,7 +1397,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         <span style="font-family:'DM Mono',monospace;font-size:9px;color:#475569;letter-spacing:0.03em;">来自第三方媒体 · 不代表平台立场</span>
         <a href="market_news_cn.html" id="digestViewAllBtn" onclick="return hpViewAll(event, 'market_news_cn.html', '市场资讯完整列表为订阅用户专享内容。')" class="digest-dl" title="查看全部市场资讯">查看全部 →</a>
       </div>
-      <div class="digest-video-row" id="newsVideoRow" style="display:none;">
+      <div class="digest-video-row">
         <a id="newsVideoWatchLink" href="data/latest_video_news_cn.mp4" target="_blank" class="digest-dl" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
           <svg width="12" height="12" style="flex-shrink:0;" viewBox="0 0 24 24" fill="#ef4444"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
           贝佐拉独家财经新闻视频 — <span id="newsVideoDate">…</span>
@@ -1451,7 +1451,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <span class="footer-email">关注我们：<a href="https://www.youtube.com/@baizorastock" target="_blank" rel="noopener" class="footer-yt">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="#ef4444"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
         YouTube
-      </a><span id="videoLinksWrap" style="display:none;">（<a id="videoWatchLink" href="data/latest_video_cn.mp4" target="_blank" class="footer-yt">最新视频</a> <a id="videoDownloadLink" href="data/latest_video_cn.mp4" download class="footer-yt" title="下载">↓</a>）</span></span>
+      </a>（<a id="videoWatchLink" href="data/latest_video_cn.mp4" target="_blank" class="footer-yt">最新视频</a> <a id="videoDownloadLink" href="data/latest_video_cn.mp4" download class="footer-yt" title="下载">↓</a>）</span>
       <span class="footer-email"><span style="visibility:hidden;">关注我们：</span><a href="https://www.linkedin.com/company/baizora" target="_blank" rel="noopener" class="footer-yt">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
         LinkedIn
@@ -2016,25 +2016,24 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 })();
 
 fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
-  if (!m.cn || !m.cn.url) return;   // not uploaded yet — keep the link hidden
+  if (!m.cn) return;
   const watch = document.getElementById('videoWatchLink');
   const dl    = document.getElementById('videoDownloadLink');
-  const wrap  = document.getElementById('videoLinksWrap');
-  if (watch) { watch.textContent = m.cn.date || '最新视频'; watch.href = m.cn.url; }
-  if (dl) dl.href = 'data/latest_video_cn.mp4';
-  if (wrap) wrap.style.display = 'inline';
+  if (watch) {
+    watch.textContent = m.cn.date || '最新视频';
+    if (m.cn.url) watch.href = m.cn.url;
+  }
+  if (dl && m.cn.url) dl.href = 'data/latest_video_cn.mp4';
 }).catch(() => {});
 
 fetch('data/latest_video_news_meta.json').then(r => r.json()).then(m => {
-  if (!m.cn || !m.cn.url) return;   // deferred/not uploaded yet — keep the row hidden
+  if (!m.cn) return;
   const watch  = document.getElementById('newsVideoWatchLink');
   const dl     = document.getElementById('newsVideoDownloadLink');
   const dateEl = document.getElementById('newsVideoDate');
-  const row    = document.getElementById('newsVideoRow');
   if (dateEl) dateEl.textContent = m.cn.date || '';
-  if (watch) watch.href = m.cn.url;
-  if (dl) dl.href = 'data/latest_video_news_cn.mp4';
-  if (row) row.style.display = 'flex';
+  if (watch && m.cn.url) watch.href = m.cn.url;
+  if (dl && m.cn.url) dl.href = 'data/latest_video_news_cn.mp4';
 }).catch(() => {});
 
 function shareCardDownload(file, ticker, dateStr) {
