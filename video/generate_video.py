@@ -2610,12 +2610,17 @@ _BREAKOUT_OPENERS_CN = [
 ]
 
 
-def _compute_breakouts(all_rows, tf):
-    """Return enriched rows for stocks whose N-month peak was first crossed in the past 2 weeks.
+def _compute_breakouts(all_rows, tf, lookback_days=10):
+    """Return enriched rows for stocks whose N-month peak was first crossed in the
+    past `lookback_days` trading days (default 10 = 2 weeks, the long-form video's
+    behavior, unchanged). generate_shorts.py's Wednesday Short passes 5 (1 week)
+    instead — that category runs weekly, and a 2-week lookback risked re-selecting
+    the same breakout ticker two weeks running.
 
     Criteria:
       - Previous high set in the older half of the target spark window
-      - From that peak until 2 weeks ago: no day reached 98% of peak (true resistance)
+      - From that peak until `lookback_days` trading days ago: no day reached 98%
+        of peak (true resistance)
       - Today's price at or above the previous peak
       - Pullback from peak to trough >= tf["min_drawdown"]
     """
@@ -2652,9 +2657,9 @@ def _compute_breakouts(all_rows, tf):
         peak_val = max(spark[:half])
         peak_idx = spark[:half].index(peak_val)
 
-        # Strict: from peak until 2 weeks ago, no day hit 98% of peak
-        before_2w = spark[peak_idx + 1 : -10]
-        if before_2w and max(before_2w) >= peak_val * 0.98:
+        # Strict: from peak until the lookback cutoff, no day hit 98% of peak
+        before_cutoff = spark[peak_idx + 1 : -lookback_days]
+        if before_cutoff and max(before_cutoff) >= peak_val * 0.98:
             continue
 
         # Today must be at or above the previous peak
@@ -2664,7 +2669,7 @@ def _compute_breakouts(all_rows, tf):
         peak_price      = actual(peak_val)
         full_peak_idx   = offset + peak_idx
         months_ago      = (len(full_spark) - 1 - full_peak_idx) / 21
-        post_peak       = spark[peak_idx:-10]
+        post_peak       = spark[peak_idx:-lookback_days]
         trough_val      = min(post_peak) if post_peak else peak_val
         drawdown        = (peak_price - actual(trough_val)) / peak_price * 100 if peak_price else 0
 

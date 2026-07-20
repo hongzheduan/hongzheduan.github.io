@@ -79,6 +79,24 @@ def hline_s(draw, y, x0=50, x1=None, color=BORDER, width=2):
     draw.line([(x0, y), (x1 if x1 else SW - 50, y)], fill=color, width=width)
 
 
+def _wrap_text(draw, text, font, max_width, lang):
+    """Greedy word-wrap for EN (space-separated) / char-wrap for CN (no spaces
+    between words, so wrapping has to measure character-by-character instead)."""
+    units = list(text) if lang == "cn" else text.split(" ")
+    sep = "" if lang == "cn" else " "
+    lines, cur = [], ""
+    for u in units:
+        trial = cur + (sep if cur else "") + u
+        if not cur or tw(draw, trial, font) <= max_width:
+            cur = trial
+        else:
+            lines.append(cur)
+            cur = u
+    if cur:
+        lines.append(cur)
+    return lines
+
+
 def dot_grid_s(draw, spacing=60, color=(20, 35, 65)):
     for gx in range(spacing, SW, spacing):
         for gy in range(spacing, SH, spacing):
@@ -312,15 +330,15 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
     # Price axis: dollar value at each of the 3 gridlines, right-aligned to the
     # chart's right edge with a small backing chip so it stays readable regardless
     # of what candles/peak-marker pill are behind it at that height.
-    f_axis = load_font(15, mono=True)
+    f_axis = load_font(22, mono=True, bold=True)
     for idx, lvl in enumerate(grid_levels):
         gy = py(lvl)
         label = f"${lvl:,.0f}" if lvl >= 100 else f"${lvl:,.2f}"
         lbl_w = tw(draw, label, f_axis)
-        pad = 4
-        ty = gy - 9 if idx < 2 else gy - 16  # keep the top level's chip from clipping above the panel
+        pad = 5
+        ty = gy - 13 if idx < 2 else gy - 23  # keep the top level's chip from clipping above the panel
         lx1 = x1 - 4
-        draw.rectangle([lx1 - lbl_w - pad * 2, ty - pad + 1, lx1, ty + 15 + pad - 1], fill=axis_bg)
+        draw.rectangle([lx1 - lbl_w - pad * 2, ty - pad + 1, lx1, ty + 22 + pad - 1], fill=axis_bg)
         draw.text((lx1 - lbl_w - pad, ty), label, font=f_axis, fill=axis_text)
 
     if peak_idx is not None and 0 <= peak_idx < n:
@@ -372,9 +390,6 @@ def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=Tru
     is_light = theme == "light"
     img, draw = new_frame_s(bg=_LT_BG if is_light else NAVY)
     dot_grid_s(draw, color=_LT_GRID_DOT if is_light else (20, 35, 65))
-
-    rank_col = GOLD_LIGHT if (gold_leader and rank == 1) else (_LT_TEXT_DIM if is_light else MUTED)
-    centered_s(draw, 80, f"#{rank}", load_font(32, mono=True, bold=True), rank_col)
 
     ticker = row.get("Ticker", "")
     f_tkr = load_headline_font(90) if lang == "en" else load_font_cn(72, bold=True)
@@ -515,9 +530,48 @@ def scene_member_spotlight_short(member, scan_date, lang="en", theme="dark"):
 # the video doesn't: a one-line explanation of what it is, the date, and a quiet
 # brand mark — into the blank space every card already has below its content.
 
+def _add_criteria_banner(card_img, criteria, lang, theme="light"):
+    """Prepends a top banner explaining HOW the stock was screened (e.g. "Screened
+    from S&P 500 + Nasdaq-100 for the largest volume spike vs. the 21-day average")
+    — distinct from the footer's caption, which states the specific RESULT for this
+    one stock (e.g. "Unusual volume spike vs the 21-day average"). Added so a share
+    card is fully self-explanatory when posted to social media with no extra
+    caption written by hand. Grows the canvas rather than overlaying existing
+    content, since the card's own top region (rank badge at y=80) has no blank
+    space to draw into without a real resize."""
+    is_light = theme == "light"
+    bg = _LT_BG if is_light else NAVY
+    text_color = _LT_TEXT_SEC if is_light else MUTED
+    eyebrow = "HOW THIS WAS SELECTED" if lang == "en" else "筛选标准"
+    f_eyebrow = load_font(20, mono=True, bold=True) if lang == "en" else load_font_cn(18, bold=True)
+    f_body = load_font(26) if lang == "en" else load_font_cn(24)
+
+    tmp_draw = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+    max_w = SW - 160
+    lines = _wrap_text(tmp_draw, criteria, f_body, max_w, lang)
+
+    pad_top, gap, line_gap, pad_bottom = 40, 16, 10, 32
+    eyebrow_h = th(tmp_draw, eyebrow, f_eyebrow)
+    line_h = th(tmp_draw, lines[0], f_body) if lines else 0
+    banner_h = pad_top + eyebrow_h + gap + len(lines) * (line_h + line_gap) + pad_bottom
+
+    new_img = Image.new("RGB", (SW, banner_h + card_img.height), bg)
+    new_img.paste(card_img, (0, banner_h))
+    draw = ImageDraw.Draw(new_img)
+
+    y = pad_top
+    centered_s(draw, y, eyebrow, f_eyebrow, GOLD)
+    y += eyebrow_h + gap
+    for line in lines:
+        centered_s(draw, y, line, f_body, text_color)
+        y += line_h + line_gap
+    hline_s(draw, banner_h - 12, x0=140, x1=SW - 140, color=_LT_BORDER if is_light else BORDER)
+    return new_img
+
+
 def _draw_share_footer(img, draw, date, lang, caption, theme="dark"):
     is_light = theme == "light"
-    y = SH - 210
+    y = img.height - 210
     hline_s(draw, y, x0=140, x1=SW - 140, color=_LT_BORDER if is_light else BORDER)
     y += 34
     f_cap = load_font(24) if lang == "en" else load_font_cn(22)
@@ -562,7 +616,7 @@ def _draw_share_footer(img, draw, date, lang, caption, theme="dark"):
 _SHARE_CARD_MANIFEST = []  # populated by _save_share_card, drained by write_share_manifest()
 
 
-def _save_share_card(card_img, ticker, date, lang, caption, out_dir, video_type, idx, theme="light"):
+def _save_share_card(card_img, ticker, date, lang, caption, out_dir, video_type, idx, theme="light", criteria=None):
     """Stamps the footer onto a copy of an already-rendered card (never mutates the
     frame passed in — the caller renders a fresh theme="light" card specifically
     for this, not the dark video frame; see scene_stock_card's theme docstring)
@@ -572,8 +626,16 @@ def _save_share_card(card_img, ticker, date, lang, caption, out_dir, video_type,
     older than 7 days on each run so the folder/repo doesn't grow unbounded. Also
     records ticker/caption into _SHARE_CARD_MANIFEST so main() can hand
     scanner.yml the metadata needed to build the gallery (this Python code is the
-    only place that knows the caption text and which ticker each numbered card is)."""
+    only place that knows the caption text and which ticker each numbered card is).
+
+    criteria (optional): the screening methodology sentence for this card's
+    category (e.g. "Screened from S&P 500 + Nasdaq-100 for..."), drawn as a
+    banner above the card via _add_criteria_banner — distinct from caption, which
+    is the specific result for this one stock. Kept optional/separate rather than
+    folded into caption so the footer's per-stock result line stays unchanged."""
     share_img = card_img.copy()
+    if criteria:
+        share_img = _add_criteria_banner(share_img, criteria, lang, theme=theme)
     share_draw = ImageDraw.Draw(share_img)
     _draw_share_footer(share_img, share_draw, date, lang, caption, theme=theme)
     filename = f"{date}_{video_type}_{lang}_{idx}.png"
@@ -769,15 +831,18 @@ _HOOK_NARRATION_CN = [
 ]
 
 
-def _narrate_ticker_lines(rows, n=5):
+def _narrate_ticker_lines(rows, n=5, key="_volMa21Pct"):
     """One short narration line per ticker (not one line for the whole scene) — so
     the table's on-screen time is covered by speech throughout, not just its first
     couple of seconds. Phrasing (leads the pack / follows / rounding out) is meant
-    to read as one connected sentence-by-sentence script, not disconnected fragments."""
+    to read as one connected sentence-by-sentence script, not disconnected fragments.
+    key is overridable (default is Monday's metric) so the same measured-safe
+    template can be reused elsewhere, e.g. Wednesday's price-jump fallback with
+    key="PriceChange1D" — same word count/structure, no new TTS measurement needed."""
     lines = []
     for i, row in enumerate(rows[:n]):
         ticker = row.get("Ticker", "")
-        v = abs(row.get("VolumeChange1D") or 0)
+        v = abs(row.get(key) or 0)
         if i == 0:
             lines.append(f"{ticker} leads the pack, up {v:.0f} percent.")
         elif i == 1:
@@ -789,11 +854,11 @@ def _narrate_ticker_lines(rows, n=5):
     return lines
 
 
-def _narrate_ticker_lines_cn(rows, n=5):
+def _narrate_ticker_lines_cn(rows, n=5, key="_volMa21Pct"):
     lines = []
     for i, row in enumerate(rows[:n]):
         ticker = row.get("Ticker", "")
-        v = abs(row.get("VolumeChange1D") or 0)
+        v = abs(row.get(key) or 0)
         if i == 0:
             lines.append(f"{ticker}领涨，上涨{v:.0f}%。")
         elif i == 1:
@@ -851,13 +916,13 @@ def _narrate_ticker_lines_best_cn(rows, key, n=5):
 
 
 _HOOK_NARRATION_PULLBACK_EN = [
-    "These stocks pulled back at least {min_drawdown} percent, then broke out to a new {window} high within the past two weeks.",
-    "A real pullback, then a new {window} high, first crossed within the past two weeks.",
+    "These stocks pulled back at least {min_drawdown} percent, then broke out to a new {window} high within the past week.",
+    "A real pullback, then a new {window} high, first crossed within the past week.",
 ]
 
 _HOOK_NARRATION_PULLBACK_CN = [
-    "这些股票回调至少{min_drawdown}%，随后在过去两周内首次突破{window}新高。",
-    "先经历真实回调，再于两周内首次创下{window}新高，这就是今天的主角。",
+    "这些股票回调至少{min_drawdown}%，随后在过去一周内首次突破{window}新高。",
+    "先经历真实回调，再于一周内首次创下{window}新高，这就是今天的主角。",
 ]
 
 
@@ -984,7 +1049,16 @@ def _embed_cover(output, cover_path, ffmpeg_path=None):
 def build_volume_spikes_short(data, output, lang="en", share_dir=None):
     date = data["date"]
     date_obj = datetime.date.fromisoformat(date)
-    rows = sorted(data["data"], key=lambda r: r.get("VolumeChange1D") or -9999, reverse=True)[:3]
+    # Sorted (and displayed) by volume vs. the 21-day average — not VolumeChange1D
+    # (day-over-day change vs. yesterday), which is what this category used to sort
+    # by despite the card labeling itself "VS 21-DAY AVERAGE VOLUME." Real bug: the
+    # label and the underlying metric didn't match. VolumeVsMA21_1D is a ratio
+    # (e.g. 1.35 = 135% of the 21-day average); converted to a percent-above-average
+    # figure so the card's big number reads the same way ("+35%") as before.
+    rows = sorted(data["data"], key=lambda r: r.get("VolumeVsMA21_1D") or -9999, reverse=True)[:3]
+    for r in rows:
+        ratio = r.get("VolumeVsMA21_1D")
+        r["_volMa21Pct"] = round((ratio - 1) * 100, 2) if ratio is not None else 0.0
 
     # Durations below = actually-measured edge-tts speech time at SHORTS_TTS_RATE (EN)
     # or SHORTS_TTS_VOICE_CN (CN) for this exact wording pattern, +~0.15s buffer each —
@@ -1012,14 +1086,18 @@ def build_volume_spikes_short(data, output, lang="en", share_dir=None):
     # the old shared 5-row table so each narrated ticker gets its own hero card instead
     # of all narration pointing at one static list.
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
-        card = scene_stock_card(row, i + 1, lang, "VolumeChange1D",
+        card = scene_stock_card(row, i + 1, lang, "_volMa21Pct",
                                  "VS 21-DAY AVERAGE VOLUME", "对比21日平均成交量")
         frames.append((card, dur, None, line))
         if share_dir:
             caption = "Unusual volume spike vs the 21-day average" if lang == "en" else "较21日均量的成交量异动"
-            light_card = scene_stock_card(row, i + 1, lang, "VolumeChange1D",
+            criteria = ("Screened from the S&P 500 + Nasdaq-100 for the largest single-day volume spike "
+                        "vs. each stock's own 21-day average volume." if lang == "en" else
+                        "从标普500和纳斯达克100成分股中，筛选出较自身21日平均成交量涨幅最大的个股。")
+            light_card = scene_stock_card(row, i + 1, lang, "_volMa21Pct",
                                            "VS 21-DAY AVERAGE VOLUME", "对比21日平均成交量", theme="light")
-            _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "volume_spikes", i + 1)
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "volume_spikes", i + 1,
+                              criteria=criteria)
 
     # Ad reel replaces the old dashboard-screenshot + static-card CTA: real footage
     # (advertise_0.png -> advertise_1.mp4 -> advertise_2.png) with the condensed pitch
@@ -1062,6 +1140,8 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
     sub_en, sub_cn = f"OVER THE PAST {window_en.upper()}", f"过去{window_cn}表现"
     share_caption = (f"Top price gainer over the past {window_en}" if lang == "en"
                       else f"过去{window_cn}表现最佳个股")
+    share_criteria = (f"Screened from the S&P 500 + Nasdaq-100, ranked by price return over the past {window_en}."
+                       if lang == "en" else f"从标普500和纳斯达克100成分股中，按过去{window_cn}涨幅排名筛选。")
 
     # Durations = actually-measured edge-tts speech time (same measure-don't-guess
     # approach as Monday). Ticker phrasing here is intentionally shorter than Monday's
@@ -1094,7 +1174,8 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
         frames.append((card, dur, None, line))
         if share_dir:
             light_card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn, theme="light")
-            _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "best_performer", i + 1)
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "best_performer", i + 1,
+                              criteria=share_criteria)
 
     # Ad reel, same as Monday: real footage (advertise_0/1/2) with the platform pitch,
     # then a short second beat with the CTA, then the unchanged silent outro card.
@@ -1114,18 +1195,90 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
         _embed_cover(output, cover)
 
 
+_HOOK_NARRATION_PRICE_JUMP_EN = [
+    "Today's biggest single-day price jumps in the S&P 500 and Nasdaq-100.",
+    "These large-cap stocks are today's top single-day price movers.",
+]
+
+_HOOK_NARRATION_PRICE_JUMP_CN = [
+    "今日标普500和纳斯达克100中，单日涨幅最大的股票。",
+    "这些大盘股是今日单日涨幅最大的个股。",
+]
+
+
+def _build_price_jump_fallback(data, output, lang, share_dir, date, date_obj):
+    """Wednesday fallback — used when _compute_breakouts finds no qualifying
+    pullback-then-breakout stocks this week (empirically confirmed possible with
+    the 1-week lookback: real data hit zero for the 1-Year window the day this was
+    built). Falls back to a plain "today's biggest price movers" list (top 3 by
+    PriceChange1D) so Wednesday still publishes instead of being skipped — a
+    distinct, honestly-labeled topic, not a repackaged breakout claim."""
+    rows = sorted(data["data"], key=lambda r: r.get("PriceChange1D") or -9999, reverse=True)[:3]
+
+    sub_en, sub_cn = "TODAY'S PRICE CHANGE", "今日涨幅"
+    caption = "Today's biggest single-day price jump" if lang == "en" else "今日单日涨幅最大个股"
+    criteria = ("Screened from the S&P 500 + Nasdaq-100 for the largest single-day price gain today." if lang == "en"
+                else "从标普500和纳斯达克100成分股中，筛选出今日单日涨幅最大的个股。")
+
+    # Reuses Monday's exact narration template (same word count/structure) via the
+    # now-generalized key= param, so its previously-measured durations stay valid —
+    # only the hook (genuinely new text) needed fresh edge-tts measurement.
+    if lang == "cn":
+        ticker_lines = _narrate_ticker_lines_cn(rows, n=3, key="PriceChange1D")
+        ticker_durs = [2.8, 3.1, 3.5]
+        hook_dur, hook_text = 4.2, random.choice(_HOOK_NARRATION_PRICE_JUMP_CN)  # measured 3.86s/2.78s, +buffer
+        tts_voice = SHORTS_TTS_VOICE_CN
+    else:
+        ticker_lines = _narrate_ticker_lines(rows, n=3, key="PriceChange1D")
+        ticker_durs = [3.2, 2.7, 3.8]
+        hook_dur, hook_text = 4.6, random.choice(_HOOK_NARRATION_PRICE_JUMP_EN)  # measured 4.34s/3.36s, +buffer
+        tts_voice = "en-US-ChristopherNeural"
+
+    frames = [
+        (scene_hook_generic(date, lang, ["BIGGEST PRICE", "JUMPS TODAY"], ["今日", "最大涨幅"],
+                            "S&P 500  ·  Nasdaq-100", "标普500 · 纳斯达克100", bg_style="bull"),
+         hook_dur, None, hook_text),
+    ]
+    for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        card = scene_stock_card(row, i + 1, lang, "PriceChange1D", sub_en, sub_cn)
+        frames.append((card, dur, None, line))
+        if share_dir:
+            light_card = scene_stock_card(row, i + 1, lang, "PriceChange1D", sub_en, sub_cn, theme="light")
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "price_jump", i + 1,
+                              criteria=criteria)
+
+    ad_entries = build_ad_reel(lang=lang)
+    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
+    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
+    first = ad_entries[0]
+    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
+    last = ad_entries[-1]
+    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
+    frames += ad_entries
+    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
+    encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
+
+    cover = cover_path_for("volume_spikes" + ("_cn" if lang == "cn" else ""), date_obj)
+    if cover:
+        _embed_cover(output, cover)
+
+
 def build_6m_breakout_short(data, output, lang="en", share_dir=None):
     date = data["date"]
     date_obj = datetime.date.fromisoformat(date)
     tf = _wednesday_tf(date)
-    breakouts = _compute_breakouts(data["data"], tf)
+    # 1-week lookback (not the long-form video's default 2-week) — this Short runs
+    # weekly, and a 2-week window risked re-selecting the same breakout ticker two
+    # weeks running.
+    breakouts = _compute_breakouts(data["data"], tf, lookback_days=5)
     # Ranked by pullback depth (not today's move) — the story is "how far did it fall
     # before reclaiming a new high", which is the stat that was missing from narration.
     breakouts.sort(key=lambda x: x.get("_drawdown") or 0, reverse=True)
     rows = breakouts[:3]
 
     if not rows:
-        print(f"No {tf['label_en']} breakout stocks today, skipping Short.")
+        print(f"No {tf['label_en']} breakout stocks today — falling back to today's biggest price movers.")
+        _build_price_jump_fallback(data, output, lang, share_dir, date, date_obj)
         return
 
     # Cards display the pullback magnitude (as a negative %, in red) rather than
@@ -1156,10 +1309,10 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
             if i == n - 1:
                 return 4.16
             return 3.97
-        # hook_dur widened 4.2->5.2 after adding the "within the past two weeks"
-        # clause to both narration variants (edge-tts measured at SHORTS_TTS_RATE
-        # with window="一年": 4.63s / 4.87s, +buffer — was 3.60s/3.94s pre-change).
-        hook_dur = 5.2
+        # Re-measured after changing "两周" ("2 weeks") to "一周" ("1 week") — see
+        # lookback_days=5 above. edge-tts at SHORTS_TTS_RATE, worst-case window_cn
+        # ("十二个月"): 4.80s / 5.04s, +buffer.
+        hook_dur = 5.4
         hook_text = random.choice(_HOOK_NARRATION_PULLBACK_CN).format(
             min_drawdown=tf["min_drawdown"], window=window_cn)
         tts_voice = SHORTS_TTS_VOICE_CN
@@ -1173,10 +1326,10 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
             if i == n - 1:
                 return 4.81
             return 3.99
-        # hook_dur widened 4.3->5.3 after adding the "within the past two weeks"
-        # clause to both narration variants (edge-tts measured at SHORTS_TTS_RATE
-        # with window="one-year": 4.94s / 4.27s, +buffer — was 3.98s/3.53s pre-change).
-        hook_dur = 5.3
+        # Re-measured after changing "two weeks" to "the past week" — see
+        # lookback_days=5 above. edge-tts at SHORTS_TTS_RATE, worst-case window_en
+        # ("twelve months"): 4.82s / 4.18s, +buffer.
+        hook_dur = 5.1
         hook_text = random.choice(_HOOK_NARRATION_PULLBACK_EN).format(
             min_drawdown=tf["min_drawdown"], window=window_en)
         tts_voice = "en-US-ChristopherNeural"
@@ -1197,8 +1350,8 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
         # specific stock and is already the big colored number above this caption,
         # so this just states it in words too rather than a repeated generic rule.
         dd_abs = abs(row.get("_drawdown") or 0)
-        row_sub_en = f"{row.get('_drawdown_display', 0):.0f}% DECLINE, HIGH CROSSED IN PAST 2 WEEKS"
-        row_sub_cn = f"跌{dd_abs:.0f}%，两周内首次突破新高"
+        row_sub_en = f"{row.get('_drawdown_display', 0):.0f}% DECLINE, HIGH CROSSED IN PAST WEEK"
+        row_sub_cn = f"跌{dd_abs:.0f}%，一周内首次突破新高"
         # "PREV HIGH" / "前高" rather than tf's timeframe-specific header (e.g. "1Y
         # HIGH") — the hook scene already states the timeframe ("1-YEAR HIGH"), so
         # the marker itself just needs to say what the dot/line actually is.
@@ -1209,11 +1362,16 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
             # label_en (e.g. "1-Year") not window_en (e.g. "twelve months") before
             # "high" — window_en reads fine in "over the past twelve months" but
             # turns into bad grammar ("twelve months high") as a compound modifier.
-            row_share_caption = (f"Real {dd_abs:.0f}% pullback, new {label_en.lower()} high within 2 weeks" if lang == "en"
-                                  else f"回调{dd_abs:.0f}%，两周内首次创{window_cn}新高")
+            row_share_caption = (f"Real {dd_abs:.0f}% pullback, new {label_en.lower()} high within the past week" if lang == "en"
+                                  else f"回调{dd_abs:.0f}%，一周内首次创{window_cn}新高")
+            row_share_criteria = (
+                f"Screened from the S&P 500 + Nasdaq-100 for stocks that fell {tf['min_drawdown']}%+ from a high, "
+                f"then broke out to a new {window_en} high within the past week." if lang == "en" else
+                f"从标普500和纳斯达克100成分股中，筛选出曾回调{tf['min_drawdown']}%以上、并在过去一周内首次突破{window_cn}新高的个股。")
             light_card = scene_stock_card(row, i + 1, lang, "_drawdown_display", row_sub_en, row_sub_cn, gold_leader=False,
                                            peak_label_en="PREV HIGH", peak_label_cn="前高", theme="light")
-            _save_share_card(light_card, row.get("Ticker", ""), date, lang, row_share_caption, share_dir, "6m_breakout", i + 1)
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, row_share_caption, share_dir, "6m_breakout", i + 1,
+                              criteria=row_share_criteria)
 
     # Ad reel, same as Monday/Tuesday: real footage with the platform pitch, then a
     # short second beat with the CTA, then the unchanged silent outro card.
@@ -1243,26 +1401,62 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
     date = data["date"]
     date_obj = datetime.date.fromisoformat(date)
     tf = _thursday_tf(date)
-    vol_key = tf["vol_chg_key"]
-    seen, peaks = set(), []
+    window_days = tf["spark_days"]  # None for 1Y = use the full candles.json history
+
+    # Real absolute-volume-record detection, read directly from candles.json's raw
+    # daily volume — not a proxy off data/latest.json's "MaxVolumeChange" field.
+    # That field (see calculate_period_metrics in scanner_tiingo.py) is the biggest
+    # single-day CHANGE in volume vs. the previous day, which is a different thing
+    # from an absolute record: a stock can post a huge jump off a quiet prior day
+    # without its volume ever being the window's highest. This surfaced as a real
+    # bug — FRT's 1Y example showed a taller bar earlier in the window than the
+    # day this category was calling a "record."
+    #
+    # Peak day allowed to fall anywhere in the last 3 trading sessions (not
+    # strictly today) — requiring an exact-today record was too rare and risked
+    # zero qualifying stocks on most days. "Prior high" is measured against the
+    # days before the peak session, not just before today, so the % is still
+    # the genuine improvement over the previous record.
+    candles = _load_candles().get("data", {})
+    seen, candidates = set(), []
     for r in data["data"]:
         t = r.get("Ticker", "")
         if t in seen:
             continue
         seen.add(t)
-        if r.get(tf["vol_day_key"]) == 0:
-            peaks.append(r)
-    peaks.sort(key=lambda r: r.get(vol_key) or 0, reverse=True)
-    rows = peaks[:3]
+        bars = candles.get(t) or []
+        window = bars[-window_days:] if window_days else bars
+        n = len(window)
+        if n < 2:
+            continue
+        vols = [b[4] for b in window]
+        peak_idx = max(range(n), key=lambda i: vols[i])
+        if peak_idx < n - 3:
+            continue  # the window's highest-volume day wasn't in the last 3 sessions
+        prior_vols = vols[:peak_idx]
+        if not prior_vols:
+            continue
+        prior_max = max(prior_vols)
+        if prior_max <= 0:
+            continue
+        r["_volPeakPct"] = round((vols[peak_idx] / prior_max - 1) * 100, 2)
+        candidates.append(r)
+    candidates.sort(key=lambda r: r["_volPeakPct"], reverse=True)
+    rows = candidates[:3]
+    vol_key = "_volPeakPct"
 
     if not rows:
-        print(f"No {tf['label_en']} volume-record stocks today, skipping Short.")
+        print(f"No {tf['label_en']} volume-record stocks today — falling back to Monday's volume-spikes topic.")
+        build_volume_spikes_short(data, output, lang=lang, share_dir=share_dir)
         return
 
     window_en, window_cn = tf["window_en"], tf["window_cn"]
-    sub_en, sub_cn = "TODAY'S VOLUME SURGE", "今日成交量激增"
-    share_caption = (f"Biggest single-day volume in the past {window_en}" if lang == "en"
-                      else f"过去{window_cn}最大单日成交量")
+    sub_en, sub_cn = f"VS PRIOR {window_en.upper()} HIGH", f"较此前{window_cn}最高纪录"
+    share_criteria = (
+        f"Screened from the S&P 500 + Nasdaq-100 for stocks whose trading volume hit the highest point of "
+        f"the past {window_en} within the last 3 trading days."
+        if lang == "en" else
+        f"从标普500和纳斯达克100成分股中，筛选出近3个交易日内成交量创下过去{window_cn}最高纪录的个股。")
 
     if lang == "cn":
         ticker_lines = _narrate_ticker_lines_vol_peak_cn(rows, vol_key)
@@ -1302,8 +1496,17 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
         card = scene_stock_card(row, i + 1, lang, vol_key, sub_en, sub_cn)
         frames.append((card, dur, None, line))
         if share_dir:
+            # Per-row caption (pct varies by ticker), same pattern as Wednesday's
+            # per-row real-drawdown caption. States "(past 3 days)" here too, not
+            # just in the criteria banner — the peak day isn't always literally
+            # today (see the peak_idx < n - 3 relaxation above), so the footer
+            # description needs the same caveat as the banner to stay accurate.
+            pct = row["_volPeakPct"]
+            row_share_caption = (f"New {window_en} volume record, {pct:.0f}% above prior high (past 3 days)" if lang == "en"
+                                  else f"创{window_cn}新高（最近3日内），较此前纪录高出{pct:.0f}%")
             light_card = scene_stock_card(row, i + 1, lang, vol_key, sub_en, sub_cn, theme="light")
-            _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "1y_vol_peak", i + 1)
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, row_share_caption, share_dir, "1y_vol_peak", i + 1,
+                              criteria=share_criteria)
 
     # Ad reel, same as the other weekdays: real footage with the platform pitch, then
     # a short second beat with the CTA, then the unchanged silent outro card.
@@ -1362,8 +1565,12 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
         # rendered a second time in the light theme for the share image only.
         share_caption = (f"Newest member of the {index_name}" if lang == "en"
                           else f"{index_cn}最新成分股")
+        share_criteria = (f"Spotlighting a stock that recently joined the {index_name}, tracked from Baizora's "
+                           f"index-membership monitor." if lang == "en" else
+                           f"聚焦最近加入{index_cn}的新成分股，数据来自贝佐拉的指数成分股监测。")
         light_spotlight = scene_member_spotlight_short(member, date, lang, theme="light")
-        _save_share_card(light_spotlight, ticker, date, lang, share_caption, share_dir, "index_spotlight", 1)
+        _save_share_card(light_spotlight, ticker, date, lang, share_caption, share_dir, "index_spotlight", 1,
+                          criteria=share_criteria)
 
     # Durations = actually-measured edge-tts speech time at SHORTS_TTS_RATE (see
     # measure_fri.py in scratch), +buffer.
