@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-20
 Threshold: >10% for all metrics
-318 flagged diffs above threshold
+316 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -76,8 +76,8 @@ PRICE  -- 0 flagged (>10%)
     ADI      ours=372.46  yf=372.46  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 257 flagged (>10%)
-  FLAGGED (top 20 of 257):
+VOLUME  -- 254 flagged (>10%)
+  FLAGGED (top 20 of 254):
     ETR      ours=2.96  yf=1.67  diff=77.0% ***
     L        ours=0.81  yf=0.47  diff=73.1% ***
     SPG      ours=1.42  yf=0.82  diff=72.7% ***
@@ -111,16 +111,18 @@ VOLUME  -- 257 flagged (>10%)
     ESS      ours=0.48  yf=0.30  diff=61.7% ***
 
 ------------------------------------------------------------
-MKTCAP  -- 5 flagged (>10%)
-  FLAGGED (top 5 of 5):
+MKTCAP  -- 6 flagged (>10%)
+  FLAGGED (top 6 of 6):
     PCG      ours=$46.71B  yf=$38.38B  diff=21.7% ***
     CHTR     ours=$15.88B  yf=$20.24B  diff=21.5% ***
+    SPG      ours=$74.00B  yf=$86.71B  diff=14.7% ***
     UDR      ours=$12.91B  yf=$14.72B  diff=12.3% ***
     ERIE     ours=$10.39B  yf=$11.77B  diff=11.7% ***
     BXP      ours=$10.83B  yf=$12.11B  diff=10.6% ***
   TOP 10 LARGEST DIFF:
     PCG      ours=$46.71B  yf=$38.38B  diff=21.7% ***
     CHTR     ours=$15.88B  yf=$20.24B  diff=21.5% ***
+    SPG      ours=$74.00B  yf=$86.71B  diff=14.7% ***
     UDR      ours=$12.91B  yf=$14.72B  diff=12.3% ***
     ERIE     ours=$10.39B  yf=$11.77B  diff=11.7% ***
     BXP      ours=$10.83B  yf=$12.11B  diff=10.6% ***
@@ -128,7 +130,6 @@ MKTCAP  -- 5 flagged (>10%)
     WDAY     ours=$39.24B  yf=$36.36B  diff=7.9%
     RKLB     ours=$38.05B  yf=$41.08B  diff=7.4%
     SMCI     ours=$14.33B  yf=$15.41B  diff=7.0%
-    ESS      ours=$18.88B  yf=$20.25B  diff=6.8%
 
 ------------------------------------------------------------
 PE  -- 24 flagged (>10%)
