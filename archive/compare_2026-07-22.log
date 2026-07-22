@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-22
 Threshold: >10% for all metrics
-229 flagged diffs above threshold
+227 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -76,8 +76,8 @@ PRICE  -- 0 flagged (>10%)
     ADBE     ours=218.36  yf=218.36  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 159 flagged (>10%)
-  FLAGGED (top 20 of 159):
+VOLUME  -- 157 flagged (>10%)
+  FLAGGED (top 20 of 157):
     GD       ours=0.96  yf=0.48  diff=99.1% ***
     ETR      ours=2.18  yf=1.15  diff=90.1% ***
     GPN      ours=2.34  yf=1.27  diff=84.3% ***
@@ -89,8 +89,8 @@ VOLUME  -- 159 flagged (>10%)
     BALL     ours=1.54  yf=0.98  diff=56.6% ***
     STE      ours=0.69  yf=0.45  diff=54.5% ***
     J        ours=0.46  yf=0.30  diff=53.1% ***
-    CAH      ours=2.52  yf=1.66  diff=51.5% ***
     CVS      ours=8.93  yf=5.89  diff=51.5% ***
+    CAH      ours=2.52  yf=1.66  diff=51.5% ***
     PH       ours=0.33  yf=0.22  diff=49.8% ***
     DOC      ours=3.68  yf=2.46  diff=49.8% ***
     SNA      ours=0.47  yf=0.32  diff=46.6% ***
