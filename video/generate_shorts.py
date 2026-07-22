@@ -747,26 +747,26 @@ _AD_ASSETS_CN = [
 _AD_BOX_W, _AD_BOX_H = 940, 1320
 _AD_BOX_Y0 = 230
 
-# Leads with "Baizora" so viewers know who's advertising from the first word.
-# One flowing sentence (not disconnected fragments) — measured at the Shorts TTS
-# rate (+40%) to land safely inside the ad footage (~11.9s EN reel / ~11.1s CN
-# fallback clip; narration starts ~0.55s in — see generate_narration()'s
-# pref_start convention), with room to spare rather than cutting it close. Covers
-# the full pitch: every S&P 500 and Nasdaq-100 stock in one table, one day to one
-# year, volume spikes, top performers, daily membership-change flags, and key
-# events marked on the trend line. No "baizora dot com" here on purpose — the CTA
-# is said once, at the very end (_AD_PITCH2_EN/_CN), not repeated mid-reel.
-_AD_PITCH_EN = ("Baizora brings every S&P 500 and Nasdaq-100 stock into one table, "
-                "one day to one year — volume spikes, top performers, membership "
-                "changes, key events marked on the trend.")
-_AD_PITCH_CN = ("贝佐拉一张表整合标普500和纳斯达克100全部股票，单日到一年——"
-                 "成交量异动、领涨股、成分股变动，关键事件标注趋势线。")
+# Reverted to the original platform pitch (trimmed a bit shorter), with a new
+# downloadability sentence prepended at the start — a first attempt fully
+# replaced this with two short generic sentences, which left ~6.4s of dead air
+# (the ad-reel's video clip, ~9.3s, has no narration of its own — the ORIGINAL
+# long pitch was deliberately sized to speak across it; a much shorter pitch
+# doesn't, and the next line's start time is fixed by frame hold_secs, not by
+# when the previous line finishes, so a gap opens up). Combined line measured
+# 10.10s at the Shorts TTS rate (+40%) against a 10.83s speaking window (frame4
+# hold 1.30s + frame5 video ~9.33s) — comfortable margin, confirmed via the
+# actual frame/narration schedule computed by encode(), not guessed.
+_AD_PITCH_EN = ("This video's chart is free to download and share, at baizora.com. "
+                "Baizora brings every S&P 500 and Nasdaq-100 stock into one table "
+                "— volume spikes, key events marked on the trend.")
+_AD_PITCH_CN = ("本视频的图表同样可在baizora点com免费下载。"
+                 "贝佐拉一张表整合标普500和纳斯达克100全部股票——成交量异动，关键事件标注趋势线。")
 
 # Second, shorter beat for the last ~3-4s of the ad reel (the advertise_2.png still),
-# once the main pitch above has already finished — pitches the per-stock detail page
-# instead of the platform-wide table, and is where the baizora.com CTA is actually
-# said (only once, at the end). Kept terse: only ~4s of runway is left before the
-# reel hands off to the silent outro card.
+# once the main pitch above has already finished — reverted to the original,
+# unchanged (the earlier simplification touched this too; user only asked for the
+# downloadability sentence to be added at the start of the pitch above).
 _AD_PITCH2_EN = "Full stock detail in thirty seconds — baizora dot com."
 _AD_PITCH2_CN = "半分钟看懂个股全部信息。baizora点com。"
 
@@ -1121,7 +1121,7 @@ def build_volume_spikes_short(data, output, lang="en", share_dir=None):
         # attach a second narration slot — both beats spoken back-to-back as one clip.
         ad_entries[0] = (first[0], first[1], first[2], ad_pitch + " " + ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
+    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("volume_spikes" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1187,7 +1187,7 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
+    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("best_performer" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1255,7 +1255,7 @@ def _build_price_jump_fallback(data, output, lang, share_dir, date, date_obj):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
+    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("volume_spikes" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1383,7 +1383,7 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
+    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("6m_breakout" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1518,7 +1518,7 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
+    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("1y_vol_peak" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1617,7 +1617,7 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 2.5, None, None))
+    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("index_spotlight" + ("_cn" if lang == "cn" else ""), date_obj)
