@@ -470,55 +470,6 @@
       font-family: 'DM Mono', monospace; letter-spacing: 0.04em;
     }
 
-    /* ── FACT BAR ── */
-    .fact-bar {
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      max-width: 540px;
-      margin: 0 auto;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: rgba(13,30,61,0.55);
-      overflow: hidden;
-    }
-
-    .fact-item {
-      flex: 1;
-      padding: 14px 16px;
-      text-align: center;
-      border-right: 1px solid var(--border);
-    }
-
-    .fact-item:last-child { border-right: none; }
-
-    .fact-num {
-      font-family: 'DM Serif Display', serif;
-      font-size: 26px;
-      color: #ffffff;
-      line-height: 1;
-      margin-bottom: 4px;
-      letter-spacing: -0.02em;
-    }
-
-    .fact-num .accent { color: var(--electric-bright); }
-    .fact-num .gold   { color: var(--gold-light); }
-
-    .fact-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: #94a3b8;
-      letter-spacing: 0.06em;
-    }
-
-    .fact-sub {
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      color: #94a3b8;
-      letter-spacing: 0.05em;
-      margin-top: 4px;
-    }
-
     /* ── TICKER STRIP ── */
     .ticker-wrap {
       position: relative;
@@ -889,10 +840,6 @@
       .ann-email { display: none; }
       .ann-sep { display: none; }
       .ann-br { display: inline; }
-      .fact-bar { flex-wrap: wrap; }
-      .fact-item { min-width: 50%; border-bottom: 1px solid var(--border); }
-      .fact-item:nth-child(odd) { border-right: 1px solid var(--border); }
-      .fact-item:nth-last-child(-n+2) { border-bottom: none; }
     }
 
     /* ══ TWO-COLUMN HERO ══ */
@@ -921,7 +868,6 @@
     .hero-split .hero-bullets  { align-items: flex-start; margin-left: 0; }
     .hero-split .hero-bullet   { justify-content: flex-start; text-align: left; }
     .hero-split .hero-cta      { justify-content: flex-start; margin-top: 20px; }
-    .hero-split .fact-bar      { margin: 16px 0 0 0; max-width: 100%; }
 
     /* ── DASHBOARD MOCK ── */
     .dash-mock {
@@ -1159,7 +1105,6 @@
       .hero-split .hero-bullet   { justify-content: flex-start; text-align: left; }
       .hero-split .hero-cta      { justify-content: center; flex-wrap: wrap; gap: 8px; }
       .hero-split .hero-cta .btn-gold { width: 100%; justify-content: center; }
-      .hero-split .fact-bar      { margin: 16px auto 0; }
       .col-legend-grid { text-align: left; }
     }
   </style>
@@ -1232,12 +1177,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <div class="hero-eyebrow" style="margin-bottom:18px;">◈ &nbsp; For self-directed investors who do their own research</div>
       <h1 class="hero-title" style="font-size:clamp(28px,2.8vw,34px);">Pulse of the Market — Price, Volume, Trend at a Glance</h1>
 
-      <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#cbd5e1;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:8px 12px;line-height:1.5;margin-bottom:14px;">All the data in one row — stop switching between tools to piece together the same picture</div>
+      <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#cbd5e1;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:8px 12px;line-height:1.5;margin-bottom:14px;">All the data in one row: Sort → check sparkline → scores → fundamentals — stop switching between tools to piece together the same picture</div>
       <div class="hero-bullets">
-        <div class="hero-bullet">Simple by design: Sort → check sparkline → scores (green = strong) → fundamentals — all in one place</div>
         <div class="hero-bullet">Built on trusted infrastructure — payments via Stripe, market data from Tiingo, fundamentals from SEC EDGAR, auth via Google Firebase</div>
         <div class="hero-bullet">Annotated sparklines: peak volume and price days marked — a year of history, instantly</div>
-        <div class="hero-bullet">7 daily scores — Baizora · Turn · RS · Breakout · Momentum · Vol Pressure · Trend</div>
         <div class="hero-bullet">S&amp;P 500 &amp; Nasdaq-100 index changes and news tracked daily</div>
       </div>
 
@@ -1246,24 +1189,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         <a href="baizora_main_form_freetier.html" class="btn-secondary">Free Tier<span class="btn-sub">full data · 2 weeks delayed</span></a>
       </div>
 
-      <div class="fact-bar">
-        <div class="fact-item">
-          <div class="fact-num">500<span class="accent">+</span></div>
-          <div class="fact-label">Symbols Tracked</div>
-        </div>
-        <div class="fact-item">
-          <div class="fact-num">7<span class="accent">×</span></div>
-          <div class="fact-label">Timeframes</div>
-        </div>
-        <div class="fact-item">
-          <div class="fact-num">7<span class="accent">×</span></div>
-          <div class="fact-label">Daily Scores</div>
-        </div>
-        <div class="fact-item">
-          <div class="fact-num">2<span class="accent">×</span></div>
-          <div class="fact-label">Access Tiers</div>
-        </div>
-      </div>
     </div><!-- /hero-left -->
 
     <!-- RIGHT: last session's top price movers -->
@@ -1911,7 +1836,7 @@ function buildSparkPath(arr) {
     const badge = document.getElementById('shBadge');
     if (badge && d.top10[0]?.session) badge.textContent = d.top10[0].session + ' · Top Price Movers';
 
-    grid.innerHTML = d.top10.map((t, i) => {
+    grid.innerHTML = d.top10.slice(0, 6).map((t, i) => {
       const chg    = t.change1d ?? 0;
       const chgCls = chg >= 0 ? 'up' : 'dn';
       const chgStr = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
