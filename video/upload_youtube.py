@@ -326,7 +326,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"Large-cap stocks from S&P 500 and Nasdaq-100 recording their biggest single-day volume in the past {window}, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Large-cap stocks from S&P 500 and Nasdaq-100 hitting their highest trading volume of the past {window}, within the last 3 trading days ({date}).\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "1y_vol_peak_cn":
         ttf      = _thursday_tf(date)
@@ -341,7 +341,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"S&P 500和纳斯达克100中，今日创下过去{window_cn}最大单日成交量的大盘股（{date}）。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"S&P 500和纳斯达克100中，近3个交易日内创下过去{window_cn}最大单日成交量的大盘股（{date}）。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "index_spotlight":
         title = random.choice([
