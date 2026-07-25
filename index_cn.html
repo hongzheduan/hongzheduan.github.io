@@ -1751,15 +1751,31 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   function _etDateStr(et) {
     return et.getFullYear() + '-' + String(et.getMonth()+1).padStart(2,'0') + '-' + String(et.getDate()).padStart(2,'0');
   }
-  function isMarketOpen() {
+  function _nowET() {
+    return new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+  }
+  function isTradingDay(et) {
+    const d = et.getDay();
+    if (d === 0 || d === 6) return false;
+    return !_NYSE_HOLIDAYS.has(_etDateStr(et));
+  }
+  function isMarketOpen(et) {
     try {
-      const et = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
-      const d = et.getDay();
-      if (d === 0 || d === 6) return false;
-      if (_NYSE_HOLIDAYS.has(_etDateStr(et))) return false;
+      if (!isTradingDay(et)) return false;
       const m = et.getHours() * 60 + et.getMinutes();
-      return m >= 570 && m < 960;
+      return m >= 570 && m < 960; // 9:30–16:00 ET
     } catch(e) { return false; }
+  }
+  // One extra fetch in a 10-min window right after close (16:00–16:10 ET) to
+  // capture the real closing price — isMarketOpen() alone stops refreshing at
+  // exactly 16:00, so without this the bar freezes on the last pre-close quote
+  // and then falls back to data/latest.json, which isn't updated with today's
+  // close until the evening scanner run finishes.
+  let _closeFetchDate = null;
+  function isCloseFetchWindow(et) {
+    if (!isTradingDay(et)) return false;
+    const m = et.getHours() * 60 + et.getMinutes();
+    return m >= 960 && m < 970 && _closeFetchDate !== _etDateStr(et);
   }
 
   const _prevIexPrices = {};
@@ -1796,8 +1812,17 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     } catch(e) { /* silent */ }
   }
 
-  if (isMarketOpen()) refreshPrices();
-  setInterval(() => { if (isMarketOpen()) refreshPrices(); }, 10_000);
+  function tick() {
+    const et = _nowET();
+    if (isMarketOpen(et)) {
+      refreshPrices();
+    } else if (isCloseFetchWindow(et)) {
+      _closeFetchDate = _etDateStr(et);
+      refreshPrices();
+    }
+  }
+  tick();
+  setInterval(tick, 10_000);
 })();
 
 // Promo bar: static links (CN)
