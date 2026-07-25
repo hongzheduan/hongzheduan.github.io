@@ -343,6 +343,17 @@
     #candleTimeframes { display: flex; gap: 6px; margin-bottom: 8px; }
     .tf-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .tf-btn.active, .tf-btn:hover { background: rgba(59,130,246,0.2); border-color: #3b82f6; color: #60a5fa; }
+    #smaToggles { display: flex; gap: 6px; margin-bottom: 10px; }
+    .sma-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
+    .sma-btn::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; opacity: .5; }
+    .sma-btn:hover { color: #cbd5e1; }
+    .sma-btn[data-sma="sma20"]::before  { background: #f59e0b; }
+    .sma-btn[data-sma="sma50"]::before  { background: #60a5fa; }
+    .sma-btn[data-sma="sma200"]::before { background: #a78bfa; }
+    .sma-btn[data-sma="sma20"].active  { background: rgba(245,158,11,0.16);  border-color: #f59e0b;  color: #fcd34d; }
+    .sma-btn[data-sma="sma50"].active  { background: rgba(96,165,250,0.16);  border-color: #60a5fa;  color: #93c5fd; }
+    .sma-btn[data-sma="sma200"].active { background: rgba(167,139,250,0.16); border-color: #a78bfa;  color: #c4b5fd; }
+    .sma-btn.active::before { opacity: 1; }
     #candleCanvas { width: 100%; height: 280px; display: block; border-radius: 8px; }
     #candleNoData { width: 100%; height: 280px; display: none; align-items: center; justify-content: center; color: #64748b; font-size: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; }
 
@@ -834,6 +845,11 @@
         <button class="tf-btn active" data-tf="63">3M</button>
         <button class="tf-btn" data-tf="126">6M</button>
         <button class="tf-btn" data-tf="252">1Y</button>
+      </div>
+      <div id="smaToggles">
+        <button class="sma-btn" data-sma="sma20">SMA 20</button>
+        <button class="sma-btn" data-sma="sma50">SMA 50</button>
+        <button class="sma-btn" data-sma="sma200">SMA 200</button>
       </div>
       <canvas id="candleCanvas"></canvas>
       <div id="candleNoData">No chart data available yet</div>
@@ -1656,7 +1672,7 @@
     }
 
     /* ── CANDLESTICK RENDERER ── */
-    function renderCandleChart(canvas, candles, dates) {
+    function renderCandleChart(canvas, candles, dates, smaLines) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
@@ -1675,6 +1691,9 @@
       const toX    = i => pad.left + i * slotW + (slotW - cndW) / 2;
       let minP = Infinity, maxP = -Infinity;
       candles.forEach(c => { if (!c) return; const [,h,l] = c; if(h>maxP) maxP=h; if(l<minP) minP=l; });
+      (smaLines || []).forEach(line => {
+        (line.values || []).forEach(v => { if (v != null) { if (v>maxP) maxP=v; if (v<minP) minP=v; } });
+      });
       const buf  = (maxP - minP) * 0.05 || 1;
       const lo   = minP - buf, hi = maxP + buf;
       const toY  = p => pad.top + priceH * (1 - (p - lo) / (hi - lo));
@@ -1732,6 +1751,20 @@
         const bH   = Math.max(1, toY(Math.min(o, cv)) - bTop);
         ctx.fillRect(x, bTop, cndW, bH);
         ctx.strokeRect(x, bTop, cndW, bH);
+      });
+      (smaLines || []).forEach(line => {
+        ctx.strokeStyle = line.color;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        let started = false;
+        candles.forEach((c, i) => {
+          const v = line.values ? line.values[i] : null;
+          if (v == null) return;
+          const x = toX(i) + cndW / 2, y = toY(v);
+          if (!started) { ctx.moveTo(x, y); started = true; }
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
       });
       /* volume bars */
       if (hasVol) {
@@ -1794,13 +1827,17 @@
       document.getElementById("tickerModal").style.display = "flex";
       document.body.style.overflow = "hidden";
       document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "63"));
+      document.querySelectorAll(".sma-btn").forEach(b => b.classList.remove("active"));
       requestAnimationFrame(() => { _renderModalChart(ticker, 63); });
     }
+
+    const _SMA_COLORS = { sma20: "#f59e0b", sma50: "#60a5fa", sma200: "#a78bfa" };
 
     let _modalTicker = null;
     function _renderModalChart(ticker, tf) {
       _modalTicker = ticker;
       const rawCandles = candleData?.data?.[ticker];
+      const rawSma     = candleData?.sma?.[ticker];
       const dates      = candleData?.dates;
       const canvas     = document.getElementById("candleCanvas");
       const noData     = document.getElementById("candleNoData");
@@ -1815,7 +1852,19 @@
         // Insert null entries for weekday trading days missing from the data
         const filled = fillCalendarGaps(slicedDates, slicedCandles);
         canvas.style.display = "block"; noData.style.display = "none";
-        renderCandleChart(canvas, filled.candles, filled.dates);
+
+        const activeSmaKeys = Array.from(document.querySelectorAll(".sma-btn.active"))
+          .map(b => b.dataset.sma);
+        const smaLines = activeSmaKeys.map(key => {
+          const raw = rawSma ? rawSma[key] : null;
+          const padded = !raw ? new Array(dates.length).fill(null)
+            : (raw.length < dates.length ? new Array(dates.length - raw.length).fill(null).concat(raw) : raw);
+          const slicedVals = padded.slice(-slice);
+          const filledVals = fillCalendarGaps(slicedDates, slicedVals).candles;
+          return { color: _SMA_COLORS[key], values: filledVals };
+        });
+
+        renderCandleChart(canvas, filled.candles, filled.dates, smaLines);
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
       }
@@ -1827,6 +1876,14 @@
       document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       _renderModalChart(_modalTicker, parseInt(btn.dataset.tf));
+    });
+
+    document.getElementById("smaToggles").addEventListener("click", e => {
+      const btn = e.target.closest(".sma-btn");
+      if (!btn || !_modalTicker) return;
+      btn.classList.toggle("active");
+      const activeTf = document.querySelector(".tf-btn.active");
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 63);
     });
 
     function closeTickerModal() {

@@ -2112,6 +2112,7 @@ def scan():
     universe_set        = set(tickers)
     results             = []
     candles_out         = {}
+    smas_out            = {}
     sector_mktcap_sum   = {}
     sector_earnings_sum = {}
 
@@ -2258,14 +2259,27 @@ def scan():
 
             try:
                 candle_rows = df.tail(252)
-                candles = []
-                for _, row in candle_rows.iterrows():
+                # Rolling means computed over the FULL df (up to 730 days of history,
+                # see build_ohlcv_cache's from_date above) so SMA200 has real lookback
+                # for every bar in the exported 252-day window, not just the tail end —
+                # only genuinely new listings (<200 trading days of total history) will
+                # show nulls, which is a real data limit, not a truncation artifact.
+                sma20_full  = df["Close"].rolling(20).mean()
+                sma50_full  = df["Close"].rolling(50).mean()
+                sma200_full = df["Close"].rolling(200).mean()
+                candles, sma20_l, sma50_l, sma200_l = [], [], [], []
+                for idx, row in candle_rows.iterrows():
                     o, h, l, c, v = row.get("Open"), row.get("High"), row.get("Low"), row["Close"], row.get("Volume")
                     if all(x is not None and pd.notna(x) for x in [o, h, l, c]):
                         vol = int(v) if v is not None and pd.notna(v) and v > 0 else 0
                         candles.append([round(float(o),2), round(float(h),2), round(float(l),2), round(float(c),2), vol])
+                        s20, s50, s200 = sma20_full.get(idx), sma50_full.get(idx), sma200_full.get(idx)
+                        sma20_l.append(round(float(s20), 2)   if pd.notna(s20)  else None)
+                        sma50_l.append(round(float(s50), 2)   if pd.notna(s50)  else None)
+                        sma200_l.append(round(float(s200), 2) if pd.notna(s200) else None)
                 if candles:
                     candles_out[ticker] = candles
+                    smas_out[ticker] = {"sma20": sma20_l, "sma50": sma50_l, "sma200": sma200_l}
             except Exception:
                 pass
 
@@ -2394,7 +2408,7 @@ def scan():
     if "VolumeChange1D" in df.columns:
         df = df.sort_values("VolumeChange1D", ascending=False)
 
-    return df, candles_out, trading_days
+    return df, candles_out, smas_out, trading_days
 
 
 # =========================
@@ -2483,13 +2497,13 @@ def export(df):
 # CANDLES EXPORT
 # =========================
 
-def export_candles(candles_out, trading_days):
+def export_candles(candles_out, smas_out, trading_days):
     dates = list(trading_days[-252:])
-    payload = {"date": DATE_STR, "dates": dates, "data": candles_out}
+    payload = {"date": DATE_STR, "dates": dates, "data": candles_out, "sma": smas_out}
     path = os.path.join(DATA_DIR, "candles.json")
     with open(path, "w") as f:
         json.dump(payload, f)
-    print(f"Candles export: {len(candles_out)} tickers, {len(dates)} dates")
+    print(f"Candles export: {len(candles_out)} tickers, {len(dates)} dates, {len(smas_out)} with SMA data")
 
 
 def _build_briefing_txt(market_date, scan_time, digest, headlines):
@@ -3111,7 +3125,7 @@ if __name__ == "__main__":
     # 3. (archive cleanup disabled — all daily CSVs kept in git permanently)
 
     # 4. Run scan
-    df, candles_out, trading_days = scan()
+    df, candles_out, smas_out, trading_days = scan()
 
     # 4b. Exclude tickers Tiingo hasn't published for _TIINGO_LAST_DATE yet.
     # Tiingo sometimes publishes EOD data incrementally across tickers rather than all at
@@ -3127,6 +3141,7 @@ if __name__ == "__main__":
                   f"updated to {_TIINGO_LAST_DATE}: {_STALE_TICKERS_EXCLUDED}")
             df = df[~stale_mask].reset_index(drop=True)
             candles_out = {t: c for t, c in candles_out.items() if t not in _STALE_TICKERS_EXCLUDED}
+            smas_out    = {t: s for t, s in smas_out.items()    if t not in _STALE_TICKERS_EXCLUDED}
 
     print(df.head(10))
 
@@ -3137,7 +3152,7 @@ if __name__ == "__main__":
     export(df)
 
     # 6b. Export candle data
-    export_candles(candles_out, trading_days)
+    export_candles(candles_out, smas_out, trading_days)
 
     # 6c. Export daily digest + downloadable briefing for homepage card
     export_daily_digest(df)
