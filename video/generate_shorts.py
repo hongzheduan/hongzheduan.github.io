@@ -968,22 +968,23 @@ def _narrate_ticker_lines_pullback_cn(rows, label_cn, n=3):
 
 
 _HOOK_NARRATION_VOL_PEAK_EN = [
-    "Here's today's {window} volume record.",
-    "A record volume day often means something big is happening — today's {window} record.",
+    "Here's the {window} volume record from the last 3 days.",
+    "A record volume day often means something big is happening — the {window} record from the last 3 days.",
 ]
 
 _HOOK_NARRATION_VOL_PEAK_CN = [
-    "这些是创{window}成交量记录的股票。",
-    "这些股票创下了{window}成交量记录，值得关注。",
+    "这些股票在最近三个交易日内，创下了{window}成交量新纪录。",
+    "成交量创新高往往意味着有大事发生——这是最近三个交易日内的{window}成交量纪录。",
 ]
 
 
 def _narrate_ticker_lines_vol_peak(rows, key, n=5):
     """Ranked by the volume-record day's % volume change. Unlike Monday/Tuesday/
-    Wednesday's always-full pools, this category (today IS a stock's biggest volume
-    day in the window) is genuinely rare — most days turn up only 1-3 qualifying
-    stocks, sometimes just 1. The "last" index must be based on the actual row count
-    (not a fixed n=5), or the closing flourish line never triggers on sparse days."""
+    Wednesday's always-full pools, this category (the stock's biggest volume day in
+    the window fell within the last 3 trading sessions) is genuinely rare — most days
+    turn up only 1-3 qualifying stocks, sometimes just 1. The "last" index must be
+    based on the actual row count (not a fixed n=5), or the closing flourish line
+    never triggers on sparse days."""
     n = min(n, len(rows))
     rows = rows[:n]
     lines = []
@@ -991,7 +992,7 @@ def _narrate_ticker_lines_vol_peak(rows, key, n=5):
         ticker = row.get("Ticker", "")
         v = abs(row.get(key) or 0)
         if n == 1:
-            lines.append(f"There's only one today — {ticker}, volume up {v:.0f} percent.")
+            lines.append(f"There's only one in the last three days — {ticker}, volume up {v:.0f} percent.")
         elif i == 0:
             lines.append(f"{ticker} leads, volume up {v:.0f} percent.")
         elif i == n - 1:
@@ -1009,7 +1010,7 @@ def _narrate_ticker_lines_vol_peak_cn(rows, key, n=5):
         ticker = row.get("Ticker", "")
         v = abs(row.get(key) or 0)
         if n == 1:
-            lines.append(f"今天只有一只——{ticker}，成交量放大{v:.0f}%。")
+            lines.append(f"近三个交易日只有一只——{ticker}，成交量放大{v:.0f}%。")
         elif i == 0:
             lines.append(f"{ticker}领涨，成交量放大{v:.0f}%。")
         elif i == n - 1:
@@ -1392,9 +1393,10 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
 
 
 def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
-    """Thursday — stocks setting a new N-month volume record TODAY. Unlike Monday/
-    Tuesday/Wednesday's always-full pools, this event is genuinely rare: most days
-    only turn up 1-3 qualifying stocks (sometimes exactly 1), so both the table and
+    """Thursday — stocks setting a new N-month volume record within the last 3
+    trading days. Unlike Monday/Tuesday/Wednesday's always-full pools, this event
+    is genuinely rare: most days only turn up 1-3 qualifying stocks (sometimes
+    exactly 1), so both the table and
     the trend-scene count adapt to however many rows actually exist today, rather
     than assuming 5. Purely a volume story (no "bounce back" framing — that's
     Wednesday's price-pullback category; there's no equivalent volume concept)."""
@@ -1414,9 +1416,10 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
     #
     # Peak day allowed to fall anywhere in the last 3 trading sessions (not
     # strictly today) — requiring an exact-today record was too rare and risked
-    # zero qualifying stocks on most days. "Prior high" is measured against the
-    # days before the peak session, not just before today, so the % is still
-    # the genuine improvement over the previous record.
+    # zero qualifying stocks on most days. The displayed % is the peak day's
+    # volume vs. the window's own average volume (excluding the peak day itself,
+    # so the record day doesn't inflate its own baseline) — not vs. the previous
+    # record — matching how Monday's volume-spikes category expresses its %.
     candles = _load_candles().get("data", {})
     seen, candidates = set(), []
     for r in data["data"]:
@@ -1433,13 +1436,13 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
         peak_idx = max(range(n), key=lambda i: vols[i])
         if peak_idx < n - 3:
             continue  # the window's highest-volume day wasn't in the last 3 sessions
-        prior_vols = vols[:peak_idx]
-        if not prior_vols:
+        other_vols = vols[:peak_idx] + vols[peak_idx + 1:]
+        if not other_vols:
             continue
-        prior_max = max(prior_vols)
-        if prior_max <= 0:
+        avg_vol = sum(other_vols) / len(other_vols)
+        if avg_vol <= 0:
             continue
-        r["_volPeakPct"] = round((vols[peak_idx] / prior_max - 1) * 100, 2)
+        r["_volPeakPct"] = round((vols[peak_idx] / avg_vol - 1) * 100, 2)
         candidates.append(r)
     candidates.sort(key=lambda r: r["_volPeakPct"], reverse=True)
     rows = candidates[:3]
@@ -1451,21 +1454,22 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
         return
 
     window_en, window_cn = tf["window_en"], tf["window_cn"]
-    sub_en, sub_cn = f"VS PRIOR {window_en.upper()} HIGH", f"较此前{window_cn}最高纪录"
+    sub_en, sub_cn = f"VS {window_en.upper()} AVERAGE VOLUME", f"对比{window_cn}平均成交量"
     share_criteria = (
-        f"Screened from the S&P 500 + Nasdaq-100 for stocks whose trading volume hit the highest point of "
-        f"the past {window_en} within the last 3 trading days."
+        f"Screened from the S&P 500 + Nasdaq-100 for stocks that hit their highest trading volume of the "
+        f"past {window_en} within the last 3 trading days — shown as % above the period's average volume."
         if lang == "en" else
-        f"从标普500和纳斯达克100成分股中，筛选出近3个交易日内成交量创下过去{window_cn}最高纪录的个股。")
+        f"从标普500和纳斯达克100成分股中，筛选出近3个交易日内成交量创下过去{window_cn}新高的个股，"
+        f"涨幅按对比该时段平均成交量计算。")
 
     if lang == "cn":
         ticker_lines = _narrate_ticker_lines_vol_peak_cn(rows, vol_key)
-        hook_dur = 3.8   # budgeted for the longer of the two hook variants (measured 3.60s)
+        hook_dur = 5.9   # budgeted for the longer of the two hook variants (measured 5.66s, "last 3 trading days" wording)
         hook_text = random.choice(_HOOK_NARRATION_VOL_PEAK_CN).format(window=window_cn)
         tts_voice = SHORTS_TTS_VOICE_CN
     else:
         ticker_lines = _narrate_ticker_lines_vol_peak(rows, vol_key)
-        hook_dur = 4.0   # budgeted for the longer of the two hook variants (measured 3.82s)
+        hook_dur = 5.2   # budgeted for the longer of the two hook variants (measured 4.99s, "last 3 days" wording)
         hook_text = random.choice(_HOOK_NARRATION_VOL_PEAK_EN).format(window=window_en)
         tts_voice = "en-US-ChristopherNeural"
 
@@ -1502,8 +1506,8 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
             # today (see the peak_idx < n - 3 relaxation above), so the footer
             # description needs the same caveat as the banner to stay accurate.
             pct = row["_volPeakPct"]
-            row_share_caption = (f"New {window_en} volume record, {pct:.0f}% above prior high (past 3 days)" if lang == "en"
-                                  else f"创{window_cn}新高（最近3日内），较此前纪录高出{pct:.0f}%")
+            row_share_caption = (f"New {window_en} volume record (past 3 days), {pct:.0f}% above average volume" if lang == "en"
+                                  else f"创{window_cn}新高（最近3日内），较平均成交量高出{pct:.0f}%")
             light_card = scene_stock_card(row, i + 1, lang, vol_key, sub_en, sub_cn, theme="light")
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, row_share_caption, share_dir, "1y_vol_peak", i + 1,
                               criteria=share_criteria)
