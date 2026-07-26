@@ -1907,11 +1907,11 @@
       document.body.style.overflow = "hidden";
 
       // reset timeframe to 3M and SMA toggles off on each open
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "63"));
-      document.querySelectorAll(".sma-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "252"));
+      document.querySelectorAll(".sma-btn").forEach(b => b.classList.add("active"));
 
       requestAnimationFrame(() => {
-        _renderModalChart(ticker, 63);
+        _renderModalChart(ticker, 252);
       });
     }
 
@@ -1968,7 +1968,7 @@
       if (!btn || !_modalTicker) return;
       btn.classList.toggle("active");
       const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 63);
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
     });
 
     function closeTickerModal() {
@@ -2189,14 +2189,14 @@
       </div>
       <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
       <div id="candleTimeframes">
-        <button class="tf-btn active" data-tf="63">3月</button>
+        <button class="tf-btn" data-tf="63">3月</button>
         <button class="tf-btn" data-tf="126">6月</button>
-        <button class="tf-btn" data-tf="252">1年</button>
+        <button class="tf-btn active" data-tf="252">1年</button>
       </div>
       <div id="smaToggles">
-        <button class="sma-btn" data-sma="sma20">20日均线</button>
-        <button class="sma-btn" data-sma="sma50">50日均线</button>
-        <button class="sma-btn" data-sma="sma200">200日均线</button>
+        <button class="sma-btn active" data-sma="sma20">20日均线</button>
+        <button class="sma-btn active" data-sma="sma50">50日均线</button>
+        <button class="sma-btn active" data-sma="sma200">200日均线</button>
       </div>
       <canvas id="candleCanvas"></canvas>
       <div id="candleNoData">暂无图表数据</div>
