@@ -499,12 +499,12 @@
     }
     .ticker-track {
       display: flex;
-      animation: ticker 30s linear infinite;
+      width: max-content;
+      animation: ticker 45s linear infinite;
       white-space: nowrap;
     }
     .ticker-wrap:hover .ticker-track {
       animation-play-state: paused;
-      width: max-content;
     }
 
     @keyframes ticker {
@@ -541,7 +541,8 @@
     }
     .promo-ticker-track {
       display: flex;
-      animation: ticker 55s linear infinite;
+      width: max-content;
+      animation: ticker 75s linear infinite;
       white-space: nowrap;
     }
     .promo-ticker-wrap:hover .promo-ticker-track { animation-play-state: paused; }
