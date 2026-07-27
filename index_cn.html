@@ -1678,16 +1678,18 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       return m >= 570 && m < 960; // 9:30–16:00 ET
     } catch(e) { return false; }
   }
-  // One extra fetch in a 10-min window right after close (16:00–16:10 ET) to
-  // capture the real closing price — isMarketOpen() alone stops refreshing at
-  // exactly 16:00, so without this the bar freezes on the last pre-close quote
-  // and then falls back to data/latest.json, which isn't updated with today's
-  // close until the evening scanner run finishes.
+  // One extra fetch any time after close (16:00 ET onward, deduped to once per
+  // day) to capture the real closing price — isMarketOpen() alone stops
+  // refreshing at exactly 16:00, so without this the bar freezes on the last
+  // pre-close quote and then falls back to data/latest.json, which isn't
+  // updated with today's close until the evening scanner run finishes (which
+  // can land hours after close). Not bounded to a short post-close window —
+  // any fresh page load later that evening still needs a live catch-up fetch.
   let _closeFetchDate = null;
   function isCloseFetchWindow(et) {
     if (!isTradingDay(et)) return false;
     const m = et.getHours() * 60 + et.getMinutes();
-    return m >= 960 && m < 970 && _closeFetchDate !== _etDateStr(et);
+    return m >= 960 && _closeFetchDate !== _etDateStr(et);
   }
 
   const _prevIexPrices = {};
