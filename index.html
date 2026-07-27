@@ -699,17 +699,20 @@
 
     .spark-demo::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent); }
     .spark-demo h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #60a5fa; margin-bottom: 6px; }
-    .spark-demo p { font-size: 14px; color: #cbd5e1; line-height: 1.7; font-weight: 400; margin-bottom: 20px; max-width: 560px; }
+    .spark-demo p { font-size: 14px; color: #cbd5e1; line-height: 1.7; font-weight: 400; margin-bottom: 16px; }
 
-    .spark-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; }
+    .spark-demo-grid { display: flex; gap: 36px; align-items: center; }
+    .spark-demo-text { flex: 1.2; min-width: 0; }
+    .spark-demo-charts { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    @media (max-width: 768px) { .spark-demo-grid { flex-direction: column; align-items: stretch; } }
+
+    .spark-legend { display: flex; flex-direction: column; gap: 8px; margin-bottom: 0; }
     .spark-legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 12px; color: #cbd5e1; letter-spacing: 0.06em; }
 
     .spark-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border); }
     .spark-row:last-child { border-bottom: none; }
     .spark-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: #94a3b8; width: 44px; flex-shrink: 0; }
     .spark-svg-wrap { flex: 1; }
-    .spark-scores-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-    @media (max-width: 768px) { .spark-scores-wrap { grid-template-columns: 1fr; } }
     .up-c { color: #64c487; }
     .dn-c { color: #c46464; }
 
@@ -1205,7 +1208,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
       </div>
       <div style="font-family:'DM Mono',monospace;font-size:9px;color:#94a3b8;letter-spacing:0.04em;text-align:center;margin-top:8px;line-height:1.8;">
-        1Y Trend: <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><polygon points="4,0 0,8 8,8" fill="#94a3b8"/></svg> highest-vol day &nbsp;·&nbsp; <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><circle cx="4" cy="4" r="3.5" fill="#94a3b8"/></svg> largest price-change day &nbsp;·&nbsp; green = price up, red = down<br>
+        1Y Trend: <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><polygon points="4,0 0,8 8,8" fill="#94a3b8"/></svg> highest-vol day (green = price up, red = down) &nbsp;·&nbsp; <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><circle cx="4" cy="4" r="3.5" fill="#94a3b8"/></svg> largest price-gain day (green = volume up, red = volume down)<br>
         Rank dots: <span style="color:#22c55e;">●</span> top 10 &nbsp;<span style="color:#f59e0b;">●</span> top 50 &nbsp;<span style="color:#64748b;">●</span> outside &nbsp;·&nbsp; left oldest &nbsp;·&nbsp; <a href="baizora_main_form_freetier.html" style="color:#3b82f6;text-decoration:none;">See full results →</a>
       </div>
     </div><!-- /hero-right -->
@@ -1267,58 +1270,53 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     </div>
   </div>
 
-  <div class="spark-scores-wrap">
+  <div class="spark-demo fade-up">
+    <div class="spark-demo-grid">
+      <div class="spark-demo-text">
+        <h3>📈 Reading the Sparkline</h3>
+        <p>Look for sparklines where both markers appear <strong style="color:#64c487;">green</strong> and close together — the ▲ triangle marks the highest-volume day of the year, the ● circle marks the largest single-day price move. When both are green and recent, they reflect institutional buying activity that has historically preceded strong advances.</p>
 
-    <div class="spark-demo fade-up" style="margin-top:0;">
-      <h3>📈 Reading the Sparkline</h3>
-      <p>Look for sparklines where both markers appear <strong style="color:#64c487;">green</strong> and close together — the ▲ triangle marks the highest-volume day of the year, the ● circle marks the largest single-day price move. When both are green and recent, they reflect institutional buying activity that has historically preceded strong advances.</p>
-
-      <div class="spark-legend">
-        <div class="spark-legend-item">
-          <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#64c487"/></svg>
-          Highest-volume day (price was up)
-        </div>
-        <div class="spark-legend-item">
-          <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#ef4444"/></svg>
-          Highest-volume day (price was down)
-        </div>
-        <div class="spark-legend-item">
-          <svg width="14" height="12" viewBox="0 0 14 12">
-            <circle cx="7" cy="6" r="5.5" fill="#64c487" opacity="0.25"/>
-            <circle cx="7" cy="6" r="3.2" fill="#64c487" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
-          </svg>
-          Largest price-change day (volume elevated)
-        </div>
-        <div class="spark-legend-item">
-          <svg width="14" height="12" viewBox="0 0 14 12">
-            <circle cx="7" cy="6" r="5.5" fill="#ef4444" opacity="0.25"/>
-            <circle cx="7" cy="6" r="3.2" fill="#ef4444" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
-          </svg>
-          Largest price-change day (volume low)
+        <div class="spark-legend">
+          <div class="spark-legend-item">
+            <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#64c487"/></svg>
+            Highest-volume day (price was up)
+          </div>
+          <div class="spark-legend-item">
+            <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#ef4444"/></svg>
+            Highest-volume day (price was down)
+          </div>
+          <div class="spark-legend-item">
+            <svg width="14" height="12" viewBox="0 0 14 12">
+              <circle cx="7" cy="6" r="5.5" fill="#64c487" opacity="0.25"/>
+              <circle cx="7" cy="6" r="3.2" fill="#64c487" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
+            </svg>
+            Largest price-gain day (volume elevated)
+          </div>
+          <div class="spark-legend-item">
+            <svg width="14" height="12" viewBox="0 0 14 12">
+              <circle cx="7" cy="6" r="5.5" fill="#ef4444" opacity="0.25"/>
+              <circle cx="7" cy="6" r="3.2" fill="#ef4444" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
+            </svg>
+            Largest price-gain day (volume low)
+          </div>
         </div>
       </div>
 
-      <div class="spark-row" id="sparkRow-WDC">
-        <div class="spark-ticker">WDC</div>
-        <div class="spark-svg-wrap">
-          <svg width="200" height="56" fill="none"></svg>
+      <div class="spark-demo-charts">
+        <div class="spark-row" id="sparkRow-WDC">
+          <div class="spark-ticker">WDC</div>
+          <div class="spark-svg-wrap">
+            <svg width="200" height="56" fill="none"></svg>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div class="card fade-up delay-1">
-      <div class="card-head">
-        <div class="card-icon" style="background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.25);">◐</div>
-        <h3>Candlestick Chart on Every Ticker</h3>
-      </div>
-      <p>Click any ticker in the dashboard for a full OHLC candlestick view — 3M, 6M, or 1Y — covering every S&P 500 &amp; Nasdaq-100 stock, updated in real time.</p>
-      <div style="margin-top:12px;">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;color:#64748b;margin-bottom:5px;">NVDA &nbsp;·&nbsp; 1-year candlestick</div>
-        <canvas id="hpNvdaCanvas" style="width:100%;height:160px;display:block;border-radius:8px;background:rgba(6,13,31,0.7);border:1px solid rgba(255,255,255,0.06);"></canvas>
-        <div id="hpNvdaNoData" style="display:none;height:160px;align-items:center;justify-content:center;color:#64748b;font-size:11px;font-family:'DM Mono',monospace;">—</div>
+        <div class="spark-row" id="sparkRow-SNDK">
+          <div class="spark-ticker">SNDK</div>
+          <div class="spark-svg-wrap">
+            <svg width="200" height="56" fill="none"></svg>
+          </div>
+        </div>
       </div>
     </div>
-
   </div>
 </section>
 
@@ -1455,92 +1453,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     </div>
   </div>
 </footer>
-
-<script>
-(function() {
-  const canvas = document.getElementById("hpNvdaCanvas");
-  if (!canvas) return;
-  let loaded = false;
-  function drawNvdaChart(candles, dates) {
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    const ctx = canvas.getContext("2d");
-    ctx.scale(dpr, dpr);
-    const W = rect.width, H = rect.height;
-    const pad = { top: 12, right: 10, bottom: 18, left: 54 };
-    const cW = W - pad.left - pad.right;
-    const totalH = H - pad.top - pad.bottom;
-    const volH = Math.floor(totalH * 0.22);
-    const gap = 4;
-    const priceH = totalH - volH - gap;
-    const n = candles.length;
-    let minP = Infinity, maxP = -Infinity;
-    candles.forEach(([o,h,l,c]) => { if (h > maxP) maxP = h; if (l < minP) minP = l; });
-    const buf = (maxP - minP) * 0.05 || 1;
-    const lo = minP - buf, hi = maxP + buf;
-    const toY = p => pad.top + priceH * (1 - (p - lo) / (hi - lo));
-    let maxV = 0;
-    candles.forEach(c => { if ((c[4] || 0) > maxV) maxV = c[4] || 0; });
-    const volTop = pad.top + priceH + gap;
-    const slotW = cW / n, cndW = Math.max(1, slotW * 0.65);
-    const toX = i => pad.left + i * slotW + (slotW - cndW) / 2;
-    ctx.clearRect(0, 0, W, H);
-    ctx.font = "10px 'DM Mono', monospace";
-    ctx.textAlign = "right";
-    for (let i = 0; i <= 3; i++) {
-      const p = lo + (hi - lo) * (i / 3), y = toY(p);
-      ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-      ctx.fillStyle = "#64748b";
-      ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 4, y + 3);
-    }
-    ctx.textAlign = "center";
-    let lastLabelX = -999;
-    dates.forEach((d, i) => {
-      const dt = new Date(d + 'T12:00:00');
-      const prevDt = i > 0 ? new Date(dates[i-1] + 'T12:00:00') : null;
-      if (!prevDt || dt.getMonth() !== prevDt.getMonth()) {
-        const x = toX(i) + cndW / 2;
-        if (x - lastLabelX >= 36) {
-          ctx.fillStyle = "#64748b";
-          ctx.fillText(dt.toLocaleDateString("en-US", { month: "short" }), x, H - 4);
-          lastLabelX = x;
-        }
-      }
-    });
-    candles.forEach(([o,h,l,c,v], i) => {
-      const green = c >= o, x = toX(i), mid = x + cndW / 2;
-      ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
-      ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
-      const bTop = toY(Math.max(o, c)), bH = Math.max(1, toY(Math.min(o, c)) - bTop);
-      ctx.fillRect(x, bTop, cndW, bH); ctx.strokeRect(x, bTop, cndW, bH);
-      if (v && maxV > 0) {
-        const vh = Math.max(1, (v / maxV) * volH);
-        ctx.fillStyle = green ? "rgba(34,197,94,0.35)" : "rgba(239,68,68,0.35)";
-        ctx.fillRect(x, volTop + volH - vh, cndW, vh);
-      }
-    });
-  }
-  function loadChart() {
-    if (loaded) return; loaded = true;
-    fetch("data/candles.json")
-      .then(r => r.json())
-      .then(d => {
-        const c = d.data && d.data["NVDA"], dt = d.dates;
-        if (c && c.length && dt) drawNvdaChart(c.slice(-252), dt.slice(-252));
-      })
-      .catch(function() {});
-  }
-  const obs = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting) { loadChart(); obs.disconnect(); }
-  }, { threshold: 0.1 });
-  obs.observe(canvas);
-})();
-</script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -1914,9 +1826,9 @@ function buildSparkPath(arr) {
   track.innerHTML = chunk.repeat(8);
 })();
 
-// Spark demo: real data — change TICKERS[0] to swap the example ticker
+// Spark demo: real data — change TICKERS to swap the example tickers
 (function() {
-  const TICKERS = ["WDC"];
+  const TICKERS = ["WDC", "SNDK"];
 
   function buildSparkSvg(spark, triIdx, dotIdx, triColor, dotColor, H) {
     if (!spark || spark.length < 2) return '';
