@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-07-29
 Threshold: >10% for all metrics
-365 flagged diffs above threshold
+363 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -76,8 +76,8 @@ PRICE  -- 0 flagged (>10%)
     ADM      ours=80.38  yf=80.38  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 266 flagged (>10%)
-  FLAGGED (top 20 of 266):
+VOLUME  -- 263 flagged (>10%)
+  FLAGGED (top 20 of 263):
     PNC      ours=2.30  yf=1.21  diff=90.8% ***
     NSC      ours=1.48  yf=0.88  diff=67.4% ***
     VTR      ours=4.30  yf=2.62  diff=64.4% ***
@@ -85,7 +85,7 @@ VOLUME  -- 266 flagged (>10%)
     MSI      ours=1.19  yf=0.78  diff=53.3% ***
     SHW      ours=3.32  yf=2.20  diff=51.0% ***
     PPL      ours=10.18  yf=6.83  diff=49.0% ***
-    WFC      ours=18.03  yf=12.15  diff=48.3% ***
+    WFC      ours=18.03  yf=12.16  diff=48.3% ***
     MOS      ours=6.72  yf=4.54  diff=48.0% ***
     DD       ours=1.28  yf=0.87  diff=47.5% ***
     MO       ours=8.18  yf=5.62  diff=45.7% ***
@@ -106,15 +106,16 @@ VOLUME  -- 266 flagged (>10%)
     MSI      ours=1.19  yf=0.78  diff=53.3% ***
     SHW      ours=3.32  yf=2.20  diff=51.0% ***
     PPL      ours=10.18  yf=6.83  diff=49.0% ***
-    WFC      ours=18.03  yf=12.15  diff=48.3% ***
+    WFC      ours=18.03  yf=12.16  diff=48.3% ***
     MOS      ours=6.72  yf=4.54  diff=48.0% ***
     DD       ours=1.28  yf=0.87  diff=47.5% ***
 
 ------------------------------------------------------------
-MKTCAP  -- 6 flagged (>10%)
-  FLAGGED (top 6 of 6):
+MKTCAP  -- 7 flagged (>10%)
+  FLAGGED (top 7 of 7):
     NTRS     ours=$32.87B  yf=$21.82B  diff=50.6% ***
     PCG      ours=$47.46B  yf=$39.00B  diff=21.7% ***
+    SPG      ours=$76.40B  yf=$89.53B  diff=14.7% ***
     UDR      ours=$12.91B  yf=$14.72B  diff=12.3% ***
     ERIE     ours=$11.48B  yf=$13.00B  diff=11.7% ***
     CHTR     ours=$17.32B  yf=$19.57B  diff=11.5% ***
@@ -122,6 +123,7 @@ MKTCAP  -- 6 flagged (>10%)
   TOP 10 LARGEST DIFF:
     NTRS     ours=$32.87B  yf=$21.82B  diff=50.6% ***
     PCG      ours=$47.46B  yf=$39.00B  diff=21.7% ***
+    SPG      ours=$76.40B  yf=$89.53B  diff=14.7% ***
     UDR      ours=$12.91B  yf=$14.72B  diff=12.3% ***
     ERIE     ours=$11.48B  yf=$13.00B  diff=11.7% ***
     CHTR     ours=$17.32B  yf=$19.57B  diff=11.5% ***
@@ -129,7 +131,6 @@ MKTCAP  -- 6 flagged (>10%)
     ACN      ours=$115.59B  yf=$105.97B  diff=9.1%
     WDAY     ours=$44.78B  yf=$41.49B  diff=7.9%
     RKLB     ours=$33.91B  yf=$36.61B  diff=7.4%
-    SMCI     ours=$15.46B  yf=$16.62B  diff=7.0%
 
 ------------------------------------------------------------
 PE  -- 39 flagged (>10%)
