@@ -580,6 +580,7 @@
       .hamburger { display: flex; }
       .stale-banner { margin-top: 56px; }
       .toolbar { padding: 6px 10px; gap: 6px; margin-top: 56px; }
+      .stale-banner.visible ~ .toolbar { margin-top: 0; }
       .mobile-search-bar { margin-top: 0; }
       .window-btn { padding: 3px 7px; font-size: 10px; white-space: nowrap; }
       .toolbar-sep, .toolbar-search { display: none; }
@@ -1068,8 +1069,10 @@
               const n = json.staleTickers.length;
               staleBanner.textContent = `⚠ Partial update — ${n} ticker${n === 1 ? '' : 's'} pending fresh data and temporarily hidden. Typically updates within 30 minutes.`;
               staleBanner.style.display = "block";
+              staleBanner.classList.add("visible");
             } else {
               staleBanner.style.display = "none";
+              staleBanner.classList.remove("visible");
             }
           }
           overlay.classList.add("hidden");
