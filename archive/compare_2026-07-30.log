@@ -76,8 +76,8 @@ PRICE  -- 0 flagged (>10%)
     ACN      ours=163.29  yf=163.29  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 274 flagged (>10%)
-  FLAGGED (top 20 of 274):
+VOLUME  -- 273 flagged (>10%)
+  FLAGGED (top 20 of 273):
     CMS      ours=3.69  yf=2.27  diff=62.6% ***
     EIX      ours=2.83  yf=1.76  diff=61.1% ***
     AON      ours=4.23  yf=2.63  diff=60.6% ***
@@ -111,25 +111,26 @@ VOLUME  -- 274 flagged (>10%)
     TJX      ours=6.24  yf=4.15  diff=50.4% ***
 
 ------------------------------------------------------------
-MKTCAP  -- 6 flagged (>10%)
-  FLAGGED (top 6 of 6):
+MKTCAP  -- 7 flagged (>10%)
+  FLAGGED (top 7 of 7):
     NTRS     ours=$33.39B  yf=$22.42B  diff=48.9% ***
     PCG      ours=$47.65B  yf=$39.16B  diff=21.7% ***
+    SPG      ours=$74.73B  yf=$87.56B  diff=14.7% ***
+    UDR      ours=$12.44B  yf=$14.19B  diff=12.3% ***
     ERIE     ours=$10.79B  yf=$12.22B  diff=11.7% ***
-    UDR      ours=$12.44B  yf=$14.07B  diff=11.6% ***
     CHTR     ours=$16.94B  yf=$19.14B  diff=11.5% ***
     BXP      ours=$11.43B  yf=$12.78B  diff=10.6% ***
   TOP 10 LARGEST DIFF:
     NTRS     ours=$33.39B  yf=$22.42B  diff=48.9% ***
     PCG      ours=$47.65B  yf=$39.16B  diff=21.7% ***
+    SPG      ours=$74.73B  yf=$87.56B  diff=14.7% ***
+    UDR      ours=$12.44B  yf=$14.19B  diff=12.3% ***
     ERIE     ours=$10.79B  yf=$12.22B  diff=11.7% ***
-    UDR      ours=$12.44B  yf=$14.07B  diff=11.6% ***
     CHTR     ours=$16.94B  yf=$19.14B  diff=11.5% ***
     BXP      ours=$11.43B  yf=$12.78B  diff=10.6% ***
     ACN      ours=$109.00B  yf=$99.92B  diff=9.1%
     WDAY     ours=$42.14B  yf=$39.05B  diff=7.9%
     RKLB     ours=$37.43B  yf=$40.41B  diff=7.4%
-    SMCI     ours=$16.68B  yf=$17.94B  diff=7.0%
 
 ------------------------------------------------------------
 PE  -- 64 flagged (>10%)
