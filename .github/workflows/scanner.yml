@@ -84,6 +84,7 @@ jobs:
             echo "SKIP_EDGAR="    >> $GITHUB_ENV   # run EDGAR (~6:30 PM ET actual, after 5:30 PM SEC cutoff)
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
+            echo "NEWS_UPLOAD_YOUTUBE=False" >> $GITHUB_ENV   # temporarily paused on weekdays; video still generated + committed for homepage download
             echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 4:30, retry at 5:00
           elif [ "$EVENT" = "workflow_dispatch" ]; then
             # manual trigger — full EDGAR refresh + market scan; videos only if
@@ -497,7 +498,7 @@ jobs:
           "
 
       - name: Upload news report to YouTube
-        if: env.IS_HOLIDAY != 'True' && env.IS_NEWS_RUN == 'True'
+        if: env.IS_HOLIDAY != 'True' && env.IS_NEWS_RUN == 'True' && env.NEWS_UPLOAD_YOUTUBE != 'False'
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
