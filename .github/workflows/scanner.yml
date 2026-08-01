@@ -15,6 +15,14 @@ on:
         description: "Also generate today's category Short + news report videos (normally skipped on manual runs)"
         type: boolean
         default: false
+      weekend_mode:
+        description: "Replicate the weekend cron (skip market scan, reuse committed data/latest.json)"
+        type: boolean
+        default: false
+      news_only:
+        description: "With run_videos=true, skip category video generation/upload entirely and only run the news report video (e.g. catching up after category video already published separately)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -93,12 +101,23 @@ jobs:
             echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 4:30, retry at 5:00
           elif [ "$EVENT" = "workflow_dispatch" ]; then
             # manual trigger — full EDGAR refresh + market scan; videos only if
-            # explicitly requested via the run_videos input (default: no videos)
+            # explicitly requested via the run_videos input (default: no videos).
+            # weekend_mode replicates the weekend cron instead (skip the scan, reuse
+            # committed data/latest.json). news_only additionally skips category
+            # video generation/upload (e.g. it already published separately) while
+            # still running the news report video, which IS_NEWS_RUN gates on its own.
             echo "FORCE_RUN=1"    >> $GITHUB_ENV
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
+            if [ "${{ github.event.inputs.weekend_mode }}" = "true" ]; then
+              echo "SKIP_SCAN=1"  >> $GITHUB_ENV
+            fi
             if [ "${{ github.event.inputs.run_videos }}" = "true" ]; then
-              echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
+              if [ "${{ github.event.inputs.news_only }}" = "true" ]; then
+                echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+              else
+                echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
+              fi
               echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
             else
               echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
