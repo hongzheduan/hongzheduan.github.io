@@ -87,7 +87,6 @@ jobs:
             echo "SKIP_EDGAR="    >> $GITHUB_ENV   # run EDGAR (~6:30 PM ET actual, after 5:30 PM SEC cutoff)
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
-            echo "NEWS_UPLOAD_YOUTUBE=False" >> $GITHUB_ENV   # temporarily paused on weekdays; video still generated + committed for homepage download
             echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 4:30, retry at 5:00
           elif [ "$EVENT" = "workflow_dispatch" ]; then
             # manual trigger — full EDGAR refresh + market scan; videos only if
@@ -516,7 +515,9 @@ jobs:
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
-          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          # News video (EN + CN) uploads to the baizora-en3 channel, not @baizorastock
+          # (which still gets the Mon-Fri category Shorts via YOUTUBE_REFRESH_TOKEN above).
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_SECONDARY_REFRESH_TOKEN }}
         run: |
           NEWS_DATE=$(TZ='America/New_York' date +%Y-%m-%d)
           # video/generate_news_report.py writes news_report_en.mp4 / news_report_cn.mp4

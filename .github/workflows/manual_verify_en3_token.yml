@@ -1,0 +1,37 @@
+name: Verify baizora-en3 token (temporary, self-deleting)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Private test upload using YOUTUBE_SECONDARY_REFRESH_TOKEN
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_SECONDARY_REFRESH_TOKEN }}
+        run: |
+          DATE=$(TZ='America/New_York' date +%Y-%m-%d)
+          python video/upload_youtube.py \
+            --file data/latest_video_news_en.mp4 \
+            --type news_report \
+            --date "$DATE" \
+            --privacy private
