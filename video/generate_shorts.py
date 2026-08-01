@@ -49,12 +49,11 @@ _WEEKDAY_BY_TYPE = {
     "6m_breakout": "Wednesday",
     "1y_vol_peak": "Thursday",
     "index_spotlight": "Friday",
-    # No dedicated Saturday/Sunday cover art yet -- reuses an existing weekday's
-    # real designs as a placeholder (same pattern this dict itself used to follow
-    # before each weekday got its own set). Swap to "Saturday"/"Sunday" once real
-    # art exists.
-    "worst_performer": "Tuesday",
-    "avg_volume": "Thursday",  # closest thematic match (also a volume category)
+    # Real Saturday art added 2026-08-01 (video/covering/Saturday_1-4.png, split
+    # from video/covering/saturday.png). Sunday still has no dedicated art --
+    # deliberately kept on Thursday's set (user's explicit call, not a gap).
+    "worst_performer": "Saturday",
+    "avg_volume": "Thursday",
 }
 
 

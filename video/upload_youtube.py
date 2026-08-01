@@ -34,8 +34,8 @@ _WEEKDAY_BY_TYPE = {
     "6m_breakout": "Wednesday",
     "1y_vol_peak": "Thursday",
     "index_spotlight": "Friday",
-    "worst_performer": "Tuesday",  # placeholder cover art, see generate_shorts.py's copy of this dict
-    "avg_volume": "Thursday",      # placeholder cover art, see generate_shorts.py's copy of this dict
+    "worst_performer": "Saturday",  # real art added 2026-08-01
+    "avg_volume": "Thursday",       # deliberately kept on Thursday's set, no dedicated Sunday art
 }
 
 
