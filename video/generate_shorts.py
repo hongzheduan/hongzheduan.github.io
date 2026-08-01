@@ -360,21 +360,23 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
             # CN peak labels (e.g. "前高") need a CJK-capable font — a plain mono
             # font here rendered CN text as tofu boxes, the same bug already fixed
             # once for scene_ad_short's CN date line (see project memory).
-            f_lbl = load_font(20, mono=True, bold=True) if lang == "en" else load_font_cn(20, bold=True)
+            # Same dark-chip-with-gold-text treatment the Friday "JOINED" marker
+            # used to have — dropped for the same reason: illegible against the
+            # light-card background. Plain bold electric-blue text instead, no
+            # box, matching the JOINED label fix.
+            f_lbl = load_font(22, mono=True, bold=True) if lang == "en" else load_font_cn(22, bold=True)
             lbl_w = tw(draw, peak_label, f_lbl)
-            pad = 6
             gap = 14  # clears the dot's r=7 radius
             # Anchored beside the dot (not the chart's far edge, which could sit far
             # from the marker it's meant to label) — flips to the dot's left when
             # there isn't enough room on the right so it never runs off-canvas.
-            if x1 - pk_x - gap >= lbl_w + pad * 2:
+            if x1 - pk_x - gap >= lbl_w:
                 lbl_x = pk_x + gap
             else:
-                lbl_x = pk_x - gap - lbl_w - pad * 2
+                lbl_x = pk_x - gap - lbl_w
             lbl_y = pk_y - 28 if pk_y - price_y0 > 30 else pk_y + 12
-            draw.rectangle([lbl_x, lbl_y - pad, lbl_x + lbl_w + pad * 2, lbl_y + 20 + pad],
-                            fill=NAVY, outline=GOLD, width=1)
-            draw.text((lbl_x + pad, lbl_y), peak_label, font=f_lbl, fill=GOLD)
+            lbl_color = ELECTRIC if is_light else ELEC_BRIGHT
+            draw.text((lbl_x, lbl_y), peak_label, font=f_lbl, fill=lbl_color)
         draw.ellipse([pk_x - 7, pk_y - 7, pk_x + 7, pk_y + 7], fill=GOLD)
 
 
