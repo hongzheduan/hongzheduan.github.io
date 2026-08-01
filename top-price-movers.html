@@ -510,6 +510,7 @@
   });
 </script>
 
+<script src="assets/feature_flags.js"></script>
 <script>
   /* Mobile menu */
   function toggleMenu() {
@@ -725,8 +726,8 @@
       allRows = (json.data || []).filter(r => r.PriceChange1D != null);
       dataDate = json.date || '';
       renderTable('gainers');
-      if (isMarketOpen()) refreshLivePrices();
-      setInterval(() => { if (isMarketOpen()) refreshLivePrices(); }, 10_000);
+      if (window.BAIZORA_LIVE_PRICES && isMarketOpen()) refreshLivePrices();
+      setInterval(() => { if (window.BAIZORA_LIVE_PRICES && isMarketOpen()) refreshLivePrices(); }, 10_000);
     })
     .catch(() => {
       document.getElementById('tableWrap').innerHTML =

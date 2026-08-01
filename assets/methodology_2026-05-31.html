@@ -150,6 +150,10 @@
     <h1>Data &amp; Methodology</h1>
     <div class="doc-meta">BAIZORA &nbsp;·&nbsp; VERSION 2026-07-01 &nbsp;·&nbsp; CONFIDENTIAL</div>
 
+    <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px 20px;margin:20px 0 28px;">
+      <p style="color:#fcd34d;margin:0;font-size:14px;line-height:1.7;"><strong style="color:#f59e0b;">⚠ Temporary cost-saving mode (2026-08):</strong> price/volume data currently comes from a free market data source instead of the commercial Tiingo pipeline described in <a href="#sources" style="color:#fcd34d;">Data Sources</a> below, and the live intraday price feature described in <a href="#services" style="color:#fcd34d;">Services</a> is disabled. Fundamentals (SEC EDGAR) are unaffected either way. This document otherwise describes the standard pipeline; switch back via <code>OHLCV_SOURCE_SWITCH</code> in <code>scanner.yml</code> and <code>BAIZORA_LIVE_PRICES</code> in <code>assets/feature_flags.js</code>.</p>
+    </div>
+
     <!-- ── OVERVIEW ── -->
     <div class="doc-section" id="overview">
       <div class="section-label">01 — Overview</div>
@@ -707,10 +711,10 @@ MomentumScore = percentile_rank(RawMomentum, all 516 tickers) × 100
           <tr><td>GitHub Pages</td><td>Static site hosting + global CDN for all HTML/JS/CSS and <code>data/latest.json</code></td><td>Free</td></tr>
           <tr><td>GitHub Actions</td><td>Scanner cron (4:30 / 5:00 / 5:30 / 6:30 / 11 PM ET weekdays, ~1 AM ET weekends), video generation, archive push</td><td>Free (2,000 min/month)</td></tr>
           <tr><td>scanner-archive repo</td><td>Permanent gzipped CSV archive (1 file/day from 11 PM run) for data quality audit trail</td><td>Free (private repo)</td></tr>
-          <tr><td>Google Cloud Functions</td><td><code>/api/iex-quotes</code> live price endpoint; <code>/api/subscription</code> auth check</td><td>Blaze pay-as-you-go (~$0.10/month)</td></tr>
+          <tr><td>Google Cloud Functions</td><td><code>/api/iex-quotes</code> live price endpoint (currently unused — see note above); <code>/api/subscription</code> auth check</td><td>Blaze pay-as-you-go (~$0/month while unused)</td></tr>
           <tr><td>Firebase Auth</td><td>User authentication (email/password)</td><td>Free up to 50,000 MAU</td></tr>
           <tr><td>Stripe</td><td>Subscription billing ($9.99/month or $99/year); 7-day free trial</td><td>2.9% + $0.30 per transaction</td></tr>
-          <tr><td>Tiingo</td><td>EOD OHLCV data + company metadata for 516 tickers; IEX live quotes for homepage</td><td>Commercial license</td></tr>
+          <tr><td>Market data source</td><td>EOD OHLCV data + company metadata for 516 tickers (temporarily a free provider — see note above; standard mode uses Tiingo, a commercial license)</td><td>Free (temporary) / Commercial license (standard)</td></tr>
           <tr><td>SEC EDGAR</td><td>EPS (TTM diluted GAAP), shares outstanding, SIC sector, company name</td><td>Free (public API)</td></tr>
         </tbody>
       </table>
@@ -718,7 +722,7 @@ MomentumScore = percentile_rank(RawMomentum, all 516 tickers) × 100
       <h3>Scalability</h3>
       <p><strong>GitHub Pages</strong> is served via Fastly CDN with no concurrent user limit for static files. The soft bandwidth limit is 100 GB/month — at ~5 MB per <code>latest.json</code> load, that supports roughly 20,000 full page loads per month. Repeat visitors do not re-download HTML/CSS/JS (browser-cached), so the effective limit is much higher in practice. GitHub does not charge for Pages bandwidth.</p>
 
-      <p><strong>Google Cloud Functions</strong> free tier covers 2,000,000 invocations/month. The <code>/api/iex-quotes</code> endpoint uses a <strong>60-second in-memory cache</strong> — regardless of how many users are on the homepage simultaneously, the function is invoked at most once per minute (~31,680 calls/month), well within the free tier. EDGAR and Tiingo are only called by GitHub Actions (nightly batch) and are entirely decoupled from user traffic.</p>
+      <p><strong>Google Cloud Functions</strong> free tier covers 2,000,000 invocations/month. The <code>/api/iex-quotes</code> endpoint uses a <strong>60-second in-memory cache</strong> — regardless of how many users are on the homepage simultaneously, the function is invoked at most once per minute (~31,680 calls/month), well within the free tier (currently zero calls — no frontend page calls this endpoint while live pricing is disabled, see note above). EDGAR and the market data source are only called by GitHub Actions (nightly batch) and are entirely decoupled from user traffic.</p>
 
       <p><strong>Firebase Auth</strong> is free up to 50,000 monthly active users on the Blaze plan.</p>
 

@@ -197,8 +197,8 @@ _SCRIPT_TEMPLATE = r"""
     }).catch(function() {});
   }
 
-  refresh();
-  setInterval(function() { if (isMarketOpen()) refresh(); }, 60000);
+  if (window.BAIZORA_LIVE_PRICES) refresh();
+  setInterval(function() { if (window.BAIZORA_LIVE_PRICES && isMarketOpen()) refresh(); }, 60000);
 })();
 </script>
 """
@@ -361,6 +361,7 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
     gtag('js', new Date());
     gtag('config', 'G-DWEPM8KFM9');
   </script>
+  <script src="../assets/feature_flags.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{ticker} Stock Analysis | {name} Price &amp; Volume Trends | Baizora</title>

@@ -1112,6 +1112,7 @@
       .col-legend-grid { text-align: left; }
     }
   </style>
+  <script src="assets/feature_flags.js"></script>
 </head>
 <body>
 
@@ -1183,7 +1184,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
       <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#cbd5e1;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:8px 12px;line-height:1.5;margin-bottom:14px;">All the data in one row: Sort → check sparkline → scores → fundamentals — stop switching between tools to piece together the same picture</div>
       <div class="hero-bullets">
-        <div class="hero-bullet">Built on trusted infrastructure — payments via Stripe, market data from Tiingo, fundamentals from SEC EDGAR, auth via Google Firebase</div>
+        <div class="hero-bullet">Built on trusted infrastructure — payments via Stripe, fundamentals from SEC EDGAR, auth via Google Firebase</div>
         <div class="hero-bullet">Annotated sparklines: peak volume and price days marked — a year of history, instantly</div>
         <div class="hero-bullet">S&amp;P 500 &amp; Nasdaq-100 index changes and news tracked daily</div>
       </div>
@@ -1431,7 +1432,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 <footer>
   <div class="footer-disclaimer">Baizora provides market data for informational purposes only. Not financial advice.</div>
-  <div class="footer-disclaimer">Market Data Sourced by <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#94a3b8;text-decoration:none;">Tiingo.com</a></div>
+  <div class="footer-disclaimer">Market Data · Updated Daily After Market Close</div>
   <div class="footer-copy">© 2026 Baizora — All rights reserved &nbsp;·&nbsp; Raleigh, NC, USA</div>
   <div class="footer-row">
     <div style="display:flex;flex-direction:column;gap:5px;">
@@ -1687,6 +1688,7 @@ function buildSparkPath(arr) {
   const _prevIexPrices = {};
 
   async function refreshPrices() {
+    if (!window.BAIZORA_LIVE_PRICES) return;
     try {
       const resp = await fetch(IEX_API);
       if (!resp.ok) return;

@@ -556,6 +556,7 @@
   });
 </script>
 
+<script src="assets/feature_flags.js"></script>
 <script>
   /* Mobile menu */
   function toggleMenu() {
@@ -774,8 +775,8 @@
         .slice(0, TOP);
       volDate = json.date || '';
       renderVolTable();
-      if (isMarketOpen()) refreshLivePrices();
-      setInterval(() => { if (isMarketOpen()) refreshLivePrices(); }, 10_000);
+      if (window.BAIZORA_LIVE_PRICES && isMarketOpen()) refreshLivePrices();
+      setInterval(() => { if (window.BAIZORA_LIVE_PRICES && isMarketOpen()) refreshLivePrices(); }, 10_000);
     })
     .catch(() => {
       document.getElementById('tableWrap').innerHTML =

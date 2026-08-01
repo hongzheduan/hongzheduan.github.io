@@ -21,10 +21,14 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  # Master switch: also run scanner_yfinance.py (testing/backup comparison) on the
-  # 11PM-full scheduled run and on manual workflow_dispatch runs. Set to "" to run
-  # only scanner_tiingo.py (the normal production scan), unchanged either way.
-  RUN_YFINANCE_BACKUP_SWITCH: "1"
+  # Cost-cutting switch (no paying customers yet, 2026-08): "yfinance" sources daily
+  # price/volume (and the SPY benchmark, BRK-A price, company-name meta) from free
+  # yfinance instead of paid Tiingo — see scanner_tiingo.py's OHLCV_SOURCE flag.
+  # Fundamentals (EPS/shares/sector) still come from free SEC EDGAR either way,
+  # unaffected. Flip to "tiingo" (needs an active Tiingo subscription + secret again)
+  # once there's revenue to justify it. See also assets/feature_flags.js for the
+  # matching live-intraday-price switch.
+  OHLCV_SOURCE_SWITCH: "yfinance"
 
 jobs:
   run-scanner:
@@ -78,7 +82,6 @@ jobs:
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
-            echo "RUN_YFINANCE_BACKUP=${{ env.RUN_YFINANCE_BACKUP_SWITCH }}" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "30 20 * * 1-5" ]; then
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR="    >> $GITHUB_ENV   # run EDGAR (~6:30 PM ET actual, after 5:30 PM SEC cutoff)
@@ -100,7 +103,6 @@ jobs:
               echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             fi
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
-            echo "RUN_YFINANCE_BACKUP=${{ env.RUN_YFINANCE_BACKUP_SWITCH }}" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "0 21 * * 1-5" ]; then
             # 5:00 PM ET weekdays — skip entirely if 4:30 PM already fully updated (0 stale tickers)
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
@@ -117,21 +119,33 @@ jobs:
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 5:30 PM and 6:30 PM: probe once and exit, always run in full
           fi
 
+          # In yfinance mode (OHLCV_SOURCE_SWITCH), only the 4:30 PM weekday cron, the
+          # weekend EDGAR-only cron, and manual runs actually scan — the 5:00/5:30/6:30 PM
+          # and 11 PM weekday crons exist solely to retry Tiingo's publish-delay problem,
+          # which yfinance doesn't have, so re-running them would just hit Yahoo for no
+          # reason. Written as one trailing exclusion (not per-branch) so a new cron can't
+          # silently forget to set this, unlike a per-branch flag would risk.
+          if [ "${{ env.OHLCV_SOURCE_SWITCH }}" = "yfinance" ] \
+             && [ "$SCHEDULE" != "30 20 * * 1-5" ] \
+             && [ "$SCHEDULE" != "0 5 * * 0,6" ] \
+             && [ "$SCHEDULE" != "0 20 * * 0,6" ] \
+             && [ "$EVENT" != "workflow_dispatch" ]; then
+            echo "RUN_PRICE_SCAN=" >> $GITHUB_ENV
+          else
+            echo "RUN_PRICE_SCAN=1" >> $GITHUB_ENV
+          fi
+
       - name: Run scanner
-        if: env.SKIP_SCAN != '1' && (env.IS_HOLIDAY != 'True' || env.EDGAR_ONLY == '1')
+        if: env.SKIP_SCAN != '1' && (env.IS_HOLIDAY != 'True' || env.EDGAR_ONLY == '1') && env.RUN_PRICE_SCAN == '1'
         env:
           TIINGO_API_KEY: ${{ secrets.TIINGO_API_KEY }}
+          OHLCV_SOURCE: ${{ env.OHLCV_SOURCE_SWITCH }}
           EDGAR_ONLY: ${{ env.EDGAR_ONLY }}
           SKIP_EDGAR: ${{ env.SKIP_EDGAR }}
           PROBE_RETRIES: ${{ env.PROBE_RETRIES }}
           FORCE_RUN: ${{ env.FORCE_RUN }}
           SKIP_IF_COMPLETE: ${{ env.SKIP_IF_COMPLETE }}
         run: python scanner_tiingo.py
-
-      - name: Run yfinance backup scanner (testing)
-        if: env.IS_HOLIDAY != 'True' && env.RUN_YFINANCE_BACKUP == '1'
-        continue-on-error: true
-        run: python scanner_yfinance.py
 
       - name: Commit updated data
         if: env.SKIP_SCAN != '1' && (env.IS_HOLIDAY != 'True' || env.EDGAR_ONLY == '1')

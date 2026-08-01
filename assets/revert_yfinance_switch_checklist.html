@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baizora — Revert yfinance Cost-Saving Switch</title>
+  <link rel="icon" href="baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:#060d1f; --navy-mid:#0d1e3d; --navy-light:#162847;
+      --electric:#3b82f6; --electric-bright:#60a5fa;
+      --gold:#f59e0b; --gold-light:#fcd34d;
+      --green:#22c55e; --red:#ef4444;
+      --white:#f8fafc; --muted:#94a3b8;
+      --dim:#94a3b8; --border:rgba(255,255,255,0.07);
+      --border-bright:rgba(255,255,255,0.12);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+    .glow{position:fixed;top:0;left:50%;transform:translateX(-50%);width:900px;height:500px;background:radial-gradient(ellipse at center,rgba(59,130,246,0.14) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+    header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);background:rgba(6,13,31,0.92);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+    .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-wrap img{height:36px;}
+    .logo-text{font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;}
+    .logo-text span{color:var(--electric);}
+    .back-btn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);text-decoration:none;border:1px solid var(--border);padding:6px 14px;border-radius:7px;transition:all 0.2s;}
+    .back-btn:hover{color:var(--electric-bright);border-color:rgba(59,130,246,0.4);}
+
+    .wrapper{position:relative;z-index:10;display:grid;grid-template-columns:220px 1fr;max-width:1100px;margin:0 auto;padding:48px 32px 100px;gap:56px;}
+    @media(max-width:820px){.wrapper{grid-template-columns:1fr;padding:32px 20px 80px;} .toc{display:none;}}
+
+    .toc{position:sticky;top:72px;height:fit-content;}
+    .toc-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#475569;margin-bottom:14px;}
+    .toc a{display:block;font-size:13px;color:var(--dim);text-decoration:none;padding:5px 0;border-left:2px solid var(--border);padding-left:12px;transition:all 0.2s;line-height:1.4;}
+    .toc a:hover{color:var(--electric-bright);border-color:var(--electric);}
+    .toc .toc-sub{font-size:11px;padding-left:22px;border-left:none;color:#475569;}
+    .toc .toc-sub:hover{color:var(--muted);}
+
+    .content h1{font-family:'DM Serif Display',serif;font-size:36px;letter-spacing:-0.02em;margin-bottom:8px;}
+    .content .subtitle{font-size:14px;color:var(--dim);margin-bottom:40px;line-height:1.6;}
+    .content h2{font-family:'DM Serif Display',serif;font-size:22px;margin:52px 0 16px;padding-top:8px;border-top:1px solid var(--border);}
+    .content h3{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--electric-bright);margin:28px 0 10px;}
+    .content p{font-size:14px;line-height:1.75;color:#cbd5e1;margin-bottom:12px;}
+    .content ul{padding-left:20px;margin-bottom:12px;}
+    .content li{font-size:14px;line-height:1.75;color:#cbd5e1;margin-bottom:4px;}
+    .content li strong{color:var(--white);}
+
+    pre{background:rgba(13,30,61,0.8);border:1px solid var(--border-bright);border-radius:10px;padding:16px 20px;overflow-x:auto;margin:12px 0 20px;}
+    code{font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;color:#e2e8f0;}
+    .inline-code{font-family:'DM Mono',monospace;font-size:12px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:4px;padding:1px 6px;color:var(--electric-bright);}
+
+    .file-badge{display:inline-block;font-family:'DM Mono',monospace;font-size:11px;background:rgba(13,30,61,0.9);border:1px solid var(--border-bright);border-radius:6px;padding:3px 10px;color:var(--electric-bright);margin-bottom:10px;}
+    .line-ref{font-family:'DM Mono',monospace;font-size:10px;color:#475569;margin-left:8px;}
+
+    .warning-box{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px 20px;margin:20px 0 28px;}
+    .warning-box p{color:var(--gold-light);margin:0;font-size:14px;}
+    .warning-box strong{color:var(--gold);}
+
+    .tip-box{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.18);border-radius:12px;padding:14px 18px;margin:16px 0 24px;}
+    .tip-box p{color:#93c5fd;margin:0;font-size:13px;}
+
+    .optional-box{background:rgba(148,163,184,0.06);border:1px solid rgba(148,163,184,0.18);border-radius:12px;padding:14px 18px;margin:16px 0 24px;}
+    .optional-box p{color:#cbd5e1;margin:0;font-size:13px;}
+
+    .step-num{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;background:rgba(59,130,246,0.15);color:var(--electric-bright);border-radius:4px;padding:2px 7px;margin-right:8px;}
+
+    .del{color:#ef4444;text-decoration:line-through;}
+    .add{color:#64c487;}
+    .comment{color:#475569;}
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+
+<header>
+  <a href="../index.html" class="logo-wrap">
+    <img src="baize_favicon_v2.png" alt="Baizora">
+    <span class="logo-text">Baiz<span>ora</span></span>
+  </a>
+  <a href="../index.html" class="back-btn">← Home</a>
+</header>
+
+<div class="wrapper">
+
+  <!-- TABLE OF CONTENTS -->
+  <nav class="toc">
+    <div class="toc-title">On this page</div>
+    <a href="#overview">Overview</a>
+    <a href="#prereq">Prerequisites</a>
+    <a href="#scanner">1. scanner.yml</a>
+    <a href="#flags">2. feature_flags.js</a>
+    <a href="#attribution">3. Attribution text (optional)</a>
+    <a href="#verify">Verification</a>
+    <a href="#order">Recommended order</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+
+    <h1>Revert the yfinance Switch</h1>
+    <p class="subtitle">How to switch price/volume data back to Tiingo and re-enable live intraday pricing, once there's revenue to justify the cost again.<br>Reference point: git tag <span class="inline-code">pre-yfinance-switch-2026-08-01</span> marks the commit right before this switch landed.</p>
+
+    <div class="warning-box">
+      <p><strong>⚠ Prerequisite — do this first:</strong> confirm the Tiingo subscription is active again <em>before</em> flipping any flag below. Two separate credentials need to be valid: the GitHub Actions secret <span class="inline-code">TIINGO_API_KEY</span> (used by <span class="inline-code">scanner_tiingo.py</span>) and the Firebase Functions environment's own <span class="inline-code">TIINGO_API_KEY</span> (used by <span class="inline-code">functions/index.js</span>'s <span class="inline-code">/iex-quotes</span> endpoint — provisioned separately, not shared with the GitHub secret). If either is stale/missing, that half of the switch-back will fail: the scanner exits immediately with "TIINGO_API_KEY environment variable is not set", or live price polling will silently return errors.</p>
+    </div>
+
+    <!-- OVERVIEW -->
+    <h2 id="overview">Overview</h2>
+    <p>In 2026-08, with no paying customers yet, Baizora switched from Tiingo's paid API to free yfinance for daily price/volume data, and disabled the live intraday price feature sitewide, to cut recurring cost. Both changes are controlled by exactly two flags — nothing else needs code changes to switch back. Fundamentals (SEC EDGAR) were never affected either way.</p>
+
+    <!-- PREREQ -->
+    <h2 id="prereq">Prerequisites</h2>
+    <ul>
+      <li><strong>Tiingo subscription reactivated</strong> — a paid plan covering the full ~516-ticker universe's daily historical OHLCV pull.</li>
+      <li><strong>GitHub Actions secret</strong> <span class="inline-code">TIINGO_API_KEY</span> (repo Settings → Secrets and variables → Actions) is set to a valid key.</li>
+      <li><strong>Firebase Functions environment</strong> has its own valid <span class="inline-code">TIINGO_API_KEY</span> set (check via the Firebase console or however this project's function env vars are currently provisioned — this is a separate value from the GitHub secret above, see <span class="inline-code">functions/index.js</span> around the <span class="inline-code">/iex-quotes</span> handler).</li>
+    </ul>
+
+    <!-- FILE 1 -->
+    <h2 id="scanner">1. <span class="file-badge">.github/workflows/scanner.yml</span></h2>
+    <p>One line in the top-level <span class="inline-code">env:</span> block flips the scanner's price/volume source back to Tiingo, and restores the original multi-run-per-weekday cadence (4:30 / 5:00 / 5:30 / 6:30 / 11 PM ET) since those later runs exist specifically to retry Tiingo's publish-delay problem.</p>
+    <pre><code><span class="comment">// Find near the top of the file:</span>
+<span class="del">OHLCV_SOURCE_SWITCH: "yfinance"</span>
+<span class="add">OHLCV_SOURCE_SWITCH: "tiingo"</span></code></pre>
+    <p>Effect: <span class="inline-code">scanner_tiingo.py</span> resumes fetching OHLCV, the SPY benchmark, and BRK-A's price from Tiingo; resumes the Tiingo company-name/market-cap meta call (both in the main scan and the weekend EDGAR-only cron); and the scan step runs on every weekday cron firing again, not just the 4:30 PM one.</p>
+
+    <!-- FILE 2 -->
+    <h2 id="flags">2. <span class="file-badge">assets/feature_flags.js</span></h2>
+    <p>One line re-enables live intraday price polling sitewide.</p>
+    <pre><code><span class="del">window.BAIZORA_LIVE_PRICES = false;</span>
+<span class="add">window.BAIZORA_LIVE_PRICES = true;</span></code></pre>
+    <p>Effect: the "live" price badge and 10–60s intraday polling resume immediately on push (static site, no build/deploy step) across <span class="inline-code">baizora_main_form.html</span> (+ <span class="inline-code">_cn</span>/<span class="inline-code">_free</span>/<span class="inline-code">_free_cn</span>), all 22 <span class="inline-code">stocks/*.html</span> pages, <span class="inline-code">top-price-movers.html</span>, <span class="inline-code">unusual-volume.html</span>, and the homepage ticker bar on <span class="inline-code">index.html</span>/<span class="inline-code">index_cn.html</span>.</p>
+
+    <!-- FILE 3 -->
+    <h2 id="attribution">3. Attribution / legal text <span class="line-ref">optional — not required for functionality</span></h2>
+    <div class="optional-box">
+      <p>Switching the two flags above is enough to restore full Tiingo + live-price functionality on its own. This step is purely cosmetic: while yfinance was primary, every "sourced by" credit and legal-page data-sourcing sentence was reworded to avoid naming a specific vendor (e.g. "Market Data · Updated Daily After Market Close" instead of "Market Data Sourced by Tiingo.com"). That generic wording stays accurate and safe even after switching back — there's no urgency to touch it. Only do this if you specifically want "Tiingo.com" branding restored.</p>
+    </div>
+    <p>Files touched by the generic-wording change (search each for <span class="inline-code">Market Data · Updated Daily After Market Close</span> / <span class="inline-code">行情数据 · 每日收盘后更新</span> / "third-party financial data providers" / "第三方金融数据提供商"):</p>
+    <ul>
+      <li><span class="file-badge">index.html</span> <span class="file-badge">index_cn.html</span> — footer credit + hero bullet</li>
+      <li><span class="file-badge">baizora_main_form.html</span> <span class="file-badge">_cn</span> <span class="file-badge">_free</span> <span class="file-badge">_free_cn</span> <span class="file-badge">_freetier</span> <span class="file-badge">_freetier_cn</span></li>
+      <li><span class="file-badge">baizora_yfinance_beta.html</span></li>
+      <li><span class="file-badge">stocks/*.html</span> — all 22, generated from <span class="inline-code">generate_stock_pages.py</span>'s template; edit the template, not the individual files, then regenerate</li>
+      <li><span class="file-badge">assets/terms.html</span> <span class="file-badge">terms_cn.html</span> <span class="file-badge">disclaimer.html</span> <span class="file-badge">disclaimer_cn.html</span> — legal prose sentence + footer credit</li>
+      <li><span class="file-badge">assets/methodology_2026-05-31.html</span> — has an explicit amber notice box near the top marking the temporary mode; remove it, and revert the cost table's "Market data source" row + the Cloud Functions cost paragraph back to naming Tiingo explicitly</li>
+    </ul>
+
+    <!-- VERIFY -->
+    <h2 id="verify">Verification</h2>
+    <ul>
+      <li>Trigger <span class="inline-code">scanner.yml</span> manually (<span class="inline-code">workflow_dispatch</span>) rather than waiting for the next cron. Confirm the "Run scanner" step actually executes and does <strong>not</strong> exit with "TIINGO_API_KEY environment variable is not set".</li>
+      <li>Check the run log for Tiingo-specific messages (e.g. "Tiingo data confirmed for …", "Tiingo meta: N/516 names loaded") rather than the yfinance-mode messages ("OHLCV_SOURCE=yfinance — skipping Tiingo publish-delay probe").</li>
+      <li>Spot-check <span class="inline-code">data/latest.json</span> — <span class="inline-code">CompanyName</span> for a few tickers should read Tiingo's cleaner casing again (e.g. "Apple Inc." not "APPLE INC") once the cache repopulates.</li>
+      <li>Load <span class="inline-code">baizora_main_form.html</span> during market hours (9:30 AM–4 PM ET weekday) — confirm the green "live" badge appears and the price/change columns tick every 10 seconds.</li>
+      <li>Check the Firebase console / Google Cloud Functions metrics for <span class="inline-code">/iex-quotes</span> — invocation count should start climbing again from ~0.</li>
+    </ul>
+
+    <!-- ORDER -->
+    <h2 id="order">Recommended Order</h2>
+    <ol style="padding-left:20px;">
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">1</span> Confirm both Tiingo credentials are valid (prerequisites above) — go/no-go gate, no code change</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">2</span> Edit <strong>scanner.yml</strong> — flip <span class="inline-code">OHLCV_SOURCE_SWITCH</span></li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">3</span> Edit <strong>assets/feature_flags.js</strong> — flip <span class="inline-code">BAIZORA_LIVE_PRICES</span></li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">4</span> Commit both together, push</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">5</span> Manually trigger the workflow to verify immediately rather than waiting for the next cron</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">6</span> Run through the Verification checklist above</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">7</span> (Optional) restore Tiingo-branded attribution text — see section 3</li>
+    </ol>
+
+    <div class="tip-box" style="margin-top:32px;">
+      <p>After pushing, GitHub Pages can take 1–3 minutes to propagate. Hard-refresh (Ctrl+Shift+R) before testing on the live site.</p>
+    </div>
+
+    <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-08-01 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1066,6 +1066,7 @@
       .col-legend-grid { text-align: left; }
     }
   </style>
+  <script src="assets/feature_flags.js"></script>
 </head>
 <body>
 
@@ -1136,7 +1137,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
       <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#cbd5e1;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:8px 12px;line-height:1.5;margin-bottom:14px;">独特设计，所有市场信息及股票评分，尽在一行：排序 → 查看走势图 → 评分 → 基本面 — 告别多工具来回切换</div>
 <div class="hero-bullets">
-        <div class="hero-bullet">值得信赖的基础设施 — 支付由 Stripe 处理，行情数据来自 Tiingo，基本面数据来自美国证监会 SEC EDGAR，账户登录由 Google Firebase 保护</div>
+        <div class="hero-bullet">值得信赖的基础设施 — 支付由 Stripe 处理，基本面数据来自美国证监会 SEC EDGAR，账户登录由 Google Firebase 保护</div>
         <div class="hero-bullet">注释年走势图：标注成交量峰值日与最大价涨日，一目了然</div>
         <div class="hero-bullet">标普500与纳斯达克100成分股变动及相关资讯，每日追踪</div>
       </div>
@@ -1387,7 +1388,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 <footer>
   <div class="footer-disclaimer">贝佐拉仅提供市场数据，供参考使用，不构成任何投资建议。</div>
-  <div class="footer-disclaimer">行情数据由 <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#94a3b8;text-decoration:none;">Tiingo.com</a> 提供</div>
+  <div class="footer-disclaimer">行情数据 · 每日收盘后更新</div>
   <div class="footer-copy">© 2026 Baizora — 保留所有权利 &nbsp;·&nbsp; 美国北卡罗来纳州罗利市</div>
   <div class="footer-row">
     <div style="display:flex;flex-direction:column;gap:5px;">
@@ -1695,6 +1696,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   const _prevIexPrices = {};
 
   async function refreshPrices() {
+    if (!window.BAIZORA_LIVE_PRICES) return;
     try {
       const resp = await fetch(IEX_API);
       if (!resp.ok) return;

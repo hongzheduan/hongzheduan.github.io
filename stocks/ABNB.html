@@ -9,6 +9,7 @@
     gtag('js', new Date());
     gtag('config', 'G-DWEPM8KFM9');
   </script>
+  <script src="../assets/feature_flags.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ABNB Stock Analysis | Airbnb, Inc. Price &amp; Volume Trends | Baizora</title>
@@ -238,7 +239,7 @@
   <br>
   For informational purposes only. Not financial advice. Data updated daily after US market close.
   <br>
-  <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.04em;">Market Data Sourced by <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#475569;text-decoration:none;">Tiingo.com</a></span>
+  <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.04em;">Market Data · Updated Daily After Market Close</span>
 </footer>
 
 
@@ -416,8 +417,8 @@
     }).catch(function() {});
   }
 
-  refresh();
-  setInterval(function() { if (isMarketOpen()) refresh(); }, 60000);
+  if (window.BAIZORA_LIVE_PRICES) refresh();
+  setInterval(function() { if (window.BAIZORA_LIVE_PRICES && isMarketOpen()) refresh(); }, 60000);
 })();
 </script>
 

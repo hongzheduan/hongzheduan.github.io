@@ -940,7 +940,7 @@
 
   </div>
 
-  <p style="text-align:center;font-size:11px;color:#475569;padding:14px 0 10px;letter-spacing:0.04em;">行情数据由 <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#475569;text-decoration:none;">Tiingo.com</a> 提供</p>
+  <p style="text-align:center;font-size:11px;color:#475569;padding:14px 0 10px;letter-spacing:0.04em;">行情数据 · 每日收盘后更新</p>
 
   <!-- Tooltips -->
   <div class="bz-tooltip col-tooltip" id="colTooltip">
@@ -949,6 +949,7 @@
   </div>
 
 
+  <script src="assets/feature_flags.js"></script>
   <script type="module">
     import { auth, db } from "./firebase.js";
     import { signOut, onAuthStateChanged }
@@ -1096,8 +1097,8 @@
           updateStatus();
           loadIndexChanges();
           const _todayET = new Date().toLocaleDateString('en-CA', {timeZone:'America/New_York'});
-          if (isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
-          setInterval(() => { if (isMarketOpen() && loadedDate !== _todayET) refreshDashPrices(); }, 10_000);
+          if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
+          setInterval(() => { if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices(); }, 10_000);
           setInterval(() => {
             fetch("data/latest.json?" + Date.now()).then(r => r.json()).then(d => {
               if (d.date && d.date !== loadedDate) location.reload();
@@ -1359,7 +1360,7 @@
 
       // For 1D view: show 1D-specific cols; for other windows: show window price change + window stats only
       const oneDayCols = is1D ? `
-        ${thSort("PriceChange1D",   "日价格变化" + (isMarketOpen() ? "<span class='live-tag'>实时</span>" : ""),  "group-start")}
+        ${thSort("PriceChange1D",   "日价格变化" + ((window.BAIZORA_LIVE_PRICES && isMarketOpen()) ? "<span class='live-tag'>实时</span>" : ""),  "group-start")}
         ${thSort("PriceVsMA21_1D",  "价格/MA21", "group-start")}
         ${thSort("VolumeChange1D",  "日成交量变化")}
         ${thSort("VolumeVsMA21_1D", "成交量/MA21")}` : "";
@@ -1367,7 +1368,7 @@
       const head = `<thead><tr>
         ${thSort("Ticker",          "代码")}
         ${thStatic("Spark1Y",       "年趋势线")}
-        ${thSort("Price",           "价格" + (isMarketOpen() ? "<span class='live-tag'>实时</span>" : ""))}
+        ${thSort("Price",           "价格" + ((window.BAIZORA_LIVE_PRICES && isMarketOpen()) ? "<span class='live-tag'>实时</span>" : ""))}
         ${thSort("VolumeM",         "成交量(M)")}
         ${oneDayCols}
         ${windowHead}
@@ -1714,7 +1715,7 @@
       .then(r => r.json())
       .then(d => {
         candleData = d;
-        if (isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
+        if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
       })
       .catch(() => {});
 

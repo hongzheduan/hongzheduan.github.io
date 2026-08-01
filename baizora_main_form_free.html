@@ -812,7 +812,7 @@
         </a>
         <a href="pricing.html" class="gate-btn-secondary">View Plans</a>
       </div>
-      <p style="font-size:10px;color:#475569;margin:10px 0 0;letter-spacing:0.04em;">Market Data Sourced by <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#475569;text-decoration:none;">Tiingo.com</a></p>
+      <p style="font-size:10px;color:#475569;margin:10px 0 0;letter-spacing:0.04em;">Market Data · Updated Daily After Market Close</p>
     </div>
   </div>
 
@@ -857,6 +857,7 @@
     </div>
   </div>
 
+  <script src="assets/feature_flags.js"></script>
   <script>
 
     /* ── CHART ICON ── */
@@ -916,7 +917,7 @@
           statusDot.className = "status-dot";
           render();
           updateStatus();
-          if (isMarketOpen()) { refreshFreePrices(); setInterval(() => { if (isMarketOpen()) refreshFreePrices(); }, 10_000); }
+          if (window.BAIZORA_LIVE_PRICES && isMarketOpen()) { refreshFreePrices(); setInterval(() => { if (window.BAIZORA_LIVE_PRICES && isMarketOpen()) refreshFreePrices(); }, 10_000); }
         })
         .catch(err => {
           clearTimeout(tid);
@@ -1634,7 +1635,7 @@
     let candleData = null;
     fetch("data/candles.json")
       .then(r => r.json())
-      .then(d => { candleData = d; if (isMarketOpen()) refreshFreePrices(); })
+      .then(d => { candleData = d; if (window.BAIZORA_LIVE_PRICES && isMarketOpen()) refreshFreePrices(); })
       .catch(() => {});
 
     /* ── CALENDAR GAP FILLER ── */

@@ -14,6 +14,7 @@ import math
 import xml.etree.ElementTree as ET
 from itertools import groupby
 import pytz
+import yfinance as yf
 
 # =========================
 # CONFIG
@@ -24,6 +25,15 @@ TIINGO_BASE      = "https://api.tiingo.com"
 SKIP_EDGAR       = os.environ.get("SKIP_EDGAR",  "").lower() in ("1", "true", "yes")
 EDGAR_ONLY       = os.environ.get("EDGAR_ONLY",  "").lower() in ("1", "true", "yes")
 
+# Cost-cutting switch (no paying customers yet, 2026-08): sources daily OHLCV bars,
+# the SPY benchmark, and BRK-A's price from free yfinance instead of Tiingo, and skips
+# the Tiingo company-name/market-cap meta call entirely (falls back to SEC EDGAR's own
+# name — see get_fundamentals()). Everything downstream (scan/export/candles/digest/
+# score history/index news) is source-agnostic and unchanged either way. Flip back to
+# "tiingo" (or unset) once there's revenue to justify the subscription again.
+OHLCV_SOURCE     = os.environ.get("OHLCV_SOURCE", "tiingo").strip().lower()
+USE_YFINANCE     = OHLCV_SOURCE == "yfinance"
+
 DATE_STR         = datetime.now(pytz.timezone('America/New_York')).strftime("%Y-%m-%d")
 _TIINGO_LAST_DATE = DATE_STR   # updated by __main__ to the last date Tiingo actually has data for
 _STALE_TICKERS_EXCLUDED = []   # tickers dropped by __main__ because Tiingo hadn't published
@@ -31,6 +41,7 @@ _STALE_TICKERS_EXCLUDED = []   # tickers dropped by __main__ because Tiingo hadn
 DATA_DIR         = "data"
 ARCHIVE_DIR      = "archive"
 OHLCV_CACHE_DIR  = os.path.join(DATA_DIR, "ohlcv_tiingo_cache")
+YF_OHLCV_CACHE_DIR = os.path.join(DATA_DIR, "ohlcv_yfinance_cache")  # separate dir, never touches the Tiingo cache
 FUND_CACHE_FILE  = os.path.join(DATA_DIR, "fundamentals_cache.json")
 FUND_CACHE_TTL_DAYS = 0  # always re-fetch EDGAR every run; no stale data risk
 SPLIT_GUARDS_FILE = os.path.join(DATA_DIR, "split_guards.csv")
@@ -38,6 +49,7 @@ SPLIT_GUARDS_FILE = os.path.join(DATA_DIR, "split_guards.csv")
 os.makedirs(DATA_DIR,        exist_ok=True)
 os.makedirs(ARCHIVE_DIR,     exist_ok=True)
 os.makedirs(OHLCV_CACHE_DIR, exist_ok=True)
+os.makedirs(YF_OHLCV_CACHE_DIR, exist_ok=True)
 
 TIMEFRAMES = {
     "2W": 10,
@@ -938,7 +950,8 @@ SHARES_OUTSTANDING_OVERRIDE = {
 # =========================
 
 def _cache_path(ticker):
-    return os.path.join(OHLCV_CACHE_DIR, f"{ticker}.json")
+    cache_dir = YF_OHLCV_CACHE_DIR if USE_YFINANCE else OHLCV_CACHE_DIR
+    return os.path.join(cache_dir, f"{ticker}.json")
 
 
 def _load_ticker_bars(ticker):
@@ -1089,12 +1102,133 @@ def update_splits_file(tickers, lookback_days=180, sleep_time=0.1):
     return splits
 
 
+# =========================
+# yfinance OHLCV fetch (OHLCV_SOURCE=yfinance only) — ported from scanner_yfinance.py's
+# fetch_yfinance_bulk rather than imported, so the two scanner scripts stay independent
+# (matches the existing convention: neither file imports the other).
+# =========================
+
+YF_CHUNK_SIZE  = 60
+YF_MAX_RETRIES = 3
+YF_RETRY_WAITS = [5, 15, 45]
+YF_CHUNK_DELAY = 2
+
+
+def fetch_yfinance_bulk(tickers, period="2y"):
+    """
+    Fetch daily OHLCV for all tickers via yfinance, chunked with retry/backoff
+    (Yahoo throttles high-volume scraping). auto_adjust=True means yfinance handles
+    split/dividend adjustment itself — update_splits_file (Tiingo-specific) is
+    skipped entirely in this mode, see scan(). Returns {ticker: {date_str: {o,h,l,c,v}}}.
+    """
+    all_bars = {}
+    chunks = [tickers[i:i + YF_CHUNK_SIZE] for i in range(0, len(tickers), YF_CHUNK_SIZE)]
+
+    for ci, chunk in enumerate(chunks, 1):
+        data = None
+        for attempt in range(YF_MAX_RETRIES):
+            try:
+                data = yf.download(
+                    tickers=chunk, period=period, group_by="ticker",
+                    auto_adjust=True, threads=False, progress=False,
+                )
+                break
+            except Exception as e:
+                wait = YF_RETRY_WAITS[min(attempt, len(YF_RETRY_WAITS) - 1)]
+                print(f"  chunk {ci}/{len(chunks)} attempt {attempt+1} failed: {e}; retrying in {wait}s")
+                time.sleep(wait)
+
+        if data is None or data.empty:
+            print(f"  chunk {ci}/{len(chunks)} failed after {YF_MAX_RETRIES} attempts — skipping {len(chunk)} tickers")
+            time.sleep(YF_CHUNK_DELAY)
+            continue
+
+        is_multi = isinstance(data.columns, pd.MultiIndex)
+        for ticker in chunk:
+            try:
+                if is_multi:
+                    if ticker not in data.columns.get_level_values(0):
+                        continue
+                    sub = data[ticker]
+                else:
+                    sub = data
+                sub = sub.dropna(subset=["Close"])
+                if sub.empty:
+                    continue
+                bars = {}
+                idx = sub.index
+                if getattr(idx, "tz", None) is not None:
+                    idx = idx.tz_localize(None)
+                for ts, row in zip(idx, sub.itertuples(index=False)):
+                    d = ts.strftime("%Y-%m-%d")
+                    close = getattr(row, "Close", None)
+                    if close is None or pd.isna(close):
+                        continue
+                    bars[d] = {
+                        "o": round(float(row.Open), 4) if pd.notna(getattr(row, "Open", None)) else None,
+                        "h": round(float(row.High), 4) if pd.notna(getattr(row, "High", None)) else None,
+                        "l": round(float(row.Low),  4) if pd.notna(getattr(row, "Low",  None)) else None,
+                        "c": round(float(close), 4),
+                        "v": float(row.Volume) if pd.notna(getattr(row, "Volume", None)) else 0.0,
+                    }
+                if bars:
+                    all_bars[ticker] = bars
+            except Exception as e:
+                print(f"  {ticker}: parse error {e}")
+
+        print(f"  chunk {ci}/{len(chunks)} done ({len(chunk)} tickers)")
+        time.sleep(YF_CHUNK_DELAY)
+
+    return all_bars
+
+
+def fetch_yfinance_benchmark(from_date, to_date):
+    """yfinance-mode replacement for the Tiingo SPY fetch used for beta calc."""
+    try:
+        hist = yf.Ticker("SPY").history(start=from_date, end=to_date, auto_adjust=True)
+        if hist is None or hist.empty:
+            return None
+        hist = hist.reset_index()
+        hist["Date"] = pd.to_datetime(hist["Date"])
+        if hist["Date"].dt.tz is not None:
+            hist["Date"] = hist["Date"].dt.tz_localize(None)
+        return hist[["Date", "Close"]].sort_values("Date").reset_index(drop=True)
+    except Exception as e:
+        print(f"yfinance SPY fetch failed: {e}")
+        return None
+
+
+def build_ohlcv_cache_yfinance(tickers, from_date):
+    """yfinance-mode equivalent of build_ohlcv_cache — full re-fetch each run (yfinance
+    has no cheap 'just today's bar' bulk endpoint like Tiingo's /tiingo/daily/prices, so
+    there's no separate initial-vs-bulk-latest split here)."""
+    cutoff_str = from_date
+    print(f"OHLCV cache (yfinance): fetching {len(tickers)} tickers …")
+    fetched = fetch_yfinance_bulk(tickers, period="2y")
+    updated = 0
+    for ticker in tickers:
+        bars = fetched.get(ticker)
+        if not bars:
+            continue
+        bars = _trim_old_bars(bars, cutoff_str)
+        _save_ticker_bars(ticker, bars)
+        updated += 1
+    print(f"OHLCV cache (yfinance) updated: {updated}/{len(tickers)} tickers.")
+    missing_after = [t for t in tickers if not os.path.exists(_cache_path(t))]
+    if missing_after:
+        print(f"WARNING: {len(missing_after)} tickers still have no cache file after build.")
+
+
 def build_ohlcv_cache(tickers, from_date, sleep_time=0.15):
     """
     Ensure every ticker has an up-to-date per-ticker cache file.
     1. Initial fetch for tickers with no cache file (full 2Y history, one call each).
     2. Bulk latest call for all tickers to add today's EOD.
     """
+    if USE_YFINANCE:
+        build_ohlcv_cache_yfinance(tickers, from_date)
+        return
+
     cutoff_str = from_date  # trim bars older than 2Y
 
     missing = [t for t in tickers if not os.path.exists(_cache_path(t))]
@@ -1839,11 +1973,17 @@ def _get_brk_b_market_cap(brkb_close):
     try:
         import re as _re
 
-        # Fetch BRK-A price from Tiingo
-        brka_data = _tiingo_get("/tiingo/daily/brk-a/prices", params={"resampleFreq": "daily"})
-        if not brka_data:
-            return None
-        brka_close = float(brka_data[-1]["close"])
+        # Fetch BRK-A price — Tiingo normally, yfinance in cost-saving mode.
+        if USE_YFINANCE:
+            brka_hist = yf.Ticker("BRK-A").history(period="5d", auto_adjust=True)
+            if brka_hist is None or brka_hist.empty:
+                return None
+            brka_close = float(brka_hist["Close"].iloc[-1])
+        else:
+            brka_data = _tiingo_get("/tiingo/daily/brk-a/prices", params={"resampleFreq": "daily"})
+            if not brka_data:
+                return None
+            brka_close = float(brka_data[-1]["close"])
 
         # Find most recent 10-Q/10-K accession number and primary document
         cik = "0001067983"
@@ -2124,16 +2264,19 @@ def scan():
     # Build / update per-ticker OHLCV cache
     build_ohlcv_cache(tickers, from_date)
 
-    # Fetch Tiingo split history and write data/splits.json
+    # Fetch Tiingo split history and write data/splits.json — skipped in yfinance mode,
+    # where auto_adjust=True already handles splits at fetch time (see fetch_yfinance_bulk).
     # Runs on full scan AND weekend EDGAR-only runs (splits announced well before effective date)
-    if not SKIP_EDGAR or EDGAR_ONLY:
+    if not USE_YFINANCE and (not SKIP_EDGAR or EDGAR_ONLY):
         update_splits_file(tickers)
 
     # Load fundamentals (disk cache → EDGAR for missing)
     _load_fund_disk_cache(ignore_ttl=SKIP_EDGAR)
     if not SKIP_EDGAR:
         pass  # post-cache split adjustment removed — EDGAR shares used as-is
-    tiingo_meta = prefetch_tiingo_meta(tickers)
+    # Tiingo's meta call (company names/market cap) is skipped entirely in yfinance mode —
+    # get_fundamentals() already falls back to SEC EDGAR's own name when tiingo_meta is empty.
+    tiingo_meta = {} if USE_YFINANCE else prefetch_tiingo_meta(tickers)
     if not SKIP_EDGAR:
         prefetch_fundamentals(tickers, tiingo_meta)
         _prune_split_guards()
@@ -2150,7 +2293,7 @@ def scan():
     # SPY for beta
     spy_returns = None
     try:
-        spy_df = fetch_benchmark_bars(from_date, to_date)
+        spy_df = fetch_yfinance_benchmark(from_date, to_date) if USE_YFINANCE else fetch_benchmark_bars(from_date, to_date)
         if spy_df is not None and len(spy_df) >= 60:
             spy_returns = spy_df["Close"].pct_change().dropna()
             print(f"SPY loaded: {len(spy_returns)} returns for beta")
@@ -3030,15 +3173,16 @@ def compare_with_yfinance(df):
 
 if __name__ == "__main__":
 
-    if not TIINGO_API_KEY:
+    if not USE_YFINANCE and not TIINGO_API_KEY:
         sys.exit("ERROR: TIINGO_API_KEY environment variable is not set.")
 
     # EDGAR-only midnight run: refresh fundamentals cache, skip market scan entirely.
+    # Tiingo-free (and key-optional) in yfinance mode — company names fall back to EDGAR.
     if EDGAR_ONLY:
         print("EDGAR_ONLY — refreshing fundamentals cache from SEC EDGAR …")
         tickers, _, _ = get_tickers()
         _fund_cache.clear()  # force full re-fetch so new filings are picked up
-        tiingo_meta = prefetch_tiingo_meta(tickers)
+        tiingo_meta = {} if (USE_YFINANCE or not TIINGO_API_KEY) else prefetch_tiingo_meta(tickers)
         prefetch_fundamentals(tickers, tiingo_meta)
         print("EDGAR refresh complete.")
         sys.exit(0)
@@ -3055,7 +3199,15 @@ if __name__ == "__main__":
         print(f"Weekend ({today}) — cron should not fire; skipping.")
         sys.exit(0)
 
-    if FORCE_RUN:
+    if USE_YFINANCE:
+        # yfinance's EOD data is available promptly after close (no incremental per-ticker
+        # publish delay the way Tiingo has), so there's nothing to probe/wait for here.
+        # _TIINGO_LAST_DATE is provisional — refined below from the actual scan results
+        # (majority vote across df["Date"]) before the stale-ticker exclusion runs, same
+        # mechanism the Tiingo path uses, just confirmed after the fetch instead of before.
+        print("OHLCV_SOURCE=yfinance — skipping Tiingo publish-delay probe.")
+        data_confirmed = True
+    elif FORCE_RUN:
         print("FORCE_RUN=1 — skipping market probe, using latest available Tiingo data.")
         data_confirmed = True
         _discover = _tiingo_get(
@@ -3126,6 +3278,13 @@ if __name__ == "__main__":
 
     # 4. Run scan
     df, candles_out, smas_out, trading_days = scan()
+
+    # 4a. yfinance mode: confirm the scan date from the actual results (majority vote
+    # across df["Date"]) rather than probing beforehand — see the USE_YFINANCE branch
+    # above. Feeds the same stale-ticker exclusion logic below unchanged.
+    if USE_YFINANCE and not df.empty and "Date" in df.columns:
+        _TIINGO_LAST_DATE = df["Date"].value_counts().idxmax()
+        print(f"yfinance: confirmed scan date = {_TIINGO_LAST_DATE} ({(df['Date'] == _TIINGO_LAST_DATE).sum()}/{len(df)} tickers)")
 
     # 4b. Exclude tickers Tiingo hasn't published for _TIINGO_LAST_DATE yet.
     # Tiingo sometimes publishes EOD data incrementally across tickers rather than all at
