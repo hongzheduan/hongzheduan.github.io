@@ -528,6 +528,44 @@ def scene_member_spotlight_short(member, scan_date, lang="en", theme="dark"):
             join_color = ELECTRIC if is_light else ELEC_BRIGHT
             draw.text((jlbl_x, jlbl_y), join_label, font=f_join, fill=join_color)
 
+            # Peak-gain / trough-loss markers -- the highest and lowest the stock
+            # has traded since joining, not just where it stands right now. Same
+            # dot-plus-flip-label visual language as the breakout chart's "PREV
+            # HIGH" pill (see _draw_candles_with_volume), just without a full
+            # vertical dashed line (that's reserved for the join point) and with
+            # a self-explanatory "PEAK"/"LOW" word so the marker still reads
+            # correctly on a share-card screenshot with no narration attached.
+            max_gain = member.get("max_gain_since_join")
+            max_loss = member.get("max_loss_since_join")
+            max_gain_idx = member.get("max_gain_idx", si)
+            max_loss_idx = member.get("max_loss_idx", si)
+            f_mk = load_font(22, mono=True, bold=True) if lang == "en" else load_font_cn(22, bold=True)
+
+            def _draw_extreme_marker(idx, value, is_peak):
+                if value is None or not (0 <= idx < n):
+                    return
+                mkx, mky = pts[idx]
+                mk_color = (GREEN if is_light else BRIGHT_GREEN) if is_peak else (RED if is_light else BRIGHT_RED)
+                draw.ellipse([mkx - 9, mky - 9, mkx + 9, mky + 9], fill=mk_color)
+                word = ("PEAK" if is_peak else "LOW") if lang == "en" else ("最高" if is_peak else "最低")
+                label = f"{word} {pct_str(value)}"
+                lbl_w = tw(draw, label, f_mk)
+                gap = 16  # clears the dot's r=9 radius
+                if x1 - mkx - gap >= lbl_w:
+                    lbl_x = mkx + gap
+                else:
+                    lbl_x = mkx - gap - lbl_w
+                # Peaks label above the dot, troughs below -- flips inward if that
+                # would run off the chart's top/bottom edge.
+                if is_peak:
+                    lbl_y = mky - 34 if mky - y0 > 40 else mky + 14
+                else:
+                    lbl_y = mky + 14 if y1 - mky > 40 else mky - 34
+                draw.text((lbl_x, lbl_y), label, font=f_mk, fill=mk_color)
+
+            _draw_extreme_marker(max_gain_idx, max_gain, is_peak=True)
+            _draw_extreme_marker(max_loss_idx, max_loss, is_peak=False)
+
     f_pct = load_headline_font(120)
     pct_y = SH - 440
     pct_text = pct_str(perf)
@@ -1694,6 +1732,8 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
     index_cn = "纳斯达克100" if "Nasdaq" in index_name else "标普500"
     bdays = member["bdays_since_join"]
     perf = member["perf_since_join"]
+    max_gain = member.get("max_gain_since_join", perf)
+    max_loss = member.get("max_loss_since_join", perf)
 
     spotlight_img = scene_member_spotlight_short(member, date, lang)
     if share_dir:
@@ -1710,12 +1750,18 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
                           criteria=share_criteria)
 
     # Durations = actually-measured edge-tts speech time at SHORTS_TTS_RATE (see
-    # measure_fri.py in scratch), +buffer.
+    # measure_fri.py in scratch), +buffer. spot_max/spot_min durations measured
+    # separately (worst-case 3-digit percent, e.g. "142 percent"): EN 3.38s/2.62s,
+    # CN 2.40s/2.09s, +buffer.
     if lang == "cn":
         hook_dur = 4.2
         hook_text = random.choice(_HOOK_NARRATION_SPOTLIGHT_CN)
         spot1_line = f"{ticker}在{bdays}个交易日前加入{index_cn}。"
         spot1_dur = 3.5
+        spot_max_line = f"最高曾上涨{max_gain:.0f}%。"
+        spot_max_dur = 2.7
+        spot_min_line = f"最低曾下跌{abs(max_loss):.0f}%。"
+        spot_min_dur = 2.5
         if perf >= 0:
             spot2_line = f"加入以来上涨{perf:.0f}%。"
         else:
@@ -1727,6 +1773,10 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
         hook_text = random.choice(_HOOK_NARRATION_SPOTLIGHT_EN)
         spot1_line = f"{ticker} joined the {index_name}, {bdays} trading days ago."
         spot1_dur = 4.0
+        spot_max_line = f"At its highest, it was up {max_gain:.0f} percent since joining."
+        spot_max_dur = 3.7
+        spot_min_line = f"At its lowest, it was down {abs(max_loss):.0f} percent."
+        spot_min_dur = 3.0
         if perf >= 0:
             spot2_line = f"It's up {perf:.0f} percent since joining."
         else:
@@ -1739,6 +1789,8 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
                             "S&P 500  ·  Nasdaq-100", "标普500 · 纳斯达克100", bg_style="memberchange"),
          hook_dur, None, hook_text),
         (spotlight_img, spot1_dur, None, spot1_line),
+        (spotlight_img, spot_max_dur, None, spot_max_line),
+        (spotlight_img, spot_min_dur, None, spot_min_line),
         (spotlight_img, spot2_dur, None, spot2_line),
     ]
 

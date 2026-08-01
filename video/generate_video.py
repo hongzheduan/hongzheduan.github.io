@@ -3128,12 +3128,17 @@ def _get_new_members(data):
         sd     = spark[0] - spark[-1]
         if abs(sd) > 1e-9:
             R         = (p1yago - cpr) / sd
-            min_price = cpr - spark[-1] * R
-            post_actual = [min_price + spark[i] * R for i in range(spark_idx, len(spark))]
-            max_price = max(post_actual) if post_actual else jpr
+            base_price = cpr - spark[-1] * R
+            post_actual = [base_price + spark[i] * R for i in range(spark_idx, len(spark))]
+            max_price   = max(post_actual)
+            trough_price = min(post_actual)
+            max_gain_idx = spark_idx + post_actual.index(max_price)
+            max_loss_idx = spark_idx + post_actual.index(trough_price)
         else:
-            max_price = jpr
+            max_price, trough_price = jpr, jpr
+            max_gain_idx = max_loss_idx = spark_idx
         max_gain = (max_price - jpr) / jpr * 100
+        max_loss = (trough_price - jpr) / jpr * 100
         members.append({
             "ticker":              t,
             "row":                 row,
@@ -3144,6 +3149,9 @@ def _get_new_members(data):
             "join_price":          jpr,
             "perf_since_join":     perf,
             "max_gain_since_join": max_gain,
+            "max_loss_since_join": max_loss,
+            "max_gain_idx":        max_gain_idx,
+            "max_loss_idx":        max_loss_idx,
         })
     return members
 
@@ -3730,12 +3738,20 @@ def _get_verified_members(data):
         sd     = spark[0] - spark[-1]
         if abs(sd) > 1e-9:
             R         = (p1yago - cpr) / sd
-            min_price = cpr - spark[-1] * R
-            post_actual = [min_price + spark[i] * R for i in range(spark_idx, len(spark))]
-            max_price = max(post_actual) if post_actual else jpr
+            base_price = cpr - spark[-1] * R
+            post_actual = [base_price + spark[i] * R for i in range(spark_idx, len(spark))]
+            max_price   = max(post_actual)
+            trough_price = min(post_actual)
+            # post_actual[0] is the join day itself, so both indices are relative
+            # to spark_idx -- add it back to get the absolute Spark1Y index the
+            # chart marker needs to be drawn at.
+            max_gain_idx = spark_idx + post_actual.index(max_price)
+            max_loss_idx = spark_idx + post_actual.index(trough_price)
         else:
-            max_price = jpr
+            max_price, trough_price = jpr, jpr
+            max_gain_idx = max_loss_idx = spark_idx
         max_gain = (max_price - jpr) / jpr * 100
+        max_loss = (trough_price - jpr) / jpr * 100
         members.append({
             "ticker":              t,
             "row":                 row,
@@ -3746,6 +3762,9 @@ def _get_verified_members(data):
             "join_price":          jpr,
             "perf_since_join":     perf,
             "max_gain_since_join": max_gain,
+            "max_loss_since_join": max_loss,
+            "max_gain_idx":        max_gain_idx,
+            "max_loss_idx":        max_loss_idx,
         })
     return members
 
