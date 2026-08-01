@@ -484,19 +484,6 @@
       max-width: 100%;
       contain: layout;
     }
-
-    .ticker-delay-note {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 9px;
-      color: #475569;
-      font-family: 'DM Mono', monospace;
-      letter-spacing: 0.04em;
-      z-index: 2;
-      pointer-events: none;
-    }
     .ticker-track {
       display: flex;
       width: max-content;
@@ -1073,7 +1060,7 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  新订阅用户前七天免费<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span id="ann-status">分析更新至：<span id="ann-date">…</span></span>
+  新订阅用户前七天免费<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span id="ann-status">分析更新至：<span id="ann-date">…</span></span><span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span class="ann-note">8月3日至4日数据更新测试，数据可能暂时不稳定</span>
 </div>
 <script>
 fetch('data/latest.json').then(r=>r.json()).then(d=>{
@@ -1174,7 +1161,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 <div class="ticker-wrap">
   <div class="ticker-track" id="tickerTrack"></div>
-  <span class="ticker-delay-note">实时</span>
 </div>
 
 <div class="promo-ticker-wrap">

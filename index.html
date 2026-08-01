@@ -483,18 +483,6 @@
       max-width: 100%;
       contain: layout;
     }
-    .ticker-delay-note {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 9px;
-      color: #475569;
-      font-family: 'DM Mono', monospace;
-      letter-spacing: 0.04em;
-      z-index: 2;
-      pointer-events: none;
-    }
 
     .ticker-track {
       display: flex;
@@ -1119,7 +1107,7 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  First 7 days free for new subscribers<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span id="ann-status">Analysis updated: <span id="ann-date">…</span></span>
+  First 7 days free for new subscribers<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span id="ann-status">Analysis updated: <span id="ann-date">…</span></span><span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span class="ann-note">Data update testing Aug 3–4 — figures may be briefly unstable</span>
 </div>
 <script>
 fetch('data/latest.json').then(r=>r.json()).then(d=>{
@@ -1220,7 +1208,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 <div class="ticker-wrap">
   <div class="ticker-track" id="tickerTrack"></div>
-  <span class="ticker-delay-note">live</span>
 </div>
 
 <div class="promo-ticker-wrap">
