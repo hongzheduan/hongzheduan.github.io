@@ -2108,11 +2108,20 @@ def main():
                      help="If set, also saves standalone watermarked PNGs of each "
                           "card (for the homepage's downloadable-chart gallery) "
                           "into this directory, plus a _manifest_{lang}.json fragment.")
+    ap.add_argument("--date-override", default=None,
+                     help="Overrides data['date'] (YYYY-MM-DD) for on-screen date text, "
+                          "share-card filenames, and cover-art day rotation. Needed for "
+                          "weekend category videos (worst_performer/avg_volume), which "
+                          "reuse Friday's data/latest.json (SKIP_SCAN=1 on weekends) but "
+                          "should still show the actual Saturday/Sunday calendar date, "
+                          "not Friday's.")
     args = ap.parse_args()
 
     data_path = Path(args.data) if args.data else DATA_FILE
     with open(data_path) as f:
         data = json.load(f)
+    if args.date_override:
+        data["date"] = args.date_override
 
     output = args.output or str(SCRIPT_DIR / f"{args.type}_short.mp4")
     Path(output).parent.mkdir(parents=True, exist_ok=True)

@@ -295,6 +295,17 @@ jobs:
           # Shorts (vertical 9:16) replace the old landscape long-form videos as of
           # 2026-07-04 — same output path convention (video/${type}.mp4) so every
           # downstream step (copy/upload/skip-logging) below is unchanged.
+          #
+          # Weekend runs (SKIP_SCAN=1) reuse Friday's already-committed data/latest.json,
+          # whose "date" field is still Friday's — so worst_performer/avg_volume need an
+          # explicit override to show the actual Saturday/Sunday calendar date on-screen
+          # instead of Friday's. Weekday runs have a fresh scan (date already correct),
+          # so no override there.
+          DATE_ARGS=()
+          if [ "$SKIP_SCAN" = "1" ]; then
+            TODAY_DATE=$(TZ='America/New_York' date +%Y-%m-%d)
+            DATE_ARGS=(--date-override "$TODAY_DATE")
+          fi
           for type in $VIDEO_TYPES; do
             if echo "$type" | grep -q "_cn$"; then
               BASE_TYPE="${type%_cn}"
@@ -303,7 +314,7 @@ jobs:
               BASE_TYPE="$type"
               LANG="en"
             fi
-            python video/generate_shorts.py --type "$BASE_TYPE" --lang "$LANG" --output "video/${type}.mp4" --share-dir data/social_cards
+            python video/generate_shorts.py --type "$BASE_TYPE" --lang "$LANG" --output "video/${type}.mp4" --share-dir data/social_cards "${DATE_ARGS[@]}"
           done
           # Copy generated videos to fixed paths and write name metadata
           EN_NAME="" CN_NAME=""
@@ -339,7 +350,14 @@ jobs:
           # copied and still hold whatever was last published — so that side's
           # name/date/url must stay as-is too, instead of advancing to today's date
           # for a video that didn't actually change.
-          VID_DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
+          # On weekend runs data/latest.json's date is still Friday's (SKIP_SCAN=1,
+          # no fresh scan) — reuse the same TODAY_DATE the video itself was rendered
+          # with above, so the homepage's video date matches what's on-screen.
+          if [ "$SKIP_SCAN" = "1" ]; then
+            VID_DATE="$TODAY_DATE"
+          else
+            VID_DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
+          fi
           EN_NAME="$EN_NAME" EN_DATE="$VID_DATE" CN_NAME="$CN_NAME" CN_DATE="$VID_DATE" python -c "
           import json, os
 
@@ -434,6 +452,15 @@ jobs:
       - name: Commit latest videos for homepage download
         if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
         run: |
+          # This step used to implicitly rely on "Commit updated data" (above) having
+          # already set git identity — fine when that step always ran first, but it's
+          # skipped whenever SKIP_SCAN=1 (weekend runs). Weekend runs never used to
+          # reach this step (IS_VIDEO_RUN was False on weekends), but now that Sat/Sun
+          # also generate category videos, this step runs with no identity set and
+          # `git commit` fails with "empty ident name". Set it explicitly here, same
+          # fix already applied to "Generate news report videos" for the same reason.
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
           git fetch origin main
           git rebase --autostash origin/main
           git add -f data/latest_video_en.mp4 2>/dev/null || true
