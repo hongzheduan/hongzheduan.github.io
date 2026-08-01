@@ -259,7 +259,56 @@ _VOL_GREEN = _blend_over_navy(GREEN)
 _VOL_RED = _blend_over_navy(RED)
 
 
-def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_label=None, lang="en", theme="dark"):
+def _compute_range_extremes(ticker):
+    """Highest/lowest close over the full displayed 1Y candles.json window (the
+    same `bars` _draw_candles_with_volume plots), and the % each represents
+    relative to the window's first close (period start) -- used by every ranking
+    category's per-ticker card (user request, 2026-08-01) to mark the price swing
+    on the chart and narrate it, in addition to whatever category-specific metric
+    that card already shows. Close-based (not high/low), matching the existing
+    peak_idx convention elsewhere in this file ("close on the peak day, matches
+    _compute_breakouts").
+
+    No magnitude filtering -- initially suspected SNDK's +5340%/MU's +1013%
+    peaks (2026-08-01 session) were bad/unadjusted-split data and added a
+    sanity cap, but the user confirmed both are real (SNDK genuinely rose
+    30-50x that year). Reverted -- plain min/max, no guard. If a future ticker
+    genuinely does show implausible bad data, investigate that specific ticker
+    rather than reintroducing a blanket cap that would suppress real outliers
+    like SNDK."""
+    bars = _load_candles().get("data", {}).get(ticker) or []
+    n = len(bars)
+    if n < 2:
+        return None
+    closes = [b[3] for b in bars]
+    ref_price = closes[0]
+    if ref_price <= 0:
+        return None
+    hi_idx = max(range(n), key=lambda i: closes[i])
+    lo_idx = min(range(n), key=lambda i: closes[i])
+    return {
+        "hi_idx": hi_idx, "lo_idx": lo_idx,
+        "hi_pct": (closes[hi_idx] - ref_price) / ref_price * 100,
+        "lo_pct": (closes[lo_idx] - ref_price) / ref_price * 100,
+    }
+
+
+def _range_narration_line(range_ext, lang):
+    if not range_ext:
+        return None
+    lo_str, hi_str = pct_str(range_ext["lo_pct"]), pct_str(range_ext["hi_pct"])
+    if lang == "cn":
+        return f"过去一年，涨跌区间为{lo_str}至{hi_str}。"
+    return f"Over the past year, it ranged from {lo_str} to {hi_str}."
+
+
+# Real edge-tts measurement at SHORTS_TTS_RATE, worst-case magnitude ("-95%"/"+342%"):
+# EN 4.70s, CN 4.22s, +buffer.
+_RANGE_DUR_EN = 5.5
+_RANGE_DUR_CN = 5.0
+
+
+def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_label=None, lang="en", theme="dark", range_ext=None):
     """Real 1-year daily OHLCV candlesticks + a volume panel underneath (price ~78%
     / volume ~22%, volume bars color-matched to candle direction at reduced opacity)
     — same visual language as the real dashboard's candlestick chart, replacing the
@@ -385,6 +434,39 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
             draw.text((lbl_x, lbl_y), peak_label, font=f_lbl, fill=lbl_color)
         draw.ellipse([pk_x - 7, pk_y - 7, pk_x + 7, pk_y + 7], fill=GOLD)
 
+    if range_ext:
+        # Highest/lowest close over the whole displayed window (user request,
+        # 2026-08-01) -- same dot-plus-flip-label visual language as the peak_idx
+        # marker above and Friday spotlight's PEAK/LOW dots (see
+        # project-friday-spotlight-maxmin), just without a vertical dashed line
+        # (peak_idx already owns that visual for Wednesday's breakout category;
+        # a second full-height line here would clutter the chart).
+        f_rg = load_font(20, mono=True, bold=True) if lang == "en" else load_font_cn(20, bold=True)
+
+        def _draw_range_marker(idx, pct, is_peak):
+            if not (0 <= idx < n):
+                return
+            rx = x0 + (idx + 0.5) * slot_w
+            ry = py(bars[idx][3])
+            mk_color = (GREEN if is_light else BRIGHT_GREEN) if is_peak else (RED if is_light else BRIGHT_RED)
+            draw.ellipse([rx - 8, ry - 8, rx + 8, ry + 8], fill=mk_color)
+            word = ("PEAK" if is_peak else "LOW") if lang == "en" else ("最高" if is_peak else "最低")
+            label = f"{word} {pct_str(pct)}"
+            lbl_w = tw(draw, label, f_rg)
+            gap = 14
+            if x1 - rx - gap >= lbl_w:
+                lbl_x = rx + gap
+            else:
+                lbl_x = rx - gap - lbl_w
+            if is_peak:
+                lbl_y = ry - 30 if ry - price_y0 > 36 else ry + 12
+            else:
+                lbl_y = ry + 12 if price_y1 - ry > 36 else ry - 30
+            draw.text((lbl_x, lbl_y), label, font=f_rg, fill=mk_color)
+
+        _draw_range_marker(range_ext["hi_idx"], range_ext["hi_pct"], is_peak=True)
+        _draw_range_marker(range_ext["lo_idx"], range_ext["lo_pct"], is_peak=False)
+
 
 def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=True,
                       peak_label_en=None, peak_label_cn=None, theme="dark", value_fmt="pct"):
@@ -433,7 +515,8 @@ def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=Tru
     region = (110, 350, SW - 110, 350 + round(full_h * 0.75))
     peak_idx = row.get("_peak_idx")
     peak_label = (peak_label_en if lang == "en" else peak_label_cn) if peak_idx is not None else None
-    _draw_candles_with_volume(img, draw, ticker, region, peak_idx=peak_idx, peak_label=peak_label, lang=lang, theme=theme)
+    range_ext = row.get("_range_ext")
+    _draw_candles_with_volume(img, draw, ticker, region, peak_idx=peak_idx, peak_label=peak_label, lang=lang, theme=theme, range_ext=range_ext)
 
     f_pct = load_headline_font(130)
     pct_y = region[3] + 40
@@ -781,6 +864,44 @@ def scene_ad_short(scan_date, lang="en"):
     centered_s(draw, SH - 220, f"Daily Scan: {scan_date}" if lang == "en" else f"每日扫描：{scan_date}",
                load_font(18, mono=True) if lang == "en" else load_font_cn(18), DIM)
     return img
+
+
+# Shortened ad treatment for Sunday/Tuesday/Thursday only (user request, 2026-08-01)
+# -- skips the 3-part ad reel below entirely and just holds scene_ad_short's brand
+# card with a short spoken downloadability line, instead of the usual silent 3.0s
+# hold at the very end. Monday/Wednesday/Friday/Saturday are unaffected and keep
+# the full build_ad_reel() sequence below. Durations: real edge-tts measurement at
+# SHORTS_TTS_RATE, EN 3.12s / CN 3.12s, +buffer.
+_SHORT_AD_LINE_EN = "This chart is free to download, at baizora.com."
+_SHORT_AD_LINE_CN = "本图表可免费下载，网址baizora点com。"
+
+# Closing narration every video ends on now (user request, 2026-08-01) -- spoken
+# over the same, unchanged scene_ad_short card (previously silent for Monday/
+# Wednesday/Friday/Saturday, previously ending on _SHORT_AD_LINE_EN/CN alone for
+# Sunday/Tuesday/Thursday). No visual change to the card itself, narration only.
+# Real edge-tts measurement at SHORTS_TTS_RATE: EN 1.92s, CN 2.14s. Real bug
+# found 2026-08-01: at the original tight +0.3s buffer, this closing line --
+# the single most important one, since the user's explicit ask was for every
+# video to END on it -- got clipped or dropped entirely on several categories
+# once the new range-narration beats were added, because generate_narration()
+# schedules every clip sequentially and small overruns on EARLIER beats
+# cascade forward, eating into whatever's scheduled last. Padded generously
+# (this is a static outro card either way, so holding it longer costs nothing
+# visually) rather than trying to trim the exact right amount off upstream beats.
+_CLOSING_TAGLINE_EN = "Baizora makes things simple."
+_CLOSING_TAGLINE_CN = "贝佐拉，化繁为简。"
+_CLOSING_TAGLINE_DUR_EN = 6.0
+_CLOSING_TAGLINE_DUR_CN = 6.0
+
+
+def _short_ad_outro_frame(date, lang):
+    """Sunday/Tuesday/Thursday: download-CTA line, then the closing tagline, both
+    spoken over the same still image (two narration beats, one frame each, per
+    the same multi-beat-over-one-image pattern Friday's spotlight already uses)."""
+    img = scene_ad_short(date, lang=lang)
+    if lang == "cn":
+        return [(img, 3.5, None, _SHORT_AD_LINE_CN), (img, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN)]
+    return [(img, 3.5, None, _SHORT_AD_LINE_EN), (img, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN)]
 
 
 # ── Ad reel (replaces the old static ad card as the main CTA scene) ────────────────
@@ -1199,9 +1320,13 @@ def build_volume_spikes_short(data, output, lang="en", share_dir=None):
     # the old shared 5-row table so each narrated ticker gets its own hero card instead
     # of all narration pointing at one static list.
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        row["_range_ext"] = _compute_range_extremes(row.get("Ticker", ""))
         card = scene_stock_card(row, i + 1, lang, "_volMa21Pct",
                                  "VS 21-DAY AVERAGE VOLUME", "对比21日平均成交量")
         frames.append((card, dur, None, line))
+        range_line = _range_narration_line(row["_range_ext"], lang)
+        if range_line:
+            frames.append((card, _RANGE_DUR_CN if lang == "cn" else _RANGE_DUR_EN, None, range_line))
         if share_dir:
             caption = "Unusual volume spike vs the 21-day average" if lang == "en" else "较21日均量的成交量异动"
             criteria = ("Screened from the S&P 500 + Nasdaq-100 for the largest single-day volume spike "
@@ -1234,7 +1359,9 @@ def build_volume_spikes_short(data, output, lang="en", share_dir=None):
         # attach a second narration slot — both beats spoken back-to-back as one clip.
         ad_entries[0] = (first[0], first[1], first[2], ad_pitch + " " + ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
+    frames.append((scene_ad_short(date, lang=lang),
+                   _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
+                   _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("volume_spikes" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1283,24 +1410,21 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
     # One stock at a time (name + the narrated % + its 1Y candlestick trend), same
     # as Monday — replaces the old shared 5-row table.
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        row["_range_ext"] = _compute_range_extremes(row.get("Ticker", ""))
         card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn)
         frames.append((card, dur, None, line))
+        range_line = _range_narration_line(row["_range_ext"], lang)
+        if range_line:
+            frames.append((card, _RANGE_DUR_CN if lang == "cn" else _RANGE_DUR_EN, None, range_line))
         if share_dir:
             light_card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn, theme="light")
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "best_performer", i + 1,
                               criteria=share_criteria)
 
-    # Ad reel, same as Monday: real footage (advertise_0/1/2) with the platform pitch,
-    # then a short second beat with the CTA, then the unchanged silent outro card.
-    ad_entries = build_ad_reel(lang=lang)
-    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
-    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
-    first = ad_entries[0]
-    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
-    last = ad_entries[-1]
-    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
-    frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
+    # Shortened ad treatment (user request, 2026-08-01): just the brand outro
+    # card with a short spoken downloadability line, no 3-part ad reel. Only
+    # Tuesday/Thursday/Sunday changed this way -- see _short_ad_outro_frame.
+    frames += _short_ad_outro_frame(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("best_performer" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1355,8 +1479,12 @@ def build_worst_performer_short(data, output, lang="en", share_dir=None):
          hook_dur, None, hook_text),
     ]
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        row["_range_ext"] = _compute_range_extremes(row.get("Ticker", ""))
         card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn)
         frames.append((card, dur, None, line))
+        range_line = _range_narration_line(row["_range_ext"], lang)
+        if range_line:
+            frames.append((card, _RANGE_DUR_CN if lang == "cn" else _RANGE_DUR_EN, None, range_line))
         if share_dir:
             light_card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn, theme="light")
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "worst_performer", i + 1,
@@ -1370,7 +1498,9 @@ def build_worst_performer_short(data, output, lang="en", share_dir=None):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
+    frames.append((scene_ad_short(date, lang=lang),
+                   _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
+                   _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("worst_performer" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1484,22 +1614,19 @@ def build_avg_volume_short(data, output, lang="en", share_dir=None):
          hook_dur, None, hook_text),
     ]
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        row["_range_ext"] = _compute_range_extremes(row.get("Ticker", ""))
         card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn, value_fmt="volume")
         frames.append((card, dur, None, line))
+        range_line = _range_narration_line(row["_range_ext"], lang)
+        if range_line:
+            frames.append((card, _RANGE_DUR_CN if lang == "cn" else _RANGE_DUR_EN, None, range_line))
         if share_dir:
             light_card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn, value_fmt="volume", theme="light")
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "avg_volume", i + 1,
                               criteria=share_criteria)
 
-    ad_entries = build_ad_reel(lang=lang)
-    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
-    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
-    first = ad_entries[0]
-    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
-    last = ad_entries[-1]
-    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
-    frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
+    # Shortened ad treatment (user request, 2026-08-01) -- see _short_ad_outro_frame.
+    frames += _short_ad_outro_frame(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("avg_volume" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1552,8 +1679,12 @@ def _build_price_jump_fallback(data, output, lang, share_dir, date, date_obj):
          hook_dur, None, hook_text),
     ]
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        row["_range_ext"] = _compute_range_extremes(row.get("Ticker", ""))
         card = scene_stock_card(row, i + 1, lang, "PriceChange1D", sub_en, sub_cn)
         frames.append((card, dur, None, line))
+        range_line = _range_narration_line(row["_range_ext"], lang)
+        if range_line:
+            frames.append((card, _RANGE_DUR_CN if lang == "cn" else _RANGE_DUR_EN, None, range_line))
         if share_dir:
             light_card = scene_stock_card(row, i + 1, lang, "PriceChange1D", sub_en, sub_cn, theme="light")
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "price_jump", i + 1,
@@ -1567,7 +1698,9 @@ def _build_price_jump_fallback(data, output, lang, share_dir, date, date_obj):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
+    frames.append((scene_ad_short(date, lang=lang),
+                   _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
+                   _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("volume_spikes" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1654,6 +1787,7 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
     # One stock at a time (name + pullback % + its 1Y candlestick trend), same as
     # Monday/Tuesday — replaces the old shared table.
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        row["_range_ext"] = _compute_range_extremes(row.get("Ticker", ""))
         # Per-row real drawdown (e.g. "-32% DECLINE"), not the generic min_drawdown
         # screening threshold (e.g. "10%+ DECLINE") — the threshold is just the
         # cutoff for making the list, the real number is the actual story for this
@@ -1668,6 +1802,9 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
         card = scene_stock_card(row, i + 1, lang, "_drawdown_display", row_sub_en, row_sub_cn, gold_leader=False,
                                  peak_label_en="PREV HIGH", peak_label_cn="前高")
         frames.append((card, dur, None, line))
+        range_line = _range_narration_line(row["_range_ext"], lang)
+        if range_line:
+            frames.append((card, _RANGE_DUR_CN if lang == "cn" else _RANGE_DUR_EN, None, range_line))
         if share_dir:
             # label_en (e.g. "1-Year") not window_en (e.g. "twelve months") before
             # "high" — window_en reads fine in "over the past twelve months" but
@@ -1693,7 +1830,9 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
+    frames.append((scene_ad_short(date, lang=lang),
+                   _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
+                   _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("6m_breakout" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1806,8 +1945,12 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
     # same as Monday/Tuesday/Wednesday — replaces the old shared table. Row count
     # (1-3) is whatever qualified today, same row-count-awareness as before.
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        row["_range_ext"] = _compute_range_extremes(row.get("Ticker", ""))
         card = scene_stock_card(row, i + 1, lang, vol_key, sub_en, sub_cn)
         frames.append((card, dur, None, line))
+        range_line = _range_narration_line(row["_range_ext"], lang)
+        if range_line:
+            frames.append((card, _RANGE_DUR_CN if lang == "cn" else _RANGE_DUR_EN, None, range_line))
         if share_dir:
             # Per-row caption (pct varies by ticker), same pattern as Wednesday's
             # per-row real-drawdown caption. States "(past 3 days)" here too, not
@@ -1821,17 +1964,8 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, row_share_caption, share_dir, "1y_vol_peak", i + 1,
                               criteria=share_criteria)
 
-    # Ad reel, same as the other weekdays: real footage with the platform pitch, then
-    # a short second beat with the CTA, then the unchanged silent outro card.
-    ad_entries = build_ad_reel(lang=lang)
-    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
-    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
-    first = ad_entries[0]
-    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
-    last = ad_entries[-1]
-    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
-    frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
+    # Shortened ad treatment (user request, 2026-08-01) -- see _short_ad_outro_frame.
+    frames += _short_ad_outro_frame(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("1y_vol_peak" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1944,7 +2078,9 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
+    frames.append((scene_ad_short(date, lang=lang),
+                   _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
+                   _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("index_spotlight" + ("_cn" if lang == "cn" else ""), date_obj)
