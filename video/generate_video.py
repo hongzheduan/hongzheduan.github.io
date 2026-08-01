@@ -4019,16 +4019,6 @@ def build_index_spotlight_cn(data, output):
 
 TUESDAY_TF_ROTATION = [
     {
-        "key": "2WPriceChange",  "label_en": "2-Week",    "label_short": "2W",
-        "window_en": "two weeks",     "label_cn": "两周",   "window_cn": "两周",
-        "title_cn": "两周最强大盘股",   "rank_cn": "两周涨幅前三",  "spark_days": 10,
-    },
-    {
-        "key": "1MPriceChange",  "label_en": "1-Month",   "label_short": "1M",
-        "window_en": "one month",     "label_cn": "一个月", "window_cn": "一个月",
-        "title_cn": "一个月最强大盘股", "rank_cn": "一个月涨幅前三", "spark_days": 21,
-    },
-    {
         "key": "3MPriceChange",  "label_en": "3-Month",   "label_short": "3M",
         "window_en": "three months",  "label_cn": "三个月", "window_cn": "三个月",
         "title_cn": "三个月最强大盘股", "rank_cn": "三个月涨幅前三", "spark_days": 63,
@@ -4052,18 +4042,12 @@ TUESDAY_TF_ROTATION = [
 
 
 def _tuesday_tf(date_str):
-    """Pick Tuesday TF rotation slot: 2W->1M->3M->6M->9M->1Y, cycling by ISO week number."""
+    """Pick Tuesday TF rotation slot: 3M->6M->9M->1Y, cycling by ISO week number."""
     d = datetime.date.fromisoformat(date_str)
-    return TUESDAY_TF_ROTATION[d.isocalendar()[1] % 6]
+    return TUESDAY_TF_ROTATION[d.isocalendar()[1] % 4]
 
 
 WEDNESDAY_TF_ROTATION = [
-    {
-        "label_en": "1-Month",  "label_short": "1M",  "window_en": "one month",
-        "label_cn": "一个月",    "window_cn": "一个月",   "spark_days": 21,
-        "high_hdr": "1M HIGH",  "high_hdr_cn": "月高价",    "peak_label_cn": "月高点",
-        "title_cn": "一月新高突破",  "min_drawdown": 10,
-    },
     {
         "label_en": "3-Month",  "label_short": "3M",  "window_en": "three months",
         "label_cn": "三个月",    "window_cn": "三个月",   "spark_days": 63,
@@ -4092,22 +4076,12 @@ WEDNESDAY_TF_ROTATION = [
 
 
 def _wednesday_tf(date_str):
-    """Pick Wednesday TF rotation: 1M->3M->6M->9M->1Y, cycling by ISO week number."""
+    """Pick Wednesday TF rotation: 3M->6M->9M->1Y, cycling by ISO week number."""
     d = datetime.date.fromisoformat(date_str)
-    return WEDNESDAY_TF_ROTATION[d.isocalendar()[1] % 5]
+    return WEDNESDAY_TF_ROTATION[d.isocalendar()[1] % 4]
 
 
 THURSDAY_TF_ROTATION = [
-    {
-        "label_en": "1-Month",  "label_short": "1M",  "window_en": "one month",
-        "label_cn": "一个月",    "window_cn": "一个月",
-        "vol_day_key": "1MMaxVolumeChangeDay",  "vol_chg_key": "1MMaxVolumeChange",
-        "spark_days": 21,
-        "title_en": "1-Month Volume Records",
-        "title_cn": "月度成交量记录",
-        "subtitle_en": "Stocks recording their highest single-day volume of the past month",
-        "subtitle_cn": "大盘股创下过去一个月最大单日成交量 — 贝佐拉",
-    },
     {
         "label_en": "3-Month",  "label_short": "3M",  "window_en": "three months",
         "label_cn": "三个月",    "window_cn": "三个月",
@@ -4152,9 +4126,9 @@ THURSDAY_TF_ROTATION = [
 
 
 def _thursday_tf(date_str):
-    """Pick Thursday TF rotation: 1M->3M->6M->9M->1Y, cycling by ISO week number."""
+    """Pick Thursday TF rotation: 3M->6M->9M->1Y, cycling by ISO week number."""
     d = datetime.date.fromisoformat(date_str)
-    return THURSDAY_TF_ROTATION[d.isocalendar()[1] % 5]
+    return THURSDAY_TF_ROTATION[d.isocalendar()[1] % 4]
 
 
 _TF_OPENERS_EN = [

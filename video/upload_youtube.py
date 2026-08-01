@@ -51,8 +51,6 @@ def cover_path_for(video_type, date_obj):
 
 
 _TUESDAY_TF_ROTATION = [
-    {"label_en": "2-Week",   "label_short": "2W", "window_en": "two weeks",     "label_cn": "两周",   "window_cn": "两周"},
-    {"label_en": "1-Month",  "label_short": "1M", "window_en": "one month",     "label_cn": "一个月", "window_cn": "一个月"},
     {"label_en": "3-Month",  "label_short": "3M", "window_en": "three months",  "label_cn": "三个月", "window_cn": "三个月"},
     {"label_en": "6-Month",  "label_short": "6M", "window_en": "six months",    "label_cn": "六个月", "window_cn": "六个月"},
     {"label_en": "9-Month",  "label_short": "9M", "window_en": "nine months",   "label_cn": "九个月", "window_cn": "九个月"},
@@ -62,11 +60,10 @@ _TUESDAY_TF_ROTATION = [
 
 def _tuesday_tf(date_str):
     d = datetime.date.fromisoformat(date_str)
-    return _TUESDAY_TF_ROTATION[d.isocalendar()[1] % 6]
+    return _TUESDAY_TF_ROTATION[d.isocalendar()[1] % 4]
 
 
 _WEDNESDAY_TF_ROTATION = [
-    {"label_en": "1-Month", "label_cn": "一个月", "min_drawdown": 10},
     {"label_en": "3-Month", "label_cn": "三个月", "min_drawdown": 10},
     {"label_en": "6-Month", "label_cn": "六个月", "min_drawdown": 10},
     {"label_en": "9-Month", "label_cn": "九个月", "min_drawdown": 10},
@@ -76,11 +73,10 @@ _WEDNESDAY_TF_ROTATION = [
 
 def _wednesday_tf(date_str):
     d = datetime.date.fromisoformat(date_str)
-    return _WEDNESDAY_TF_ROTATION[d.isocalendar()[1] % 5]
+    return _WEDNESDAY_TF_ROTATION[d.isocalendar()[1] % 4]
 
 
 _THURSDAY_TF_ROTATION = [
-    {"label_en": "1-Month", "label_cn": "一个月", "window_en": "one month",     "window_cn": "一个月"},
     {"label_en": "3-Month", "label_cn": "三个月", "window_en": "three months",  "window_cn": "三个月"},
     {"label_en": "6-Month", "label_cn": "六个月", "window_en": "six months",    "window_cn": "六个月"},
     {"label_en": "9-Month", "label_cn": "九个月", "window_en": "nine months",   "window_cn": "九个月"},
@@ -90,7 +86,7 @@ _THURSDAY_TF_ROTATION = [
 
 def _thursday_tf(date_str):
     d = datetime.date.fromisoformat(date_str)
-    return _THURSDAY_TF_ROTATION[d.isocalendar()[1] % 5]
+    return _THURSDAY_TF_ROTATION[d.isocalendar()[1] % 4]
 
 
 def build_credentials():
