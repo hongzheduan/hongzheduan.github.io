@@ -60,6 +60,19 @@ def load_font(size: int, bold: bool = False, mono: bool = False,
             "C:/Windows/Fonts/times.ttf",
             "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",
         ]
+    elif mono and bold:
+        # mono used to swallow the bold flag silently — this branch only ever
+        # loaded DMMono-Regular/Medium regardless of `bold`, so every caller
+        # passing mono=True, bold=True (e.g. the JOINED/date labels in
+        # generate_shorts.py) rendered as non-bold with no visible error.
+        candidates = [
+            FONTS_DIR / "DMMono-Bold.ttf",
+            FONTS_DIR / "DMMono-Medium.ttf",
+            "C:/Windows/Fonts/consolab.ttf",
+            "C:/Windows/Fonts/courbd.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf",
+        ]
     elif mono:
         candidates = [
             FONTS_DIR / "DMMono-Regular.ttf",

@@ -219,6 +219,12 @@ _LT_TEXT_PRI  = (15, 23, 42)      # slate-900 — ticker, badge text
 _LT_TEXT_SEC  = (71, 85, 105)     # slate-600 — company name, captions
 _LT_TEXT_DIM  = (100, 116, 139)   # slate-500 — lighter than DIM (148,163,184) reads
                                    # fine on navy but is too pale for good contrast on white
+_LT_GOLD      = (180, 83, 9)      # amber-700 — GOLD/GOLD_LIGHT are tuned bright/pale for
+                                   # pop against navy; both read as low-contrast yellow on
+                                   # white, so headline/eyebrow text on the light card uses
+                                   # this darker amber instead. Gold-on-navy chips (join/peak
+                                   # markers) keep GOLD unchanged — their background is navy
+                                   # on both themes, so contrast is already fine there.
 _LT_AXIS_BG   = _LT_BG
 _LT_VOL_GREEN = (187, 247, 208)   # green-200 — a straight alpha-blend of GREEN over
 _LT_VOL_RED   = (254, 202, 202)   # red-200 — white washes out far more than over navy
@@ -398,7 +404,7 @@ def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=Tru
     name = (row.get("CompanyName") or "")
     if len(name) > 30:
         name = name[:27] + "..."
-    centered_s(draw, 270, name, load_font(28) if lang == "en" else load_font_cn(26), _LT_TEXT_SEC if is_light else MUTED)
+    centered_s(draw, 270, name, load_font(32, bold=True) if lang == "en" else load_font_cn(30, bold=True), _LT_TEXT_SEC if is_light else MUTED)
 
     v = row.get(value_key)
     if is_light:
@@ -450,11 +456,11 @@ def scene_member_spotlight_short(member, scan_date, lang="en", theme="dark"):
 
     title = f"{ticker} — NEW MEMBER" if lang == "en" else f"{ticker} — 新晋成分股"
     f_title = load_headline_font(56) if lang == "en" else load_font_cn(46, bold=True)
-    centered_s(draw, 100, title, f_title, GOLD_LIGHT)
+    centered_s(draw, 100, title, f_title, _LT_GOLD if is_light else GOLD_LIGHT)
 
     name = (row.get("CompanyName") or "")
     idx_label = member["index_name"] if lang == "en" else ("纳斯达克100" if "Nasdaq" in member["index_name"] else "标普500")
-    centered_s(draw, 210, f"{name}  ·  {idx_label}", load_font(24) if lang == "en" else load_font_cn(22),
+    centered_s(draw, 210, f"{name}  ·  {idx_label}", load_font(28, bold=True) if lang == "en" else load_font_cn(26, bold=True),
                _LT_TEXT_SEC if is_light else MUTED)
 
     spark = row.get("Spark1Y") or []
@@ -491,24 +497,30 @@ def scene_member_spotlight_short(member, scan_date, lang="en", theme="dark"):
             r = 14
             draw.polygon([(jx, jy - r), (jx - r, jy + r), (jx + r, jy + r)], fill=GOLD)
 
-            # "JOINED {date}" label beside the marker — same dark-chip-with-gold-
-            # text treatment as the breakout chart's "PREV HIGH" pill (works on
-            # both themes unchanged, see _draw_candles_with_volume), flipping to
-            # the line's left when there isn't room on the right so it never
-            # runs off-canvas.
-            join_label = f"JOINED {member['join_date']}" if lang == "en" else f"加入日期 {member['join_date']}"
-            f_join = load_font(18, mono=True, bold=True) if lang == "en" else load_font_cn(18, bold=True)
+            # "JOINED {N} DAYS AGO" label beside the marker. Used to be a dark chip
+            # with gold text (matching the breakout chart's "PREV HIGH" pill) but
+            # the gold-on-navy chip was hard to read at a glance — dropped the box/
+            # border entirely and switched to plain bold electric-blue text, which
+            # reads clearly against both the navy and light-card backgrounds
+            # without needing a background fill.
+            # Shows trading days since join (bdays_since_join, already computed by
+            # _get_verified_members for the spoken narration) rather than the exact
+            # calendar join_date — that date comes from a manually-curated source
+            # (verified_new_member.txt) that can lag the real S&P/Nasdaq effective
+            # date, so stating it as a specific day overclaims precision the data
+            # doesn't have. A relative "N trading days ago" reads as approximate.
+            bdays = member["bdays_since_join"]
+            join_label = f"JOINED {bdays}D AGO" if lang == "en" else f"{bdays}个交易日前加入"
+            f_join = load_font(22, mono=True, bold=True) if lang == "en" else load_font_cn(22, bold=True)
             jlbl_w = tw(draw, join_label, f_join)
-            pad = 6
             gap = 20  # clears the triangle's r=14 half-width
-            if x1 - jx - gap >= jlbl_w + pad * 2:
+            if x1 - jx - gap >= jlbl_w:
                 jlbl_x = jx + gap
             else:
-                jlbl_x = jx - gap - jlbl_w - pad * 2
+                jlbl_x = jx - gap - jlbl_w
             jlbl_y = y0 + 8
-            draw.rectangle([jlbl_x, jlbl_y - pad, jlbl_x + jlbl_w + pad * 2, jlbl_y + 20 + pad],
-                            fill=NAVY, outline=GOLD, width=1)
-            draw.text((jlbl_x + pad, jlbl_y), join_label, font=f_join, fill=GOLD)
+            join_color = ELECTRIC if is_light else ELEC_BRIGHT
+            draw.text((jlbl_x, jlbl_y), join_label, font=f_join, fill=join_color)
 
     f_pct = load_headline_font(120)
     pct_y = SH - 440
@@ -516,7 +528,7 @@ def scene_member_spotlight_short(member, scan_date, lang="en", theme="dark"):
     centered_s(draw, pct_y, pct_text, f_pct, color)
     pct_bottom = pct_y + draw.textbbox((0, 0), pct_text, font=f_pct)[3]
     footer = "SINCE JOINING THE INDEX" if lang == "en" else "加入指数以来"
-    centered_s(draw, pct_bottom + 30, footer, load_font(26, mono=True) if lang == "en" else load_font_cn(24),
+    centered_s(draw, pct_bottom + 30, footer, load_font(30, mono=True, bold=True) if lang == "en" else load_font_cn(28, bold=True),
                _LT_TEXT_DIM if is_light else DIM)
     return img
 
@@ -543,8 +555,8 @@ def _add_criteria_banner(card_img, criteria, lang, theme="light"):
     bg = _LT_BG if is_light else NAVY
     text_color = _LT_TEXT_SEC if is_light else MUTED
     eyebrow = "HOW THIS WAS SELECTED" if lang == "en" else "筛选标准"
-    f_eyebrow = load_font(20, mono=True, bold=True) if lang == "en" else load_font_cn(18, bold=True)
-    f_body = load_font(26) if lang == "en" else load_font_cn(24)
+    f_eyebrow = load_font(24, mono=True, bold=True) if lang == "en" else load_font_cn(22, bold=True)
+    f_body = load_font(30, bold=True) if lang == "en" else load_font_cn(28, bold=True)
 
     tmp_draw = ImageDraw.Draw(Image.new("RGB", (10, 10)))
     max_w = SW - 160
@@ -560,7 +572,7 @@ def _add_criteria_banner(card_img, criteria, lang, theme="light"):
     draw = ImageDraw.Draw(new_img)
 
     y = pad_top
-    centered_s(draw, y, eyebrow, f_eyebrow, GOLD)
+    centered_s(draw, y, eyebrow, f_eyebrow, _LT_GOLD if is_light else GOLD)
     y += eyebrow_h + gap
     for line in lines:
         centered_s(draw, y, line, f_body, text_color)
@@ -574,11 +586,11 @@ def _draw_share_footer(img, draw, date, lang, caption, theme="dark"):
     y = img.height - 210
     hline_s(draw, y, x0=140, x1=SW - 140, color=_LT_BORDER if is_light else BORDER)
     y += 34
-    f_cap = load_font(24) if lang == "en" else load_font_cn(22)
+    f_cap = load_font(28, bold=True) if lang == "en" else load_font_cn(26, bold=True)
     centered_s(draw, y, caption, f_cap, _LT_TEXT_SEC if is_light else MUTED)
-    y += 46
-    centered_s(draw, y, date, load_font(20, mono=True), _LT_TEXT_DIM if is_light else DIM)
-    y += 54
+    y += 48
+    centered_s(draw, y, date, load_font(24, mono=True, bold=True), _LT_TEXT_DIM if is_light else DIM)
+    y += 56
     # Badge pill, not muted text — first pass blended into the card and read as an
     # afterthought; a solid pill with bold text pops at a glance even at small
     # gallery-thumbnail size. Colors invert per theme so the pill always contrasts
@@ -594,16 +606,16 @@ def _draw_share_footer(img, draw, date, lang, caption, theme="dark"):
     # itself explains why someone would go there, not just where "there" is.
     brand_text = "Baizora"
     domain_text = "  ·  downloadable at baizora.com" if lang == "en" else "  ·  可在baizora.com下载"
-    f_brand = load_font(22, bold=True)
+    f_brand = load_font(26, bold=True)
     # CN domain text needs a CJK-capable font — a plain mono font here would
     # render "可在...下载" as tofu boxes, the same class of bug already fixed
     # once for the breakout chart's "前高" peak label.
-    f_domain = load_font(18, mono=True) if lang == "en" else load_font_cn(18)
+    f_domain = load_font(22, mono=True, bold=True) if lang == "en" else load_font_cn(20, bold=True)
     brand_w = tw(draw, brand_text, f_brand)
     domain_w = tw(draw, domain_text, f_domain)
-    pad_x, pad_y = 18, 10
+    pad_x, pad_y = 20, 11
     pill_w = brand_w + domain_w + pad_x * 2
-    pill_h = 44
+    pill_h = 48
     px0 = (SW - pill_w) // 2
     pill_bg = _LT_TEXT_PRI if is_light else (255, 255, 255)
     brand_fill = (255, 255, 255) if is_light else (15, 23, 42)
