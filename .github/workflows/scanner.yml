@@ -2,13 +2,18 @@
 
 on:
   schedule:
-    - cron: "30 20 * * 1-5"   # 4:30 PM ET weekdays  — preliminary data + videos (retries at 5:00 PM)
+    - cron: "0 17 * * *"      # 1:00 PM ET every day — news report video only, decoupled from the
+                               # scan/category-video timing (doesn't need market data, and its own
+                               # generation step alone takes ~30 min — see worklog delay pattern
+                               # below, actual fire is typically ~70-90 min late, landing ~2:15-2:30 PM ET)
+    - cron: "30 20 * * 1-5"   # 4:30 PM ET weekdays  — preliminary data + category video (retries at 5:00 PM)
     - cron: "0 21 * * 1-5"    # 5:00 PM ET weekdays  — retry if 4:30 PM data not yet available (actual ~7:00 PM ET); no EDGAR
     - cron: "30 21 * * 1-5"   # 5:30 PM ET weekdays  — retry if 4:30 PM data not yet available
     - cron: "30 22 * * 1-5"   # 6:30 PM ET weekdays  — final data
     - cron: "0 4 * * 2-6"    # 11 PM ET weekdays — full EDGAR + market scan, no videos
     - cron: "0 5 * * 0,6"    # midnight ET weekends — EDGAR refresh only
-    - cron: "0 20 * * 0,6"   # 4:00 PM ET weekends — Baizora Report news video only, no market scan
+    - cron: "0 20 * * 0,6"   # 4:00 PM ET weekends — category video only, no market scan (news report
+                               # video moved to the dedicated 1:00 PM ET slot above)
   workflow_dispatch:
     inputs:
       run_videos:
@@ -72,18 +77,28 @@ jobs:
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+          elif [ "$SCHEDULE" = "0 17 * * *" ]; then
+            # 1:00 PM ET every day — news report video only, decoupled from category
+            # video/scan timing since it doesn't need market data and its own generation
+            # step alone takes ~30 min (news content comes from data/market_news*.json,
+            # refreshed hourly by the separate news_refresh.py workflow — a 1 PM ET
+            # snapshot is an accepted tradeoff, not the freshest possible at close).
+            echo "EDGAR_ONLY="    >> $GITHUB_ENV
+            echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
+            echo "SKIP_SCAN=1"    >> $GITHUB_ENV
+            echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
+            echo "PROBE_RETRIES=1" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "0 20 * * 0,6" ]; then
-            # 4:00 PM ET weekends — Baizora Report news video always; category
-            # video every weekend day now too (Saturday: Worst Performer, Sunday:
-            # Highest Average Volume). No market scan needed (news content comes
-            # from data/market_news*.json, refreshed hourly every day by the
-            # separate news_refresh.py workflow; the category video reuses
-            # Friday's already-committed data/latest.json + data/candles.json).
+            # 4:00 PM ET weekends — category video only (Saturday: Worst Performer,
+            # Sunday: Highest Average Volume). No market scan needed (reuses Friday's
+            # already-committed data/latest.json + data/candles.json). News report
+            # video moved to the dedicated 1:00 PM ET slot above.
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
             echo "SKIP_SCAN=1"    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
-            echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=False"  >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "0 4 * * 2-6" ]; then
             # 11 PM ET weekdays — full EDGAR + market scan, no videos
@@ -94,10 +109,11 @@ jobs:
             echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "30 20 * * 1-5" ]; then
+            # News report video moved to the dedicated 1:00 PM ET slot above.
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR="    >> $GITHUB_ENV   # run EDGAR (~6:30 PM ET actual, after 5:30 PM SEC cutoff)
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
-            echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=False"  >> $GITHUB_ENV
             echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 4:30, retry at 5:00
           elif [ "$EVENT" = "workflow_dispatch" ]; then
             # manual trigger — full EDGAR refresh + market scan; videos only if
