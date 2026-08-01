@@ -35,6 +35,7 @@ _WEEKDAY_BY_TYPE = {
     "1y_vol_peak": "Thursday",
     "index_spotlight": "Friday",
     "worst_performer": "Tuesday",  # placeholder cover art, see generate_shorts.py's copy of this dict
+    "avg_volume": "Thursday",      # placeholder cover art, see generate_shorts.py's copy of this dict
 }
 
 
@@ -271,6 +272,36 @@ def make_meta(video_type, date):
         return (
             title,
             f"Large-cap stocks with the biggest trailing {window} price declines, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+        )
+    if video_type == "avg_volume":
+        tf    = _tuesday_tf(date)
+        label = tf["label_en"]
+        window = tf["window_en"]
+        num, unit = label.split("-")
+        numeral_window = f"{num} {unit}" if num == "1" else f"{num} {unit}s"
+        title = random.choice([
+            f"Highest Average Volume ({numeral_window}) — {date}",
+            f"Most Traded Stocks Over {numeral_window} — {date}",
+            f"Top {label} Average Volume Leaders — {date}",
+            f"Highest Liquidity Large-Caps ({label}) — {date}",
+        ])
+        return (
+            title,
+            f"Large-cap stocks with the highest average daily trading volume over the past {window}, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+        )
+    if video_type == "avg_volume_cn":
+        tf       = _tuesday_tf(date)
+        label_cn = tf["label_cn"]
+        window_cn = tf["window_cn"]
+        title = random.choice([
+            f"{label_cn}日均成交量最高股票 — {date}",
+            f"过去{window_cn}成交量最活跃股票 — {date}",
+            f"{label_cn}成交量龙头股 — {date}",
+            f"流动性最高大盘股（{label_cn}）— {date}",
+        ])
+        return (
+            title,
+            f"截至{date}，S&P 500和纳斯达克100中过去{window_cn}日均成交量最高的大盘股。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "volume_spikes_cn":
         title = random.choice([

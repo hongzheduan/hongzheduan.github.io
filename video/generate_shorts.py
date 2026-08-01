@@ -49,10 +49,12 @@ _WEEKDAY_BY_TYPE = {
     "6m_breakout": "Wednesday",
     "1y_vol_peak": "Thursday",
     "index_spotlight": "Friday",
-    # No dedicated Saturday cover art yet -- reuses Tuesday's real designs as a
-    # placeholder (same pattern this dict itself used to follow before each
-    # weekday got its own set). Swap to "Saturday" once real art exists.
+    # No dedicated Saturday/Sunday cover art yet -- reuses an existing weekday's
+    # real designs as a placeholder (same pattern this dict itself used to follow
+    # before each weekday got its own set). Swap to "Saturday"/"Sunday" once real
+    # art exists.
     "worst_performer": "Tuesday",
+    "avg_volume": "Thursday",  # closest thematic match (also a volume category)
 }
 
 
@@ -385,7 +387,7 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
 
 
 def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=True,
-                      peak_label_en=None, peak_label_cn=None, theme="dark"):
+                      peak_label_en=None, peak_label_cn=None, theme="dark", value_fmt="pct"):
     """Hero card for a single ticker — replaces the old shared 5-row table so the
     Short shows one stock at a time (name + the narrated metric + its 1-year
     candlestick trend, all together) instead of a static list everyone's narrated
@@ -395,6 +397,11 @@ def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=Tru
     _compute_breakouts for Wednesday's breakout category), passing a label here
     draws the gold "previous high" dot + dashed line on the candlestick chart —
     the same marker the landscape video's breakout scene has always had.
+
+    value_fmt="pct" (default): value_key is a +/- percent, colored green/red by
+    sign via pct_str(). value_fmt="volume" (Sunday's avg-volume category): the
+    metric is a raw share count with no "good/bad" direction, so it's shown as
+    "N.NM" instead and colored neutral electric-blue rather than green/red.
 
     theme="light" (share cards only): the video always renders theme="dark" —
     this is a real re-render with swapped colors throughout, not a recolor of
@@ -413,7 +420,9 @@ def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=Tru
     centered_s(draw, 270, name, load_font(32, bold=True) if lang == "en" else load_font_cn(30, bold=True), _LT_TEXT_SEC if is_light else MUTED)
 
     v = row.get(value_key)
-    if is_light:
+    if value_fmt == "volume":
+        color = ELECTRIC if is_light else ELEC_BRIGHT
+    elif is_light:
         color = GREEN if (v or 0) >= 0 else RED
     else:
         color = BRIGHT_GREEN if (v or 0) >= 0 else BRIGHT_RED
@@ -428,7 +437,7 @@ def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=Tru
 
     f_pct = load_headline_font(130)
     pct_y = region[3] + 40
-    pct_text = pct_str(v)
+    pct_text = f"{v:,.1f}M" if value_fmt == "volume" else pct_str(v)
     centered_s(draw, pct_y, pct_text, f_pct, color)
     # Anton's glyph bbox top isn't flush with 0 (unlike most fonts) — use the actual
     # bbox bottom, not draw-y + th(), or the label below collides with the glyph tail.
@@ -1369,6 +1378,135 @@ def build_worst_performer_short(data, output, lang="en", share_dir=None):
         _embed_cover(output, cover)
 
 
+_HOOK_NARRATION_AVGVOL_EN = [
+    "Highest average trading volume in the S&P 500 and Nasdaq-100 over the past {window}.",
+    "These stocks traded the most shares per day, in the S&P 500 and Nasdaq-100, over the past {window}.",
+]
+
+_HOOK_NARRATION_AVGVOL_CN = [
+    "标普500和纳斯达克100中，过去{window}日均成交量最高的股票。",
+]
+
+
+def _narrate_ticker_lines_avgvol(rows, key, n=5):
+    lines = []
+    for i, row in enumerate(rows[:n]):
+        ticker = row.get("Ticker", "")
+        v = row.get(key) or 0
+        if i == 0:
+            lines.append(f"{ticker} leads, averaging {v:.1f} million shares a day.")
+        elif i == 1:
+            lines.append(f"{ticker} follows, averaging {v:.1f} million shares a day.")
+        elif i == n - 1:
+            lines.append(f"And finally {ticker}, averaging {v:.1f} million shares a day.")
+        else:
+            lines.append(f"{ticker} averages {v:.1f} million shares a day.")
+    return lines
+
+
+def _narrate_ticker_lines_avgvol_cn(rows, key, n=5):
+    lines = []
+    for i, row in enumerate(rows[:n]):
+        ticker = row.get("Ticker", "")
+        v = row.get(key) or 0
+        if i == 0:
+            lines.append(f"{ticker}领先，日均成交量{v:.1f}百万股。")
+        elif i == 1:
+            lines.append(f"{ticker}紧随其后，日均成交量{v:.1f}百万股。")
+        elif i == n - 1:
+            lines.append(f"最后是{ticker}，日均成交量{v:.1f}百万股。")
+        else:
+            lines.append(f"{ticker}日均成交量{v:.1f}百万股。")
+    return lines
+
+
+def build_avg_volume_short(data, output, lang="en", share_dir=None):
+    """Sunday -- highest AVERAGE daily volume over the same 3M/6M/9M/1Y rotation as
+    Tuesday/Wednesday/Thursday/Saturday (_tuesday_tf, see
+    project-category-video-rotation-unified). Unlike every other ranking category,
+    this one isn't a +/- percent off data/latest.json -- it's a raw share count
+    computed directly from data/candles.json's daily volume column (same source
+    Thursday's real-volume-record detection already reads from, not a
+    latest.json-derived proxy), averaged over the window. scene_stock_card's new
+    value_fmt="volume" mode displays it as "N.NM" in neutral electric-blue instead
+    of pct_str()'s green/red +/- framing, since there's no "good/bad" direction
+    for a raw liquidity number."""
+    date = data["date"]
+    date_obj = datetime.date.fromisoformat(date)
+    tf = _tuesday_tf(date)
+    window_days = tf["spark_days"]  # None for 1Y = use the full candles.json history
+    window_en, window_cn = tf["window_en"], tf["window_cn"]
+
+    candles = _load_candles().get("data", {})
+    seen, candidates = set(), []
+    for r in data["data"]:
+        t = r.get("Ticker", "")
+        if t in seen:
+            continue
+        seen.add(t)
+        bars = candles.get(t) or []
+        window = bars[-window_days:] if window_days else bars
+        if len(window) < 2:
+            continue
+        vols = [b[4] for b in window]
+        r["_avgVolM"] = round(sum(vols) / len(vols) / 1_000_000, 2)
+        candidates.append(r)
+    candidates.sort(key=lambda r: r["_avgVolM"], reverse=True)
+    rows = candidates[:3]
+    key = "_avgVolM"
+
+    sub_en, sub_cn = f"AVG DAILY VOLUME  ·  {window_en.upper()}", f"日均成交量 · {window_cn}"
+    share_caption = (f"Highest average daily volume over the past {window_en}" if lang == "en"
+                      else f"过去{window_cn}日均成交量最高")
+    share_criteria = (f"Screened from the S&P 500 + Nasdaq-100 for the highest average daily trading volume "
+                       f"over the past {window_en}." if lang == "en" else
+                       f"从标普500和纳斯达克100成分股中，筛选出过去{window_cn}日均成交量最高的个股。")
+
+    # Durations = actually measured edge-tts speech time (SHORTS_TTS_RATE, worst-case
+    # window "twelve months"/"十二个月", value "145.6 million"/"145.6百万") + buffer.
+    if lang == "cn":
+        ticker_lines = _narrate_ticker_lines_avgvol_cn(rows, key, n=3)
+        ticker_durs = [3.8, 4.35, 4.2]
+        hook_dur = 4.8
+        hook_text = random.choice(_HOOK_NARRATION_AVGVOL_CN).format(window=window_cn)
+        tts_voice = SHORTS_TTS_VOICE_CN
+    else:
+        ticker_lines = _narrate_ticker_lines_avgvol(rows, key, n=3)
+        ticker_durs = [4.3, 4.4, 4.4]
+        hook_dur = 6.2
+        hook_text = random.choice(_HOOK_NARRATION_AVGVOL_EN).format(window=window_en)
+        tts_voice = "en-US-ChristopherNeural"
+
+    frames = [
+        (scene_hook_generic(date, lang, [f"HIGHEST {tf['label_en'].upper()}", "AVG VOLUME"],
+                            [tf["label_cn"], "日均成交量最高"],
+                            "S&P 500  ·  Nasdaq-100", "标普500 · 纳斯达克100", bg_style="bars"),
+         hook_dur, None, hook_text),
+    ]
+    for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn, value_fmt="volume")
+        frames.append((card, dur, None, line))
+        if share_dir:
+            light_card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn, value_fmt="volume", theme="light")
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "avg_volume", i + 1,
+                              criteria=share_criteria)
+
+    ad_entries = build_ad_reel(lang=lang)
+    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
+    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
+    first = ad_entries[0]
+    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
+    last = ad_entries[-1]
+    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
+    frames += ad_entries
+    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
+    encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
+
+    cover = cover_path_for("avg_volume" + ("_cn" if lang == "cn" else ""), date_obj)
+    if cover:
+        _embed_cover(output, cover)
+
+
 _HOOK_NARRATION_PRICE_JUMP_EN = [
     "Today's biggest single-day price jumps in the S&P 500 and Nasdaq-100.",
     "These large-cap stocks are today's top single-day price movers.",
@@ -1821,6 +1959,7 @@ BUILDERS = {
     "1y_vol_peak": build_1y_vol_peak_short,
     "index_spotlight": build_index_spotlight_short,
     "worst_performer": build_worst_performer_short,
+    "avg_volume": build_avg_volume_short,
 }
 
 
