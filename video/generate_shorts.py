@@ -49,6 +49,10 @@ _WEEKDAY_BY_TYPE = {
     "6m_breakout": "Wednesday",
     "1y_vol_peak": "Thursday",
     "index_spotlight": "Friday",
+    # No dedicated Saturday cover art yet -- reuses Tuesday's real designs as a
+    # placeholder (same pattern this dict itself used to follow before each
+    # weekday got its own set). Swap to "Saturday" once real art exists.
+    "worst_performer": "Tuesday",
 }
 
 
@@ -834,14 +838,14 @@ def build_ad_reel(lang="en"):
 
 
 _HOOK_NARRATION_EN = [
-    "Today's stock market is showing some major volume spikes.",
-    "The stock market just saw some serious volume spikes today.",
-    "Big volume can mean big news — here's what's moving today.",
+    "Today's stock market is showing some major volume spikes, in the S&P 500 and Nasdaq-100.",
+    "The stock market just saw some serious volume spikes today, in the S&P 500 and Nasdaq-100.",
+    "Big volume can mean big news — here's what's moving today in the S&P 500 and Nasdaq-100.",
 ]
 
 _HOOK_NARRATION_CN = [
-    "今天美股市场出现了几只成交量异动股票。",
-    "美股今天出现了几只成交量大幅异动的股票。",
+    "今天标普500和纳斯达克100中，出现了几只成交量异动股票。",
+    "标普500和纳斯达克100今天出现了几只成交量大幅异动的股票。",
 ]
 
 
@@ -885,12 +889,12 @@ def _narrate_ticker_lines_cn(rows, n=5, key="_volMa21Pct"):
 
 
 _HOOK_NARRATION_BEST_EN = [
-    "Best performers over the past {window}.",
-    "These stocks led the market over the past {window}.",
+    "Best performers in the S&P 500 and Nasdaq-100 over the past {window}.",
+    "These stocks led the S&P 500 and Nasdaq-100 over the past {window}.",
 ]
 
 _HOOK_NARRATION_BEST_CN = [
-    "过去{window}表现最佳的股票。",
+    "标普500和纳斯达克100中，过去{window}表现最佳的股票。",
 ]
 
 
@@ -929,14 +933,59 @@ def _narrate_ticker_lines_best_cn(rows, key, n=5):
     return lines
 
 
+_HOOK_NARRATION_WORST_EN = [
+    "Biggest decliners in the S&P 500 and Nasdaq-100 over the past {window}.",
+    "These stocks lagged the S&P 500 and Nasdaq-100 over the past {window}.",
+]
+
+_HOOK_NARRATION_WORST_CN = [
+    "标普500和纳斯达克100中，过去{window}表现最差的股票。",
+]
+
+
+def _narrate_ticker_lines_worst(rows, key, n=5):
+    """Mirrors _narrate_ticker_lines_best exactly, just "down" instead of "up" --
+    same reasoning applies (declines are naturally capped near -100%, so no
+    hundreds-of-percent overflow risk the way best-performer's gains have)."""
+    lines = []
+    for i, row in enumerate(rows[:n]):
+        ticker = row.get("Ticker", "")
+        v = abs(row.get(key) or 0)
+        if i == 0:
+            lines.append(f"{ticker} leads the decline, down {v:.0f} percent.")
+        elif i == 1:
+            lines.append(f"{ticker} follows, down {v:.0f} percent.")
+        elif i == n - 1:
+            lines.append(f"And finally {ticker}, down {v:.0f} percent.")
+        else:
+            lines.append(f"{ticker} is down {v:.0f} percent.")
+    return lines
+
+
+def _narrate_ticker_lines_worst_cn(rows, key, n=5):
+    lines = []
+    for i, row in enumerate(rows[:n]):
+        ticker = row.get("Ticker", "")
+        v = abs(row.get(key) or 0)
+        if i == 0:
+            lines.append(f"{ticker}领跌，下跌{v:.0f}%。")
+        elif i == 1:
+            lines.append(f"{ticker}紧随其后，下跌{v:.0f}%。")
+        elif i == n - 1:
+            lines.append(f"最后是{ticker}，下跌{v:.0f}%。")
+        else:
+            lines.append(f"{ticker}下跌{v:.0f}%。")
+    return lines
+
+
 _HOOK_NARRATION_PULLBACK_EN = [
-    "These stocks pulled back at least {min_drawdown} percent, then broke out to a new {window} high within the past week.",
-    "A real pullback, then a new {window} high, first crossed within the past week.",
+    "These S&P 500 and Nasdaq-100 stocks pulled back at least {min_drawdown} percent, then broke out to a new {window} high within the past week.",
+    "A real pullback, then a new {window} high, first crossed within the past week — in the S&P 500 and Nasdaq-100.",
 ]
 
 _HOOK_NARRATION_PULLBACK_CN = [
-    "这些股票回调至少{min_drawdown}%，随后在过去一周内首次突破{window}新高。",
-    "先经历真实回调，再于一周内首次创下{window}新高，这就是今天的主角。",
+    "这些标普500和纳斯达克100成分股回调至少{min_drawdown}%，随后在过去一周内首次突破{window}新高。",
+    "先经历真实回调，再于一周内首次创下{window}新高——这就是标普500和纳斯达克100今天的主角。",
 ]
 
 
@@ -982,13 +1031,13 @@ def _narrate_ticker_lines_pullback_cn(rows, label_cn, n=3):
 
 
 _HOOK_NARRATION_VOL_PEAK_EN = [
-    "Here's the {window} volume record from the last 3 days.",
-    "A record volume day often means something big is happening — the {window} record from the last 3 days.",
+    "Here's the {window} volume record from the last 3 days, in the S&P 500 and Nasdaq-100.",
+    "A record volume day often means something big is happening — the {window} record from the last 3 days, in the S&P 500 and Nasdaq-100.",
 ]
 
 _HOOK_NARRATION_VOL_PEAK_CN = [
-    "这些股票在最近三个交易日内，创下了{window}成交量新纪录。",
-    "成交量创新高往往意味着有大事发生——这是最近三个交易日内的{window}成交量纪录。",
+    "这些标普500和纳斯达克100成分股，在最近三个交易日内，创下了{window}成交量新纪录。",
+    "成交量创新高往往意味着有大事发生——这是标普500和纳斯达克100最近三个交易日内的{window}成交量纪录。",
 ]
 
 
@@ -1084,12 +1133,14 @@ def build_volume_spikes_short(data, output, lang="en", share_dir=None):
     if lang == "cn":
         ticker_lines = _narrate_ticker_lines_cn(rows, n=3)
         ticker_durs = [2.8, 3.1, 3.5]
-        hook_dur, hook_text = 3.15, random.choice(_HOOK_NARRATION_CN)
+        # Re-measured after adding the "S&P 500 and Nasdaq-100" mention: 4.08s/4.32s, +buffer.
+        hook_dur, hook_text = 4.65, random.choice(_HOOK_NARRATION_CN)
         tts_voice = SHORTS_TTS_VOICE_CN
     else:
         ticker_lines = _narrate_ticker_lines(rows, n=3)
         ticker_durs = [3.2, 2.7, 3.8]
-        hook_dur, hook_text = 3.1, random.choice(_HOOK_NARRATION_EN)
+        # Re-measured after adding the "S&P 500 and Nasdaq-100" mention: 5.26s/5.50s/5.18s, +buffer.
+        hook_dur, hook_text = 5.8, random.choice(_HOOK_NARRATION_EN)
         tts_voice = "en-US-ChristopherNeural"
 
     frames = [
@@ -1166,13 +1217,13 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
     if lang == "cn":
         ticker_lines = _narrate_ticker_lines_best_cn(rows, key, n=3)
         ticker_durs = [3.05, 2.60, 3.40]
-        hook_dur = 2.55
+        hook_dur = 4.75  # re-measured after adding "S&P 500/Nasdaq-100" mention: 4.42s worst-case, +buffer
         hook_text = random.choice(_HOOK_NARRATION_BEST_CN).format(window=window_cn)
         tts_voice = SHORTS_TTS_VOICE_CN
     else:
         ticker_lines = _narrate_ticker_lines_best(rows, key, n=3)
         ticker_durs = [3.40, 2.65, 3.45]
-        hook_dur = 2.60
+        hook_dur = 4.65  # re-measured after adding "S&P 500/Nasdaq-100" mention: 4.34s worst-case, +buffer
         hook_text = random.choice(_HOOK_NARRATION_BEST_EN).format(window=window_en)
         tts_voice = "en-US-ChristopherNeural"
 
@@ -1206,6 +1257,76 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("best_performer" + ("_cn" if lang == "cn" else ""), date_obj)
+    if cover:
+        _embed_cover(output, cover)
+
+
+def build_worst_performer_short(data, output, lang="en", share_dir=None):
+    """Saturday -- mirrors build_best_performer_short exactly (same rotation
+    table/window via _tuesday_tf, same card layout), just sorted ascending
+    instead of descending. scene_stock_card already colors by sign (row value
+    negative -> red) so no card-layout change was needed, only the sort
+    direction, narration wording, and hook/caption/criteria text."""
+    date = data["date"]
+    date_obj = datetime.date.fromisoformat(date)
+    tf = _tuesday_tf(date)
+    key = tf["key"]
+    # Ascending (most negative first). Missing values sorted to the very end
+    # regardless of sign, unlike best_performer's `or -9999` trick which would
+    # incorrectly rank missing-data rows as "worst" under an ascending sort.
+    rows = sorted(data["data"], key=lambda r: r.get(key) if r.get(key) is not None else float("inf"))[:3]
+
+    window_en, window_cn = tf["window_en"], tf["window_cn"]
+    sub_en, sub_cn = f"OVER THE PAST {window_en.upper()}", f"过去{window_cn}表现"
+    share_caption = (f"Biggest decliner over the past {window_en}" if lang == "en"
+                      else f"过去{window_cn}表现最差个股")
+    share_criteria = (f"Screened from the S&P 500 + Nasdaq-100 for the largest price decline over the past {window_en}."
+                       if lang == "en" else f"从标普500和纳斯达克100成分股中，筛选出过去{window_cn}跌幅最大的个股。")
+
+    # Durations = actually measured edge-tts speech time (SHORTS_TTS_RATE, worst-case
+    # window strings "three months"/"twelve months") + ~0.3s buffer, per the
+    # measure-don't-guess rule. Ticker-line raw measurements: EN 2.74s/2.52s/2.66s;
+    # CN 2.71s/3.19s/3.19s. Hook lines re-measured after adding the "S&P 500 and
+    # Nasdaq-100" mention: EN worst-case 4.44s, CN worst-case 4.39s, both +buffer.
+    if lang == "cn":
+        ticker_lines = _narrate_ticker_lines_worst_cn(rows, key, n=3)
+        ticker_durs = [3.0, 3.5, 3.5]
+        hook_dur = 4.7
+        hook_text = random.choice(_HOOK_NARRATION_WORST_CN).format(window=window_cn)
+        tts_voice = SHORTS_TTS_VOICE_CN
+    else:
+        ticker_lines = _narrate_ticker_lines_worst(rows, key, n=3)
+        ticker_durs = [3.05, 2.85, 3.0]
+        hook_dur = 4.75
+        hook_text = random.choice(_HOOK_NARRATION_WORST_EN).format(window=window_en)
+        tts_voice = "en-US-ChristopherNeural"
+
+    frames = [
+        (scene_hook_generic(date, lang, [f"BIGGEST {tf['label_en'].upper()}", "DECLINERS"],
+                            [tf["label_cn"], "表现最差股票"],
+                            "S&P 500  ·  Nasdaq-100", "标普500 · 纳斯达克100", bg_style="bars"),
+         hook_dur, None, hook_text),
+    ]
+    for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn)
+        frames.append((card, dur, None, line))
+        if share_dir:
+            light_card = scene_stock_card(row, i + 1, lang, key, sub_en, sub_cn, theme="light")
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "worst_performer", i + 1,
+                              criteria=share_criteria)
+
+    ad_entries = build_ad_reel(lang=lang)
+    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
+    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
+    first = ad_entries[0]
+    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
+    last = ad_entries[-1]
+    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
+    frames += ad_entries
+    frames.append((scene_ad_short(date, lang=lang), 3.0, None, None))
+    encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
+
+    cover = cover_path_for("worst_performer" + ("_cn" if lang == "cn" else ""), date_obj)
     if cover:
         _embed_cover(output, cover)
 
@@ -1324,10 +1445,9 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
             if i == n - 1:
                 return 4.16
             return 3.97
-        # Re-measured after changing "两周" ("2 weeks") to "一周" ("1 week") — see
-        # lookback_days=5 above. edge-tts at SHORTS_TTS_RATE, worst-case window_cn
-        # ("十二个月"): 4.80s / 5.04s, +buffer.
-        hook_dur = 5.4
+        # Re-measured after adding the "标普500和纳斯达克100" mention — edge-tts at
+        # SHORTS_TTS_RATE, worst-case window_cn ("十二个月"), min_drawdown=10: 6.43s/6.43s, +buffer.
+        hook_dur = 6.75
         hook_text = random.choice(_HOOK_NARRATION_PULLBACK_CN).format(
             min_drawdown=tf["min_drawdown"], window=window_cn)
         tts_voice = SHORTS_TTS_VOICE_CN
@@ -1341,10 +1461,9 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
             if i == n - 1:
                 return 4.81
             return 3.99
-        # Re-measured after changing "two weeks" to "the past week" — see
-        # lookback_days=5 above. edge-tts at SHORTS_TTS_RATE, worst-case window_en
-        # ("twelve months"): 4.82s / 4.18s, +buffer.
-        hook_dur = 5.1
+        # Re-measured after adding the "S&P 500 and Nasdaq-100" mention — edge-tts at
+        # SHORTS_TTS_RATE, worst-case window_en ("twelve months"), min_drawdown=10: 6.72s/6.41s, +buffer.
+        hook_dur = 7.05
         hook_text = random.choice(_HOOK_NARRATION_PULLBACK_EN).format(
             min_drawdown=tf["min_drawdown"], window=window_en)
         tts_voice = "en-US-ChristopherNeural"
@@ -1478,12 +1597,12 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
 
     if lang == "cn":
         ticker_lines = _narrate_ticker_lines_vol_peak_cn(rows, vol_key)
-        hook_dur = 5.9   # budgeted for the longer of the two hook variants (measured 5.66s, "last 3 trading days" wording)
+        hook_dur = 7.45  # re-measured after adding "标普500和纳斯达克100" mention (worst-case "十二个月": 7.13s), +buffer
         hook_text = random.choice(_HOOK_NARRATION_VOL_PEAK_CN).format(window=window_cn)
         tts_voice = SHORTS_TTS_VOICE_CN
     else:
         ticker_lines = _narrate_ticker_lines_vol_peak(rows, vol_key)
-        hook_dur = 5.2   # budgeted for the longer of the two hook variants (measured 4.99s, "last 3 days" wording)
+        hook_dur = 7.55  # re-measured after adding "S&P 500 and Nasdaq-100" mention (worst-case "twelve months": 7.20s), +buffer
         hook_text = random.choice(_HOOK_NARRATION_VOL_PEAK_EN).format(window=window_en)
         tts_voice = "en-US-ChristopherNeural"
 
@@ -1649,6 +1768,7 @@ BUILDERS = {
     "6m_breakout": build_6m_breakout_short,
     "1y_vol_peak": build_1y_vol_peak_short,
     "index_spotlight": build_index_spotlight_short,
+    "worst_performer": build_worst_performer_short,
 }
 
 

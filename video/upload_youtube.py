@@ -34,6 +34,7 @@ _WEEKDAY_BY_TYPE = {
     "6m_breakout": "Wednesday",
     "1y_vol_peak": "Thursday",
     "index_spotlight": "Friday",
+    "worst_performer": "Tuesday",  # placeholder cover art, see generate_shorts.py's copy of this dict
 }
 
 
@@ -254,6 +255,23 @@ def make_meta(video_type, date):
             title,
             f"Top large-cap stocks by trailing {window} price appreciation, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
         )
+    if video_type == "worst_performer":
+        tf    = _tuesday_tf(date)
+        label = tf["label_en"]
+        window = tf["window_en"]
+        num, unit = label.split("-")
+        numeral_window = f"{num} {unit}" if num == "1" else f"{num} {unit}s"
+        title = random.choice([
+            f"Biggest {label} Decliners — {date}",
+            f"Worst Performing Stocks ({numeral_window}) — {date}",
+            f"Top Stock Losers Over {numeral_window} — {date}",
+            f"Worst {label} Performers — {date}",
+            f"Biggest Large-Cap Declines ({label} Returns) — {date}",
+        ])
+        return (
+            title,
+            f"Large-cap stocks with the biggest trailing {window} price declines, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+        )
     if video_type == "volume_spikes_cn":
         title = random.choice([
             f"今日成交量激增最多股票 — {date}",
@@ -280,6 +298,21 @@ def make_meta(video_type, date):
         return (
             title,
             f"截至{date}，S&P 500和纳斯达克100中过去{window_cn}涨幅最大的大盘股。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+        )
+    if video_type == "worst_performer_cn":
+        tf       = _tuesday_tf(date)
+        label_cn = tf["label_cn"]
+        window_cn = tf["window_cn"]
+        title = random.choice([
+            f"{label_cn}跌幅最大股票 — {date}",
+            f"表现最差股票（{window_cn}）— {date}",
+            f"过去{window_cn}跌幅最大股票 — {date}",
+            f"{label_cn}表现最差股票 — {date}",
+            f"最差大盘股（{label_cn}跌幅）— {date}",
+        ])
+        return (
+            title,
+            f"截至{date}，S&P 500和纳斯达克100中过去{window_cn}跌幅最大的大盘股。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "6m_breakout":
         wtf   = _wednesday_tf(date)

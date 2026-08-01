@@ -65,15 +65,22 @@ jobs:
             echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "0 20 * * 0,6" ]; then
-            # 4:00 PM ET weekends — Baizora Report news video only; no market scan
-            # needed (news content comes from data/market_news*.json, refreshed
-            # hourly every day by the separate news_refresh.py workflow)
+            # 4:00 PM ET weekends — Baizora Report news video always; category
+            # video only on Saturday (Worst Performer). No market scan needed
+            # (news content comes from data/market_news*.json, refreshed hourly
+            # every day by the separate news_refresh.py workflow; the category
+            # video reuses Friday's already-committed data/latest.json).
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
             echo "SKIP_SCAN=1"    >> $GITHUB_ENV
-            echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+            DOW=$(date +%u)   # 6=Sat 7=Sun
+            if [ "$DOW" = "6" ]; then
+              echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
+            else
+              echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            fi
           elif [ "$SCHEDULE" = "0 4 * * 2-6" ]; then
             # 11 PM ET weekdays — full EDGAR + market scan, no videos
             echo "FORCE_RUN=1"    >> $GITHUB_ENV
@@ -267,7 +274,7 @@ jobs:
       - name: Select daily video types
         if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True'
         run: |
-          DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri
+          DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat
           if [ "$DOW" = "1" ]; then
             echo "VIDEO_TYPES=volume_spikes volume_spikes_cn" >> $GITHUB_ENV
           elif [ "$DOW" = "2" ]; then
@@ -278,6 +285,8 @@ jobs:
             echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
           elif [ "$DOW" = "5" ]; then
             echo "VIDEO_TYPES=index_spotlight index_spotlight_cn" >> $GITHUB_ENV
+          elif [ "$DOW" = "6" ]; then
+            echo "VIDEO_TYPES=worst_performer worst_performer_cn" >> $GITHUB_ENV
           else
             echo "VIDEO_TYPES=" >> $GITHUB_ENV
           fi
@@ -305,20 +314,22 @@ jobs:
               if echo "$type" | grep -q "_cn$"; then
                 cp "video/${type}.mp4" data/latest_video_cn.mp4
                 case "$type" in
-                  volume_spikes_cn)   CN_NAME="异常成交量" ;;
-                  best_performer_cn)  CN_NAME="最佳涨幅股" ;;
-                  6m_breakout_cn)     CN_NAME="6个月突破" ;;
-                  1y_vol_peak_cn)     CN_NAME="年成交量峰值" ;;
-                  index_spotlight_cn) CN_NAME="指数聚焦" ;;
+                  volume_spikes_cn)    CN_NAME="异常成交量" ;;
+                  best_performer_cn)   CN_NAME="最佳涨幅股" ;;
+                  6m_breakout_cn)      CN_NAME="6个月突破" ;;
+                  1y_vol_peak_cn)      CN_NAME="年成交量峰值" ;;
+                  index_spotlight_cn)  CN_NAME="指数聚焦" ;;
+                  worst_performer_cn)  CN_NAME="最差跌幅股" ;;
                 esac
               else
                 cp "video/${type}.mp4" data/latest_video_en.mp4
                 case "$type" in
-                  volume_spikes)   EN_NAME="Unusual Volume Spikes" ;;
-                  best_performer)  EN_NAME="Top Price Movers" ;;
-                  6m_breakout)     EN_NAME="6-Month Breakout" ;;
-                  1y_vol_peak)     EN_NAME="1Y Volume Peak" ;;
-                  index_spotlight) EN_NAME="Index Spotlight" ;;
+                  volume_spikes)    EN_NAME="Unusual Volume Spikes" ;;
+                  best_performer)   EN_NAME="Top Price Movers" ;;
+                  6m_breakout)      EN_NAME="6-Month Breakout" ;;
+                  1y_vol_peak)      EN_NAME="1Y Volume Peak" ;;
+                  index_spotlight)  EN_NAME="Index Spotlight" ;;
+                  worst_performer)  EN_NAME="Worst Performers" ;;
                 esac
               fi
             fi
