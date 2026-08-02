@@ -745,7 +745,7 @@
 
     /* ── SHARE-CARD GALLERY ── */
     .share-gallery-section { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 0 40px 50px; }
-    .share-gallery-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 28px; }
+    .share-gallery-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; }
     .share-gallery-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
     .share-gallery-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); margin-bottom: 4px; letter-spacing: -0.01em; }
     .share-gallery-sub { font-size: 12px; color: #64748b; margin-bottom: 18px; }
@@ -759,7 +759,33 @@
     .share-card-date { font-family: 'DM Mono', monospace; font-size: 9px; color: #475569; }
     .share-card-dl { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); text-decoration: none; cursor: pointer; background: none; border: none; padding: 0; }
     .share-card-dl:hover { opacity: 0.75; }
-    .share-gallery-note { font-size: 11px; color: #475569; margin-top: 14px; }
+    .share-gallery-note { font-size: 11px; color: #475569; margin-top: auto; padding-top: 14px; }
+
+    /* ── HOMEPAGE GALLERY + FAQ ── */
+    .gallery-faq-section { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 0 40px 50px; }
+    .gallery-faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
+    .faq-mini-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; text-align: left; }
+    .faq-mini-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
+    .faq-mini-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); margin-bottom: 4px; letter-spacing: -0.01em; }
+    .faq-mini-sub { font-size: 12px; color: #64748b; margin-bottom: 10px; }
+    .faq-mini-list { flex: 1; }
+    .faq-mini-list .faq-item { border-top: 1px solid var(--border); overflow: hidden; }
+    .faq-mini-list .faq-item:last-child { border-bottom: 1px solid var(--border); }
+    .faq-mini-list .faq-q { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 13px 0; cursor: pointer; user-select: none; }
+    .faq-mini-list .faq-q:hover .q-text { color: var(--white); }
+    .faq-mini-list .q-text { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: #cbd5e1; line-height: 1.4; transition: color 0.2s; }
+    .faq-mini-list .faq-item.open .q-text { color: var(--white); }
+    .faq-mini-list .q-icon { flex-shrink: 0; width: 18px; height: 18px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.25s; color: var(--muted); font-size: 12px; line-height: 1; }
+    .faq-mini-list .faq-item.open .q-icon { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: var(--electric-bright); transform: rotate(45deg); }
+    .faq-mini-list .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .faq-mini-list .faq-item.open .faq-a { max-height: 420px; }
+    .faq-mini-list .faq-a-inner { padding-bottom: 14px; font-size: 12.5px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+    .faq-mini-list .faq-a-inner a { color: var(--electric-bright); text-decoration: none; }
+    .faq-mini-list .faq-a-inner a:hover { text-decoration: underline; }
+    .faq-mini-footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .mini-bullet-list { display: flex; flex-direction: column; gap: 7px; }
+    .mini-bullet { display: flex; align-items: baseline; gap: 8px; }
+    .mini-bullet::before { content: '◆'; color: var(--electric-bright); font-size: 6px; flex-shrink: 0; }
 
     /* ── CTA MINI ── */
     .cta-mini { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
@@ -821,6 +847,7 @@
       .cards { grid-template-columns: 1fr; }
 
       .cta-two-panel { grid-template-columns: 1fr; }
+      .gallery-faq-grid { grid-template-columns: 1fr; }
       .cta-box { padding: 40px 24px; }
       .bottom-cta { padding: 20px 20px 60px; }
 
@@ -1372,21 +1399,100 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 </section>
 
-<section class="share-gallery-section">
-  <div class="share-gallery-panel">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-      <div>
-        <div class="share-gallery-eyebrow">◈ &nbsp; Chart Highlights</div>
-        <div class="share-gallery-heading">Today's Featured Charts — Free to Download</div>
-        <div class="share-gallery-sub">From this week's daily videos · sign in to download for social media, presentations, or your own notes</div>
+<section class="gallery-faq-section">
+  <div class="gallery-faq-grid">
+
+    <div class="share-gallery-panel">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div class="share-gallery-eyebrow">◈ &nbsp; Chart Highlights</div>
+          <div class="share-gallery-heading">Today's Featured Charts — Free to Download</div>
+          <div class="share-gallery-sub">From today's video · updates daily around 6 PM ET · sign in to download for social media, presentations, or your own notes</div>
+        </div>
+        <a href="chart_archive.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive.html', 'Chart Archive')">
+          View all
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
       </div>
-      <a href="chart_archive.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive.html', 'Chart Archive')">
-        View all
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
+      <div class="share-gallery-row" id="shareGalleryRow"><div class="digest-msg">Loading…</div></div>
+      <div class="share-gallery-note">Free to use and share — please keep the Baizora watermark intact.</div>
     </div>
-    <div class="share-gallery-row" id="shareGalleryRow"><div class="digest-msg">Loading…</div></div>
-    <div class="share-gallery-note">Free to use and share — please keep the Baizora watermark intact.</div>
+
+    <div class="faq-mini-panel">
+      <div class="faq-mini-eyebrow">◈ &nbsp; Help Center</div>
+      <div class="faq-mini-heading">Quick Answers</div>
+      <div class="faq-mini-sub">Common questions — click to expand</div>
+      <div class="faq-mini-list">
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">Why Baizora?</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <div class="mini-bullet-list">
+              <div class="mini-bullet"><span><strong>Focused, not overwhelming:</strong> S&amp;P 500 &amp; Nasdaq-100 stocks well represent the broader market, not thousands of tickers to sift through.</span></div>
+              <div class="mini-bullet"><span><strong>All timeframes at once:</strong> 1D to 1Y in one row, no chart-switching.</span></div>
+              <div class="mini-bullet"><span><strong>Data, not opinions:</strong> objective statistics, no buy/sell calls, no ads.</span></div>
+              <div class="mini-bullet"><span><strong>Instant scanning:</strong> the whole index in seconds, with easy sorting on any metric.</span></div>
+              <div class="mini-bullet"><span><strong>Unique Baizora Score:</strong> combines five signals into one filter.</span></div>
+              <div class="mini-bullet"><span><strong>Visual patterns:</strong> 1-year sparklines flag the biggest price &amp; volume days.</span></div>
+              <div class="mini-bullet"><span><strong>Reliable fundamentals:</strong> sourced directly from SEC filings.</span></div>
+              <div class="mini-bullet"><span><strong>Index news tracked:</strong> daily S&amp;P 500 &amp; Nasdaq-100 membership changes.</span></div>
+              <div class="mini-bullet"><span><strong>Free to try:</strong> explore the whole universe with our <a href="baizora_main_form_freetier.html">Free Tier</a>, no login required.</span></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">How does the Free Tier work?</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">No login needed — access all 500+ S&amp;P 500 and Nasdaq-100 stocks free, with data delayed by 2 weeks.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">How does the 7-day free trial work?</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">New subscribers get 7 full days of unrestricted access before any charge. Cancel anytime during the trial at no cost. Payments are handled by <strong>Stripe</strong> — we never see or store your card details.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">How often is the data updated?</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">The scanner runs after US market close on weekdays, typically updating between 6–7 PM ET.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">What stocks does Baizora cover?</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">All current S&amp;P 500 and Nasdaq-100 constituents.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">Is Baizora a financial advisor?</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">No. Baizora surfaces structured data and statistical signals only — not investment, trading, or financial advice.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">How do I contact support?</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">We look forward to hearing from you. Email <a href="mailto:support@baizora.com">support@baizora.com</a> and we'll respond as soon as possible, typically the same day. Or click <strong>Ask</strong> in the bottom-right corner for our AI assistant, available 24/7.</div></div>
+        </div>
+      </div>
+      <div class="faq-mini-footer">
+        <a href="assets/faq.html" class="hp-news-viewall">
+          View full FAQ
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1550,6 +1656,13 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   async function doLogout() {
     await firebase.auth().signOut();
     window.location.href = 'index.html';
+  }
+
+  function toggleFaqMini(qEl) {
+    const item = qEl.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    item.closest('.faq-mini-list').querySelectorAll('.faq-item.open').forEach(el => { if (el !== item) el.classList.remove('open'); });
+    item.classList.toggle('open', !isOpen);
   }
 
   async function hpViewAll(e, target, label) {
@@ -2073,7 +2186,9 @@ function closeChartLightbox() {
 fetch('data/latest_social_cards_meta.json').then(r => r.json()).then(cards => {
   const row = document.getElementById('shareGalleryRow');
   if (!row) return;
-  const mine = (cards || []).filter(c => c.lang === 'en').slice(0, 7);
+  const enCards = (cards || []).filter(c => c.lang === 'en');
+  const latestDate = enCards.length ? enCards[0].date : null;
+  const mine = enCards.filter(c => c.date === latestDate);
   if (!mine.length) { row.innerHTML = '<div class="digest-msg">No charts yet — check back after today\'s video.</div>'; return; }
   row.innerHTML = mine.map(c => {
     const cap = (c.caption || '').replace(/</g, '&lt;');

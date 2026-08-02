@@ -693,7 +693,7 @@
 
     /* ── SHARE-CARD GALLERY ── */
     .share-gallery-section { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 0 40px 50px; }
-    .share-gallery-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 28px; }
+    .share-gallery-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; }
     .share-gallery-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
     .share-gallery-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); margin-bottom: 4px; letter-spacing: -0.01em; }
     .share-gallery-sub { font-size: 12px; color: #64748b; margin-bottom: 18px; }
@@ -707,7 +707,33 @@
     .share-card-date { font-family: 'DM Mono', monospace; font-size: 9px; color: #475569; }
     .share-card-dl { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); text-decoration: none; cursor: pointer; background: none; border: none; padding: 0; }
     .share-card-dl:hover { opacity: 0.75; }
-    .share-gallery-note { font-size: 11px; color: #475569; margin-top: 14px; }
+    .share-gallery-note { font-size: 11px; color: #475569; margin-top: auto; padding-top: 14px; }
+
+    /* ── HOMEPAGE GALLERY + FAQ ── */
+    .gallery-faq-section { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 0 40px 50px; }
+    .gallery-faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
+    .faq-mini-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; text-align: left; }
+    .faq-mini-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
+    .faq-mini-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); margin-bottom: 4px; letter-spacing: -0.01em; }
+    .faq-mini-sub { font-size: 12px; color: #64748b; margin-bottom: 10px; }
+    .faq-mini-list { flex: 1; }
+    .faq-mini-list .faq-item { border-top: 1px solid var(--border); overflow: hidden; }
+    .faq-mini-list .faq-item:last-child { border-bottom: 1px solid var(--border); }
+    .faq-mini-list .faq-q { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 13px 0; cursor: pointer; user-select: none; }
+    .faq-mini-list .faq-q:hover .q-text { color: var(--white); }
+    .faq-mini-list .q-text { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: #cbd5e1; line-height: 1.4; transition: color 0.2s; }
+    .faq-mini-list .faq-item.open .q-text { color: var(--white); }
+    .faq-mini-list .q-icon { flex-shrink: 0; width: 18px; height: 18px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.25s; color: var(--muted); font-size: 12px; line-height: 1; }
+    .faq-mini-list .faq-item.open .q-icon { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: var(--electric-bright); transform: rotate(45deg); }
+    .faq-mini-list .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .faq-mini-list .faq-item.open .faq-a { max-height: 460px; }
+    .faq-mini-list .faq-a-inner { padding-bottom: 14px; font-size: 12.5px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+    .faq-mini-list .faq-a-inner a { color: var(--electric-bright); text-decoration: none; }
+    .faq-mini-list .faq-a-inner a:hover { text-decoration: underline; }
+    .faq-mini-footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .mini-bullet-list { display: flex; flex-direction: column; gap: 7px; }
+    .mini-bullet { display: flex; align-items: baseline; gap: 8px; }
+    .mini-bullet::before { content: '◆'; color: var(--electric-bright); font-size: 6px; flex-shrink: 0; }
 
     /* ── CTA MINI ── */
     .cta-mini { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
@@ -770,6 +796,7 @@
       .cards { grid-template-columns: 1fr; }
 
       .cta-two-panel { grid-template-columns: 1fr; }
+      .gallery-faq-grid { grid-template-columns: 1fr; }
       .cta-box { padding: 40px 24px; }
       .bottom-cta { padding: 20px 20px 60px; }
 
@@ -1327,21 +1354,100 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 </section>
 
-<section class="share-gallery-section">
-  <div class="share-gallery-panel">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-      <div>
-        <div class="share-gallery-eyebrow">◈ &nbsp; 图表精选</div>
-        <div class="share-gallery-heading">今日精选图表 — 免费下载</div>
-        <div class="share-gallery-sub">来自本周每日视频 · 登录后即可下载，用于社交媒体分享、演示或个人笔记</div>
+<section class="gallery-faq-section">
+  <div class="gallery-faq-grid">
+
+    <div class="share-gallery-panel">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div class="share-gallery-eyebrow">◈ &nbsp; 图表精选</div>
+          <div class="share-gallery-heading">今日精选图表 — 免费下载</div>
+          <div class="share-gallery-sub">来自今日视频 · 每日约美东时间下午6点更新 · 登录后即可下载，用于社交媒体分享、演示或个人笔记</div>
+        </div>
+        <a href="chart_archive_cn.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive_cn.html', '图表存档为订阅用户专享内容。')">
+          查看全部
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
       </div>
-      <a href="chart_archive_cn.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive_cn.html', '图表存档为订阅用户专享内容。')">
-        查看全部
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
+      <div class="share-gallery-row" id="shareGalleryRow"><div class="digest-msg">加载中…</div></div>
+      <div class="share-gallery-note">欢迎免费使用与分享 — 请保留图片中的贝佐拉（Baizora）水印。</div>
     </div>
-    <div class="share-gallery-row" id="shareGalleryRow"><div class="digest-msg">加载中…</div></div>
-    <div class="share-gallery-note">欢迎免费使用与分享 — 请保留图片中的贝佐拉（Baizora）水印。</div>
+
+    <div class="faq-mini-panel">
+      <div class="faq-mini-eyebrow">◈ &nbsp; 帮助中心</div>
+      <div class="faq-mini-heading">快速解答</div>
+      <div class="faq-mini-sub">常见问题 — 点击展开</div>
+      <div class="faq-mini-list">
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">为什么选择贝佐拉？</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">
+            <div class="mini-bullet-list">
+              <div class="mini-bullet"><span><strong>聚焦，不繁杂：</strong>标普500与纳斯达克100成分股足以代表整体市场，无需在成千上万只股票中大海捞针。</span></div>
+              <div class="mini-bullet"><span><strong>全周期一览：</strong>1天至1年数据同屏呈现，无需切换图表。</span></div>
+              <div class="mini-bullet"><span><strong>数据，而非观点：</strong>客观统计数据，没有买卖建议，没有广告。</span></div>
+              <div class="mini-bullet"><span><strong>秒级扫描：</strong>整个指数秒级扫描完成，还可按任意指标轻松排序。</span></div>
+              <div class="mini-bullet"><span><strong>独家贝佐拉评分：</strong>将五大信号汇聚为一。</span></div>
+              <div class="mini-bullet"><span><strong>视觉化异动标记：</strong>一年走势图标记最大价格与成交量变动日。</span></div>
+              <div class="mini-bullet"><span><strong>基本面数据可靠：</strong>直接来源于SEC备案资料。</span></div>
+              <div class="mini-bullet"><span><strong>成分股变动追踪：</strong>每日追踪标普500与纳斯达克100成分股变动资讯。</span></div>
+              <div class="mini-bullet"><span><strong>免费体验：</strong>通过<a href="baizora_main_form_freetier_cn.html">免费版</a>探索全部股票数据，无需登录。</span></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">免费版是如何运作的？</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">无需登录即可免费访问全部500+支标普500与纳斯达克100成分股，数据延迟2周。</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">7天免费试用是如何运作的？</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">首次订阅即可获得7天完整、无限制的访问权限。试用期内随时可取消，不产生任何费用。支付由 <strong>Stripe</strong> 处理，我们不会接触或保存您的银行卡信息。</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">数据多久更新一次？</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">扫描器在每个工作日美股收盘后运行，通常在美东时间下午6–7点之间完成更新。</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">Baizora 覆盖哪些股票？</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">标普500与纳斯达克100的所有当前成分股。</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">Baizora 是投资顾问吗？</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">不是。Baizora 仅提供结构化数据与统计信号，不构成投资、交易或金融建议。</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">如何联系客服？</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">期待您的来信。发送邮件至 <a href="mailto:support@baizora.com">support@baizora.com</a>，我们会尽快回复，通常当天即可收到回复。您也可以点击右下角的「问」按钮，联系我们的AI助手，全天候在线。</div></div>
+        </div>
+      </div>
+      <div class="faq-mini-footer">
+        <a href="assets/faq_cn.html" class="hp-news-viewall">
+          查看完整常见问题
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1518,6 +1624,13 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   async function doLogout() {
     await firebase.auth().signOut();
     window.location.href = 'index_cn.html';
+  }
+
+  function toggleFaqMini(qEl) {
+    const item = qEl.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    item.closest('.faq-mini-list').querySelectorAll('.faq-item.open').forEach(el => { if (el !== item) el.classList.remove('open'); });
+    item.classList.toggle('open', !isOpen);
   }
 
   async function hpViewAll(e, target, message) {
@@ -1940,7 +2053,9 @@ function closeChartLightbox() {
 fetch('data/latest_social_cards_meta.json').then(r => r.json()).then(cards => {
   const row = document.getElementById('shareGalleryRow');
   if (!row) return;
-  const mine = (cards || []).filter(c => c.lang === 'cn').slice(0, 7);
+  const cnCards = (cards || []).filter(c => c.lang === 'cn');
+  const latestDate = cnCards.length ? cnCards[0].date : null;
+  const mine = cnCards.filter(c => c.date === latestDate);
   if (!mine.length) { row.innerHTML = '<div class="digest-msg">暂无图表 — 请在今日视频发布后查看。</div>'; return; }
   row.innerHTML = mine.map(c => {
     const cap = (c.caption || '').replace(/</g, '&lt;');
