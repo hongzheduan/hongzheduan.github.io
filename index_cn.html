@@ -1087,7 +1087,7 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  输入优惠码FRIEND20，所有方案立减20%<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">新订阅用户前七天免费<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span id="ann-status">分析更新至：<span id="ann-date">…</span></span><span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span class="ann-note">8月3日至4日网站维护，数据可能暂时不稳定</span>
+  输入优惠码FRIEND20，所有方案立减20%<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">新订阅用户前七天免费<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span id="ann-status">全部数据更新至：<span id="ann-date">…</span></span><span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span class="ann-note">8月3日至4日网站维护，数据可能暂时不稳定</span>
 </div>
 <script>
 fetch('data/latest.json').then(r=>r.json()).then(d=>{
@@ -1101,9 +1101,9 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   const afterOpen=(et.getHours()*60+et.getMinutes())>=570;
   const dim='opacity:0.65';
   if(isTradingDay&&afterOpen&&d.date!==todayStr){
-    el.innerHTML='分析更新至：'+fmt(d.date)+'<span style="'+dim+'">（今日完整数据下午6–7时更新）</span>';
+    el.innerHTML='全部数据更新至：'+fmt(d.date)+'<span style="'+dim+'">（今日完整数据下午6–7时更新）</span>';
   } else {
-    el.textContent='分析更新至：'+fmt(d.date);
+    el.textContent='全部数据更新至：'+fmt(d.date);
   }
 }).catch(()=>{});
 </script>
@@ -1413,10 +1413,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaqMini(this)">
-            <span class="q-text">数据多久更新一次？</span>
+            <span class="q-text">今日数据什么时候更新？</span>
             <span class="q-icon">+</span>
           </div>
-          <div class="faq-a"><div class="faq-a-inner">扫描器在每个工作日美股收盘后运行，通常在美东时间下午6–7点之间完成更新。</div></div>
+          <div class="faq-a"><div class="faq-a-inner">个人主页数据于美股收盘后更新，工作日通常在美东时间下午6点至7点之间完成。市场新闻每小时更新一次。每日新闻视频约在美东时间下午2:30更新，图表精选每日约美东时间下午6点更新，周末同样更新。</div></div>
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaqMini(this)">

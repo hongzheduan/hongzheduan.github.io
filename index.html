@@ -1134,7 +1134,7 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  20% off all plans with code FRIEND20<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">First 7 days free for new subscribers<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span id="ann-status">Analysis updated: <span id="ann-date">…</span></span><span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span class="ann-note">Website maintenance Aug 3–4 — figures may be briefly unstable</span>
+  20% off all plans with code FRIEND20<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">First 7 days free for new subscribers<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span id="ann-status">All data updated: <span id="ann-date">…</span></span><span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span class="ann-note">Website maintenance Aug 3–4 — figures may be briefly unstable</span>
 </div>
 <script>
 fetch('data/latest.json').then(r=>r.json()).then(d=>{
@@ -1149,9 +1149,9 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   const afterOpen=(et.getHours()*60+et.getMinutes())>=570;
   const dim='opacity:0.65';
   if(isTradingDay&&afterOpen&&d.date!==todayStr){
-    el.innerHTML='Analysis updated: '+fmt(d.date)+'<span style="'+dim+'"> (current session updates 6–7 PM ET)</span>';
+    el.innerHTML='All data updated: '+fmt(d.date)+'<span style="'+dim+'"> (current session updates 6–7 PM ET)</span>';
   } else {
-    el.textContent='Analysis updated: '+fmt(d.date);
+    el.textContent='All data updated: '+fmt(d.date);
   }
 }).catch(()=>{});
 </script>
@@ -1458,10 +1458,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaqMini(this)">
-            <span class="q-text">How often is the data updated?</span>
+            <span class="q-text">When does today's data update?</span>
             <span class="q-icon">+</span>
           </div>
-          <div class="faq-a"><div class="faq-a-inner">The scanner runs after US market close on weekdays, typically updating between 6–7 PM ET.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Dashboard data updates after US market close, typically 6–7 PM ET on weekdays. Market news updates hourly. The daily news video lands around 2:30 PM ET, and chart highlights update around 6 PM ET, every day including weekends.</div></div>
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaqMini(this)">
