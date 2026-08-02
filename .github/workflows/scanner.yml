@@ -12,8 +12,11 @@ on:
     - cron: "30 22 * * 1-5"   # 6:30 PM ET weekdays  — final data
     - cron: "0 4 * * 2-6"    # 11 PM ET weekdays — full EDGAR + market scan, no videos
     - cron: "0 5 * * 0,6"    # midnight ET weekends — EDGAR refresh only
-    - cron: "0 20 * * 0,6"   # 4:00 PM ET weekends — category video only, no market scan (news report
-                               # video moved to the dedicated 1:00 PM ET slot above)
+    - cron: "0 14 * * 0,6"   # 10:00 AM ET weekends — category video only, no market scan (news report
+                               # video moved to the dedicated 1:00 PM ET slot above); moved earlier from
+                               # 4:00 PM ET 2026-08-02 so weekend viewers have the whole day to watch
+                               # (nominal 10 AM ET — actual fire is typically ~70-90 min late per the
+                               # GH Actions delay pattern noted above, so real landing is closer to ~11:30 AM ET)
   workflow_dispatch:
     inputs:
       run_videos:
@@ -89,8 +92,8 @@ jobs:
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
-          elif [ "$SCHEDULE" = "0 20 * * 0,6" ]; then
-            # 4:00 PM ET weekends — category video only (Saturday: Worst Performer,
+          elif [ "$SCHEDULE" = "0 14 * * 0,6" ]; then
+            # 10:00 AM ET weekends — category video only (Saturday: Worst Performer,
             # Sunday: Highest Average Volume). No market scan needed (reuses Friday's
             # already-committed data/latest.json + data/candles.json). News report
             # video moved to the dedicated 1:00 PM ET slot above.
@@ -165,7 +168,7 @@ jobs:
           if [ "${{ env.OHLCV_SOURCE_SWITCH }}" = "yfinance" ] \
              && [ "$SCHEDULE" != "30 20 * * 1-5" ] \
              && [ "$SCHEDULE" != "0 5 * * 0,6" ] \
-             && [ "$SCHEDULE" != "0 20 * * 0,6" ] \
+             && [ "$SCHEDULE" != "0 14 * * 0,6" ] \
              && [ "$EVENT" != "workflow_dispatch" ]; then
             echo "RUN_PRICE_SCAN=" >> $GITHUB_ENV
           else
