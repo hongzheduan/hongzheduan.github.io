@@ -186,6 +186,21 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    .promo-banner {
+      display: inline-block;
+      margin: 0 auto 28px;
+      padding: 10px 22px;
+      background: linear-gradient(90deg, #7c2d12, #92400e, #7c2d12);
+      color: var(--gold-light);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      border-radius: 999px;
+      text-align: center;
+      animation: fadeUp 0.5s 0.25s ease both;
+    }
+    .promo-banner-wrap { text-align: center; }
+
     .pricing-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -512,6 +527,8 @@
     <div class="eyebrow">◈ &nbsp; Pricing</div>
     <h1>Simple, <em>transparent</em> pricing</h1>
     <p class="subtext">7-day free trial · Cancel anytime · No hidden fees · Full access from day one.</p>
+
+    <div class="promo-banner-wrap"><div class="promo-banner">◈ 20% off every new subscription — applied automatically at checkout</div></div>
 
     <div class="pricing-grid">
 

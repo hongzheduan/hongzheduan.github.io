@@ -216,6 +216,21 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    .promo-banner {
+      display: inline-block;
+      margin: 0 auto 28px;
+      padding: 10px 22px;
+      background: linear-gradient(90deg, #7c2d12, #92400e, #7c2d12);
+      color: var(--gold-light);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      border-radius: 999px;
+      text-align: center;
+      animation: fadeUp 0.5s 0.25s ease both;
+    }
+    .promo-banner-wrap { text-align: center; }
+
     /* ── PRICING GRID ── */
     .pricing-grid {
       display: grid;
@@ -669,6 +684,8 @@
     <div class="eyebrow">◈ &nbsp; 价格方案</div>
     <h1>清晰 <em>透明</em> 的定价</h1>
     <p class="subtext">随时可取消 · 无隐藏费用 · 第一天起完整访问</p>
+
+    <div class="promo-banner-wrap"><div class="promo-banner">◈ 新订阅立减20%，结账时自动生效</div></div>
 
     <!-- Pricing Cards -->
     <div class="pricing-grid">
