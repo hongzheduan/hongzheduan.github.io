@@ -359,6 +359,10 @@ async function createCheckout(priceId, email, res) {
       line_items: [{ price: priceId, quantity: 1 }],
       customer: customerId,
       subscription_data: hadTrialBefore ? {} : { trial_period_days: 7 },
+      // 20% off, forever, applied automatically to every new checkout — no
+      // customer-facing promo code. Remove this block (or delete/deactivate
+      // the coupon in Stripe) to end the promotion.
+      discounts: [{ coupon: "LF7vTxOh" }],
       success_url: "https://baizora.com/dashboard.html",
       cancel_url:  "https://baizora.com/billing.html",
     });
