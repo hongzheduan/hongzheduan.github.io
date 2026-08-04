@@ -371,7 +371,8 @@
     /* ── CARD VIEW ── */
     #sp500Cards, #nasdaqCards { display: none; }
     .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 8px; padding: 10px; }
-    .stock-card { background: rgba(13,30,61,0.6); border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px; display: flex; flex-direction: column; gap: 7px; }
+    .stock-card { background: rgba(13,30,61,0.6); border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px; display: flex; flex-direction: column; gap: 7px; cursor: pointer; }
+    .stock-card:active { background: rgba(13, 30, 61, 0.9); }
     .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
     .card-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--white); letter-spacing: 0.05em; }
     .card-price-row { display: flex; align-items: baseline; gap: 8px; }
@@ -1297,7 +1298,7 @@
             <div class="card-row"><span class="card-label">MAX V%</span><span class="card-val ${colorClass(maxV)}">${fmtP(maxV)}</span></div>`;
         }
 
-        return `<div class="stock-card">
+        return `<div class="stock-card" data-ticker="${r.Ticker}">
           <div class="card-header">
             <span class="card-ticker">${r.Ticker}</span>
             ${spark}
@@ -1898,7 +1899,9 @@
     document.addEventListener("keydown", e => { if (e.key === "Escape") closeTickerModal(); });
     document.getElementById("tableArea").addEventListener("click", e => {
       const td = e.target.closest("td.ticker-cell");
-      if (td) openTickerModal(td.dataset.ticker);
+      if (td) { openTickerModal(td.dataset.ticker); return; }
+      const card = e.target.closest(".stock-card");
+      if (card) openTickerModal(card.dataset.ticker);
     });
 
   </script>

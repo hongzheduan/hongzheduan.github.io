@@ -631,7 +631,9 @@
       will-change: transform;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
+      cursor: pointer;
     }
+    .stock-card:active { background: rgba(13, 30, 61, 0.9); }
 
     .card-header {
       display: flex;
@@ -1494,7 +1496,7 @@
             <div class="card-row"><span class="card-label">日价变</span><span class="card-val ${colorClass(pc1)}">${fmtP(pc1)}</span></div>`;
         }
 
-        return `<div class="stock-card">
+        return `<div class="stock-card" data-ticker="${r.Ticker}">
           <div class="card-header">
             <span class="card-ticker">${r.Ticker}</span>
             ${spark}
@@ -1992,7 +1994,9 @@
         return;
       }
       const td = e.target.closest("td.ticker-cell");
-      if (td) openTickerModal(td.dataset.ticker);
+      if (td) { openTickerModal(td.dataset.ticker); return; }
+      const card = e.target.closest(".stock-card");
+      if (card) openTickerModal(card.dataset.ticker);
     });
 
     /* ── LIVE PRICE REFRESH (10-min, market hours only) ── */
