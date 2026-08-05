@@ -359,8 +359,8 @@ async function createCheckout(priceId, email, res) {
       line_items: [{ price: priceId, quantity: 1 }],
       customer: customerId,
       subscription_data: hadTrialBefore ? {} : { trial_period_days: 7 },
-      // 20% off, forever, via customer-entered promo code (e.g. FRIEND20)
-      // linked to coupon LF7vTxOh in Stripe. Set to false (or remove) to
+      // 50% off, forever, via customer-entered promo code (e.g. FRIEND50)
+      // linked to coupon BEGIN50 in Stripe. Set to false (or remove) to
       // end the promotion.
       allow_promotion_codes: true,
       success_url: "https://baizora.com/dashboard.html",
