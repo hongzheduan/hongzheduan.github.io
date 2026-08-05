@@ -137,6 +137,10 @@
 <span class="add">window.BAIZORA_LIVE_PRICES = true;</span></code></pre>
     <p>Effect: the "live" price badge and 10–60s intraday polling resume immediately on push (static site, no build/deploy step) across <span class="inline-code">baizora_main_form.html</span> (+ <span class="inline-code">_cn</span>/<span class="inline-code">_free</span>/<span class="inline-code">_free_cn</span>), all 22 <span class="inline-code">stocks/*.html</span> pages, <span class="inline-code">top-price-movers.html</span>, <span class="inline-code">unusual-volume.html</span>, and the homepage ticker bar on <span class="inline-code">index.html</span>/<span class="inline-code">index_cn.html</span>.</p>
 
+    <div class="warning-box">
+      <p><strong>⚠ Manual copy fix — not flag-driven:</strong> on 2026-08-05, the "Live pricing" marketing bullet was removed from the Monthly plan feature list on <span class="inline-code">pricing.html</span> (<em>"Live pricing · daily scoring after market close"</em> → <em>"Daily scoring after market close"</em>) and its CN mirror <span class="inline-code">pricing_cn.html</span> (<em>"实时价格 · 每日盘后评分更新"</em> → <em>"每日盘后评分更新"</em>), since live pricing wasn't actually available. This is static marketing copy, not gated by <span class="inline-code">BAIZORA_LIVE_PRICES</span> — flipping the flag back to <span class="inline-code">true</span> will <strong>not</strong> restore it. Manually re-add the "Live pricing" clause to both files' Monthly plan bullet list once live pricing is back.</p>
+    </div>
+
     <!-- FILE 3 -->
     <h2 id="attribution">3. Attribution / legal text <span class="line-ref">optional — not required for functionality</span></h2>
     <div class="optional-box">
