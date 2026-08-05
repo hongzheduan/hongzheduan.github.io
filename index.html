@@ -813,17 +813,27 @@
     .hp-news-msg { font-size: 12px; color: #64748b; padding: 20px 0; text-align: center; }
 
     /* ── FOOTER ── */
-    footer { position: relative; z-index: 10; border-top: 1px solid var(--border); padding: 28px 40px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    footer { position: relative; z-index: 10; border-top: 1px solid var(--border); padding: 28px 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
     .footer-disclaimer { font-family: 'DM Mono', monospace; font-size: 11px; color: #94a3b8; letter-spacing: 0.05em; text-align: center; }
     .footer-copy { font-family: 'DM Mono', monospace; font-size: 11px; color: #94a3b8; letter-spacing: 0.05em; text-align: center; }
-    .footer-row { width: 100%; display: flex; align-items: center; justify-content: space-between; margin-top: 10px; flex-wrap: wrap; gap: 10px; }
+    .footer-row { width: 100%; display: flex; align-items: flex-start; justify-content: space-between; margin-top: 10px; flex-wrap: wrap; gap: 24px; }
     .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-legal { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+    .footer-legal .footer-copy { text-align: right; }
     .footer-links a { font-family: 'DM Mono', monospace; font-size: 12px; color: #94a3b8; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
     .footer-links a:hover { color: var(--electric-bright); }
     .footer-email { font-family: 'DM Mono', monospace; font-size: 12px; color: #94a3b8; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
     .footer-email:hover { color: var(--electric-bright); }
     .footer-yt { display: inline-flex; align-items: center; vertical-align: middle; gap: 5px; font-family: 'DM Mono', monospace; font-size: 12px; color: #94a3b8; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
     .footer-yt:hover { color: var(--electric-bright); }
+    .footer-contact-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .footer-social-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .footer-social { display: flex; align-items: center; justify-content: flex-start; gap: 10px; flex-wrap: wrap; }
+    .footer-social-icon { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid var(--border); transition: background 0.2s, border-color 0.2s, transform 0.2s; }
+    .footer-social-icon:hover { background: rgba(255,255,255,0.12); border-color: var(--electric-bright); transform: translateY(-1px); }
+    .footer-video-links { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; letter-spacing: 0.05em; }
+    .footer-video-links a { color: #64748b; text-decoration: none; }
+    .footer-video-links a:hover { color: var(--electric-bright); }
 
     /* ── ANIMATIONS ── */
     .fade-up { opacity: 0; transform: translateY(24px); animation: fadeUp 0.7s ease forwards; }
@@ -853,9 +863,12 @@
       .gallery-faq-section { padding: 0 20px 40px; }
 
       .digest-movers { grid-template-columns: 1fr; gap: 12px; }
-      footer { padding: 24px 20px; }
-      .footer-row { flex-direction: column; align-items: center; text-align: center; }
-      .footer-links { justify-content: center; }
+      footer { padding: 24px 20px; align-items: flex-start; }
+      .footer-disclaimer, .footer-copy { text-align: left; }
+      .footer-row { flex-direction: column; align-items: flex-start; text-align: left; gap: 18px; }
+      .footer-links { justify-content: flex-start; padding-top: 16px; border-top: 1px solid var(--border); width: 100%; max-width: none; }
+      .footer-legal { align-items: flex-start; }
+      .footer-legal .footer-copy { text-align: left; }
       .announcement { font-size: 10px; padding: 8px 12px; letter-spacing: 0.06em; }
       .ann-email { display: none; }
       .ann-sep { display: none; }
@@ -1526,29 +1539,38 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 </div>
 
 <footer>
-  <div class="footer-disclaimer">Baizora provides market data for informational purposes only. Not financial advice.</div>
-  <div class="footer-disclaimer">Market Data · Updated Daily After Market Close</div>
-  <div class="footer-copy">© 2026 Baizora — All rights reserved &nbsp;·&nbsp; Raleigh, NC, USA</div>
   <div class="footer-row">
-    <div style="display:flex;flex-direction:column;gap:5px;">
-      <span class="footer-email">Contact us: <a href="mailto:support@baizora.com" class="footer-email">support@baizora.com</a></span>
-      <span class="footer-email">Follow us: <a href="https://www.youtube.com/@baizorastock" target="_blank" rel="noopener" class="footer-yt">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="#ef4444"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
-        YouTube
-      </a> (<a id="videoWatchLink" href="data/latest_video_en.mp4" target="_blank" class="footer-yt">latest video</a> <a id="videoDownloadLink" href="data/latest_video_en.mp4" download class="footer-yt" title="Download">↓</a>)</span>
-      <span class="footer-email"><span style="visibility:hidden;">Follow us: </span><a href="https://www.linkedin.com/company/baizora" target="_blank" rel="noopener" class="footer-yt">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
-        LinkedIn
-      </a></span>
+    <div class="footer-contact-group">
+      <span class="footer-email" style="font-weight:700;">Contact us:</span>
+      <span class="footer-email">Email: <a href="mailto:support@baizora.com" class="footer-email">support@baizora.com</a></span>
+      <span class="footer-email">Phone: <a href="tel:+19195371860" class="footer-email">1-919-537-1860</a> (Mon-Fri, 9:30 am to 4:30 pm ET)</span>
     </div>
-    <div class="footer-links">
-      <a href="assets/privacy.html">Privacy</a>
-      <a href="assets/terms.html">Terms</a>
-      <a href="assets/disclaimer.html">Disclaimer</a>
-      <a href="assets/faq.html">FAQ</a>
-      <a href="assets/about.html">About</a>
+    <div class="footer-social-group">
+      <span class="footer-email" style="font-weight:700;">Follow us:</span>
+      <div class="footer-social">
+        <a href="https://www.youtube.com/@baizorastock" target="_blank" rel="noopener" class="footer-social-icon" title="YouTube" aria-label="YouTube">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#ef4444"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+        </a>
+        <span class="footer-video-links">(<a id="videoWatchLink" href="data/latest_video_en.mp4" target="_blank">latest video</a> <a id="videoDownloadLink" href="data/latest_video_en.mp4" download title="Download">↓</a>)</span>
+      </div>
+      <div class="footer-social">
+        <a href="https://www.linkedin.com/company/baizora" target="_blank" rel="noopener" class="footer-social-icon" title="LinkedIn" aria-label="LinkedIn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-legal">
+      <div class="footer-links">
+        <a href="assets/privacy.html">Privacy</a>
+        <a href="assets/terms.html">Terms</a>
+        <a href="assets/disclaimer.html">Disclaimer</a>
+        <a href="assets/faq.html">FAQ</a>
+      </div>
+      <div class="footer-copy">© 2026 Baizora — All rights reserved</div>
+      <div class="footer-copy">Raleigh, NC, USA</div>
     </div>
   </div>
+  <div class="footer-disclaimer">Baizora provides market data for informational purposes only. Not financial advice.</div>
 </footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -2073,7 +2095,7 @@ function buildSparkPath(arr) {
   const CF = "https://us-central1-baizora.cloudfunctions.net/api";
   let _digest = null, _news = null;
 
-  function _f(n, d) { return (n != null && !isNaN(+n)) ? (+n).toFixed(d != null ? d : 2) : "—"; }
+  function _f(n, d) { return c(n != null && !isNaN(+n)) ? (+n).toFixed(d != null ? d : 2) : "—"; }
 
   function renderGainers(data) {
     const el = document.getElementById("digestGainers"); if (!el) return;
