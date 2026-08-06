@@ -6,6 +6,13 @@ on:
                                # scan/category-video timing (doesn't need market data, and its own
                                # generation step alone takes ~30 min — see worklog delay pattern
                                # below, actual fire is typically ~70-90 min late, landing ~2:15-2:30 PM ET)
+    - cron: "30 19 * * *"     # 3:30 PM ET every day — news video retry, in case the 1:00 PM ET run's
+                               # job never got picked up by a GitHub-hosted runner (happened
+                               # 2026-08-06 — "not acquired by Runner ... after multiple attempts",
+                               # a GitHub infra flake, not a code bug; there's no other retry for the
+                               # news video since it doesn't depend on market-data availability like
+                               # the scan retries below do). No-ops per language if that language's
+                               # video already shows today's date in latest_video_news_meta.json.
     - cron: "30 20 * * 1-5"   # 4:30 PM ET weekdays  — preliminary data + category video (retries at 5:00 PM)
     - cron: "0 21 * * 1-5"    # 5:00 PM ET weekdays  — retry if 4:30 PM data not yet available (actual ~7:00 PM ET); no EDGAR
     - cron: "30 21 * * 1-5"   # 5:30 PM ET weekdays  — retry if 4:30 PM data not yet available
@@ -86,6 +93,16 @@ jobs:
             # step alone takes ~30 min (news content comes from data/market_news*.json,
             # refreshed hourly by the separate news_refresh.py workflow — a 1 PM ET
             # snapshot is an accepted tradeoff, not the freshest possible at close).
+            echo "EDGAR_ONLY="    >> $GITHUB_ENV
+            echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
+            echo "SKIP_SCAN=1"    >> $GITHUB_ENV
+            echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=True"  >> $GITHUB_ENV
+            echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+          elif [ "$SCHEDULE" = "30 19 * * *" ]; then
+            # 3:30 PM ET every day — news video retry (see cron comment above). Same
+            # env as the 1:00 PM ET run; the per-language "already done today" guard
+            # lives in the "Generate news report videos" step itself.
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
             echo "SKIP_SCAN=1"    >> $GITHUB_ENV
@@ -549,8 +566,37 @@ jobs:
           # scan (data/latest.json may be stale on the weekend cron), so the news
           # report's own date must be computed independently.
           NEWS_DATE=$(TZ='America/New_York' date +%Y-%m-%d)
-          python video/generate_news_report.py --lang en --output video/news_report_en.mp4 --date "$NEWS_DATE" || true
-          python video/generate_news_report.py --lang cn --output video/news_report_cn.mp4 --date "$NEWS_DATE" || true
+
+          # On the 3:30 PM ET retry cron only: skip a language whose video already
+          # shows today's date in the meta file, so a healthy 1:00 PM ET run makes
+          # this a no-op rather than double-generating/double-uploading. The primary
+          # 1:00 PM run and manual dispatches always regenerate unconditionally.
+          SKIP_EN="" SKIP_CN=""
+          if [ "${{ github.event.schedule }}" = "30 19 * * *" ]; then
+            EXISTING=$(NEWS_DATE="$NEWS_DATE" python -c "
+          import json, os
+          try:
+              meta = json.load(open('data/latest_video_news_meta.json'))
+          except Exception:
+              meta = {}
+          today = os.environ['NEWS_DATE']
+          print('EN=1' if meta.get('en', {}).get('date') == today else 'EN=')
+          print('CN=1' if meta.get('cn', {}).get('date') == today else 'CN=')
+          ")
+            SKIP_EN=$(echo "$EXISTING" | grep '^EN=' | cut -d= -f2)
+            SKIP_CN=$(echo "$EXISTING" | grep '^CN=' | cut -d= -f2)
+          fi
+
+          if [ -n "$SKIP_EN" ]; then
+            echo "EN news video already generated today — skipping retry"
+          else
+            python video/generate_news_report.py --lang en --output video/news_report_en.mp4 --date "$NEWS_DATE" || true
+          fi
+          if [ -n "$SKIP_CN" ]; then
+            echo "CN news video already generated today — skipping retry"
+          else
+            python video/generate_news_report.py --lang cn --output video/news_report_cn.mp4 --date "$NEWS_DATE" || true
+          fi
 
           EN_NAME="" CN_NAME=""
           if [ -f video/news_report_en.mp4 ]; then
