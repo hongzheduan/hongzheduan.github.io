@@ -377,10 +377,10 @@
     td.group-start { border-left: 2px solid rgba(59,130,246,0.1); }
 
     /* ghost rows */
-    #sp500Ghost, #nasdaqGhost { display: none !important; }
+    #sp500Ghost, #nasdaqGhost, #etfGhost { display: none !important; }
 
     /* ── CARD VIEW ── */
-    #sp500Cards, #nasdaqCards { display: none; }
+    #sp500Cards, #nasdaqCards, #etfCards { display: none; }
     .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 8px; padding: 10px; }
     .stock-card { background: rgba(13,30,61,0.6); border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px; display: flex; flex-direction: column; gap: 7px; cursor: pointer; }
     .stock-card:active { background: rgba(13, 30, 61, 0.9); }
@@ -564,9 +564,9 @@
       .window-btn { padding: 3px 8px; font-size: 10px; white-space: nowrap; }
       .toolbar-sep { display: none; }
       .row-count { white-space: nowrap; font-size: 9px; width: 100%; margin-left: 0; padding-bottom: 2px; }
-      #sp500Table, #nasdaqTable { display: none !important; }
-      #sp500Ghost, #nasdaqGhost { display: none !important; }
-      #sp500Cards, #nasdaqCards { display: block !important; }
+      #sp500Table, #nasdaqTable, #etfTable { display: none !important; }
+      #sp500Ghost, #nasdaqGhost, #etfGhost { display: none !important; }
+      #sp500Cards, #nasdaqCards, #etfCards { display: block !important; }
       .blur-gate { height: 240px; padding-bottom: 16px; }
       .blur-gate-title { font-size: 18px !important; }
       .blur-gate-sub { display: none; }
@@ -676,6 +676,7 @@
   <div class="tab-row">
     <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
     <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
+    <button class="tab-btn" onclick="show('etf', this)">ETFs</button>
     <button class="tab-btn" onclick="show('readme', this)">README</button>
     <button class="tab-btn" onclick="show('membership', this)">MEMBERSHIP CHANGE</button>
   </div>
@@ -687,6 +688,7 @@
   <div class="mobile-nav-drawer" id="mobileDrawer">
     <button class="drawer-section-btn active" id="drawerBtnSp500"      onclick="drawerSection('sp500',      this)">S&amp;P 500</button>
     <button class="drawer-section-btn"        id="drawerBtnNasdaq"     onclick="drawerSection('nasdaq',     this)">Nasdaq 100</button>
+    <button class="drawer-section-btn"        id="drawerBtnEtf"        onclick="drawerSection('etf',        this)">ETFs</button>
     <button class="drawer-section-btn"        id="drawerBtnReadme"     onclick="drawerSection('readme',     this)">README</button>
     <button class="drawer-section-btn"        id="drawerBtnMembership" onclick="drawerSection('membership', this)">Membership Changes</button>
     <div class="drawer-divider"></div>
@@ -732,6 +734,12 @@
       <table id="nasdaqTable"></table>
       <table class="ghost-rows" id="nasdaqGhost"><tbody></tbody></table>
       <div id="nasdaqCards"></div>
+    </div>
+
+    <div id="etf" class="section">
+      <table id="etfTable"></table>
+      <table class="ghost-rows" id="etfGhost"><tbody></tbody></table>
+      <div id="etfCards"></div>
     </div>
 
     <div id="readme" class="section">
@@ -896,7 +904,7 @@
     const CHART_BTN = `<button class="chart-btn" title="View Chart" aria-label="View chart"><svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><line x1="2.5" y1="1" x2="2.5" y2="10" stroke="currentColor" stroke-width="0.9"/><rect x="1" y="3.5" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.5"/><line x1="7" y1="0.5" x2="7" y2="10.5" stroke="currentColor" stroke-width="0.9"/><rect x="5.5" y="2" width="3" height="6" rx="0.4" fill="currentColor"/><line x1="11.5" y1="1" x2="11.5" y2="9.5" stroke="currentColor" stroke-width="0.9"/><rect x="10" y="3" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.7"/></svg></button>`;
 
     /* ── STATE ── */
-    let spRows = [], ndRows = [], allRows = [];
+    let spRows = [], ndRows = [], etfRows = [], allRows = [];
     const IEX_CF = 'https://us-central1-baizora.cloudfunctions.net/api/iex-quotes';
     const _liveIex = {};
     const _prevFreePrices = {};
@@ -945,6 +953,7 @@
           loadedDate = json.date || "—";
           spRows = allRows.filter(x => x.InSP500);
           ndRows = allRows.filter(x => x.InNASDAQ100);
+          etfRows = allRows.filter(x => x.InETF);
           overlay.classList.add("hidden");
           statusDot.className = "status-dot";
           render();
@@ -964,8 +973,8 @@
 
     /* ── STATUS ── */
     function updateStatus() {
-      const total = activeTab === "sp500" ? spRows.length : ndRows.length;
-      const label = activeTab === "sp500" ? "S&P 500" : "Nasdaq 100";
+      const total = activeTab === "sp500" ? spRows.length : activeTab === "nasdaq" ? ndRows.length : etfRows.length;
+      const label = activeTab === "sp500" ? "S&P 500" : activeTab === "nasdaq" ? "Nasdaq 100" : "ETFs";
       statusText.textContent = loadedDate;
       rowCount.innerHTML = `<span class="free-row-label">Top 3 by 1-day price change · ${total} symbols · ${label}</span>`;
       const eyebrow = document.querySelector(".blur-gate-eyebrow");
@@ -1352,10 +1361,13 @@
 
       document.getElementById("sp500Table").innerHTML  = buildTable(spRows, w);
       document.getElementById("nasdaqTable").innerHTML = buildTable(ndRows, w);
+      document.getElementById("etfTable").innerHTML    = buildTable(etfRows, w);
       document.getElementById("sp500Ghost").querySelector("tbody").innerHTML  = ghosts;
       document.getElementById("nasdaqGhost").querySelector("tbody").innerHTML = ghosts;
+      document.getElementById("etfGhost").querySelector("tbody").innerHTML    = ghosts;
       document.getElementById("sp500Cards").innerHTML  = buildCards(spRows, w);
       document.getElementById("nasdaqCards").innerHTML = buildCards(ndRows, w);
+      document.getElementById("etfCards").innerHTML    = buildCards(etfRows, w);
     }
 
     /* ══════════════════════════════════════════
@@ -1559,7 +1571,7 @@
     };
 
     function syncDrawerActive(id) {
-      ["sp500","nasdaq","readme","membership"].forEach(sec => {
+      ["sp500","nasdaq","etf","readme","membership"].forEach(sec => {
         const b = document.getElementById("drawerBtn" + sec.charAt(0).toUpperCase() + sec.slice(1));
         if (b) b.classList.toggle("active", sec === id);
       });

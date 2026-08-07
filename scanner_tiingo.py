@@ -803,6 +803,23 @@ def _fetch_market_headlines(n=5, lang="en"):
 # UNIVERSE
 # =========================
 
+# Major low-cost/high-volume ETFs tracking the S&P 500 and Nasdaq-100. Hardcoded
+# (not scraped) since this list changes rarely, unlike the index constituent lists
+# below. These aren't constituents of either index, so they're kept in their own
+# set rather than merged into sp_set/nd_set — get_fundamentals() short-circuits
+# EDGAR lookups for them (see ETF_TICKERS check there) since ETFs don't file the
+# XBRL company-facts data those lookups expect.
+ETF_TICKERS = ["VOO", "SPY", "IVV", "SPLG", "QQQ", "QQQM"]
+ETF_NAMES = {
+    "VOO":  "Vanguard S&P 500 ETF",
+    "SPY":  "SPDR S&P 500 ETF Trust",
+    "IVV":  "iShares Core S&P 500 ETF",
+    "SPLG": "SPDR Portfolio S&P 500 ETF",
+    "QQQ":  "Invesco QQQ Trust",
+    "QQQM": "Invesco NASDAQ 100 ETF",
+}
+
+
 def get_sp500():
     path = os.path.join(DATA_DIR, "sp500_symbols.txt")
     with open(path) as f:
@@ -818,11 +835,12 @@ def get_nasdaq100():
 def get_tickers():
     sp500     = get_sp500()
     nasdaq100 = get_nasdaq100()
-    clean   = [t.replace(".", "-") for t in sp500 + nasdaq100 if isinstance(t, str)]
+    clean   = [t.replace(".", "-") for t in sp500 + nasdaq100 + ETF_TICKERS if isinstance(t, str)]
     tickers = sorted(set(clean))
     sp_set  = {t.replace(".", "-") for t in sp500     if isinstance(t, str)}
     nd_set  = {t.replace(".", "-") for t in nasdaq100 if isinstance(t, str)}
-    return tickers, sp_set, nd_set
+    etf_set = {t.replace(".", "-") for t in ETF_TICKERS if isinstance(t, str)}
+    return tickers, sp_set, nd_set, etf_set
 
 
 # =========================
@@ -2083,6 +2101,15 @@ def get_fundamentals(ticker, tiingo_names=None):
             cached["TiingoMarketCap"] = mc
         return cached
 
+    if ticker in ETF_TICKERS:
+        # ETFs don't file the XBRL company-facts data EDGAR lookups below expect
+        # (no EPS, no operating-company sector) — skip straight to a blank record.
+        result = {"SharesOutstanding": None, "SharesFiledDate": None, "EPS": None,
+                   "Sector": "", "SicDescription": "", "CompanyName": ETF_NAMES.get(ticker, ticker),
+                   "TiingoMarketCap": None}
+        _fund_cache[ticker] = result
+        return result
+
     if SKIP_EDGAR:
         return {"SharesOutstanding": None, "SharesFiledDate": None, "EPS": None,
                 "Sector": "", "SicDescription": "", "CompanyName": "", "TiingoMarketCap": None}
@@ -2248,7 +2275,7 @@ def calculate_period_metrics(df, label, days):
 # =========================
 
 def scan():
-    tickers, sp_set, nd_set = get_tickers()
+    tickers, sp_set, nd_set, etf_set = get_tickers()
     universe_set        = set(tickers)
     results             = []
     candles_out         = {}
@@ -2370,6 +2397,7 @@ def scan():
 
             in_sp500     = ticker in sp_set
             in_nasdaq100 = ticker in nd_set
+            in_etf       = ticker in etf_set
 
             try:
                 close_series = df["Close"].dropna()
@@ -2460,6 +2488,7 @@ def scan():
 
                 "InSP500":     in_sp500,
                 "InNASDAQ100": in_nasdaq100,
+                "InETF":       in_etf,
 
                 "Price":   round(float(latest["Close"]), 2),
                 "VolumeM": latest_volume_m,
@@ -3180,7 +3209,7 @@ if __name__ == "__main__":
     # Tiingo-free (and key-optional) in yfinance mode — company names fall back to EDGAR.
     if EDGAR_ONLY:
         print("EDGAR_ONLY — refreshing fundamentals cache from SEC EDGAR …")
-        tickers, _, _ = get_tickers()
+        tickers, _, _, _ = get_tickers()
         _fund_cache.clear()  # force full re-fetch so new filings are picked up
         tiingo_meta = {} if (USE_YFINANCE or not TIINGO_API_KEY) else prefetch_tiingo_meta(tickers)
         prefetch_fundamentals(tickers, tiingo_meta)
