@@ -333,20 +333,31 @@
     #modalCard { background: #0d1e3d; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; width: min(820px,100%); max-height: 90vh; overflow-y: auto; padding: 28px; position: relative; }
     #modalClose { position: absolute; top: 16px; right: 18px; background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer; line-height: 1; }
     #modalClose:hover { color: #fff; }
-    #candleTimeframes { display: flex; gap: 6px; margin-bottom: 8px; }
     .tf-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .tf-btn.active, .tf-btn:hover { background: rgba(59,130,246,0.2); border-color: #3b82f6; color: #60a5fa; }
-    #smaToggles { display: flex; gap: 6px; margin-bottom: 10px; }
+    .overlay-drawer-wrap { position: relative; display: inline-block; margin: 0 8px 10px 0; }
+    .overlay-drawer-toggle { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
+    .overlay-drawer-toggle:hover, .overlay-drawer-toggle.open { color: #cbd5e1; border-color: rgba(255,255,255,0.25); }
+    .overlay-drawer-panel { display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; background: #0d1e3d; border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 10px; box-shadow: 0 12px 28px rgba(0,0,0,0.45); flex-wrap: wrap; align-items: center; gap: 6px; width: 210px; }
+    .overlay-drawer-panel.open { display: flex; }
     .sma-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .sma-btn::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; opacity: .5; }
     .sma-btn:hover { color: #cbd5e1; }
     .sma-btn[data-sma="sma20"]::before  { background: #f59e0b; }
     .sma-btn[data-sma="sma50"]::before  { background: #60a5fa; }
     .sma-btn[data-sma="sma200"]::before { background: #a78bfa; }
+    .sma-btn[data-sma="smaCustom"]::before { background: #2dd4bf; }
+    .sma-btn[data-sma="bb"]::before { background: #f472b6; }
     .sma-btn[data-sma="sma20"].active  { background: rgba(245,158,11,0.16);  border-color: #f59e0b;  color: #fcd34d; }
     .sma-btn[data-sma="sma50"].active  { background: rgba(96,165,250,0.16);  border-color: #60a5fa;  color: #93c5fd; }
     .sma-btn[data-sma="sma200"].active { background: rgba(167,139,250,0.16); border-color: #a78bfa;  color: #c4b5fd; }
+    .sma-btn[data-sma="smaCustom"].active { background: rgba(45,212,191,0.16); border-color: #2dd4bf; color: #5eead4; }
+    .sma-btn[data-sma="bb"].active { background: rgba(244,114,182,0.16); border-color: #f472b6; color: #f9a8d4; }
     .sma-btn.active::before { opacity: 1; }
+    #customSmaInput, #bbPeriodInput, #bbMultInput { width: 38px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #e2e8f0; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 4px; text-align: center; outline: none; }
+    #customSmaInput:focus, #bbPeriodInput:focus, #bbMultInput:focus { border-color: #f472b6; }
+    .sma-add-btn { background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.18); color: #64748b; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: all .15s; }
+    .sma-add-btn:hover { color: #2dd4bf; border-color: #2dd4bf; }
     #candleCanvas { width: 100%; height: 280px; display: block; border-radius: 8px; }
     #candleNoData { width: 100%; height: 280px; display: none; align-items: center; justify-content: center; color: #64748b; font-size: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; }
 
@@ -934,15 +945,35 @@
         <span id="modalPriceChange" style="font-size:15px;font-weight:600;"></span>
       </div>
       <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
-      <div id="candleTimeframes">
-        <button class="tf-btn" data-tf="63">3月</button>
-        <button class="tf-btn" data-tf="126">6月</button>
-        <button class="tf-btn active" data-tf="252">1年</button>
+      <div class="overlay-drawer-wrap">
+        <button type="button" class="overlay-drawer-toggle" id="tfDrawerToggle">6月 &#9662;</button>
+        <div class="overlay-drawer-panel" id="candleTimeframes" style="width:auto;">
+          <button class="tf-btn" data-tf="5">1周</button>
+          <button class="tf-btn" data-tf="21">1月</button>
+          <button class="tf-btn" data-tf="63">3月</button>
+          <button class="tf-btn active" data-tf="126">6月</button>
+          <button class="tf-btn" data-tf="252">1年</button>
+        </div>
       </div>
-      <div id="smaToggles">
-        <button class="sma-btn active" data-sma="sma20">20日均线</button>
-        <button class="sma-btn active" data-sma="sma50">50日均线</button>
-        <button class="sma-btn active" data-sma="sma200">200日均线</button>
+      <div class="overlay-drawer-wrap">
+        <button type="button" class="overlay-drawer-toggle" id="smaDrawerToggle">均线 &#9662;</button>
+        <div class="overlay-drawer-panel" id="smaToggles">
+          <button class="sma-btn active" data-sma="sma20">20日均线</button>
+          <button class="sma-btn active" data-sma="sma50">50日均线</button>
+          <button class="sma-btn active" data-sma="sma200">200日均线</button>
+          <button class="sma-btn" id="customSmaChip" data-sma="smaCustom" style="display:none;"></button>
+          <input type="number" id="customSmaInput" min="2" max="250" placeholder="#" title="自定义均线周期 (2-250)">
+          <button type="button" class="sma-add-btn" id="customSmaAdd">+均线</button>
+        </div>
+      </div>
+      <div class="overlay-drawer-wrap">
+        <button type="button" class="overlay-drawer-toggle" id="bbDrawerToggle">布林带 &#9662;</button>
+        <div class="overlay-drawer-panel" id="bbToggles">
+          <button class="sma-btn" id="bbChip" data-sma="bb">布林带 (20,2)</button>
+          <input type="number" id="bbPeriodInput" min="2" max="250" value="20" title="布林带周期 (默认20)">
+          <input type="number" id="bbMultInput" min="0.5" max="5" step="0.1" value="2" title="标准差倍数 (默认2)">
+          <button type="button" class="sma-add-btn" id="bbApply">设置</button>
+        </div>
       </div>
       <canvas id="candleCanvas"></canvas>
       <div id="candleNoData">暂无图表数据</div>
@@ -1737,7 +1768,7 @@
       .catch(() => {});
 
     /* ── CANDLESTICK RENDERER ── */
-    function renderCandleChart(canvas, candles, dates, smaLines) {
+    function renderCandleChart(canvas, candles, dates, smaLines, band) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
@@ -1801,6 +1832,19 @@
           ctx.fillText(label, toX(i) + cndW / 2, H - 8);
         }
       });
+      if (band && band.upper && band.lower) {
+        const pts = [];
+        for (let i = 0; i < n; i++) { if (band.upper[i] != null) pts.push([toX(i) + cndW / 2, toY(band.upper[i])]); }
+        for (let i = n - 1; i >= 0; i--) { if (band.lower[i] != null) pts.push([toX(i) + cndW / 2, toY(band.lower[i])]); }
+        if (pts.length > 2) {
+          ctx.beginPath();
+          ctx.moveTo(pts[0][0], pts[0][1]);
+          for (let k = 1; k < pts.length; k++) ctx.lineTo(pts[k][0], pts[k][1]);
+          ctx.closePath();
+          ctx.fillStyle = band.fill || "rgba(244,114,182,0.08)";
+          ctx.fill();
+        }
+      }
       candles.forEach(([o, h, l, c], i) => {
         const green = c >= o;
         const x = toX(i), mid = x + cndW / 2;
@@ -1883,12 +1927,64 @@
       ).join("");
       document.getElementById("tickerModal").style.display = "flex";
       document.body.style.overflow = "hidden";
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "252"));
-      document.querySelectorAll(".sma-btn").forEach(b => b.classList.add("active"));
-      requestAnimationFrame(() => { _renderModalChart(ticker, 252); });
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "126"));
+      document.getElementById("tfDrawerToggle").textContent = "6月 ▾";
+      document.getElementById("candleTimeframes").classList.remove("open");
+      document.getElementById("tfDrawerToggle").classList.remove("open");
+      document.querySelectorAll('.sma-btn[data-sma="sma20"], .sma-btn[data-sma="sma50"], .sma-btn[data-sma="sma200"]').forEach(b => b.classList.add("active"));
+      _customSmaPeriod = null;
+      document.getElementById("customSmaChip").classList.remove("active");
+      document.getElementById("customSmaChip").style.display = "none";
+      document.getElementById("customSmaInput").value = "";
+      _bbPeriod = 20; _bbMult = 2;
+      document.getElementById("bbChip").textContent = "布林带 (20,2)";
+      document.getElementById("bbChip").classList.remove("active");
+      document.getElementById("bbPeriodInput").value = 20;
+      document.getElementById("bbMultInput").value = 2;
+      document.getElementById("smaToggles").classList.remove("open");
+      document.getElementById("smaDrawerToggle").classList.remove("open");
+      document.getElementById("bbToggles").classList.remove("open");
+      document.getElementById("bbDrawerToggle").classList.remove("open");
+      requestAnimationFrame(() => { _renderModalChart(ticker, 126); });
     }
 
-    const _SMA_COLORS = { sma20: "#f59e0b", sma50: "#60a5fa", sma200: "#a78bfa" };
+    const _SMA_COLORS = { sma20: "#f59e0b", sma50: "#60a5fa", sma200: "#a78bfa", smaCustom: "#2dd4bf", bb: "#f472b6" };
+    let _customSmaPeriod = null;
+    let _bbPeriod = 20, _bbMult = 2;
+    function _computeCustomSma(candles, period) {
+      if (!period) return null;
+      const closes = candles.map(c => c ? c[3] : null);
+      const out = new Array(closes.length).fill(null);
+      for (let i = period - 1; i < closes.length; i++) {
+        let sum = 0, ok = true;
+        for (let j = i - period + 1; j <= i; j++) {
+          if (closes[j] == null) { ok = false; break; }
+          sum += closes[j];
+        }
+        if (ok) out[i] = sum / period;
+      }
+      return out;
+    }
+    function _computeBollinger(candles, period, mult) {
+      const closes = candles.map(c => c ? c[3] : null);
+      const upper = new Array(closes.length).fill(null);
+      const lower = new Array(closes.length).fill(null);
+      for (let i = period - 1; i < closes.length; i++) {
+        let sum = 0, ok = true;
+        for (let j = i - period + 1; j <= i; j++) {
+          if (closes[j] == null) { ok = false; break; }
+          sum += closes[j];
+        }
+        if (!ok) continue;
+        const mean = sum / period;
+        let variance = 0;
+        for (let j = i - period + 1; j <= i; j++) variance += (closes[j] - mean) * (closes[j] - mean);
+        const sd = Math.sqrt(variance / period);
+        upper[i] = mean + mult * sd;
+        lower[i] = mean - mult * sd;
+      }
+      return { upper, lower };
+    }
 
     let _modalTicker = null;
     function _renderModalChart(ticker, tf) {
@@ -1907,12 +2003,22 @@
         // up without any left-pad/calendar-gap-fill step.
         const activeSmaKeys = Array.from(document.querySelectorAll(".sma-btn.active"))
           .map(b => b.dataset.sma);
-        const smaLines = activeSmaKeys.map(key => {
-          const raw = rawSma ? rawSma[key] : null;
-          return { color: _SMA_COLORS[key], values: raw ? raw.slice(-slice) : [] };
+        const smaLines = [];
+        let bbBand = null;
+        activeSmaKeys.forEach(key => {
+          if (key === "bb") {
+            const { upper, lower } = _computeBollinger(candles, _bbPeriod, _bbMult);
+            const upVals = upper.slice(-slice), loVals = lower.slice(-slice);
+            smaLines.push({ color: _SMA_COLORS.bb, values: upVals });
+            smaLines.push({ color: _SMA_COLORS.bb, values: loVals });
+            bbBand = { upper: upVals, lower: loVals };
+            return;
+          }
+          const raw = key === "smaCustom" ? _computeCustomSma(candles, _customSmaPeriod) : (rawSma ? rawSma[key] : null);
+          smaLines.push({ color: _SMA_COLORS[key], values: raw ? raw.slice(-slice) : [] });
         });
 
-        renderCandleChart(canvas, candles.slice(-slice), dates.slice(-slice), smaLines);
+        renderCandleChart(canvas, candles.slice(-slice), dates.slice(-slice), smaLines, bbBand);
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
       }
@@ -1923,6 +2029,9 @@
       if (!btn || !_modalTicker) return;
       document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
+      document.getElementById("tfDrawerToggle").textContent = btn.textContent + " ▾";
+      document.getElementById("candleTimeframes").classList.remove("open");
+      document.getElementById("tfDrawerToggle").classList.remove("open");
       _renderModalChart(_modalTicker, parseInt(btn.dataset.tf));
     });
 
@@ -1931,7 +2040,69 @@
       if (!btn || !_modalTicker) return;
       btn.classList.toggle("active");
       const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+    });
+
+    document.getElementById("customSmaAdd").addEventListener("click", () => {
+      const input = document.getElementById("customSmaInput");
+      const val = parseInt(input.value, 10);
+      if (!val || val < 2 || val > 250 || !_modalTicker) return;
+      _customSmaPeriod = val;
+      const chip = document.getElementById("customSmaChip");
+      chip.textContent = val + "日均线";
+      chip.classList.add("active");
+      chip.style.display = "inline-block";
+      const activeTf = document.querySelector(".tf-btn.active");
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+    });
+    document.getElementById("customSmaInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") { e.preventDefault(); document.getElementById("customSmaAdd").click(); }
+    });
+
+    function _setupDrawer(toggleId, panelId) {
+      const toggle = document.getElementById(toggleId);
+      const panel  = document.getElementById(panelId);
+      toggle.addEventListener("click", e => {
+        e.stopPropagation();
+        panel.classList.toggle("open");
+        toggle.classList.toggle("open");
+      });
+      document.addEventListener("click", e => {
+        if (panel.classList.contains("open") && !panel.contains(e.target) && e.target !== toggle) {
+          panel.classList.remove("open");
+          toggle.classList.remove("open");
+        }
+      });
+    }
+    _setupDrawer("smaDrawerToggle", "smaToggles");
+    _setupDrawer("bbDrawerToggle", "bbToggles");
+    _setupDrawer("tfDrawerToggle", "candleTimeframes");
+
+    document.getElementById("bbToggles").addEventListener("click", e => {
+      const btn = e.target.closest(".sma-btn");
+      if (!btn || !_modalTicker) return;
+      btn.classList.toggle("active");
+      const activeTf = document.querySelector(".tf-btn.active");
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+    });
+
+    document.getElementById("bbApply").addEventListener("click", () => {
+      const p = parseInt(document.getElementById("bbPeriodInput").value, 10);
+      const m = parseFloat(document.getElementById("bbMultInput").value);
+      if (!p || p < 2 || p > 250 || !m || m < 0.5 || m > 5 || !_modalTicker) return;
+      _bbPeriod = p; _bbMult = m;
+      const chip = document.getElementById("bbChip");
+      chip.textContent = "布林带 (" + p + "," + m + ")";
+      chip.classList.add("active");
+      const activeTf = document.querySelector(".tf-btn.active");
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+    });
+    document.getElementById("bbPeriodInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") { e.preventDefault(); document.getElementById("bbApply").click(); }
+    });
+    document.getElementById("bbMultInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") { e.preventDefault(); document.getElementById("bbApply").click();
+      }
     });
 
     function closeTickerModal() {
