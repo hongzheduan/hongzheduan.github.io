@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-08-06
 Threshold: >10% for all metrics
-156 flagged diffs above threshold
+151 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -76,46 +76,45 @@ PRICE  -- 0 flagged (>10%)
     ADI      ours=377.31  yf=377.31  diff=0.0%
 
 ------------------------------------------------------------
-VOLUME  -- 1 flagged (>10%)
-  FLAGGED (top 1 of 1):
-    VRSK     ours=1.65  yf=1.36  diff=20.9% ***
+VOLUME  -- 0 flagged (>10%)
   TOP 10 LARGEST DIFF:
-    VRSK     ours=1.65  yf=1.36  diff=20.9% ***
     AZO      ours=0.10  yf=0.10  diff=3.3%
+    DPZ      ours=0.50  yf=0.49  diff=3.1%
+    ORLY     ours=3.77  yf=3.66  diff=3.0%
     NVR      ours=0.03  yf=0.03  diff=2.9%
     MTD      ours=0.09  yf=0.09  diff=2.9%
     ESS      ours=0.14  yf=0.14  diff=2.9%
-    LNT      ours=1.88  yf=1.83  diff=2.8%
-    DPZ      ours=0.50  yf=0.49  diff=2.8%
-    FLEX     ours=3.02  yf=2.95  diff=2.3%
-    EVRG     ours=1.99  yf=1.95  diff=2.3%
+    ACGL     ours=1.14  yf=1.11  diff=2.9%
     ERIE     ours=0.16  yf=0.16  diff=2.1%
+    SNA      ours=0.19  yf=0.19  diff=1.6%
+    HUBB     ours=0.31  yf=0.31  diff=1.6%
 
 ------------------------------------------------------------
-MKTCAP  -- 7 flagged (>10%)
-  FLAGGED (top 7 of 7):
+MKTCAP  -- 8 flagged (>10%)
+  FLAGGED (top 8 of 8):
     ON       ours=$30.49B  yf=$18.62B  diff=63.8% ***
     CVNA     ours=$75.21B  yf=$101.69B  diff=26.0% ***
     PCG      ours=$45.56B  yf=$37.44B  diff=21.7% ***
+    SPG      ours=$71.94B  yf=$84.29B  diff=14.7% ***
+    UDR      ours=$12.39B  yf=$14.13B  diff=12.3% ***
     ERIE     ours=$11.73B  yf=$13.28B  diff=11.7% ***
-    UDR      ours=$12.39B  yf=$14.01B  diff=11.6% ***
     CHTR     ours=$18.78B  yf=$21.22B  diff=11.5% ***
     BXP      ours=$10.99B  yf=$12.27B  diff=10.4% ***
   TOP 10 LARGEST DIFF:
     ON       ours=$30.49B  yf=$18.62B  diff=63.8% ***
     CVNA     ours=$75.21B  yf=$101.69B  diff=26.0% ***
     PCG      ours=$45.56B  yf=$37.44B  diff=21.7% ***
+    SPG      ours=$71.94B  yf=$84.29B  diff=14.7% ***
+    UDR      ours=$12.39B  yf=$14.13B  diff=12.3% ***
     ERIE     ours=$11.73B  yf=$13.28B  diff=11.7% ***
-    UDR      ours=$12.39B  yf=$14.01B  diff=11.6% ***
     CHTR     ours=$18.78B  yf=$21.22B  diff=11.5% ***
     BXP      ours=$10.99B  yf=$12.27B  diff=10.4% ***
     ACN      ours=$114.22B  yf=$104.71B  diff=9.1%
     WDAY     ours=$45.37B  yf=$42.04B  diff=7.9%
-    RKLB     ours=$43.79B  yf=$47.28B  diff=7.4%
 
 ------------------------------------------------------------
-PE  -- 66 flagged (>10%)
-  FLAGGED (top 20 of 66):
+PE  -- 64 flagged (>10%)
+  FLAGGED (top 20 of 64):
     NBIS     ours=575.390  yf=73.597  diff=681.8% ***
     TPL      ours=362.900  yf=48.919  diff=641.8% ***
     COF      ours=56.120  yf=12.121  diff=363.0% ***
@@ -124,7 +123,6 @@ PE  -- 66 flagged (>10%)
     DLR      ours=51.080  yf=240.700  diff=78.8% ***
     APO      ours=80.500  yf=45.387  diff=77.4% ***
     BDX      ours=53.330  yf=30.902  diff=72.6% ***
-    PFE      ours=34.470  yf=20.000  diff=72.3% ***
     BKNG     ours=39.140  yf=23.018  diff=70.0% ***
     MCHP     ours=109.350  yf=338.000  diff=67.6% ***
     MRK      ours=36.160  yf=103.524  diff=65.1% ***
@@ -133,9 +131,10 @@ PE  -- 66 flagged (>10%)
     NWSA     ours=14.840  yf=37.557  diff=60.5% ***
     NXPI     ours=22.180  yf=46.171  diff=52.0% ***
     WAT      ours=50.850  yf=100.934  diff=49.6% ***
-    ALNY     ours=55.700  yf=37.652  diff=47.9% ***
     OXY      ours=8.670  yf=16.531  diff=47.6% ***
     WM       ours=32.440  yf=60.425  diff=46.3% ***
+    WDC      ours=26.970  yf=18.581  diff=45.1% ***
+    PSX      ours=11.740  yf=20.288  diff=42.1% ***
   TOP 10 LARGEST DIFF:
     NBIS     ours=575.390  yf=73.597  diff=681.8% ***
     TPL      ours=362.900  yf=48.919  diff=641.8% ***
@@ -145,12 +144,12 @@ PE  -- 66 flagged (>10%)
     DLR      ours=51.080  yf=240.700  diff=78.8% ***
     APO      ours=80.500  yf=45.387  diff=77.4% ***
     BDX      ours=53.330  yf=30.902  diff=72.6% ***
-    PFE      ours=34.470  yf=20.000  diff=72.3% ***
     BKNG     ours=39.140  yf=23.018  diff=70.0% ***
+    MCHP     ours=109.350  yf=338.000  diff=67.6% ***
 
 ------------------------------------------------------------
-EPS  -- 82 flagged (>10%)
-  FLAGGED (top 20 of 82):
+EPS  -- 79 flagged (>10%)
+  FLAGGED (top 20 of 79):
     PSKY     ours=-0.300  yf=0.020  diff=1600.0% ***
     MOS      ours=-2.010  yf=0.140  diff=1535.7% ***
     CRWD     ours=-0.120  yf=-0.020  diff=500.0% ***
