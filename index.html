@@ -1783,7 +1783,7 @@ function buildSparkPath(arr) {
 
 // Ticker bar
 (function() {
-  const TOP10 = ["NVDA","GOOGL","AAPL","MSFT","AMZN","AVGO","TSLA","META","WMT","MU"];
+  const TOP10 = ["NVDA","GOOGL","AAPL","MSFT","AMZN","AVGO","TSLA","META","WMT","MU","VOO","QQQ"];
   fetch('data/latest.json').then(r => r.json()).then(data => {
     const map = {};
     data.data.forEach(r => { map[r.Ticker] = r; });
@@ -1806,7 +1806,7 @@ function buildSparkPath(arr) {
 // Live IEX prices — refresh ticker bar + demo table during market hours
 (function() {
   const IEX_API = "https://us-central1-baizora.cloudfunctions.net/api/iex-quotes";
-  const BAR_TICKERS = ["NVDA","GOOGL","AAPL","MSFT","AMZN","AVGO","TSLA","META","WMT","MU"];
+  const BAR_TICKERS = ["NVDA","GOOGL","AAPL","MSFT","AMZN","AVGO","TSLA","META","WMT","MU","VOO","QQQ"];
 
   const _NYSE_HOLIDAYS = new Set([
     '2025-01-01', '2025-01-20', '2025-02-17', '2025-04-18', '2025-05-26', '2025-06-19', '2025-07-04', '2025-09-01', '2025-11-27', '2025-12-25',

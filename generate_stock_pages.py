@@ -16,7 +16,18 @@ FEATURED_TICKERS = [
     "NVDA", "TSLA", "AAPL", "MSFT", "META", "GOOGL", "AMZN",
     "WMT", "MU", "NFLX", "AMD", "AVGO", "ORCL", "CRM", "NOW", "PLTR",
     "UBER", "ABNB", "COIN", "PANW", "CRWD", "SMCI",
+    "VOO", "QQQ",
 ]
+
+# ETFs don't have InSP500/InNASDAQ100 set (they track an index, they aren't a
+# constituent of one) and their fundamentals are blank by design (see
+# scanner_tiingo.py's ETF_TICKERS short-circuit) — this tells generate_summary()/
+# generate_page() which index each one tracks, for the badge/summary text, since
+# there's no other field to derive it from.
+ETF_TRACKS = {
+    "VOO": "S&P 500", "SPY": "S&P 500", "IVV": "S&P 500", "SPLG": "S&P 500",
+    "QQQ": "Nasdaq-100", "QQQM": "Nasdaq-100",
+}
 
 # ---------------------------------------------------------------------------
 # Chart + IEX script template (regular string — no f-string escaping needed).
@@ -233,6 +244,7 @@ def generate_summary(row, scan_date):
     max_vc  = row.get("1YMaxVolumeChange", 0) or 0
     in_sp   = row.get("InSP500", False)
     in_ndq  = row.get("InNASDAQ100", False)
+    is_etf  = row.get("InETF", False)
 
     dir1d = "gaining" if pc1d >= 0 else "declining"
     sign1d = "+" if pc1d >= 0 else ""
@@ -240,7 +252,9 @@ def generate_summary(row, scan_date):
     sign3m = "+" if pc3m >= 0 else ""
     date_label = _format_date_nice(scan_date)
 
-    if in_sp and in_ndq:
+    if is_etf:
+        idx_str = f"an ETF tracking the {ETF_TRACKS.get(ticker, 'broader market')}"
+    elif in_sp and in_ndq:
         idx_str = "a member of both the S&P 500 and Nasdaq-100"
     elif in_sp:
         idx_str = "an S&P 500 constituent"
@@ -261,14 +275,21 @@ def generate_summary(row, scan_date):
             pe_note = (f" Its P/E of {pe:.1f} is roughly in line "
                        f"with the {sector} sector average of {pe_sect:.1f}.")
 
+    # ETFs don't have a reliable market cap in our data (fundamentals are
+    # intentionally blank, see ETF_TRACKS comment above) — omit that clause
+    # entirely rather than print a misleading "$0B".
+    mcap_clause = f"With a market cap of ${mcap:,.0f}B, {ticker} is {idx_str}." if not is_etf and mcap \
+        else f"{ticker} is {idx_str}."
+
+    noun = "fund" if is_etf else "stock"
     return (
         f"{name} ({ticker}) is {dir1d} {sign1d}{pc1d:.1f}% today ({date_label}), "
         f"trading at ${price:,.2f}. "
-        f"Over the past year the stock is {sign1y}{pc1y:.1f}%, "
+        f"Over the past year the {noun} is {sign1y}{pc1y:.1f}%, "
         f"with a {sign3m}{pc3m:.1f}% move over the last three months. "
         f"Its largest single-day price surge in the past year reached {max_pc:+.1f}%, "
         f"while its peak volume day ran {max_vc:+.1f}% above the 21-day average. "
-        f"With a market cap of ${mcap:,.0f}B, {ticker} is {idx_str}.{pe_note}"
+        f"{mcap_clause}{pe_note}"
     )
 
 
@@ -311,10 +332,20 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
     vol_ma21 = row.get("VolumeVsMA21_1D", 0) or 0
     in_sp    = row.get("InSP500", False)
     in_ndq   = row.get("InNASDAQ100", False)
+    is_etf   = row.get("InETF", False)
 
     color1d = "#22c55e" if pc1d >= 0 else "#ef4444"
     sign1d  = "+" if pc1d >= 0 else ""
     summary = generate_summary(row, scan_date)
+
+    # Fundamentals are intentionally blank for ETFs (see ETF_TRACKS comment near
+    # FEATURED_TICKERS) — show "—" in the stats grid instead of a misleading
+    # "$0B"/"0.0"/"$0.00", matching how the dashboard already treats these fields.
+    mcap_display   = f"${mcap:,.0f}B" if not is_etf else "—"
+    pe_display     = f"{pe:.1f}" if not is_etf else "—"
+    pe_sect_label  = f"Sector avg {pe_sect:.1f}" if not is_etf else "Not applicable to ETFs"
+    eps_display    = f"${eps:.2f}" if not is_etf else "—"
+    sector_display = sector if not is_etf else ETF_TRACKS.get(ticker, "ETF")
 
     # Inline OHLCV data for the canvas chart
     candle_dates_json = json.dumps(candle_dates or [])
@@ -322,6 +353,8 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
     page_script = build_page_script(ticker, candle_dates_json, candle_ohlcv_json)
 
     badges = ""
+    if is_etf:
+        badges += f'<span class="badge">Tracks {ETF_TRACKS.get(ticker, "an index")}</span>'
     if in_sp:
         badges += '<span class="badge">S&amp;P 500</span>'
     if in_ndq:
@@ -348,7 +381,8 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
 
     peers_html = build_peers_html(ticker, peer_rows or [])
 
-    desc = f"{name} ({ticker}) stock analysis: ${price:,.2f} today ({sign1d}{pc1d:.1f}%), 1-year candlestick chart with volume, MA21 ratios, and multi-timeframe performance. Updated daily."
+    analysis_noun = "ETF analysis" if is_etf else "stock analysis"
+    desc = f"{name} ({ticker}) {analysis_noun}: ${price:,.2f} today ({sign1d}{pc1d:.1f}%), 1-year candlestick chart with volume, MA21 ratios, and multi-timeframe performance. Updated daily."
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -364,7 +398,7 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
   <script src="../assets/feature_flags.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{ticker} Stock Analysis | {name} Price &amp; Volume Trends | Baizora</title>
+  <title>{ticker} {"ETF" if is_etf else "Stock"} Analysis | {name} Price &amp; Volume Trends | Baizora</title>
   <meta name="description" content="{desc}">
   <link rel="canonical" href="https://baizora.com/stocks/{ticker}.html">
   <link rel="alternate" hreflang="en" href="https://baizora.com/stocks/{ticker}.html">
@@ -374,7 +408,7 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
   <meta property="og:description" content="{desc}">
   <meta property="og:image" content="https://baizora.com/assets/baize_favicon_v2.png">
   <script type="application/ld+json">
-  {{"@context":"https://schema.org","@type":"WebPage","name":"{ticker} Stock Analysis — {name}","description":"{summary[:160].replace(chr(34), chr(39))}","url":"https://baizora.com/stocks/{ticker}.html","isPartOf":{{"@type":"WebSite","name":"Baizora","url":"https://baizora.com"}}}}
+  {{"@context":"https://schema.org","@type":"WebPage","name":"{ticker} {"ETF" if is_etf else "Stock"} Analysis — {name}","description":"{summary[:160].replace(chr(34), chr(39))}","url":"https://baizora.com/stocks/{ticker}.html","isPartOf":{{"@type":"WebSite","name":"Baizora","url":"https://baizora.com"}}}}
   </script>
   <link rel="icon" href="../assets/baize_favicon_v2.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -495,18 +529,18 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-label">Market Cap</div>
-      <div class="stat-value">${mcap:,.0f}B</div>
-      <div class="stat-sub">{sector}</div>
+      <div class="stat-value">{mcap_display}</div>
+      <div class="stat-sub">{sector_display}</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">P/E Ratio</div>
-      <div class="stat-value">{pe:.1f}</div>
-      <div class="stat-sub">Sector avg {pe_sect:.1f}</div>
+      <div class="stat-value">{pe_display}</div>
+      <div class="stat-sub">{pe_sect_label}</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">EPS (TTM)</div>
-      <div class="stat-value">${eps:.2f}</div>
-      <div class="stat-sub">Trailing twelve months</div>
+      <div class="stat-value">{eps_display}</div>
+      <div class="stat-sub">{"Not applicable to ETFs" if is_etf else "Trailing twelve months"}</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Volume</div>

@@ -35,7 +35,7 @@ app.use(cors({ origin: true }));
    60s in-memory cache keyed by sorted ticker list — limits Tiingo calls to
    ~1,440/day per unique ticker set regardless of visitor count.
 --------------------------- */
-const _IEX_DEFAULT = "NVDA,GOOGL,AAPL,MSFT,AMZN,AVGO,TSLA,META,WMT,MU";
+const _IEX_DEFAULT = "NVDA,GOOGL,AAPL,MSFT,AMZN,AVGO,TSLA,META,WMT,MU,VOO,QQQ";
 const _iexCacheMap = new Map(); // key: sorted-ticker-string → {data, ts}
 
 function _tiingoGet(url) {
