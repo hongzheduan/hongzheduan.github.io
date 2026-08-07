@@ -2105,7 +2105,7 @@ function buildSparkPath(arr) {
   const CF = "https://us-central1-baizora.cloudfunctions.net/api";
   let _digest = null, _news = null;
 
-  function _f(n, d) { return c(n != null && !isNaN(+n)) ? (+n).toFixed(d != null ? d : 2) : "—"; }
+  function _f(n, d) { return (n != null && !isNaN(+n)) ? (+n).toFixed(d != null ? d : 2) : "—"; }
 
   function renderGainers(data) {
     const el = document.getElementById("digestGainers"); if (!el) return;
