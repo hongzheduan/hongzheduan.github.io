@@ -1793,7 +1793,7 @@
     }
 
     /* ── CANDLESTICK RENDERER ── */
-    function renderCandleChart(canvas, candles, dates, smaLines, band) {
+    function renderCandleChart(canvas, candles, dates, smaLines, bands) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
@@ -1866,7 +1866,11 @@
       });
       // Bollinger band shading — drawn behind the candles, walking the upper line
       // left-to-right then the lower line right-to-left to close a single polygon.
-      if (band && band.upper && band.lower) {
+      // bands is a list, not a single overlay — supports multiple simultaneous
+      // band-fill overlays (Bollinger today, room for others later) without
+      // needing to touch this signature again.
+      (bands || []).forEach(band => {
+        if (!band || !band.upper || !band.lower) return;
         const pts = [];
         for (let i = 0; i < n; i++) { if (band.upper[i] != null) pts.push([toX(i) + cndW / 2, toY(band.upper[i])]); }
         for (let i = n - 1; i >= 0; i--) { if (band.lower[i] != null) pts.push([toX(i) + cndW / 2, toY(band.lower[i])]); }
@@ -1878,7 +1882,7 @@
           ctx.fillStyle = band.fill || "rgba(244,114,182,0.08)";
           ctx.fill();
         }
-      }
+      });
       candles.forEach((c, i) => {
         if (!c) return;
         const [o, h, l, cv] = c;
@@ -2094,7 +2098,7 @@
           smaLines.push({ color: _SMA_COLORS[key], values: alignToDates(raw) });
         });
 
-        renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand);
+        renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : []);
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
       }
