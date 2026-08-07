@@ -1328,6 +1328,11 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <div class="digest-panel">
       <div class="digest-eyebrow">◈ &nbsp; 每日简报</div>
       <div class="digest-heading">今日市场简报</div>
+      <div style="display:flex;gap:6px;margin-bottom:14px;">
+        <input type="email" id="digestEmailInput" placeholder="you@email.com" style="flex:1;min-width:0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 10px;outline:none;">
+        <button id="digestSubscribeBtn" style="background:var(--electric);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">订阅每日简报 →</button>
+      </div>
+      <div id="digestSubscribeMsg" style="font-size:11px;margin:-8px 0 14px;display:none;"></div>
       <div class="digest-movers">
         <div>
           <div class="digest-col-label">涨幅榜</div>
@@ -1511,6 +1516,11 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <div class="footer-social">
         <a href="https://www.linkedin.com/company/baizora" target="_blank" rel="noopener" class="footer-social-icon" title="LinkedIn" aria-label="LinkedIn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+        </a>
+      </div>
+      <div class="footer-social">
+        <a href="https://x.com/baizorastock" target="_blank" rel="noopener" class="footer-social-icon" title="X（推特）" aria-label="X（推特）">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffffff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         </a>
       </div>
     </div>
@@ -2026,6 +2036,39 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   }
   _fetchNews();
   setInterval(_fetchNews, 10 * 60 * 1000);
+
+  const subBtn = document.getElementById("digestSubscribeBtn");
+  if (subBtn) subBtn.addEventListener("click", async () => {
+    const input = document.getElementById("digestEmailInput");
+    const msg   = document.getElementById("digestSubscribeMsg");
+    const email = input.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      msg.textContent = "请输入有效的邮箱地址。"; msg.style.color = "#ef4444"; msg.style.display = "block";
+      return;
+    }
+    subBtn.disabled = true;
+    msg.textContent = "订阅中…"; msg.style.color = "#64748b"; msg.style.display = "block";
+    try {
+      const r = await fetch(CF + "/subscribe-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, locale: "zh" }),
+      });
+      if (r.ok) {
+        msg.textContent = "订阅成功——明天起请查收邮件。";
+        msg.style.color = "#22c55e";
+        input.value = "";
+      } else {
+        msg.textContent = "出错了，请重试。";
+        msg.style.color = "#ef4444";
+      }
+    } catch (e) {
+      msg.textContent = "出错了，请重试。";
+      msg.style.color = "#ef4444";
+    } finally {
+      subBtn.disabled = false;
+    }
+  });
 })();
 
 fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {

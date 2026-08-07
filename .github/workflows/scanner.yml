@@ -302,6 +302,22 @@ jobs:
             git push origin HEAD:main
           fi
 
+      - name: Send daily email digest
+        # Only the final weekday run (6:30 PM ET) sends — the 4:30/5:00/5:30 PM
+        # crons are same-day retries of the same data, and would otherwise send
+        # subscribers 2-4 duplicate emails. No-ops safely (see send_daily_digest.py)
+        # until RESEND_API_KEY and FIREBASE_SERVICE_ACCOUNT_JSON are both set.
+        if: env.IS_HOLIDAY != 'True' && github.event.schedule == '30 22 * * 1-5'
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          if [ -n "${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}" ]; then
+            echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > /tmp/firebase-sa.json
+            export GOOGLE_APPLICATION_CREDENTIALS=/tmp/firebase-sa.json
+          fi
+          python send_daily_digest.py
+          rm -f /tmp/firebase-sa.json
+
       - name: Regenerate stock pages
         if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1' && env.SKIP_SCAN != '1'
         run: |

@@ -5,6 +5,7 @@ const Stripe = require("stripe");
 const admin = require("firebase-admin");
 const cors = require("cors");
 const https = require("https");
+const crypto = require("crypto");
 const AnthropicModule = require("@anthropic-ai/sdk");
 const Anthropic = AnthropicModule.default || AnthropicModule;
 
@@ -265,6 +266,72 @@ app.get("/market-news", async (req, res) => {
     const stale = _marketNewsCache[lang];
     if (stale && stale.data) return res.json(stale.data);
     res.status(500).json({ error: "Failed to fetch news" });
+  }
+});
+
+/* ---------------------------
+   DAILY EMAIL DIGEST — signup / unsubscribe
+   Subscriber records live in Firestore `email_subscribers/{lowercased email}`.
+   All writes go through this Admin-SDK endpoint (never direct from the
+   client), so no Firestore security-rule changes are needed for this
+   collection. `unsubToken` is generated once at signup and stored on the
+   doc — the daily send script (send_daily_digest.py) reads it back out
+   when building each subscriber's unsubscribe link, so no secret needs to
+   be shared between the Cloud Function and the GitHub Actions script.
+--------------------------- */
+const _EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+app.post("/subscribe-email", express.json(), async (req, res) => {
+  try {
+    const email = (req.body.email || "").trim().toLowerCase();
+    const locale = req.body.locale === "zh" ? "zh" : "en";
+    if (!email || !_EMAIL_RE.test(email)) {
+      return res.status(400).json({ error: "invalid_email" });
+    }
+
+    const ref = admin.firestore().collection("email_subscribers").doc(email);
+    const snap = await ref.get();
+
+    if (snap.exists) {
+      // Re-subscribing after a prior unsubscribe, or a duplicate signup — idempotent either way.
+      await ref.set({ unsubscribed: false, locale }, { merge: true });
+    } else {
+      await ref.set({
+        email,
+        locale,
+        unsubscribed: false,
+        unsubToken: crypto.randomUUID(),
+        subscribedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("subscribe-email:", e.message);
+    res.status(500).json({ error: "Failed to subscribe" });
+  }
+});
+
+app.get("/unsubscribe", async (req, res) => {
+  const email = (req.query.email || "").trim().toLowerCase();
+  const token = req.query.token || "";
+  const page = (title, body) => res.send(`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
+<style>body{font-family:sans-serif;background:#060d1f;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}
+.box{max-width:420px;text-align:center;padding:32px;}h1{font-size:20px;color:#60a5fa;}p{color:#cbd5e1;font-size:14px;line-height:1.6;}
+a{color:#60a5fa;}</style></head><body><div class="box"><h1>${title}</h1><p>${body}</p></div></body></html>`);
+
+  try {
+    if (!email || !token) return page("Invalid link", "This unsubscribe link is missing information.");
+    const ref = admin.firestore().collection("email_subscribers").doc(email);
+    const snap = await ref.get();
+    if (!snap.exists || snap.data().unsubToken !== token) {
+      return page("Invalid link", "We couldn't verify this unsubscribe link. Contact support@baizora.com if you keep receiving emails.");
+    }
+    await ref.set({ unsubscribed: true }, { merge: true });
+    return page("Unsubscribed", `${email} will no longer receive the daily digest. <a href="https://baizora.com">Return to Baizora</a>`);
+  } catch (e) {
+    console.error("unsubscribe:", e.message);
+    return page("Something went wrong", "Please try again later or contact support@baizora.com.");
   }
 });
 
