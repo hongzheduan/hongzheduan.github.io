@@ -724,21 +724,19 @@
     .sma-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .sma-btn::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; opacity: .5; }
     .sma-btn:hover { color: #cbd5e1; }
-    .sma-btn[data-sma="sma20"]::before  { background: #f59e0b; }
-    .sma-btn[data-sma="sma50"]::before  { background: #60a5fa; }
-    .sma-btn[data-sma="sma200"]::before { background: #a78bfa; }
-    .sma-btn[data-sma="smaCustom"]::before { background: #2dd4bf; }
     .sma-btn[data-sma="bb"]::before { background: #f472b6; }
-    .sma-btn[data-sma="sma20"].active  { background: rgba(245,158,11,0.16);  border-color: #f59e0b;  color: #fcd34d; }
-    .sma-btn[data-sma="sma50"].active  { background: rgba(96,165,250,0.16);  border-color: #60a5fa;  color: #93c5fd; }
-    .sma-btn[data-sma="sma200"].active { background: rgba(167,139,250,0.16); border-color: #a78bfa;  color: #c4b5fd; }
-    .sma-btn[data-sma="smaCustom"].active { background: rgba(45,212,191,0.16); border-color: #2dd4bf; color: #5eead4; }
     .sma-btn[data-sma="bb"].active { background: rgba(244,114,182,0.16); border-color: #f472b6; color: #f9a8d4; }
+    .sma-btn[data-sma="macd"]::before { background: #22d3ee; }
+    .sma-btn[data-sma="macd"].active { background: rgba(34,211,238,0.16); border-color: #22d3ee; color: #67e8f9; }
     .sma-btn.active::before { opacity: 1; }
-    #customSmaInput, #bbPeriodInput, #bbMultInput { width: 38px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #e2e8f0; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 4px; text-align: center; outline: none; }
-    #customSmaInput:focus, #bbPeriodInput:focus, #bbMultInput:focus { border-color: #f472b6; }
+    .sma-chip { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); border: 1px solid; border-radius: 4px; padding: 3px 6px 3px 10px; font-family: 'DM Mono',monospace; font-size: 11px; }
+    .sma-chip-del { background: none; border: none; cursor: pointer; font-size: 13px; line-height: 1; padding: 0 2px; opacity: .75; }
+    .sma-chip-del:hover { opacity: 1; }
+    #customSmaInput, #bbPeriodInput, #bbMultInput, #macdFastInput, #macdSlowInput, #macdSignalInput { width: 38px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #e2e8f0; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 4px; text-align: center; outline: none; }
+    #customSmaInput:focus, #bbPeriodInput:focus, #bbMultInput:focus, #macdFastInput:focus, #macdSlowInput:focus, #macdSignalInput:focus { border-color: #22d3ee; }
     .sma-add-btn { background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.18); color: #64748b; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .sma-add-btn:hover { color: #2dd4bf; border-color: #2dd4bf; }
+    .sma-add-btn:disabled { opacity: .35; cursor: not-allowed; }
     #candleCanvas { width: 100%; height: 280px; display: block; border-radius: 8px; }
     #candleNoData {
       width: 100%; height: 280px; display: none;
@@ -1001,7 +999,34 @@
     }
 
     /* ── SMA PREFERENCES (which overlays + custom period are on, synced like the watchlist) ── */
-    let smaPrefs = JSON.parse(localStorage.getItem("baizora_sma_prefs") || "null") || { active: ["sma20", "sma50", "sma200"], custom: null, bbPeriod: 20, bbMult: 2 };
+    // Migrates the old fixed-3-preset-plus-one-custom-slot shape ({active:[...], custom:N})
+    // into the current free-form list shape ({smaList:[...]}) so pre-existing localStorage/
+    // Firestore prefs from before the dynamic add/delete rework don't get silently discarded.
+    function _migrateSmaPrefs(p) {
+      const dflt = { smaList: [20, 50, 200], bbActive: false, bbPeriod: 20, bbMult: 2, macdActive: false, macdFast: 12, macdSlow: 26, macdSignal: 9 };
+      if (!p) return dflt;
+      let smaList;
+      if (Array.isArray(p.smaList)) {
+        smaList = p.smaList.slice(0, 5);
+      } else {
+        smaList = [];
+        if (Array.isArray(p.active)) {
+          if (p.active.includes("sma20")) smaList.push(20);
+          if (p.active.includes("sma50")) smaList.push(50);
+          if (p.active.includes("sma200")) smaList.push(200);
+          if (p.active.includes("smaCustom") && p.custom) smaList.push(p.custom);
+        }
+        if (!smaList.length) smaList = dflt.smaList;
+      }
+      const bbActive = "bbActive" in p ? !!p.bbActive : (Array.isArray(p.active) && p.active.includes("bb"));
+      const macdActive = "macdActive" in p ? !!p.macdActive : (Array.isArray(p.active) && p.active.includes("macd"));
+      return {
+        smaList, bbActive, macdActive,
+        bbPeriod: p.bbPeriod || 20, bbMult: p.bbMult || 2,
+        macdFast: p.macdFast || 12, macdSlow: p.macdSlow || 26, macdSignal: p.macdSignal || 9
+      };
+    }
+    let smaPrefs = _migrateSmaPrefs(JSON.parse(localStorage.getItem("baizora_sma_prefs") || "null"));
 
     function saveSmaPrefs() {
       localStorage.setItem("baizora_sma_prefs", JSON.stringify(smaPrefs));
@@ -1023,8 +1048,8 @@
           setDoc(doc(db, "users", uid), { watchlist: [...watchlist] }, { merge: true })
             .catch(e => console.warn("Watchlist initial cloud seed failed:", e));
         }
-        if (data && data.smaPrefs && Array.isArray(data.smaPrefs.active)) {
-          smaPrefs = data.smaPrefs;
+        if (data && data.smaPrefs) {
+          smaPrefs = _migrateSmaPrefs(data.smaPrefs);
           localStorage.setItem("baizora_sma_prefs", JSON.stringify(smaPrefs));
         } else {
           // Same document, same round trip — seed SMA prefs from localStorage too.
@@ -1798,7 +1823,7 @@
     }
 
     /* ── CANDLESTICK RENDERER ── */
-    function renderCandleChart(canvas, candles, dates, smaLines, bands) {
+    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
@@ -1806,11 +1831,14 @@
       const ctx = canvas.getContext("2d");
       ctx.scale(dpr, dpr);
       const W = rect.width, H = rect.height;
-      const hasVol = candles.some(c => c && c[4] > 0);
-      const volH   = hasVol ? Math.round(H * 0.22) : 0;
-      const gap    = hasVol ? 6 : 0;
+      const hasVol  = candles.some(c => c && c[4] > 0);
+      const volH    = hasVol ? Math.round(H * 0.22) : 0;
+      const gap     = hasVol ? 6 : 0;
+      const hasMacd = !!(macd && (macd.macd || macd.signal || macd.hist));
+      const macdH   = hasMacd ? Math.round(H * 0.24) : 0;
+      const gap2    = hasMacd ? 6 : 0;
       const pad    = { top: 20, right: 16, bottom: 28, left: 58 };
-      const priceH = H - pad.top - pad.bottom - volH - gap;
+      const priceH = H - pad.top - pad.bottom - volH - gap - macdH - gap2;
       const n      = candles.length;
       const slotW  = (W - pad.left - pad.right) / n;
       const cndW   = Math.max(1, slotW * 0.65);
@@ -1923,6 +1951,50 @@
           ctx.fillRect(toX(i), volTop + (volH - 4) - bH, cndW, bH);
         });
       }
+      if (hasMacd) {
+        const macdTop = pad.top + priceH + gap + volH + gap2;
+        let mMin = Infinity, mMax = -Infinity;
+        const consider = v => { if (v != null) { if (v > mMax) mMax = v; if (v < mMin) mMin = v; } };
+        (macd.macd || []).forEach(consider);
+        (macd.signal || []).forEach(consider);
+        (macd.hist || []).forEach(consider);
+        if (mMin === Infinity) { mMin = -1; mMax = 1; }
+        const mBuf = (mMax - mMin) * 0.1 || 1;
+        const mLo = mMin - mBuf, mHi = mMax + mBuf;
+        const mToY = v => macdTop + macdH * (1 - (v - mLo) / (mHi - mLo));
+        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad.left, macdTop); ctx.lineTo(W - pad.right, macdTop); ctx.stroke();
+        ctx.fillStyle = "#475569"; ctx.font = `9px 'DM Mono', monospace`;
+        ctx.textAlign = "right";
+        ctx.fillText("MACD", pad.left - 5, macdTop + 9);
+        const zeroY = mToY(0);
+        ctx.strokeStyle = "rgba(255,255,255,0.10)"; ctx.setLineDash([2, 2]);
+        ctx.beginPath(); ctx.moveTo(pad.left, zeroY); ctx.lineTo(W - pad.right, zeroY); ctx.stroke();
+        ctx.setLineDash([]);
+        candles.forEach((c, i) => {
+          const v = macd.hist ? macd.hist[i] : null;
+          if (v == null) return;
+          const y1 = mToY(v);
+          const top = Math.min(zeroY, y1), h = Math.max(1, Math.abs(y1 - zeroY));
+          ctx.fillStyle = v >= 0 ? "rgba(34,197,94,0.5)" : "rgba(239,68,68,0.5)";
+          ctx.fillRect(toX(i), top, cndW, h);
+        });
+        const drawMacdLine = (vals, color) => {
+          ctx.strokeStyle = color; ctx.lineWidth = 1.3;
+          ctx.beginPath();
+          let started = false;
+          candles.forEach((c, i) => {
+            const v = vals ? vals[i] : null;
+            if (v == null) return;
+            const x = toX(i) + cndW / 2, y = mToY(v);
+            if (!started) { ctx.moveTo(x, y); started = true; }
+            else ctx.lineTo(x, y);
+          });
+          ctx.stroke();
+        };
+        drawMacdLine(macd.macd, "#22d3ee");
+        drawMacdLine(macd.signal, "#f59e0b");
+      }
     }
 
     /* ── TICKER MODAL ── */
@@ -1973,39 +2045,42 @@
       document.getElementById("tfDrawerToggle").textContent = "6月 ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
-      document.querySelectorAll(".sma-btn[data-sma]").forEach(b => {
-        if (b.dataset.sma !== "smaCustom") b.classList.toggle("active", smaPrefs.active.includes(b.dataset.sma));
-      });
-      _customSmaPeriod = smaPrefs.custom;
-      const customChip = document.getElementById("customSmaChip");
-      if (_customSmaPeriod) {
-        customChip.textContent = _customSmaPeriod + "日均线";
-        customChip.classList.toggle("active", smaPrefs.active.includes("smaCustom"));
-        customChip.style.display = "inline-block";
-        document.getElementById("customSmaInput").value = _customSmaPeriod;
-      } else {
-        customChip.classList.remove("active");
-        customChip.style.display = "none";
-        document.getElementById("customSmaInput").value = "";
-      }
+      _smaList = (smaPrefs.smaList && smaPrefs.smaList.length ? smaPrefs.smaList.slice(0, 5) : [20, 50, 200]);
+      _renderSmaChips();
       _bbPeriod = smaPrefs.bbPeriod || 20;
       _bbMult = smaPrefs.bbMult || 2;
       document.getElementById("bbChip").textContent = "布林带 (" + _bbPeriod + "," + _bbMult + ")";
+      document.getElementById("bbChip").classList.toggle("active", !!smaPrefs.bbActive);
       document.getElementById("bbPeriodInput").value = _bbPeriod;
       document.getElementById("bbMultInput").value = _bbMult;
       document.getElementById("smaToggles").classList.remove("open");
       document.getElementById("smaDrawerToggle").classList.remove("open");
       document.getElementById("bbToggles").classList.remove("open");
       document.getElementById("bbDrawerToggle").classList.remove("open");
+      _macdFast = smaPrefs.macdFast || 12;
+      _macdSlow = smaPrefs.macdSlow || 26;
+      _macdSignal = smaPrefs.macdSignal || 9;
+      document.getElementById("macdChip").textContent = "MACD (" + _macdFast + "," + _macdSlow + "," + _macdSignal + ")";
+      document.getElementById("macdChip").classList.toggle("active", !!smaPrefs.macdActive);
+      document.getElementById("macdFastInput").value = _macdFast;
+      document.getElementById("macdSlowInput").value = _macdSlow;
+      document.getElementById("macdSignalInput").value = _macdSignal;
+      document.getElementById("macdToggles").classList.remove("open");
+      document.getElementById("macdDrawerToggle").classList.remove("open");
 
       requestAnimationFrame(() => {
         _renderModalChart(ticker, 126);
       });
     }
 
-    const _SMA_COLORS = { sma20: "#f59e0b", sma50: "#60a5fa", sma200: "#a78bfa", smaCustom: "#2dd4bf", bb: "#f472b6" };
-    let _customSmaPeriod = null;
+    const _SMA_COLORS = { bb: "#f472b6" };
+    // Rotating fixed palette for the free-form SMA list — index = position in
+    // _smaList, so cap SMA_MAX at the palette length rather than cycling past it.
+    const SMA_PALETTE = ["#f59e0b", "#60a5fa", "#a78bfa", "#2dd4bf", "#fb7185"];
+    const SMA_MAX = 5;
+    let _smaList = [20, 50, 200];
     let _bbPeriod = 20, _bbMult = 2;
+    let _macdFast = 12, _macdSlow = 26, _macdSignal = 9;
     function _computeCustomSma(candles, period) {
       if (!period) return null;
       const closes = candles.map(c => c ? c[3] : null);
@@ -2019,6 +2094,44 @@
         if (ok) out[i] = sum / period;
       }
       return out;
+    }
+    function _saveSmaPrefsNow() {
+      smaPrefs = {
+        smaList: _smaList.slice(),
+        bbActive: document.getElementById("bbChip").classList.contains("active"),
+        bbPeriod: _bbPeriod, bbMult: _bbMult,
+        macdActive: document.getElementById("macdChip").classList.contains("active"),
+        macdFast: _macdFast, macdSlow: _macdSlow, macdSignal: _macdSignal
+      };
+      saveSmaPrefs();
+    }
+    function _renderSmaChips() {
+      document.getElementById("smaChipsContainer").innerHTML = _smaList.map((p, i) => {
+        const c = SMA_PALETTE[i % SMA_PALETTE.length];
+        return `<span class="sma-chip" style="border-color:${c};color:${c};">${p}日均线<button type="button" class="sma-chip-del" data-period="${p}" style="color:${c};" title="删除">&times;</button></span>`;
+      }).join("");
+      const atCap = _smaList.length >= SMA_MAX;
+      document.querySelectorAll('.sma-add-btn[data-preset]').forEach(b => { b.disabled = atCap; });
+      document.getElementById("customSmaAdd").disabled = atCap;
+    }
+    function _rerenderChart() {
+      const activeTf = document.querySelector(".tf-btn.active");
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+    }
+    function _addSmaPeriod(period) {
+      if (!period || period < 2 || period > 250 || !_modalTicker) return;
+      if (_smaList.includes(period) || _smaList.length >= SMA_MAX) return;
+      _smaList.push(period);
+      _renderSmaChips();
+      _saveSmaPrefsNow();
+      _rerenderChart();
+    }
+    function _removeSmaPeriod(period) {
+      if (!_modalTicker) return;
+      _smaList = _smaList.filter(p => p !== period);
+      _renderSmaChips();
+      _saveSmaPrefsNow();
+      _rerenderChart();
     }
     function _computeBollinger(candles, period, mult) {
       const closes = candles.map(c => c ? c[3] : null);
@@ -2039,6 +2152,34 @@
         lower[i] = mean - mult * sd;
       }
       return { upper, lower };
+    }
+    // Generic EMA, SMA-seeded at the first `period` non-null values it finds —
+    // reused both for price-based EMAs and for the signal-line EMA of the MACD
+    // series itself (which has its own leading null run from the slow EMA's warmup).
+    function _computeEma(series, period) {
+      const out = new Array(series.length).fill(null);
+      const start = series.findIndex(v => v != null);
+      if (start === -1 || start + period > series.length) return out;
+      let sum = 0;
+      for (let i = start; i < start + period; i++) sum += series[i];
+      let prev = sum / period;
+      out[start + period - 1] = prev;
+      const k = 2 / (period + 1);
+      for (let i = start + period; i < series.length; i++) {
+        if (series[i] == null) { out[i] = null; continue; }
+        prev = series[i] * k + prev * (1 - k);
+        out[i] = prev;
+      }
+      return out;
+    }
+    function _computeMacd(candles, fast, slow, signalP) {
+      const closes = candles.map(c => c ? c[3] : null);
+      const emaFast = _computeEma(closes, fast);
+      const emaSlow = _computeEma(closes, slow);
+      const macdLine = closes.map((_, i) => (emaFast[i] != null && emaSlow[i] != null) ? emaFast[i] - emaSlow[i] : null);
+      const signalLine = _computeEma(macdLine, signalP);
+      const hist = macdLine.map((v, i) => (v != null && signalLine[i] != null) ? v - signalLine[i] : null);
+      return { macdLine, signalLine, hist };
     }
 
     let _modalTicker = null;
@@ -2062,16 +2203,25 @@
         const filled = fillCalendarGaps(slicedDates, slicedCandles);
         canvas.style.display = "block"; noData.style.display = "none";
 
-        const activeSmaKeys = Array.from(document.querySelectorAll(".sma-btn.active"))
-          .map(b => b.dataset.sma);
         const alignToDates = raw => {
           const padded = !raw ? new Array(dates.length).fill(null)
             : (raw.length < dates.length ? new Array(dates.length - raw.length).fill(null).concat(raw) : raw);
           const slicedVals = padded.slice(-slice);
           return fillCalendarGaps(slicedDates, slicedVals).candles;
         };
-        const smaLines = [];
+        // Prefer the backend-precomputed sma20/50/200 (full validity across the whole
+        // window, since it's rolled from the scanner's full 730-day history) when a
+        // list period happens to match one of those; any other period is computed
+        // client-side from just the visible ~252-day export (see _computeCustomSma).
+        const smaLines = _smaList.map((period, i) => {
+          const backendKey = "sma" + period;
+          const raw = (rawSma && rawSma[backendKey]) ? rawSma[backendKey] : _computeCustomSma(candles, period);
+          return { color: SMA_PALETTE[i % SMA_PALETTE.length], values: alignToDates(raw) };
+        });
         let bbBand = null;
+        let macdActive = false;
+        const activeSmaKeys = Array.from(document.querySelectorAll(".sma-btn.active"))
+          .map(b => b.dataset.sma);
         activeSmaKeys.forEach(key => {
           if (key === "bb") {
             const { upper, lower } = _computeBollinger(candles, _bbPeriod, _bbMult);
@@ -2081,11 +2231,17 @@
             bbBand = { upper: upVals, lower: loVals };
             return;
           }
-          const raw = key === "smaCustom" ? _computeCustomSma(candles, _customSmaPeriod) : (rawSma ? rawSma[key] : null);
-          smaLines.push({ color: _SMA_COLORS[key], values: alignToDates(raw) });
+          if (key === "macd") { macdActive = true; return; }
         });
 
-        renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : []);
+        let macdData = null;
+        if (macdActive) {
+          const { macdLine, signalLine, hist } = _computeMacd(candles, _macdFast, _macdSlow, _macdSignal);
+          macdData = { macd: alignToDates(macdLine), signal: alignToDates(signalLine), hist: alignToDates(hist) };
+        }
+        canvas.style.height = macdData ? "390px" : "280px";
+
+        renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData);
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
       }
@@ -2102,29 +2258,18 @@
       _renderModalChart(_modalTicker, parseInt(btn.dataset.tf));
     });
 
-    document.getElementById("smaToggles").addEventListener("click", e => {
-      const btn = e.target.closest(".sma-btn");
-      if (!btn || !_modalTicker) return;
-      btn.classList.toggle("active");
-      smaPrefs = { active: Array.from(document.querySelectorAll(".sma-btn.active")).map(b => b.dataset.sma), custom: _customSmaPeriod, bbPeriod: _bbPeriod, bbMult: _bbMult };
-      saveSmaPrefs();
-      const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+    document.getElementById("smaChipsContainer").addEventListener("click", e => {
+      const del = e.target.closest(".sma-chip-del");
+      if (!del) return;
+      _removeSmaPeriod(parseInt(del.dataset.period, 10));
     });
-
+    document.querySelectorAll('#smaToggles .sma-add-btn[data-preset]').forEach(b => {
+      b.addEventListener("click", () => _addSmaPeriod(parseInt(b.dataset.preset, 10)));
+    });
     document.getElementById("customSmaAdd").addEventListener("click", () => {
       const input = document.getElementById("customSmaInput");
-      const val = parseInt(input.value, 10);
-      if (!val || val < 2 || val > 250 || !_modalTicker) return;
-      _customSmaPeriod = val;
-      const chip = document.getElementById("customSmaChip");
-      chip.textContent = val + "日均线";
-      chip.classList.add("active");
-      chip.style.display = "inline-block";
-      smaPrefs = { active: Array.from(document.querySelectorAll(".sma-btn.active")).map(b => b.dataset.sma), custom: _customSmaPeriod, bbPeriod: _bbPeriod, bbMult: _bbMult };
-      saveSmaPrefs();
-      const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+      _addSmaPeriod(parseInt(input.value, 10));
+      input.value = "";
     });
     document.getElementById("customSmaInput").addEventListener("keydown", e => {
       if (e.key === "Enter") { e.preventDefault(); document.getElementById("customSmaAdd").click(); }
@@ -2147,14 +2292,23 @@
     }
     _setupDrawer("smaDrawerToggle", "smaToggles");
     _setupDrawer("bbDrawerToggle", "bbToggles");
+    _setupDrawer("macdDrawerToggle", "macdToggles");
     _setupDrawer("tfDrawerToggle", "candleTimeframes");
 
     document.getElementById("bbToggles").addEventListener("click", e => {
       const btn = e.target.closest(".sma-btn");
       if (!btn || !_modalTicker) return;
       btn.classList.toggle("active");
-      smaPrefs = { active: Array.from(document.querySelectorAll(".sma-btn.active")).map(b => b.dataset.sma), custom: _customSmaPeriod, bbPeriod: _bbPeriod, bbMult: _bbMult };
-      saveSmaPrefs();
+      _saveSmaPrefsNow();
+      const activeTf = document.querySelector(".tf-btn.active");
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+    });
+
+    document.getElementById("macdToggles").addEventListener("click", e => {
+      const btn = e.target.closest(".sma-btn");
+      if (!btn || !_modalTicker) return;
+      btn.classList.toggle("active");
+      _saveSmaPrefsNow();
       const activeTf = document.querySelector(".tf-btn.active");
       _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
     });
@@ -2167,8 +2321,7 @@
       const chip = document.getElementById("bbChip");
       chip.textContent = "布林带 (" + p + "," + m + ")";
       chip.classList.add("active");
-      smaPrefs = { active: Array.from(document.querySelectorAll(".sma-btn.active")).map(b => b.dataset.sma), custom: _customSmaPeriod, bbPeriod: _bbPeriod, bbMult: _bbMult };
-      saveSmaPrefs();
+      _saveSmaPrefsNow();
       const activeTf = document.querySelector(".tf-btn.active");
       _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
     });
@@ -2177,6 +2330,25 @@
     });
     document.getElementById("bbMultInput").addEventListener("keydown", e => {
       if (e.key === "Enter") { e.preventDefault(); document.getElementById("bbApply").click(); }
+    });
+
+    document.getElementById("macdApply").addEventListener("click", () => {
+      const f = parseInt(document.getElementById("macdFastInput").value, 10);
+      const s = parseInt(document.getElementById("macdSlowInput").value, 10);
+      const sig = parseInt(document.getElementById("macdSignalInput").value, 10);
+      if (!f || f < 2 || f > 100 || !s || s < 2 || s > 200 || !sig || sig < 2 || sig > 100 || !_modalTicker) return;
+      _macdFast = f; _macdSlow = s; _macdSignal = sig;
+      const chip = document.getElementById("macdChip");
+      chip.textContent = "MACD (" + f + "," + s + "," + sig + ")";
+      chip.classList.add("active");
+      _saveSmaPrefsNow();
+      const activeTf = document.querySelector(".tf-btn.active");
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+    });
+    ["macdFastInput", "macdSlowInput", "macdSignalInput"].forEach(id => {
+      document.getElementById(id).addEventListener("keydown", e => {
+        if (e.key === "Enter") { e.preventDefault(); document.getElementById("macdApply").click(); }
+      });
     });
 
     function closeTickerModal() {
@@ -2411,10 +2583,10 @@
       <div class="overlay-drawer-wrap">
         <button type="button" class="overlay-drawer-toggle" id="smaDrawerToggle">均线 &#9662;</button>
         <div class="overlay-drawer-panel" id="smaToggles">
-          <button class="sma-btn active" data-sma="sma20">20日均线</button>
-          <button class="sma-btn active" data-sma="sma50">50日均线</button>
-          <button class="sma-btn active" data-sma="sma200">200日均线</button>
-          <button class="sma-btn" id="customSmaChip" data-sma="smaCustom" style="display:none;"></button>
+          <div id="smaChipsContainer" style="display:flex;flex-wrap:wrap;gap:6px;width:100%;"></div>
+          <button type="button" class="sma-add-btn" data-preset="20">+20</button>
+          <button type="button" class="sma-add-btn" data-preset="50">+50</button>
+          <button type="button" class="sma-add-btn" data-preset="200">+200</button>
           <input type="number" id="customSmaInput" min="2" max="250" placeholder="#" title="自定义均线周期 (2-250)">
           <button type="button" class="sma-add-btn" id="customSmaAdd">+均线</button>
         </div>
@@ -2426,6 +2598,16 @@
           <input type="number" id="bbPeriodInput" min="2" max="250" value="20" title="布林带周期 (默认20)">
           <input type="number" id="bbMultInput" min="0.5" max="5" step="0.1" value="2" title="标准差倍数 (默认2)">
           <button type="button" class="sma-add-btn" id="bbApply">设置</button>
+        </div>
+      </div>
+      <div class="overlay-drawer-wrap">
+        <button type="button" class="overlay-drawer-toggle" id="macdDrawerToggle">MACD &#9662;</button>
+        <div class="overlay-drawer-panel" id="macdToggles">
+          <button class="sma-btn" id="macdChip" data-sma="macd">MACD (12,26,9)</button>
+          <input type="number" id="macdFastInput" min="2" max="100" value="12" title="快线EMA周期 (默认12)">
+          <input type="number" id="macdSlowInput" min="2" max="200" value="26" title="慢线EMA周期 (默认26)">
+          <input type="number" id="macdSignalInput" min="2" max="100" value="9" title="信号线EMA周期 (默认9)">
+          <button type="button" class="sma-add-btn" id="macdApply">设置</button>
         </div>
       </div>
       <canvas id="candleCanvas"></canvas>
