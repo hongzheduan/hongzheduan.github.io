@@ -499,7 +499,16 @@ jobs:
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
         run: |
-          DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
+          # Same weekend override as the "Generate daily videos" step above: on
+          # SKIP_SCAN=1 runs, data/latest.json's date is still Friday's, but the
+          # video was rendered (and latest_video_meta.json written) with the real
+          # ET calendar date. Reuse that here too so the YouTube title matches
+          # what's on-screen instead of showing Friday's date on weekends.
+          if [ "$SKIP_SCAN" = "1" ]; then
+            DATE=$(TZ='America/New_York' date +%Y-%m-%d)
+          else
+            DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
+          fi
           for type in $VIDEO_TYPES; do
             if [ -f "video/${type}.mp4" ]; then
               OUT=$(python video/upload_youtube.py --file video/${type}.mp4 --type $type --date $DATE)
