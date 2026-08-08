@@ -2621,9 +2621,8 @@ def check_data_quality(df, candles_out, trading_days):
 # EXPORT
 # =========================
 
-def _rotate_free_tier(new_market_date):
-    """Rotates latest.json → latest_d1.json (used by score_history for prior-session top movers).
-    free_tier.json is updated separately by the scanner-archive YAML step (10-session delay)."""
+def _rotate_prior_session(new_market_date):
+    """Rotates latest.json → latest_d1.json (used by score_history for prior-session top movers)."""
     import shutil
     d1_path = os.path.join(DATA_DIR, "latest_d1.json")
 
@@ -2648,7 +2647,7 @@ def export(df):
     output_csv  = os.path.join(ARCHIVE_DIR, f"results_{market_date}.csv")
 
     df.to_csv(output_csv, index=False)
-    _rotate_free_tier(market_date)
+    _rotate_prior_session(market_date)
 
     payload = {
         "date":   market_date,

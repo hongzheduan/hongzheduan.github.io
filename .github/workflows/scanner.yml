@@ -229,7 +229,6 @@ jobs:
           cp data/latest.json          "$TMPBAK/" 2>/dev/null || true
           cp data/latest_yfinance.json "$TMPBAK/" 2>/dev/null || true
           cp data/latest_d1.json       "$TMPBAK/" 2>/dev/null || true
-          cp data/free_tier.json       "$TMPBAK/" 2>/dev/null || true
           cp data/candles.json         "$TMPBAK/" 2>/dev/null || true
           cp data/index_changes.json   "$TMPBAK/" 2>/dev/null || true
           cp data/index_news.json      "$TMPBAK/" 2>/dev/null || true
@@ -254,7 +253,6 @@ jobs:
           cp "$TMPBAK/latest.json"           data/ 2>/dev/null || true
           cp "$TMPBAK/latest_yfinance.json"  data/ 2>/dev/null || true
           cp "$TMPBAK/latest_d1.json"        data/ 2>/dev/null || true
-          cp "$TMPBAK/free_tier.json"        data/ 2>/dev/null || true
           cp "$TMPBAK/candles.json"          data/ 2>/dev/null || true
           cp "$TMPBAK/index_changes.json"    data/ 2>/dev/null || true
           cp "$TMPBAK/index_news.json"       data/ 2>/dev/null || true
@@ -277,7 +275,6 @@ jobs:
           git add data/latest.json                     2>/dev/null || true
           git add data/latest_yfinance.json            2>/dev/null || true
           git add data/latest_d1.json                  2>/dev/null || true
-          git add data/free_tier.json                  2>/dev/null || true
           git add data/candles.json                    2>/dev/null || true
           git add data/index_changes.json              2>/dev/null || true
           git add data/index_news.json                 2>/dev/null || true
@@ -291,7 +288,7 @@ jobs:
           git add -f data/daily_briefing_cn.txt         2>/dev/null || true
           git add -f data/market_news.json              2>/dev/null || true
           git add -f data/market_news_cn.json           2>/dev/null || true
-          # results_*.csv are pushed gzipped to scanner-archive repo, not committed here
+          # results_*.csv are transient to this run, not committed
           git add -f archive/compare_*.log             2>/dev/null || true
           git add archive/worklog.md                   2>/dev/null || true
 
@@ -715,40 +712,3 @@ jobs:
           git commit -m "log: news report video skipped"
           git push origin main
 
-      - name: Push JSON to scanner-archive; update free_tier.json (10-session delay)
-        if: env.IS_HOLIDAY != 'True' && github.event.schedule == '0 4 * * 2-6'
-        env:
-          ARCHIVE_PAT: ${{ secrets.ARCHIVE_PAT }}
-        run: |
-          DATE_STR=$(python3 -c "import json; print(json.load(open('data/latest.json'))['date'])")
-
-          # Gzip latest.json with the scan date
-          gzip -c data/latest.json > "latest_${DATE_STR}.json.gz"
-
-          # Push to scanner-archive
-          git clone "https://hongzheduan:${ARCHIVE_PAT}@github.com/hongzheduan/scanner-archive.git" /tmp/scanner-archive
-          cp "latest_${DATE_STR}.json.gz" /tmp/scanner-archive/
-          cd /tmp/scanner-archive
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add .
-          if ! git diff --cached --quiet; then
-            git commit -m "archive ${DATE_STR}"
-            git push
-          fi
-
-          # Update free_tier.json: serve data from 10 trading sessions ago
-          SNAPS=($(ls latest_????-??-??.json.gz 2>/dev/null | sort))
-          COUNT=${#SNAPS[@]}
-          [ $COUNT -eq 0 ] && exit 0
-          IDX=$(( COUNT >= 10 ? COUNT - 10 : 0 ))
-          TARGET=${SNAPS[$IDX]}
-
-          cd "$GITHUB_WORKSPACE"
-          gunzip -c "/tmp/scanner-archive/$TARGET" > data/free_tier.json
-          git add data/free_tier.json
-          if ! git diff --cached --quiet; then
-            git commit -m "data: free_tier ← ${TARGET%.json.gz} (10-session delay)"
-            git pull --rebase origin main
-            git push
-          fi

@@ -817,7 +817,7 @@
         <span class="brand-cn">贝佐拉</span>
       </a>
       <div class="header-divider"></div>
-      <span class="free-badge-long" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:4px 10px;border-radius:999px;">免费 · 延迟两周</span><span class="free-badge-short" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:4px 8px;border-radius:999px;">免费</span>
+      <span class="free-badge-long" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:4px 10px;border-radius:999px;">免费 · 今日20强异动</span><span class="free-badge-short" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:4px 8px;border-radius:999px;">免费</span>
     </div>
 
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
@@ -1103,14 +1103,17 @@
     function loadDashboard() {
       const ctrl = new AbortController();
       const tid = setTimeout(() => ctrl.abort(), 15000);
-      fetch("data/free_tier.json", { signal: ctrl.signal })
+      fetch("data/latest.json", { signal: ctrl.signal })
         .then(r => r.json())
         .then(json => {
           clearTimeout(tid);
           allRows    = json.data || [];
           loadedDate = json.date || "—";
-          spRows = allRows.filter(x => x.InSP500);
-          ndRows = allRows.filter(x => x.InNASDAQ100);
+          const top20 = arr => [...arr]
+            .sort((a, b) => (b.PriceChange1D ?? -Infinity) - (a.PriceChange1D ?? -Infinity))
+            .slice(0, 20);
+          spRows = top20(allRows.filter(x => x.InSP500));
+          ndRows = top20(allRows.filter(x => x.InNASDAQ100));
           etfRows = allRows.filter(x => x.InETF);
           overlay.classList.add("hidden");
           statusDot.className = "status-dot";
@@ -1124,7 +1127,7 @@
           overlay.classList.add("hidden");
           statusDot.className = "status-dot error";
           statusText.textContent = "暂无数据";
-          document.getElementById("sp500Table").innerHTML = `<tbody><tr><td colspan="20" style="text-align:center;padding:48px 20px;color:#64748b;font-size:13px;line-height:1.8;">免费版数据尚未生成。<br>请在下次市场收盘后再查看。</td></tr></tbody>`;
+          document.getElementById("sp500Table").innerHTML = `<tbody><tr><td colspan="20" style="text-align:center;padding:48px 20px;color:#64748b;font-size:13px;line-height:1.8;">免费版数据暂时不可用。<br>请在下次市场收盘后再查看。</td></tr></tbody>`;
           document.getElementById("nasdaqTable").innerHTML = document.getElementById("sp500Table").innerHTML;
         });
     }
@@ -1138,7 +1141,7 @@
         return;
       }
       const rows  = activeTab === "sp500" ? spRows.length : activeTab === "nasdaq" ? ndRows.length : etfRows.length;
-      const label = activeTab === "sp500" ? "标普500" : activeTab === "nasdaq" ? "纳斯达克100" : "ETF";
+      const label = activeTab === "sp500" ? "标普500今日异动" : activeTab === "nasdaq" ? "纳斯达克100今日异动" : "ETF";
       rowCount.textContent = `${rows} 支股票 · ${label}${dateSuffix}`;
     }
 
@@ -2012,7 +2015,7 @@
       const noData     = document.getElementById("candleNoData");
       if (rawCandles && rawCandles.length > 0 && dates) {
         // Cap candles at the free-tier data date so chart never shows
-        // more recent sessions than the delayed table data.
+        // sessions more recent than the table data.
         if (loadedDate) {
           const cap = dates.findIndex(d => d > loadedDate);
           if (cap !== -1) dates = dates.slice(0, cap);
@@ -2190,7 +2193,7 @@
     });
 
     /* ── LIVE PRICE REFRESH (10-min, market hours only) ── */
-    // Live price refresh intentionally omitted — free tier shows purely delayed data
+    // Live price refresh intentionally omitted — free tier shows the prior close, not intraday quotes
 
   </script>
 

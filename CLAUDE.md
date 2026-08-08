@@ -23,8 +23,8 @@ API base: `https://us-central1-baizora.cloudfunctions.net/api/`
 ├── account.html / account_cn.html
 ├── baizora_main_form.html         ← full authenticated dashboard (EN)
 ├── baizora_main_form_cn.html      ← full authenticated dashboard (CN)
-├── baizora_main_form_free.html    ← free preview (EN, 3 rows, no login)
-├── baizora_main_form_free_cn.html ← free preview (CN)
+├── baizora_main_form_freetier.html    ← free tier: today's top 20 movers per index, no login (EN)
+├── baizora_main_form_freetier_cn.html ← free tier (CN)
 ├── firebase.js                    ← Firebase config (shared)
 ├── data/latest.json               ← daily scanner output
 ├── assets/
