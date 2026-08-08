@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DWEPM8KFM9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-DWEPM8KFM9');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baizora vs. Finviz vs. TradingView — Which Fits You? | Baizora</title>
+  <!-- SEO -->
+  <meta name="description" content="An honest comparison of Baizora, Finviz, and TradingView for S&P 500 / Nasdaq-100 price and volume screening — including where Baizora isn't the right fit.">
+  <link rel="canonical" href="https://baizora.com/assets/compare.html">
+  <link rel="alternate" hreflang="en" href="https://baizora.com/assets/compare.html">
+  <link rel="alternate" hreflang="x-default" href="https://baizora.com/assets/compare.html">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://baizora.com/assets/compare.html">
+  <meta property="og:title" content="Baizora vs. Finviz vs. TradingView — Which Fits You?">
+  <meta property="og:description" content="An honest comparison of Baizora, Finviz, and TradingView for S&P 500 / Nasdaq-100 price and volume screening — including where Baizora isn't the right fit.">
+  <meta property="og:image" content="https://baizora.com/assets/baize_favicon_v2.png">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Baizora vs. Finviz vs. TradingView — Which Fits You?">
+  <meta name="twitter:description" content="An honest comparison of Baizora, Finviz, and TradingView for S&P 500 / Nasdaq-100 price and volume screening.">
+  <meta name="twitter:image" content="https://baizora.com/assets/baize_favicon_v2.png">
+  <link rel="icon" href="baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:#060d1f; --navy-mid:#0d1e3d;
+      --electric:#3b82f6; --electric-bright:#60a5fa;
+      --white:#f8fafc; --muted:#94a3b8;
+      --green:#22c55e; --red:#ef4444;
+      --border:rgba(255,255,255,0.07); --border-bright:rgba(255,255,255,0.12);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+    .glow{position:fixed;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse at center,rgba(59,130,246,0.09) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+    /* HEADER */
+    header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(6,13,31,0.92);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+    .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+    .logo-wrap img{height:36px;}
+    .logo-text{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);letter-spacing:-0.02em;}
+    .logo-text span{color:var(--electric);}
+    nav{display:flex;align-items:center;gap:8px;}
+    .nav-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:6px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;white-space:nowrap;}
+    .nav-btn:hover{border-color:rgba(59,130,246,0.4);color:var(--white);background:rgba(59,130,246,0.08);}
+    .nav-btn-primary{background:var(--electric);border-color:var(--electric);color:white;}
+    .nav-btn-primary:hover{background:#2563eb;border-color:#2563eb;color:white;}
+
+    /* HAMBURGER */
+    .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;padding:6px 7px;border:1px solid var(--border);border-radius:6px;background:transparent;flex-shrink:0;}
+    .hamburger span{display:block;width:18px;height:2px;background:var(--muted);border-radius:2px;transition:background 0.2s;}
+    .hamburger:hover span{background:var(--white);}
+
+    /* MOBILE DRAWER */
+    .mobile-drawer{display:none;position:fixed;left:0;right:0;background:rgba(6,13,31,0.98);border-bottom:1px solid var(--border-bright);backdrop-filter:blur(20px);z-index:190;flex-direction:column;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+    .mobile-drawer.open{display:flex;}
+    .mobile-drawer a{display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);transition:color 0.15s,background 0.15s;}
+    .mobile-drawer a:last-child{border-bottom:none;}
+    .mobile-drawer a:hover{color:var(--white);background:rgba(255,255,255,0.04);}
+    .mobile-drawer a.primary{color:var(--electric-bright);font-weight:600;}
+
+    /* CONTENT */
+    .container{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:72px 32px 100px;}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);border:1px solid rgba(59,130,246,0.25);background:rgba(59,130,246,0.06);padding:6px 14px;border-radius:999px;margin-bottom:24px;}
+    h1{font-family:'DM Serif Display',serif;font-size:clamp(30px,4.5vw,48px);line-height:1.15;letter-spacing:-0.02em;color:var(--white);margin-bottom:12px;}
+    h1 em{font-style:italic;color:var(--electric-bright);}
+    .title-sub{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#475569;margin-bottom:28px;}
+    .lede{font-size:15px;color:var(--muted);line-height:1.8;font-weight:300;max-width:680px;margin-bottom:48px;}
+    .lede strong{color:var(--white);font-weight:600;}
+
+    .section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);margin-bottom:14px;}
+
+    /* COMPARISON TABLE */
+    .cmp-wrap{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;overflow-x:auto;margin-bottom:16px;-webkit-overflow-scrolling:touch;}
+    table{width:100%;border-collapse:collapse;min-width:620px;}
+    thead th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;padding:16px 18px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+    thead th.col-baizora{color:var(--electric-bright);}
+    tbody tr{border-bottom:1px solid var(--border);}
+    tbody tr:last-child{border-bottom:none;}
+    tbody td{padding:14px 18px;font-size:13.5px;color:var(--muted);line-height:1.5;vertical-align:top;}
+    tbody td.feat{color:var(--white);font-weight:500;font-size:13px;white-space:nowrap;}
+    tbody td.col-baizora{color:#e2e8f0;background:rgba(59,130,246,0.05);}
+    .table-note{font-size:11px;color:#475569;line-height:1.7;margin-bottom:48px;}
+
+    .fit-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:48px;}
+    .fit-card{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;padding:24px 26px;}
+    .fit-card h3{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;color:var(--white);margin-bottom:12px;}
+    .fit-card ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+    .fit-card li{font-size:13.5px;color:var(--muted);line-height:1.6;padding-left:18px;position:relative;}
+    .fit-card li::before{content:'◆';position:absolute;left:0;font-size:7px;top:5px;}
+    .fit-card.good li::before{color:var(--green);}
+    .fit-card.honest li::before{color:#f59e0b;}
+    @media(max-width:640px){.fit-grid{grid-template-columns:1fr;}}
+
+    .cta-box{background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(245,158,11,0.08));border:1px solid rgba(59,130,246,0.2);border-radius:16px;padding:32px;text-align:center;margin-bottom:40px;}
+    .cta-box h3{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:8px;color:var(--white);}
+    .cta-box p{color:var(--muted);margin-bottom:20px;font-size:14px;}
+    .cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+    .btn-gold{display:inline-block;padding:12px 28px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;font-weight:600;font-size:14px;text-decoration:none;}
+    .btn-outline{display:inline-block;padding:12px 28px;border-radius:10px;border:1px solid var(--border-bright);color:var(--muted);font-weight:500;font-size:14px;text-decoration:none;}
+
+    .trademark-note{font-size:11px;color:#475569;line-height:1.7;margin-bottom:40px;}
+
+    .back-wrap{margin-top:8px;}
+    .back-link{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#475569;text-decoration:none;transition:color 0.2s;}
+    .back-link:hover{color:var(--electric-bright);}
+
+    /* FOOTER */
+    footer{position:relative;z-index:10;border-top:1px solid var(--border);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+    .footer-left{font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;letter-spacing:0.05em;}
+    .footer-left a{color:inherit;text-decoration:none;}
+    .footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+    .footer-links a{font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;text-decoration:none;letter-spacing:0.05em;transition:color 0.2s;}
+    .footer-links a:hover{color:var(--electric-bright);}
+
+    @media(max-width:640px){
+      header{padding:0 16px;height:56px;}
+      nav{display:none;}
+      .hamburger{display:flex;}
+      .container{padding:48px 20px 72px;}
+      h1{font-size:clamp(26px,7vw,36px);}
+      footer{padding:24px 20px;flex-direction:column;text-align:center;}
+      .footer-links{justify-content:center;}
+    }
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+
+<header>
+  <a href="../" class="logo-wrap">
+    <img src="baize_favicon_v2.png" alt="Baizora">
+    <span class="logo-text">Baiz<span>ora</span></span>
+  </a>
+  <nav>
+    <a href="../index.html" class="nav-btn">Home</a>
+    <a href="../login.html" class="nav-btn nav-btn-primary">Sign in</a>
+  </nav>
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="mobile-drawer" id="mobileDrawer">
+  <div id="mobileAuthLinks"></div>
+  <a href="../index.html">Home</a>
+</div>
+
+<div class="container">
+  <div class="eyebrow">◈ &nbsp; Comparison</div>
+  <h1>Baizora vs. Finviz vs. <em>TradingView</em></h1>
+  <div class="title-sub">Honest Comparison · Not a "Why We're Better" List</div>
+
+  <p class="lede">
+    Finviz and TradingView are both excellent, widely-used tools — this page isn't trying to talk you out of them.
+    Baizora does one narrower thing: <strong>daily price &amp; volume signal scanning across the S&amp;P 500 and
+    Nasdaq-100</strong>, with a composite score and index-membership tracking neither of the others offer. If you need
+    live intraday charting, options screening, or the whole market, they're the better fit — that's covered below too.
+  </p>
+
+  <div class="section-label">Feature Comparison</div>
+  <div class="cmp-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="col-baizora">Baizora</th>
+          <th>Finviz (Free)</th>
+          <th>TradingView (Free)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="feat">Universe</td>
+          <td class="col-baizora">S&amp;P 500 + Nasdaq-100 + a few tracking ETFs (~510 tickers) — a deliberately narrow universe: index membership is itself a quality filter, so these companies tend to be stronger and more liquid than most of the broader market, which lowers idiosyncratic risk, and they're the same stocks continuously bought by passive index funds</td>
+          <td>Whole US market, thousands of tickers</td>
+          <td>Whole market + crypto, forex, bonds</td>
+        </tr>
+        <tr>
+          <td class="feat">Ads</td>
+          <td class="col-baizora">None</td>
+          <td>Yes</td>
+          <td>Yes, plus persistent upgrade prompts</td>
+        </tr>
+        <tr>
+          <td class="feat">Browse without an account</td>
+          <td class="col-baizora">Yes — Free Tier, no signup</td>
+          <td>Yes</td>
+          <td>Yes, but most tools gated behind account</td>
+        </tr>
+        <tr>
+          <td class="feat">Free Tier vs. Paid Difference</td>
+          <td class="col-baizora">Free Tier: 2 weeks delayed. Subscribers: updated daily after market close (same product, not a stripped-down version — just current data instead of delayed). Built for people who don't watch the market during the trading day — one clean update after close, deliberately without intraday price noise. End-of-day data also gives a true full-session volume total, which matters since volume is one of Baizora's core signals — intraday volume figures are still partial and can be misleading</td>
+          <td>~15–20 min delayed free · real-time on paid Elite</td>
+          <td>Delayed real-time free (no live streaming) · real-time streaming on paid</td>
+        </tr>
+        <tr>
+          <td class="feat">Composite signal score</td>
+          <td class="col-baizora">Baizora Score — 5-signal composite (RS, Momentum, Breakout, Trend, Volume Pressure), with more signals planned</td>
+          <td>No single composite score</td>
+          <td>No single composite score</td>
+        </tr>
+        <tr>
+          <td class="feat">Index membership tracking</td>
+          <td class="col-baizora">Yes — daily S&amp;P 500 / Nasdaq-100 addition &amp; removal tracking, with related <a href="../index_news.html" style="color:var(--electric-bright);">Index News</a> coverage</td>
+          <td>Not a dedicated feature</td>
+          <td>Not a dedicated feature</td>
+        </tr>
+        <tr>
+          <td class="feat">Chart annotation</td>
+          <td class="col-baizora">Automatic peak-volume / peak-price-day sparkline markers on every row of the dashboard — scan all tickers at a glance without opening each chart, same on every plan</td>
+          <td>No automatic markers — free-plan charts are static image snapshots</td>
+          <td>Manual drawing tools, no automatic markers</td>
+        </tr>
+        <tr>
+          <td class="feat">Chart overlays</td>
+          <td class="col-baizora">SMA (any period), Bollinger Bands, and more added regularly — unlimited toggling, same on every plan</td>
+          <td>None on free plan — charts can't be zoomed, scrolled, or have indicators added; interactive charting is Elite-only</td>
+          <td>2 indicators per chart on free plan, 1 chart per tab</td>
+        </tr>
+        <tr>
+          <td class="feat">Options / crypto / forex</td>
+          <td class="col-baizora">No — US equities &amp; equity ETFs only</td>
+          <td>No options screening</td>
+          <td>Yes, extensive coverage</td>
+        </tr>
+        <tr>
+          <td class="feat">Daily email digest</td>
+          <td class="col-baizora">Yes — opt-in, free, top movers + market news</td>
+          <td>No</td>
+          <td>Email alerts available (paid)</td>
+        </tr>
+        <tr>
+          <td class="feat">Pricing</td>
+          <td class="col-baizora">Free Tier available · $9.99/mo or $99/yr — 50% off with code FRIEND50 · 7-day free trial</td>
+          <td>Free · paid Elite tier $39.50/mo</td>
+          <td>Free · paid tiers $14.95–$239.95/mo</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="table-note">Feature details for Finviz and TradingView reflect their publicly available free plans as of Aug 2026 and may change — check their own sites for current specifics. Baizora doesn't offer real-time intraday data on any plan, on Free Tier or subscription.</p>
+
+  <div class="section-label">Which Fits You</div>
+  <div class="fit-grid">
+    <div class="fit-card good">
+      <h3>Baizora is a good fit if you...</h3>
+      <ul>
+        <li>Only care about S&amp;P 500 / Nasdaq-100 stocks and don't want to filter out the rest of the market yourself</li>
+        <li>Do research after market close and want to quickly scan through every ticker, not live intraday trading</li>
+        <li>Want a composite score instead of building your own multi-filter screen from scratch</li>
+        <li>Want to know when a stock is about to join or leave a major index</li>
+        <li>Don't want ads or upsell prompts while you're looking at data</li>
+      </ul>
+    </div>
+    <div class="fit-card honest">
+      <h3>Finviz or TradingView is a better fit if you...</h3>
+      <ul>
+        <li>Need live intraday / streaming prices for day trading</li>
+        <li>Trade options, crypto, forex, or stocks outside the S&amp;P 500 / Nasdaq-100</li>
+        <li>Want extensive manual charting tools and community-built indicators</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cta-box">
+    <h3>See it on real data</h3>
+    <p>Free Tier — full S&amp;P 500 &amp; Nasdaq-100 universe, no signup, 2-week-delayed data.<br>Use code <strong style="color:#fcd34d;">FRIEND50</strong> for 50% off any paid plan.</p>
+    <div class="cta-btns">
+      <a href="../pricing.html" class="btn-gold">Start Free Trial</a>
+      <a href="../baizora_main_form_freetier.html" class="btn-outline">Try Free Tier</a>
+    </div>
+  </div>
+
+  <p class="trademark-note">Finviz and TradingView are trademarks of their respective owners. Baizora is not affiliated with, endorsed by, or sponsored by either company — this page is an independent comparison based on publicly available information about their free plans.</p>
+
+  <div class="back-wrap">
+    <a href="../" class="back-link">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Home
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-left">© 2026 Baizora — All rights reserved &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <a href="disclaimer.html">Disclaimer</a>
+    <a href="faq.html">FAQ</a>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu(){
+    const drawer=document.getElementById('mobileDrawer');
+    const header=document.querySelector('header');
+    drawer.style.top=header.getBoundingClientRect().bottom+'px';
+    drawer.classList.toggle('open');
+  }
+  document.addEventListener('click',e=>{
+    const drawer=document.getElementById('mobileDrawer');
+    const btn=document.getElementById('hamburgerBtn');
+    if(drawer.classList.contains('open')&&!drawer.contains(e.target)&&!btn.contains(e.target))drawer.classList.remove('open');
+  });
+</script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+      authDomain: "baizora.firebaseapp.com",
+      projectId: "baizora"
+    });
+
+    const mStyle='display:block;padding:14px 20px;text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.07);';
+    firebase.auth().onAuthStateChanged(function(user) {
+      const loginBtn = document.querySelector('a[href="../login.html"].nav-btn-primary');
+      const mLinks = document.getElementById('mobileAuthLinks');
+      if (user) {
+        if (loginBtn) { loginBtn.textContent = 'Dashboard'; loginBtn.href = '../dashboard.html'; }
+        if (mLinks) mLinks.innerHTML='<a href="../dashboard.html" style="'+mStyle+'color:#94a3b8;">Dashboard</a>';
+      } else {
+        if (mLinks) mLinks.innerHTML='<a href="../login.html" style="'+mStyle+'color:#94a3b8;">Sign in</a>'+'<a href="../signup.html" style="'+mStyle+'color:var(--electric-bright);font-weight:600;">Create Account</a>';
+      }
+    });
+  </script>
+</body>
+</html>
