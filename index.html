@@ -1451,7 +1451,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
           <div class="share-gallery-heading">Today's Featured Charts — Free to Download</div>
           <div class="share-gallery-sub">From today's video · updates around 6 PM ET on weekdays, 10 AM ET on weekends · sign in to download for social media, presentations, or your own notes</div>
         </div>
-        <a href="chart_archive.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive.html', 'Chart Archive')">
+        <a href="chart_archive.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive.html', 'Chart Archive', true)">
           View all
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -1726,13 +1726,17 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     a.style.maxHeight = isOpen ? '' : a.scrollHeight + 'px';
   }
 
-  async function hpViewAll(e, target, label) {
+  async function hpViewAll(e, target, label, authOnly) {
     e.preventDefault();
     target = target || 'index_news.html';
     label = label || 'Index Membership News & Records';
+    const user = firebase.auth().currentUser;
+    if (authOnly) {
+      window.location.href = user ? target : 'login.html';
+      return;
+    }
     const msgEl = document.getElementById('hpGateMsg');
     if (msgEl) msgEl.textContent = label + ' is available for subscribers only.';
-    const user = firebase.auth().currentUser;
     if (user) {
       const res = await fetch('https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=' + user.uid);
       const data = await res.json();

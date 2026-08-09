@@ -12,7 +12,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baizora | Chart Archive</title>
-  <meta name="description" content="One month of daily featured stock charts from Baizora's daily videos, free to download for social media, presentations, or your own notes. Subscribers only.">
+  <meta name="description" content="One month of daily featured stock charts from Baizora's daily videos, free to download for social media, presentations, or your own notes. Sign in to view.">
   <link rel="canonical" href="https://baizora.com/chart_archive.html">
   <link rel="alternate" hreflang="en" href="https://baizora.com/chart_archive.html">
   <link rel="alternate" hreflang="zh-Hans" href="https://baizora.com/chart_archive_cn.html">
@@ -243,19 +243,9 @@
     import { auth } from "./firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    const API = "https://us-central1-baizora.cloudfunctions.net/api";
-
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = "login.html"; return; }
       const hEl = document.getElementById("headerEmail"); hEl.textContent = user.email[0].toUpperCase(); hEl.title = user.email;
-      try {
-        const res = await fetch(`${API}/get-user?uid=${user.uid}`);
-        const data = await res.json();
-        const status = data.subscriptionStatus || "inactive";
-        if (status !== "active" && status !== "trialing") {
-          window.location.href = "billing.html"; return;
-        }
-      } catch(e) { /* network error — allow through */ }
       loadArchive();
     });
 

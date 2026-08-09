@@ -293,9 +293,27 @@
     .tool-card.gold-border::before { background: linear-gradient(90deg, transparent, rgba(245,158,11,0.3), transparent); }
 
     .tool-card.locked {
-      opacity: 0.5;
       cursor: not-allowed;
       pointer-events: none;
+    }
+    .tool-card.locked .tool-icon,
+    .tool-card.locked .tool-name,
+    .tool-card.locked .tool-desc {
+      opacity: 0.5;
+    }
+
+    .tool-card.locked .tool-tag.tag-soon {
+      pointer-events: auto;
+      cursor: pointer;
+      color: #60a5fa;
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.35);
+      font-weight: 600;
+    }
+    .tool-card.locked .tool-tag.tag-soon:hover {
+      background: rgba(59,130,246,0.28);
+      border-color: rgba(59,130,246,0.55);
+      color: var(--white);
     }
 
     .tool-icon {
@@ -445,12 +463,18 @@
         <div class="tool-icon" style="background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.2);">◎</div>
         <div class="tool-name">Index Membership News</div>
         <div class="tool-desc">Pending and recent additions and removals from S&amp;P 500 and Nasdaq-100, sourced from financial news. Updated daily after market close.</div>
+        <div class="tool-footer">
+          <div class="tool-tag" style="color:#fb923c;background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.25);">● Live</div>
+        </div>
       </a>
 
       <a href="chart_archive.html" class="tool-card">
         <div class="tool-icon" style="background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.2);">▤</div>
         <div class="tool-name">Chart Archive</div>
         <div class="tool-desc">One month of featured stock charts from Baizora's daily videos, free to download for social media, presentations, or your own notes.</div>
+        <div class="tool-footer">
+          <div class="tool-tag" style="color:#60a5fa;background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.2);">▤ Free</div>
+        </div>
       </a>
 
       <a href="baizora_main_form_freetier.html" class="tool-card">
@@ -529,14 +553,18 @@
         } else {
           text.textContent = "No Active Subscription";
           [['a[href="baizora_main_form.html"]', '→ Please choose a plan to view'],
-           ['a[href="index_news.html"]',        '→ Please choose a plan to view'],
-           ['a[href="chart_archive.html"]',     '→ Please choose a plan to view']].forEach(([sel, msg]) => {
+           ['a[href="index_news.html"]',        '→ Please choose a plan to view']].forEach(([sel, msg]) => {
             const card = document.querySelector(sel);
             if (card) {
               card.classList.add("locked");
               card.removeAttribute("href");
               const tag = card.querySelector('.tool-tag');
-              if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = msg; }
+              if (tag) {
+                tag.className = 'tool-tag tag-soon';
+                tag.textContent = msg;
+                tag.title = 'View plans';
+                tag.onclick = (e) => { e.preventDefault(); window.location.href = 'pricing.html'; };
+              }
             }
           });
         }

@@ -1456,7 +1456,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
           <div class="share-gallery-heading">今日精选图表 — 免费下载</div>
           <div class="share-gallery-sub">来自今日视频 · 工作日约美东时间下午6点更新，周末约美东时间上午10点更新 · 登录后即可下载，用于社交媒体分享、演示或个人笔记</div>
         </div>
-        <a href="chart_archive_cn.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive_cn.html', '图表存档为订阅用户专享内容。')">
+        <a href="chart_archive_cn.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive_cn.html', '图表存档为订阅用户专享内容。', true)">
           查看全部
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -1744,13 +1744,17 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     a.style.maxHeight = isOpen ? '' : a.scrollHeight + 'px';
   }
 
-  async function hpViewAll(e, target, message) {
+  async function hpViewAll(e, target, message, authOnly) {
     e.preventDefault();
     target = target || 'index_news_cn.html';
     message = message || '成分股变动记录仅对订阅用户开放。';
+    const user = firebase.auth().currentUser;
+    if (authOnly) {
+      window.location.href = user ? target : 'login_cn.html';
+      return;
+    }
     const msgEl = document.getElementById('hpGateMsg');
     if (msgEl) msgEl.textContent = message;
-    const user = firebase.auth().currentUser;
     if (user) {
       const res = await fetch('https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=' + user.uid);
       const data = await res.json();
