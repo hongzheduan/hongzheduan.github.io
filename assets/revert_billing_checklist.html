@@ -132,6 +132,7 @@
       <li><strong>index.html / _cn</strong> — the <span class="inline-code">hpViewAll</span> gate modal on homepage "View all" links checks real subscription status again</li>
       <li><strong>baizora_main_form.html / _cn</strong> (the Scanner itself) — its own subscription check re-enables (this also fixed a real dormant bug found while wiring the free-access flag: this page was calling a Cloud Function endpoint that doesn't exist, so it was <em>already unconditionally open</em> before the free-access period even started — that's fixed now, so this check will work correctly this time)</li>
       <li><strong>login.html / _cn</strong> — post-login redirect goes back to checking real <span class="inline-code">subscriptionStatus</span> (active/trialing → dashboard, otherwise → billing) instead of always going straight to the dashboard</li>
+      <li><strong>pricing.html / _cn and billing.html / _cn</strong> — the redirect-away-on-load script (<span class="inline-code">if (window.FREE_ACCESS_MODE) window.location.replace(...)</span>) stops firing, so both pages become directly visitable again instead of bouncing every visitor to the homepage. Added because visitors could still reach these by typing the URL directly even with nav links hidden — hiding a link doesn't block the page itself. <strong>Note:</strong> this was previously a deliberate exception (billing.html was left untouched so real subscribers could still manage an active subscription) — revisit whether that's still true if there are ever real paying customers again before re-enabling this redirect in a future free-access period</li>
     </ul>
 
     <h3>UI reverts to paid-mode copy</h3>
@@ -140,13 +141,18 @@
       <li><strong>Homepage nav</strong> — "Plans" link and the mobile drawer's "Start Free — 7 Days" button reappear (currently hidden)</li>
       <li><strong>Homepage hero CTA</strong> ("Start Free" / "免费体验") — reverts from linking straight to <span class="inline-code">signup.html</span> back to linking to <span class="inline-code">pricing.html</span> (both the top hero block and the lower "Compact CTA" block, EN + CN)</li>
       <li><strong>Dashboard quick-links</strong> — "Plans & Billing" link reappears</li>
+      <li><strong>Homepage hero trust-bullet</strong> — "payments via Stripe, " reappears in the "Built on trusted infrastructure..." line (currently hidden)</li>
+      <li><strong>Homepage mini-FAQ "How does the 7-day free trial work?" item</strong> — the whole question+answer reappears (currently hidden entirely, matching the same item's treatment in assets/faq.html)</li>
+      <li><strong>Homepage mini-FAQ "Is Baizora free?" item</strong> — disappears again (currently shown first in the list; hidden by default in the HTML and only shown by JS while the flag is on, matching assets/faq.html's <span class="inline-code">faqFreeItem</span> pattern)</li>
+      <li><strong>Homepage 4th hero bullet</strong> ("Totally free — full platform access for every signed-in user, no subscription required") — disappears again (hidden by default in the HTML, id <span class="inline-code">heroBulletFree</span>, only shown while the flag is on)</li>
+      <li><strong>baizora_main_form_freetier.html / _cn (the "Preview" page)</strong> — Watchlist, Ticker Search, and Membership Change stay gated the whole time (clicking any of them always opens the same upsell modal). What reverts: the Subscribe button reappears; the modal's "Start Free Trial" button reappears; and the modal copy goes back to "...not in the Free Tier. Start a 7-day free trial to unlock the full dashboard." / "Already subscribed? Sign in →" / "Go to Full Dashboard →" instead of the shorter "...only available in the full version." / "Sign in →" / "Go to Dashboard →" shown during the free period. This page didn't load <span class="inline-code">feature_flags.js</span> before this change, now it does</li>
       <li><strong>account.html / _cn</strong> — a signed-in user with no real subscription goes back to seeing "No Subscription" + a "Start Free Trial" upsell button, instead of "Free Access" / "Full Platform Access". (Users with a genuinely active/trialing subscription were never affected either way — this only touches the no-real-subscription display branch.)</li>
     </ul>
 
     <h3>"Free Tier" naming reverts everywhere</h3>
-    <p>This was the trickiest part to get right, and it's now fully generic. <span class="inline-code">assets/feature_flags.js</span> contains a small function that walks every text node on any page that loads it and renames "Free Tier" → "Top Movers" (CN: "免费版" → "涨幅榜") <strong>only while the flag is on</strong>. No page's actual HTML source was ever changed to say "Top Movers" — it always says "Free Tier" in the file itself. So once the flag is off, this function simply doesn't run, and every one of these goes back to "Free Tier" automatically, with zero file edits:</p>
+    <p>This was the trickiest part to get right, and it's now fully generic. <span class="inline-code">assets/feature_flags.js</span> contains a small function that walks every text node on any page that loads it and renames "Free Tier" → "Preview" (CN: "免费版" → "预览") <strong>only while the flag is on</strong>. No page's actual HTML source was ever changed to say "Preview" — it always says "Free Tier" in the file itself. So once the flag is off, this function simply doesn't run, and every one of these goes back to "Free Tier" automatically, with zero file edits. (Rename target was "Top Movers" until 2026-08-11, when it was changed to "Preview" — a permanent wording call, not itself meant to be switched back.)</p>
     <ul>
-      <li>Homepage nav link, both hero CTA buttons, FAQ mini-question and mini-bullet (index.html / _cn)</li>
+      <li>Homepage nav link, both hero CTA buttons, and the "Free to try..." mini-bullet (index.html / _cn) — note: the mini-FAQ's old "How does the Free Tier work?" question was replaced outright with "Why is signing in needed?" (2026-08-11), so that one no longer goes through this rename at all, in either mode</li>
       <li>Dashboard tool card and quick-link (dashboard.html / _cn)</li>
       <li>All 24 <span class="inline-code">stocks/*.html</span> nav links</li>
       <li><span class="inline-code">unusual-volume.html</span> and <span class="inline-code">top-price-movers.html</span> CTA buttons</li>
@@ -178,6 +184,10 @@
         <td>functions/index.js<br><span class="inline-code">CHAT_SYSTEM_EN</span> / <span class="inline-code">CHAT_SYSTEM_CN</span></td>
         <td>The AI chat assistant's system prompt has a direct-answer rule for "is Baizora free?" questions, plus a matching FAQ title entry. Remove or update this rule so the assistant doesn't keep telling users the platform is free once it isn't. <strong>Requires a separate deploy</strong> — see below.</td>
       </tr>
+      <tr>
+        <td>top-price-movers.html<br>unusual-volume.html</td>
+        <td>Not flag-gated at all — these were permanent, direct edits, not routed through <span class="inline-code">FREE_ACCESS_MODE</span>. Removed entirely: the "First 7 Days Free" announcement bar (+ its <span class="inline-code">.announcement</span>/<span class="inline-code">.dot</span>/<span class="inline-code">pulse</span> CSS), the "Plans" nav link, the "From $9.99/mo · No extra fees · Cancel anytime" pricing line, and the "...or start a free trial" phrasing (now "...or sign up for full access"). The bottom CTA button text also changed permanently from "🔥 Start Free — 7 Days" to "🔥 Sign Up Free" (still links to signup.html). None of this comes back when the flag flips off — if pricing messaging should return on these two pages, re-add it by hand.</td>
+      </tr>
     </table>
 
     <div class="warning-box">
@@ -196,11 +206,12 @@
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">2</span> Wait 1–3 minutes for GitHub Pages to propagate, then hard-refresh (Ctrl+Shift+R)</li>
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">3</span> Sign in as a test account with <strong>no</strong> active subscription → should land on <strong>billing.html</strong>, not the dashboard</li>
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">4</span> On the dashboard, confirm the Scanner and Index News cards show the locked "→ Please choose a plan to view" tag for that account</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">5</span> Confirm the homepage nav, hero CTAs, and dashboard quick-links show "Free Tier" / "Plans" again, not "Top Movers" / hidden</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">5</span> Confirm the homepage nav, hero CTAs, and dashboard quick-links show "Free Tier" / "Plans" again, not "Preview" / hidden</li>
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">6</span> Check the FAQ — "Subscription & Billing" section and the trial item should be back, "Is Baizora free?" should be gone</li>
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">7</span> Subscribe as the test account → verify the dashboard unlocks and account.html shows real "Active" status</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">8</span> Manually rewrite <strong>about.html / _cn</strong> and <strong>compare.html / _cn</strong> pricing copy (see table above)</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">9</span> Manually update <strong>functions/index.js</strong>'s chat prompt, then deploy with <span class="inline-code">firebase deploy --only functions --non-interactive</span></li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">8</span> Visit <strong>pricing.html</strong> and <strong>billing.html</strong> directly by URL — both should load normally again instead of redirecting to the homepage</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">9</span> Manually rewrite <strong>about.html / _cn</strong> and <strong>compare.html / _cn</strong> pricing copy, and decide whether to restore pricing messaging on <strong>top-price-movers.html</strong> / <strong>unusual-volume.html</strong> (see table above)</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">10</span> Manually update <strong>functions/index.js</strong>'s chat prompt, then deploy with <span class="inline-code">firebase deploy --only functions --non-interactive</span></li>
     </ol>
 
     <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-08-11 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>

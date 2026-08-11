@@ -16,7 +16,7 @@ window.BAIZORA_LIVE_PRICES = false;
 // market_news(.html/_cn) redirect-to-billing gates, index(.html/_cn)'s hpViewAll
 // gate modal, login(.html/_cn)'s post-login redirect, baizora_main_form(.html/_cn)'s
 // own subscription check, index(.html/_cn)'s "Start Free"->"Sign Up Free" CTA swap
-// (below), and the "Free Tier"->"Top Movers" rename (also below). ALL of it is
+// (below), and the "Free Tier"->"Preview" rename (also below). ALL of it is
 // driven by this one boolean — every page's HTML keeps its original "Free Tier" /
 // paid-flow copy as the literal source, and this file rewrites it at load time
 // when the flag is on. Flip to `false` and push to restore the original site
@@ -24,7 +24,7 @@ window.BAIZORA_LIVE_PRICES = false;
 // which keep showing each user's real Stripe status.
 window.FREE_ACCESS_MODE = true;
 
-// Generic "Free Tier" -> "Top Movers" (CN: "免费版" -> "涨幅榜") text rename, applied
+// Generic "Free Tier" -> "Preview" (CN: "免费版" -> "预览") text rename, applied
 // to every text node on any page that loads this file, while FREE_ACCESS_MODE is on.
 // Runs once on DOMContentLoaded. Skips <script>/<style> contents. New pages that link
 // to baizora_main_form_freetier(.html/_cn) automatically get the rename for free —
@@ -41,10 +41,10 @@ if (window.FREE_ACCESS_MODE) {
     while ((node = walker.nextNode())) {
       if (/Free Tier|免费版/.test(node.nodeValue)) {
         node.nodeValue = node.nodeValue
-          .replace(/Free Tier\s*·\s*Top Movers/g, 'Top Movers')
-          .replace(/the Free Tier/g, 'Top Movers')
-          .replace(/Free Tier/g, 'Top Movers')
-          .replace(/免费版/g, '涨幅榜');
+          .replace(/Free Tier\s*·\s*Top Movers/g, 'Preview')
+          .replace(/the Free Tier/g, 'Preview')
+          .replace(/Free Tier/g, 'Preview')
+          .replace(/免费版/g, '预览');
       }
     }
   });

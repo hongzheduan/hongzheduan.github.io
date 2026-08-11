@@ -1011,6 +1011,7 @@
   </div>
 
 
+  <script src="assets/feature_flags.js?v=2"></script>
   <script>
 
     /* ── CHART ICON ── */
@@ -2311,18 +2312,21 @@
       });
 
     /* ── UPSELL MODAL ── */
-    const _upsellDesc = {
+    const _upsellDesc = window.FREE_ACCESS_MODE ? {
+      membership: "成分股变动历史仅在完整版中提供。",
+      default:    "自选股和代码搜索仅在完整版中提供。"
+    } : {
       membership: "成分股变动历史仅在完整版中提供，免费版不支持此功能。开始 7 天免费试用，解锁完整数据看板。",
       default:    "自选股和代码搜索仅在完整版中提供，免费版不支持这些功能。开始 7 天免费试用，解锁完整数据看板。"
     };
     window.showUpsell = function(feature) {
       const link = document.getElementById("upsellSecondary");
       if (window._ftUser) {
-        link.href = "baizora_main_form_cn.html";
-        link.textContent = "前往完整版 →";
+        link.href = window.FREE_ACCESS_MODE ? "dashboard_cn.html" : "baizora_main_form_cn.html";
+        link.textContent = window.FREE_ACCESS_MODE ? "前往个人主页 →" : "前往完整版 →";
       } else {
         link.href = "login_cn.html";
-        link.textContent = "已订阅？登录 →";
+        link.textContent = window.FREE_ACCESS_MODE ? "登录 →" : "已订阅？登录 →";
       }
       document.getElementById("upsellDesc").textContent = _upsellDesc[feature] || _upsellDesc.default;
       document.getElementById("upsellModal").style.display = "flex";
@@ -2333,6 +2337,16 @@
     document.getElementById("upsellModal").addEventListener("click", function(e) {
       if (e.target === this) this.style.display = "none";
     });
+
+    /* ── FREE_ACCESS_MODE: hide Subscribe + Start Free Trial (Watchlist/Search/Membership Change stay gated, just simpler upsell text above) ── */
+    if (window.FREE_ACCESS_MODE) {
+      const navSubscribeBtn    = document.getElementById("navSubscribeBtn");
+      const mobileSubscribeBtn = document.getElementById("mobileSubscribeBtn");
+      if (navSubscribeBtn) navSubscribeBtn.style.display = "none";
+      if (mobileSubscribeBtn) mobileSubscribeBtn.style.display = "none";
+      const upsellTrialBtn = document.getElementById("upsellTrialBtn");
+      if (upsellTrialBtn) upsellTrialBtn.style.display = "none";
+    }
 
     });
 
@@ -2467,7 +2481,7 @@
       <div style="font-size:28px;margin-bottom:12px;">⭐</div>
       <div style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;margin-bottom:8px;">仅完整版可用</div>
       <p id="upsellDesc" style="font-size:14px;color:#94a3b8;margin:0 0 24px;">自选股和代码搜索仅在完整版中提供，免费版不支持这些功能。开始 7 天免费试用，解锁完整数据看板。</p>
-      <a href="pricing_cn.html" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:10px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px;">开始免费试用 →</a>
+      <a id="upsellTrialBtn" href="pricing_cn.html" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:10px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:12px;">开始免费试用 →</a>
       <a id="upsellSecondary" href="login_cn.html" style="font-size:13px;color:#60a5fa;text-decoration:none;">已订阅？登录 →</a>
     </div>
   </div>

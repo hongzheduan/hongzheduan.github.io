@@ -1,6 +1,11 @@
 ﻿<!DOCTYPE html>
 <html lang="zh">
 <head>
+  <!-- FREE_ACCESS_MODE: redirect away from pricing while everything is free — no other file needs touching to revert -->
+  <script src="assets/feature_flags.js?v=2"></script>
+  <script>
+    if (window.FREE_ACCESS_MODE) { window.location.replace("index_cn.html"); }
+  </script>
 <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-DWEPM8KFM9"></script>
   <script>

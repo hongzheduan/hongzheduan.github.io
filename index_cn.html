@@ -1215,9 +1215,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
       <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#cbd5e1;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:8px 12px;line-height:1.5;margin-bottom:14px;">独特设计，所有市场信息及股票评分，尽在一行：排序 → 查看走势图 → 评分 → 基本面 — 告别多工具来回切换</div>
 <div class="hero-bullets">
-        <div class="hero-bullet">值得信赖的基础设施 — 支付由 Stripe 处理，基本面数据来自美国证监会 SEC EDGAR，账户登录由 Google Firebase 保护</div>
+        <div class="hero-bullet">值得信赖的基础设施 — <span id="heroInfraStripe">支付由 Stripe 处理，</span>基本面数据来自美国证监会 SEC EDGAR，账户登录由 Google Firebase 保护</div>
         <div class="hero-bullet">注释年走势图：标注成交量峰值日与最大价涨日，一目了然</div>
         <div class="hero-bullet">标普500与纳斯达克100成分股变动及相关资讯，每日追踪</div>
+        <div class="hero-bullet" id="heroBulletFree" style="display:none;">完全免费 — 登录用户均可使用完整平台，无需订阅</div>
       </div>
 
       <div class="hero-cta">
@@ -1470,6 +1471,13 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <div class="faq-mini-heading">快速解答</div>
       <div class="faq-mini-sub">常见问题 — 点击展开</div>
       <div class="faq-mini-list">
+        <div class="faq-item" id="faqFreeItemHome" style="display:none;">
+          <div class="faq-q" onclick="toggleFaqMini(this)">
+            <span class="q-text">贝佐拉免费吗？</span>
+            <span class="q-icon">+</span>
+          </div>
+          <div class="faq-a"><div class="faq-a-inner">是的——贝佐拉目前对所有登录用户完全免费开放，无需订阅。<a href="signup_cn.html">免费注册</a>或<a href="login_cn.html">登录</a>即可开始使用。</div></div>
+        </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaqMini(this)">
             <span class="q-text">为什么选择贝佐拉？</span>
@@ -1492,12 +1500,12 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaqMini(this)">
-            <span class="q-text">免费版是如何运作的？</span>
+            <span class="q-text">为什么需要登录？</span>
             <span class="q-icon">+</span>
           </div>
-          <div class="faq-a"><div class="faq-a-inner">无需登录，免费查看标普500今日20强异动与纳斯达克100今日20强异动，数据为最新收盘数据。</div></div>
+          <div class="faq-a"><div class="faq-a-inner">登录后可解锁完整的500+支股票数据、跨设备同步自选股、追踪您账户的成分股变动历史，并帮助我们防止平台被滥用——预览版（每个指数前20强异动）仍然无需登录即可查看。注册账户完全免费。</div></div>
         </div>
-        <div class="faq-item">
+        <div class="faq-item" id="faqTrialItemHome">
           <div class="faq-q" onclick="toggleFaqMini(this)">
             <span class="q-text">7天免费试用是如何运作的？</span>
             <span class="q-icon">+</span>
@@ -1693,6 +1701,14 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       const btn = document.getElementById(id);
       if (btn) { btn.href = 'signup_cn.html'; btn.childNodes[0].textContent = '免费注册'; }
     });
+    ['heroInfraStripe', 'faqTrialItemHome'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    const freeItemHome = document.getElementById('faqFreeItemHome');
+    if (freeItemHome) freeItemHome.style.display = 'block';
+    const heroBulletFree = document.getElementById('heroBulletFree');
+    if (heroBulletFree) heroBulletFree.style.display = 'flex';
   }
 
   /* ── Dynamic auth state ── */

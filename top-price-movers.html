@@ -91,22 +91,6 @@
       z-index: 0;
     }
 
-    .announcement {
-      background: linear-gradient(90deg, #7c2d12, #92400e, #7c2d12);
-      color: #fcd34d;
-      text-align: center;
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 0.06em;
-      padding: 7px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .dot { width: 6px; height: 6px; background: #fcd34d; border-radius: 50%; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
     .site-top { position: sticky; top: 0; z-index: 100; }
     header {
       height: 56px;
@@ -400,11 +384,6 @@
 <body>
 
 <div class="site-top">
-<div class="announcement">
-  <span class="dot"></span>
-  &nbsp; First 7 Days Free &nbsp;·&nbsp; Contact: support@baizora.com
-</div>
-
 <header>
   <a href="./" class="logo-wrap">
     <img src="assets/baize_favicon_v2.png" alt="Baizora">
@@ -416,7 +395,6 @@
       <a href="unusual-volume.html" class="nav-btn">Volume Movers</a>
       <a href="index_cn.html" class="nav-btn">中文</a>
       <a href="assets/about.html" class="nav-btn">About</a>
-      <a href="pricing.html" class="nav-btn">Plans</a>
       <a href="signup.html" class="nav-btn" id="navRegisterBtn">Register for Free</a>
       <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
       <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign in</a>
@@ -462,7 +440,7 @@
     <h2>What moves a stock's price in a single day?</h2>
     <p>Large single-day price moves in S&amp;P 500 and Nasdaq-100 stocks are often driven by earnings surprises, analyst upgrades or downgrades, macroeconomic data releases, or significant company news. Among large-cap stocks, a move of ±3% or more in a single session is considered notable.</p>
     <p>This page ranks all <strong>S&amp;P 500</strong> and <strong>Nasdaq-100</strong> constituents by their 1-day price change from the prior close. Switch between top gainers and top losers using the tabs above. The <strong>Vol/MA21</strong> column shows whether the move was accompanied by above-average trading volume — high-volume moves tend to be more significant.</p>
-    <p>Baizora tracks 500+ large-cap US stocks daily. For multi-timeframe price trends, max single-day moves across rolling windows, and sparklines — see the <a href="baizora_main_form_freetier.html">free tier</a> or <a href="signup.html">start a free trial</a>.</p>
+    <p>Baizora tracks 500+ large-cap US stocks daily. For multi-timeframe price trends, max single-day moves across rolling windows, and sparklines — see the <a href="baizora_main_form_freetier.html">free tier</a> or <a href="signup.html">sign up for full access</a>.</p>
   </section>
 
   <section class="bottom-cta">
@@ -470,12 +448,11 @@
     <p>Multi-timeframe price analytics. Max single-day gains. Volume-price correlations. All 500+ stocks.</p>
     <div class="cta-btns">
       <a href="signup.html" class="btn-gold">
-        🔥 Start Free — 7 Days
+        🔥 Sign Up Free
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
       <a href="baizora_main_form_freetier.html" class="btn-secondary">Free Tier (No Sign-up)</a>
     </div>
-    <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.05em;margin-top:14px;">From $9.99/mo · No extra fees · Cancel anytime</p>
   </section>
 
 </main>
