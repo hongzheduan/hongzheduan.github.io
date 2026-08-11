@@ -65,11 +65,20 @@
     .tip-box{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.18);border-radius:12px;padding:14px 18px;margin:16px 0 24px;}
     .tip-box p{color:#93c5fd;margin:0;font-size:13px;}
 
+    .good-box{background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:16px 20px;margin:20px 0 28px;}
+    .good-box p{color:#86efac;margin:0;font-size:14px;}
+    .good-box strong{color:var(--green);}
+
     .step-num{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;background:rgba(59,130,246,0.15);color:var(--electric-bright);border-radius:4px;padding:2px 7px;margin-right:8px;}
 
     .del{color:#ef4444;text-decoration:line-through;}
     .add{color:#64c487;}
     .comment{color:#475569;}
+
+    table{width:100%;border-collapse:collapse;margin:12px 0 24px;font-size:13px;}
+    th{text-align:left;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#475569;padding:8px 12px;border-bottom:1px solid var(--border-bright);}
+    td{padding:10px 12px;border-bottom:1px solid var(--border);color:#cbd5e1;vertical-align:top;}
+    td:first-child{font-family:'DM Mono',monospace;font-size:12px;color:var(--electric-bright);white-space:nowrap;}
   </style>
 </head>
 <body>
@@ -89,270 +98,112 @@
   <nav class="toc">
     <div class="toc-title">On this page</div>
     <a href="#overview">Overview</a>
-    <a href="#find">Quick Find</a>
-    <a href="#login">1. login.html</a>
-    <a href="#main-form">2. baizora_main_form</a>
-    <a href="#dashboard">3. dashboard.html</a>
-    <a href="#billing">4. billing.html</a>
-    <a href="#index">5. index.html</a>
-    <a href="#news">6. index_news.html</a>
-    <a href="#scanner">7. Scanner gate</a>
-    <a href="#announce">Announcement bar</a>
-    <a href="#order">Recommended order</a>
+    <a href="#the-one-step">The One Step</a>
+    <a href="#auto">What reverts automatically</a>
+    <a href="#manual">What needs manual follow-up</a>
+    <a href="#verify">Verification steps</a>
   </nav>
 
   <!-- MAIN CONTENT -->
   <div class="content">
 
     <h1>Revert to Billing</h1>
-    <p class="subtitle">Step-by-step guide to re-enabling paid subscriptions after the time-limited free period.<br>All changes were made on top of a clean billing-enabled baseline. This document reverses every one of them.</p>
+    <p class="subtitle">How to turn paid subscriptions back on after the site-wide free-access period.<br>Everything is driven by one flag — this doc explains what that covers automatically and what still needs a human.</p>
+
+    <div class="good-box">
+      <p><strong>✓ Good news:</strong> almost none of this is a manual multi-file edit anymore. Every page's HTML source was kept as its original, paid-mode copy the whole time — a JS flag decides at page-load whether to show the free-access version. Flip the flag off and nearly everything reverts by itself.</p>
+    </div>
+
+    <!-- THE ONE STEP -->
+    <h2 id="the-one-step">The One Step</h2>
+    <p>Open <span class="inline-code">assets/feature_flags.js</span> and change:</p>
+    <pre><code><span class="del">window.FREE_ACCESS_MODE = true;</span>
+<span class="add">window.FREE_ACCESS_MODE = false;</span></code></pre>
+    <p>Commit and push. That's it for the flag-controlled part of the system — see below for what that single edit actually restores, and what it deliberately does <em>not</em> touch.</p>
+
+    <!-- WHAT REVERTS AUTOMATICALLY -->
+    <h2 id="auto">What Reverts Automatically</h2>
+    <p>All of the following read <span class="inline-code">window.FREE_ACCESS_MODE</span> at runtime. Once it's <span class="inline-code">false</span>, they all fall back to their original paid-mode behavior with no other code changes:</p>
+
+    <h3>Paywalls re-enable</h3>
+    <ul>
+      <li><strong>dashboard.html / _cn</strong> — Scanner and Index Membership News tool cards lock again for non-subscribers, with the "→ Please choose a plan to view" tag</li>
+      <li><strong>index_news.html / _cn</strong> and <strong>market_news.html / _cn</strong> — redirect non-subscribers to billing.html again</li>
+      <li><strong>index.html / _cn</strong> — the <span class="inline-code">hpViewAll</span> gate modal on homepage "View all" links checks real subscription status again</li>
+      <li><strong>baizora_main_form.html / _cn</strong> (the Scanner itself) — its own subscription check re-enables (this also fixed a real dormant bug found while wiring the free-access flag: this page was calling a Cloud Function endpoint that doesn't exist, so it was <em>already unconditionally open</em> before the free-access period even started — that's fixed now, so this check will work correctly this time)</li>
+      <li><strong>login.html / _cn</strong> — post-login redirect goes back to checking real <span class="inline-code">subscriptionStatus</span> (active/trialing → dashboard, otherwise → billing) instead of always going straight to the dashboard</li>
+    </ul>
+
+    <h3>UI reverts to paid-mode copy</h3>
+    <ul>
+      <li><strong>Homepage announcement bar</strong> — reverts from "Baizora is free for everyone..." back to the 50%-off / 7-day-trial promo text</li>
+      <li><strong>Homepage nav</strong> — "Plans" link and the mobile drawer's "Start Free — 7 Days" button reappear (currently hidden)</li>
+      <li><strong>Homepage hero CTA</strong> ("Start Free" / "免费体验") — reverts from linking straight to <span class="inline-code">signup.html</span> back to linking to <span class="inline-code">pricing.html</span> (both the top hero block and the lower "Compact CTA" block, EN + CN)</li>
+      <li><strong>Dashboard quick-links</strong> — "Plans & Billing" link reappears</li>
+      <li><strong>account.html / _cn</strong> — a signed-in user with no real subscription goes back to seeing "No Subscription" + a "Start Free Trial" upsell button, instead of "Free Access" / "Full Platform Access". (Users with a genuinely active/trialing subscription were never affected either way — this only touches the no-real-subscription display branch.)</li>
+    </ul>
+
+    <h3>"Free Tier" naming reverts everywhere</h3>
+    <p>This was the trickiest part to get right, and it's now fully generic. <span class="inline-code">assets/feature_flags.js</span> contains a small function that walks every text node on any page that loads it and renames "Free Tier" → "Top Movers" (CN: "免费版" → "涨幅榜") <strong>only while the flag is on</strong>. No page's actual HTML source was ever changed to say "Top Movers" — it always says "Free Tier" in the file itself. So once the flag is off, this function simply doesn't run, and every one of these goes back to "Free Tier" automatically, with zero file edits:</p>
+    <ul>
+      <li>Homepage nav link, both hero CTA buttons, FAQ mini-question and mini-bullet (index.html / _cn)</li>
+      <li>Dashboard tool card and quick-link (dashboard.html / _cn)</li>
+      <li>All 24 <span class="inline-code">stocks/*.html</span> nav links</li>
+      <li><span class="inline-code">unusual-volume.html</span> and <span class="inline-code">top-price-movers.html</span> CTA buttons</li>
+    </ul>
+
+    <h3>FAQ content (assets/faq.html / _cn)</h3>
+    <ul>
+      <li>The new <strong>"Is Baizora free?"</strong> item disappears again (it's hidden by default in the HTML and only shown by JS while the flag is on)</li>
+      <li>The <strong>"How does the 7-day free trial work?"</strong> item and the entire <strong>"Subscription & Billing"</strong> section (subscribe flow, manage/cancel, monthly vs yearly, promo codes, trial-ends policy, duplicate-trial policy, refund policy, "subscribed but can't access dashboard") all reappear</li>
+      <li><strong>"Do I need to sign up to use Baizora?"</strong> — the second sentence reverts from "create a free account — no payment required" back to "A paid subscription unlocks the full 500+ stock universe..."</li>
+      <li><strong>"Where do I go after logging in?"</strong> — reverts from "you're taken directly to your Dashboard" back to the active-subscriber-vs-unsubscribed routing explanation</li>
+    </ul>
+
+    <!-- WHAT NEEDS MANUAL FOLLOW-UP -->
+    <h2 id="manual">What Needs Manual Follow-Up</h2>
+    <p>These were deliberate, permanent edits made outside the flag system — flipping <span class="inline-code">FREE_ACCESS_MODE</span> off does <strong>not</strong> touch any of them:</p>
+
+    <table>
+      <tr><th>File(s)</th><th>What to do</th></tr>
+      <tr>
+        <td>assets/about.html<br>assets/about_cn.html</td>
+        <td>Positioning line currently reads "a free, convenient scanning tool..." (was "affordable" before). The plan discussed at the time: don't just silently revert the word — write an explicit sentence about the change (e.g. "we've decided to charge a small fee...") so it reads as an honest update, not a quiet reversal.</td>
+      </tr>
+      <tr>
+        <td>assets/compare.html<br>assets/compare_cn.html</td>
+        <td>The Pricing table row and closing CTA currently say "Free — full platform, no subscription required." Rewrite back to the real pricing (was "Free Tier available · $9.99/mo or $99/yr — 50% off with code FRIEND50 · 7-day free trial") and point the CTA button back at <span class="inline-code">pricing.html</span> / <span class="inline-code">signup.html</span> as appropriate.</td>
+      </tr>
+      <tr>
+        <td>functions/index.js<br><span class="inline-code">CHAT_SYSTEM_EN</span> / <span class="inline-code">CHAT_SYSTEM_CN</span></td>
+        <td>The AI chat assistant's system prompt has a direct-answer rule for "is Baizora free?" questions, plus a matching FAQ title entry. Remove or update this rule so the assistant doesn't keep telling users the platform is free once it isn't. <strong>Requires a separate deploy</strong> — see below.</td>
+      </tr>
+    </table>
 
     <div class="warning-box">
-      <p><strong>⚠ Prerequisite:</strong> Do NOT re-enable billing while on yfinance data. Confirm Tiingo scanner has run cleanly for at least one full week before proceeding. As of 2026-06-07, Tiingo has been live and producing clean compare logs — this gate is met.</p>
+      <p><strong>⚠ functions/index.js is a Cloud Function, not a static page.</strong> Editing it and pushing to GitHub does <em>nothing</em> — GitHub Pages doesn't serve Cloud Functions. After editing, run this yourself in a real interactive terminal (not through an AI assistant session — <span class="inline-code">firebase login</span> needs a real browser flow):</p>
     </div>
+    <pre><code>firebase deploy --only functions --non-interactive</code></pre>
 
-    <!-- QUICK FIND -->
-    <h2 id="find">Quick Find</h2>
-    <p>Every temporary change is marked with a comment. Search these strings across all HTML files:</p>
-    <ul>
-      <li><span class="inline-code">// TEMP:</span> — JS login gates and dashboard items</li>
-      <li><span class="inline-code">&lt;!-- TEMP:</span> — HTML blocks (nav links, cards, CTAs)</li>
-      <li><span class="inline-code">// FREE MODE:</span> — subscription check block in main form</li>
-      <li><span class="inline-code">mobile-dash-btn</span> — mobile header Dashboard button (CSS + HTML in index.html / index_cn.html)</li>
-    </ul>
     <div class="tip-box">
-      <p>In VS Code: <strong>Ctrl+Shift+F</strong> → search <code>TEMP:</code> to find all HTML blocks and most JS gates. Also search <code>FREE MODE:</code> separately — <code>login.html</code> and <code>baizora_main_form.html</code> use that marker instead of <code>TEMP:</code>.</p>
+      <p><span class="inline-code">sitemap.xml</span> needs no action — it only lists public, no-login pages and was never dependent on billing status.</p>
     </div>
 
-    <!-- FILE 1 -->
-    <h2 id="login">1. <span class="file-badge">login.html</span> <span class="file-badge">login_cn.html</span></h2>
-    <p>After a successful sign-in, the user is currently sent straight to the dashboard regardless of subscription status. Revert to the <span class="inline-code">isActive</span> ternary so non-subscribers land on the billing page.</p>
-
-    <h3>login.html <span class="line-ref">~line 525</span></h3>
-    <pre><code><span class="comment">// FREE MODE: go straight to dashboard regardless of subscription status</span>
-<span class="del">window.location.href = "dashboard.html";   ← REMOVE THIS LINE</span>
-
-<span class="comment">// Replace with (variable is subscriptionStatus, not isActive):</span>
-<span class="add">window.location.href = (subscriptionStatus === "active" || subscriptionStatus === "trialing") ? "dashboard.html" : "billing.html";</span></code></pre>
-
-    <h3>login_cn.html <span class="line-ref">~line 535</span></h3>
-    <pre><code><span class="del">window.location.href = "dashboard_cn.html";   ← REMOVE THIS LINE</span>
-
-<span class="comment">// Replace with:</span>
-<span class="add">window.location.href = (subscriptionStatus === "active" || subscriptionStatus === "trialing") ? "dashboard_cn.html" : "billing_cn.html";</span></code></pre>
-
-    <!-- FILE 2 -->
-    <h2 id="main-form">2. <span class="file-badge">baizora_main_form.html</span> <span class="file-badge">baizora_main_form_cn.html</span></h2>
-    <p>Two things to fix inside <span class="inline-code">onAuthStateChanged</span>:</p>
-
-    <h3>a) Restore login gate <span class="line-ref">~line 970</span></h3>
-    <pre><code><span class="comment">// TEMP: time-limited free — restore to re-enable login gate</span>
-<span class="comment">// if (!user) { window.location.href = "login.html"; return; }</span>
-
-<span class="comment">// Uncomment the line above. CN version uses login_cn.html.</span></code></pre>
-
-    <h3>b) Restore subscription check <span class="line-ref">~line 972</span></h3>
-    <pre><code><span class="comment">// FREE MODE: subscription check disabled — uncomment block below to re-enable paid gate</span>
-<span class="comment">//   user.getIdToken().then(token =&gt;</span>
-<span class="comment">//     fetch("https://us-central1-baizora.cloudfunctions.net/api/subscription", ...)</span>
-<span class="comment">//     .then(d =&gt; { if (d.status !== "active") window.location.href = "billing.html"; else loadDashboard(); })</span>
-<span class="comment">//     .catch(() =&gt; loadDashboard())</span>
-<span class="comment">//   );</span>
-<span class="del">loadDashboard();   ← REMOVE THIS LINE</span>
-
-<span class="comment">// Uncomment the block above and remove the bare loadDashboard() call.</span>
-<span class="comment">// CN version redirects to billing_cn.html.</span></code></pre>
-
-    <!-- FILE 3 -->
-    <h2 id="dashboard">3. <span class="file-badge">dashboard.html</span> <span class="file-badge">dashboard_cn.html</span></h2>
-    <p>Four changes in the dashboard welcome page.</p>
-
-    <h3>a) Restore login gate <span class="line-ref">~line 478</span></h3>
-    <pre><code><span class="comment">// TEMP: time-limited free — restore to re-enable login gate</span>
-<span class="comment">// if (!user) { window.location.href = "login.html"; return; }</span>
-
-<span class="comment">// Uncomment the line above. CN version uses login_cn.html.</span></code></pre>
-
-    <h3>b) Restore "Free Preview" tool card <span class="line-ref">~line 433</span></h3>
-    <pre><code><span class="comment">&lt;!-- TEMP: time-limited free — restore free preview card when trial resumes</span>
-&lt;a href="baizora_main_form_free.html" class="tool-card"&gt;
-  &lt;div class="tool-icon"&gt;⬡&lt;/div&gt;
-  &lt;div class="tool-name"&gt;Free Preview&lt;/div&gt;
-  &lt;div class="tool-desc"&gt;Top 3 movers from today's data — no login required.&lt;/div&gt;
-  &lt;div class="tool-tag tag-free"&gt;Free&lt;/div&gt;
-&lt;/a&gt;
-<span class="comment">--&gt;</span>
-
-<span class="comment">// Remove the comment wrapper to restore the card.</span>
-<span class="comment">// CN version: baizora_main_form_free_cn.html</span></code></pre>
-
-    <h3>c) Restore "Free Preview" quick link <span class="line-ref">~line 456</span></h3>
-    <pre><code><span class="comment">&lt;!-- TEMP: time-limited free — restore quick link when trial resumes</span>
-&lt;a href="baizora_main_form_free.html" class="quick-link"&gt;
-  &lt;span class="quick-link-icon"&gt;👁&lt;/span&gt; Free Preview
-&lt;/a&gt;
-<span class="comment">--&gt;</span>
-
-<span class="comment">// Remove the comment wrapper to restore the quick link.</span>
-<span class="comment">// CN version: baizora_main_form_free_cn.html</span></code></pre>
-
-    <h3>d) Restore card-locking for non-subscribers <span class="line-ref">~line 508</span></h3>
-    <p>Remove the "Free Access" line AND the two FREE MODE comment lines, then uncomment the entire locking block:</p>
-    <pre><code><span class="comment">// BEFORE (free mode — remove all of this):</span>
-<span class="del">text.textContent = "Free Access";</span>
-<span class="del">// FREE MODE: scanner open to all logged-in users — locking disabled</span>
-<span class="del">// To restore paid gate:</span>
-<span class="del">//   text.textContent = "No Active Subscription";</span>
-<span class="del">//   const scannerCard = document.querySelector('a[href="baizora_main_form.html"]');</span>
-<span class="del">//   if (scannerCard) {</span>
-<span class="del">//     scannerCard.classList.add("locked");</span>
-<span class="del">//     scannerCard.removeAttribute("href");</span>
-<span class="del">//     const tag = scannerCard.querySelector('.tool-tag');</span>
-<span class="del">//     if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ Please choose a plan to view'; }</span>
-<span class="del">//   }</span>
-
-<span class="comment">// AFTER (restore to this):</span>
-<span class="add">text.textContent = "No Active Subscription";</span>
-<span class="add">const scannerCard = document.querySelector('a[href="baizora_main_form.html"]');</span>
-<span class="add">if (scannerCard) {</span>
-<span class="add">  scannerCard.classList.add("locked");</span>
-<span class="add">  scannerCard.removeAttribute("href");</span>
-<span class="add">  const tag = scannerCard.querySelector('.tool-tag');</span>
-<span class="add">  if (tag) { tag.className = 'tool-tag tag-soon'; tag.textContent = '→ Please choose a plan to view'; }</span>
-<span class="add">}</span>
-
-<span class="comment">// CN version: querySelector targets 'a[href="baizora_main_form_cn.html"]'</span></code></pre>
-
-    <!-- FILE 4 -->
-    <h2 id="billing">4. <span class="file-badge">billing.html</span> <span class="file-badge">billing_cn.html</span></h2>
-    <p>Both billing pages currently redirect straight to pricing. Remove the redirect so users can actually subscribe.</p>
-    <pre><code><span class="comment">&lt;!-- TEMP: subscriptions paused — remove this script tag to restore billing page --&gt;</span>
-<span class="del">&lt;script&gt;window.location.replace("pricing.html?notice=maintenance");&lt;/script&gt;   ← REMOVE THIS LINE</span>
-
-<span class="comment">&lt;!-- CN version redirects to pricing_cn.html?notice=maintenance --&gt;</span></code></pre>
-
-    <!-- FILE 5 -->
-    <h2 id="index">5. <span class="file-badge">index.html</span> <span class="file-badge">index_cn.html</span></h2>
-    <p>Four changes on the homepage. These are what visitors see first — get these right.</p>
-
-    <h3 id="announce">a) Announcement bar <span class="line-ref">~line 1058</span></h3>
-    <pre><code><span class="comment">&lt;!-- TEMP: free period announcement — restore to "First 7 Days Free · Contact: support@baizora.com" when billing resumes --&gt;</span>
-&lt;div class="announcement"&gt;
-  &lt;span class="dot"&gt;&lt;/span&gt;
-  <span class="del">&amp;nbsp; Time-Limited Free — Full Dashboard, No Sign-up &amp;nbsp;·&amp;nbsp; Processed data updated daily 6–7 PM ET</span>
-  <span class="add">&amp;nbsp; First 7 Days Free &amp;nbsp;·&amp;nbsp; Contact: support@baizora.com</span>
-&lt;/div&gt;
-
-<span class="comment">CN — same pattern, restore to:</span>
-<span class="add">完全免费试用七天 &amp;nbsp;·&amp;nbsp; 联系我们：support@baizora.com</span></code></pre>
-
-    <h3>b) Nav bar — restore Plans link <span class="line-ref">~line 1073</span></h3>
-    <pre><code><span class="comment">&lt;!-- TEMP: Plans hidden during free period; restore when billing resumes --&gt;</span>
-<span class="comment">&lt;!-- &lt;a href="pricing.html" class="nav-btn"&gt;Plans&lt;/a&gt; --&gt;</span>
-<span class="del">&lt;a href="dashboard.html" class="nav-btn"&gt;Full Dashboard&lt;/a&gt;   ← REMOVE THIS</span>
-
-<span class="comment">// Uncomment the Plans link and remove the Full Dashboard nav link.</span>
-<span class="comment">// CN: pricing_cn.html / 价格方案 / remove 完整数据 link</span></code></pre>
-
-    <h3>c) Hero primary CTA button <span class="line-ref">~line 1116</span></h3>
-    <pre><code><span class="comment">&lt;!-- TEMP: all data free for 1 month — restore gold btn when trial resumes</span>
-&lt;a href="pricing.html" class="btn-gold"&gt;
-  🔥 Start Free — 7 Days
-  &lt;svg ...&gt;&lt;/svg&gt;
-&lt;/a&gt;
-<span class="comment">--&gt;</span>
-<span class="del">&lt;a href="dashboard.html" class="btn-primary"&gt;View Full Dashboard — No Sign-up&lt;/a&gt;   ← REMOVE</span>
-
-<span class="comment">// Uncomment the gold btn-gold button and remove the btn-primary dashboard link.</span>
-<span class="comment">// CN: pricing_cn.html / 🔥 立即免费试用 — 7天</span></code></pre>
-
-    <h3>d) Bottom CTA section <span class="line-ref">~line 1377</span></h3>
-    <pre><code><span class="comment">&lt;!-- TEMP: all data free for 1 month — restore when trial resumes</span>
-&lt;p&gt;New subscribers get 7 days of full access free — cancel anytime, no commitment.&lt;/p&gt;
-<span class="comment">--&gt;</span>
-<span class="comment">&lt;!-- TEMP: restore gold btn when trial resumes</span>
-&lt;a href="pricing.html" class="btn-gold"&gt;Get Started Free &lt;svg ...&gt;&lt;/svg&gt;&lt;/a&gt;
-<span class="comment">--&gt;</span>
-<span class="del">&lt;a href="dashboard.html" class="btn-secondary"&gt;View Full Dashboard&lt;/a&gt;   ← REMOVE</span>
-
-<span class="comment">// Uncomment both TEMP blocks and remove the btn-secondary dashboard link.</span>
-<span class="comment">// CN: pricing_cn.html / 开始免费试用</span></code></pre>
-
-    <h3>e) Mobile header Dashboard button — CSS <span class="line-ref">search: mobile-dash-btn</span></h3>
-    <p>A blue "Dashboard" / "控制台" button was added directly in the mobile header (visible at ≤768px) so users don't need to open the drawer. Remove the CSS class and the HTML element from both files.</p>
-    <pre><code><span class="comment">/* Remove this entire CSS block from both index.html and index_cn.html: */</span>
-<span class="del">.mobile-dash-btn {</span>
-<span class="del">  display: none;</span>
-<span class="del">  align-items: center;</span>
-<span class="del">  padding: 6px 12px;</span>
-<span class="del">  border-radius: 7px;</span>
-<span class="del">  background: var(--electric);</span>
-<span class="del">  color: white;</span>
-<span class="del">  font-family: 'DM Sans', sans-serif;</span>
-<span class="del">  font-size: 13px;</span>
-<span class="del">  font-weight: 500;</span>
-<span class="del">  text-decoration: none;</span>
-<span class="del">  white-space: nowrap;</span>
-<span class="del">  flex-shrink: 0;</span>
-<span class="del">}</span>
-
-<span class="comment">/* Also remove from the @media (max-width: 768px) block: */</span>
-<span class="del">.mobile-dash-btn { display: inline-flex; }</span></code></pre>
-
-    <h3>f) Mobile header Dashboard button — HTML <span class="line-ref">search: mobile-dash-btn</span></h3>
-    <p>Remove the button element from both headers (it sits just before the hamburger button):</p>
-    <pre><code><span class="comment">&lt;!-- index.html — remove this line: --&gt;</span>
-<span class="del">&lt;a href="dashboard.html" class="mobile-dash-btn"&gt;Dashboard&lt;/a&gt;</span>
-
-<span class="comment">&lt;!-- index_cn.html — remove this line: --&gt;</span>
-<span class="del">&lt;a href="dashboard_cn.html" class="mobile-dash-btn"&gt;控制台&lt;/a&gt;</span></code></pre>
-
-    <h3>g) Mobile drawer Dashboard link <span class="line-ref">search: mobile-primary"&gt;Full Dashboard</span></h3>
-    <p>A second entry was also added inside the mobile drawer (after the About link). Remove both:</p>
-    <pre><code><span class="comment">&lt;!-- index.html mobile drawer — remove this line: --&gt;</span>
-<span class="del">&lt;a href="baizora_main_form.html" class="mobile-primary"&gt;Full Dashboard&lt;/a&gt;</span>
-
-<span class="comment">&lt;!-- index_cn.html mobile drawer — remove this line: --&gt;</span>
-<span class="del">&lt;a href="baizora_main_form_cn.html" class="mobile-primary"&gt;完整数据&lt;/a&gt;</span></code></pre>
-
-    <!-- FILE 6 -->
-    <h2 id="news">6. <span class="file-badge">index_news.html</span> <span class="file-badge">index_news_cn.html</span></h2>
-    <p>The Index Membership News page is currently accessible without login. Restore the gate.</p>
-    <pre><code><span class="comment">// TEMP: time-limited free — restore to re-enable login gate</span>
-<span class="comment">// if (!user) { window.location.href = "login.html"; return; }</span>
-
-<span class="comment">// Uncomment the line above. CN version uses login_cn.html.</span></code></pre>
-
-    <!-- SCANNER GATE -->
-    <h2 id="scanner">7. Scanner — Confirm Data Provider</h2>
-    <p>This is a go/no-go gate, not a code change.</p>
-    <ul>
-      <li><strong>Confirmed:</strong> Tiingo scanner (<span class="inline-code">scanner_tiingo.py</span>) has been live since 2026-06-07.</li>
-      <li><strong>Check:</strong> <span class="inline-code">archive/compare_YYYY-MM-DD.log</span> — remaining diffs should be GAAP vs adjusted EPS only (OXY, MLM, CI etc.). Structural bugs (VRSN, BRK-B, CVNA) are fixed.</li>
-      <li><strong>Do NOT re-enable billing</strong> if the scanner has been failing or producing empty <span class="inline-code">data/latest.json</span>.</li>
-    </ul>
-
-    <!-- RECOMMENDED ORDER -->
-    <h2 id="order">Recommended Order of Changes</h2>
-    <p>Do all code changes in one commit so nothing is half-enabled.</p>
+    <!-- VERIFICATION -->
+    <h2 id="verify">Verification Steps</h2>
     <ol style="padding-left:20px;">
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">1</span> Confirm Tiingo compare log is clean (gate check — no code edit)</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">2</span> Edit <strong>billing.html</strong> + <strong>billing_cn.html</strong> — remove redirects first so the page users land on actually works</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">3</span> Edit <strong>login.html</strong> + <strong>login_cn.html</strong> — restore isActive ternary</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">4</span> Edit <strong>baizora_main_form.html</strong> + <strong>_cn.html</strong> — restore login gate + subscription check</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">5</span> Edit <strong>dashboard.html</strong> + <strong>_cn.html</strong> — restore login gate, free preview card, quick link, card-locking</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">6</span> Edit <strong>index_news.html</strong> + <strong>_cn.html</strong> — restore login gates</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">7</span> Edit <strong>index.html</strong> + <strong>_cn.html</strong> — announcement bar, nav Plans link, hero CTAs, bottom CTA</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">8</span> Commit all changes together and push</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">9</span> Sign in as a test account → verify you land on billing page (not dashboard)</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">10</span> Subscribe as test account → verify dashboard unlocks</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">1</span> Flip <span class="inline-code">FREE_ACCESS_MODE</span> to <span class="inline-code">false</span> in <strong>assets/feature_flags.js</strong>, commit, push</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">2</span> Wait 1–3 minutes for GitHub Pages to propagate, then hard-refresh (Ctrl+Shift+R)</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">3</span> Sign in as a test account with <strong>no</strong> active subscription → should land on <strong>billing.html</strong>, not the dashboard</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">4</span> On the dashboard, confirm the Scanner and Index News cards show the locked "→ Please choose a plan to view" tag for that account</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">5</span> Confirm the homepage nav, hero CTAs, and dashboard quick-links show "Free Tier" / "Plans" again, not "Top Movers" / hidden</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">6</span> Check the FAQ — "Subscription & Billing" section and the trial item should be back, "Is Baizora free?" should be gone</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">7</span> Subscribe as the test account → verify the dashboard unlocks and account.html shows real "Active" status</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">8</span> Manually rewrite <strong>about.html / _cn</strong> and <strong>compare.html / _cn</strong> pricing copy (see table above)</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">9</span> Manually update <strong>functions/index.js</strong>'s chat prompt and run <span class="inline-code">firebase deploy --only functions --non-interactive</span> yourself</li>
     </ol>
 
-    <div class="tip-box" style="margin-top:32px;">
-      <p>After pushing, GitHub Pages can take 1–3 minutes to propagate. Hard-refresh (Ctrl+Shift+R) before testing.</p>
-    </div>
-
-    <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-06-15 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
+    <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-08-11 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
 
   </div>
 </div>
