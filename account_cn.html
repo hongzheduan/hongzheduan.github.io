@@ -543,7 +543,7 @@
 
       <!-- No subscription -->
       <div id="noSubActions" style="display:none; margin-top:16px;">
-        <a href="billing_cn.html" class="action-btn action-btn-primary" style="justify-content:center;">
+        <a href="billing_cn.html" id="noSubCta" class="action-btn action-btn-primary" style="justify-content:center;">
           🔥 开始免费试用 — 7天免费
         </a>
       </div>
@@ -603,6 +603,7 @@
     </div>
   </div>
 
+  <script src="assets/feature_flags.js?v=2"></script>
   <script type="module">
     import { auth } from "./firebase.js";
     import {
@@ -638,6 +639,9 @@
     /* ── RENDER SUBSCRIPTION ── */
     function renderSub(data, user) {
       const status = data.subscriptionStatus || "inactive";
+      // Free-access period (2026-08): a user with no real subscription still has full
+      // platform access, so show that instead of an upsell — see feature_flags.js.
+      const freeAccess = window.FREE_ACCESS_MODE && status !== "active" && status !== "trialing";
       const badge  = document.getElementById("statusBadge");
       const text   = document.getElementById("statusText");
       const plan   = document.getElementById("planName");
@@ -647,21 +651,21 @@
       const cancelBtn = document.getElementById("cancelBtn");
 
       // Badge
-      badge.className = `status-badge ${status}`;
-      text.textContent =
+      badge.className = `status-badge ${freeAccess ? "active" : status}`;
+      text.textContent = freeAccess ? "免费开放中" :
         status === "active"   ? "已激活"   :
         status === "trialing" ? "免费试用中" :
         status === "canceled" ? "已取消" : "未订阅";
 
       // Plan label
-      plan.textContent = status === "inactive" || status === "canceled" ? "" : "贝佐拉平台完整功能";
+      plan.textContent = freeAccess ? "完整平台功能" : status === "inactive" || status === "canceled" ? "" : "贝佐拉平台完整功能";
 
       // Info rows
       let html = `
         <div class="info-row">
           <span class="info-key">状态</span>
-          <span class="info-val ${status === 'active' ? 'green' : status === 'trialing' ? 'gold' : 'red'}">
-            ${status === "active" ? "已激活" : status === "trialing" ? "试用中" : status === "canceled" ? "已取消" : "—"}
+          <span class="info-val ${freeAccess ? 'green' : status === 'active' ? 'green' : status === 'trialing' ? 'gold' : 'red'}">
+            ${freeAccess ? "免费开放，无需订阅" : status === "active" ? "已激活" : status === "trialing" ? "试用中" : status === "canceled" ? "已取消" : "—"}
           </span>
         </div>`;
 
@@ -694,6 +698,8 @@
       } else {
         grid.style.display = "none";
         noSub.style.display = "block";
+        const cta = document.getElementById("noSubCta");
+        if (cta && freeAccess) { cta.href = "dashboard_cn.html"; cta.textContent = "→ 前往个人主页"; }
       }
     }
 

@@ -533,7 +533,7 @@
 
       <!-- No subscription -->
       <div id="noSubActions" style="display:none; margin-top:16px;">
-        <a href="billing.html" class="action-btn action-btn-primary" style="justify-content:center;">
+        <a href="billing.html" id="noSubCta" class="action-btn action-btn-primary" style="justify-content:center;">
           🔥 Start Free Trial — 7 Days Free
         </a>
       </div>
@@ -593,6 +593,7 @@
     </div>
   </div>
 
+  <script src="assets/feature_flags.js?v=2"></script>
   <script type="module">
     import { auth } from "./firebase.js";
     import {
@@ -628,6 +629,9 @@
     /* ── RENDER SUBSCRIPTION ── */
     function renderSub(data, user) {
       const status = data.subscriptionStatus || "inactive";
+      // Free-access period (2026-08): a user with no real subscription still has full
+      // platform access, so show that instead of an upsell — see feature_flags.js.
+      const freeAccess = window.FREE_ACCESS_MODE && status !== "active" && status !== "trialing";
       const badge  = document.getElementById("statusBadge");
       const text   = document.getElementById("statusText");
       const plan   = document.getElementById("planName");
@@ -637,21 +641,21 @@
       const cancelBtn = document.getElementById("cancelBtn");
 
       // Badge
-      badge.className = `status-badge ${status}`;
-      text.textContent =
+      badge.className = `status-badge ${freeAccess ? "active" : status}`;
+      text.textContent = freeAccess ? "Free Access" :
         status === "active"   ? "Active"   :
         status === "trialing" ? "Free Trial" :
         status === "canceled" ? "Canceled" : "No Subscription";
 
       // Plan label
-      plan.textContent = status === "inactive" || status === "canceled" ? "" : "Baizora Full Access";
+      plan.textContent = freeAccess ? "Full Platform Access" : status === "inactive" || status === "canceled" ? "" : "Baizora Full Access";
 
       // Info rows
       let html = `
         <div class="info-row">
           <span class="info-key">Status</span>
-          <span class="info-val ${status === 'active' ? 'green' : status === 'trialing' ? 'gold' : 'red'}">
-            ${status === "active" ? "Active" : status === "trialing" ? "Trial period" : status === "canceled" ? "Canceled" : "—"}
+          <span class="info-val ${freeAccess ? 'green' : status === 'active' ? 'green' : status === 'trialing' ? 'gold' : 'red'}">
+            ${freeAccess ? "Free access — no subscription needed" : status === "active" ? "Active" : status === "trialing" ? "Trial period" : status === "canceled" ? "Canceled" : "—"}
           </span>
         </div>`;
 
@@ -684,6 +688,8 @@
       } else {
         grid.style.display = "none";
         noSub.style.display = "block";
+        const cta = document.getElementById("noSubCta");
+        if (cta && freeAccess) { cta.href = "dashboard.html"; cta.textContent = "→ Go to Dashboard"; }
       }
     }
 
