@@ -184,7 +184,7 @@
       </div>
       <div class="faq-a"><div class="faq-a-inner">
         免费版无需注册。您可以直接访问 <a href="../baizora_main_form_freetier_cn.html">免费版</a> 查看标普500与纳斯达克100各自今日20强异动股——最新收盘数据，无延迟。<br><br>
-        解锁完整平台数据需要付费订阅——包括全部500+支股票、所有时间周期（2周至1年）、可排序列及完整基本面数据。
+        <span id="faqSignupNote">解锁完整平台数据需要付费订阅——包括全部500+支股票、所有时间周期（2周至1年）、可排序列及完整基本面数据。</span>
       </div></div>
     </div>
 
@@ -557,6 +557,8 @@
     });
     const freeItem = document.getElementById('faqFreeItem');
     if (freeItem) freeItem.style.display = 'block';
+    const signupNote = document.getElementById('faqSignupNote');
+    if (signupNote) signupNote.textContent = '完整平台功能——全部500+支股票、跨设备自选股云同步、成分股变动历史及指数资讯——只需免费注册即可使用，无需付费。';
   }
 
   function toggle(qEl){

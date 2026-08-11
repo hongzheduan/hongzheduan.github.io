@@ -187,7 +187,7 @@
       </div>
       <div class="faq-a"><div class="faq-a-inner">
         No sign-up is required for the Free Tier. You can see today's top 20 movers in the S&amp;P 500 and top 20 in the Nasdaq-100 directly at <a href="../baizora_main_form_freetier.html">baizora.com/free-tier</a> — current data, no delay.<br><br>
-        A paid subscription unlocks the full 500+ stock universe, cloud watchlist sync across devices, membership change history, and index news.
+        <span id="faqSignupNote">A paid subscription unlocks the full 500+ stock universe, cloud watchlist sync across devices, membership change history, and index news.</span>
       </div></div>
     </div>
 
@@ -560,6 +560,8 @@
     });
     const freeItem = document.getElementById('faqFreeItem');
     if (freeItem) freeItem.style.display = 'block';
+    const signupNote = document.getElementById('faqSignupNote');
+    if (signupNote) signupNote.textContent = 'For the full 500+ stock universe, cloud watchlist sync across devices, membership change history, and index news, create a free account — no payment required.';
   }
 
   function toggle(qEl){
