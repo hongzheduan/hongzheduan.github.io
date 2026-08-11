@@ -1144,14 +1144,14 @@
       .col-legend-grid { text-align: left; }
     }
   </style>
-  <script src="assets/feature_flags.js"></script>
+  <script src="assets/feature_flags.js?v=2"></script>
 </head>
 <body>
 
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  输入优惠码FRIEND50，所有方案立减50%<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">新订阅用户前七天免费<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span id="ann-status">全部数据更新至：<span id="ann-date">…</span></span>
+  <span id="ann-promo">输入优惠码FRIEND50，所有方案立减50%<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">新订阅用户前七天免费<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"></span><span id="ann-status">全部数据更新至：<span id="ann-date">…</span></span>
 </div>
 <script>
 fetch('data/latest.json').then(r=>r.json()).then(d=>{
@@ -1182,8 +1182,8 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <div class="desktop-nav">
       <a href="index.html" class="nav-btn">English</a>
       <a href="assets/about_cn.html" class="nav-btn">平台简介</a>
-      <a href="pricing_cn.html" class="nav-btn">价格方案</a>
-      <a href="baizora_main_form_freetier_cn.html" class="nav-btn">免费版</a>
+      <a href="pricing_cn.html" class="nav-btn" id="navPlansBtn">价格方案</a>
+      <a href="baizora_main_form_freetier_cn.html" class="nav-btn" id="navFreeTierBtn">免费版</a>
       <a href="signup_cn.html" class="nav-btn" id="navRegisterBtn">免费注册</a>
       <a href="dashboard_cn.html" class="nav-btn" id="navDashBtn" style="display:none;">个人主页</a>
       <a href="login_cn.html" class="nav-btn nav-btn-primary" id="navLoginLogout">登录</a>
@@ -1201,7 +1201,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   <div id="mobileAuthLinks"></div>
   <!-- <a href="account_cn.html">订阅管理</a> -->
   <a href="index.html">English</a>
-  <a href="pricing_cn.html" class="mobile-gold">免费试用 — 七天</a>
+  <a href="pricing_cn.html" class="mobile-gold" id="mobileStartFreeBtn">免费试用 — 七天</a>
 </div>
 
 <!-- ── HERO ── -->
@@ -1221,7 +1221,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       </div>
 
       <div class="hero-cta">
-        <a href="pricing_cn.html" class="btn-gold">免费体验<span class="btn-sub">最新<span class="btn-sub-sep"> · </span><br class="btn-sub-br">全部500+股票</span></a>
+        <a href="pricing_cn.html" class="btn-gold" id="ctaStartFreeHero">免费体验<span class="btn-sub">最新<span class="btn-sub-sep"> · </span><br class="btn-sub-br">全部500+股票</span></a>
         <a href="baizora_main_form_freetier_cn.html" class="btn-secondary">免费版<span class="btn-sub">各指数20强异动<span class="btn-sub-sep"> · </span><br class="btn-sub-br">无需登录</span></a>
       </div>
 
@@ -1438,7 +1438,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   <!-- 紧凑型 CTA -->
   <div class="cta-mini">
     <div class="cta-mini-btns">
-      <a href="pricing_cn.html" class="btn-gold">免费体验<span class="btn-sub">最新<span class="btn-sub-sep"> · </span><br class="btn-sub-br">全部500+股票</span></a>
+      <a href="pricing_cn.html" class="btn-gold" id="ctaStartFreeMini">免费体验<span class="btn-sub">最新<span class="btn-sub-sep"> · </span><br class="btn-sub-br">全部500+股票</span></a>
       <a href="baizora_main_form_freetier_cn.html" class="btn-secondary">免费版<span class="btn-sub">各指数20强异动<span class="btn-sub-sep"> · </span><br class="btn-sub-br">无需登录</span></a>
     </div>
     <div class="cta-mini-tagline">独特评分系统 · 综合价格与成交量信号 · 7天免费体验 · 随时可取消</div>
@@ -1681,6 +1681,20 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     observer.observe(c);
   });
 
+  /* ── Free access mode: announce free, hide Plans/Free Tier nav links ── */
+  if (window.FREE_ACCESS_MODE) {
+    const promo = document.getElementById('ann-promo');
+    if (promo) promo.innerHTML = '贝佐拉对所有用户免费开放 — 登录即可探索完整平台<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">';
+    ['navPlansBtn', 'mobileStartFreeBtn'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    ['ctaStartFreeHero', 'ctaStartFreeMini'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) { btn.href = 'signup_cn.html'; btn.childNodes[0].textContent = '免费注册'; }
+    });
+  }
+
   /* ── Dynamic auth state ── */
   firebase.auth().onAuthStateChanged(function(user) {
     const btn         = document.getElementById('navLoginLogout');
@@ -1756,6 +1770,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     const msgEl = document.getElementById('hpGateMsg');
     if (msgEl) msgEl.textContent = message;
     if (user) {
+      if (window.FREE_ACCESS_MODE) {
+        window.location.href = target;
+        return;
+      }
       const res = await fetch('https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=' + user.uid);
       const data = await res.json();
       const status = data.subscriptionStatus || 'inactive';

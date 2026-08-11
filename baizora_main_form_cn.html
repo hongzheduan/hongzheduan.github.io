@@ -967,7 +967,7 @@
   </div>
 
 
-  <script src="assets/feature_flags.js"></script>
+  <script src="assets/feature_flags.js?v=2"></script>
   <script type="module">
     import { auth, db } from "./firebase.js";
     import { signOut, onAuthStateChanged }
@@ -1077,13 +1077,18 @@
       if (!user) { window.location.href = "login_cn.html"; return; }
       const emailEl = document.getElementById("navUserEmail");
       if (emailEl) { emailEl.textContent = user.email[0].toUpperCase(); emailEl.title = user.email; emailEl.style.display = 'inline-flex'; }
-      user.getIdToken().then(token =>
-        fetch("https://us-central1-baizora.cloudfunctions.net/api/subscription",
-              { headers: { Authorization: "Bearer " + token } })
+      if (window.FREE_ACCESS_MODE) {
+        loadDashboard();
+      } else {
+        fetch("https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=" + user.uid)
         .then(r => r.json())
-        .then(d => { if (d.status !== "active") window.location.href = "billing_cn.html"; else loadDashboard(); })
+        .then(d => {
+          const status = d.subscriptionStatus || "inactive";
+          if (status !== "active" && status !== "trialing") window.location.href = "billing_cn.html";
+          else loadDashboard();
+        })
         .catch(() => loadDashboard())
-      );
+      }
     });
 
     /* ── INDEX CHANGES ── */

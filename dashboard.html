@@ -514,6 +514,7 @@
 
   </div><!-- /page -->
 
+  <script src="assets/feature_flags.js?v=2"></script>
   <script type="module">
     import { auth } from "./firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -541,9 +542,11 @@
         const data = await res.json();
         const status = data.subscriptionStatus || "inactive";
 
-        pill.className = `status-pill ${status}`;
+        pill.className = `status-pill ${window.FREE_ACCESS_MODE ? "active" : status}`;
 
-        if (status === "active") {
+        if (window.FREE_ACCESS_MODE) {
+          text.textContent = "Free Access";
+        } else if (status === "active") {
           text.textContent = "Active Subscription";
         } else if (status === "trialing") {
           const end = data.currentPeriodEnd

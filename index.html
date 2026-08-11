@@ -1141,14 +1141,14 @@
       .col-legend-grid { text-align: left; }
     }
   </style>
-  <script src="assets/feature_flags.js"></script>
+  <script src="assets/feature_flags.js?v=2"></script>
 </head>
 <body>
 
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  50% off all plans with code FRIEND50<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">First 7 days free for new subscribers<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"><span id="ann-status">All data updated: <span id="ann-date">…</span></span>
+  <span id="ann-promo">50% off all plans with code FRIEND50<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">First 7 days free for new subscribers<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"></span><span id="ann-status">All data updated: <span id="ann-date">…</span></span>
 </div>
 <script>
 fetch('data/latest.json').then(r=>r.json()).then(d=>{
@@ -1180,8 +1180,8 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <div class="desktop-nav">
       <a href="index_cn.html" class="nav-btn">中文</a>
       <a href="assets/about.html" class="nav-btn">About</a>
-      <a href="pricing.html" class="nav-btn">Plans</a>
-      <a href="baizora_main_form_freetier.html" class="nav-btn">Free Tier</a>
+      <a href="pricing.html" class="nav-btn" id="navPlansBtn">Plans</a>
+      <a href="baizora_main_form_freetier.html" class="nav-btn" id="navFreeTierBtn">Free Tier</a>
       <a href="signup.html" class="nav-btn" id="navRegisterBtn">Register for Free</a>
       <a href="dashboard.html" class="nav-btn" id="navDashBtn" style="display:none;">Dashboard</a>
       <a href="login.html" class="nav-btn nav-btn-primary" id="navLoginLogout">Sign in</a>
@@ -1199,7 +1199,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   <div id="mobileAuthLinks"></div>
   <!-- <a href="account.html">Manage Subscription</a> -->
   <a href="index_cn.html">中文</a>
-  <a href="pricing.html" class="mobile-gold">Start Free — 7 Days</a>
+  <a href="pricing.html" class="mobile-gold" id="mobileStartFreeBtn">Start Free — 7 Days</a>
 </div>
 
 <!-- ── HERO ── -->
@@ -1219,7 +1219,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       </div>
 
       <div class="hero-cta">
-        <a href="pricing.html" class="btn-gold">Start Free<span class="btn-sub">latest · all 500+ tickers</span></a>
+        <a href="pricing.html" class="btn-gold" id="ctaStartFreeHero">Start Free<span class="btn-sub">latest · all 500+ tickers</span></a>
         <a href="baizora_main_form_freetier.html" class="btn-secondary">Free Tier<span class="btn-sub">top 20 movers per index · no login</span></a>
       </div>
 
@@ -1433,7 +1433,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   <!-- Compact CTA -->
   <div class="cta-mini">
     <div class="cta-mini-btns">
-      <a href="pricing.html" class="btn-gold">Start Free<span class="btn-sub">latest · all 500+ tickers</span></a>
+      <a href="pricing.html" class="btn-gold" id="ctaStartFreeMini">Start Free<span class="btn-sub">latest · all 500+ tickers</span></a>
       <a href="baizora_main_form_freetier.html" class="btn-secondary">Free Tier<span class="btn-sub">top 20 movers per index · no login</span></a>
     </div>
     <div class="cta-mini-tagline">Unique scores combining price & volume signals · 7-day free trial · cancel anytime</div>
@@ -1663,6 +1663,20 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     observer.observe(c);
   });
 
+  /* ── Free access mode: announce free, hide Plans/Free Tier nav links ── */
+  if (window.FREE_ACCESS_MODE) {
+    const promo = document.getElementById('ann-promo');
+    if (promo) promo.innerHTML = 'Baizora is free for everyone — sign in and explore the full platform<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">';
+    ['navPlansBtn', 'mobileStartFreeBtn'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    ['ctaStartFreeHero', 'ctaStartFreeMini'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) { btn.href = 'signup.html'; btn.childNodes[0].textContent = 'Sign Up Free'; }
+    });
+  }
+
   /* ── Dynamic auth state ── */
   firebase.auth().onAuthStateChanged(function(user) {
     const btn         = document.getElementById('navLoginLogout');
@@ -1738,6 +1752,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     const msgEl = document.getElementById('hpGateMsg');
     if (msgEl) msgEl.textContent = label + ' is available for subscribers only.';
     if (user) {
+      if (window.FREE_ACCESS_MODE) {
+        window.location.href = target;
+        return;
+      }
       const res = await fetch('https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=' + user.uid);
       const data = await res.json();
       const status = data.subscriptionStatus || 'inactive';

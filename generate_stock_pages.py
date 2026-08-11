@@ -395,7 +395,7 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
     gtag('js', new Date());
     gtag('config', 'G-DWEPM8KFM9');
   </script>
-  <script src="../assets/feature_flags.js"></script>
+  <script src="../assets/feature_flags.js?v=2"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{ticker} {"ETF" if is_etf else "Stock"} Analysis | {name} Price &amp; Volume Trends | Baizora</title>

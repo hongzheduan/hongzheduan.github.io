@@ -480,6 +480,7 @@
     });
   </script>
 
+  <script src="assets/feature_flags.js?v=2"></script>
   <script type="module">
     import { auth } from "./firebase.js";
     import {
@@ -515,24 +516,26 @@
 
         // ── Check subscription status ──
         let subscriptionStatus = "inactive";
-        try {
-          const res = await fetch(
-            `https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=${user.uid}`
-          );
-          if (res.ok) {
-            const data = await res.json();
-            subscriptionStatus = data.subscriptionStatus || "inactive";
-          } else {
-            // Backend error — log it but don't block login
-            console.warn("get-user returned", res.status, await res.text());
+        if (!window.FREE_ACCESS_MODE) {
+          try {
+            const res = await fetch(
+              `https://us-central1-baizora.cloudfunctions.net/api/get-user?uid=${user.uid}`
+            );
+            if (res.ok) {
+              const data = await res.json();
+              subscriptionStatus = data.subscriptionStatus || "inactive";
+            } else {
+              // Backend error — log it but don't block login
+              console.warn("get-user returned", res.status, await res.text());
+            }
+          } catch (fetchErr) {
+            // Network issue — log but don't block login
+            console.warn("get-user fetch failed:", fetchErr.message);
           }
-        } catch (fetchErr) {
-          // Network issue — log but don't block login
-          console.warn("get-user fetch failed:", fetchErr.message);
         }
 
         // ── Redirect based on status ──
-        window.location.href = (subscriptionStatus === "active" || subscriptionStatus === "trialing") ? "dashboard_cn.html" : "billing_cn.html";
+        window.location.href = (window.FREE_ACCESS_MODE || subscriptionStatus === "active" || subscriptionStatus === "trialing") ? "dashboard_cn.html" : "billing_cn.html";
 
       } catch (e) {
         console.error(e);
