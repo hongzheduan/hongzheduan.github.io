@@ -2961,6 +2961,10 @@ def fetch_and_save_index_news(lookback_days=90):
                 "link":     link,
             })
 
+    if not all_items:
+        print("  [news] 0 items fetched (likely a transient RSS/network failure) — leaving existing index_news.json untouched")
+        return
+
     all_items.sort(key=lambda x: x["date"], reverse=True)
     print(f"  [news] translating {len(all_items)} titles to Chinese...")
     for item in all_items:
