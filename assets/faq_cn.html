@@ -219,7 +219,7 @@
         <span class="q-text">登录后会跳转到哪里？</span>
         <span class="q-icon">+</span>
       </div>
-      <div class="faq-a"><div class="faq-a-inner">
+      <div class="faq-a"><div class="faq-a-inner" id="faqAfterLoginAnswer">
         登录时，贝佐拉会自动检查您的订阅状态并相应跳转：<br><br>
         <strong>有效订阅用户</strong> → 直接进入个人主页，所有功能即时可用。<br>
         <strong>未订阅用户</strong> → 跳转至订阅页面，选择方案即可开始。
@@ -559,6 +559,8 @@
     if (freeItem) freeItem.style.display = 'block';
     const signupNote = document.getElementById('faqSignupNote');
     if (signupNote) signupNote.textContent = '完整平台功能——全部500+支股票、跨设备自选股云同步、成分股变动历史及指数资讯——只需免费注册即可使用，无需付费。';
+    const afterLogin = document.getElementById('faqAfterLoginAnswer');
+    if (afterLogin) afterLogin.textContent = '登录后将直接进入个人主页，所有功能即时可用——无需订阅。';
   }
 
   function toggle(qEl){

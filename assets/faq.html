@@ -222,7 +222,7 @@
         <span class="q-text">Where do I go after logging in?</span>
         <span class="q-icon">+</span>
       </div>
-      <div class="faq-a"><div class="faq-a-inner">
+      <div class="faq-a"><div class="faq-a-inner" id="faqAfterLoginAnswer">
         When you sign in, Baizora automatically checks your subscription status and routes you accordingly:<br><br>
         <strong>Active subscriber</strong> → taken directly to your Dashboard, where all tools are available.<br>
         <strong>Unsubscribed user</strong> → taken to the subscription page to choose a plan and get started.
@@ -562,6 +562,8 @@
     if (freeItem) freeItem.style.display = 'block';
     const signupNote = document.getElementById('faqSignupNote');
     if (signupNote) signupNote.textContent = 'For the full 500+ stock universe, cloud watchlist sync across devices, membership change history, and index news, create a free account — no payment required.';
+    const afterLogin = document.getElementById('faqAfterLoginAnswer');
+    if (afterLogin) afterLogin.textContent = 'When you sign in, you\'re taken directly to your Dashboard, where all tools are available — no subscription needed.';
   }
 
   function toggle(qEl){
