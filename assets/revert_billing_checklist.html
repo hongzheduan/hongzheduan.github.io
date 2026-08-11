@@ -181,7 +181,7 @@
     </table>
 
     <div class="warning-box">
-      <p><strong>⚠ functions/index.js is a Cloud Function, not a static page.</strong> Editing it and pushing to GitHub does <em>nothing</em> — GitHub Pages doesn't serve Cloud Functions. After editing, run this yourself in a real interactive terminal (not through an AI assistant session — <span class="inline-code">firebase login</span> needs a real browser flow):</p>
+      <p><strong>⚠ functions/index.js is a Cloud Function, not a static page.</strong> Editing it and pushing to GitHub does <em>nothing</em> — GitHub Pages doesn't serve Cloud Functions. After editing, deploy separately:</p>
     </div>
     <pre><code>firebase deploy --only functions --non-interactive</code></pre>
 
@@ -200,7 +200,7 @@
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">6</span> Check the FAQ — "Subscription & Billing" section and the trial item should be back, "Is Baizora free?" should be gone</li>
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">7</span> Subscribe as the test account → verify the dashboard unlocks and account.html shows real "Active" status</li>
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">8</span> Manually rewrite <strong>about.html / _cn</strong> and <strong>compare.html / _cn</strong> pricing copy (see table above)</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">9</span> Manually update <strong>functions/index.js</strong>'s chat prompt and run <span class="inline-code">firebase deploy --only functions --non-interactive</span> yourself</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">9</span> Manually update <strong>functions/index.js</strong>'s chat prompt, then deploy with <span class="inline-code">firebase deploy --only functions --non-interactive</span></li>
     </ol>
 
     <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-08-11 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
