@@ -159,6 +159,17 @@
   <div class="faq-section">
     <div class="section-group-label">Getting Started</div>
 
+    <div class="faq-item" id="faqFreeItem" style="display:none;">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">Is Baizora free?</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        Yes — the full Baizora platform is currently free to use for every signed-in user, no subscription required. <a href="../signup.html">Create a free account</a> or <a href="../login.html">sign in</a> to get started.<br><br>
+        This is a limited-time period while we gauge interest — if pricing returns in the future, we'll announce it clearly beforehand.
+      </div></div>
+    </div>
+
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
         <span class="q-text">How does the Free Tier work?</span>
@@ -219,7 +230,7 @@
       </div></div>
     </div>
 
-    <div class="faq-item">
+    <div class="faq-item" id="faqTrialItem">
       <div class="faq-q" onclick="toggle(this)">
         <span class="q-text">How does the 7-day free trial work?</span>
         <span class="q-icon">+</span>
@@ -347,7 +358,7 @@
   </div>
 
   <!-- Subscription & Billing -->
-  <div class="faq-section">
+  <div class="faq-section" id="faqSubscriptionSection">
     <div class="section-group-label">Subscription & Billing</div>
 
     <div class="faq-item">
@@ -543,6 +554,15 @@
 </footer>
 
 <script>
+  if (window.FREE_ACCESS_MODE) {
+    ['faqTrialItem', 'faqSubscriptionSection'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    const freeItem = document.getElementById('faqFreeItem');
+    if (freeItem) freeItem.style.display = 'block';
+  }
+
   function toggle(qEl){
     const item=qEl.closest('.faq-item');
     const isOpen=item.classList.contains('open');

@@ -156,6 +156,17 @@
   <div class="faq-section">
     <div class="section-group-label">快速入门</div>
 
+    <div class="faq-item" id="faqFreeItem" style="display:none;">
+      <div class="faq-q" onclick="toggle(this)">
+        <span class="q-text">贝佐拉免费吗？</span>
+        <span class="q-icon">+</span>
+      </div>
+      <div class="faq-a"><div class="faq-a-inner">
+        是的——贝佐拉目前对所有登录用户完全免费开放，无需订阅。<a href="../signup_cn.html">免费注册</a>或<a href="../login_cn.html">登录</a>即可开始使用。<br><br>
+        这是我们测试用户兴趣的限时安排——如果日后恢复收费，我们会提前明确公告。
+      </div></div>
+    </div>
+
     <div class="faq-item">
       <div class="faq-q" onclick="toggle(this)">
         <span class="q-text">免费版是如何运作的？</span>
@@ -216,7 +227,7 @@
       </div></div>
     </div>
 
-    <div class="faq-item">
+    <div class="faq-item" id="faqTrialItem">
       <div class="faq-q" onclick="toggle(this)">
         <span class="q-text">7天免费试用是如何运作的？</span>
         <span class="q-icon">+</span>
@@ -344,7 +355,7 @@
   </div>
 
   <!-- Subscription & Billing -->
-  <div class="faq-section">
+  <div class="faq-section" id="faqSubscriptionSection">
     <div class="section-group-label">订阅与账单</div>
 
     <div class="faq-item">
@@ -540,6 +551,15 @@
 </footer>
 
 <script>
+  if (window.FREE_ACCESS_MODE) {
+    ['faqTrialItem', 'faqSubscriptionSection'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    const freeItem = document.getElementById('faqFreeItem');
+    if (freeItem) freeItem.style.display = 'block';
+  }
+
   function toggle(qEl){
     const item=qEl.closest('.faq-item');
     const isOpen=item.classList.contains('open');
