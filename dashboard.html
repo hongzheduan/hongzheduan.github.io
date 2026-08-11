@@ -495,7 +495,7 @@
       <a href="account.html" class="quick-link">
         <span class="quick-link-icon">👤</span> My Account
       </a>
-      <a href="billing.html" class="quick-link">
+      <a href="billing.html" class="quick-link" id="qlBilling">
         <span class="quick-link-icon">💳</span> Plans &amp; Billing
       </a>
       <a href="index.html" class="quick-link">
@@ -531,6 +531,11 @@
       const name = user.email.split("@")[0];
       const displayName = name.charAt(0).toUpperCase() + name.slice(1);
       document.getElementById("nameGreeting").textContent = ", " + displayName;
+
+      if (window.FREE_ACCESS_MODE) {
+        const qlBilling = document.getElementById("qlBilling");
+        if (qlBilling) qlBilling.style.display = "none";
+      }
 
       // Fetch subscription status
       const pill = document.getElementById("statusPill");
