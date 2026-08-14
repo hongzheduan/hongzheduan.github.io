@@ -1983,12 +1983,52 @@ _HOOK_NARRATION_SPOTLIGHT_CN = [
 ]
 
 
+def _pick_spotlight_rotation(members, lang, date=""):
+    """Cycle through spotlight candidates in ticker-alphabetical order instead of
+    picking independently at random each Friday — with only a handful of
+    candidates on file at a time, independent random picks can (and did, per
+    LITE showing up 3 of 5 real Fridays) land on the same ticker repeatedly by
+    chance instead of eventually covering everyone. State is per-language
+    (data/spotlight_rotation_{lang}.json) since EN and CN Shorts are generated
+    as separate runs and shouldn't share a rotation position.
+
+    Robust to the candidate list changing week to week (new joins added, old
+    ones aging out past the 2-year window in _get_verified_members): position
+    is tracked by ticker name, not list index, and if the last-picked ticker
+    is no longer a candidate, rotation resumes at the next ticker alphabetically
+    after it (wrapping to the start if none), rather than resetting to 0."""
+    state_path = SCRIPT_DIR.parent / "data" / f"spotlight_rotation_{lang}.json"
+    sorted_members = sorted(members, key=lambda m: m["ticker"])
+    tickers = [m["ticker"] for m in sorted_members]
+
+    last_ticker = None
+    try:
+        last_ticker = json.loads(state_path.read_text(encoding="utf-8")).get("last_ticker")
+    except Exception:
+        pass
+
+    if last_ticker in tickers:
+        idx = (tickers.index(last_ticker) + 1) % len(tickers)
+    elif last_ticker:
+        idx = next((i for i, t in enumerate(tickers) if t > last_ticker), 0)
+    else:
+        idx = 0
+
+    picked = sorted_members[idx]
+    try:
+        state_path.write_text(json.dumps({"last_ticker": picked["ticker"], "date": date}),
+                               encoding="utf-8")
+    except Exception:
+        pass
+    return picked
+
+
 def build_index_spotlight_short(data, output, lang="en", share_dir=None):
     """Friday — spotlights one recently-added S&P 500 / Nasdaq-100 member and its
     price since joining. Unlike Monday-Thursday's ranked lists, this is a single-
-    stock feature (member chosen at random, matching generate_video.py's landscape
-    build), so the same spotlight image is narrated across two frames instead of a
-    table across five."""
+    stock feature, so the same spotlight image is narrated across two frames
+    instead of a table across five. Candidate is chosen by rotation, not
+    independently at random — see _pick_spotlight_rotation()."""
     date = data["date"]
     date_obj = datetime.date.fromisoformat(date)
     members = _get_verified_members(data)
@@ -1997,7 +2037,7 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
         print("No new index members found today, skipping Short.")
         return
 
-    member = random.choice(members)
+    member = _pick_spotlight_rotation(members, lang, date)
     ticker = member["ticker"]
     index_name = member["index_name"]
     index_cn = "纳斯达克100" if "Nasdaq" in index_name else "标普500"

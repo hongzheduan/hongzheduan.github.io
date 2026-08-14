@@ -594,6 +594,12 @@ jobs:
           # too, not just new/changed files — keeps the repo from growing forever.
           git add -A data/social_cards/ 2>/dev/null || true
           git add data/latest_social_cards_meta.json 2>/dev/null || true
+          # Friday-only rotation position for build_index_spotlight_short()'s
+          # candidate pick (see _pick_spotlight_rotation) — must be committed or
+          # every run starts back at the beginning since each GH Actions run is a
+          # fresh checkout with no other persistence.
+          git add data/spotlight_rotation_en.json 2>/dev/null || true
+          git add data/spotlight_rotation_cn.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No video files changed, skipping commit"
           else
