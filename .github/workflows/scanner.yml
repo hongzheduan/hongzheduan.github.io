@@ -329,6 +329,30 @@ jobs:
             git push origin HEAD:main
           fi
 
+      - name: Update company descriptions for new tickers
+        # data/company_descriptions.json is a ticker -> Wikipedia blurb cache used by
+        # the candlestick chart modal (assets/candlestick-chart.js). Descriptions
+        # barely change, so this only fetches tickers missing from the cache (index
+        # reconstitutions, new listings) instead of re-fetching all 500+ daily —
+        # same gating as "Regenerate stock pages" since new tickers only show up
+        # after a real price scan. Wrong auto-matches go in
+        # data/company_description_overrides.json (ticker -> exact Wikipedia title),
+        # not here.
+        if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1' && env.SKIP_SCAN != '1'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git fetch origin main
+          git rebase --autostash origin/main
+          python fetch_company_descriptions.py
+          git add data/company_descriptions.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No new company descriptions"
+          else
+            git commit -m "auto update company descriptions $(date -u)"
+            git push origin HEAD:main
+          fi
+
       - name: Install video dependencies
         if: env.IS_HOLIDAY != 'True' && (env.IS_VIDEO_RUN == 'True' || env.IS_NEWS_RUN == 'True')
         run: |

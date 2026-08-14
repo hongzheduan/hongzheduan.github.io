@@ -488,6 +488,7 @@
 </script>
 
 <script src="assets/feature_flags.js?v=3"></script>
+<script src="assets/candlestick-chart.js?v=1"></script>
 <script>
   /* Mobile menu */
   function toggleMenu() {
@@ -596,7 +597,7 @@
       (losers ? 'Top losers' : 'Top gainers') + ' · As of ' + dataDate + ' · S&P 500 & Nasdaq-100' + liveNote;
 
     const tbody = rows.map((r, i) => {
-      const tkLink = `<a href="stocks/${r.Ticker}.html" class="tk-link">${r.Ticker}</a>`;
+      const tkLink = BaizoraChart.tickerLinkHtml(r.Ticker, 'tk-link');
       const price  = (r._livePrice ?? r.Price) != null ? `$${(r._livePrice ?? r.Price).toFixed(2)}` : '—';
       const chg1d  = r._liveChgPct ?? r.PriceChange1D;
       return `<tr>
@@ -631,6 +632,19 @@
       <div class="table-footer">${sortLabel} · Data as of ${dataDate}${livePricesLoaded ? ' · Prices live' : ''} · For informational purposes only</div>
     `;
   }
+
+  document.getElementById('tableWrap').addEventListener('click', function(e) {
+    const link = e.target.closest('.bz-chart-link');
+    if (!link) return;
+    e.preventDefault();
+    const ticker = link.dataset.ticker;
+    const r = allRows.find(x => x.Ticker === ticker);
+    BaizoraChart.open(ticker, {
+      name: r ? r.CompanyName : '',
+      price: r ? (r._livePrice ?? r.Price) : null,
+      chg: r ? (r._liveChgPct ?? r.PriceChange1D) : null
+    });
+  });
 
   window.showTab = function(mode) {
     currentMode = mode;
