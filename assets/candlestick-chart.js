@@ -150,10 +150,8 @@
     #bzChartTicker { font-family:'DM Mono',monospace; font-size:22px; font-weight:700; color:#fff; letter-spacing:.05em; }
     #bzChartPrice { font-size:18px; color:#60a5fa; font-weight:600; }
     #bzChartChg { font-size:15px; font-weight:600; }
-    #bzChartName { color:#94a3b8; font-size:13px; margin:4px 0 8px; font-family:'DM Sans',sans-serif; }
-    #bzChartDesc { display:none; margin:0 0 16px; font-family:'DM Sans',sans-serif; color:#cbd5e1; font-size:13px; line-height:1.65; }
-    .bz-desc-toggle { display:none; background:none; border:none; padding:0; margin:0; color:#60a5fa; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.05em; cursor:pointer; vertical-align:baseline; }
-    .bz-desc-toggle:hover { text-decoration:underline; }
+    #bzChartName { color:#94a3b8; font-size:13px; margin:4px 0 20px; font-family:'DM Sans',sans-serif; }
+    #bzChartDesc { display:none; margin:18px 0 0; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08); font-family:'DM Sans',sans-serif; color:#cbd5e1; font-size:13px; line-height:1.65; }
     .bz-desc-source { display:none; color:#60a5fa; text-decoration:none; font-family:'DM Mono',monospace; font-size:10.5px; letter-spacing:.04em; }
     .bz-desc-source:hover { text-decoration:underline; }
     .bz-desc-sep { display:none; color:#475569; }
@@ -197,53 +195,11 @@
     return descFetchPromise;
   }
 
-  const DESC_MAX_LINES = 2;
-  let descFullText = '';
-  let descExpanded = false;
-
-  function descLineHeight(el) {
-    const lh = parseFloat(getComputedStyle(el).lineHeight);
-    return isNaN(lh) ? parseFloat(getComputedStyle(el).fontSize) * 1.4 : lh;
-  }
-
-  // Renders either the full text (expanded) or the longest prefix of descFullText
-  // that — together with the trailing "More · Source" controls, which stay inline
-  // so they land right after the visible text — still fits within DESC_MAX_LINES.
-  // Binary-searches the cut point against the live layout rather than estimating
-  // characters-per-line, so it's correct at any modal width/font.
-  function layoutDescription() {
-    const wrap = document.getElementById('bzChartDesc');
-    const bodyEl = document.getElementById('bzChartDescBody');
-    const toggleEl = document.getElementById('bzChartDescToggle');
-    if (!wrap || !bodyEl) return;
-
-    if (descExpanded) {
-      bodyEl.textContent = descFullText + ' ';
-      toggleEl.textContent = 'Less';
-      toggleEl.style.display = 'inline';
-      return;
-    }
-
-    bodyEl.textContent = descFullText;
-    toggleEl.style.display = 'none';
-    const maxH = descLineHeight(wrap) * DESC_MAX_LINES + 2;
-    if (wrap.scrollHeight <= maxH) return; // fits fully — no truncation/toggle needed
-
-    toggleEl.textContent = 'More';
-    toggleEl.style.display = 'inline';
-
-    let lo = 0, hi = descFullText.length, best = 0;
-    while (lo <= hi) {
-      const mid = (lo + hi) >> 1;
-      bodyEl.textContent = descFullText.slice(0, mid).trimEnd() + '… ';
-      if (wrap.scrollHeight <= maxH) { best = mid; lo = mid + 1; }
-      else { hi = mid - 1; }
-    }
-    bodyEl.textContent = descFullText.slice(0, best).trimEnd() + '… ';
-  }
-
+  // Shown at the bottom of the chart as supplementary info, so unlike a header
+  // blurb there's no space pressure — full text, no truncation/expand needed.
   function drawDescription() {
     const wrap = document.getElementById('bzChartDesc');
+    const bodyEl = document.getElementById('bzChartDescBody');
     const sepEl = document.getElementById('bzChartDescSep');
     const sourceEl = document.getElementById('bzChartDescSource');
     if (!wrap || !state.ticker) return;
@@ -251,8 +207,7 @@
     if (!d || !d.description) { wrap.style.display = 'none'; return; }
 
     wrap.style.display = 'block';
-    descFullText = d.description;
-    descExpanded = false;
+    bodyEl.textContent = d.description;
     if (d.wiki_url) {
       sourceEl.href = d.wiki_url;
       sourceEl.style.display = 'inline';
@@ -261,7 +216,6 @@
       sourceEl.style.display = 'none';
       sepEl.style.display = 'none';
     }
-    requestAnimationFrame(layoutDescription);
   }
 
   const state = { ticker: null, tf: 126 };
@@ -289,21 +243,17 @@
           <span id="bzChartChg"></span>
         </div>
         <div id="bzChartName"></div>
-        <div id="bzChartDesc"><span id="bzChartDescBody"></span><button id="bzChartDescToggle" class="bz-desc-toggle" type="button">More</button><span id="bzChartDescSep" class="bz-desc-sep"> · </span><a id="bzChartDescSource" class="bz-desc-source" href="#" target="_blank" rel="noopener">SOURCE ↗</a></div>
         <div class="bz-tf-row">${tfBtns}</div>
         <div id="bzChartBody">
           <div id="bzChartMsg" class="bz-chart-msg" style="display:none;"></div>
           <canvas id="bzChartCanvas"></canvas>
         </div>
+        <div id="bzChartDesc"><span id="bzChartDescBody"></span><span id="bzChartDescSep" class="bz-desc-sep"> · </span><a id="bzChartDescSource" class="bz-desc-source" href="#" target="_blank" rel="noopener">SOURCE ↗</a></div>
       </div>
     `;
     document.body.appendChild(wrap);
 
     document.getElementById('bzChartClose').addEventListener('click', close);
-    document.getElementById('bzChartDescToggle').addEventListener('click', () => {
-      descExpanded = !descExpanded;
-      layoutDescription();
-    });
     wrap.addEventListener('click', e => { if (e.target === wrap) close(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && wrap.style.display === 'flex') close(); });
     wrap.querySelectorAll('.bz-tf-btn').forEach(btn => {
@@ -316,7 +266,6 @@
     window.addEventListener('resize', () => {
       if (wrap.style.display !== 'flex') return;
       draw();
-      if (!descExpanded && descFullText) layoutDescription();
     });
   }
 

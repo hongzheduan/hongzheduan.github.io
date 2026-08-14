@@ -722,6 +722,10 @@
       color: #64748b; font-size: 20px; cursor: pointer; line-height: 1;
     }
     #modalClose:hover { color: #fff; }
+    #modalDesc { display:none; margin:18px 0 0; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08); font-family:'DM Sans',sans-serif; color:#94a3b8; font-size:13px; line-height:1.65; }
+    #modalDescSource { display:none; color:#60a5fa; text-decoration:none; font-family:'DM Mono',monospace; font-size:10.5px; letter-spacing:.04em; }
+    #modalDescSource:hover { text-decoration:underline; }
+    #modalDescSep { display:none; color:#475569; }
     .tf-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .tf-btn.active, .tf-btn:hover { background: rgba(59,130,246,0.2); border-color: #3b82f6; color: #60a5fa; }
     .overlay-drawer-wrap { position: relative; display: inline-block; margin: 0 8px 10px 0; }
@@ -1737,6 +1741,43 @@
       })
       .catch(() => {});
 
+    /* ── COMPANY DESCRIPTIONS (Wikipedia-sourced, decoupled from price vendor) ── */
+    let descData = null;
+    let descFetchPromise = null;
+    function loadDescriptions() {
+      if (!descFetchPromise) {
+        descFetchPromise = fetch("data/company_descriptions.json")
+          .then(r => r.json())
+          .then(d => { descData = d; return d; })
+          .catch(() => { descData = null; });
+      }
+      return descFetchPromise;
+    }
+
+    // Shown at the bottom of the chart as supplementary info (below the stats
+    // grid), so unlike a header blurb there's no space pressure — full text,
+    // no truncation/expand needed.
+    function drawDescription(ticker) {
+      const wrap = document.getElementById("modalDesc");
+      const bodyEl = document.getElementById("modalDescBody");
+      const sepEl = document.getElementById("modalDescSep");
+      const sourceEl = document.getElementById("modalDescSource");
+      if (!wrap) return;
+      const d = descData && descData[ticker];
+      if (!d || !d.description) { wrap.style.display = "none"; return; }
+
+      wrap.style.display = "block";
+      bodyEl.textContent = d.description;
+      if (d.wiki_url) {
+        sourceEl.href = d.wiki_url;
+        sourceEl.style.display = "inline";
+        sepEl.style.display = "inline";
+      } else {
+        sourceEl.style.display = "none";
+        sepEl.style.display = "none";
+      }
+    }
+
     /* ── CALENDAR GAP FILLER ── */
     // US market holidays 2024-2027 (NYSE observed dates)
     const _HOLIDAYS = new Set([
@@ -1952,6 +1993,8 @@
       if (!r) return;
       document.getElementById("modalTicker").textContent = ticker;
       document.getElementById("modalName").textContent   = r.CompanyName || "";
+      drawDescription(ticker);
+      loadDescriptions().then(() => drawDescription(ticker));
       document.getElementById("modalPrice").textContent = r.Price != null ? "$" + r.Price.toFixed(2) : "";
       const pc1 = r._liveChgPct ?? r.PriceChange1D;
       const pc1El = document.getElementById("modalPriceChange");
@@ -2458,6 +2501,7 @@
       <canvas id="candleCanvas"></canvas>
       <div id="candleNoData">暂无图表数据</div>
       <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:18px;"></div>
+      <div id="modalDesc"><span id="modalDescBody"></span><span id="modalDescSep"> &middot; </span><a id="modalDescSource" href="#" target="_blank" rel="noopener">来源 &#8599;</a></div>
     </div>
   </div>
 
