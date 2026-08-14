@@ -353,6 +353,29 @@ jobs:
             git push origin HEAD:main
           fi
 
+      - name: Update corporate events
+        # data/corporate_events.json (splits, M&A, bankruptcy, delisting, leadership
+        # changes, material agreements — sourced from SEC 8-K item codes + splits.json)
+        # only shows events within +/- 2 months of today, so unlike descriptions this
+        # needs re-fetching for every ticker each run (not just new ones) to both pick
+        # up fresh filings and drop events that have aged out of the window. Same
+        # gating as "Regenerate stock pages" — runs on real scan days, roughly daily,
+        # which is frequent enough given 8-Ks are filed within days of the event.
+        if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1' && env.SKIP_SCAN != '1'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git fetch origin main
+          git rebase --autostash origin/main
+          python fetch_corporate_events.py
+          git add data/corporate_events.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No corporate event changes"
+          else
+            git commit -m "auto update corporate events $(date -u)"
+            git push origin HEAD:main
+          fi
+
       - name: Install video dependencies
         if: env.IS_HOLIDAY != 'True' && (env.IS_VIDEO_RUN == 'True' || env.IS_NEWS_RUN == 'True')
         run: |

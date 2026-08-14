@@ -723,6 +723,14 @@
     }
     #modalClose:hover { color: #fff; }
     #modalDesc { display:none; margin:18px 0 0; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08); font-family:'DM Sans',sans-serif; color:#94a3b8; font-size:13px; line-height:1.65; }
+    #modalEvents { display:none; margin:18px 0 0; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08); }
+    .modal-events-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:#64748b; margin-bottom:10px; }
+    .modal-event-row { display:flex; align-items:baseline; gap:10px; padding:6px 0; font-family:'DM Sans',sans-serif; font-size:12.5px; color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .modal-event-row:last-child { border-bottom:none; }
+    .modal-event-date { font-family:'DM Mono',monospace; font-size:11px; color:#64748b; flex-shrink:0; white-space:nowrap; }
+    .modal-event-label { flex:1; }
+    .modal-event-link { color:#60a5fa; text-decoration:none; font-family:'DM Mono',monospace; font-size:10.5px; flex-shrink:0; }
+    .modal-event-link:hover { text-decoration:underline; }
     #modalDescSource { display:none; color:#60a5fa; text-decoration:none; font-family:'DM Mono',monospace; font-size:10.5px; letter-spacing:.04em; }
     #modalDescSource:hover { text-decoration:underline; }
     #modalDescSep { display:none; color:#475569; }
@@ -1754,6 +1762,36 @@
       return descFetchPromise;
     }
 
+    /* ── CORPORATE EVENTS (SEC 8-K item codes + splits.json) ── */
+    let eventsData = null;
+    let eventsFetchPromise = null;
+    function loadEvents() {
+      if (!eventsFetchPromise) {
+        eventsFetchPromise = fetch("data/corporate_events.json")
+          .then(r => r.json())
+          .then(d => { eventsData = d; return d; })
+          .catch(() => { eventsData = null; });
+      }
+      return eventsFetchPromise;
+    }
+
+    function drawEvents(ticker) {
+      const wrap = document.getElementById("modalEvents");
+      const listEl = document.getElementById("modalEventsList");
+      if (!wrap) return;
+      const evts = eventsData && eventsData[ticker];
+      if (!evts || !evts.length) { wrap.style.display = "none"; return; }
+
+      wrap.style.display = "block";
+      listEl.innerHTML = evts.map(e => `
+        <div class="modal-event-row">
+          <span class="modal-event-date">${e.date}</span>
+          <span class="modal-event-label">${e.label}</span>
+          ${e.url ? `<a class="modal-event-link" href="${e.url}" target="_blank" rel="noopener">来源 ↗</a>` : ''}
+        </div>
+      `).join("");
+    }
+
     // Shown at the bottom of the chart as supplementary info (below the stats
     // grid), so unlike a header blurb there's no space pressure — full text,
     // no truncation/expand needed.
@@ -1995,6 +2033,8 @@
       document.getElementById("modalName").textContent   = r.CompanyName || "";
       drawDescription(ticker);
       loadDescriptions().then(() => drawDescription(ticker));
+      drawEvents(ticker);
+      loadEvents().then(() => drawEvents(ticker));
       document.getElementById("modalPrice").textContent = r.Price != null ? "$" + r.Price.toFixed(2) : "";
       const pc1 = r._liveChgPct ?? r.PriceChange1D;
       const pc1El = document.getElementById("modalPriceChange");
@@ -2501,6 +2541,7 @@
       <canvas id="candleCanvas"></canvas>
       <div id="candleNoData">暂无图表数据</div>
       <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:18px;"></div>
+      <div id="modalEvents"><div class="modal-events-title">公司重大事件</div><div id="modalEventsList"></div></div>
       <div id="modalDesc"><span id="modalDescBody"></span><span id="modalDescSep"> &middot; </span><a id="modalDescSource" href="#" target="_blank" rel="noopener">来源 &#8599;</a></div>
     </div>
   </div>

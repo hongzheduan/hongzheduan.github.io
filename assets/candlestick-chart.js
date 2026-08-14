@@ -155,6 +155,14 @@
     .bz-desc-source { display:none; color:#60a5fa; text-decoration:none; font-family:'DM Mono',monospace; font-size:10.5px; letter-spacing:.04em; }
     .bz-desc-source:hover { text-decoration:underline; }
     .bz-desc-sep { display:none; color:#475569; }
+    #bzChartEvents { display:none; margin:18px 0 0; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08); }
+    .bz-events-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:#64748b; margin-bottom:10px; }
+    .bz-event-row { display:flex; align-items:baseline; gap:10px; padding:6px 0; font-family:'DM Sans',sans-serif; font-size:12.5px; color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .bz-event-row:last-child { border-bottom:none; }
+    .bz-event-date { font-family:'DM Mono',monospace; font-size:11px; color:#64748b; flex-shrink:0; white-space:nowrap; }
+    .bz-event-label { flex:1; }
+    .bz-event-link { color:#60a5fa; text-decoration:none; font-family:'DM Mono',monospace; font-size:10.5px; flex-shrink:0; }
+    .bz-event-link:hover { text-decoration:underline; }
     .bz-tf-row { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
     .bz-tf-btn { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.05em; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.09); background:transparent; color:#94a3b8; cursor:pointer; }
     .bz-tf-btn:hover { border-color:rgba(59,130,246,0.4); color:#fff; }
@@ -193,6 +201,35 @@
         .catch(() => { descData = null; });
     }
     return descFetchPromise;
+  }
+
+  let eventsData = null;
+  let eventsFetchPromise = null;
+  function loadEvents() {
+    if (!eventsFetchPromise) {
+      eventsFetchPromise = fetch('data/corporate_events.json')
+        .then(r => r.json())
+        .then(d => { eventsData = d; return d; })
+        .catch(() => { eventsData = null; });
+    }
+    return eventsFetchPromise;
+  }
+
+  function drawEvents() {
+    const wrap = document.getElementById('bzChartEvents');
+    const listEl = document.getElementById('bzChartEventsList');
+    if (!wrap || !state.ticker) return;
+    const evts = eventsData && eventsData[state.ticker];
+    if (!evts || !evts.length) { wrap.style.display = 'none'; return; }
+
+    wrap.style.display = 'block';
+    listEl.innerHTML = evts.map(e => `
+      <div class="bz-event-row">
+        <span class="bz-event-date">${e.date}</span>
+        <span class="bz-event-label">${e.label}</span>
+        ${e.url ? `<a class="bz-event-link" href="${e.url}" target="_blank" rel="noopener">SOURCE ↗</a>` : ''}
+      </div>
+    `).join('');
   }
 
   // Shown at the bottom of the chart as supplementary info, so unlike a header
@@ -248,6 +285,7 @@
           <div id="bzChartMsg" class="bz-chart-msg" style="display:none;"></div>
           <canvas id="bzChartCanvas"></canvas>
         </div>
+        <div id="bzChartEvents"><div class="bz-events-title">Corporate Events</div><div id="bzChartEventsList"></div></div>
         <div id="bzChartDesc"><span id="bzChartDescBody"></span><span id="bzChartDescSep" class="bz-desc-sep"> · </span><a id="bzChartDescSource" class="bz-desc-source" href="#" target="_blank" rel="noopener">SOURCE ↗</a></div>
       </div>
     `;
@@ -316,6 +354,8 @@
     loadCandles().then(draw);
     drawDescription();
     loadDescriptions().then(drawDescription);
+    drawEvents();
+    loadEvents().then(drawEvents);
   }
 
   function close() {
