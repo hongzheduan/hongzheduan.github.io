@@ -151,9 +151,12 @@
     #bzChartPrice { font-size:18px; color:#60a5fa; font-weight:600; }
     #bzChartChg { font-size:15px; font-weight:600; }
     #bzChartName { color:#94a3b8; font-size:13px; margin:4px 0 8px; font-family:'DM Sans',sans-serif; }
-    #bzChartDesc { display:none; color:#cbd5e1; font-size:13px; line-height:1.65; margin:0 0 16px; font-family:'DM Sans',sans-serif; }
-    #bzChartDesc a { color:#60a5fa; text-decoration:none; font-family:'DM Mono',monospace; font-size:10.5px; letter-spacing:.04em; }
-    #bzChartDesc a:hover { text-decoration:underline; }
+    #bzChartDesc { display:none; margin:0 0 16px; font-family:'DM Sans',sans-serif; color:#cbd5e1; font-size:13px; line-height:1.65; }
+    .bz-desc-toggle { display:none; background:none; border:none; padding:0; margin:0; color:#60a5fa; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.05em; cursor:pointer; vertical-align:baseline; }
+    .bz-desc-toggle:hover { text-decoration:underline; }
+    .bz-desc-source { display:none; color:#60a5fa; text-decoration:none; font-family:'DM Mono',monospace; font-size:10.5px; letter-spacing:.04em; }
+    .bz-desc-source:hover { text-decoration:underline; }
+    .bz-desc-sep { display:none; color:#475569; }
     .bz-tf-row { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
     .bz-tf-btn { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.05em; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.09); background:transparent; color:#94a3b8; cursor:pointer; }
     .bz-tf-btn:hover { border-color:rgba(59,130,246,0.4); color:#fff; }
@@ -194,13 +197,71 @@
     return descFetchPromise;
   }
 
+  const DESC_MAX_LINES = 2;
+  let descFullText = '';
+  let descExpanded = false;
+
+  function descLineHeight(el) {
+    const lh = parseFloat(getComputedStyle(el).lineHeight);
+    return isNaN(lh) ? parseFloat(getComputedStyle(el).fontSize) * 1.4 : lh;
+  }
+
+  // Renders either the full text (expanded) or the longest prefix of descFullText
+  // that — together with the trailing "More · Source" controls, which stay inline
+  // so they land right after the visible text — still fits within DESC_MAX_LINES.
+  // Binary-searches the cut point against the live layout rather than estimating
+  // characters-per-line, so it's correct at any modal width/font.
+  function layoutDescription() {
+    const wrap = document.getElementById('bzChartDesc');
+    const bodyEl = document.getElementById('bzChartDescBody');
+    const toggleEl = document.getElementById('bzChartDescToggle');
+    if (!wrap || !bodyEl) return;
+
+    if (descExpanded) {
+      bodyEl.textContent = descFullText + ' ';
+      toggleEl.textContent = 'Less';
+      toggleEl.style.display = 'inline';
+      return;
+    }
+
+    bodyEl.textContent = descFullText;
+    toggleEl.style.display = 'none';
+    const maxH = descLineHeight(wrap) * DESC_MAX_LINES + 2;
+    if (wrap.scrollHeight <= maxH) return; // fits fully — no truncation/toggle needed
+
+    toggleEl.textContent = 'More';
+    toggleEl.style.display = 'inline';
+
+    let lo = 0, hi = descFullText.length, best = 0;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      bodyEl.textContent = descFullText.slice(0, mid).trimEnd() + '… ';
+      if (wrap.scrollHeight <= maxH) { best = mid; lo = mid + 1; }
+      else { hi = mid - 1; }
+    }
+    bodyEl.textContent = descFullText.slice(0, best).trimEnd() + '… ';
+  }
+
   function drawDescription() {
-    const el = document.getElementById('bzChartDesc');
-    if (!el || !state.ticker) return;
+    const wrap = document.getElementById('bzChartDesc');
+    const sepEl = document.getElementById('bzChartDescSep');
+    const sourceEl = document.getElementById('bzChartDescSource');
+    if (!wrap || !state.ticker) return;
     const d = descData && descData[state.ticker];
-    if (!d || !d.description) { el.style.display = 'none'; return; }
-    el.style.display = 'block';
-    el.innerHTML = d.description + (d.wiki_url ? ` <a href="${d.wiki_url}" target="_blank" rel="noopener">SOURCE: WIKIPEDIA ↗</a>` : '');
+    if (!d || !d.description) { wrap.style.display = 'none'; return; }
+
+    wrap.style.display = 'block';
+    descFullText = d.description;
+    descExpanded = false;
+    if (d.wiki_url) {
+      sourceEl.href = d.wiki_url;
+      sourceEl.style.display = 'inline';
+      sepEl.style.display = 'inline';
+    } else {
+      sourceEl.style.display = 'none';
+      sepEl.style.display = 'none';
+    }
+    requestAnimationFrame(layoutDescription);
   }
 
   const state = { ticker: null, tf: 126 };
@@ -228,7 +289,7 @@
           <span id="bzChartChg"></span>
         </div>
         <div id="bzChartName"></div>
-        <div id="bzChartDesc"></div>
+        <div id="bzChartDesc"><span id="bzChartDescBody"></span><button id="bzChartDescToggle" class="bz-desc-toggle" type="button">More</button><span id="bzChartDescSep" class="bz-desc-sep"> · </span><a id="bzChartDescSource" class="bz-desc-source" href="#" target="_blank" rel="noopener">SOURCE ↗</a></div>
         <div class="bz-tf-row">${tfBtns}</div>
         <div id="bzChartBody">
           <div id="bzChartMsg" class="bz-chart-msg" style="display:none;"></div>
@@ -239,6 +300,10 @@
     document.body.appendChild(wrap);
 
     document.getElementById('bzChartClose').addEventListener('click', close);
+    document.getElementById('bzChartDescToggle').addEventListener('click', () => {
+      descExpanded = !descExpanded;
+      layoutDescription();
+    });
     wrap.addEventListener('click', e => { if (e.target === wrap) close(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && wrap.style.display === 'flex') close(); });
     wrap.querySelectorAll('.bz-tf-btn').forEach(btn => {
@@ -248,7 +313,11 @@
         draw();
       });
     });
-    window.addEventListener('resize', () => { if (wrap.style.display === 'flex') draw(); });
+    window.addEventListener('resize', () => {
+      if (wrap.style.display !== 'flex') return;
+      draw();
+      if (!descExpanded && descFullText) layoutDescription();
+    });
   }
 
   function draw() {
