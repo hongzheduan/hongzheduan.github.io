@@ -1516,10 +1516,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaqMini(this)">
-            <span class="q-text">What stocks does Baizora cover?</span>
+            <span class="q-text">Why doesn't Baizora show live intraday prices?</span>
             <span class="q-icon">+</span>
           </div>
-          <div class="faq-a"><div class="faq-a-inner">All current S&amp;P 500 and Nasdaq-100 constituents.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">We tested it: across the 500+ stocks in the two indices we track (S&amp;P 500 and Nasdaq-100) and 130,000+ trading days, whether a stock was up or down mid-day barely moved the odds of it closing higher the next day (about 51% either way), and the difference in next-day return was too small to trade around. Since intraday ticks don't carry meaningful predictive value, Baizora shows end-of-day close prices — the same close-to-close trend data our metrics are built on.</div></div>
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaqMini(this)">

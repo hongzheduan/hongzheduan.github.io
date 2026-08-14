@@ -1521,10 +1521,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaqMini(this)">
-            <span class="q-text">Baizora 覆盖哪些股票？</span>
+            <span class="q-text">为什么贝佐拉不显示盘中实时价格？</span>
             <span class="q-icon">+</span>
           </div>
-          <div class="faq-a"><div class="faq-a-inner">标普500与纳斯达克100的所有当前成分股。</div></div>
+          <div class="faq-a"><div class="faq-a-inner">我们做过测试：在我们追踪的标普500与纳斯达克100两大指数共500多支股票、超过13万个交易日的数据中，某只股票盘中是涨是跌，对第二天是否收高的预测几乎没有帮助（无论哪种情况，上涨概率都在51%左右），且次日收益的差异小到无法用于交易决策。由于盘中报价并不具备有意义的预测价值，贝佐拉展示的是每日收盘价——也就是我们各项指标所依据的收盘价趋势数据。</div></div>
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaqMini(this)">
