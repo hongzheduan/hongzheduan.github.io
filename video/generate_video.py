@@ -3700,6 +3700,18 @@ def _get_verified_members(data):
     if not verified:
         return _get_new_members(data)
 
+    # A ticker can legitimately appear in more than one block (e.g. joining the
+    # Nasdaq-100 and the S&P 500 on different dates) — left as-is, that silently
+    # doubles its odds in the Friday spotlight's random.choice() pick versus every
+    # single-appearance ticker. Keep only the most recent join per ticker so every
+    # candidate gets equal weight (date strings are ISO "YYYY-MM-DD", so a plain
+    # string comparison is enough to find the latest).
+    latest_by_ticker = {}
+    for t, idx_key, jdate_str in verified:
+        if t not in latest_by_ticker or jdate_str > latest_by_ticker[t][1]:
+            latest_by_ticker[t] = (idx_key, jdate_str)
+    verified = [(t, idx_key, jdate_str) for t, (idx_key, jdate_str) in latest_by_ticker.items()]
+
     scan_date  = data["date"]
     ticker_map = {r["Ticker"]: r for r in data["data"]}
 
