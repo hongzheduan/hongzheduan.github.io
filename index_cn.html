@@ -676,10 +676,22 @@
 
     /* ── MARKET HEATMAP ── */
     .hm-section { max-width: 1100px; margin: 0 auto; padding: 60px 24px 30px; }
-    .hm-toggle { display: flex; gap: 8px; justify-content: center; margin-top: 22px; margin-bottom: 28px; }
+    .hm-toggle { display: flex; flex-wrap: wrap; gap: 8px; row-gap: 10px; justify-content: center; margin-top: 22px; margin-bottom: 28px; }
     .hm-toggle-btn { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.06em; padding: 7px 18px; border-radius: 7px; border: 1px solid var(--border); background: rgba(13,30,61,0.5); color: var(--muted); cursor: pointer; transition: all 0.15s; }
     .hm-toggle-btn:hover { color: #fff; border-color: rgba(59,130,246,0.35); }
     .hm-toggle-btn.active { background: var(--electric); border-color: var(--electric); color: #fff; }
+    .hm-search-wrap { display: flex; align-items: center; margin-left: 6px; }
+    .hm-search-input { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; padding: 0 10px; height: 34px; width: 110px; border-radius: 7px 0 0 7px; border: 1px solid var(--border); border-right: none; background: rgba(13,30,61,0.5); color: #fff; outline: none; }
+    .hm-search-input::placeholder { color: #64748b; text-transform: none; letter-spacing: 0; }
+    .hm-search-input:focus { border-color: rgba(59,130,246,0.5); }
+    .hm-search-btn { font-size: 13px; height: 34px; padding: 0 12px; border-radius: 0 7px 7px 0; border: 1px solid var(--border); background: rgba(13,30,61,0.5); color: var(--muted); cursor: pointer; transition: all 0.15s; }
+    .hm-search-btn:hover { color: #fff; border-color: rgba(59,130,246,0.35); }
+    .hm-search-msg { text-align: center; font-family: 'DM Mono', monospace; font-size: 11px; color: #f59e0b; min-height: 16px; margin-top: -18px; margin-bottom: 8px; }
+    @keyframes hmFlashPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+      50% { box-shadow: 0 0 0 4px rgba(255,255,255,0.95), 0 0 22px 8px rgba(255,255,255,0.65); }
+    }
+    .hm-tile.hm-flash { animation: hmFlashPulse 0.6s ease-in-out 3; z-index: 30; }
     .hm-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
     .hm-legend { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; letter-spacing: 0.04em; }
     .hm-legend-bar { width: 160px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #b91c1c, #33415b 50%, #157f3d); }
@@ -1407,7 +1419,12 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   <div class="hm-toggle">
     <button class="hm-toggle-btn active" id="hmBtnSP" onclick="hmSwitch('sp500')">标普500</button>
     <button class="hm-toggle-btn" id="hmBtnNQ" onclick="hmSwitch('nasdaq')">纳斯达克100</button>
+    <div class="hm-search-wrap">
+      <input type="text" id="hmSearchInput" class="hm-search-input" placeholder="查找代码…" maxlength="6" autocomplete="off" spellcheck="false">
+      <button class="hm-search-btn" id="hmSearchBtn" title="查找" aria-label="查找代码">🔍</button>
+    </div>
   </div>
+  <div class="hm-search-msg" id="hmSearchMsg"></div>
 
   <div class="hm-card">
     <div class="hm-legend">
@@ -2019,6 +2036,49 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   }
 
   window.hmSwitch = function(mode) { hmRender(mode); };
+
+  let hmFlashTimeout = null;
+  function hmFlashTile(ticker) {
+    const wrap = document.getElementById('hmWrap');
+    if (!wrap) return;
+    wrap.querySelectorAll('.hm-tile.hm-flash').forEach(el => el.classList.remove('hm-flash'));
+    let target = null;
+    wrap.querySelectorAll('.hm-tile').forEach(el => { if (el.dataset.ticker === ticker) target = el; });
+    if (!target) return;
+    target.classList.add('hm-flash');
+    target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    clearTimeout(hmFlashTimeout);
+    hmFlashTimeout = setTimeout(() => target.classList.remove('hm-flash'), 1900);
+  }
+
+  function hmSearch() {
+    const input = document.getElementById('hmSearchInput');
+    const msg = document.getElementById('hmSearchMsg');
+    if (!input || !msg) return;
+    const q = input.value.trim().toUpperCase();
+    msg.textContent = '';
+    if (!q) return;
+    if (!hmData) { msg.textContent = '数据加载中，请稍后重试'; return; }
+    const row = hmData.find(r => r.Ticker === q);
+    if (!row || !row.MarketCap || row.MarketCap <= 0 || !row.Sector || row.Sector === 'Unknown') {
+      msg.textContent = `未找到 "${q}"`;
+      return;
+    }
+    const inCurrent = hmMode === 'sp500' ? row.InSP500 : row.InNASDAQ100;
+    const inOther = hmMode === 'sp500' ? row.InNASDAQ100 : row.InSP500;
+    if (!inCurrent && !inOther) {
+      msg.textContent = `"${q}" 不在标普500或纳斯达克100成分股中`;
+      return;
+    }
+    if (!inCurrent && inOther) hmRender(hmMode === 'sp500' ? 'nasdaq' : 'sp500');
+    hmFlashTile(q);
+  }
+  window.hmSearch = hmSearch;
+
+  const hmSearchBtn = document.getElementById('hmSearchBtn');
+  const hmSearchInput = document.getElementById('hmSearchInput');
+  if (hmSearchBtn) hmSearchBtn.addEventListener('click', hmSearch);
+  if (hmSearchInput) hmSearchInput.addEventListener('keydown', e => { if (e.key === 'Enter') hmSearch(); });
 
   const hmWrapEl = document.getElementById('hmWrap');
   if (hmWrapEl) {
