@@ -389,7 +389,7 @@ jobs:
           if [ "$DOW" = "1" ]; then
             echo "VIDEO_TYPES=volume_spikes volume_spikes_cn" >> $GITHUB_ENV
           elif [ "$DOW" = "2" ]; then
-            echo "VIDEO_TYPES=best_performer best_performer_cn" >> $GITHUB_ENV
+            echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
           elif [ "$DOW" = "3" ]; then
             echo "VIDEO_TYPES=6m_breakout 6m_breakout_cn" >> $GITHUB_ENV
           elif [ "$DOW" = "4" ]; then
@@ -399,7 +399,7 @@ jobs:
           elif [ "$DOW" = "6" ]; then
             echo "VIDEO_TYPES=worst_performer worst_performer_cn" >> $GITHUB_ENV
           elif [ "$DOW" = "7" ]; then
-            echo "VIDEO_TYPES=avg_volume avg_volume_cn" >> $GITHUB_ENV
+            echo "VIDEO_TYPES=best_performer best_performer_cn" >> $GITHUB_ENV
           else
             echo "VIDEO_TYPES=" >> $GITHUB_ENV
           fi
@@ -412,10 +412,25 @@ jobs:
           # downstream step (copy/upload/skip-logging) below is unchanged.
           #
           # Weekend runs (SKIP_SCAN=1) reuse Friday's already-committed data/latest.json,
-          # whose "date" field is still Friday's — so worst_performer/avg_volume need an
-          # explicit override to show the actual Saturday/Sunday calendar date on-screen
-          # instead of Friday's. Weekday runs have a fresh scan (date already correct),
-          # so no override there.
+          # whose "date" field is still Friday's — so worst_performer/best_performer (the
+          # Saturday/Sunday categories — best_performer moved here from Tuesday 2026-08-15)
+          # need an explicit override to show the actual Saturday/Sunday calendar date
+          # on-screen instead of Friday's. Weekday runs have a fresh scan (date already
+          # correct), so no override there. This DATE_ARGS logic itself is generic (keyed
+          # off SKIP_SCAN, not the specific category), so it automatically follows
+          # whichever type is scheduled on a given day — no change needed here when the
+          # day->category mapping above changes.
+          #
+          # avg_volume retired from the rotation 2026-08-15 (was Sunday, briefly moved to
+          # Tuesday, then dropped — user said it "is not very popular"). Tuesday now reuses
+          # Thursday's 1y_vol_peak category outright, calling the exact same build function
+          # (build_1y_vol_peak_short) with each day's own current data — since its window
+          # rotation (_thursday_tf in generate_video.py) is keyed by ISO calendar week, not
+          # by a per-weekday call count, Tuesday and Thursday automatically show the same
+          # 3M/6M/9M/1Y window in a given week with no extra state needed, doubling this
+          # category's weekly frequency instead of splitting it across two different topics.
+          # avg_volume's code (generate_shorts.py/upload_youtube.py) is left in place, just
+          # unreferenced by any day here — not deleted in case it's wanted again later.
           DATE_ARGS=()
           if [ "$SKIP_SCAN" = "1" ]; then
             TODAY_DATE=$(TZ='America/New_York' date +%Y-%m-%d)
