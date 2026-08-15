@@ -157,12 +157,14 @@
     .bz-desc-sep { display:none; color:#475569; }
     #bzChartEvents { display:none; margin:18px 0 0; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08); }
     .bz-events-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:#64748b; margin-bottom:10px; }
-    .bz-event-row { display:flex; align-items:baseline; gap:10px; padding:6px 0; font-family:'DM Sans',sans-serif; font-size:12.5px; color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.05); }
-    .bz-event-row:last-child { border-bottom:none; }
+    .bz-event-item { padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .bz-event-item:last-child { border-bottom:none; }
+    .bz-event-row { display:flex; align-items:baseline; gap:10px; font-family:'DM Sans',sans-serif; font-size:12.5px; color:#cbd5e1; }
     .bz-event-date { font-family:'DM Mono',monospace; font-size:11px; color:#64748b; flex-shrink:0; white-space:nowrap; }
     .bz-event-label { flex:1; }
     .bz-event-link { color:#60a5fa; text-decoration:none; font-family:'DM Mono',monospace; font-size:10.5px; flex-shrink:0; }
     .bz-event-link:hover { text-decoration:underline; }
+    .bz-event-detail { margin-top:4px; font-family:'DM Sans',sans-serif; font-size:11.5px; color:#94a3b8; line-height:1.5; }
     .bz-tf-row { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
     .bz-tf-btn { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.05em; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.09); background:transparent; color:#94a3b8; cursor:pointer; }
     .bz-tf-btn:hover { border-color:rgba(59,130,246,0.4); color:#fff; }
@@ -215,6 +217,29 @@
     return eventsFetchPromise;
   }
 
+  // Reported (not analyst-estimate) EPS/revenue for the quarter an earnings
+  // event announces, from SEC XBRL data. Can be null right after the 8-K
+  // announcement — the 10-Q that carries the structured numbers usually
+  // posts 1-4 weeks later, and this data self-heals on the next daily run.
+  // English-only, matching this shared file's existing "SOURCE" link text —
+  // it's loaded by both EN and CN host pages with no i18n branching today.
+  function fmtEventRevenue(v) {
+    const abs = Math.abs(v);
+    if (abs >= 1e9) return '$' + (v / 1e9).toFixed(2) + 'B';
+    if (abs >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M';
+    return '$' + Math.round(v).toLocaleString();
+  }
+  function eventDetailText(e) {
+    if (!e.type || e.type.indexOf('earnings') === -1) return '';
+    if (e.eps == null && e.revenue == null) return 'Full results pending — awaiting SEC 10-Q filing';
+    const parts = [];
+    if (e.eps != null) parts.push('EPS $' + e.eps.toFixed(2));
+    if (e.revenue != null) parts.push('Revenue ' + fmtEventRevenue(e.revenue));
+    let text = parts.join(' · ');
+    if (e.period_end) text += ' (quarter ended ' + e.period_end + ')';
+    return text;
+  }
+
   function drawEvents() {
     const wrap = document.getElementById('bzChartEvents');
     const listEl = document.getElementById('bzChartEventsList');
@@ -223,13 +248,19 @@
     if (!evts || !evts.length) { wrap.style.display = 'none'; return; }
 
     wrap.style.display = 'block';
-    listEl.innerHTML = evts.map(e => `
-      <div class="bz-event-row">
-        <span class="bz-event-date">${e.date}</span>
-        <span class="bz-event-label">${e.label}</span>
-        ${e.url ? `<a class="bz-event-link" href="${e.url}" target="_blank" rel="noopener">SOURCE ↗</a>` : ''}
+    listEl.innerHTML = evts.map(e => {
+      const detail = eventDetailText(e);
+      return `
+      <div class="bz-event-item">
+        <div class="bz-event-row">
+          <span class="bz-event-date">${e.date}</span>
+          <span class="bz-event-label">${e.label}</span>
+          ${e.url ? `<a class="bz-event-link" href="${e.url}" target="_blank" rel="noopener">SOURCE ↗</a>` : ''}
+        </div>
+        ${detail ? `<div class="bz-event-detail">${detail}</div>` : ''}
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
 
   // Shown at the bottom of the chart as supplementary info, so unlike a header
