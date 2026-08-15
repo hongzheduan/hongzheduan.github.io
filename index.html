@@ -629,6 +629,23 @@
     .hm-tooltip .hmt-row { display: flex; justify-content: space-between; gap: 16px; font-family: 'DM Mono', monospace; font-size: 11px; color: #cbd5e1; }
     .hm-msg { text-align: center; padding: 60px 0; color: #64748b; font-family: 'DM Mono', monospace; font-size: 12px; }
 
+    /* ── INDEX TREND CHARTS (VOO / QQQ) ── */
+    .idx-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .idx-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+    .idx-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .idx-ticker { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 0.02em; }
+    .idx-name { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .idx-price-wrap { text-align: right; }
+    .idx-price { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 600; color: #fff; }
+    .idx-chg { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; margin-top: 2px; }
+    .idx-chart-box { border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+    .idx-chart-box canvas { width: 100%; height: 200px; display: block; }
+    .idx-more { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); text-decoration: none; }
+    .idx-more:hover { opacity: 0.75; }
+    @media (max-width: 720px) {
+      .idx-grid { grid-template-columns: 1fr; }
+    }
+
     .section-title { font-family: 'DM Serif Display', serif; font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em; color: #f1f5f9; margin-bottom: 50px; }
     .section-title em { font-style: italic; color: #94a3b8; }
 
@@ -1442,6 +1459,43 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 <div class="hm-tooltip" id="hmTooltip"></div>
 
+<section class="hm-section" style="padding-top:10px;">
+  <div class="section-label">1-Year Trend</div>
+  <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">The Indices <em>Behind the Map</em></h2>
+  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.04em;text-align:center;margin-top:-30px;margin-bottom:24px;">VOO &amp; QQQ — the ETFs that track the S&amp;P 500 and Nasdaq-100 shown in the heatmap above</p>
+
+  <div class="idx-grid">
+    <div class="idx-card">
+      <div class="idx-head">
+        <div>
+          <div class="idx-ticker">VOO</div>
+          <div class="idx-name">Vanguard S&amp;P 500 ETF</div>
+        </div>
+        <div class="idx-price-wrap">
+          <div class="idx-price" id="idxPrice-VOO">—</div>
+          <div class="idx-chg" id="idxChg-VOO">—</div>
+        </div>
+      </div>
+      <div class="idx-chart-box"><canvas id="idxChart-VOO"></canvas></div>
+      <a href="stocks/VOO.html" class="idx-more">Full VOO analysis →</a>
+    </div>
+    <div class="idx-card">
+      <div class="idx-head">
+        <div>
+          <div class="idx-ticker">QQQ</div>
+          <div class="idx-name">Invesco QQQ Trust (Nasdaq-100)</div>
+        </div>
+        <div class="idx-price-wrap">
+          <div class="idx-price" id="idxPrice-QQQ">—</div>
+          <div class="idx-chg" id="idxChg-QQQ">—</div>
+        </div>
+      </div>
+      <div class="idx-chart-box"><canvas id="idxChart-QQQ"></canvas></div>
+      <a href="stocks/QQQ.html" class="idx-more">Full QQQ analysis →</a>
+    </div>
+  </div>
+</section>
+
 <section class="bottom-cta">
   <div class="cta-two-panel">
 
@@ -2146,6 +2200,131 @@ function buildSparkPath(arr) {
   window.addEventListener('resize', function() {
     clearTimeout(hmResizeT);
     hmResizeT = setTimeout(() => hmRender(hmMode), 200);
+  });
+})();
+
+// Index Trend charts — VOO / QQQ candlestick + volume, live from data/candles.json
+(function() {
+  var TICKERS = ['VOO', 'QQQ'];
+
+  function drawCandles(canvas, dates, ohlcv) {
+    if (!canvas || !ohlcv || !ohlcv.length) return;
+    var dpr = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    if (!rect.width) return;
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    var W = rect.width, H = rect.height;
+    var hasVol = ohlcv.some(function(c) { return c[4] > 0; });
+    var volH = hasVol ? Math.round(H * 0.22) : 0;
+    var gap = hasVol ? 6 : 0;
+    var pad = { top: 10, right: 12, bottom: 20, left: 50 };
+    var priceH = H - pad.top - pad.bottom - volH - gap;
+    var n = ohlcv.length;
+    var slotW = (W - pad.left - pad.right) / n;
+    var cndW = Math.max(1, slotW * 0.65);
+    function toX(i) { return pad.left + i * slotW + (slotW - cndW) / 2; }
+    var minP = Infinity, maxP = -Infinity;
+    ohlcv.forEach(function(c) { if (c[1] > maxP) maxP = c[1]; if (c[2] < minP) minP = c[2]; });
+    var buf = (maxP - minP) * 0.05 || 1;
+    var lo = minP - buf, hi = maxP + buf;
+    function toY(p) { return pad.top + priceH * (1 - (p - lo) / (hi - lo)); }
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = "10px 'DM Mono',monospace";
+    ctx.textAlign = "right";
+    for (var gi = 0; gi <= 3; gi++) {
+      var p = lo + (hi - lo) * (gi / 3);
+      var y = toY(p);
+      ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+      ctx.fillStyle = "#64748b";
+      ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 5, y + 4);
+    }
+    ctx.font = "10px 'DM Mono',monospace"; ctx.textAlign = "center";
+    var lastMo = -1, lastYr = -1, moCount = 0;
+    dates.forEach(function(d, i) {
+      var dt = new Date(d + 'T12:00:00');
+      var mo = dt.getMonth(), yr = dt.getFullYear();
+      if (mo === lastMo) return;
+      lastMo = mo; moCount++;
+      if (moCount % 2 === 0) return;
+      var moName = dt.toLocaleDateString("en-US", { month: "short" });
+      var label = yr !== lastYr ? moName + " '" + String(yr).slice(-2) : moName;
+      lastYr = yr;
+      ctx.fillStyle = "#64748b";
+      ctx.fillText(label, toX(i) + cndW / 2, H - 6);
+    });
+    ohlcv.forEach(function(c, i) {
+      var o = c[0], h = c[1], l = c[2], cl = c[3];
+      var green = cl >= o;
+      var x = toX(i), mid = x + cndW / 2;
+      ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
+      ctx.fillStyle = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
+      var bTop = toY(Math.max(o, cl));
+      var bH = Math.max(1, toY(Math.min(o, cl)) - bTop);
+      ctx.fillRect(x, bTop, cndW, bH);
+      ctx.strokeRect(x, bTop, cndW, bH);
+    });
+    if (hasVol) {
+      var volTop = pad.top + priceH + gap;
+      var maxVol = Math.max.apply(null, ohlcv.map(function(c) { return c[4] || 0; }));
+      ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.left, volTop); ctx.lineTo(W - pad.right, volTop); ctx.stroke();
+      ohlcv.forEach(function(c, i) {
+        if (!c[4]) return;
+        var green = c[3] >= c[0];
+        var bH = Math.round((c[4] / maxVol) * (volH - 4));
+        ctx.fillStyle = green ? "rgba(34,197,94,0.45)" : "rgba(239,68,68,0.45)";
+        ctx.fillRect(toX(i), volTop + (volH - 4) - bH, cndW, bH);
+      });
+    }
+  }
+
+  var idxState = {}; // ticker -> { dates, ohlcv }
+
+  function renderAll() {
+    TICKERS.forEach(function(t) {
+      var s = idxState[t];
+      if (!s) return;
+      drawCandles(document.getElementById('idxChart-' + t), s.dates, s.ohlcv);
+    });
+  }
+
+  fetch('data/candles.json').then(function(r) { return r.json(); }).then(function(cj) {
+    var dates = cj.dates || [];
+    TICKERS.forEach(function(t) {
+      var d = (cj.data || {})[t];
+      if (!d || !d.length || dates.length !== d.length) return;
+      idxState[t] = { dates: dates, ohlcv: d };
+    });
+    renderAll();
+  }).catch(function() {});
+
+  fetch('data/latest.json').then(function(r) { return r.json(); }).then(function(d) {
+    var map = {};
+    (d.data || []).forEach(function(r) { map[r.Ticker] = r; });
+    TICKERS.forEach(function(t) {
+      var r = map[t];
+      if (!r) return;
+      var priceEl = document.getElementById('idxPrice-' + t);
+      var chgEl = document.getElementById('idxChg-' + t);
+      if (priceEl && r.Price != null) priceEl.textContent = '$' + r.Price.toFixed(2);
+      if (chgEl && r.PriceChange1D != null) {
+        var pc = r.PriceChange1D;
+        chgEl.textContent = (pc >= 0 ? '+' : '') + pc.toFixed(2) + '%';
+        chgEl.style.color = pc >= 0 ? '#22c55e' : '#ef4444';
+      }
+    });
+  }).catch(function() {});
+
+  var idxResizeT;
+  window.addEventListener('resize', function() {
+    clearTimeout(idxResizeT);
+    idxResizeT = setTimeout(renderAll, 150);
   });
 })();
 
