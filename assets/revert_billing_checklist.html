@@ -147,6 +147,7 @@
       <li><strong>Homepage 4th hero bullet</strong> ("Totally free — full platform access for every signed-in user, no subscription required") — disappears again (hidden by default in the HTML, id <span class="inline-code">heroBulletFree</span>, only shown while the flag is on)</li>
       <li><strong>baizora_main_form_freetier.html / _cn (the "Preview" page)</strong> — Watchlist, Ticker Search, and Membership Change stay gated the whole time (clicking any of them always opens the same upsell modal). What reverts: the Subscribe button reappears; the modal's "Start Free Trial" button reappears; and the modal copy goes back to "...not in the Free Tier. Start a 7-day free trial to unlock the full dashboard." / "Already subscribed? Sign in →" / "Go to Full Dashboard →" instead of the shorter "...only available in the full version." / "Sign in →" / "Go to Dashboard →" shown during the free period. This page didn't load <span class="inline-code">feature_flags.js</span> before this change, now it does</li>
       <li><strong>account.html / _cn</strong> — a signed-in user with no real subscription goes back to seeing "No Subscription" + a "Start Free Trial" upsell button, instead of "Free Access" / "Full Platform Access". (Users with a genuinely active/trialing subscription were never affected either way — this only touches the no-real-subscription display branch.)</li>
+      <li><strong>All 24 stocks/*.html pages</strong> — the nav "Start Free Trial" button (<span class="inline-code">id="navTrialBtn"</span>) and the bottom "See all 500+ stocks" CTA's "Start 7-Day Free Trial" button (<span class="inline-code">id="ctaTrialBtn"</span>) both go back to their original text/href pointing at <span class="inline-code">pricing.html</span>, instead of "Sign Up Free" pointing at <span class="inline-code">signup.html</span>. Added 2026-08-15 — these two buttons were missed in the original rollout since these pages have no Firebase auth check at all, unlike most other flag-gated pages.</li>
     </ul>
 
     <h3>"Free Tier" naming reverts everywhere</h3>
@@ -214,7 +215,7 @@
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">10</span> Manually update <strong>functions/index.js</strong>'s chat prompt, then deploy with <span class="inline-code">firebase deploy --only functions --non-interactive</span></li>
     </ol>
 
-    <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-08-11 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
+    <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-08-15 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
 
   </div>
 </div>

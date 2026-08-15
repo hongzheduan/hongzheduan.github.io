@@ -117,7 +117,7 @@
   </a>
   <div class="nav-links">
     <a href="../baizora_main_form_freetier.html" class="nav-btn">Free Tier</a>
-    <a href="../pricing.html" class="nav-btn nav-btn-primary">Start Free Trial</a>
+    <a href="../pricing.html" class="nav-btn nav-btn-primary" id="navTrialBtn">Start Free Trial</a>
   </div>
 </nav>
 
@@ -274,7 +274,7 @@
   <div class="cta-box">
     <h3>See all 500+ stocks</h3>
     <p>Sort by any signal across 7 timeframes. Full S&amp;P 500 and Nasdaq-100 coverage, updated daily.</p>
-    <a href="../pricing.html" class="btn-gold">Start 7-Day Free Trial</a>
+    <a href="../pricing.html" class="btn-gold" id="ctaTrialBtn">Start 7-Day Free Trial</a>
   </div>
 
 </div>
@@ -290,6 +290,15 @@
   <br>
   <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.04em;">Market Data Sourced by <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#475569;text-decoration:none;">Tiingo.com</a></span>
 </footer>
+
+<script>
+  if (window.FREE_ACCESS_MODE) {
+    ['navTrialBtn', 'ctaTrialBtn'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.href = '../signup.html'; el.textContent = 'Sign Up Free'; }
+    });
+  }
+</script>
 
 
 <script>
