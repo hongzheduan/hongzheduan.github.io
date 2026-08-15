@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DWEPM8KFM9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-DWEPM8KFM9');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>贝佐拉 | 市场热力图</title>
+  <meta name="description" content="标普500与纳斯达克100交互式市场热力图，可按当日涨跌幅、贝佐拉评分或市盈率相对行业均值着色。登录即可查看。">
+  <link rel="canonical" href="https://baizora.com/market_heatmap_cn.html">
+  <link rel="alternate" hreflang="en" href="https://baizora.com/market_heatmap.html">
+  <link rel="alternate" hreflang="zh-Hans" href="https://baizora.com/market_heatmap_cn.html">
+  <link rel="alternate" hreflang="x-default" href="https://baizora.com/market_heatmap.html">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #060d1f;
+      --navy-mid: #0d1e3d;
+      --navy-light: #162847;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --gold: #f59e0b;
+      --gold-light: #fcd34d;
+      --green: #22c55e;
+      --red: #ef4444;
+      --white: #ffffff;
+      --muted: #cbd5e1;
+      --border: rgba(255,255,255,0.09);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: rgba(6,13,31,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      gap: 12px;
+    }
+
+    .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+    .logo-wrap img { height: 36px; }
+    .brand-cn {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--white), var(--electric-bright));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 8px; }
+
+    .user-email {
+      display: inline-flex;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: default;
+    }
+
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--white); background: rgba(59,130,246,0.08); }
+    .nav-btn-danger { border-color: rgba(239,68,68,0.2); color: #fca5a5; }
+    .nav-btn-danger:hover { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); }
+
+    /* ── PAGE ── */
+    .page { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    .page-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 8px;
+    }
+
+    .page-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(26px, 4vw, 36px);
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .page-sub { font-size: 13px; color: #94a3b8; font-weight: 300; margin-bottom: 24px; line-height: 1.7; }
+
+    /* ── MARKET HEATMAP ── */
+    .hm-toggle { display: flex; flex-wrap: wrap; gap: 8px; row-gap: 10px; justify-content: center; margin-bottom: 28px; }
+    .hm-toggle-btn { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.06em; padding: 7px 18px; border-radius: 7px; border: 1px solid var(--border); background: rgba(13,30,61,0.5); color: var(--muted); cursor: pointer; transition: all 0.15s; }
+    .hm-toggle-btn:hover { color: #fff; border-color: rgba(59,130,246,0.35); }
+    .hm-toggle-btn.active { background: var(--electric); border-color: var(--electric); color: #fff; }
+    .hm-search-wrap { display: flex; align-items: center; margin-left: 6px; }
+    .hm-search-input { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; padding: 0 10px; height: 34px; width: 110px; border-radius: 7px 0 0 7px; border: 1px solid var(--border); border-right: none; background: rgba(13,30,61,0.5); color: #fff; outline: none; }
+    .hm-search-input::placeholder { color: #64748b; text-transform: none; letter-spacing: 0; }
+    .hm-search-input:focus { border-color: rgba(59,130,246,0.5); }
+    .hm-search-btn { font-size: 13px; height: 34px; padding: 0 12px; border-radius: 0 7px 7px 0; border: 1px solid var(--border); background: rgba(13,30,61,0.5); color: var(--muted); cursor: pointer; transition: all 0.15s; }
+    .hm-search-btn:hover { color: #fff; border-color: rgba(59,130,246,0.35); }
+    .hm-search-msg { text-align: center; font-family: 'DM Mono', monospace; font-size: 11px; color: #f59e0b; min-height: 16px; margin-top: -18px; margin-bottom: 8px; }
+    @keyframes hmFlashPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+      50% { box-shadow: 0 0 0 4px rgba(255,255,255,0.95), 0 0 22px 8px rgba(255,255,255,0.65); }
+    }
+    .hm-tile.hm-flash { animation: hmFlashPulse 0.6s ease-in-out 3; z-index: 30; }
+    .hm-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+    .hm-color-toggle { display: flex; flex-wrap: wrap; gap: 6px; row-gap: 8px; justify-content: center; margin-bottom: 14px; }
+    .hm-mode-btn { font-family: 'DM Mono', monospace; font-size: 10.5px; letter-spacing: 0.04em; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+    .hm-mode-btn:hover { color: #fff; border-color: rgba(59,130,246,0.35); }
+    .hm-mode-btn.active { background: rgba(59,130,246,0.14); border-color: rgba(59,130,246,0.4); color: #60a5fa; }
+    .hm-legend { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; letter-spacing: 0.04em; }
+    .hm-legend-bar { width: 160px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #b91c1c, #33415b 50%, #157f3d); }
+    .hm-wrap { position: relative; width: 100%; overflow: hidden; border-radius: 8px; }
+    .hm-sector { position: absolute; box-sizing: border-box; border: 2px solid #060d1f; overflow: hidden; }
+    .hm-sector-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #cbd5e1; background: rgba(6,13,31,0.85); padding: 3px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hm-tile { position: absolute; box-sizing: border-box; border: 1px solid #060d1f; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; overflow: hidden; transition: filter 0.1s; }
+    .hm-tile:hover { filter: brightness(1.18); z-index: 5; }
+    .hm-tile-ticker { font-family: 'DM Mono', monospace; color: #fff; line-height: 1.15; }
+    .hm-tile-chg { font-family: 'DM Mono', monospace; color: rgba(255,255,255,0.9); line-height: 1.15; }
+    .hm-tooltip { position: fixed; z-index: 200; pointer-events: none; background: #0d1e3d; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.4); display: none; max-width: 220px; }
+    .hm-tooltip .hmt-ticker { font-family: 'DM Mono', monospace; font-weight: 700; color: #60a5fa; font-size: 13px; }
+    .hm-tooltip .hmt-name { color: #94a3b8; font-size: 11px; margin: 2px 0 6px; }
+    .hm-tooltip .hmt-row { display: flex; justify-content: space-between; gap: 16px; font-family: 'DM Mono', monospace; font-size: 11px; color: #cbd5e1; }
+    .hm-msg { text-align: center; padding: 60px 0; color: #64748b; font-family: 'DM Mono', monospace; font-size: 12px; }
+
+    @media (max-width: 640px) {
+      header { padding: 0 16px; }
+      .page { padding: 28px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="./" class="logo-wrap">
+      <img src="assets/baize_favicon_v2.png" alt="贝佐拉">
+      <span class="brand-cn">贝佐拉</span>
+    </a>
+    <div class="header-right">
+      <span class="user-email" id="headerEmail"></span>
+      <a href="dashboard_cn.html" class="nav-btn">个人主页</a>
+      <button class="nav-btn nav-btn-danger" onclick="doLogout()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        退出登录
+      </button>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <div class="page-eyebrow">◈ &nbsp; 市场热力图</div>
+    <h1 class="page-title">市场热力图</h1>
+    <p class="page-sub">方块大小 = √市值 &nbsp;·&nbsp; 颜色 = <span id="hmColorLabel">当日涨跌幅</span> &nbsp;·&nbsp; 按行业分组 &nbsp;·&nbsp; <span id="hmDataDate">数据截至 …</span></p>
+
+    <div class="hm-toggle">
+      <button class="hm-toggle-btn active" id="hmBtnSP" onclick="hmSwitch('sp500')">标普500</button>
+      <button class="hm-toggle-btn" id="hmBtnNQ" onclick="hmSwitch('nasdaq')">纳斯达克100</button>
+      <div class="hm-search-wrap">
+        <input type="text" id="hmSearchInput" class="hm-search-input" placeholder="查找代码…" maxlength="6" autocomplete="off" spellcheck="false">
+        <button class="hm-search-btn" id="hmSearchBtn" title="查找" aria-label="查找代码">🔍</button>
+      </div>
+    </div>
+    <div class="hm-search-msg" id="hmSearchMsg"></div>
+
+    <div class="hm-card">
+      <div class="hm-color-toggle">
+        <button class="hm-mode-btn active" id="hmModeChange" onclick="hmSetColorMode('change')">颜色：日涨跌幅</button>
+        <button class="hm-mode-btn" id="hmModeScore" onclick="hmSetColorMode('score')">颜色：贝佐拉评分</button>
+        <button class="hm-mode-btn" id="hmModeValue" onclick="hmSetColorMode('value')">颜色：市盈率/行业</button>
+      </div>
+      <div class="hm-legend">
+        <span id="hmLegendLo">下跌</span>
+        <span class="hm-legend-bar"></span>
+        <span id="hmLegendHi">上涨</span>
+      </div>
+      <div class="hm-wrap" id="hmWrap"><div class="hm-msg">加载中…</div></div>
+    </div>
+
+  </div>
+
+  <div class="hm-tooltip" id="hmTooltip"></div>
+
+  <script src="assets/candlestick-chart.js?v=4"></script>
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = "login_cn.html"; return; }
+      const hEl = document.getElementById("headerEmail"); hEl.textContent = user.email[0].toUpperCase(); hEl.title = user.email;
+    });
+
+    window.doLogout = async function() {
+      await signOut(auth);
+      window.location.href = "index_cn.html";
+    };
+  </script>
+
+  <script>
+// Market Heatmap — treemap sized by market cap, colored by 1D change / Baizora Score / P-E vs sector
+(function() {
+  const HM_NEUTRAL = [51, 65, 91];
+  const HM_POS_FULL = [21, 128, 61];
+  const HM_NEG_FULL = [185, 28, 28];
+  const HM_CHANGE_CLAMP = 4;   // % 1D move at which tile color reaches full saturation
+  const HM_VALUE_CLAMP = 100;  // % PE-vs-sector deviation at which tile color reaches full saturation
+
+  function hmBlend(t, positive) {
+    const target = positive ? HM_POS_FULL : HM_NEG_FULL;
+    const r = Math.round(HM_NEUTRAL[0] + (target[0] - HM_NEUTRAL[0]) * t);
+    const g = Math.round(HM_NEUTRAL[1] + (target[1] - HM_NEUTRAL[1]) * t);
+    const b = Math.round(HM_NEUTRAL[2] + (target[2] - HM_NEUTRAL[2]) * t);
+    return `rgb(${r},${g},${b})`;
+  }
+  function hmNeutralColor() { return `rgb(${HM_NEUTRAL[0]},${HM_NEUTRAL[1]},${HM_NEUTRAL[2]})`; }
+
+  function hmColorForChange(pct) {
+    const p = (pct == null) ? 0 : pct;
+    const clamped = Math.max(-HM_CHANGE_CLAMP, Math.min(HM_CHANGE_CLAMP, p));
+    return hmBlend(Math.abs(clamped) / HM_CHANGE_CLAMP, clamped >= 0);
+  }
+  function hmColorForScore(score) {
+    if (score == null) return hmNeutralColor();
+    const clamped = Math.max(0, Math.min(100, score));
+    return hmBlend(Math.abs(clamped - 50) / 50, clamped >= 50);
+  }
+  function hmColorForValue(peVsSector) {
+    if (peVsSector == null) return hmNeutralColor();
+    const clamped = Math.max(-HM_VALUE_CLAMP, Math.min(HM_VALUE_CLAMP, peVsSector));
+    return hmBlend(Math.abs(clamped) / HM_VALUE_CLAMP, clamped <= 0);
+  }
+
+  function hmWorst(row, side) {
+    const sum = row.reduce((s, d) => s + d.value, 0);
+    if (sum === 0) return Infinity;
+    let max = -Infinity, min = Infinity;
+    row.forEach(d => { if (d.value > max) max = d.value; if (d.value < min) min = d.value; });
+    const s2 = side * side, sum2 = sum * sum;
+    return Math.max((s2 * max) / sum2, sum2 / (s2 * min));
+  }
+
+  // Squarified treemap (Bruls, Huizing, van Wijk 2000)
+  function hmSquarify(items, x, y, w, h) {
+    const out = [];
+    let remaining = items.filter(d => d.value > 0);
+    let rx = x, ry = y, rw = w, rh = h;
+    while (remaining.length) {
+      const side = Math.min(rw, rh);
+      let row = [remaining[0]];
+      let i = 1;
+      while (i < remaining.length) {
+        const next = row.concat(remaining[i]);
+        if (hmWorst(row, side) >= hmWorst(next, side)) { row = next; i++; }
+        else break;
+      }
+      const rowSum = row.reduce((s, d) => s + d.value, 0);
+      if (rw >= rh) {
+        const rowW = rh > 0 ? rowSum / rh : 0;
+        let cy = ry;
+        row.forEach(d => {
+          const cellH = rowSum > 0 ? (d.value / rowSum) * rh : 0;
+          out.push({ data: d, x: rx, y: cy, w: rowW, h: cellH });
+          cy += cellH;
+        });
+        rx += rowW; rw -= rowW;
+      } else {
+        const rowH = rw > 0 ? rowSum / rw : 0;
+        let cx = rx;
+        row.forEach(d => {
+          const cellW = rowSum > 0 ? (d.value / rowSum) * rw : 0;
+          out.push({ data: d, x: cx, y: ry, w: cellW, h: rowH });
+          cx += cellW;
+        });
+        ry += rowH; rh -= rowH;
+      }
+      remaining = remaining.slice(row.length);
+    }
+    return out;
+  }
+
+  function hmTreemap(items, x, y, w, h) {
+    const total = items.reduce((s, d) => s + d.value, 0);
+    if (total <= 0 || w <= 0 || h <= 0) return [];
+    const area = w * h;
+    const scaled = items.slice().sort((a, b) => b.value - a.value)
+      .map(d => Object.assign({}, d, { value: d.value / total * area }));
+    return hmSquarify(scaled, x, y, w, h);
+  }
+
+  function hmCapLabel(cap) {
+    return cap >= 1000 ? '$' + (cap / 1000).toFixed(2) + 'T' : '$' + cap.toFixed(1) + 'B';
+  }
+
+  function hmSize(cap) { return Math.sqrt(Math.max(cap, 0)); }
+
+  let hmData = null;
+  let hmMode = 'sp500';
+  let hmColorMode = 'change';
+
+  function hmTileColor(d) {
+    if (hmColorMode === 'score') return hmColorForScore(d.BaizScore);
+    if (hmColorMode === 'value') return hmColorForValue(d.PE_vs_Sector);
+    return hmColorForChange(d.PriceChange1D);
+  }
+
+  function hmTileLabel(d) {
+    if (hmColorMode === 'score') {
+      return d.BaizScore == null ? '—' : Math.round(d.BaizScore).toString();
+    }
+    if (hmColorMode === 'value') {
+      return d.PE_vs_Sector == null ? '—' : (d.PE_vs_Sector >= 0 ? '+' : '') + Math.round(d.PE_vs_Sector) + '%';
+    }
+    const pc = (d.PriceChange1D == null) ? 0 : d.PriceChange1D;
+    return (pc >= 0 ? '+' : '') + pc.toFixed(1) + '%';
+  }
+
+  function hmBuildRows(mode) {
+    if (!hmData) return [];
+    const key = mode === 'sp500' ? 'InSP500' : 'InNASDAQ100';
+    return hmData.filter(r => r[key] && r.MarketCap > 0 && r.Sector && r.Sector !== 'Unknown');
+  }
+
+  function hmRender(mode) {
+    hmMode = mode;
+    const btnSP = document.getElementById('hmBtnSP'), btnNQ = document.getElementById('hmBtnNQ');
+    if (btnSP) btnSP.classList.toggle('active', mode === 'sp500');
+    if (btnNQ) btnNQ.classList.toggle('active', mode === 'nasdaq');
+    const wrap = document.getElementById('hmWrap');
+    if (!wrap) return;
+    const rows = hmBuildRows(mode);
+    if (!rows.length) { wrap.innerHTML = '<div class="hm-msg">暂无数据</div>'; return; }
+
+    const w = wrap.clientWidth || (wrap.parentElement && wrap.parentElement.clientWidth) || 300;
+    const isMobile = window.innerWidth <= 640;
+    const h = Math.round(w * (isMobile ? 1.2 : 0.58));
+    wrap.style.height = h + 'px';
+
+    const bySector = {};
+    rows.forEach(r => { (bySector[r.Sector] = bySector[r.Sector] || []).push(r); });
+    const sectorItems = Object.keys(bySector).map(s => ({
+      name: s,
+      value: bySector[s].reduce((sum, r) => sum + hmSize(r.MarketCap), 0),
+      rows: bySector[s],
+    }));
+    const sectorRects = hmTreemap(sectorItems, 0, 0, w, h);
+
+    let html = '';
+    sectorRects.forEach(sr => {
+      const HEADER = sr.h > 40 ? 18 : 0;
+      html += `<div class="hm-sector" style="left:${sr.x}px;top:${sr.y}px;width:${sr.w}px;height:${sr.h}px;">`;
+      if (HEADER) html += `<div class="hm-sector-label">${sr.data.name}</div>`;
+      const tickerItems = sr.data.rows.map(r => Object.assign({}, r, { value: hmSize(r.MarketCap) }));
+      const innerRects = hmTreemap(tickerItems, 0, 0, sr.w, Math.max(sr.h - HEADER, 1));
+      innerRects.forEach(tr => {
+        const d = tr.data;
+        const pc = (d.PriceChange1D == null) ? 0 : d.PriceChange1D;
+        const fitByWidth = tr.w / (d.Ticker.length * 0.62 + 0.6);
+        const tickerFont = Math.min(14, fitByWidth, tr.h * 0.7);
+        const showTicker = tickerFont >= 5.5 && tr.w >= 10 && tr.h >= 8;
+        const pctFont = Math.max(0, tickerFont - 2);
+        const showPct = showTicker && tr.w >= 22 && tr.h >= (tickerFont + pctFont) * 1.5;
+        const hasPage = window.BaizoraChart && window.BaizoraChart.hasDedicatedPage(d.Ticker);
+        html += `<a class="hm-tile${hasPage ? '' : ' bz-chart-link'}" ${hasPage ? `href="stocks/${d.Ticker}.html"` : `href="javascript:void(0)"`} style="left:${tr.x}px;top:${HEADER + tr.y}px;width:${tr.w}px;height:${tr.h}px;background:${hmTileColor(d)};" `
+          + `data-ticker="${d.Ticker}" data-name="${(d.CompanyName || '').replace(/"/g, '&quot;')}" data-price="${d.Price || 0}" data-chg="${pc}" data-cap="${d.MarketCap}" data-score="${d.BaizScore == null ? '' : d.BaizScore}" data-pe="${d.PE_vs_Sector == null ? '' : d.PE_vs_Sector}">`;
+        if (showTicker) {
+          html += `<div class="hm-tile-ticker" style="font-size:${tickerFont.toFixed(1)}px;font-weight:500;">${d.Ticker}</div>`;
+          if (showPct) html += `<div class="hm-tile-chg" style="font-size:${pctFont.toFixed(1)}px;">${hmTileLabel(d)}</div>`;
+        }
+        html += `</a>`;
+      });
+      html += `</div>`;
+    });
+    wrap.innerHTML = html;
+  }
+
+  window.hmSwitch = function(mode) { hmRender(mode); };
+
+  const HM_COLOR_MODE_META = {
+    change: { label: '当日涨跌幅', lo: '下跌', hi: '上涨' },
+    score:  { label: '贝佐拉评分（0–100 动能综合分）', lo: '偏弱', hi: '偏强' },
+    value:  { label: '市盈率相对行业均值', lo: '更贵', hi: '更便宜' },
+  };
+
+  window.hmSetColorMode = function(mode) {
+    hmColorMode = mode;
+    const btnChange = document.getElementById('hmModeChange');
+    const btnScore = document.getElementById('hmModeScore');
+    const btnValue = document.getElementById('hmModeValue');
+    if (btnChange) btnChange.classList.toggle('active', mode === 'change');
+    if (btnScore) btnScore.classList.toggle('active', mode === 'score');
+    if (btnValue) btnValue.classList.toggle('active', mode === 'value');
+    const meta = HM_COLOR_MODE_META[mode];
+    const colorLabel = document.getElementById('hmColorLabel');
+    const lo = document.getElementById('hmLegendLo');
+    const hi = document.getElementById('hmLegendHi');
+    if (colorLabel && meta) colorLabel.textContent = meta.label;
+    if (lo && meta) lo.textContent = meta.lo;
+    if (hi && meta) hi.textContent = meta.hi;
+    hmRender(hmMode);
+  };
+
+  let hmFlashTimeout = null;
+  function hmFlashTile(ticker) {
+    const wrap = document.getElementById('hmWrap');
+    if (!wrap) return;
+    wrap.querySelectorAll('.hm-tile.hm-flash').forEach(el => el.classList.remove('hm-flash'));
+    let target = null;
+    wrap.querySelectorAll('.hm-tile').forEach(el => { if (el.dataset.ticker === ticker) target = el; });
+    if (!target) return;
+    target.classList.add('hm-flash');
+    target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    clearTimeout(hmFlashTimeout);
+    hmFlashTimeout = setTimeout(() => target.classList.remove('hm-flash'), 1900);
+  }
+
+  function hmSearch() {
+    const input = document.getElementById('hmSearchInput');
+    const msg = document.getElementById('hmSearchMsg');
+    if (!input || !msg) return;
+    const q = input.value.trim().toUpperCase();
+    msg.textContent = '';
+    if (!q) return;
+    if (!hmData) { msg.textContent = '数据加载中，请稍后重试'; return; }
+    const row = hmData.find(r => r.Ticker === q);
+    if (!row || !row.MarketCap || row.MarketCap <= 0 || !row.Sector || row.Sector === 'Unknown') {
+      msg.textContent = `未找到 "${q}"`;
+      return;
+    }
+    const inCurrent = hmMode === 'sp500' ? row.InSP500 : row.InNASDAQ100;
+    const inOther = hmMode === 'sp500' ? row.InNASDAQ100 : row.InSP500;
+    if (!inCurrent && !inOther) {
+      msg.textContent = `"${q}" 不在标普500或纳斯达克100成分股中`;
+      return;
+    }
+    if (!inCurrent && inOther) hmRender(hmMode === 'sp500' ? 'nasdaq' : 'sp500');
+    hmFlashTile(q);
+  }
+  window.hmSearch = hmSearch;
+
+  const hmSearchBtn = document.getElementById('hmSearchBtn');
+  const hmSearchInput = document.getElementById('hmSearchInput');
+  if (hmSearchBtn) hmSearchBtn.addEventListener('click', hmSearch);
+  if (hmSearchInput) hmSearchInput.addEventListener('keydown', e => { if (e.key === 'Enter') hmSearch(); });
+
+  const hmWrapEl = document.getElementById('hmWrap');
+  if (hmWrapEl) {
+    hmWrapEl.addEventListener('click', function(e) {
+      const link = e.target.closest('.bz-chart-link');
+      if (!link || !window.BaizoraChart) return;
+      e.preventDefault();
+      window.BaizoraChart.open(link.dataset.ticker, {
+        name: link.dataset.name,
+        price: parseFloat(link.dataset.price),
+        chg: parseFloat(link.dataset.chg)
+      });
+    });
+  }
+
+  const hmTip = document.getElementById('hmTooltip');
+  if (hmTip) {
+    document.addEventListener('mouseover', function(e) {
+      const t = e.target.closest && e.target.closest('.hm-tile');
+      if (!t) return;
+      const pc = parseFloat(t.dataset.chg);
+      const cap = parseFloat(t.dataset.cap);
+      const score = t.dataset.score === '' ? null : parseFloat(t.dataset.score);
+      const pe = t.dataset.pe === '' ? null : parseFloat(t.dataset.pe);
+      hmTip.innerHTML = `<div class="hmt-ticker">${t.dataset.ticker}</div><div class="hmt-name">${t.dataset.name}</div>`
+        + `<div class="hmt-row"><span>价格</span><span>$${parseFloat(t.dataset.price).toFixed(2)}</span></div>`
+        + `<div class="hmt-row"><span>当日涨跌</span><span style="color:${pc >= 0 ? '#22c55e' : '#ef4444'}">${pc >= 0 ? '+' : ''}${pc.toFixed(2)}%</span></div>`
+        + `<div class="hmt-row"><span>贝佐拉评分</span><span style="color:${score == null ? '#64748b' : (score >= 50 ? '#22c55e' : '#ef4444')}">${score == null ? '—' : Math.round(score)}</span></div>`
+        + `<div class="hmt-row"><span>市盈率/行业</span><span style="color:${pe == null ? '#64748b' : (pe <= 0 ? '#22c55e' : '#ef4444')}">${pe == null ? '—' : (pe >= 0 ? '+' : '') + Math.round(pe) + '%'}</span></div>`
+        + `<div class="hmt-row"><span>市值</span><span>${hmCapLabel(cap)}</span></div>`;
+      hmTip.style.display = 'block';
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (hmTip.style.display !== 'block') return;
+      const pad = 14;
+      let left = e.clientX + pad, top = e.clientY + pad;
+      if (left + 220 > window.innerWidth) left = e.clientX - 220 - pad;
+      if (top + 110 > window.innerHeight) top = e.clientY - 110 - pad;
+      hmTip.style.left = left + 'px'; hmTip.style.top = top + 'px';
+    });
+    document.addEventListener('mouseout', function(e) {
+      const t = e.target.closest && e.target.closest('.hm-tile');
+      if (t && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.hm-tile'))) {
+        hmTip.style.display = 'none';
+      }
+    });
+  }
+
+  fetch('data/latest.json').then(r => r.json()).then(d => {
+    hmData = d.data;
+    hmRender('sp500');
+    const dateEl = document.getElementById('hmDataDate');
+    if (dateEl && d.date) dateEl.textContent = '数据截至 ' + d.date;
+  }).catch(() => {
+    const wrap = document.getElementById('hmWrap');
+    if (wrap) wrap.innerHTML = '<div class="hm-msg">热力图数据加载失败</div>';
+  });
+
+  let hmResizeT;
+  window.addEventListener('resize', function() {
+    clearTimeout(hmResizeT);
+    hmResizeT = setTimeout(() => hmRender(hmMode), 200);
+  });
+})();
+  </script>
+
+</body>
+</html>

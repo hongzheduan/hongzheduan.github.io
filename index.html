@@ -594,7 +594,7 @@
 
     /* ── MARKET HEATMAP ── */
     .hm-section { max-width: 1100px; margin: 0 auto; padding: 60px 24px 30px; }
-    .hm-toggle { display: flex; flex-wrap: wrap; gap: 8px; row-gap: 10px; justify-content: center; margin-top: 22px; margin-bottom: 28px; }
+    .hm-toggle { display: flex; gap: 8px; justify-content: center; margin-top: 22px; margin-bottom: 28px; }
     .hm-toggle-btn { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.06em; padding: 7px 18px; border-radius: 7px; border: 1px solid var(--border); background: rgba(13,30,61,0.5); color: var(--muted); cursor: pointer; transition: all 0.15s; }
     .hm-toggle-btn:hover { color: #fff; border-color: rgba(59,130,246,0.35); }
     .hm-toggle-btn.active { background: var(--electric); border-color: var(--electric); color: #fff; }
@@ -611,13 +611,12 @@
     }
     .hm-tile.hm-flash { animation: hmFlashPulse 0.6s ease-in-out 3; z-index: 30; }
     .hm-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
-    .hm-color-toggle { display: flex; flex-wrap: wrap; gap: 6px; row-gap: 8px; justify-content: center; margin-bottom: 14px; }
-    .hm-mode-btn { font-family: 'DM Mono', monospace; font-size: 10.5px; letter-spacing: 0.04em; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; }
-    .hm-mode-btn:hover { color: #fff; border-color: rgba(59,130,246,0.35); }
-    .hm-mode-btn.active { background: rgba(59,130,246,0.14); border-color: rgba(59,130,246,0.4); color: #60a5fa; }
     .hm-legend { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; letter-spacing: 0.04em; }
     .hm-legend-bar { width: 160px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #b91c1c, #33415b 50%, #157f3d); }
     .hm-wrap { position: relative; width: 100%; overflow: hidden; border-radius: 8px; }
+    .hm-seemore-wrap { text-align: center; margin-top: 20px; }
+    .hm-seemore { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.03em; color: var(--electric-bright); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 10px 20px; border: 1px solid rgba(59,130,246,0.3); border-radius: 999px; background: rgba(59,130,246,0.06); transition: all 0.15s; }
+    .hm-seemore:hover { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.5); }
     .hm-sector { position: absolute; box-sizing: border-box; border: 2px solid #060d1f; overflow: hidden; }
     .hm-sector-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #cbd5e1; background: rgba(6,13,31,0.85); padding: 3px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hm-tile { position: absolute; box-sizing: border-box; border: 1px solid #060d1f; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; overflow: hidden; transition: filter 0.1s; }
@@ -1415,7 +1414,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 <section class="hm-section">
   <div class="section-label">Live Snapshot</div>
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">Market <em>Heatmap</em></h2>
-  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.04em;text-align:center;margin-top:-30px;margin-bottom:0;">Tile size = √market cap &nbsp;·&nbsp; Color = <span id="hmColorLabel">1-day price change</span> &nbsp;·&nbsp; Grouped by sector &nbsp;·&nbsp; <span id="hmDataDate">Data as of …</span></p>
+  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.04em;text-align:center;margin-top:-30px;margin-bottom:24px;">Tile size = √market cap &nbsp;·&nbsp; Color = 1-day price change &nbsp;·&nbsp; Grouped by sector &nbsp;·&nbsp; <span id="hmDataDate">Data as of …</span></p>
 
   <div class="hm-toggle">
     <button class="hm-toggle-btn active" id="hmBtnSP" onclick="hmSwitch('sp500')">S&amp;P 500</button>
@@ -1428,17 +1427,16 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   <div class="hm-search-msg" id="hmSearchMsg"></div>
 
   <div class="hm-card">
-    <div class="hm-color-toggle">
-      <button class="hm-mode-btn active" id="hmModeChange" onclick="hmSetColorMode('change')">Color: 1D Change</button>
-      <button class="hm-mode-btn" id="hmModeScore" onclick="hmSetColorMode('score')">Color: Baizora Score</button>
-      <button class="hm-mode-btn" id="hmModeValue" onclick="hmSetColorMode('value')">Color: P/E vs Sector</button>
-    </div>
     <div class="hm-legend">
-      <span id="hmLegendLo">Down</span>
+      <span>Down</span>
       <span class="hm-legend-bar"></span>
-      <span id="hmLegendHi">Up</span>
+      <span>Up</span>
     </div>
     <div class="hm-wrap" id="hmWrap"><div class="hm-msg">Loading…</div></div>
+  </div>
+
+  <div class="hm-seemore-wrap">
+    <a href="market_heatmap.html" class="hm-seemore" onclick="return hpViewAll(event, 'market_heatmap.html', 'Market Heatmap', true)">See the full interactive heatmap — Baizora Score &amp; valuation views →</a>
   </div>
 </section>
 
@@ -1891,13 +1889,14 @@ function buildSparkPath(arr) {
 
 
 
-// Market Heatmap — treemap sized by market cap, colored by today's % change
+// Market Heatmap preview — S&P500/Nasdaq100 toggle + ticker search, colored
+// by 1D % change only. Baizora Score/P-E color modes live on the gated
+// market_heatmap.html ("See the full interactive heatmap" link).
 (function() {
   const HM_NEUTRAL = [51, 65, 91];
   const HM_POS_FULL = [21, 128, 61];
   const HM_NEG_FULL = [185, 28, 28];
-  const HM_CHANGE_CLAMP = 4;   // % 1D move at which tile color reaches full saturation
-  const HM_VALUE_CLAMP = 100;  // % PE-vs-sector deviation at which tile color reaches full saturation
+  const HM_CHANGE_CLAMP = 4; // % 1D move at which tile color reaches full saturation
 
   function hmBlend(t, positive) {
     const target = positive ? HM_POS_FULL : HM_NEG_FULL;
@@ -1906,25 +1905,11 @@ function buildSparkPath(arr) {
     const b = Math.round(HM_NEUTRAL[2] + (target[2] - HM_NEUTRAL[2]) * t);
     return `rgb(${r},${g},${b})`;
   }
-  function hmNeutralColor() { return `rgb(${HM_NEUTRAL[0]},${HM_NEUTRAL[1]},${HM_NEUTRAL[2]})`; }
 
-  // 1D % price change — green up, red down, clamped at ±4%.
   function hmColorForChange(pct) {
     const p = (pct == null) ? 0 : pct;
     const clamped = Math.max(-HM_CHANGE_CLAMP, Math.min(HM_CHANGE_CLAMP, p));
     return hmBlend(Math.abs(clamped) / HM_CHANGE_CLAMP, clamped >= 0);
-  }
-  // Baizora Score (0-100 momentum composite) — green above 50, red below.
-  function hmColorForScore(score) {
-    if (score == null) return hmNeutralColor();
-    const clamped = Math.max(0, Math.min(100, score));
-    return hmBlend(Math.abs(clamped - 50) / 50, clamped >= 50);
-  }
-  // P/E vs sector average — green = cheaper than peers, red = pricier, clamped at ±100%.
-  function hmColorForValue(peVsSector) {
-    if (peVsSector == null) return hmNeutralColor();
-    const clamped = Math.max(-HM_VALUE_CLAMP, Math.min(HM_VALUE_CLAMP, peVsSector));
-    return hmBlend(Math.abs(clamped) / HM_VALUE_CLAMP, clamped <= 0);
   }
 
   function hmWorst(row, side) {
@@ -1996,24 +1981,6 @@ function buildSparkPath(arr) {
 
   let hmData = null;
   let hmMode = 'sp500';
-  let hmColorMode = 'change';
-
-  function hmTileColor(d) {
-    if (hmColorMode === 'score') return hmColorForScore(d.BaizScore);
-    if (hmColorMode === 'value') return hmColorForValue(d.PE_vs_Sector);
-    return hmColorForChange(d.PriceChange1D);
-  }
-
-  function hmTileLabel(d) {
-    if (hmColorMode === 'score') {
-      return d.BaizScore == null ? '—' : Math.round(d.BaizScore).toString();
-    }
-    if (hmColorMode === 'value') {
-      return d.PE_vs_Sector == null ? '—' : (d.PE_vs_Sector >= 0 ? '+' : '') + Math.round(d.PE_vs_Sector) + '%';
-    }
-    const pc = (d.PriceChange1D == null) ? 0 : d.PriceChange1D;
-    return (pc >= 0 ? '+' : '') + pc.toFixed(1) + '%';
-  }
 
   function hmBuildRows(mode) {
     if (!hmData) return [];
@@ -2064,11 +2031,11 @@ function buildSparkPath(arr) {
         const pctFont = Math.max(0, tickerFont - 2);
         const showPct = showTicker && tr.w >= 22 && tr.h >= (tickerFont + pctFont) * 1.5;
         const hasPage = window.BaizoraChart && window.BaizoraChart.hasDedicatedPage(d.Ticker);
-        html += `<a class="hm-tile${hasPage ? '' : ' bz-chart-link'}" ${hasPage ? `href="stocks/${d.Ticker}.html"` : `href="javascript:void(0)"`} style="left:${tr.x}px;top:${HEADER + tr.y}px;width:${tr.w}px;height:${tr.h}px;background:${hmTileColor(d)};" `
-          + `data-ticker="${d.Ticker}" data-name="${(d.CompanyName || '').replace(/"/g, '&quot;')}" data-price="${d.Price || 0}" data-chg="${pc}" data-cap="${d.MarketCap}" data-score="${d.BaizScore == null ? '' : d.BaizScore}" data-pe="${d.PE_vs_Sector == null ? '' : d.PE_vs_Sector}">`;
+        html += `<a class="hm-tile${hasPage ? '' : ' bz-chart-link'}" ${hasPage ? `href="stocks/${d.Ticker}.html"` : `href="javascript:void(0)"`} style="left:${tr.x}px;top:${HEADER + tr.y}px;width:${tr.w}px;height:${tr.h}px;background:${hmColorForChange(pc)};" `
+          + `data-ticker="${d.Ticker}" data-name="${(d.CompanyName || '').replace(/"/g, '&quot;')}" data-price="${d.Price || 0}" data-chg="${pc}" data-cap="${d.MarketCap}">`;
         if (showTicker) {
           html += `<div class="hm-tile-ticker" style="font-size:${tickerFont.toFixed(1)}px;font-weight:500;">${d.Ticker}</div>`;
-          if (showPct) html += `<div class="hm-tile-chg" style="font-size:${pctFont.toFixed(1)}px;">${hmTileLabel(d)}</div>`;
+          if (showPct) html += `<div class="hm-tile-chg" style="font-size:${pctFont.toFixed(1)}px;">${pc >= 0 ? '+' : ''}${pc.toFixed(1)}%</div>`;
         }
         html += `</a>`;
       });
@@ -2078,30 +2045,6 @@ function buildSparkPath(arr) {
   }
 
   window.hmSwitch = function(mode) { hmRender(mode); };
-
-  const HM_COLOR_MODE_META = {
-    change: { label: '1D price change', lo: 'Down', hi: 'Up' },
-    score:  { label: 'Baizora Score (0–100 momentum composite)', lo: 'Weak', hi: 'Strong' },
-    value:  { label: 'P/E vs sector average', lo: 'Pricier', hi: 'Cheaper' },
-  };
-
-  window.hmSetColorMode = function(mode) {
-    hmColorMode = mode;
-    const btnChange = document.getElementById('hmModeChange');
-    const btnScore = document.getElementById('hmModeScore');
-    const btnValue = document.getElementById('hmModeValue');
-    if (btnChange) btnChange.classList.toggle('active', mode === 'change');
-    if (btnScore) btnScore.classList.toggle('active', mode === 'score');
-    if (btnValue) btnValue.classList.toggle('active', mode === 'value');
-    const meta = HM_COLOR_MODE_META[mode];
-    const colorLabel = document.getElementById('hmColorLabel');
-    const lo = document.getElementById('hmLegendLo');
-    const hi = document.getElementById('hmLegendHi');
-    if (colorLabel && meta) colorLabel.textContent = meta.label;
-    if (lo && meta) lo.textContent = meta.lo;
-    if (hi && meta) hi.textContent = meta.hi;
-    hmRender(hmMode);
-  };
 
   let hmFlashTimeout = null;
   function hmFlashTile(ticker) {
@@ -2167,13 +2110,9 @@ function buildSparkPath(arr) {
       if (!t) return;
       const pc = parseFloat(t.dataset.chg);
       const cap = parseFloat(t.dataset.cap);
-      const score = t.dataset.score === '' ? null : parseFloat(t.dataset.score);
-      const pe = t.dataset.pe === '' ? null : parseFloat(t.dataset.pe);
       hmTip.innerHTML = `<div class="hmt-ticker">${t.dataset.ticker}</div><div class="hmt-name">${t.dataset.name}</div>`
         + `<div class="hmt-row"><span>Price</span><span>$${parseFloat(t.dataset.price).toFixed(2)}</span></div>`
         + `<div class="hmt-row"><span>1D Chg</span><span style="color:${pc >= 0 ? '#22c55e' : '#ef4444'}">${pc >= 0 ? '+' : ''}${pc.toFixed(2)}%</span></div>`
-        + `<div class="hmt-row"><span>Baizora Score</span><span style="color:${score == null ? '#64748b' : (score >= 50 ? '#22c55e' : '#ef4444')}">${score == null ? '—' : Math.round(score)}</span></div>`
-        + `<div class="hmt-row"><span>P/E vs Sector</span><span style="color:${pe == null ? '#64748b' : (pe <= 0 ? '#22c55e' : '#ef4444')}">${pe == null ? '—' : (pe >= 0 ? '+' : '') + Math.round(pe) + '%'}</span></div>`
         + `<div class="hmt-row"><span>Market Cap</span><span>${hmCapLabel(cap)}</span></div>`;
       hmTip.style.display = 'block';
     });
