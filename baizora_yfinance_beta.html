@@ -1183,6 +1183,10 @@
       return `<th class="${cls}" onclick="sortBy('${key}')" data-col="${key}">${label}${arrow(key)}</th>`;
     }
 
+    function reportLink(label) {
+      return `<a href="assets/baizscore_backtest.html" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Read the backtest behind this score" style="color:inherit;text-decoration:none;">${label}<span style="font-size:10px;opacity:0.7;margin-left:2px;">&#8599;</span></a>`;
+    }
+
     function thStatic(dataCol, label, extraClass = "") {
       const cls = ["no-sort", extraClass].filter(Boolean).join(" ");
       return `<th class="${cls}" data-col="${dataCol}">${label}</th>`;
@@ -1262,9 +1266,9 @@
         const head = `<thead><tr>
           ${thSort("Ticker",          "Ticker")}
           ${thStatic("Spark1Y",       "1Y Trend")}
-          ${thSort("BaizScore",        "Baizora", "col-baiz")}
+          ${thSort("BaizScore",        reportLink("Baizora"), "col-baiz")}
           ${thSort("TurnScore",        "Turn",    "col-turn")}
-          ${thSort("BaizMomentum",    "Momentum+", "col-mom")}
+          ${thSort("BaizMomentum",    reportLink("Momentum+"), "col-mom")}
           ${thSort("RSScore",         "RS")}
           ${thSort("BreakoutScore",   "Breakout")}
           ${thSort("MomentumScore",   "Momentum")}
@@ -1451,9 +1455,9 @@
         if (w === "SCORES") {
           priceChgDisplay = `<span class="card-chg card-live-chg ${colorClass(pc1)}" data-ticker="${r.Ticker}">${fmtP(pc1)}</span>`;
           statsHTML = `
-            <div class="card-row"><span class="card-label" style="color:#f59e0b;">Baizora</span><span class="card-val ${scoreClass(r.BaizScore, 50)}" style="font-weight:700;">${r.BaizScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label" style="color:#f59e0b;">${reportLink("Baizora")}</span><span class="card-val ${scoreClass(r.BaizScore, 50)}" style="font-weight:700;">${r.BaizScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label" style="color:#60a5fa;">Turn</span><span class="card-val ${turnFmt(r.TurnScore).cls}" style="font-weight:700;">${turnFmt(r.TurnScore).html}</span></div>
-            <div class="card-row"><span class="card-label" style="color:#c084fc;">Momentum+</span><span class="card-val ${scoreClass(r.BaizMomentum, 50)}" style="font-weight:700;">${r.BaizMomentum ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label" style="color:#c084fc;">${reportLink("Momentum+")}</span><span class="card-val ${scoreClass(r.BaizMomentum, 50)}" style="font-weight:700;">${r.BaizMomentum ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">RS</span><span class="card-val ${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">Breakout</span><span class="card-val ${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">Momentum</span><span class="card-val ${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</span></div>
