@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baizora Score — Historical Backtest | Baizora</title>
+  <meta name="description" content="A historical backtest of the Baizora Score's components against 2023–2026 price data. Hypothetical results only — not investment advice, not a live track record.">
+  <link rel="canonical" href="https://baizora.com/assets/baizscore_backtest.html">
+  <link rel="alternate" hreflang="en" href="https://baizora.com/assets/baizscore_backtest.html">
+  <link rel="alternate" hreflang="zh-Hans" href="https://baizora.com/assets/baizscore_backtest_cn.html">
+  <meta name="robots" content="noindex, follow">
+  <link rel="icon" href="baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:#060d1f; --navy-mid:#0d1e3d;
+      --electric:#3b82f6; --electric-bright:#60a5fa;
+      --gold:#f59e0b; --gold-light:#fcd34d;
+      --white:#f8fafc; --muted:#94a3b8;
+      --border:rgba(255,255,255,0.07); --border-bright:rgba(255,255,255,0.12);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+    .glow{position:fixed;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse at center,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+    header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(6,13,31,0.92);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+    .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+    .logo-wrap img{height:36px;}
+    .logo-text{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);letter-spacing:-0.02em;}
+    .logo-text span{color:var(--electric);}
+    nav{display:flex;align-items:center;gap:8px;}
+    .nav-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:6px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;white-space:nowrap;}
+    .nav-btn:hover{border-color:rgba(59,130,246,0.4);color:var(--white);background:rgba(59,130,246,0.08);}
+    .nav-btn-primary{background:var(--electric);border-color:var(--electric);color:white;}
+    .nav-btn-primary:hover{background:#2563eb;border-color:#2563eb;color:white;}
+
+    .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;padding:6px 7px;border:1px solid var(--border);border-radius:6px;background:transparent;flex-shrink:0;}
+    .hamburger span{display:block;width:18px;height:2px;background:var(--muted);border-radius:2px;transition:background 0.2s;}
+    .hamburger:hover span{background:var(--white);}
+    .mobile-drawer{display:none;position:fixed;left:0;right:0;background:rgba(6,13,31,0.98);border-bottom:1px solid var(--border-bright);backdrop-filter:blur(20px);z-index:190;flex-direction:column;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+    .mobile-drawer.open{display:flex;}
+    .mobile-drawer a{display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);}
+    .mobile-drawer a:last-child{border-bottom:none;}
+
+    .container{position:relative;z-index:10;max-width:880px;margin:0 auto;padding:64px 32px 100px;}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);border:1px solid rgba(59,130,246,0.25);background:rgba(59,130,246,0.06);padding:6px 14px;border-radius:999px;margin-bottom:20px;}
+    h1{font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,42px);line-height:1.2;letter-spacing:-0.02em;color:var(--white);margin-bottom:10px;}
+    .title-sub{font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;color:#f87171;margin-bottom:28px;}
+
+    .disclaimer{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.28);border-radius:14px;padding:22px 24px;margin-bottom:44px;}
+    .disclaimer p{font-size:14px;color:#fde68a;line-height:1.8;margin-bottom:10px;}
+    .disclaimer p:last-child{margin-bottom:0;}
+    .disclaimer strong{color:#fcd34d;}
+
+    .section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);margin-bottom:14px;margin-top:48px;}
+    h2{font-family:'DM Serif Display',serif;font-size:24px;letter-spacing:-0.02em;color:var(--white);margin-bottom:16px;}
+    h3{font-family:'DM Sans',sans-serif;font-size:14.5px;font-weight:600;color:#e2e8f0;margin:22px 0 8px;}
+    p{font-size:14.5px;color:#cbd5e1;line-height:1.8;margin-bottom:14px;}
+    p:last-child{margin-bottom:0;}
+    ul{padding-left:20px;margin-bottom:14px;}
+    li{font-size:14px;color:#cbd5e1;line-height:1.75;margin-bottom:8px;}
+    strong{color:#f1f5f9;font-weight:600;}
+    code{font-family:'DM Mono',monospace;font-size:12px;background:rgba(59,130,246,0.15);color:#93c5fd;padding:2px 7px;border-radius:4px;border:1px solid rgba(59,130,246,0.2);}
+
+    .card{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:14px 0;}
+    .formula{background:rgba(6,13,31,0.9);border:1px solid rgba(59,130,246,0.3);border-radius:10px;padding:16px 20px;margin:14px 0;font-family:'DM Mono',monospace;font-size:12.5px;color:#93c5fd;line-height:1.8;}
+
+    .table-wrap{overflow-x:auto;margin:14px 0;-webkit-overflow-scrolling:touch;}
+    table{width:100%;border-collapse:collapse;min-width:560px;}
+    thead th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:#64748b;padding:10px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;}
+    thead th:first-child{text-align:left;}
+    tbody td{padding:9px 12px;font-size:13px;color:#cbd5e1;text-align:right;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;white-space:nowrap;}
+    tbody td:first-child{text-align:left;color:#e2e8f0;}
+    tbody tr.group-start td{padding-top:15px;border-top:1px solid var(--border-bright);}
+    tbody tr.hi td{background:rgba(59,130,246,0.05);}
+    .rowlabel{font-size:12px;color:#94a3b8;}
+
+    .heat-table td.heat{text-align:center;border-radius:0;}
+    .heat-table .hv{font-family:'DM Mono',monospace;font-weight:600;color:#f1f5f9;}
+    .heat-table .hn{font-family:'DM Mono',monospace;font-size:10px;color:#64748b;display:block;margin-top:2px;}
+
+    .note-list{list-style:none;padding:0;margin:14px 0;}
+    .note-list li{position:relative;padding-left:22px;margin-bottom:14px;}
+    .note-list li::before{content:'◆';position:absolute;left:0;top:3px;font-size:8px;color:var(--electric-bright);}
+
+    .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.2),transparent);margin:44px 0;}
+
+    .back-wrap{margin-top:48px;}
+    .back-link{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#475569;text-decoration:none;transition:color 0.2s;}
+    .back-link:hover{color:var(--electric-bright);}
+
+    footer{position:relative;z-index:10;border-top:1px solid var(--border);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+    .footer-left{font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;letter-spacing:0.05em;}
+    .footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+    .footer-links a{font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;text-decoration:none;letter-spacing:0.05em;transition:color 0.2s;}
+    .footer-links a:hover{color:var(--electric-bright);}
+
+    @media(max-width:640px){
+      header{padding:0 16px;}
+      nav{display:none;}
+      .hamburger{display:flex;}
+      .container{padding:44px 20px 72px;}
+      footer{padding:24px 20px;flex-direction:column;text-align:center;}
+      .footer-links{justify-content:center;}
+    }
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+
+<header>
+  <a href="../" class="logo-wrap">
+    <img src="baize_favicon_v2.png" alt="Baizora">
+    <span class="logo-text">Baiz<span>ora</span></span>
+  </a>
+  <nav>
+    <a href="../index.html" class="nav-btn">Home</a>
+    <a href="../login.html" class="nav-btn nav-btn-primary">Sign in</a>
+  </nav>
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="mobile-drawer" id="mobileDrawer">
+  <div id="mobileAuthLinks"></div>
+  <a href="../index.html">Home</a>
+</div>
+
+<div class="container">
+  <div class="eyebrow">◈ &nbsp; Data &amp; Methodology</div>
+  <h1>Baizora Score: A Historical Backtest</h1>
+  <div class="title-sub">Hypothetical &amp; Backtested Data · Not A Live Track Record · Not Investment Advice</div>
+
+  <div class="disclaimer">
+    <p><strong>Read this before the numbers below.</strong> This page replays the Baizora Score formula against
+    past price data to see what would have happened, hypothetically, on days the score crossed a given
+    threshold. It is a backtest of historical data — <strong>not a live track record, not a strategy, and not a
+    recommendation to buy, hold, or sell any security.</strong></p>
+    <p>The window tested (Aug 2023 – Aug 2026) was a strong bull market for US large-cap equities, which
+    mechanically favors trend-following signals like this one — it has not been tested through a market
+    downturn. <strong>Past patterns are not predictive of future results.</strong> See <a href="#limitations" style="color:#fcd34d;">Limitations</a> below before drawing any conclusion from this data.</p>
+  </div>
+
+  <div class="section-label">01 — What This Backtest Does</div>
+  <h2>Replaying the score formula against history</h2>
+  <p>The Baizora Score combines five component signals, each already computed daily on the live dashboard:</p>
+  <div class="formula">
+RS (Relative Strength)  — 30%   <span style="color:#64748b;">// percentile rank, price momentum vs. universe</span>
+Momentum                — 25%   <span style="color:#64748b;">// percentile rank, shorter-horizon acceleration</span>
+Breakout                — 20%   <span style="color:#64748b;">// today's price/volume vs. 21-day average</span>
+Trend Consistency       — 15%   <span style="color:#64748b;">// share of 6 timeframes currently positive</span>
+Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensity × price direction</span>
+  </div>
+  <p>To see how a given score threshold lined up with what happened afterward, the formula above was
+  recomputed for every trading day over roughly the past three years — not just today — for 516 of the 518
+  current S&amp;P&nbsp;500 + Nasdaq-100 constituents (two tickers were excluded on a data-format mismatch), using
+  daily price bars as the input. A day only counts if the ticker already had a full year of prior trading
+  history, so early listings and thin-history tickers are excluded rather than scored on partial data. Each
+  scored day was then matched against that ticker's <em>actual</em> price change over the following 1, 3, 6, 9,
+  and 12 months.</p>
+  <p>This produced <strong>380,044</strong> individual (date, ticker, score) observations spanning
+  <strong>2023-08-16 to 2026-08-14</strong>.</p>
+
+  <div class="divider"></div>
+
+  <div class="section-label" id="limitations" style="margin-top:0;">02 — Limitations (Read First)</div>
+  <h2>Why these numbers need context</h2>
+  <ul class="note-list">
+    <li><strong>Single, favorable market regime.</strong> The entire backtest window is one continuous bull run.
+    Roughly half the score's weight (RS + Momentum) is explicitly trend-following, so it is structurally likely
+    to look better while trends persist. This backtest says nothing about how the score would have behaved in
+    2022, 2008, or any other drawdown — that data isn't in this window.</li>
+    <li><strong>Not independent samples.</strong> The same ticker is scored on consecutive days, and the
+    forward-return windows overlap heavily from one day to the next. The observation counts below are
+    ticker-days, not independent bets — they should be read descriptively, not as a formally
+    significance-tested result.</li>
+    <li><strong>Return distributions are right-skewed.</strong> A handful of large winners can pull an average
+    well above what a "typical" observation looked like. Median figures are shown alongside means for this
+    reason and are generally the more representative number.</li>
+    <li><strong>Universe survivorship.</strong> Today's S&amp;P&nbsp;500 / Nasdaq-100 constituent list was applied
+    across the whole historical window, rather than each date's actual historical membership — a standard
+    simplification that introduces mild survivorship bias.</li>
+    <li><strong>Sample size shrinks fast at higher thresholds.</strong> The 70+ bucket has a reasonably deep
+    sample; 90+ narrows to under 600 observations with a full 12-month forward window, which is thin enough
+    that its numbers should be treated as directional at best.</li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <div class="section-label">03 — Observed Forward Returns by Score Threshold</div>
+  <h2>What the backtest showed</h2>
+  <p>For each threshold, the table compares the average subsequent price change for ticker-days that scored at
+  or above that level against the baseline (every scoreable day, any score) over the same window.</p>
+
+  <h3>Score ≥ 70 (44,072 observations, 11.6% of the sample)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Horizon</th><th>Baseline mean</th><th>Baseline median</th><th>≥70 mean</th><th>≥70 median</th><th>N (≥70)</th></tr></thead>
+      <tbody>
+        <tr><td>1 month</td><td>+1.73%</td><td>+1.26%</td><td>+3.24%</td><td>+1.70%</td><td>42,875</td></tr>
+        <tr><td>3 months</td><td>+5.65%</td><td>+4.00%</td><td>+10.95%</td><td>+5.81%</td><td>40,333</td></tr>
+        <tr><td>6 months</td><td>+10.98%</td><td>+7.40%</td><td>+22.76%</td><td>+12.04%</td><td>36,449</td></tr>
+        <tr><td>9 months</td><td>+16.55%</td><td>+10.82%</td><td>+35.83%</td><td>+17.98%</td><td>32,367</td></tr>
+        <tr><td>12 months</td><td>+23.19%</td><td>+14.18%</td><td>+46.88%</td><td>+21.99%</td><td>28,708</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Score ≥ 80 (7,045 observations, 1.9% of the sample)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Horizon</th><th>Baseline mean</th><th>Baseline median</th><th>≥80 mean</th><th>≥80 median</th><th>N (≥80)</th></tr></thead>
+      <tbody>
+        <tr><td>1 month</td><td>+1.73%</td><td>+1.26%</td><td>+6.04%</td><td>+2.93%</td><td>6,894</td></tr>
+        <tr><td>3 months</td><td>+5.65%</td><td>+4.00%</td><td>+18.02%</td><td>+9.40%</td><td>6,408</td></tr>
+        <tr><td>6 months</td><td>+10.98%</td><td>+7.40%</td><td>+34.03%</td><td>+16.98%</td><td>5,564</td></tr>
+        <tr><td>9 months</td><td>+16.55%</td><td>+10.82%</td><td>+57.86%</td><td>+26.30%</td><td>4,842</td></tr>
+        <tr><td>12 months</td><td>+23.19%</td><td>+14.18%</td><td>+70.68%</td><td>+31.20%</td><td>4,213</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Score ≥ 90 (975 observations, 0.3% of the sample — thin, see Limitations)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Horizon</th><th>Baseline mean</th><th>Baseline median</th><th>≥90 mean</th><th>≥90 median</th><th>N (≥90)</th></tr></thead>
+      <tbody>
+        <tr><td>1 month</td><td>+1.73%</td><td>+1.26%</td><td>+7.85%</td><td>+3.44%</td><td>958</td></tr>
+        <tr><td>3 months</td><td>+5.65%</td><td>+4.00%</td><td>+21.41%</td><td>+11.05%</td><td>887</td></tr>
+        <tr><td>6 months</td><td>+10.98%</td><td>+7.40%</td><td>+40.67%</td><td>+18.09%</td><td>785</td></tr>
+        <tr><td>9 months</td><td>+16.55%</td><td>+10.82%</td><td>+73.33%</td><td>+32.36%</td><td>682</td></tr>
+        <tr><td>12 months</td><td>+23.19%</td><td>+14.18%</td><td>+91.08%</td><td>+37.02%</td><td>590</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px;color:#64748b;">N = observations with a full forward window available at that horizon within the fetched data range. Figures are historical averages within this specific backtest window, not projections.</p>
+
+  <div class="divider"></div>
+
+  <div class="section-label">04 — Testing Alternate Weightings</div>
+  <h2>Was 30/25/20/15/10 arbitrary?</h2>
+  <p>The current weighting had never been tested against alternatives, so five other weighting schemes were
+  recombined from the same underlying component scores and run through the identical backtest above. This
+  tests whether the specific weighting matters, not whether the score "works" — the same regime-dependence and
+  small-sample caveats above apply throughout.</p>
+
+  <div class="table-wrap">
+    <table class="heat-table">
+      <thead>
+        <tr><th style="text-align:left;">Weighting (RS / Mom / Brk / Trend / VP)</th><th>≥70 12-mo edge</th><th>≥80 12-mo edge</th><th>≥90 12-mo edge</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="rowlabel" style="color:#e2e8f0;">Current — 30 / 25 / 20 / 15 / 10</td>
+          <td class="heat"><span class="hv">+23.7pp</span><span class="hn">N=28,708</span></td>
+          <td class="heat"><span class="hv">+47.5pp</span><span class="hn">N=4,213</span></td>
+          <td class="heat"><span class="hv">+67.9pp</span><span class="hn">N=590</span></td></tr>
+        <tr><td class="rowlabel">Equal weight — 20 / 20 / 20 / 20 / 20</td>
+          <td class="heat"><span class="hv">+25.4pp</span><span class="hn">N=17,112</span></td>
+          <td class="heat"><span class="hv">+34.4pp</span><span class="hn">N=2,900</span></td>
+          <td class="heat"><span class="hv">+52.6pp</span><span class="hn">N=620</span></td></tr>
+        <tr><td class="rowlabel">Pure momentum — 50 / 50 / 0 / 0 / 0</td>
+          <td class="heat"><span class="hv">+10.5pp</span><span class="hn">N=76,027</span></td>
+          <td class="heat"><span class="hv">+17.0pp</span><span class="hn">N=50,366</span></td>
+          <td class="heat"><span class="hv">+32.4pp</span><span class="hn">N=25,066</span></td></tr>
+        <tr><td class="rowlabel">Momentum-amplified — 40 / 35 / 15 / 5 / 5</td>
+          <td class="heat"><span class="hv">+18.6pp</span><span class="hn">N=46,129</span></td>
+          <td class="heat"><span class="hv">+43.5pp</span><span class="hn">N=15,056</span></td>
+          <td class="heat"><span class="hv">+71.5pp</span><span class="hn">N=910</span></td></tr>
+        <tr><td class="rowlabel">Technical-tilted — 10 / 10 / 40 / 10 / 30</td>
+          <td class="heat"><span class="hv">+24.5pp</span><span class="hn">N=3,265</span></td>
+          <td class="heat"><span class="hv">+37.0pp</span><span class="hn">N=1,222</span></td>
+          <td class="heat"><span class="hv">+42.1pp</span><span class="hn">N=404</span></td></tr>
+        <tr><td class="rowlabel">Trend-consistency — 20 / 15 / 10 / 45 / 10</td>
+          <td class="heat"><span class="hv">+5.9pp</span><span class="hn">N=72,461</span></td>
+          <td class="heat"><span class="hv">+13.6pp</span><span class="hn">N=29,340</span></td>
+          <td class="heat"><span class="hv">+42.2pp</span><span class="hn">N=1,984</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px;color:#64748b;">Edge = mean 12-month forward return for that bucket minus the same-window baseline mean, in percentage points.</p>
+
+  <div class="card">
+    <p><strong>What this comparison suggests, cautiously:</strong> no single weighting scheme led at every
+    threshold in this backtest, including the current one — it led at 80+, was competitive at 70+, and was
+    only clearly behind one alternative (momentum-amplified) at the thin 90+ tier. The two schemes that reduced
+    Breakout and Volume Pressure to near-zero weight underperformed at every threshold tested, which is a signal
+    those components carried information in this dataset rather than being redundant with RS/Momentum — but
+    given the caveats above, this is read as one data point toward future weighting review, not as a
+    conclusion to act on.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <p style="font-size:12.5px;color:#64748b;line-height:1.8;">
+    This backtest was run once, in August 2026, on a single historical window, and has not been independently
+    re-verified or re-run across other periods. Nothing on this page is investment advice or a recommendation
+    regarding any security. See the <a href="disclaimer.html" style="color:#93c5fd;">Disclaimer</a> for the
+    platform's full terms.
+  </p>
+
+  <div class="back-wrap">
+    <a href="../" class="back-link">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Home
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-left">© 2026 Baizora — All rights reserved &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <a href="disclaimer.html">Disclaimer</a>
+    <a href="faq.html">FAQ</a>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu(){
+    const drawer=document.getElementById('mobileDrawer');
+    const header=document.querySelector('header');
+    drawer.style.top=header.getBoundingClientRect().bottom+'px';
+    drawer.classList.toggle('open');
+  }
+  document.addEventListener('click',e=>{
+    const drawer=document.getElementById('mobileDrawer');
+    const btn=document.getElementById('hamburgerBtn');
+    if(drawer.classList.contains('open')&&!drawer.contains(e.target)&&!btn.contains(e.target))drawer.classList.remove('open');
+  });
+</script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+      authDomain: "baizora.firebaseapp.com",
+      projectId: "baizora"
+    });
+
+    const mStyle='display:block;padding:14px 20px;text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.07);';
+    firebase.auth().onAuthStateChanged(function(user) {
+      const loginBtn = document.querySelector('a[href="../login.html"].nav-btn-primary');
+      const mLinks = document.getElementById('mobileAuthLinks');
+      if (user) {
+        if (loginBtn) { loginBtn.textContent = 'Dashboard'; loginBtn.href = '../dashboard.html'; }
+        if (mLinks) mLinks.innerHTML='<a href="../dashboard.html" style="'+mStyle+'color:#94a3b8;">Dashboard</a>';
+      } else {
+        if (mLinks) mLinks.innerHTML='<a href="../login.html" style="'+mStyle+'color:#94a3b8;">Sign in</a>'+'<a href="../signup.html" style="'+mStyle+'color:var(--electric-bright);font-weight:600;">Create Account</a>';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>贝佐拉评分：历史回测 | 贝佐拉</title>
+  <meta name="description" content="对贝佐拉评分各分项在2023–2026年价格数据上的历史回测。仅为假设性结果——不构成投资建议，不代表真实业绩记录。">
+  <link rel="canonical" href="https://baizora.com/assets/baizscore_backtest_cn.html">
+  <link rel="alternate" hreflang="zh-Hans" href="https://baizora.com/assets/baizscore_backtest_cn.html">
+  <link rel="alternate" hreflang="en" href="https://baizora.com/assets/baizscore_backtest.html">
+  <meta name="robots" content="noindex, follow">
+  <link rel="icon" href="baize_favicon_v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:#060d1f; --navy-mid:#0d1e3d;
+      --electric:#3b82f6; --electric-bright:#60a5fa;
+      --gold:#f59e0b; --gold-light:#fcd34d;
+      --white:#f8fafc; --muted:#94a3b8;
+      --border:rgba(255,255,255,0.07); --border-bright:rgba(255,255,255,0.12);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+    .glow{position:fixed;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse at center,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+    header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(6,13,31,0.92);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+    .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+    .logo-wrap img{height:36px;}
+    .brand-cn{font-size:18px;font-weight:700;letter-spacing:4px;background:linear-gradient(90deg,var(--white),var(--electric-bright));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    nav{display:flex;align-items:center;gap:8px;}
+    .nav-btn{border:1px solid var(--border);background:transparent;color:var(--muted);padding:6px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;white-space:nowrap;}
+    .nav-btn:hover{border-color:rgba(59,130,246,0.4);color:var(--white);background:rgba(59,130,246,0.08);}
+    .nav-btn-primary{background:var(--electric);border-color:var(--electric);color:white;}
+    .nav-btn-primary:hover{background:#2563eb;border-color:#2563eb;color:white;}
+
+    .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;padding:6px 7px;border:1px solid var(--border);border-radius:6px;background:transparent;flex-shrink:0;}
+    .hamburger span{display:block;width:18px;height:2px;background:var(--muted);border-radius:2px;transition:background 0.2s;}
+    .hamburger:hover span{background:var(--white);}
+    .mobile-drawer{display:none;position:fixed;left:0;right:0;background:rgba(6,13,31,0.98);border-bottom:1px solid var(--border-bright);backdrop-filter:blur(20px);z-index:190;flex-direction:column;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+    .mobile-drawer.open{display:flex;}
+    .mobile-drawer a{display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);}
+    .mobile-drawer a:last-child{border-bottom:none;}
+
+    .container{position:relative;z-index:10;max-width:880px;margin:0 auto;padding:64px 32px 100px;}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);border:1px solid rgba(59,130,246,0.25);background:rgba(59,130,246,0.06);padding:6px 14px;border-radius:999px;margin-bottom:20px;}
+    h1{font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,38px);line-height:1.3;letter-spacing:-0.01em;color:var(--white);margin-bottom:10px;}
+    .title-sub{font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.08em;color:#f87171;margin-bottom:28px;}
+
+    .disclaimer{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.28);border-radius:14px;padding:22px 24px;margin-bottom:44px;}
+    .disclaimer p{font-size:14px;color:#fde68a;line-height:1.9;margin-bottom:10px;}
+    .disclaimer p:last-child{margin-bottom:0;}
+    .disclaimer strong{color:#fcd34d;}
+
+    .section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--electric-bright);margin-bottom:14px;margin-top:48px;}
+    h2{font-family:'DM Serif Display',serif;font-size:23px;letter-spacing:-0.01em;color:var(--white);margin-bottom:16px;}
+    h3{font-family:'DM Sans',sans-serif;font-size:14.5px;font-weight:600;color:#e2e8f0;margin:22px 0 8px;}
+    p{font-size:14.5px;color:#cbd5e1;line-height:1.9;margin-bottom:14px;}
+    p:last-child{margin-bottom:0;}
+    ul{padding-left:20px;margin-bottom:14px;}
+    li{font-size:14px;color:#cbd5e1;line-height:1.85;margin-bottom:8px;}
+    strong{color:#f1f5f9;font-weight:600;}
+    code{font-family:'DM Mono',monospace;font-size:12px;background:rgba(59,130,246,0.15);color:#93c5fd;padding:2px 7px;border-radius:4px;border:1px solid rgba(59,130,246,0.2);}
+
+    .card{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:14px 0;}
+    .formula{background:rgba(6,13,31,0.9);border:1px solid rgba(59,130,246,0.3);border-radius:10px;padding:16px 20px;margin:14px 0;font-family:'DM Mono',monospace;font-size:12.5px;color:#93c5fd;line-height:1.9;}
+
+    .table-wrap{overflow-x:auto;margin:14px 0;-webkit-overflow-scrolling:touch;}
+    table{width:100%;border-collapse:collapse;min-width:560px;}
+    thead th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.04em;color:#64748b;padding:10px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;}
+    thead th:first-child{text-align:left;}
+    tbody td{padding:9px 12px;font-size:13px;color:#cbd5e1;text-align:right;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums;white-space:nowrap;}
+    tbody td:first-child{text-align:left;color:#e2e8f0;}
+    .rowlabel{font-size:12px;color:#94a3b8;}
+
+    .heat-table td.heat{text-align:center;}
+    .heat-table .hv{font-family:'DM Mono',monospace;font-weight:600;color:#f1f5f9;}
+    .heat-table .hn{font-family:'DM Mono',monospace;font-size:10px;color:#64748b;display:block;margin-top:2px;}
+
+    .note-list{list-style:none;padding:0;margin:14px 0;}
+    .note-list li{position:relative;padding-left:22px;margin-bottom:14px;}
+    .note-list li::before{content:'◆';position:absolute;left:0;top:3px;font-size:8px;color:var(--electric-bright);}
+
+    .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.2),transparent);margin:44px 0;}
+
+    .back-wrap{margin-top:48px;}
+    .back-link{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.06em;color:#475569;text-decoration:none;transition:color 0.2s;}
+    .back-link:hover{color:var(--electric-bright);}
+
+    footer{position:relative;z-index:10;border-top:1px solid var(--border);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+    .footer-left{font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;letter-spacing:0.05em;}
+    .footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+    .footer-links a{font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;text-decoration:none;letter-spacing:0.05em;transition:color 0.2s;}
+    .footer-links a:hover{color:var(--electric-bright);}
+
+    @media(max-width:640px){
+      header{padding:0 16px;}
+      nav{display:none;}
+      .hamburger{display:flex;}
+      .container{padding:44px 20px 72px;}
+      footer{padding:24px 20px;flex-direction:column;text-align:center;}
+      .footer-links{justify-content:center;}
+    }
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+
+<header>
+  <a href="../index_cn.html" class="logo-wrap">
+    <img src="baize_favicon_v2.png" alt="贝佐拉">
+    <div class="brand-cn">贝佐拉</div>
+  </a>
+  <nav>
+    <a href="../index_cn.html" class="nav-btn">首页</a>
+    <a href="../login_cn.html" class="nav-btn nav-btn-primary">登录</a>
+  </nav>
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="mobile-drawer" id="mobileDrawer">
+  <div id="mobileAuthLinks"></div>
+  <a href="../index_cn.html">首页</a>
+</div>
+
+<div class="container">
+  <div class="eyebrow">◈ &nbsp; 数据与方法论</div>
+  <h1>贝佐拉评分：历史回测</h1>
+  <div class="title-sub">假设性回测数据 · 非真实业绩记录 · 非投资建议</div>
+
+  <div class="disclaimer">
+    <p><strong>阅读以下数据前请先看这里。</strong>
+    本页将贝佐拉评分公式套用于历史价格数据，模拟"如果在评分达到某一阈值的那天参考该分数，之后理论上会发生什么"。
+    这是对<strong>历史数据的回测</strong>——<strong>不是真实的业绩记录，不构成投资策略，也不是买入、持有或卖出任何证券的建议</strong>。</p>
+    <p>本次回测区间（2023年8月–2026年8月）恰逢美国大盘股的一段强劲牛市，这种环境天然利好趋势跟随型信号（本评分正属此类）——尚未在下跌行情中验证过。
+    <strong>过往规律不能预测未来结果。</strong>在得出任何结论前，请先阅读下方的<a href="#limitations" style="color:#fcd34d;">局限性</a>部分。</p>
+  </div>
+
+  <div class="section-label">01 — 本次回测测试了什么</div>
+  <h2>将评分公式套用于历史数据</h2>
+  <p>贝佐拉评分由五项分项信号加权组成，每一项在正式看板上都已逐日计算：</p>
+  <div class="formula">
+RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名，衡量相对全市场的价格动能</span>
+动能             — 25%   <span style="color:#64748b;">// 百分位排名，衡量更短周期的加速度</span>
+突破             — 20%   <span style="color:#64748b;">// 当日价格/成交量相对21日均值</span>
+趋势一致性        — 15%   <span style="color:#64748b;">// 6个周期中价格上涨的比例</span>
+量压             — 10%   <span style="color:#64748b;">// 成交量强度 × 价格方向</span>
+  </div>
+  <p>为了检验某一评分阈值与之后走势的关系，上述公式被套用到了过去约三年内的<strong>每一个交易日</strong>——而不仅是今天——覆盖当前标普500 + 纳斯达克100成分股中的516只（另有2只因数据格式问题被排除），以每日价格数据为输入。只有当某只股票已积累满一年历史交易数据时，当天才会被计入评分——上市较晚或历史数据不足的股票会被排除，而不是用不完整数据打分。每一个被评分的交易日随后都会与该股票<em>之后实际发生</em>的1、3、6、9、12个月价格变化进行匹配。</p>
+  <p>最终得到 <strong>380,044</strong> 条独立的（日期、股票、评分）观测记录，覆盖 <strong>2023-08-16 至 2026-08-14</strong>。</p>
+
+  <div class="divider"></div>
+
+  <div class="section-label" id="limitations" style="margin-top:0;">02 — 局限性（请先阅读）</div>
+  <h2>为什么这些数字需要上下文</h2>
+  <ul class="note-list">
+    <li><strong>单一、偏向有利的市场环境。</strong> 整个回测区间处于同一段持续牛市中。评分中约一半的权重（RS + 动能）明确属于趋势跟随型，在趋势延续期间表现天然容易偏好——本回测无法说明该评分在2022年、2008年或其他下跌行情中会如何表现，因为这段区间的数据根本不在样本内。</li>
+    <li><strong>观测样本并不独立。</strong> 同一只股票会在连续多个交易日被评分，且各自的"之后走势"窗口高度重叠。下方的样本量是"股票-交易日"计数，而非独立的投资决策——应作为描述性数据看待，而非经过严格统计显著性检验的结论。</li>
+    <li><strong>收益分布右偏。</strong> 少数几只涨幅巨大的个股足以把平均值拉高，超出"典型"表现。因此下方同时列出中位数，通常中位数更能代表一般情况。</li>
+    <li><strong>成分股存在幸存者偏差。</strong> 回测统一使用了当前的标普500/纳斯达克100成分股名单，而非每个历史日期的真实成分股名单——这是常见的简化处理方式，会带来轻微的幸存者偏差。</li>
+    <li><strong>阈值越高，样本量下降越快。</strong> 70分以上的样本量相对充足；90分以上在拥有完整12个月后续窗口的样本不足600条，数据量偏薄，其结果只能作为方向性参考。</li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <div class="section-label">03 — 不同评分阈值下的后续实际涨跌幅</div>
+  <h2>回测结果</h2>
+  <p>下表将各阈值下"评分达到或超过该水平"的股票-交易日，其平均后续涨跌幅，与同一时间窗口内的基准（所有可评分交易日，不限评分高低）进行对比。</p>
+
+  <h3>评分 ≥ 70（44,072条观测，占样本11.6%）</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>周期</th><th>基准均值</th><th>基准中位数</th><th>≥70均值</th><th>≥70中位数</th><th>样本量(≥70)</th></tr></thead>
+      <tbody>
+        <tr><td>1个月</td><td>+1.73%</td><td>+1.26%</td><td>+3.24%</td><td>+1.70%</td><td>42,875</td></tr>
+        <tr><td>3个月</td><td>+5.65%</td><td>+4.00%</td><td>+10.95%</td><td>+5.81%</td><td>40,333</td></tr>
+        <tr><td>6个月</td><td>+10.98%</td><td>+7.40%</td><td>+22.76%</td><td>+12.04%</td><td>36,449</td></tr>
+        <tr><td>9个月</td><td>+16.55%</td><td>+10.82%</td><td>+35.83%</td><td>+17.98%</td><td>32,367</td></tr>
+        <tr><td>12个月</td><td>+23.19%</td><td>+14.18%</td><td>+46.88%</td><td>+21.99%</td><td>28,708</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>评分 ≥ 80（7,045条观测，占样本1.9%）</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>周期</th><th>基准均值</th><th>基准中位数</th><th>≥80均值</th><th>≥80中位数</th><th>样本量(≥80)</th></tr></thead>
+      <tbody>
+        <tr><td>1个月</td><td>+1.73%</td><td>+1.26%</td><td>+6.04%</td><td>+2.93%</td><td>6,894</td></tr>
+        <tr><td>3个月</td><td>+5.65%</td><td>+4.00%</td><td>+18.02%</td><td>+9.40%</td><td>6,408</td></tr>
+        <tr><td>6个月</td><td>+10.98%</td><td>+7.40%</td><td>+34.03%</td><td>+16.98%</td><td>5,564</td></tr>
+        <tr><td>9个月</td><td>+16.55%</td><td>+10.82%</td><td>+57.86%</td><td>+26.30%</td><td>4,842</td></tr>
+        <tr><td>12个月</td><td>+23.19%</td><td>+14.18%</td><td>+70.68%</td><td>+31.20%</td><td>4,213</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>评分 ≥ 90（975条观测，占样本0.3% — 样本偏薄，参见"局限性"）</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>周期</th><th>基准均值</th><th>基准中位数</th><th>≥90均值</th><th>≥90中位数</th><th>样本量(≥90)</th></tr></thead>
+      <tbody>
+        <tr><td>1个月</td><td>+1.73%</td><td>+1.26%</td><td>+7.85%</td><td>+3.44%</td><td>958</td></tr>
+        <tr><td>3个月</td><td>+5.65%</td><td>+4.00%</td><td>+21.41%</td><td>+11.05%</td><td>887</td></tr>
+        <tr><td>6个月</td><td>+10.98%</td><td>+7.40%</td><td>+40.67%</td><td>+18.09%</td><td>785</td></tr>
+        <tr><td>9个月</td><td>+16.55%</td><td>+10.82%</td><td>+73.33%</td><td>+32.36%</td><td>682</td></tr>
+        <tr><td>12个月</td><td>+23.19%</td><td>+14.18%</td><td>+91.08%</td><td>+37.02%</td><td>590</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px;color:#64748b;">样本量 = 在所抓取数据范围内、该周期拥有完整后续窗口的观测记录数。所有数字均为本次特定回测区间内的历史平均值，不构成预测。</p>
+
+  <div class="divider"></div>
+
+  <div class="section-label">04 — 测试不同权重组合</div>
+  <h2>30/25/20/15/10 是拍脑袋定的吗？</h2>
+  <p>现行权重此前从未与其他方案对比测试过，因此我们用同样的分项评分数据，重新组合出另外五种权重方案，并放入与上文完全相同的回测流程中。这项测试只是在检验"权重设置是否重要"，而不是在检验"评分是否有效"——上文提到的市场环境依赖与小样本注意事项，在这里同样适用。</p>
+
+  <div class="table-wrap">
+    <table class="heat-table">
+      <thead>
+        <tr><th style="text-align:left;">权重方案（RS / 动能 / 突破 / 趋势 / 量压）</th><th>≥70 12个月超额</th><th>≥80 12个月超额</th><th>≥90 12个月超额</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="rowlabel" style="color:#e2e8f0;">现行方案 — 30 / 25 / 20 / 15 / 10</td>
+          <td class="heat"><span class="hv">+23.7pp</span><span class="hn">样本=28,708</span></td>
+          <td class="heat"><span class="hv">+47.5pp</span><span class="hn">样本=4,213</span></td>
+          <td class="heat"><span class="hv">+67.9pp</span><span class="hn">样本=590</span></td></tr>
+        <tr><td class="rowlabel">等权重 — 20 / 20 / 20 / 20 / 20</td>
+          <td class="heat"><span class="hv">+25.4pp</span><span class="hn">样本=17,112</span></td>
+          <td class="heat"><span class="hv">+34.4pp</span><span class="hn">样本=2,900</span></td>
+          <td class="heat"><span class="hv">+52.6pp</span><span class="hn">样本=620</span></td></tr>
+        <tr><td class="rowlabel">纯动能 — 50 / 50 / 0 / 0 / 0</td>
+          <td class="heat"><span class="hv">+10.5pp</span><span class="hn">样本=76,027</span></td>
+          <td class="heat"><span class="hv">+17.0pp</span><span class="hn">样本=50,366</span></td>
+          <td class="heat"><span class="hv">+32.4pp</span><span class="hn">样本=25,066</span></td></tr>
+        <tr><td class="rowlabel">动能强化 — 40 / 35 / 15 / 5 / 5</td>
+          <td class="heat"><span class="hv">+18.6pp</span><span class="hn">样本=46,129</span></td>
+          <td class="heat"><span class="hv">+43.5pp</span><span class="hn">样本=15,056</span></td>
+          <td class="heat"><span class="hv">+71.5pp</span><span class="hn">样本=910</span></td></tr>
+        <tr><td class="rowlabel">技术面倾斜 — 10 / 10 / 40 / 10 / 30</td>
+          <td class="heat"><span class="hv">+24.5pp</span><span class="hn">样本=3,265</span></td>
+          <td class="heat"><span class="hv">+37.0pp</span><span class="hn">样本=1,222</span></td>
+          <td class="heat"><span class="hv">+42.1pp</span><span class="hn">样本=404</span></td></tr>
+        <tr><td class="rowlabel">趋势一致性倾斜 — 20 / 15 / 10 / 45 / 10</td>
+          <td class="heat"><span class="hv">+5.9pp</span><span class="hn">样本=72,461</span></td>
+          <td class="heat"><span class="hv">+13.6pp</span><span class="hn">样本=29,340</span></td>
+          <td class="heat"><span class="hv">+42.2pp</span><span class="hn">样本=1,984</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px;color:#64748b;">超额 = 该分组12个月平均后续涨跌幅，减去同期基准平均值，单位为百分点。</p>
+
+  <div class="card">
+    <p><strong>这项对比谨慎地提示了什么：</strong> 在本次回测中，没有任何一种权重方案在所有阈值上都领先，现行方案也不例外——它在80分档领先，在70分档具备竞争力，只在样本偏薄的90分档明显落后于其中一种替代方案（动能强化）。将"突破"与"量压"权重压低至接近零的两种方案，在所有测试阈值上表现均落后，这提示这两项分量在本数据集中确实携带了信息，而非与RS/动能重复——但考虑到上述局限性，这更适合被视为未来权重复核的一项参考数据，而非可直接采纳的结论。</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <p style="font-size:12.5px;color:#64748b;line-height:1.9;">
+    本次回测于2026年8月完成，仅针对单一历史区间运行一次，尚未经过独立复核或在其他区间重新验证。本页内容不构成对任何证券的投资建议或推荐。完整条款请参见<a href="disclaimer_cn.html" style="color:#93c5fd;">免责声明</a>。
+  </p>
+
+  <div class="back-wrap">
+    <a href="../index_cn.html" class="back-link">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      返回首页
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-left">© 2026 Baizora — 保留所有权利 &nbsp;·&nbsp; <a href="mailto:support@baizora.com">support@baizora.com</a></div>
+  <div class="footer-links">
+    <a href="privacy_cn.html">隐私政策</a>
+    <a href="terms_cn.html">服务条款</a>
+    <a href="disclaimer_cn.html">免责声明</a>
+    <a href="faq_cn.html">常见问题</a>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu(){
+    const drawer=document.getElementById('mobileDrawer');
+    const header=document.querySelector('header');
+    drawer.style.top=header.getBoundingClientRect().bottom+'px';
+    drawer.classList.toggle('open');
+  }
+  document.addEventListener('click',e=>{
+    const drawer=document.getElementById('mobileDrawer');
+    const btn=document.getElementById('hamburgerBtn');
+    if(drawer.classList.contains('open')&&!drawer.contains(e.target)&&!btn.contains(e.target))drawer.classList.remove('open');
+  });
+</script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+      authDomain: "baizora.firebaseapp.com",
+      projectId: "baizora"
+    });
+
+    const mStyle='display:block;padding:14px 20px;text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.07);';
+    firebase.auth().onAuthStateChanged(function(user) {
+      const loginBtn = document.querySelector('a[href="../login_cn.html"].nav-btn-primary');
+      const mLinks = document.getElementById('mobileAuthLinks');
+      if (user) {
+        if (loginBtn) { loginBtn.textContent = '个人主页'; loginBtn.href = '../dashboard_cn.html'; }
+        if (mLinks) mLinks.innerHTML='<a href="../dashboard_cn.html" style="'+mStyle+'color:#94a3b8;">个人主页</a>';
+      } else {
+        if (mLinks) mLinks.innerHTML='<a href="../login_cn.html" style="'+mStyle+'color:#94a3b8;">登录</a>'+'<a href="../signup_cn.html" style="'+mStyle+'color:var(--electric-bright);font-weight:600;">免费注册</a>';
+      }
+    });
+  </script>
+</body>
+</html>
