@@ -80,6 +80,7 @@
     .rowlabel{font-size:12px;color:#94a3b8;}
 
     .heat-table td.heat{text-align:center;border-radius:0;}
+    .heat-table td.heat.max{background:rgba(59,130,246,0.1);}
     .heat-table .hv{font-family:'DM Mono',monospace;font-weight:600;color:#f1f5f9;}
     .heat-table .hn{font-family:'DM Mono',monospace;font-size:10px;color:#64748b;display:block;margin-top:2px;}
 
@@ -248,6 +249,8 @@ Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensi
   the identical backtest above. This tests whether the specific weighting matters, not whether the score
   "works" — the same regime-dependence and small-sample caveats above apply throughout.</p>
 
+  <p style="font-size:12.5px;color:#64748b;">Ranked by <strong style="color:#94a3b8;">median</strong> edge, not mean — Section 03 above shows mean and median can differ by 2–3× on this data, and median is the more representative figure for a "typical" observation. See the mean-based figures in the note below the table.</p>
+
   <div class="table-wrap">
     <table class="heat-table">
       <thead>
@@ -255,42 +258,52 @@ Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensi
       </thead>
       <tbody>
         <tr><td class="rowlabel" style="color:#e2e8f0;">Current — 30 / 25 / 20 / 15 / 10</td>
-          <td class="heat"><span class="hv">+23.7pp</span><span class="hn">N=28,708</span></td>
-          <td class="heat"><span class="hv">+47.5pp</span><span class="hn">N=4,213</span></td>
-          <td class="heat"><span class="hv">+67.9pp</span><span class="hn">N=590</span></td></tr>
+          <td class="heat"><span class="hv">+7.8pp</span><span class="hn">N=28,702</span></td>
+          <td class="heat"><span class="hv">+17.0pp</span><span class="hn">N=4,213</span></td>
+          <td class="heat"><span class="hv">+22.8pp</span><span class="hn">N=590</span></td></tr>
         <tr><td class="rowlabel">Equal weight — 20 / 20 / 20 / 20 / 20</td>
-          <td class="heat"><span class="hv">+25.4pp</span><span class="hn">N=17,112</span></td>
-          <td class="heat"><span class="hv">+34.4pp</span><span class="hn">N=2,900</span></td>
-          <td class="heat"><span class="hv">+52.6pp</span><span class="hn">N=620</span></td></tr>
+          <td class="heat"><span class="hv">+7.9pp</span><span class="hn">N=17,108</span></td>
+          <td class="heat"><span class="hv">+9.6pp</span><span class="hn">N=2,899</span></td>
+          <td class="heat"><span class="hv">+17.0pp</span><span class="hn">N=620</span></td></tr>
         <tr><td class="rowlabel">Pure momentum — 50 / 50 / 0 / 0 / 0</td>
-          <td class="heat"><span class="hv">+10.5pp</span><span class="hn">N=76,027</span></td>
-          <td class="heat"><span class="hv">+17.0pp</span><span class="hn">N=50,366</span></td>
-          <td class="heat"><span class="hv">+32.4pp</span><span class="hn">N=25,066</span></td></tr>
+          <td class="heat"><span class="hv">+4.0pp</span><span class="hn">N=76,012</span></td>
+          <td class="heat"><span class="hv">+6.7pp</span><span class="hn">N=50,358</span></td>
+          <td class="heat"><span class="hv">+12.6pp</span><span class="hn">N=25,062</span></td></tr>
         <tr><td class="rowlabel">Momentum-amplified — 40 / 35 / 15 / 5 / 5</td>
-          <td class="heat"><span class="hv">+18.6pp</span><span class="hn">N=46,129</span></td>
-          <td class="heat"><span class="hv">+43.5pp</span><span class="hn">N=15,056</span></td>
-          <td class="heat"><span class="hv">+71.5pp</span><span class="hn">N=910</span></td></tr>
+          <td class="heat"><span class="hv">+7.0pp</span><span class="hn">N=46,124</span></td>
+          <td class="heat"><span class="hv">+16.5pp</span><span class="hn">N=15,054</span></td>
+          <td class="heat max"><span class="hv">+28.8pp</span><span class="hn">N=910</span></td></tr>
         <tr><td class="rowlabel">Technical-tilted — 10 / 10 / 40 / 10 / 30</td>
-          <td class="heat"><span class="hv">+24.5pp</span><span class="hn">N=3,265</span></td>
-          <td class="heat"><span class="hv">+37.0pp</span><span class="hn">N=1,222</span></td>
-          <td class="heat"><span class="hv">+42.1pp</span><span class="hn">N=404</span></td></tr>
+          <td class="heat"><span class="hv">+5.2pp</span><span class="hn">N=3,264</span></td>
+          <td class="heat"><span class="hv">+8.9pp</span><span class="hn">N=1,221</span></td>
+          <td class="heat"><span class="hv">+10.2pp</span><span class="hn">N=404</span></td></tr>
         <tr><td class="rowlabel">Trend-consistency — 20 / 15 / 10 / 45 / 10</td>
-          <td class="heat"><span class="hv">+5.9pp</span><span class="hn">N=72,461</span></td>
-          <td class="heat"><span class="hv">+13.6pp</span><span class="hn">N=29,340</span></td>
-          <td class="heat"><span class="hv">+42.2pp</span><span class="hn">N=1,984</span></td></tr>
+          <td class="heat"><span class="hv">+1.6pp</span><span class="hn">N=72,449</span></td>
+          <td class="heat"><span class="hv">+4.5pp</span><span class="hn">N=29,335</span></td>
+          <td class="heat"><span class="hv">+14.2pp</span><span class="hn">N=1,983</span></td></tr>
       </tbody>
     </table>
   </div>
-  <p style="font-size:12px;color:#64748b;">Edge = mean 12-month forward return for that bucket minus the same-window baseline mean, in percentage points.</p>
+  <p style="font-size:12px;color:#64748b;">Edge = median 12-month forward return for that bucket minus the same-window baseline median, in percentage points. For reference, the equivalent <em>mean</em>-based edges run roughly 2–3× larger throughout (e.g. current's ≥90 edge is +67.9pp by mean vs. +22.8pp by median) — a direct illustration of how much the skew in Section 03 was inflating the mean figures.</p>
 
   <div class="card">
     <p><strong>What this comparison suggests, cautiously:</strong> no single weighting scheme led at every
-    threshold in this backtest, including the current one — it led at 80+, was competitive at 70+, and was
-    only clearly behind one alternative (momentum-amplified) at the thin 90+ tier. The two schemes that reduced
-    Breakout and Volume Pressure to near-zero weight underperformed at every threshold tested, which is a signal
-    those components carried information in this dataset rather than being redundant with RS/Momentum — but
-    given the caveats above, this is read as one data point toward future weighting review, not as a
-    conclusion to act on.</p>
+    threshold under median return either — current is effectively tied with equal-weight at 70+ (+7.8pp vs.
+    +7.9pp), leads narrowly at 80+ (+17.0pp vs. momentum-amplified's +16.5pp), and is clearly behind
+    momentum-amplified at the thin 90+ tier (+22.8pp vs. +28.8pp). The two schemes that reduced Breakout and
+    Volume Pressure to near-zero weight remained the weakest at every threshold under median too — trend-consistency's
+    70+ edge nearly disappears (+1.6pp), and one of its horizons (3-month) is actually negative under median
+    (see raw data), a sharper signal than the mean-based comparison gave that those two components carry real
+    information rather than being redundant with RS/Momentum. Given the caveats above, this remains one data
+    point toward future weighting review, not a conclusion to act on.</p>
+  </div>
+
+  <div class="card" style="border-color:rgba(192,132,252,0.25);">
+    <p><strong>Update — 2026-08-16:</strong> the momentum-amplified weighting discussed above has since been
+    added to the live dashboard as a second score, <strong style="color:#c084fc;">BaizMomentum</strong> (Scores
+    tab, next to Baizora and Turn). It's offered as an alternate lens, not a replacement — the evidence above
+    only clearly favors it at the thinnest-sampled 90+ tier, and it carries the exact same caveats as everything
+    else on this page.</p>
   </div>
 
   <div class="divider"></div>

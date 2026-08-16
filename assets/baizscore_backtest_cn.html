@@ -77,6 +77,7 @@
     .rowlabel{font-size:12px;color:#94a3b8;}
 
     .heat-table td.heat{text-align:center;}
+    .heat-table td.heat.max{background:rgba(59,130,246,0.1);}
     .heat-table .hv{font-family:'DM Mono',monospace;font-weight:600;color:#f1f5f9;}
     .heat-table .hn{font-family:'DM Mono',monospace;font-size:10px;color:#64748b;display:block;margin-top:2px;}
 
@@ -221,6 +222,8 @@ RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名�
   <h2>现行权重与其他方案的对比</h2>
   <p>我们用同样的分项评分数据，重新组合出另外五种权重方案，并放入与上文完全相同的回测流程中。这项测试只是在检验"权重设置是否重要"，而不是在检验"评分是否有效"——上文提到的市场环境依赖与小样本注意事项，在这里同样适用。</p>
 
+  <p style="font-size:12.5px;color:#64748b;">下表按<strong style="color:#94a3b8;">中位数</strong>超额排序，而非均值——上文第03节显示，同一数据的均值与中位数可相差2–3倍，中位数更能代表"典型情况"。均值口径的对照数字见表格下方说明。</p>
+
   <div class="table-wrap">
     <table class="heat-table">
       <thead>
@@ -228,36 +231,42 @@ RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名�
       </thead>
       <tbody>
         <tr><td class="rowlabel" style="color:#e2e8f0;">现行方案 — 30 / 25 / 20 / 15 / 10</td>
-          <td class="heat"><span class="hv">+23.7pp</span><span class="hn">样本=28,708</span></td>
-          <td class="heat"><span class="hv">+47.5pp</span><span class="hn">样本=4,213</span></td>
-          <td class="heat"><span class="hv">+67.9pp</span><span class="hn">样本=590</span></td></tr>
+          <td class="heat"><span class="hv">+7.8pp</span><span class="hn">样本=28,702</span></td>
+          <td class="heat"><span class="hv">+17.0pp</span><span class="hn">样本=4,213</span></td>
+          <td class="heat"><span class="hv">+22.8pp</span><span class="hn">样本=590</span></td></tr>
         <tr><td class="rowlabel">等权重 — 20 / 20 / 20 / 20 / 20</td>
-          <td class="heat"><span class="hv">+25.4pp</span><span class="hn">样本=17,112</span></td>
-          <td class="heat"><span class="hv">+34.4pp</span><span class="hn">样本=2,900</span></td>
-          <td class="heat"><span class="hv">+52.6pp</span><span class="hn">样本=620</span></td></tr>
+          <td class="heat"><span class="hv">+7.9pp</span><span class="hn">样本=17,108</span></td>
+          <td class="heat"><span class="hv">+9.6pp</span><span class="hn">样本=2,899</span></td>
+          <td class="heat"><span class="hv">+17.0pp</span><span class="hn">样本=620</span></td></tr>
         <tr><td class="rowlabel">纯动能 — 50 / 50 / 0 / 0 / 0</td>
-          <td class="heat"><span class="hv">+10.5pp</span><span class="hn">样本=76,027</span></td>
-          <td class="heat"><span class="hv">+17.0pp</span><span class="hn">样本=50,366</span></td>
-          <td class="heat"><span class="hv">+32.4pp</span><span class="hn">样本=25,066</span></td></tr>
+          <td class="heat"><span class="hv">+4.0pp</span><span class="hn">样本=76,012</span></td>
+          <td class="heat"><span class="hv">+6.7pp</span><span class="hn">样本=50,358</span></td>
+          <td class="heat"><span class="hv">+12.6pp</span><span class="hn">样本=25,062</span></td></tr>
         <tr><td class="rowlabel">动能强化 — 40 / 35 / 15 / 5 / 5</td>
-          <td class="heat"><span class="hv">+18.6pp</span><span class="hn">样本=46,129</span></td>
-          <td class="heat"><span class="hv">+43.5pp</span><span class="hn">样本=15,056</span></td>
-          <td class="heat"><span class="hv">+71.5pp</span><span class="hn">样本=910</span></td></tr>
+          <td class="heat"><span class="hv">+7.0pp</span><span class="hn">样本=46,124</span></td>
+          <td class="heat"><span class="hv">+16.5pp</span><span class="hn">样本=15,054</span></td>
+          <td class="heat max"><span class="hv">+28.8pp</span><span class="hn">样本=910</span></td></tr>
         <tr><td class="rowlabel">技术面倾斜 — 10 / 10 / 40 / 10 / 30</td>
-          <td class="heat"><span class="hv">+24.5pp</span><span class="hn">样本=3,265</span></td>
-          <td class="heat"><span class="hv">+37.0pp</span><span class="hn">样本=1,222</span></td>
-          <td class="heat"><span class="hv">+42.1pp</span><span class="hn">样本=404</span></td></tr>
+          <td class="heat"><span class="hv">+5.2pp</span><span class="hn">样本=3,264</span></td>
+          <td class="heat"><span class="hv">+8.9pp</span><span class="hn">样本=1,221</span></td>
+          <td class="heat"><span class="hv">+10.2pp</span><span class="hn">样本=404</span></td></tr>
         <tr><td class="rowlabel">趋势一致性倾斜 — 20 / 15 / 10 / 45 / 10</td>
-          <td class="heat"><span class="hv">+5.9pp</span><span class="hn">样本=72,461</span></td>
-          <td class="heat"><span class="hv">+13.6pp</span><span class="hn">样本=29,340</span></td>
-          <td class="heat"><span class="hv">+42.2pp</span><span class="hn">样本=1,984</span></td></tr>
+          <td class="heat"><span class="hv">+1.6pp</span><span class="hn">样本=72,449</span></td>
+          <td class="heat"><span class="hv">+4.5pp</span><span class="hn">样本=29,335</span></td>
+          <td class="heat"><span class="hv">+14.2pp</span><span class="hn">样本=1,983</span></td></tr>
       </tbody>
     </table>
   </div>
-  <p style="font-size:12px;color:#64748b;">超额 = 该分组12个月平均后续涨跌幅，减去同期基准平均值，单位为百分点。</p>
+  <p style="font-size:12px;color:#64748b;">超额 = 该分组12个月<strong style="color:#94a3b8;">中位数</strong>后续涨跌幅，减去同期基准中位数，单位为百分点。作为对照，均值口径的超额普遍是中位数口径的2–3倍（例如现行方案在≥90档，均值口径为+67.9pp，中位数口径仅为+22.8pp）——这直接说明第03节中的分布偏态在多大程度上抬高了均值数字。</p>
 
   <div class="card">
-    <p><strong>这项对比谨慎地提示了什么：</strong> 在本次回测中，没有任何一种权重方案在所有阈值上都领先，现行方案也不例外——它在80分档领先，在70分档具备竞争力，只在样本偏薄的90分档明显落后于其中一种替代方案（动能强化）。将"突破"与"量压"权重压低至接近零的两种方案，在所有测试阈值上表现均落后，这提示这两项分量在本数据集中确实携带了信息，而非与RS/动能重复——但考虑到上述局限性，这更适合被视为未来权重复核的一项参考数据，而非可直接采纳的结论。</p>
+    <p><strong>这项对比谨慎地提示了什么：</strong> 改用中位数后，同样没有任何一种权重方案在所有阈值上都领先——现行方案在70分档与等权重方案基本打平（+7.8pp vs. +7.9pp），在80分档小幅领先（+17.0pp vs. 动能强化方案的+16.5pp），只在样本偏薄的90分档明显落后于动能强化方案（+22.8pp vs. +28.8pp）。将"突破"与"量压"权重压低至接近零的两种方案，在中位数口径下依然是所有阈值中表现最弱的——趋势一致性倾斜方案在70分档的超额几乎归零（+1.6pp），其中一个周期（3个月）在中位数口径下甚至转为负值（详见原始数据），这比均值口径给出的信号更清晰地说明这两项分量确实携带了信息，而非与RS/动能重复。考虑到上述局限性，这仍应被视为未来权重复核的一项参考数据，而非可直接采纳的结论。</p>
+  </div>
+
+  <div class="card" style="border-color:rgba(192,132,252,0.25);">
+    <p><strong>更新 — 2026-08-16：</strong>上文讨论的"动能强化"权重方案，现已作为第二项评分
+    <strong style="color:#c084fc;">贝佐拉动能+</strong>（BaizMomentum）上线到正式看板（评分标签页，紧邻贝佐拉评分与转势评分）。
+    它是一个补充视角，而非替代方案——上述数据仅在样本最薄的90分档明确显示出优势，且与本页其余内容适用同样的局限性说明。</p>
   </div>
 
   <div class="divider"></div>

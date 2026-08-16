@@ -691,6 +691,17 @@ def scan():
             df["BreakoutScore"] * (1 - df["RSScore"] / 100) * vp_turn
         ).round().clip(0, 100).astype(int)
 
+        # BaizMomentum — alternate composite weighted toward RS/Momentum (backtested
+        # 2026-08 as the "momentum_amplified" scenario; edge over BaizScore was only
+        # clear at the 90+ tier on a thin sample — see assets/baizscore_backtest.html)
+        df["BaizMomentum"] = (
+            0.40 * rs_norm +
+            0.35 * df["MomentumScore"] +
+            0.15 * df["BreakoutScore"] +
+            0.05 * df["TrendScore"] +
+            0.05 * vp_norm
+        ).round().clip(0, 100).astype(int)
+
     if "VolumeChange1D" in df.columns:
         df = df.sort_values("VolumeChange1D", ascending=False)
 

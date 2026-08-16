@@ -310,6 +310,9 @@
     th.col-turn { color: #60a5fa; border-right: 1px solid rgba(96,165,250,0.2); }
     th.col-turn:hover { color: #93c5fd; }
     td.col-turn { font-weight: 700; border-right: 1px solid rgba(96,165,250,0.12); }
+    th.col-mom { color: #c084fc; border-right: 1px solid rgba(192,132,252,0.2); }
+    th.col-mom:hover { color: #d8b4fe; }
+    td.col-mom { font-weight: 700; border-right: 1px solid rgba(192,132,252,0.12); }
     td.group-start { border-left: 2px solid rgba(59,130,246,0.1); }
 
     /* ── INFO PANEL ── */
@@ -1358,6 +1361,7 @@
           ${thStatic("Spark1Y",       "1Y Trend")}
           ${thSort("BaizScore",        "Baizora", "col-baiz")}
           ${thSort("TurnScore",        "Turn",    "col-turn")}
+          ${thSort("BaizMomentum",    "Momentum+", "col-mom")}
           ${thSort("RSScore",         "RS")}
           ${thSort("BreakoutScore",   "Breakout")}
           ${thSort("MomentumScore",   "Momentum")}
@@ -1375,6 +1379,7 @@
             <td class="spark-cell">${sparkSVG}</td>
             <td class="col-baiz ${scoreClass(r.BaizScore, 50)}">${r.BaizScore ?? "—"}</td>
             ${(t => `<td class="col-turn ${t.cls}">${t.html}</td>`)(turnFmt(r.TurnScore))}
+            <td class="col-mom ${scoreClass(r.BaizMomentum, 50)}">${r.BaizMomentum ?? "—"}</td>
             <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
             <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
             <td class="${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</td>
@@ -1545,6 +1550,7 @@
           statsHTML = `
             <div class="card-row"><span class="card-label" style="color:#f59e0b;">Baizora</span><span class="card-val ${scoreClass(r.BaizScore, 50)}" style="font-weight:700;">${r.BaizScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label" style="color:#60a5fa;">Turn</span><span class="card-val ${turnFmt(r.TurnScore).cls}" style="font-weight:700;">${turnFmt(r.TurnScore).html}</span></div>
+            <div class="card-row"><span class="card-label" style="color:#c084fc;">Momentum+</span><span class="card-val ${scoreClass(r.BaizMomentum, 50)}" style="font-weight:700;">${r.BaizMomentum ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">RS</span><span class="card-val ${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">Breakout</span><span class="card-val ${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">Momentum</span><span class="card-val ${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</span></div>
@@ -1666,6 +1672,7 @@
       "Sector":          { label: "Sector",        desc: "GICS sector classification." },
       "BaizScore":       { label: "Baizora",        desc: "Baizora Score (0–100). A weighted composite of all five signals: RS 30% + Momentum 25% + Breakout 20% + Trend 15% + Vol Pressure 10%. Use it as a quick-glance ranking — green (>50) = above-average across the board, red (<50) = below-average. Sort by this column to surface the strongest setups." },
       "TurnScore":       { label: "Turn",           desc: "Turn Score (0–100). Identifies stocks potentially turning from weak to strong. Formula: Breakout × (1 − RS/100) × VolPressure. ▲ 50+ = strong early-turn signal (green). → 25–49 = emerging signal worth watching (amber). Below 25 = no meaningful reversal signal (red). Drops to 0 when volume pressure is negative — no buying confirmation." },
+      "BaizMomentum":    { label: "Momentum+",      desc: "BaizMomentum (0–100). An alternate composite weighted more toward trend/momentum: RS 40% + Momentum 35% + Breakout 15% + Trend 5% + Vol Pressure 5%. In an August 2026 historical backtest this weighting showed an edge over the standard Baizora Score specifically among the very highest scorers (90+), on a thinner sample than the main score — a second lens, not a proven replacement. Not investment advice." },
       "RSScore":         { label: "RS",            desc: "Relative Strength (1–99). How this stock's recent price performance compares to all 500+ peers. Green (>50) = outperforming the field; red (<50) = underperforming. 99 = top 1% strongest, 1 = weakest." },
       "BreakoutScore":   { label: "Breakout",      desc: "Breakout Score (0–100). Measures today's breakout intensity: price above 21-day average + today's price gain + volume spike — all combined. Green (>50) = active breakout signal. 100 = all three signals firing at once." },
       "MomentumScore":   { label: "Momentum",      desc: "Momentum Score (0–100). Ranks how consistently this stock has been rising across 1M, 3M, 6M, and 1Y. Green (>50) = stronger than most peers across multiple timeframes. 100 = top momentum in the universe." },
