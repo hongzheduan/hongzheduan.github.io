@@ -1357,7 +1357,7 @@
           ${thSort("BaizScore",        reportLink("贝佐拉评分"), "col-baiz")}
           ${thSort("TurnScore",        "转势",       "col-turn")}
           ${thSort("BaizMomentum",    reportLink("动能+"),      "col-mom")}
-          ${thSort("BaizConviction",  "信心指数",    "col-conv")}
+          ${thSort("BaizConviction",  reportLink("信心指数"), "col-conv")}
         </tr></thead>`;
         const rows = arr.slice(0, 600).map(r => {
           const sparkSVG = renderSparkline(
@@ -1546,7 +1546,7 @@
             <div class="card-row"><span class="card-label" style="color:#f59e0b;">${reportLink("贝佐拉")}</span><span class="card-val ${scoreClass(r.BaizScore, 50)}" style="font-weight:700;">${r.BaizScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label" style="color:#60a5fa;">转势</span><span class="card-val ${turnFmt(r.TurnScore).cls}" style="font-weight:700;">${turnFmt(r.TurnScore).html}</span></div>
             <div class="card-row"><span class="card-label" style="color:#c084fc;">${reportLink("动能+")}</span><span class="card-val ${scoreClass(r.BaizMomentum, 50)}" style="font-weight:700;">${r.BaizMomentum ?? "—"}</span></div>
-            <div class="card-row"><span class="card-label" style="color:#2dd4bf;">信心指数</span><span class="card-val ${scoreClass(r.BaizConviction, 50)}" style="font-weight:700;">${r.BaizConviction ?? "—"}</span></div>`;
+            <div class="card-row"><span class="card-label" style="color:#2dd4bf;">${reportLink("信心指数")}</span><span class="card-val ${scoreClass(r.BaizConviction, 50)}" style="font-weight:700;">${r.BaizConviction ?? "—"}</span></div>`;
         } else if (w === "FUND") {
           const pe    = r.PE;
           const eps   = r.EPS;
