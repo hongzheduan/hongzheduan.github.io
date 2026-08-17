@@ -2618,11 +2618,6 @@ def scan():
             0.10 * vp_norm
         ).round().clip(0, 100).astype(int)
 
-        vp_turn = ((df["VolPressureScore"] + 100) / 200).clip(lower=0)
-        df["TurnScore"] = (
-            df["BreakoutScore"] * (1 - df["RSScore"] / 100) * vp_turn
-        ).round().clip(0, 100).astype(int)
-
         # BaizMomentum — alternate composite weighted toward RS/Momentum (backtested
         # 2026-08 as the "momentum_amplified" scenario; edge over BaizScore was only
         # clear at the 90+ tier on a thin sample — see assets/baizscore_backtest.html)

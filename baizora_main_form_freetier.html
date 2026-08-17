@@ -312,9 +312,6 @@
     th.col-baiz { color: var(--gold); border-right: 1px solid rgba(245,158,11,0.2); }
     th.col-baiz:hover { color: var(--gold-light); }
     td.col-baiz { font-weight: 700; border-right: 1px solid rgba(245,158,11,0.12); }
-    th.col-turn { color: #60a5fa; border-right: 1px solid rgba(96,165,250,0.2); }
-    th.col-turn:hover { color: #93c5fd; }
-    td.col-turn { font-weight: 700; border-right: 1px solid rgba(96,165,250,0.12); }
     th.col-mom { color: #c084fc; border-right: 1px solid rgba(192,132,252,0.2); }
     th.col-mom:hover { color: #d8b4fe; }
     td.col-mom { font-weight: 700; border-right: 1px solid rgba(192,132,252,0.12); }
@@ -976,12 +973,11 @@
           </table>
 
           <div class="readme-label" style="margin-top:28px;">◈ &nbsp; Baizora Scores (BAIZORA Tab)</div>
-          <p>The Baizora composite-score family — each one blends the five raw signals below into a single 0–100 ranking, with a different emphasis. All are recalculated after every market close, and scores above 50 are highlighted green, below 50 red (Turn uses 50/25 thresholds instead). This tab will grow as new variants are added.</p>
+          <p>The Baizora composite-score family — each one blends the five raw signals below into a single 0–100 ranking, with a different emphasis. All are recalculated after every market close, and scores above 50 are highlighted green, below 50 red. This tab will grow as new variants are added.</p>
           <table class="col-table">
             <colgroup><col style="width:160px"><col></colgroup>
             <tr><th>Score</th><th>Calculation &amp; Interpretation</th></tr>
             <tr><td>Baizora (0–100)</td><td>The original weighted composite: <strong>RS 30% + Momentum 25% + Breakout 20% + Trend 15% + Vol Pressure 10%</strong>. Quick-glance overall ranking. Sort descending to surface the strongest broad setups. <a href="assets/baizscore_backtest.html" target="_blank" rel="noopener">See the backtest ↗</a></td></tr>
-            <tr><td>Turn (0–100)</td><td>Weak-to-strong reversal signal: <strong>Breakout × (1 − RS/100) × VolPressure</strong>. Peaks when a historically weak stock (low RS) shows strong recent breakout action backed by buying volume. ▲ 50+ = strong signal; → 25–49 = emerging; below 25 = no signal. Drops to 0 when volume pressure is negative.</td></tr>
             <tr><td>Momentum+ (0–100)</td><td>Alternate composite weighted toward trend/momentum: <strong>RS 40% + Momentum 35% + Breakout 15% + Trend 5% + Vol Pressure 5%</strong>. Backtested edge over Baizora is clearest among the very highest scorers (90+), on a thinner sample. <a href="assets/baizscore_backtest.html" target="_blank" rel="noopener">See the backtest ↗</a></td></tr>
             <tr><td>Persist (0–100)</td><td>This stock's own trailing 21-session (~1 month) average Baizora score — a smoothed read on recent strength, not just today's snapshot. Feeds directly into Conviction below. Blank until ~1 month of history has accumulated. <a href="assets/baizscore_backtest.html" target="_blank" rel="noopener">See the backtest ↗</a></td></tr>
             <tr><td>Conviction (0–100)</td><td>Geometric mean of today's Baizora score and this stock's own trailing 1-month average Baizora score — only high when a stock is both strong <em>right now</em> and has been strong <em>consistently</em>, not just a single spike day. Blank until ~1 month of history has accumulated for that ticker.</td></tr>
@@ -1218,14 +1214,6 @@
       if (isNaN(n)) return "neutral";
       return n > mid ? "positive" : n < mid ? "negative" : "neutral";
     }
-    function turnFmt(v) {
-      const n = parseFloat(v);
-      if (isNaN(n)) return { cls: "neutral", html: "—" };
-      if (n >= 50) return { cls: "positive", html: `<span style="font-size:9px;margin-right:2px;">▲</span>${n}` };
-      if (n >= 25) return { cls: "neutral",  html: `<span style="color:#f59e0b;font-size:9px;margin-right:2px;">→</span>${n}` };
-      return { cls: "negative", html: String(n) };
-    }
-
     function arrow(key) {
       if (sortKey !== key) return `<span class="sort-arrow"> ↕</span>`;
       return `<span class="sort-arrow">${sortAsc ? " ↑" : " ↓"}</span>`;
@@ -1352,7 +1340,6 @@
           ${thSort("Ticker",          "Ticker")}
           ${thStatic("Spark1Y",       "1Y Trend")}
           ${thSort("BaizScore",        reportLink("Baizora"), "col-baiz")}
-          ${thSort("TurnScore",        "Turn",    "col-turn")}
           ${thSort("BaizMomentum",    reportLink("Momentum+"), "col-mom")}
           ${thSort("BaizPersist",  reportLink("Persist"), "col-persist")}
           ${thSort("BaizConviction",  reportLink("Conviction"), "col-conv")}
@@ -1367,7 +1354,6 @@
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="col-baiz ${scoreClass(r.BaizScore, 50)}">${r.BaizScore ?? "—"}</td>
-            ${(t => `<td class="col-turn ${t.cls}">${t.html}</td>`)(turnFmt(r.TurnScore))}
             <td class="col-mom ${scoreClass(r.BaizMomentum, 50)}">${r.BaizMomentum ?? "—"}</td>
             <td class="col-persist ${scoreClass(r.BaizPersist, 50)}">${r.BaizPersist ?? "—"}</td>
             <td class="col-conv ${scoreClass(r.BaizConviction, 50)}">${r.BaizConviction ?? "—"}</td>
@@ -1543,7 +1529,6 @@
           priceChgDisplay = `<span class="card-chg card-live-chg ${colorClass(pc1)}" data-ticker="${r.Ticker}">${fmtP(pc1)}</span>`;
           statsHTML = `
             <div class="card-row"><span class="card-label" style="color:#f59e0b;">${reportLink("Baizora")}</span><span class="card-val ${scoreClass(r.BaizScore, 50)}" style="font-weight:700;">${r.BaizScore ?? "—"}</span></div>
-            <div class="card-row"><span class="card-label" style="color:#60a5fa;">Turn</span><span class="card-val ${turnFmt(r.TurnScore).cls}" style="font-weight:700;">${turnFmt(r.TurnScore).html}</span></div>
             <div class="card-row"><span class="card-label" style="color:#c084fc;">${reportLink("Momentum+")}</span><span class="card-val ${scoreClass(r.BaizMomentum, 50)}" style="font-weight:700;">${r.BaizMomentum ?? "—"}</span></div>
             <div class="card-row"><span class="card-label" style="color:#f472b6;">${reportLink("Persist")}</span><span class="card-val ${scoreClass(r.BaizPersist, 50)}" style="font-weight:700;">${r.BaizPersist ?? "—"}</span></div>
             <div class="card-row"><span class="card-label" style="color:#2dd4bf;">${reportLink("Conviction")}</span><span class="card-val ${scoreClass(r.BaizConviction, 50)}" style="font-weight:700;">${r.BaizConviction ?? "—"}</span></div>`;
@@ -1658,7 +1643,6 @@
       "PE_vs_Sector":    { label: "PE vs Sector",  desc: "This stock's P/E relative to its sector average, expressed as a percentage. Positive = trading at a premium to sector peers; negative = discount. Sector average is calculated from S&P 500 and Nasdaq-100 members only." },
       "Sector":          { label: "Sector",        desc: "GICS sector classification." },
       "BaizScore":       { label: "Baizora",        desc: "Baizora Score (0–100). A weighted composite of all five signals: RS 30% + Momentum 25% + Breakout 20% + Trend 15% + Vol Pressure 10%. Use it as a quick-glance ranking — green (>50) = above-average across the board, red (<50) = below-average. Sort by this column to surface the strongest setups. Backtesting shows this is a much stronger signal on the upside than the downside — a low score means the stock isn't showing strength, not that it's predicted to decline. See the backtest for details." },
-      "TurnScore":       { label: "Turn",           desc: "Turn Score (0–100). Identifies stocks potentially turning from weak to strong. Formula: Breakout × (1 − RS/100) × VolPressure. ▲ 50+ = strong early-turn signal (green). → 25–49 = emerging signal worth watching (amber). Below 25 = no meaningful reversal signal (red). Drops to 0 when volume pressure is negative — no buying confirmation." },
       "BaizMomentum":    { label: "Momentum+",      desc: "BaizMomentum (0–100). An alternate composite weighted more toward trend/momentum: RS 40% + Momentum 35% + Breakout 15% + Trend 5% + Vol Pressure 5%. In an August 2026 historical backtest this weighting showed an edge over the standard Baizora Score specifically among the very highest scorers (90+), on a thinner sample than the main score — a second lens, not a proven replacement. Like Baizora Score, a low reading here means absent strength, not predicted decline. Not investment advice." },
       "BaizPersist":     { label: "Persist",        desc: "BaizPersist (0–100). This stock's own trailing 21-session (~1 month) average Baizora Score — a smoothed read on how strong it's been recently, not just today's snapshot. Feeds directly into the Conviction column. Blank until a ticker has ~1 month of score history on file." },
       "BaizConviction":  { label: "Conviction",     desc: "BaizConviction (0–100). Combines today's Baizora Score with the Persist column (this stock's own trailing 1-month average Baizora Score) via a geometric mean, so it's only high when a stock is both strong right now AND has been consistently strong recently — a single spike day won't score high here. Backtested 2026-08 to outperform the plain Baizora Score at matched sample sizes. Blank until a ticker has ~1 month of score history on file. Like the other Baizora scores, this measures presence of strength, not presence of weakness — a low reading isn't a decline signal. Not investment advice." },
