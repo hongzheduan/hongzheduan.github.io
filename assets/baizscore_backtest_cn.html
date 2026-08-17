@@ -45,7 +45,14 @@
     .mobile-drawer a{display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);}
     .mobile-drawer a:last-child{border-bottom:none;}
 
+    .wrapper{position:relative;z-index:10;display:grid;grid-template-columns:190px 1fr;max-width:1040px;margin:0 auto;padding:56px 32px 100px;gap:44px;}
+    .toc{position:sticky;top:76px;align-self:start;}
+    .toc-title{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:#64748b;margin-bottom:12px;}
+    .toc a{display:block;font-family:'DM Sans',sans-serif;font-size:12.5px;color:#94a3b8;text-decoration:none;padding:5px 0 5px 11px;border-left:2px solid rgba(255,255,255,0.08);transition:all 0.15s;line-height:1.4;}
+    .toc a:hover{color:var(--electric-bright);border-left-color:var(--electric);}
+    .toc a.toc-sub{padding-left:20px;font-size:11.5px;color:#64748b;}
     .container{position:relative;z-index:10;max-width:880px;margin:0 auto;padding:64px 32px 100px;}
+    @media(max-width:900px){.wrapper{grid-template-columns:1fr;max-width:880px;} .toc{display:none;}}
     .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);border:1px solid rgba(59,130,246,0.25);background:rgba(59,130,246,0.06);padding:6px 14px;border-radius:999px;margin-bottom:20px;}
     h1{font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,38px);line-height:1.3;letter-spacing:-0.01em;color:var(--white);margin-bottom:10px;}
     .title-sub{font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.08em;color:#f87171;margin-bottom:28px;}
@@ -157,9 +164,22 @@
   <a href="../index_cn.html">首页</a>
 </div>
 
-<div class="container">
+<div class="wrapper">
+  <nav class="toc">
+    <div class="toc-title">目录</div>
+    <a href="#overview">概述</a>
+    <a href="#limitations">局限性</a>
+    <a href="#baizora-score">贝佐拉评分</a>
+    <a class="toc-sub" href="#baizora-score-up">上行（70/80/90）</a>
+    <a class="toc-sub" href="#baizora-score-down">下行（≤10/20/30）</a>
+    <a href="#baizmomentum">动能+评分</a>
+    <a href="#baizconviction">信心指数</a>
+    <a href="#weighting">权重对比</a>
+    <a href="#conclusion">结论</a>
+  </nav>
+  <div class="container" style="padding:0;max-width:none;">
   <div class="eyebrow">◈ &nbsp; 数据与方法论</div>
-  <h1>贝佐拉评分：历史回测</h1>
+  <h1 id="overview">贝佐拉评分：历史回测</h1>
   <div class="title-sub">假设性回测数据 · 非真实业绩记录 · 非投资建议</div>
 
   <div class="disclaimer">
@@ -197,7 +217,7 @@ RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名�
 
   <div class="divider"></div>
 
-  <div class="section-label">03 — 不同评分阈值下的后续实际涨跌幅</div>
+  <div class="section-label" id="baizora-score">03 — 不同评分阈值下的后续实际涨跌幅</div>
   <h2>回测结果</h2>
   <p>下图比较了各阈值下"评分达到或超过该水平"的股票-交易日，其后续价格变化的中位数，与同一时间窗口内的基准（所有可评分交易日，不限评分高低）进行对比。采用中位数而非均值的原因与下方局限性说明中提到的右偏分布一致——每张图下方的说明文字同时给出均值供参考。
   <strong>本页所有柱状图——无论上行还是下行——均采用同一0–40%的比例尺</strong>，因此柱长在各图之间可以直接比较，而不仅限于单张图内部。</p>
@@ -207,7 +227,7 @@ RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名�
     <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#22c55e;"></span>达到/超过阈值（中位数）</div>
   </div>
 
-  <h3>评分 ≥ 70（44,072条观测，占样本11.6%）</h3>
+  <h3 id="baizora-score-up">评分 ≥ 70（44,072条观测，占样本11.6%）</h3>
   <div class="gbar-chart">
     <div class="gbar-group"><div class="gbar-group-label">1个月</div>
       <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:3.2%;"></div></div><div class="gbar-item-val">+1.26%</div></div>
@@ -285,7 +305,7 @@ RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名�
 
   <div class="divider"></div>
 
-  <div class="section-label">03b — 低评分能否预测下跌？</div>
+  <div class="section-label" id="baizora-score-down">03b — 低评分能否预测下跌？</div>
   <h2>该评分并非对称信号</h2>
   <p>以上内容测试的都是上行方向：<em>高</em>评分是否预示更强的后续涨幅？我们用完全相同的方法反向测试了一遍：
   <em>低</em>评分（≤10 / ≤20 / ≤30）是否预示<em>弱于平均或下跌</em>的后续走势——同时给出胜率与亏损率。</p>
@@ -397,7 +417,78 @@ RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名�
 
   <div class="divider"></div>
 
-  <div class="section-label">04 — 测试不同权重组合</div>
+  <div class="section-label" id="baizmomentum">03c — 动能+评分（BaizMomentum）— 结果</div>
+  <h2>动能强化权重是否真的有帮助？</h2>
+  <p><code class="mono">动能+</code>（BaizMomentum）是上线的第二项评分，采用另一套权重——
+  <strong>RS 40% / 动能 35% / 突破 15% / 趋势 5% / 量压 5%</strong>——比默认贝佐拉评分权重（30/25/20/15/10）更偏重趋势跟随。
+  它使用的是看板上已有的同一批分项评分，只是权重比例不同。下图比较两个评分各自在自己的≥70/≥80/≥90阈值下的12个月中位数超额——
+  该权重方案的完整筛选过程见下方<a href="#weighting" style="color:#93c5fd;">权重对比</a>一节。</p>
+
+  <div class="gbar-legend">
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#3987e5;"></span>贝佐拉评分（中位数超额）</div>
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#22c55e;"></span>动能+评分（中位数超额）</div>
+  </div>
+
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">≥70档</div>
+      <div class="gbar-item"><div class="gbar-item-label">贝佐拉评分</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:19.5%;"></div></div><div class="gbar-item-val">+7.8pp</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">动能+</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:17.5%;"></div></div><div class="gbar-item-val">+7.0pp</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">≥80档</div>
+      <div class="gbar-item"><div class="gbar-item-label">贝佐拉评分</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:42.5%;"></div></div><div class="gbar-item-val">+17.0pp</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">动能+</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:41.3%;"></div></div><div class="gbar-item-val">+16.5pp</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">≥90档</div>
+      <div class="gbar-item"><div class="gbar-item-label">贝佐拉评分</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:57.0%;"></div></div><div class="gbar-item-val">+22.8pp</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">动能+</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:72.0%;"></div></div><div class="gbar-item-val">+28.8pp</div></div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">样本量(贝佐拉评分/动能+)——≥70档：28,702 / 46,124 · ≥80档：4,213 / 15,054 · ≥90档：590 / 910。超额 = 该分档12个月后续中位数涨幅减去同一时间窗口的基准中位数。</p>
+
+  <div class="card">
+    <p><strong>诚实的结论是：优势只在样本最薄的档位才明显。</strong> 在≥70与≥80档，动能+与贝佐拉评分基本打平——两档均略微落后。
+    在≥90档，动能+确实领先较多（+28.8pp vs. +22.8pp），但这一对比的样本量双方都不足1,000条。
+    请将动能+视为针对最高确信度标的的补充视角，而非对贝佐拉评分的全面升级。</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label" id="baizconviction">03d — 信心指数（BaizConviction）— 结果</div>
+  <h2>奖励"持续强势"而非仅看当天分数，是否有帮助？</h2>
+  <p><code class="mono">信心指数</code>（BaizConviction）= <code class="mono">round(sqrt(贝佐拉评分 × 贝佐拉持续度))</code>，
+  其中<code class="mono">贝佐拉持续度</code>（BaizPersist）是该股票自身贝佐拉评分的过去21个交易日（约1个月）滚动平均值。
+  其设计目的是奖励那些<em>今天</em>表现强势、且<em>近期</em>持续保持强势的股票，而非单日突然冲高——两者都要等该股票积累满一个月的历史数据后才有值。
+  由于信心指数没有天然对应的≥70/≥80/≥90分界线，我们改用<strong>样本量匹配</strong>的方式与贝佐拉评分对比：
+  针对贝佐拉评分的每个阈值，为信心指数选取一个使两组样本量（几乎）完全相等的分界线——这是在样本大小完全一致的前提下，比较"用不同方式定义的同等规模分组"表现是否更好。</p>
+
+  <div class="gbar-legend">
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#3987e5;"></span>贝佐拉评分（中位数超额）</div>
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#22c55e;"></span>信心指数（中位数超额）</div>
+  </div>
+
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">样本量匹配至≥70档（N≈41,000）</div>
+      <div class="gbar-item"><div class="gbar-item-label">贝佐拉评分</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:19.3%;"></div></div><div class="gbar-item-val">+7.7pp</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">信心指数</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:23.3%;"></div></div><div class="gbar-item-val">+9.3pp</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">样本量匹配至≥80档（N≈6,600）</div>
+      <div class="gbar-item"><div class="gbar-item-label">贝佐拉评分</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:40.4%;"></div></div><div class="gbar-item-val">+16.2pp</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">信心指数</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:60.3%;"></div></div><div class="gbar-item-val">+24.1pp</div></div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">12个月中位数超额，样本量匹配分组。此次运算将样本限定为拥有完整21个交易日持续度历史的记录（348,311条，占原始380,044条的一部分），因此本节中贝佐拉评分自身的数字与第03节的主要数字略有差异——两个评分都在完全相同的限定样本上重新计算，以保证对比公平。</p>
+
+  <p style="font-size:12.5px;color:#64748b;">与第03节线性度检验相同方法的分位数检验显示，信心指数的形态与贝佐拉评分高度相似：在6个月与9个月周期，10个分位区间中有8个呈递增（8/9）；在12个月周期的最低分位同样出现此前提到的部分回转——这是一种真实但并非完全线性的关系，并非该评分特有的缺陷。</p>
+
+  <div class="card">
+    <p><strong>诚实的结论是：在样本量匹配的前提下，信心指数确实优于纯贝佐拉评分。</strong> 相同的样本规模、相同的周期、相同的方法——
+    信心指数在两个测试档位上12个月中位数超额均明显更大（≥70档等效规模下+9.3pp vs. +7.7pp；≥80档等效规模下+24.1pp vs. +16.2pp）。
+    这是本页唯一一项按样本量而非仅按阈值控制的评分对比——但仍然只是一次回测、一个市场周期，不保证未来同样成立。</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label" id="weighting">04 — 测试不同权重组合</div>
   <h2>现行权重与其他方案的对比</h2>
   <p>我们用同样的分项评分数据，重新组合出另外五种权重方案，并放入与上文完全相同的回测流程中。这项测试只是在检验"权重设置是否重要"，而不是在检验"评分是否有效"——上文提到的市场环境依赖与小样本注意事项，在这里同样适用。</p>
 
@@ -443,12 +534,21 @@ RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名�
   </div>
 
   <div class="card" style="border-color:rgba(192,132,252,0.25);">
-    <p><strong>更新 — 2026-08-16：</strong>上文讨论的"动能强化"权重方案，现已作为第二项评分
-    <strong style="color:#c084fc;">贝佐拉动能+</strong>（BaizMomentum）上线到正式看板（评分标签页，紧邻贝佐拉评分与转势评分）。
-    它是一个补充视角，而非替代方案——上述数据仅在样本最薄的90分档明确显示出优势，且与本页其余内容适用同样的局限性说明。</p>
+    <p>上文的动能强化权重方案，正是上线到正式看板的<strong style="color:#c084fc;">动能+</strong>（BaizMomentum）评分——
+    完整对比详见<a href="#baizmomentum" style="color:#c084fc;">上方的结果一节</a>。</p>
   </div>
 
   <div class="divider"></div>
+
+  <div class="section-label" id="conclusion">05 — 结论</div>
+  <h2>贝佐拉评分家族目前的整体情况</h2>
+  <p>本页所有测试——原始阈值、持续度、替代权重、以及两项衍生评分——都呈现出同样的形态：
+  <strong>持续保持高分与优于基准的后续表现相关，且该效应集中体现在"持续强势"而非"单日突破"，同时该效应并不对称</strong>——
+  低分是一个微弱且不可靠的下行信号，并非上行信号的镜像。<code class="mono">动能+</code>与<code class="mono">信心指数</code>
+  是基于同一套底层数据提供的补充视角，而非对<code class="mono">贝佐拉评分</code>的替代；其中信心指数是唯一一项在样本量匹配对比
+  （而非仅按阈值对比）下明确优于纯贝佐拉评分的衍生评分。</p>
+  <p>以上均非保证。页面中的每一个数字都来自同一次回测、同一段持续牛市区间、经过存续偏差调整的历史数据——
+  在得出任何结论前，请先阅读<a href="#limitations" style="color:#93c5fd;">局限性</a>部分的完整说明。</p>
 
   <p style="font-size:12.5px;color:#64748b;line-height:1.9;">
     本次回测于2026年8月完成，仅针对单一历史区间运行一次，尚未经过独立复核或在其他区间重新验证。本页内容不构成对任何证券的投资建议或推荐。完整条款请参见<a href="disclaimer_cn.html" style="color:#93c5fd;">免责声明</a>。
@@ -459,6 +559,7 @@ RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名�
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       返回首页
     </a>
+  </div>
   </div>
 </div>
 

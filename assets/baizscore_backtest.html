@@ -182,7 +182,7 @@
   </nav>
   <div class="container" style="padding:0;max-width:none;">
   <div class="eyebrow">◈ &nbsp; Data &amp; Methodology</div>
-  <h1>Baizora Score: A Historical Backtest</h1>
+  <h1 id="overview">Baizora Score: A Historical Backtest</h1>
   <div class="title-sub">Hypothetical &amp; Backtested Data · Not A Live Track Record · Not Investment Advice</div>
 
   <div class="disclaimer">
@@ -241,7 +241,7 @@ Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensi
 
   <div class="divider"></div>
 
-  <div class="section-label">03 — Observed Forward Returns by Score Threshold</div>
+  <div class="section-label" id="baizora-score">03 — Observed Forward Returns by Score Threshold</div>
   <h2>What the backtest showed</h2>
   <p>For each threshold, the chart compares the median subsequent price change for ticker-days that scored at
   or above that level against the baseline (every scoreable day, any score) over the same window. Median, not
@@ -254,7 +254,7 @@ Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensi
     <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#22c55e;"></span>Score at/above threshold (median)</div>
   </div>
 
-  <h3>Score ≥ 70 (44,072 observations, 11.6% of the sample)</h3>
+  <h3 id="baizora-score-up">Score ≥ 70 (44,072 observations, 11.6% of the sample)</h3>
   <div class="gbar-chart">
     <div class="gbar-group"><div class="gbar-group-label">1 month</div>
       <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:3.2%;"></div></div><div class="gbar-item-val">+1.26%</div></div>
@@ -331,7 +331,7 @@ Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensi
 
   <div class="divider"></div>
 
-  <div class="section-label">03b — Does a Low Score Predict Decline?</div>
+  <div class="section-label" id="baizora-score-down">03b — Does a Low Score Predict Decline?</div>
   <h2>The score is not symmetric</h2>
   <p>Everything above tests the upside: does a <em>high</em> score precede stronger-than-average returns? The
   same question was run in reverse — does a <em>low</em> score (≤10 / ≤20 / ≤30) precede <em>weaker-than-average
@@ -450,7 +450,86 @@ Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensi
 
   <div class="divider"></div>
 
-  <div class="section-label">04 — Testing Alternate Weightings</div>
+  <div class="section-label" id="baizmomentum">03c — BaizMomentum — Results</div>
+  <h2>Does the momentum-amplified weighting help?</h2>
+  <p><code class="mono">BaizMomentum</code> is a second live score using an alternate weighting —
+  <strong>40% RS / 35% Momentum / 15% Breakout / 5% Trend / 5% Volume Pressure</strong> — that leans harder into
+  trend-following than the default BaizScore weighting (30/25/20/15/10). It comes from the same component
+  scores already on the dashboard; only the mix changes. The chart below compares each score's own 12-month
+  median edge over baseline, at its own ≥70 / ≥80 / ≥90 threshold — full detail on how this weighting was chosen
+  is in <a href="#weighting" style="color:#93c5fd;">Weighting Comparison</a> below.</p>
+
+  <div class="gbar-legend">
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#3987e5;"></span>BaizScore (median edge)</div>
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#22c55e;"></span>BaizMomentum (median edge)</div>
+  </div>
+
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">≥70-tier</div>
+      <div class="gbar-item"><div class="gbar-item-label">BaizScore</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:19.5%;"></div></div><div class="gbar-item-val">+7.8pp</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">Momentum+</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:17.5%;"></div></div><div class="gbar-item-val">+7.0pp</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">≥80-tier</div>
+      <div class="gbar-item"><div class="gbar-item-label">BaizScore</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:42.5%;"></div></div><div class="gbar-item-val">+17.0pp</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">Momentum+</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:41.3%;"></div></div><div class="gbar-item-val">+16.5pp</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">≥90-tier</div>
+      <div class="gbar-item"><div class="gbar-item-label">BaizScore</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:57.0%;"></div></div><div class="gbar-item-val">+22.8pp</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">Momentum+</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:72.0%;"></div></div><div class="gbar-item-val">+28.8pp</div></div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">N (BaizScore/BaizMomentum) — ≥70-tier: 28,702 / 46,124 · ≥80-tier: 4,213 / 15,054 · ≥90-tier: 590 / 910. Edge = median 12-month forward return for that bucket minus the same-window baseline median.</p>
+
+  <div class="card">
+    <p><strong>Honest read: the edge only shows up clearly at the thinnest tier.</strong> At ≥70 and ≥80,
+    BaizMomentum is essentially tied with BaizScore — narrowly behind at both. At ≥90 it's ahead by a real
+    margin (+28.8pp vs. +22.8pp), but that comparison rests on under 1,000 observations either way. Treat
+    BaizMomentum as an alternate lens for the highest-conviction names, not a strict upgrade over BaizScore.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label" id="baizconviction">03d — BaizConviction — Results</div>
+  <h2>Does rewarding consistency, not just today's score, help?</h2>
+  <p><code class="mono">BaizConviction</code> = <code class="mono">round(sqrt(BaizScore × BaizPersist))</code>,
+  where <code class="mono">BaizPersist</code> is a ticker's own trailing 21-session (~1 month) average BaizScore.
+  It's designed to reward stocks that are both strong <em>today</em> and have been consistently strong
+  <em>recently</em>, rather than a single-day spike — both are null until a ticker has a month of history.
+  Because BaizConviction has no natural ≥70/≥80/≥90 cutoffs of its own, it's compared against BaizScore at
+  <strong>matched sample size</strong>: for every BaizScore threshold, the BaizConviction cutoff was chosen so
+  both buckets contain (almost) exactly the same number of observations — an apples-to-apples test of whether
+  the same-size bucket, defined differently, performs better.</p>
+
+  <div class="gbar-legend">
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#3987e5;"></span>BaizScore (median edge)</div>
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#22c55e;"></span>BaizConviction (median edge)</div>
+  </div>
+
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">N-matched to ≥70 (N≈41,000)</div>
+      <div class="gbar-item"><div class="gbar-item-label">BaizScore</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:19.3%;"></div></div><div class="gbar-item-val">+7.7pp</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">Conviction</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:23.3%;"></div></div><div class="gbar-item-val">+9.3pp</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">N-matched to ≥80 (N≈6,600)</div>
+      <div class="gbar-item"><div class="gbar-item-label">BaizScore</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:40.4%;"></div></div><div class="gbar-item-val">+16.2pp</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">Conviction</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:60.3%;"></div></div><div class="gbar-item-val">+24.1pp</div></div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">12-month median edge, N-matched buckets. This run restricted the sample to observations with a full 21-session persistence history (348,311 of the original 380,044), so BaizScore's own figures here differ slightly from Section 03's headline numbers — both scores were recomputed on the identical restricted sample so the comparison is fair.</p>
+
+  <p style="font-size:12.5px;color:#64748b;">A decile check (same method as the linearity question in Section 03) shows BaizConviction's shape closely tracks BaizScore's: mostly increasing through the upper deciles (8 of 9 decile-steps increasing at the 6- and 9-month horizons), with the same partial reversal in the lowest deciles at 12 months noted earlier — a real but not perfectly linear relationship, not a flaw specific to this score.</p>
+
+  <div class="card">
+    <p><strong>Honest read: at matched sample size, BaizConviction beats plain BaizScore.</strong> Same bucket
+    size, same horizon, same methodology — BaizConviction's 12-month median edge is meaningfully larger at both
+    tiers tested (+9.3pp vs. +7.7pp at the ≥70-equivalent size; +24.1pp vs. +16.2pp at the ≥80-equivalent size).
+    That's the one score-vs-score comparison on this page controlled for sample size rather than just threshold
+    — still one backtest, one market regime, and not a guarantee it holds going forward.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label" id="weighting">04 — Testing Alternate Weightings</div>
   <h2>How the current weighting compares</h2>
   <p>Five other weighting schemes were recombined from the same underlying component scores and run through
   the identical backtest above. This tests whether the specific weighting matters, not whether the score
@@ -506,14 +585,26 @@ Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensi
   </div>
 
   <div class="card" style="border-color:rgba(192,132,252,0.25);">
-    <p><strong>Update — 2026-08-16:</strong> the momentum-amplified weighting discussed above has since been
-    added to the live dashboard as a second score, <strong style="color:#c084fc;">BaizMomentum</strong> (Scores
-    tab, next to Baizora and Turn). It's offered as an alternate lens, not a replacement — the evidence above
-    only clearly favors it at the thinnest-sampled 90+ tier, and it carries the exact same caveats as everything
-    else on this page.</p>
+    <p>The momentum-amplified weighting above is what shipped to the live dashboard as
+    <strong style="color:#c084fc;">BaizMomentum</strong> — see <a href="#baizmomentum" style="color:#c084fc;">its
+    results section above</a> for the full comparison against BaizScore.</p>
   </div>
 
   <div class="divider"></div>
+
+  <div class="section-label" id="conclusion">05 — Conclusion</div>
+  <h2>Where this leaves the Baizora Score family</h2>
+  <p>Across every test on this page — raw thresholds, persistence, alternate weightings, and the two derived
+  scores — the same shape holds: <strong>a sustained high score is associated with stronger subsequent returns
+  than baseline, the effect is concentrated in sustained strength rather than a single day's crossing, and the
+  effect is asymmetric</strong> — a low score is a weak, unreliable signal for decline, not a mirror image of the
+  upside signal. <code class="mono">BaizMomentum</code> and <code class="mono">BaizConviction</code> are offered
+  as additional lenses on the same underlying data, not replacements for <code class="mono">BaizScore</code>,
+  and BaizConviction is the one derived score that showed a clear edge over plain BaizScore when compared at
+  matched sample size rather than just at a threshold.</p>
+  <p>None of this is a guarantee. Every number above comes from one backtest, over one continuous bull-market
+  window, on survivorship-adjusted historical data — see <a href="#limitations" style="color:#93c5fd;">Limitations</a>
+  for the full list of caveats before drawing any conclusion.</p>
 
   <p style="font-size:12.5px;color:#64748b;line-height:1.8;">
     This backtest was run once, in August 2026, on a single historical window, and has not been independently
