@@ -173,6 +173,7 @@
     <a class="toc-sub" href="#baizora-score-up">上行（70/80/90）</a>
     <a class="toc-sub" href="#baizora-score-down">下行（≤10/20/30）</a>
     <a href="#baizmomentum">动能+评分</a>
+    <a href="#baizpersist">持续度</a>
     <a href="#baizconviction">信心指数</a>
     <a href="#weighting">权重对比</a>
     <a href="#conclusion">结论</a>
@@ -453,10 +454,94 @@ RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名�
 
   <div class="divider"></div>
 
-  <div class="section-label" id="baizconviction">03d — 信心指数（BaizConviction）— 结果</div>
+  <div class="section-label" id="baizpersist">03d — 持续度（BaizPersist）— 结果</div>
+  <h2>平滑、持续的评分是否优于单日读数？</h2>
+  <p><code class="mono">贝佐拉持续度</code>（BaizPersist）是该股票自身贝佐拉评分过去21个交易日（约1个月）的滚动平均值——
+  并非分项权重的另一种组合，而是同一评分随时间平滑后的读数。它是下方<a href="#baizconviction" style="color:#93c5fd;">信心指数</a>的构建基础，
+  也作为看板上的独立一列展示。由于它是0–100分的滚动平均值，很难触及最高分界线（本次样本中没有任何一个股票-交易日的21日滚动平均达到过≥90），
+  因此测试的是≥30/≥50/≥70，而非贝佐拉评分所用的≥70/≥80/≥90。</p>
+
+  <div class="gbar-legend">
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#3987e5;"></span>基准（中位数）</div>
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#22c55e;"></span>持续度达到/超过阈值（中位数）</div>
+  </div>
+
+  <h3>持续度 ≥ 30（254,050条观测）</h3>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">3个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:8.7%;"></div></div><div class="gbar-item-val">+3.47%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥30</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:9.2%;"></div></div><div class="gbar-item-val">+3.66%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:15.9%;"></div></div><div class="gbar-item-val">+6.35%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥30</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:17.1%;"></div></div><div class="gbar-item-val">+6.85%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:23.9%;"></div></div><div class="gbar-item-val">+9.58%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥30</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:25.4%;"></div></div><div class="gbar-item-val">+10.15%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:30.3%;"></div></div><div class="gbar-item-val">+12.14%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥30</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:30.8%;"></div></div><div class="gbar-item-val">+12.33%</div></div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">样本量(≥30)，3个月→12个月：230,974 · 208,391 · 185,810 · 163,068。这是一个很宽松、容易达到的阈值——各周期均与基准相差无几。</p>
+
+  <h3>持续度 ≥ 50（143,012条观测）</h3>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">3个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:8.7%;"></div></div><div class="gbar-item-val">+3.47%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥50</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:9.9%;"></div></div><div class="gbar-item-val">+3.97%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:15.9%;"></div></div><div class="gbar-item-val">+6.35%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥50</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:19.8%;"></div></div><div class="gbar-item-val">+7.94%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:23.9%;"></div></div><div class="gbar-item-val">+9.58%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥50</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:29.4%;"></div></div><div class="gbar-item-val">+11.75%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:30.3%;"></div></div><div class="gbar-item-val">+12.14%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥50</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:36.9%;"></div></div><div class="gbar-item-val">+14.74%</div></div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">样本量(≥50)，3个月→12个月：129,909 · 116,577 · 103,636 · 90,416。</p>
+
+  <h3>持续度 ≥ 70（28,221条观测）</h3>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">3个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:8.7%;"></div></div><div class="gbar-item-val">+3.47%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:16.5%;"></div></div><div class="gbar-item-val">+6.61%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:15.9%;"></div></div><div class="gbar-item-val">+6.35%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:35.5%;"></div></div><div class="gbar-item-val">+14.21%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:23.9%;"></div></div><div class="gbar-item-val">+9.58%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:52.7%;"></div></div><div class="gbar-item-val">+21.07%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:30.3%;"></div></div><div class="gbar-item-val">+12.14%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:61.9%;"></div></div><div class="gbar-item-val">+24.78%</div></div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">样本量(≥70)，3个月→12个月：25,460 · 22,721 · 19,962 · 17,259。以上基准数字来自持续度可计算的限定样本（348,311条，占原始380,044条的一部分——原因见下方信心指数一节），因此与第03节的主要基准数字不能直接对比。</p>
+
+  <div class="card">
+    <p><strong>诚实的结论是：优势随阈值提高而急剧扩大。</strong> ≥30档在各周期都与基准几乎难以区分——这是一个很容易达到的门槛，区分度不高。
+    ≥50档显示出真实、中等程度的优势。≥70档——意味着一只股票在过去近一整个月里评分都持续保持强势，而不是只碰到过一次——
+    在三者中优势最大，量级可与贝佐拉评分自身的≥80档相媲美。这正是下方<code class="mono">信心指数</code>将当日评分与这一滚动平均值相结合、
+    而非单独使用其中一个的实证依据。</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label" id="baizconviction">03e — 信心指数（BaizConviction）— 结果</div>
   <h2>奖励"持续强势"而非仅看当天分数，是否有帮助？</h2>
   <p><code class="mono">信心指数</code>（BaizConviction）= <code class="mono">round(sqrt(贝佐拉评分 × 贝佐拉持续度))</code>，
-  其中<code class="mono">贝佐拉持续度</code>（BaizPersist）是该股票自身贝佐拉评分的过去21个交易日（约1个月）滚动平均值。
+  将当日评分与上方<a href="#baizpersist" style="color:#93c5fd;">持续度</a>（该股票自身过去21个交易日的平均评分）相结合。
   其设计目的是奖励那些<em>今天</em>表现强势、且<em>近期</em>持续保持强势的股票，而非单日突然冲高——两者都要等该股票积累满一个月的历史数据后才有值。
   由于信心指数没有天然对应的≥70/≥80/≥90分界线，我们改用<strong>样本量匹配</strong>的方式与贝佐拉评分对比：
   针对贝佐拉评分的每个阈值，为信心指数选取一个使两组样本量（几乎）完全相等的分界线——这是在样本大小完全一致的前提下，比较"用不同方式定义的同等规模分组"表现是否更好。</p>
@@ -542,11 +627,11 @@ RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名�
 
   <div class="section-label" id="conclusion">05 — 结论</div>
   <h2>贝佐拉评分家族目前的整体情况</h2>
-  <p>本页所有测试——原始阈值、持续度、替代权重、以及两项衍生评分——都呈现出同样的形态：
+  <p>本页所有测试——原始阈值、持续度、替代权重、以及三项衍生评分——都呈现出同样的形态：
   <strong>持续保持高分与优于基准的后续表现相关，且该效应集中体现在"持续强势"而非"单日突破"，同时该效应并不对称</strong>——
-  低分是一个微弱且不可靠的下行信号，并非上行信号的镜像。<code class="mono">动能+</code>与<code class="mono">信心指数</code>
-  是基于同一套底层数据提供的补充视角，而非对<code class="mono">贝佐拉评分</code>的替代；其中信心指数是唯一一项在样本量匹配对比
-  （而非仅按阈值对比）下明确优于纯贝佐拉评分的衍生评分。</p>
+  低分是一个微弱且不可靠的下行信号，并非上行信号的镜像。<code class="mono">动能+</code>、<code class="mono">持续度</code>与
+  <code class="mono">信心指数</code>是基于同一套底层数据提供的补充视角，而非对<code class="mono">贝佐拉评分</code>的替代；
+  其中信心指数是唯一一项在样本量匹配对比（而非仅按阈值对比）下明确优于纯贝佐拉评分的衍生评分。</p>
   <p>以上均非保证。页面中的每一个数字都来自同一次回测、同一段持续牛市区间、经过存续偏差调整的历史数据——
   在得出任何结论前，请先阅读<a href="#limitations" style="color:#93c5fd;">局限性</a>部分的完整说明。</p>
 

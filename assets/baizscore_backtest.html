@@ -176,6 +176,7 @@
     <a class="toc-sub" href="#baizora-score-up">Upside (70/80/90)</a>
     <a class="toc-sub" href="#baizora-score-down">Downside (≤10/20/30)</a>
     <a href="#baizmomentum">BaizMomentum</a>
+    <a href="#baizpersist">BaizPersist</a>
     <a href="#baizconviction">BaizConviction</a>
     <a href="#weighting">Weighting Comparison</a>
     <a href="#conclusion">Conclusion</a>
@@ -489,12 +490,101 @@ Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensi
 
   <div class="divider"></div>
 
-  <div class="section-label" id="baizconviction">03d — BaizConviction — Results</div>
+  <div class="section-label" id="baizpersist">03d — BaizPersist — Results</div>
+  <h2>Does a smoothed, sustained score beat a single day's reading?</h2>
+  <p><code class="mono">BaizPersist</code> is a ticker's own trailing 21-session (~1 month) average Baizora
+  Score — not a separate weighting of the components, but a smoothed view of the same score over time. It's
+  the building block behind <a href="#baizconviction" style="color:#93c5fd;">BaizConviction</a> below, and is
+  also shown as its own column on the dashboard. Because it's a rolling average of a 0–100 score, it rarely
+  reaches the highest thresholds (no ticker-day in this sample sustained a 21-session average ≥ 90), so it's
+  tested at ≥30 / ≥50 / ≥70 instead of the ≥70/≥80/≥90 used for BaizScore.</p>
+
+  <div class="gbar-legend">
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#3987e5;"></span>Baseline (median)</div>
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#22c55e;"></span>BaizPersist at/above threshold (median)</div>
+  </div>
+
+  <h3>BaizPersist ≥ 30 (254,050 observations)</h3>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">3 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:8.7%;"></div></div><div class="gbar-item-val">+3.47%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥30</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:9.2%;"></div></div><div class="gbar-item-val">+3.66%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:15.9%;"></div></div><div class="gbar-item-val">+6.35%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥30</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:17.1%;"></div></div><div class="gbar-item-val">+6.85%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:23.9%;"></div></div><div class="gbar-item-val">+9.58%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥30</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:25.4%;"></div></div><div class="gbar-item-val">+10.15%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:30.3%;"></div></div><div class="gbar-item-val">+12.14%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥30</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:30.8%;"></div></div><div class="gbar-item-val">+12.33%</div></div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">N (≥30), 3M→12M: 230,974 · 208,391 · 185,810 · 163,068. A wide, easy-to-hit threshold — barely above baseline at every horizon.</p>
+
+  <h3>BaizPersist ≥ 50 (143,012 observations)</h3>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">3 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:8.7%;"></div></div><div class="gbar-item-val">+3.47%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥50</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:9.9%;"></div></div><div class="gbar-item-val">+3.97%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:15.9%;"></div></div><div class="gbar-item-val">+6.35%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥50</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:19.8%;"></div></div><div class="gbar-item-val">+7.94%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:23.9%;"></div></div><div class="gbar-item-val">+9.58%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥50</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:29.4%;"></div></div><div class="gbar-item-val">+11.75%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:30.3%;"></div></div><div class="gbar-item-val">+12.14%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥50</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:36.9%;"></div></div><div class="gbar-item-val">+14.74%</div></div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">N (≥50), 3M→12M: 129,909 · 116,577 · 103,636 · 90,416.</p>
+
+  <h3>BaizPersist ≥ 70 (28,221 observations)</h3>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">3 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:8.7%;"></div></div><div class="gbar-item-val">+3.47%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:16.5%;"></div></div><div class="gbar-item-val">+6.61%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:15.9%;"></div></div><div class="gbar-item-val">+6.35%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:35.5%;"></div></div><div class="gbar-item-val">+14.21%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:23.9%;"></div></div><div class="gbar-item-val">+9.58%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:52.7%;"></div></div><div class="gbar-item-val">+21.07%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:30.3%;"></div></div><div class="gbar-item-val">+12.14%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:61.9%;"></div></div><div class="gbar-item-val">+24.78%</div></div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">N (≥70), 3M→12M: 25,460 · 22,721 · 19,962 · 17,259. Baseline figures above come from the persistence-eligible sample (348,311 of the original 380,044 observations — see BaizConviction below for why) and are not directly comparable to Section 03's headline baseline numbers.</p>
+
+  <div class="card">
+    <p><strong>Honest read: the gap widens sharply with the threshold.</strong> ≥30 is barely distinguishable
+    from baseline at every horizon — it's an easy bar to clear and doesn't isolate much. ≥50 shows a real,
+    moderate edge. ≥70 — meaning a stock has averaged a strong score for essentially the entire trailing month,
+    not just touched it once — shows the largest edge of the three, comparable in magnitude to BaizScore's own
+    ≥80 tier. This is the empirical basis for combining today's score with this trailing average in
+    <code class="mono">BaizConviction</code> below, rather than using either alone.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label" id="baizconviction">03e — BaizConviction — Results</div>
   <h2>Does rewarding consistency, not just today's score, help?</h2>
   <p><code class="mono">BaizConviction</code> = <code class="mono">round(sqrt(BaizScore × BaizPersist))</code>,
-  where <code class="mono">BaizPersist</code> is a ticker's own trailing 21-session (~1 month) average BaizScore.
-  It's designed to reward stocks that are both strong <em>today</em> and have been consistently strong
-  <em>recently</em>, rather than a single-day spike — both are null until a ticker has a month of history.
+  combining today's score with <a href="#baizpersist" style="color:#93c5fd;">BaizPersist</a> above (this
+  ticker's own trailing 21-session average score). It's designed to reward stocks that are both strong
+  <em>today</em> and have been consistently strong <em>recently</em>, rather than a single-day spike — both are
+  null until a ticker has a month of history.
   Because BaizConviction has no natural ≥70/≥80/≥90 cutoffs of its own, it's compared against BaizScore at
   <strong>matched sample size</strong>: for every BaizScore threshold, the BaizConviction cutoff was chosen so
   both buckets contain (almost) exactly the same number of observations — an apples-to-apples test of whether
@@ -594,13 +684,14 @@ Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensi
 
   <div class="section-label" id="conclusion">05 — Conclusion</div>
   <h2>Where this leaves the Baizora Score family</h2>
-  <p>Across every test on this page — raw thresholds, persistence, alternate weightings, and the two derived
+  <p>Across every test on this page — raw thresholds, persistence, alternate weightings, and the three derived
   scores — the same shape holds: <strong>a sustained high score is associated with stronger subsequent returns
   than baseline, the effect is concentrated in sustained strength rather than a single day's crossing, and the
   effect is asymmetric</strong> — a low score is a weak, unreliable signal for decline, not a mirror image of the
-  upside signal. <code class="mono">BaizMomentum</code> and <code class="mono">BaizConviction</code> are offered
-  as additional lenses on the same underlying data, not replacements for <code class="mono">BaizScore</code>,
-  and BaizConviction is the one derived score that showed a clear edge over plain BaizScore when compared at
+  upside signal. <code class="mono">BaizMomentum</code>, <code class="mono">BaizPersist</code>, and
+  <code class="mono">BaizConviction</code> are offered as additional lenses on the same underlying data, not
+  replacements for <code class="mono">BaizScore</code>, and BaizConviction is the one derived score that showed
+  a clear edge over plain BaizScore when compared at
   matched sample size rather than just at a threshold.</p>
   <p>None of this is a guarantee. Every number above comes from one backtest, over one continuous bull-market
   window, on survivorship-adjusted historical data — see <a href="#limitations" style="color:#93c5fd;">Limitations</a>
