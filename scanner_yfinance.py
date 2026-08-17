@@ -53,6 +53,9 @@ TIMEFRAMES = {
     "1Y": 252,
 }
 
+BAIZSCORE_TRAILING_FILE = os.path.join(DATA_DIR, "baizscore_trailing_yf.json")  # per-ticker daily BaizScore, last 21 sessions — feeds BaizConviction
+BAIZ_PERSIST_WINDOW = 21  # trading sessions (~1 month) — see assets/baizscore_backtest.html
+
 YF_CHUNK_SIZE  = 60
 YF_MAX_RETRIES = 3
 YF_RETRY_WAITS = [5, 15, 45]
@@ -398,6 +401,42 @@ def get_fundamentals(ticker):
 # MULTI-PERIOD METRICS (copied verbatim — pure pandas math, source-agnostic)
 # =========================
 
+def _compute_baiz_persist_and_conviction(df):
+    """BaizPersist / BaizConviction — see _compute_baiz_persist_and_conviction in
+    scanner_tiingo.py for full docs; identical logic, separate trailing-history
+    file so this dormant backup script never shares state with the live scanner."""
+    history = {}
+    if os.path.exists(BAIZSCORE_TRAILING_FILE):
+        try:
+            with open(BAIZSCORE_TRAILING_FILE) as f:
+                history = json.load(f)
+        except Exception:
+            history = {}
+
+    persist_vals, conviction_vals, updated_history = [], [], {}
+    for score, ticker in zip(df["BaizScore"], df["Ticker"]):
+        prior = history.get(ticker, [])
+        combined = prior + [float(score)] if score is not None and pd.notna(score) else prior
+        combined = combined[-BAIZ_PERSIST_WINDOW:]
+        updated_history[ticker] = combined
+
+        if len(combined) >= BAIZ_PERSIST_WINDOW and score is not None and pd.notna(score):
+            persist = sum(combined) / len(combined)
+            persist_vals.append(round(persist))
+            conviction_vals.append(round((persist * float(score)) ** 0.5))
+        else:
+            persist_vals.append(None)
+            conviction_vals.append(None)
+
+    try:
+        with open(BAIZSCORE_TRAILING_FILE, "w") as f:
+            json.dump(updated_history, f)
+    except Exception as e:
+        print(f"[baiz_persist] failed to save trailing history: {e}")
+
+    return persist_vals, conviction_vals
+
+
 def calculate_period_metrics(df, label, days):
     recent = df.iloc[-days:].copy().reset_index(drop=True)
     start_price = recent["Close"].iloc[0]
@@ -701,6 +740,10 @@ def scan():
             0.05 * df["TrendScore"] +
             0.05 * vp_norm
         ).round().clip(0, 100).astype(int)
+
+        persist_vals, conviction_vals = _compute_baiz_persist_and_conviction(df)
+        df["BaizPersist"] = persist_vals
+        df["BaizConviction"] = conviction_vals
 
     if "VolumeChange1D" in df.columns:
         df = df.sort_values("VolumeChange1D", ascending=False)

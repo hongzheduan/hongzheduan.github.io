@@ -46,7 +46,14 @@
     .mobile-drawer a{display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);}
     .mobile-drawer a:last-child{border-bottom:none;}
 
+    .wrapper{position:relative;z-index:10;display:grid;grid-template-columns:190px 1fr;max-width:1040px;margin:0 auto;padding:56px 32px 100px;gap:44px;}
+    .toc{position:sticky;top:76px;align-self:start;}
+    .toc-title{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:#64748b;margin-bottom:12px;}
+    .toc a{display:block;font-family:'DM Sans',sans-serif;font-size:12.5px;color:#94a3b8;text-decoration:none;padding:5px 0 5px 11px;border-left:2px solid rgba(255,255,255,0.08);transition:all 0.15s;line-height:1.4;}
+    .toc a:hover{color:var(--electric-bright);border-left-color:var(--electric);}
+    .toc a.toc-sub{padding-left:20px;font-size:11.5px;color:#64748b;}
     .container{position:relative;z-index:10;max-width:880px;margin:0 auto;padding:64px 32px 100px;}
+    @media(max-width:900px){.wrapper{grid-template-columns:1fr;max-width:880px;} .toc{display:none;}}
     .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-bright);border:1px solid rgba(59,130,246,0.25);background:rgba(59,130,246,0.06);padding:6px 14px;border-radius:999px;margin-bottom:20px;}
     h1{font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,42px);line-height:1.2;letter-spacing:-0.02em;color:var(--white);margin-bottom:10px;}
     .title-sub{font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;color:#f87171;margin-bottom:28px;}
@@ -83,6 +90,34 @@
     .heat-table td.heat.max{background:rgba(59,130,246,0.1);}
     .heat-table .hv{font-family:'DM Mono',monospace;font-weight:600;color:#f1f5f9;}
     .heat-table .hn{font-family:'DM Mono',monospace;font-size:10px;color:#64748b;display:block;margin-top:2px;}
+
+    /* diverging bar chart — 12mo median edge by score bucket */
+    .divbar-chart{margin:18px 0 8px;}
+    .divbar-row{display:grid;grid-template-columns:96px 1fr 2px 1fr 74px;align-items:center;gap:0;margin-bottom:9px;}
+    .divbar-label{font-family:'DM Mono',monospace;font-size:11.5px;color:#94a3b8;text-align:right;padding-right:10px;white-space:nowrap;}
+    .divbar-neg{display:flex;justify-content:flex-end;height:16px;}
+    .divbar-neg-bar{height:16px;background:#ef4444;border-radius:3px 0 0 3px;min-width:2px;}
+    .divbar-center{width:1px;height:22px;background:rgba(255,255,255,0.15);}
+    .divbar-pos{display:flex;justify-content:flex-start;height:16px;}
+    .divbar-pos-bar{height:16px;background:#22c55e;border-radius:0 3px 3px 0;min-width:2px;}
+    .divbar-val{font-family:'DM Mono',monospace;font-size:11.5px;color:#e2e8f0;padding-left:10px;}
+    .divbar-val.neg{color:#fca5a5;}
+    .divbar-thin{opacity:0.55;}
+
+    /* grouped bar chart — baseline vs high-score median return, by horizon */
+    .gbar-chart{margin:16px 0 20px;}
+    .gbar-group{margin-bottom:12px;}
+    .gbar-group-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.04em;color:#64748b;margin-bottom:5px;}
+    .gbar-item{display:grid;grid-template-columns:64px 1fr 58px;align-items:center;gap:8px;margin-bottom:3px;}
+    .gbar-item-label{font-family:'DM Mono',monospace;font-size:10.5px;color:#94a3b8;text-align:right;}
+    .gbar-item-track{height:14px;}
+    .gbar-item-bar{height:14px;border-radius:3px;min-width:2px;}
+    .gbar-item-bar.base{background:#3987e5;}
+    .gbar-item-bar.high{background:#22c55e;}
+    .gbar-item-val{font-family:'DM Mono',monospace;font-size:11px;color:#e2e8f0;}
+    .gbar-legend{display:flex;gap:16px;margin-bottom:10px;}
+    .gbar-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#94a3b8;}
+    .gbar-legend-sw{width:9px;height:9px;border-radius:2px;}
 
     .note-list{list-style:none;padding:0;margin:14px 0;}
     .note-list li{position:relative;padding-left:22px;margin-bottom:14px;}
@@ -132,7 +167,20 @@
   <a href="../index.html">Home</a>
 </div>
 
-<div class="container">
+<div class="wrapper">
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#overview">Overview</a>
+    <a href="#limitations">Limitations</a>
+    <a href="#baizora-score">Baizora Score</a>
+    <a class="toc-sub" href="#baizora-score-up">Upside (70/80/90)</a>
+    <a class="toc-sub" href="#baizora-score-down">Downside (≤10/20/30)</a>
+    <a href="#baizmomentum">BaizMomentum</a>
+    <a href="#baizconviction">BaizConviction</a>
+    <a href="#weighting">Weighting Comparison</a>
+    <a href="#conclusion">Conclusion</a>
+  </nav>
+  <div class="container" style="padding:0;max-width:none;">
   <div class="eyebrow">◈ &nbsp; Data &amp; Methodology</div>
   <h1>Baizora Score: A Historical Backtest</h1>
   <div class="title-sub">Hypothetical &amp; Backtested Data · Not A Live Track Record · Not Investment Advice</div>
@@ -195,51 +243,210 @@ Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensi
 
   <div class="section-label">03 — Observed Forward Returns by Score Threshold</div>
   <h2>What the backtest showed</h2>
-  <p>For each threshold, the table compares the average subsequent price change for ticker-days that scored at
-  or above that level against the baseline (every scoreable day, any score) over the same window.</p>
+  <p>For each threshold, the chart compares the median subsequent price change for ticker-days that scored at
+  or above that level against the baseline (every scoreable day, any score) over the same window. Median, not
+  mean, for the same right-skew reason explained in the caveats below — each chart's caption gives the mean too.
+  <strong>Every bar chart on this page — upside and downside alike — is drawn on the same 0–40% scale</strong>, so
+  bar length is directly comparable across every section below, not just within one chart.</p>
+
+  <div class="gbar-legend">
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#3987e5;"></span>Baseline (median)</div>
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#22c55e;"></span>Score at/above threshold (median)</div>
+  </div>
 
   <h3>Score ≥ 70 (44,072 observations, 11.6% of the sample)</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Horizon</th><th>Baseline mean</th><th>Baseline median</th><th>≥70 mean</th><th>≥70 median</th><th>N (≥70)</th></tr></thead>
-      <tbody>
-        <tr><td>1 month</td><td>+1.73%</td><td>+1.26%</td><td>+3.24%</td><td>+1.70%</td><td>42,875</td></tr>
-        <tr><td>3 months</td><td>+5.65%</td><td>+4.00%</td><td>+10.95%</td><td>+5.81%</td><td>40,333</td></tr>
-        <tr><td>6 months</td><td>+10.98%</td><td>+7.40%</td><td>+22.76%</td><td>+12.04%</td><td>36,449</td></tr>
-        <tr><td>9 months</td><td>+16.55%</td><td>+10.82%</td><td>+35.83%</td><td>+17.98%</td><td>32,367</td></tr>
-        <tr><td>12 months</td><td>+23.19%</td><td>+14.18%</td><td>+46.88%</td><td>+21.99%</td><td>28,708</td></tr>
-      </tbody>
-    </table>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">1 month</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:3.2%;"></div></div><div class="gbar-item-val">+1.26%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:4.3%;"></div></div><div class="gbar-item-val">+1.70%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">3 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:10.0%;"></div></div><div class="gbar-item-val">+4.00%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:14.5%;"></div></div><div class="gbar-item-val">+5.81%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:18.5%;"></div></div><div class="gbar-item-val">+7.40%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:30.1%;"></div></div><div class="gbar-item-val">+12.04%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:27.1%;"></div></div><div class="gbar-item-val">+10.82%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:45.0%;"></div></div><div class="gbar-item-val">+17.98%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:35.5%;"></div></div><div class="gbar-item-val">+14.18%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:55.0%;"></div></div><div class="gbar-item-val">+21.99%</div></div>
+    </div>
   </div>
+  <p style="font-size:11.5px;color:#64748b;">N (≥70), 1M→12M: 42,875 · 40,333 · 36,449 · 32,367 · 28,708. Mean returns run higher than the median bars shown (right-skew, see caveats below) — e.g. the 12-month mean is +46.88% vs. the +21.99% median plotted.</p>
 
   <h3>Score ≥ 80 (7,045 observations, 1.9% of the sample)</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Horizon</th><th>Baseline mean</th><th>Baseline median</th><th>≥80 mean</th><th>≥80 median</th><th>N (≥80)</th></tr></thead>
-      <tbody>
-        <tr><td>1 month</td><td>+1.73%</td><td>+1.26%</td><td>+6.04%</td><td>+2.93%</td><td>6,894</td></tr>
-        <tr><td>3 months</td><td>+5.65%</td><td>+4.00%</td><td>+18.02%</td><td>+9.40%</td><td>6,408</td></tr>
-        <tr><td>6 months</td><td>+10.98%</td><td>+7.40%</td><td>+34.03%</td><td>+16.98%</td><td>5,564</td></tr>
-        <tr><td>9 months</td><td>+16.55%</td><td>+10.82%</td><td>+57.86%</td><td>+26.30%</td><td>4,842</td></tr>
-        <tr><td>12 months</td><td>+23.19%</td><td>+14.18%</td><td>+70.68%</td><td>+31.20%</td><td>4,213</td></tr>
-      </tbody>
-    </table>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">1 month</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:3.2%;"></div></div><div class="gbar-item-val">+1.26%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥80</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:7.3%;"></div></div><div class="gbar-item-val">+2.93%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">3 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:10.0%;"></div></div><div class="gbar-item-val">+4.00%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥80</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:23.5%;"></div></div><div class="gbar-item-val">+9.40%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:18.5%;"></div></div><div class="gbar-item-val">+7.40%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥80</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:42.5%;"></div></div><div class="gbar-item-val">+16.98%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:27.1%;"></div></div><div class="gbar-item-val">+10.82%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥80</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:65.8%;"></div></div><div class="gbar-item-val">+26.30%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:35.5%;"></div></div><div class="gbar-item-val">+14.18%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥80</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:78.0%;"></div></div><div class="gbar-item-val">+31.20%</div></div>
+    </div>
   </div>
+  <p style="font-size:11.5px;color:#64748b;">N (≥80), 1M→12M: 6,894 · 6,408 · 5,564 · 4,842 · 4,213. 12-month mean is +70.68% vs. the +31.20% median plotted.</p>
 
   <h3>Score ≥ 90 (975 observations, 0.3% of the sample — thin, see Limitations)</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Horizon</th><th>Baseline mean</th><th>Baseline median</th><th>≥90 mean</th><th>≥90 median</th><th>N (≥90)</th></tr></thead>
-      <tbody>
-        <tr><td>1 month</td><td>+1.73%</td><td>+1.26%</td><td>+7.85%</td><td>+3.44%</td><td>958</td></tr>
-        <tr><td>3 months</td><td>+5.65%</td><td>+4.00%</td><td>+21.41%</td><td>+11.05%</td><td>887</td></tr>
-        <tr><td>6 months</td><td>+10.98%</td><td>+7.40%</td><td>+40.67%</td><td>+18.09%</td><td>785</td></tr>
-        <tr><td>9 months</td><td>+16.55%</td><td>+10.82%</td><td>+73.33%</td><td>+32.36%</td><td>682</td></tr>
-        <tr><td>12 months</td><td>+23.19%</td><td>+14.18%</td><td>+91.08%</td><td>+37.02%</td><td>590</td></tr>
-      </tbody>
-    </table>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">1 month</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:3.2%;"></div></div><div class="gbar-item-val">+1.26%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥90</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:8.6%;"></div></div><div class="gbar-item-val">+3.44%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">3 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:10.0%;"></div></div><div class="gbar-item-val">+4.00%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥90</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:27.6%;"></div></div><div class="gbar-item-val">+11.05%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:18.5%;"></div></div><div class="gbar-item-val">+7.40%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥90</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:45.2%;"></div></div><div class="gbar-item-val">+18.09%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:27.1%;"></div></div><div class="gbar-item-val">+10.82%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥90</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:80.9%;"></div></div><div class="gbar-item-val">+32.36%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12 months</div>
+      <div class="gbar-item"><div class="gbar-item-label">Baseline</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:35.5%;"></div></div><div class="gbar-item-val">+14.18%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥90</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:92.6%;"></div></div><div class="gbar-item-val">+37.02%</div></div>
+    </div>
   </div>
-  <p style="font-size:12px;color:#64748b;">N = observations with a full forward window available at that horizon within the fetched data range. Figures are historical averages within this specific backtest window, not projections.</p>
+  <p style="font-size:11.5px;color:#64748b;">N (≥90), 1M→12M: 958 · 887 · 785 · 682 · 590 — thinnest bucket, see Limitations. 12-month mean is +91.08% vs. the +37.02% median plotted.</p>
+
+  <div class="divider"></div>
+
+  <div class="section-label">03b — Does a Low Score Predict Decline?</div>
+  <h2>The score is not symmetric</h2>
+  <p>Everything above tests the upside: does a <em>high</em> score precede stronger-than-average returns? The
+  same question was run in reverse — does a <em>low</em> score (≤10 / ≤20 / ≤30) precede <em>weaker-than-average
+  or negative</em> returns — using the identical methodology, win rate and loss rate both shown.</p>
+
+  <p style="font-size:12.5px;color:#64748b;margin-bottom:4px;">12-month median edge vs. baseline, by score bucket — bar length is proportional, so the size gap is drawn to scale:</p>
+  <div class="divbar-chart">
+    <div class="divbar-row divbar-thin">
+      <div class="divbar-label">Score ≥90*</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"><div class="divbar-pos-bar" style="width:57.0%;"></div></div>
+      <div class="divbar-val">+22.8pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">Score ≥80</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"><div class="divbar-pos-bar" style="width:42.5%;"></div></div>
+      <div class="divbar-val">+17.0pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">Score ≥70</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"><div class="divbar-pos-bar" style="width:19.5%;"></div></div>
+      <div class="divbar-val">+7.8pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label" style="color:#e2e8f0;">Baseline</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val">0pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">Score ≤30</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:1.5%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−0.6pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">Score ≤20</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"><div class="divbar-pos-bar" style="width:1.5%;"></div></div>
+      <div class="divbar-val">+0.6pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">Score ≤10</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"><div class="divbar-pos-bar" style="width:2.3%;"></div></div>
+      <div class="divbar-val">+0.9pp</div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">*Score ≥90 shown for scale reference only — thin sample (N=590), see Section 03. Note ≤10 and ≤20 are themselves slightly <em>positive</em> at 12 months (the deep-value/mean-reversion effect noted in Section 03's decile check); only the wider ≤30 bucket dips slightly negative — none come close to offsetting the upside bars.</p>
+
+  <h3>Score ≤ 30 median edge by horizon (112,010 observations, 30.4% of the sample)</h3>
+  <div class="divbar-chart">
+    <div class="divbar-row">
+      <div class="divbar-label">1 month</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:0.15%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−0.06pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">3 months</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:1.0%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−0.40pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">6 months</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:3.3%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−1.32pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">9 months</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:4.4%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−1.74pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">12 months</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:1.4%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−0.57pp</div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">≤30 win / loss rate, 1M→12M: 56.5%/43.5% · 59.6%/40.4% · 61.6%/38.4% · 63.8%/36.2% · 65.6%/34.4% — never close to a majority-loss outcome at any horizon. ≤10 and ≤20 show the same weak, fading shape at smaller sample sizes (11,229–71,239 observations).</p>
+
+  <div class="card">
+    <p><strong>The honest read: this is a weak, inconsistent downside signal — nowhere near the strength of the
+    upside one.</strong> At medium horizons (3–9 months) a low score does show a real, small negative tilt
+    (roughly −0.4pp to −2pp median edge). But it fades and even <em>reverses positive</em> by 12 months, and win
+    rate stays a majority 56–66% at every single horizon — loss rate never comes close to 50%, let alone
+    exceeding it. Compare the magnitude: score ≥80's 12-month median edge is <strong>+17.0pp</strong>; score
+    ≤30's is <strong>−0.6pp</strong>. The upside signal is roughly 30× larger.</p>
+    <p style="margin-top:12px;">This isn't a flaw so much as a structural property: every component in this
+    score (RS, Momentum, Breakout, Trend, Volume Pressure) measures the <em>presence</em> of strength, not the
+    presence of weakness. A low score means those strength signals aren't firing — it does not mean the
+    opposite signals (breakdown, distribution, sustained deterioration) are. Recombining these same
+    "how-good-is-it" ingredients in other ways (tested against <code class="mono">BaizPersist</code> and
+    <code class="mono">BaizConviction</code>, both described below) doesn't change this — their low ends show
+    the same weak, fading pattern, not a cleaner one. <strong>Read a low score as "not currently showing
+    strength," not as "predicted to decline."</strong></p>
+  </div>
 
   <div class="divider"></div>
 
@@ -320,6 +527,7 @@ Volume Pressure         — 10%   <span style="color:#64748b;">// volume intensi
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       Back to Home
     </a>
+  </div>
   </div>
 </div>
 

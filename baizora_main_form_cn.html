@@ -324,6 +324,9 @@
     th.col-mom { color: #c084fc; border-right: 1px solid rgba(192,132,252,0.2); }
     th.col-mom:hover { color: #d8b4fe; }
     td.col-mom { font-weight: 700; border-right: 1px solid rgba(192,132,252,0.12); }
+    th.col-conv { color: #2dd4bf; border-right: 1px solid rgba(45,212,191,0.2); }
+    th.col-conv:hover { color: #5eead4; }
+    td.col-conv { font-weight: 700; border-right: 1px solid rgba(45,212,191,0.12); }
 
     /* ── INFO PANEL ── */
     #readme { padding: 32px 40px; }
@@ -843,6 +846,7 @@
       <button class="window-btn" onclick="setWindow('9M', this)">9月</button>
       <button class="window-btn" onclick="setWindow('1Y', this)">1年</button>
       <button class="window-btn" onclick="setWindow('SCORES', this)" style="margin-left:8px;border-color:rgba(96,165,250,0.35);color:#60a5fa;">评分</button>
+      <button class="window-btn" onclick="setWindow('BAIZ', this)" style="margin-left:4px;border-color:rgba(192,132,252,0.35);color:#c084fc;">贝佐拉评分</button>
       <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:4px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">基本面</button>
     </div>
     <div class="toolbar-sep"></div>
@@ -933,13 +937,22 @@
             <tr><td>价@量日</td><td>所选周期内最大量涨当日的价格变化</td></tr>
           </table>
 
-          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; 评分系统（评分标签页）</div>
-          <p>七项综合评分，每日收盘后基于同一套量价数据计算。评分高于50显示绿色，低于50显示红色。量压评分以0为中值。转势评分以50 / 25为信号阈值。</p>
+          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; 贝佐拉评分家族（贝佐拉评分标签页）</div>
+          <p>贝佐拉系列综合评分——每一项都由下方五项原始信号组合而成，只是侧重点不同。每日收盘后重新计算。评分高于50显示绿色，低于50显示红色（转势评分使用50/25作为阈值）。此标签页会随着新评分变体的推出持续扩充。</p>
           <table class="col-table">
             <colgroup><col style="width:160px"><col></colgroup>
             <tr><th>评分</th><th>算法与解读</th></tr>
-            <tr><td>贝佐拉评分（0–100）</td><td>五项信号加权合成：<strong>RS 30% + 动能 25% + 突破 20% + 趋势 15% + 量压 10%</strong>。一眼判断综合强弱，降序排列可快速发现最强势标的。</td></tr>
+            <tr><td>贝佐拉评分（0–100）</td><td>最初的加权组合：<strong>RS 30% + 动能 25% + 突破 20% + 趋势 15% + 量压 10%</strong>。一眼判断综合强弱，降序排列可快速发现最强势标的。<a href="assets/baizscore_backtest_cn.html" target="_blank" rel="noopener">查看回测 ↗</a></td></tr>
             <tr><td>转势评分（0–100）</td><td>由弱转强反转信号：<strong>突破 × (1 − RS/100) × 量压（归一化）</strong>。RS越低（历史越弱）、突破越强、买盘量压越高，得分越高。▲ 50分以上=强信号；→ 25–49分=初步信号；25分以下=无信号。量压为负时归零。</td></tr>
+            <tr><td>动能+（0–100）</td><td>更偏重趋势与动能的替代组合：<strong>RS 40% + 动能 35% + 突破 15% + 趋势 5% + 量压 5%</strong>。回测显示其优势在评分最高的90分以上区间最明显，但样本量较小。<a href="assets/baizscore_backtest_cn.html" target="_blank" rel="noopener">查看回测 ↗</a></td></tr>
+            <tr><td>信心指数（0–100）</td><td>当日贝佐拉评分与该股票自身过去1个月平均贝佐拉评分的几何平均——只有当前强势且近期持续强势时才会得高分，单日冲高不会拉高此值。需累积约1个月历史数据后才会显示。</td></tr>
+          </table>
+
+          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; 评分系统（评分标签页）</div>
+          <p>为上方每一项贝佐拉综合评分提供数据的五项原始信号，供希望查看具体分项而非合成结果的用户参考。</p>
+          <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
+            <tr><th>评分</th><th>算法与解读</th></tr>
             <tr><td>RS评分（1–99）</td><td>相对强度——全市场百分位排名。算法：<strong>40%×3月 + 20%×6月 + 20%×9月 + 20%×1年</strong>涨幅，再全市场排名。99=前1%；1=末1%。</td></tr>
             <tr><td>突破评分（0–100）</td><td>三项信号合成：<strong>价格高于MA21</strong>（0–33分，按高出幅度线性计算）+ <strong>当日涨幅</strong>（0–33分）+ <strong>成交量高于MA21</strong>（0–34分）。满分100=三项信号全力触发，经典突破形态。</td></tr>
             <tr><td>动能评分（0–100）</td><td>跨周期加权涨幅百分位排名：<strong>35%×1月 + 25%×3月 + 20%×6月 + 20%×1年</strong>。奖励在所有窗口持续强势的股票，而非单日脉冲。100=全市场多周期动能最强。</td></tr>
@@ -1361,14 +1374,11 @@
     function buildTable(arr, w) {
       arr = sorted(arr);
 
-      /* ── 评分视图 ── */
+      /* ── 评分视图（原始分项） ── */
       if (w === "SCORES") {
         const head = `<thead><tr>
           ${thSort("Ticker",          "代码")}
           ${thStatic("Spark1Y",       "年趋势线")}
-          ${thSort("BaizScore",        reportLink("贝佐拉评分"), "col-baiz")}
-          ${thSort("TurnScore",        "转势",       "col-turn")}
-          ${thSort("BaizMomentum",    reportLink("动能+"),      "col-mom")}
           ${thSort("RSScore",         "RS评分")}
           ${thSort("BreakoutScore",   "突破评分")}
           ${thSort("MomentumScore",   "动能评分")}
@@ -1384,14 +1394,39 @@
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
             <td class="spark-cell">${sparkSVG}</td>
-            <td class="col-baiz ${scoreClass(r.BaizScore, 50)}">${r.BaizScore ?? "—"}</td>
-            ${(t => `<td class="col-turn ${t.cls}">${t.html}</td>`)(turnFmt(r.TurnScore))}
-            <td class="col-mom ${scoreClass(r.BaizMomentum, 50)}">${r.BaizMomentum ?? "—"}</td>
             <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
             <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
             <td class="${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</td>
             <td class="${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</td>
             <td class="${scoreClass(r.TrendScore, 50)}">${r.TrendScore ?? "—"}</td>
+          </tr>`;
+        }).join("");
+        return head + "<tbody>" + rows + "</tbody>";
+      }
+
+      /* ── 贝佐拉评分家族视图 ── */
+      if (w === "BAIZ") {
+        const head = `<thead><tr>
+          ${thSort("Ticker",          "代码")}
+          ${thStatic("Spark1Y",       "年趋势线")}
+          ${thSort("BaizScore",        reportLink("贝佐拉评分"), "col-baiz")}
+          ${thSort("TurnScore",        "转势",       "col-turn")}
+          ${thSort("BaizMomentum",    reportLink("动能+"),      "col-mom")}
+          ${thSort("BaizConviction",  "信心指数",    "col-conv")}
+        </tr></thead>`;
+        const rows = arr.slice(0, 600).map(r => {
+          const sparkSVG = renderSparkline(
+            r.Spark1Y,
+            r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+            r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
+          );
+          return `<tr>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+            <td class="spark-cell">${sparkSVG}</td>
+            <td class="col-baiz ${scoreClass(r.BaizScore, 50)}">${r.BaizScore ?? "—"}</td>
+            ${(t => `<td class="col-turn ${t.cls}">${t.html}</td>`)(turnFmt(r.TurnScore))}
+            <td class="col-mom ${scoreClass(r.BaizMomentum, 50)}">${r.BaizMomentum ?? "—"}</td>
+            <td class="col-conv ${scoreClass(r.BaizConviction, 50)}">${r.BaizConviction ?? "—"}</td>
           </tr>`;
         }).join("");
         return head + "<tbody>" + rows + "</tbody>";
@@ -1555,13 +1590,18 @@
         if (w === "SCORES") {
           priceChgDisplay = `<span class="card-chg card-live-chg ${colorClass(pc1)}" data-ticker="${r.Ticker}">${fmtP(pc1)}</span>`;
           statsHTML = `
-            <div class="card-row"><span class="card-label" style="color:#f59e0b;">${reportLink("贝佐拉")}</span><span class="card-val ${scoreClass(r.BaizScore, 50)}" style="font-weight:700;">${r.BaizScore ?? "—"}</span></div>
-            <div class="card-row"><span class="card-label" style="color:#60a5fa;">转势</span><span class="card-val ${turnFmt(r.TurnScore).cls}" style="font-weight:700;">${turnFmt(r.TurnScore).html}</span></div>
-            <div class="card-row"><span class="card-label" style="color:#c084fc;">${reportLink("动能+")}</span><span class="card-val ${scoreClass(r.BaizMomentum, 50)}" style="font-weight:700;">${r.BaizMomentum ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">RS评分</span><span class="card-val ${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">突破</span><span class="card-val ${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</span></div>
             <div class="card-row"><span class="card-label">动能</span><span class="card-val ${scoreClass(r.MomentumScore, 50)}">${r.MomentumScore ?? "—"}</span></div>
-            <div class="card-row"><span class="card-label">量压</span><span class="card-val ${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</span></div>`;
+            <div class="card-row"><span class="card-label">量压</span><span class="card-val ${colorClass(r.VolPressureScore)}">${r.VolPressureScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label">趋势</span><span class="card-val ${scoreClass(r.TrendScore, 50)}">${r.TrendScore ?? "—"}</span></div>`;
+        } else if (w === "BAIZ") {
+          priceChgDisplay = `<span class="card-chg card-live-chg ${colorClass(pc1)}" data-ticker="${r.Ticker}">${fmtP(pc1)}</span>`;
+          statsHTML = `
+            <div class="card-row"><span class="card-label" style="color:#f59e0b;">${reportLink("贝佐拉")}</span><span class="card-val ${scoreClass(r.BaizScore, 50)}" style="font-weight:700;">${r.BaizScore ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label" style="color:#60a5fa;">转势</span><span class="card-val ${turnFmt(r.TurnScore).cls}" style="font-weight:700;">${turnFmt(r.TurnScore).html}</span></div>
+            <div class="card-row"><span class="card-label" style="color:#c084fc;">${reportLink("动能+")}</span><span class="card-val ${scoreClass(r.BaizMomentum, 50)}" style="font-weight:700;">${r.BaizMomentum ?? "—"}</span></div>
+            <div class="card-row"><span class="card-label" style="color:#2dd4bf;">信心指数</span><span class="card-val ${scoreClass(r.BaizConviction, 50)}" style="font-weight:700;">${r.BaizConviction ?? "—"}</span></div>`;
         } else if (w === "FUND") {
           const pe    = r.PE;
           const eps   = r.EPS;
@@ -1677,9 +1717,10 @@
       "Volatility30D":   { label: "30日波动率",  desc: "30日年化价格波动率。衡量股价自身的波动幅度，与市场方向无关。数值越高，日内价格振幅越大。" },
       "PE_vs_Sector":    { label: "PE vs 行业",  desc: "该股市盈率相对所在行业均值的偏差（百分比）。正值 = 溢价；负值 = 折价。行业均值仅基于标普500和纳斯达克100成分股计算。" },
       "Sector":          { label: "行业",        desc: "GICS行业分类。" },
-      "BaizScore":       { label: "贝佐拉评分",  desc: "贝佐拉综合评分（0–100）。五项信号加权合成：RS 30% + 动能 25% + 突破 20% + 趋势 15% + 量压 10%。一眼判断综合强弱——绿色（>50）= 整体偏强，红色（<50）= 整体偏弱。按此列排序可快速发现最强势标的。" },
+      "BaizScore":       { label: "贝佐拉评分",  desc: "贝佐拉综合评分（0–100）。五项信号加权合成：RS 30% + 动能 25% + 突破 20% + 趋势 15% + 量压 10%。一眼判断综合强弱——绿色（>50）= 整体偏强，红色（<50）= 整体偏弱。按此列排序可快速发现最强势标的。回测显示该评分在上行方向的信号强度远高于下行方向——低分意味着尚未显示强势，而非预示即将下跌。详见回测报告。" },
       "TurnScore":       { label: "转势评分",    desc: "转势评分（0–100）。识别由弱转强的潜在标的。公式：突破评分 × (1 − RS/100) × 量压（归一化）。▲ 50分以上 = 强烈转势信号（绿色）；→ 25–49分 = 值得关注的初步信号（琥珀色）；25分以下 = 无有效反转信号（红色）。量压为负时归零——缺乏买盘确认。" },
-      "BaizMomentum":    { label: "动能+",      desc: "贝佐拉动能+评分（0–100）。更偏重趋势与动能的替代组合：RS 40% + 动能 35% + 突破 15% + 趋势 5% + 量压 5%。2026年8月的历史回测显示，该权重仅在评分最高的90分以上区间相对标准贝佐拉评分体现出优势，且样本量远小于主评分——仅作为参考视角，非替代方案。不构成投资建议。" },
+      "BaizMomentum":    { label: "动能+",      desc: "贝佐拉动能+评分（0–100）。更偏重趋势与动能的替代组合：RS 40% + 动能 35% + 突破 15% + 趋势 5% + 量压 5%。2026年8月的历史回测显示，该权重仅在评分最高的90分以上区间相对标准贝佐拉评分体现出优势，且样本量远小于主评分——仅作为参考视角，非替代方案。与贝佐拉评分一样，低分意味着尚未显示强势，而非预示下跌。不构成投资建议。" },
+      "BaizConviction":  { label: "信心指数",    desc: "贝佐拉信心指数（0–100）。将当日贝佐拉评分与该股票自身过去1个月的平均贝佐拉评分做几何平均，因此只有当一只股票既是当前强势、又是近期持续强势时才会得高分——单日突然冲高不会拉高此分值。2026年8月回测显示，在相同样本量下其表现优于标准贝佐拉评分。需累积约1个月历史数据后才会显示数值。与其他贝佐拉系列评分一样，此分值衡量的是"强势是否存在"，而非"弱势是否存在"——低分不代表下跌信号。不构成投资建议。" },
       "RSScore":         { label: "RS评分",      desc: "相对强度评分（1–99）。与全体500+股票相比，本股近期价格表现的强弱排名。绿色（>50）= 跑赢大多数；红色（<50）= 表现落后。99 = 全市场最强1%，1 = 最弱。" },
       "BreakoutScore":   { label: "突破评分",    desc: "突破评分（0–100）。衡量今日突破强度：价格高于21日均线 + 当日涨幅 + 成交量放大，三项合计。绿色（>50）= 有效突破信号。100 = 三项信号同时全力触发。" },
       "MomentumScore":   { label: "动能评分",    desc: "动能评分（0–100）。跨1月、3月、6月、1年的持续上涨强度排名。绿色（>50）= 多周期涨幅优于大多数同类。100 = 全市场动能最强。" },

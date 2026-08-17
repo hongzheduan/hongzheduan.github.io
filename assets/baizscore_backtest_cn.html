@@ -81,6 +81,34 @@
     .heat-table .hv{font-family:'DM Mono',monospace;font-weight:600;color:#f1f5f9;}
     .heat-table .hn{font-family:'DM Mono',monospace;font-size:10px;color:#64748b;display:block;margin-top:2px;}
 
+    /* diverging bar chart — 12-month median edge by score bucket */
+    .divbar-chart{margin:18px 0 8px;}
+    .divbar-row{display:grid;grid-template-columns:96px 1fr 2px 1fr 74px;align-items:center;gap:0;margin-bottom:9px;}
+    .divbar-label{font-family:'DM Mono',monospace;font-size:11.5px;color:#94a3b8;text-align:right;padding-right:10px;white-space:nowrap;}
+    .divbar-neg{display:flex;justify-content:flex-end;height:16px;}
+    .divbar-neg-bar{height:16px;background:#ef4444;border-radius:3px 0 0 3px;min-width:2px;}
+    .divbar-center{width:1px;height:22px;background:rgba(255,255,255,0.15);}
+    .divbar-pos{display:flex;justify-content:flex-start;height:16px;}
+    .divbar-pos-bar{height:16px;background:#22c55e;border-radius:0 3px 3px 0;min-width:2px;}
+    .divbar-val{font-family:'DM Mono',monospace;font-size:11.5px;color:#e2e8f0;padding-left:10px;}
+    .divbar-val.neg{color:#fca5a5;}
+    .divbar-thin{opacity:0.55;}
+
+    /* grouped bar chart — baseline vs high-score median return, by horizon */
+    .gbar-chart{margin:16px 0 20px;}
+    .gbar-group{margin-bottom:12px;}
+    .gbar-group-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.04em;color:#64748b;margin-bottom:5px;}
+    .gbar-item{display:grid;grid-template-columns:64px 1fr 58px;align-items:center;gap:8px;margin-bottom:3px;}
+    .gbar-item-label{font-family:'DM Mono',monospace;font-size:10.5px;color:#94a3b8;text-align:right;}
+    .gbar-item-track{height:14px;}
+    .gbar-item-bar{height:14px;border-radius:3px;min-width:2px;}
+    .gbar-item-bar.base{background:#3987e5;}
+    .gbar-item-bar.high{background:#22c55e;}
+    .gbar-item-val{font-family:'DM Mono',monospace;font-size:11px;color:#e2e8f0;}
+    .gbar-legend{display:flex;gap:16px;margin-bottom:10px;}
+    .gbar-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#94a3b8;}
+    .gbar-legend-sw{width:9px;height:9px;border-radius:2px;}
+
     .note-list{list-style:none;padding:0;margin:14px 0;}
     .note-list li{position:relative;padding-left:22px;margin-bottom:14px;}
     .note-list li::before{content:'◆';position:absolute;left:0;top:3px;font-size:8px;color:var(--electric-bright);}
@@ -171,50 +199,201 @@ RS 相对强度       — 30%   <span style="color:#64748b;">// 百分位排名�
 
   <div class="section-label">03 — 不同评分阈值下的后续实际涨跌幅</div>
   <h2>回测结果</h2>
-  <p>下表将各阈值下"评分达到或超过该水平"的股票-交易日，其平均后续涨跌幅，与同一时间窗口内的基准（所有可评分交易日，不限评分高低）进行对比。</p>
+  <p>下图比较了各阈值下"评分达到或超过该水平"的股票-交易日，其后续价格变化的中位数，与同一时间窗口内的基准（所有可评分交易日，不限评分高低）进行对比。采用中位数而非均值的原因与下方局限性说明中提到的右偏分布一致——每张图下方的说明文字同时给出均值供参考。
+  <strong>本页所有柱状图——无论上行还是下行——均采用同一0–40%的比例尺</strong>，因此柱长在各图之间可以直接比较，而不仅限于单张图内部。</p>
+
+  <div class="gbar-legend">
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#3987e5;"></span>基准（中位数）</div>
+    <div class="gbar-legend-item"><span class="gbar-legend-sw" style="background:#22c55e;"></span>达到/超过阈值（中位数）</div>
+  </div>
 
   <h3>评分 ≥ 70（44,072条观测，占样本11.6%）</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>周期</th><th>基准均值</th><th>基准中位数</th><th>≥70均值</th><th>≥70中位数</th><th>样本量(≥70)</th></tr></thead>
-      <tbody>
-        <tr><td>1个月</td><td>+1.73%</td><td>+1.26%</td><td>+3.24%</td><td>+1.70%</td><td>42,875</td></tr>
-        <tr><td>3个月</td><td>+5.65%</td><td>+4.00%</td><td>+10.95%</td><td>+5.81%</td><td>40,333</td></tr>
-        <tr><td>6个月</td><td>+10.98%</td><td>+7.40%</td><td>+22.76%</td><td>+12.04%</td><td>36,449</td></tr>
-        <tr><td>9个月</td><td>+16.55%</td><td>+10.82%</td><td>+35.83%</td><td>+17.98%</td><td>32,367</td></tr>
-        <tr><td>12个月</td><td>+23.19%</td><td>+14.18%</td><td>+46.88%</td><td>+21.99%</td><td>28,708</td></tr>
-      </tbody>
-    </table>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">1个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:3.2%;"></div></div><div class="gbar-item-val">+1.26%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:4.3%;"></div></div><div class="gbar-item-val">+1.70%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">3个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:10.0%;"></div></div><div class="gbar-item-val">+4.00%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:14.5%;"></div></div><div class="gbar-item-val">+5.81%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:18.5%;"></div></div><div class="gbar-item-val">+7.40%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:30.1%;"></div></div><div class="gbar-item-val">+12.04%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:27.1%;"></div></div><div class="gbar-item-val">+10.82%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:45.0%;"></div></div><div class="gbar-item-val">+17.98%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:35.5%;"></div></div><div class="gbar-item-val">+14.18%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥70</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:55.0%;"></div></div><div class="gbar-item-val">+21.99%</div></div>
+    </div>
   </div>
+  <p style="font-size:11.5px;color:#64748b;">样本量(≥70)，1个月→12个月：42,875 · 40,333 · 36,449 · 32,367 · 28,708。12个月均值为+46.88%，图中中位数为+21.99%。</p>
 
   <h3>评分 ≥ 80（7,045条观测，占样本1.9%）</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>周期</th><th>基准均值</th><th>基准中位数</th><th>≥80均值</th><th>≥80中位数</th><th>样本量(≥80)</th></tr></thead>
-      <tbody>
-        <tr><td>1个月</td><td>+1.73%</td><td>+1.26%</td><td>+6.04%</td><td>+2.93%</td><td>6,894</td></tr>
-        <tr><td>3个月</td><td>+5.65%</td><td>+4.00%</td><td>+18.02%</td><td>+9.40%</td><td>6,408</td></tr>
-        <tr><td>6个月</td><td>+10.98%</td><td>+7.40%</td><td>+34.03%</td><td>+16.98%</td><td>5,564</td></tr>
-        <tr><td>9个月</td><td>+16.55%</td><td>+10.82%</td><td>+57.86%</td><td>+26.30%</td><td>4,842</td></tr>
-        <tr><td>12个月</td><td>+23.19%</td><td>+14.18%</td><td>+70.68%</td><td>+31.20%</td><td>4,213</td></tr>
-      </tbody>
-    </table>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">1个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:3.2%;"></div></div><div class="gbar-item-val">+1.26%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥80</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:7.3%;"></div></div><div class="gbar-item-val">+2.93%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">3个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:10.0%;"></div></div><div class="gbar-item-val">+4.00%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥80</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:23.5%;"></div></div><div class="gbar-item-val">+9.40%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:18.5%;"></div></div><div class="gbar-item-val">+7.40%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥80</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:42.5%;"></div></div><div class="gbar-item-val">+16.98%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:27.1%;"></div></div><div class="gbar-item-val">+10.82%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥80</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:65.8%;"></div></div><div class="gbar-item-val">+26.30%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:35.5%;"></div></div><div class="gbar-item-val">+14.18%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥80</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:78.0%;"></div></div><div class="gbar-item-val">+31.20%</div></div>
+    </div>
   </div>
+  <p style="font-size:11.5px;color:#64748b;">样本量(≥80)，1个月→12个月：6,894 · 6,408 · 5,564 · 4,842 · 4,213。12个月均值为+70.68%，图中中位数为+31.20%。</p>
 
   <h3>评分 ≥ 90（975条观测，占样本0.3% — 样本偏薄，参见"局限性"）</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>周期</th><th>基准均值</th><th>基准中位数</th><th>≥90均值</th><th>≥90中位数</th><th>样本量(≥90)</th></tr></thead>
-      <tbody>
-        <tr><td>1个月</td><td>+1.73%</td><td>+1.26%</td><td>+7.85%</td><td>+3.44%</td><td>958</td></tr>
-        <tr><td>3个月</td><td>+5.65%</td><td>+4.00%</td><td>+21.41%</td><td>+11.05%</td><td>887</td></tr>
-        <tr><td>6个月</td><td>+10.98%</td><td>+7.40%</td><td>+40.67%</td><td>+18.09%</td><td>785</td></tr>
-        <tr><td>9个月</td><td>+16.55%</td><td>+10.82%</td><td>+73.33%</td><td>+32.36%</td><td>682</td></tr>
-        <tr><td>12个月</td><td>+23.19%</td><td>+14.18%</td><td>+91.08%</td><td>+37.02%</td><td>590</td></tr>
-      </tbody>
-    </table>
+  <div class="gbar-chart">
+    <div class="gbar-group"><div class="gbar-group-label">1个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:3.2%;"></div></div><div class="gbar-item-val">+1.26%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥90</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:8.6%;"></div></div><div class="gbar-item-val">+3.44%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">3个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:10.0%;"></div></div><div class="gbar-item-val">+4.00%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥90</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:27.6%;"></div></div><div class="gbar-item-val">+11.05%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">6个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:18.5%;"></div></div><div class="gbar-item-val">+7.40%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥90</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:45.2%;"></div></div><div class="gbar-item-val">+18.09%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">9个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:27.1%;"></div></div><div class="gbar-item-val">+10.82%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥90</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:80.9%;"></div></div><div class="gbar-item-val">+32.36%</div></div>
+    </div>
+    <div class="gbar-group"><div class="gbar-group-label">12个月</div>
+      <div class="gbar-item"><div class="gbar-item-label">基准</div><div class="gbar-item-track"><div class="gbar-item-bar base" style="width:35.5%;"></div></div><div class="gbar-item-val">+14.18%</div></div>
+      <div class="gbar-item"><div class="gbar-item-label">≥90</div><div class="gbar-item-track"><div class="gbar-item-bar high" style="width:92.6%;"></div></div><div class="gbar-item-val">+37.02%</div></div>
+    </div>
   </div>
+  <p style="font-size:11.5px;color:#64748b;">样本量(≥90)，1个月→12个月：958 · 887 · 785 · 682 · 590。12个月均值为+91.08%，图中中位数为+37.02%。</p>
   <p style="font-size:12px;color:#64748b;">样本量 = 在所抓取数据范围内、该周期拥有完整后续窗口的观测记录数。所有数字均为本次特定回测区间内的历史平均值，不构成预测。</p>
+
+  <div class="divider"></div>
+
+  <div class="section-label">03b — 低评分能否预测下跌？</div>
+  <h2>该评分并非对称信号</h2>
+  <p>以上内容测试的都是上行方向：<em>高</em>评分是否预示更强的后续涨幅？我们用完全相同的方法反向测试了一遍：
+  <em>低</em>评分（≤10 / ≤20 / ≤30）是否预示<em>弱于平均或下跌</em>的后续走势——同时给出胜率与亏损率。</p>
+
+  <p style="font-size:12.5px;color:#64748b;margin-bottom:4px;">各评分区间的12个月中位数超额（相对基准）——柱状图按比例绘制，差距一目了然：</p>
+  <div class="divbar-chart">
+    <div class="divbar-row divbar-thin">
+      <div class="divbar-label">评分 ≥90*</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"><div class="divbar-pos-bar" style="width:57.0%;"></div></div>
+      <div class="divbar-val">+22.8pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">评分 ≥80</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"><div class="divbar-pos-bar" style="width:42.5%;"></div></div>
+      <div class="divbar-val">+17.0pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">评分 ≥70</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"><div class="divbar-pos-bar" style="width:19.5%;"></div></div>
+      <div class="divbar-val">+7.8pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label" style="color:#e2e8f0;">基准</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val">0pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">评分 ≤30</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:1.5%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−0.6pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">评分 ≤20</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"><div class="divbar-pos-bar" style="width:1.5%;"></div></div>
+      <div class="divbar-val">+0.6pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">评分 ≤10</div>
+      <div class="divbar-neg"></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"><div class="divbar-pos-bar" style="width:2.3%;"></div></div>
+      <div class="divbar-val">+0.9pp</div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">*评分≥90仅作为比例参照——样本偏薄（N=590，详见第03节）。注意≤10与≤20档在12个月周期本身还是略微<em>正值</em>（即第03节分位数检验中提到的深度价值/均值回归效应）；只有覆盖更宽的≤30档略微转负——没有一个能抵消上行柱状的量级。</p>
+
+  <h3>评分 ≤ 30 各周期中位数超额（112,010条观测，占样本30.4%）</h3>
+  <div class="divbar-chart">
+    <div class="divbar-row">
+      <div class="divbar-label">1个月</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:0.15%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−0.06pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">3个月</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:1.0%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−0.40pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">6个月</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:3.3%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−1.32pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">9个月</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:4.4%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−1.74pp</div>
+    </div>
+    <div class="divbar-row">
+      <div class="divbar-label">12个月</div>
+      <div class="divbar-neg"><div class="divbar-neg-bar" style="width:1.4%;"></div></div>
+      <div class="divbar-center"></div>
+      <div class="divbar-pos"></div>
+      <div class="divbar-val neg">−0.57pp</div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:#64748b;">≤30胜率/亏损率，1个月→12个月：56.5%/43.5% · 59.6%/40.4% · 61.6%/38.4% · 63.8%/36.2% · 65.6%/34.4%——各周期均未接近过半亏损。≤10与≤20档在更小样本量下呈现相同的微弱、逐渐消退形态（11,229–71,239条观测）。</p>
+
+  <div class="card">
+    <p><strong>诚实的结论是：这是一个微弱且不稳定的下行信号，远不及上行信号那样有力。</strong>
+    在中期（3–9个月），低评分确实呈现出真实但很小的负向偏离（中位数超额约−0.4pp至−2pp之间）。
+    但到12个月时，这种偏离会减弱甚至转为正值，且每个周期的胜率都维持在56–66%的多数区间——亏损率从未接近50%，更不用说超过50%。
+    对比一下量级：评分≥80档的12个月中位数超额是<strong>+17.0pp</strong>；评分≤30档是<strong>−0.6pp</strong>。上行信号大约是下行信号的30倍。</p>
+    <p style="margin-top:12px;">这与其说是缺陷，不如说是一种结构性特征：该评分的每一项分量（RS、动能、突破、趋势、量压）衡量的都是"强势信号是否出现"，而非"弱势信号是否出现"。
+    低评分意味着这些强势信号没有触发——并不意味着相反的信号（破位、派发、持续恶化）正在发生。
+    将这些同属"衡量优秀程度"的分量以其他方式重新组合（已针对下文的<code class="mono">贝佐拉持续度</code>与<code class="mono">贝佐拉信心指数</code>进行测试）也不会改变这一点——它们的低分端呈现的是同样微弱、逐渐消退的模式，而非更清晰的下行信号。
+    <strong>请将低评分理解为"当前未显示强势"，而非"预示将要下跌"。</strong></p>
+  </div>
 
   <div class="divider"></div>
 

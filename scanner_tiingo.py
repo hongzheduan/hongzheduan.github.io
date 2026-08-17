@@ -68,6 +68,8 @@ BRIEFING_TXT_CN  = os.path.join(DATA_DIR, "daily_briefing_cn.txt")
 MARKET_NEWS_JSON    = os.path.join(DATA_DIR, "market_news.json")
 MARKET_NEWS_CN_JSON = os.path.join(DATA_DIR, "market_news_cn.json")
 SCORE_HISTORY    = os.path.join(DATA_DIR, "score_history.json")
+BAIZSCORE_TRAILING_FILE = os.path.join(DATA_DIR, "baizscore_trailing.json")  # per-ticker daily BaizScore, last 21 sessions — feeds BaizConviction
+BAIZ_PERSIST_WINDOW = 21  # trading sessions (~1 month) — see assets/baizscore_backtest.html
 
 SCRAPE_HEADERS = {
     "User-Agent": (
@@ -2228,6 +2230,50 @@ def prefetch_fundamentals(tickers, tiingo_names, sleep_edgar=0.15):
 # MULTI-PERIOD METRICS
 # =========================
 
+def _compute_baiz_persist_and_conviction(df):
+    """
+    BaizPersist / BaizConviction — validated 2026-08, see assets/baizscore_backtest.html.
+    BaizPersist = trailing BAIZ_PERSIST_WINDOW-session average of BaizScore per ticker
+    (today's score included), tracked in BAIZSCORE_TRAILING_FILE across daily runs.
+    BaizConviction = sqrt(BaizScore * BaizPersist) — rewards stocks that are both
+    strong today AND have been consistently strong recently, rather than a single
+    spike. At matched sample size this beat plain BaizScore on forward returns.
+    Both are null until a ticker has BAIZ_PERSIST_WINDOW sessions of accumulated
+    history — ~1 month after this feature's first deploy, or after a new ticker's
+    first appearance in the universe.
+    """
+    history = {}
+    if os.path.exists(BAIZSCORE_TRAILING_FILE):
+        try:
+            with open(BAIZSCORE_TRAILING_FILE) as f:
+                history = json.load(f)
+        except Exception:
+            history = {}
+
+    persist_vals, conviction_vals, updated_history = [], [], {}
+    for score, ticker in zip(df["BaizScore"], df["Ticker"]):
+        prior = history.get(ticker, [])
+        combined = prior + [float(score)] if score is not None and pd.notna(score) else prior
+        combined = combined[-BAIZ_PERSIST_WINDOW:]
+        updated_history[ticker] = combined
+
+        if len(combined) >= BAIZ_PERSIST_WINDOW and score is not None and pd.notna(score):
+            persist = sum(combined) / len(combined)
+            persist_vals.append(round(persist))
+            conviction_vals.append(round((persist * float(score)) ** 0.5))
+        else:
+            persist_vals.append(None)
+            conviction_vals.append(None)
+
+    try:
+        with open(BAIZSCORE_TRAILING_FILE, "w") as f:
+            json.dump(updated_history, f)
+    except Exception as e:
+        print(f"[baiz_persist] failed to save trailing history: {e}")
+
+    return persist_vals, conviction_vals
+
+
 def calculate_period_metrics(df, label, days):
     recent = df.iloc[-days:].copy().reset_index(drop=True)
     start_price = recent["Close"].iloc[0]
@@ -2587,6 +2633,10 @@ def scan():
             0.05 * df["TrendScore"] +
             0.05 * vp_norm
         ).round().clip(0, 100).astype(int)
+
+        persist_vals, conviction_vals = _compute_baiz_persist_and_conviction(df)
+        df["BaizPersist"] = persist_vals
+        df["BaizConviction"] = conviction_vals
 
     if "VolumeChange1D" in df.columns:
         df = df.sort_values("VolumeChange1D", ascending=False)
