@@ -7,9 +7,10 @@ data accumulates — this directory is what to run when that's due.
 ## Rules these scripts follow (keep following them)
 
 - **Never persist raw per-row output.** Every script here prints summary stats to
-  stdout only. The one exception is `backfill_score_trend.py`, which writes real
-  production data (`data/baiz_score_trend.json`) — that's a shipping feature's seed
-  data, not a backtest artifact, so it's meant to be committed.
+  stdout only. The exceptions are `backfill_score_trend.py` (writes
+  `data/baiz_score_trend.json`) and `seed_baizscore_trailing.py` (writes
+  `data/baizscore_trailing.json`) — both write real production seed data for a
+  shipping feature, not a backtest artifact, so both are meant to be committed.
 - **yfinance is the data source** (`scanner_yfinance.fetch_yfinance_bulk`), 4 years
   of daily bars, chunked fetch. `BRK.B`/`BF.B` reliably fail (yfinance ticker-format
   mismatch) — expected, not a bug, ~516/518 tickers succeed.
@@ -97,6 +98,21 @@ real scoring methodology across the full trailing year. Already run once
 (2026-08-17, 512 tickers). Only re-run this if the trend file is ever lost/
 corrupted — the live scanner maintains it incrementally on its own otherwise
 (see `_update_score_trends()` in `scanner_tiingo.py`).
+
+## `seed_baizscore_trailing.py` — one-time seed for live BaizPersist/BaizConviction
+
+Not a "report" script — seeds `data/baizscore_trailing.json`, the LIVE
+trailing-21-session BaizScore window `scanner_tiingo.py`'s
+`_compute_baiz_persist_and_conviction()` reads/writes to compute *today's*
+BaizPersist/BaizConviction. This file is independent from `baiz_score_trend.json`
+(the sparkline history) and was never seeded when `backfill_score_trend.py` ran
+— found 2026-08-17 when BaizPersist/BaizConviction showed null in production
+despite the sparklines already showing a full year of history for both. Derives
+the seed straight from `baiz_score_trend.json`'s BaizScore tail (last 21 entries
+per ticker), since that file already replayed BaizScore chronologically per
+ticker correctly. Already run once (2026-08-17, 512/512 tickers with a full
+21-session window). Only re-run if `data/baizscore_trailing.json` is ever lost/
+corrupted — the live scanner maintains it incrementally on its own otherwise.
 
 ## Suggested order for a full annual re-run
 

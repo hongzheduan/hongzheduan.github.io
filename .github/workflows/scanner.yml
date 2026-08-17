@@ -284,6 +284,8 @@ jobs:
           git add data/splits.json                     2>/dev/null || true
           git add data/daily_digest.json               2>/dev/null || true
           git add data/score_history.json              2>/dev/null || true
+          git add data/baiz_score_trend.json           2>/dev/null || true
+          git add data/baizscore_trailing.json         2>/dev/null || true
           git add -f data/daily_briefing.txt            2>/dev/null || true
           git add -f data/daily_briefing_cn.txt         2>/dev/null || true
           git add -f data/market_news.json              2>/dev/null || true
