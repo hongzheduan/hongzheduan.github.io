@@ -55,6 +55,8 @@ TIMEFRAMES = {
 
 BAIZSCORE_TRAILING_FILE = os.path.join(DATA_DIR, "baizscore_trailing_yf.json")  # per-ticker daily BaizScore, last 21 sessions — feeds BaizConviction
 BAIZ_PERSIST_WINDOW = 21  # trading sessions (~1 month) — see assets/baizscore_backtest.html
+BAIZSCORE_TREND_FILE = os.path.join(DATA_DIR, "baiz_score_trend_yf.json")  # per-ticker rolling ~1Y history of all 4 Baizora scores — feeds dashboard sparklines
+BAIZ_TREND_WINDOW = 252  # trading sessions (~1 year)
 
 YF_CHUNK_SIZE  = 60
 YF_MAX_RETRIES = 3
@@ -437,6 +439,44 @@ def _compute_baiz_persist_and_conviction(df):
     return persist_vals, conviction_vals
 
 
+SCORE_TREND_COLS = ["BaizScore", "BaizMomentum", "BaizPersist", "BaizConviction"]
+
+
+def _update_score_trends(df):
+    """Score-trend sparkline history — see _update_score_trends in scanner_tiingo.py
+    for full docs; identical logic, separate trend file for this dormant backup script."""
+    history = {}
+    if os.path.exists(BAIZSCORE_TREND_FILE):
+        try:
+            with open(BAIZSCORE_TREND_FILE) as f:
+                history = json.load(f)
+        except Exception:
+            history = {}
+
+    spark_cols = {c: [] for c in SCORE_TREND_COLS}
+    updated_history = {}
+
+    for _, row in df.iterrows():
+        ticker = row["Ticker"]
+        entry = history.get(ticker, {})
+        new_entry = {}
+        for c in SCORE_TREND_COLS:
+            val = row.get(c)
+            val_clean = int(val) if val is not None and pd.notna(val) else None
+            combined = (entry.get(c, []) + [val_clean])[-BAIZ_TREND_WINDOW:]
+            new_entry[c] = combined
+            spark_cols[c].append(combined)
+        updated_history[ticker] = new_entry
+
+    try:
+        with open(BAIZSCORE_TREND_FILE, "w") as f:
+            json.dump(updated_history, f)
+    except Exception as e:
+        print(f"[baiz_trend] failed to save trend history: {e}")
+
+    return spark_cols
+
+
 def calculate_period_metrics(df, label, days):
     recent = df.iloc[-days:].copy().reset_index(drop=True)
     start_price = recent["Close"].iloc[0]
@@ -739,6 +779,10 @@ def scan():
         persist_vals, conviction_vals = _compute_baiz_persist_and_conviction(df)
         df["BaizPersist"] = persist_vals
         df["BaizConviction"] = conviction_vals
+
+        trend_spark = _update_score_trends(df)
+        for c in SCORE_TREND_COLS:
+            df[f"{c}Spark1Y"] = trend_spark[c]
 
     if "VolumeChange1D" in df.columns:
         df = df.sort_values("VolumeChange1D", ascending=False)
