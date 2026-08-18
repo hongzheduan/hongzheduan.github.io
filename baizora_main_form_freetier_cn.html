@@ -713,6 +713,7 @@
     .score-row-spark { display: none; padding: 3px 0 5px; }
     .score-row.spark-open .score-row-spark { display: block; }
     .score-row .card-label::after { content: " \25BE"; font-size: 8px; opacity: 0.6; }
+    .score-cell-wrap { display: inline-flex; align-items: center; gap: 6px; }
     /* ── TICKER MODAL ── */
     #tickerModal {
       position: fixed; inset: 0; z-index: 2000;
@@ -761,6 +762,14 @@
     .sma-btn[data-sma="bb"].active { background: rgba(244,114,182,0.16); border-color: #f472b6; color: #f9a8d4; }
     .sma-btn[data-sma="macd"]::before { background: #22d3ee; }
     .sma-btn[data-sma="macd"].active { background: rgba(34,211,238,0.16); border-color: #22d3ee; color: #67e8f9; }
+    .sma-btn[data-baiz="BaizScore"]::before { background: #f59e0b; }
+    .sma-btn[data-baiz="BaizScore"].active { background: rgba(245,158,11,0.16); border-color: #f59e0b; color: #fcd34d; }
+    .sma-btn[data-baiz="BaizMomentum"]::before { background: #c084fc; }
+    .sma-btn[data-baiz="BaizMomentum"].active { background: rgba(192,132,252,0.16); border-color: #c084fc; color: #d8b4fe; }
+    .sma-btn[data-baiz="BaizPersist"]::before { background: #f472b6; }
+    .sma-btn[data-baiz="BaizPersist"].active { background: rgba(244,114,182,0.16); border-color: #f472b6; color: #f9a8d4; }
+    .sma-btn[data-baiz="BaizConviction"]::before { background: #2dd4bf; }
+    .sma-btn[data-baiz="BaizConviction"].active { background: rgba(45,212,191,0.16); border-color: #2dd4bf; color: #5eead4; }
     .sma-btn.active::before { opacity: 1; }
     .sma-chip { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); border: 1px solid; border-radius: 4px; padding: 3px 6px 3px 10px; font-family: 'DM Mono',monospace; font-size: 11px; }
     .sma-chip-del { background: none; border: none; cursor: pointer; font-size: 13px; line-height: 1; padding: 0 2px; opacity: .75; }
@@ -1379,10 +1388,10 @@
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
             <td class="spark-cell">${sparkSVG}</td>
-            <td class="col-baiz ${scoreClass(r.BaizScore, 50)}"><span class="score-cell-wrap"><span>${r.BaizScore ?? "—"}</span>${renderScoreSpark(r.BaizScoreSpark1Y, "#f59e0b")}</span></td>
-            <td class="col-mom ${scoreClass(r.BaizMomentum, 50)}"><span class="score-cell-wrap"><span>${r.BaizMomentum ?? "—"}</span>${renderScoreSpark(r.BaizMomentumSpark1Y, "#c084fc")}</span></td>
-            <td class="col-persist ${scoreClass(r.BaizPersist, 50)}"><span class="score-cell-wrap"><span>${r.BaizPersist ?? "—"}</span>${renderScoreSpark(r.BaizPersistSpark1Y, "#f472b6")}</span></td>
-            <td class="col-conv ${scoreClass(r.BaizConviction, 50)}"><span class="score-cell-wrap"><span>${r.BaizConviction ?? "—"}</span>${renderScoreSpark(r.BaizConvictionSpark1Y, "#2dd4bf")}</span></td>
+            <td class="col-baiz ${scoreClass(r.BaizScore, 50)}"><span class="score-cell-wrap"><span>${r.BaizScore ?? "—"}</span>${renderScoreSpark(r.BaizScoreSpark1Y, "#f59e0b", 60, 20)}</span></td>
+            <td class="col-mom ${scoreClass(r.BaizMomentum, 50)}"><span class="score-cell-wrap"><span>${r.BaizMomentum ?? "—"}</span>${renderScoreSpark(r.BaizMomentumSpark1Y, "#c084fc", 60, 20)}</span></td>
+            <td class="col-persist ${scoreClass(r.BaizPersist, 50)}"><span class="score-cell-wrap"><span>${r.BaizPersist ?? "—"}</span>${renderScoreSpark(r.BaizPersistSpark1Y, "#f472b6", 60, 20)}</span></td>
+            <td class="col-conv ${scoreClass(r.BaizConviction, 50)}"><span class="score-cell-wrap"><span>${r.BaizConviction ?? "—"}</span>${renderScoreSpark(r.BaizConvictionSpark1Y, "#2dd4bf", 60, 20)}</span></td>
           </tr>`;
         }).join("");
         return head + "<tbody>" + rows + "</tbody>";
@@ -1671,7 +1680,7 @@
       "BaizScore":       { label: "贝佐拉评分",  desc: "贝佐拉综合评分（0–100）。五项信号加权合成：RS 30% + 动能 25% + 突破 20% + 趋势 15% + 量压 10%。一眼判断综合强弱——绿色（>50）= 整体偏强，红色（<50）= 整体偏弱。按此列排序可快速发现最强势标的。回测显示该评分在上行方向的信号强度远高于下行方向——低分意味着尚未显示强势，而非预示即将下跌。详见回测报告。" },
       "BaizMomentum":    { label: "动能+",      desc: "贝佐拉动能+评分（0–100）。更偏重趋势与动能的替代组合：RS 40% + 动能 35% + 突破 15% + 趋势 5% + 量压 5%。2026年8月的历史回测显示，该权重仅在评分最高的90分以上区间相对标准贝佐拉评分体现出优势，且样本量远小于主评分——仅作为参考视角，非替代方案。与贝佐拉评分一样，低分意味着尚未显示强势，而非预示下跌。不构成投资建议。" },
       "BaizPersist":     { label: "持续度",     desc: "贝佐拉持续度（0–100）。该股票自身过去21个交易日（约1个月）的贝佐拉评分平均值——反映近期持续强弱，而非仅看当日快照。直接作为信心指数的输入项。需累积约1个月历史数据后才会显示数值。" },
-      "BaizConviction":  { label: "信心指数",    desc: "贝佐拉信心指数（0–100）。将当日贝佐拉评分与持续度列（该股票自身过去1个月的平均贝佐拉评分）做几何平均，因此只有当一只股票既是当前强势、又是近期持续强势时才会得高分——单日突然冲高不会拉高此分值。2026年8月回测显示，在相同样本量下其表现优于标准贝佐拉评分。需累积约1个月历史数据后才会显示数值。与其他贝佐拉系列评分一样，此分值衡量的是"强势是否存在"，而非"弱势是否存在"——低分不代表下跌信号。不构成投资建议。" },
+      "BaizConviction":  { label: "信心指数",    desc: "贝佐拉信心指数（0–100）。将当日贝佐拉评分与持续度列（该股票自身过去1个月的平均贝佐拉评分）做几何平均，因此只有当一只股票既是当前强势、又是近期持续强势时才会得高分——单日突然冲高不会拉高此分值。2026年8月回测显示，在相同样本量下其表现优于标准贝佐拉评分。需累积约1个月历史数据后才会显示数值。与其他贝佐拉系列评分一样，此分值衡量的是\"强势是否存在\"，而非\"弱势是否存在\"——低分不代表下跌信号。不构成投资建议。" },
       "RSScore":         { label: "RS评分",      desc: "相对强度评分（1–99）。与全体500+股票相比，本股近期价格表现的强弱排名。绿色（>50）= 跑赢大多数；红色（<50）= 表现落后。99 = 全市场最强1%，1 = 最弱。" },
       "BreakoutScore":   { label: "突破评分",    desc: "突破评分（0–100）。衡量今日突破强度：价格高于21日均线 + 当日涨幅 + 成交量放大，三项合计。绿色（>50）= 有效突破信号。100 = 三项信号同时全力触发。" },
       "MomentumScore":   { label: "动能评分",    desc: "动能评分（0–100）。跨1月、3月、6月、1年的持续上涨强度排名。绿色（>50）= 多周期涨幅优于大多数同类。100 = 全市场动能最强。" },
@@ -1943,7 +1952,7 @@
     }
 
     /* ── CANDLESTICK RENDERER ── */
-    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd) {
+    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
@@ -1954,11 +1963,14 @@
       const hasVol  = candles.some(c => c && c[4] > 0);
       const volH    = hasVol ? Math.round(H * 0.22) : 0;
       const gap     = hasVol ? 6 : 0;
+      const hasScore = !!(scoreData && scoreData.values && scoreData.values.some(v => v != null));
+      const scoreH   = hasScore ? Math.round(H * 0.20) : 0;
+      const gap3     = hasScore ? 6 : 0;
       const hasMacd = !!(macd && (macd.macd || macd.signal || macd.hist));
       const macdH   = hasMacd ? Math.round(H * 0.24) : 0;
       const gap2    = hasMacd ? 6 : 0;
       const pad    = { top: 20, right: 16, bottom: 28, left: 58 };
-      const priceH = H - pad.top - pad.bottom - volH - gap - macdH - gap2;
+      const priceH = H - pad.top - pad.bottom - volH - gap - scoreH - gap3 - macdH - gap2;
       const n      = candles.length;
       const slotW  = (W - pad.left - pad.right) / n;
       const cndW   = Math.max(1, slotW * 0.65);
@@ -2071,8 +2083,35 @@
           ctx.fillRect(toX(i), volTop + (volH - 4) - bH, cndW, bH);
         });
       }
+      if (hasScore) {
+        const scoreTop = pad.top + priceH + gap + volH + gap3;
+        const sToY = v => scoreTop + scoreH * (1 - v / 100);
+        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad.left, scoreTop); ctx.lineTo(W - pad.right, scoreTop); ctx.stroke();
+        ctx.fillStyle = "#475569"; ctx.font = `9px 'DM Mono', monospace`;
+        ctx.textAlign = "right";
+        ctx.fillText(scoreData.label.toUpperCase(), pad.left - 5, scoreTop + 9);
+        [0, 50, 100].forEach(v => {
+          const y = sToY(v);
+          ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.setLineDash(v === 50 ? [2, 2] : []);
+          ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = "#475569"; ctx.font = `8px 'DM Mono', monospace`; ctx.textAlign = "right";
+          ctx.fillText(String(v), pad.left - 5, y + 3);
+        });
+        ctx.strokeStyle = scoreData.color; ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        let sStarted = false;
+        candles.forEach((c, i) => {
+          const v = scoreData.values[i];
+          if (v == null) return;
+          const x = toX(i) + cndW / 2, y = sToY(v);
+          if (!sStarted) { ctx.moveTo(x, y); sStarted = true; } else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
       if (hasMacd) {
-        const macdTop = pad.top + priceH + gap + volH + gap2;
+        const macdTop = pad.top + priceH + gap + volH + gap3 + scoreH + gap2;
         let mMin = Infinity, mMax = -Infinity;
         const consider = v => { if (v != null) { if (v > mMax) mMax = v; if (v < mMin) mMin = v; } };
         (macd.macd || []).forEach(consider);
@@ -2187,6 +2226,11 @@
       document.getElementById("macdSignalInput").value = 9;
       document.getElementById("macdToggles").classList.remove("open");
       document.getElementById("macdDrawerToggle").classList.remove("open");
+      _baizKey = null;
+      document.querySelectorAll('#baizToggles .sma-btn[data-baiz]').forEach(b => b.classList.remove("active"));
+      document.getElementById("baizDrawerToggle").textContent = "贝佐拉 ▾";
+      document.getElementById("baizToggles").classList.remove("open");
+      document.getElementById("baizDrawerToggle").classList.remove("open");
 
       requestAnimationFrame(() => {
         _renderModalChart(ticker, 126);
@@ -2201,6 +2245,9 @@
     let _smaList = [20, 50, 200];
     let _bbPeriod = 20, _bbMult = 2;
     let _macdFast = 12, _macdSlow = 26, _macdSignal = 9;
+    let _baizKey = null;
+    const BAIZ_LABELS = { BaizScore: "贝佐拉", BaizMomentum: "动能+", BaizPersist: "持续度", BaizConviction: "信心指数" };
+    const BAIZ_COLORS = { BaizScore: "#f59e0b", BaizMomentum: "#c084fc", BaizPersist: "#f472b6", BaizConviction: "#2dd4bf" };
     function _computeBollinger(candles, period, mult) {
       const closes = candles.map(c => c ? c[3] : null);
       const upper = new Array(closes.length).fill(null);
@@ -2334,9 +2381,17 @@
           const raw = (rawSma && rawSma[backendKey]) ? rawSma[backendKey] : _computeCustomSma(candles, period);
           return { color: SMA_PALETTE[i % SMA_PALETTE.length], values: alignToDates(raw) };
         });
+        let scoreData = null;
+        if (_baizKey) {
+          const row = allRows.find(x => x.Ticker === ticker);
+          const rawScoreVals = row ? row[_baizKey + "Spark1Y"] : null;
+          if (rawScoreVals && rawScoreVals.length) {
+            scoreData = { color: BAIZ_COLORS[_baizKey], label: BAIZ_LABELS[_baizKey], values: alignToDates(rawScoreVals) };
+          }
+        }
         let bbBand = null;
         let macdActive = false;
-        const activeSmaKeys = Array.from(document.querySelectorAll(".sma-btn.active"))
+        const activeSmaKeys = Array.from(document.querySelectorAll(".sma-btn[data-sma].active"))
           .map(b => b.dataset.sma);
         activeSmaKeys.forEach(key => {
           if (key === "bb") {
@@ -2355,9 +2410,9 @@
           const { macdLine, signalLine, hist } = _computeMacd(candles, _macdFast, _macdSlow, _macdSignal);
           macdData = { macd: alignToDates(macdLine), signal: alignToDates(signalLine), hist: alignToDates(hist) };
         }
-        canvas.style.height = macdData ? "390px" : "280px";
+        canvas.style.height = (280 + (macdData ? 110 : 0) + (scoreData ? 90 : 0)) + "px";
 
-        renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData);
+        renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData);
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
       }
@@ -2416,6 +2471,7 @@
       _setupDrawer("smaDrawerToggle", "smaToggles");
       _setupDrawer("bbDrawerToggle", "bbToggles");
       _setupDrawer("macdDrawerToggle", "macdToggles");
+      _setupDrawer("baizDrawerToggle", "baizToggles");
       _setupDrawer("tfDrawerToggle", "candleTimeframes");
 
       document.getElementById("bbToggles").addEventListener("click", e => {
@@ -2469,6 +2525,20 @@
           if (e.key === "Enter") { e.preventDefault(); document.getElementById("macdApply").click(); }
         });
       });
+
+      document.getElementById("baizToggles").addEventListener("click", e => {
+        const btn = e.target.closest(".sma-btn[data-baiz]");
+        if (!btn || !_modalTicker) return;
+        const key = btn.dataset.baiz;
+        const wasActive = btn.classList.contains("active");
+        document.querySelectorAll('#baizToggles .sma-btn[data-baiz]').forEach(b => b.classList.remove("active"));
+        _baizKey = wasActive ? null : key;
+        if (_baizKey) btn.classList.add("active");
+        document.getElementById("baizDrawerToggle").textContent = (BAIZ_LABELS[_baizKey] || "贝佐拉") + " ▾";
+        const activeTf = document.querySelector(".tf-btn.active");
+        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+      });
+
       document.getElementById("modalClose").addEventListener("click", closeTickerModal);
       document.getElementById("tickerModal").addEventListener("click", e => {
         if (e.target === document.getElementById("tickerModal")) closeTickerModal();
@@ -2628,6 +2698,15 @@
           <input type="number" id="macdSlowInput" min="2" max="200" value="26" title="慢线EMA周期 (默认26)">
           <input type="number" id="macdSignalInput" min="2" max="100" value="9" title="信号线EMA周期 (默认9)">
           <button type="button" class="sma-add-btn" id="macdApply">设置</button>
+        </div>
+      </div>
+      <div class="overlay-drawer-wrap">
+        <button type="button" class="overlay-drawer-toggle" id="baizDrawerToggle">贝佐拉 &#9662;</button>
+        <div class="overlay-drawer-panel" id="baizToggles">
+          <button class="sma-btn" data-baiz="BaizScore">贝佐拉</button>
+          <button class="sma-btn" data-baiz="BaizMomentum">动能+</button>
+          <button class="sma-btn" data-baiz="BaizPersist">持续度</button>
+          <button class="sma-btn" data-baiz="BaizConviction">信心指数</button>
         </div>
       </div>
       <canvas id="candleCanvas"></canvas>
