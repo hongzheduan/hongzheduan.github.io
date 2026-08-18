@@ -210,6 +210,14 @@ _SCRIPT_TEMPLATE = r"""
 
   if (window.BAIZORA_LIVE_PRICES) refresh();
   setInterval(function() { if (window.BAIZORA_LIVE_PRICES && isMarketOpen()) refresh(); }, 60000);
+
+  /* ---- Free-access-period trial CTA swap (see assets/feature_flags.js) ---- */
+  if (window.FREE_ACCESS_MODE) {
+    ["navTrialBtn", "ctaTrialBtn"].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.href = "../signup.html"; el.textContent = "Sign Up Free"; }
+    });
+  }
 })();
 </script>
 """
@@ -503,7 +511,7 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
   </a>
   <div class="nav-links">
     <a href="../baizora_main_form_freetier.html" class="nav-btn">Free Tier</a>
-    <a href="../pricing.html" class="nav-btn nav-btn-primary">Start Free Trial</a>
+    <a href="../pricing.html" class="nav-btn nav-btn-primary" id="navTrialBtn">Start Free Trial</a>
   </div>
 </nav>
 
@@ -575,7 +583,7 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
   <div class="cta-box">
     <h3>See all 500+ stocks</h3>
     <p>Sort by any signal across 7 timeframes. Full S&amp;P 500 and Nasdaq-100 coverage, updated daily.</p>
-    <a href="../pricing.html" class="btn-gold">Start 7-Day Free Trial</a>
+    <a href="../pricing.html" class="btn-gold" id="ctaTrialBtn">Start 7-Day Free Trial</a>
   </div>
 
 </div>
