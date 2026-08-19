@@ -189,6 +189,10 @@
         <td>top-price-movers.html<br>unusual-volume.html</td>
         <td>Not flag-gated at all — these were permanent, direct edits, not routed through <span class="inline-code">FREE_ACCESS_MODE</span>. Removed entirely: the "First 7 Days Free" announcement bar (+ its <span class="inline-code">.announcement</span>/<span class="inline-code">.dot</span>/<span class="inline-code">pulse</span> CSS), the "Plans" nav link, the "From $9.99/mo · No extra fees · Cancel anytime" pricing line, and the "...or start a free trial" phrasing (now "...or sign up for full access"). The bottom CTA button text also changed permanently from "🔥 Start Free — 7 Days" to "🔥 Sign Up Free" (still links to signup.html). None of this comes back when the flag flips off — if pricing messaging should return on these two pages, re-add it by hand.</td>
       </tr>
+      <tr>
+        <td>video/generate_video.py<br>video/generate_shorts.py<br>video/upload_youtube.py</td>
+        <td>Added 2026-08-18, after the site's flag was found not to cover the daily YouTube video pipeline at all — category Shorts, index-spotlight recaps, and uploaded video descriptions kept saying "start your free 7-day trial" indefinitely. Each of these 3 files has its <strong>own separate</strong> <span class="inline-code">FREE_ACCESS_MODE = True</span> constant near the top (no shared config module in <span class="inline-code">video/</span>, so it's duplicated per-file like the site's other reversible flags) — flip all 3 to <span class="inline-code">False</span> to restore the original trial copy everywhere it appears (~19 spots). Two of those spots are spoken TTS narration, not just on-screen text; the flag-off branch restores the exact original wording so timing reverts too.</td>
+      </tr>
     </table>
 
     <div class="warning-box">
@@ -213,9 +217,10 @@
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">8</span> Visit <strong>pricing.html</strong> and <strong>billing.html</strong> directly by URL — both should load normally again instead of redirecting to the homepage</li>
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">9</span> Manually rewrite <strong>about.html / _cn</strong> and <strong>compare.html / _cn</strong> pricing copy, and decide whether to restore pricing messaging on <strong>top-price-movers.html</strong> / <strong>unusual-volume.html</strong> (see table above)</li>
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">10</span> Manually update <strong>functions/index.js</strong>'s chat prompt, then deploy with <span class="inline-code">firebase deploy --only functions --non-interactive</span></li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">11</span> Flip <span class="inline-code">FREE_ACCESS_MODE</span> to <span class="inline-code">False</span> in all 3 of <strong>video/generate_video.py</strong>, <strong>video/generate_shorts.py</strong>, and <strong>video/upload_youtube.py</strong>, then spot-check the next generated video for the restored trial CTA text/narration</li>
     </ol>
 
-    <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-08-15 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
+    <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-08-18 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
 
   </div>
 </div>
