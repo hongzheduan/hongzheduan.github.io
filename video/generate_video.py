@@ -20,6 +20,12 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+# Mirrors assets/feature_flags.js's FREE_ACCESS_MODE on the website. While true,
+# every "7-day free trial" CTA/badge/narration line below is replaced with plain
+# free-access copy instead. Flip to False when payments resume — keep in sync
+# with generate_shorts.py's and upload_youtube.py's copies of this flag.
+FREE_ACCESS_MODE = True
+
 # ── Dimensions & FPS ──────────────────────────────────────────────────────────
 W, H = 1920, 1080
 FPS  = 30
@@ -307,7 +313,7 @@ def _draw_promo_panel(draw, px):
     uw    = tw(draw, url, f_url)
     draw.text((px + (pw - uw) // 2, py + ph - 46), url,  font=f_url, fill=ELECTRIC)
     f_tr = load_font(13)
-    tr   = "Free 7-Day Trial"
+    tr   = "100% Free to Use" if FREE_ACCESS_MODE else "Free 7-Day Trial"
     trw  = tw(draw, tr, f_tr)
     draw.text((px + (pw - trw) // 2, py + ph - 24), tr, font=f_tr, fill=GOLD_LIGHT)
 
@@ -465,7 +471,9 @@ def scene_volume_spikes(rows, scan_date):
     cta_y = 152 + 3 * row_h + 20
     hline(draw, cta_y, x0=60, x1=W - 60, color=ELECTRIC)
     centered(draw, cta_y + 18,
-             "Want to see the full list? Visit baizora.com — Free 7-day trial available.",
+             ("Want to see the full list? Visit baizora.com — totally free to use."
+              if FREE_ACCESS_MODE else
+              "Want to see the full list? Visit baizora.com — Free 7-day trial available."),
              load_font(26, bold=True), ELEC_BRIGHT)
 
     footer(draw)
@@ -544,7 +552,9 @@ def scene_volume_spikes_cn(rows, scan_date):
     cta_y = 152 + 3 * row_h + 20
     hline(draw, cta_y, x0=60, x1=W - 60, color=ELECTRIC)
     centered(draw, cta_y + 18,
-             "想查看完整榜单？访问baizora.com — 提供七天免费试用。",
+             ("想查看完整榜单？访问baizora.com — 完全免费使用。"
+              if FREE_ACCESS_MODE else
+              "想查看完整榜单？访问baizora.com — 提供七天免费试用。"),
              load_font_cn(26, bold=True), ELEC_BRIGHT)
 
     footer(draw)
@@ -1272,7 +1282,9 @@ def scene_breakout_table(breakouts, scan_date, tf=None):
     hline(draw, H - 60)
     f_cta = load_font(22, bold=True)
     centered(draw, H - 50,
-             "See all breakout candidates at baizora.com — Free 7-day trial.",
+             ("See all breakout candidates at baizora.com — 100% free to use."
+              if FREE_ACCESS_MODE else
+              "See all breakout candidates at baizora.com — Free 7-day trial."),
              f_cta, ELEC_BRIGHT)
     return img
 
@@ -1465,7 +1477,9 @@ def scene_breakout_table_cn(breakouts, scan_date, tf=None):
     hline(draw, H - 60)
     f_cta = load_font_cn(20, bold=True)
     centered(draw, H - 50,
-             "访问baizora.com查看所有符合条件的突破股票 — 提供七天免费试用。",
+             ("访问baizora.com查看所有符合条件的突破股票 — 完全免费。"
+              if FREE_ACCESS_MODE else
+              "访问baizora.com查看所有符合条件的突破股票 — 提供七天免费试用。"),
              f_cta, ELEC_BRIGHT)
     return img
 
@@ -1944,7 +1958,7 @@ def scene_outro(scan_date):
 
     centered(draw, 432, "US Large-Cap Price & Volume Analytics", load_font(28), MUTED)
     hline(draw, 496)
-    centered(draw, 518, "Start your free 7-day trial", load_font(28, bold=True), GOLD_LIGHT)
+    centered(draw, 518, "100% Free — Sign Up in Seconds" if FREE_ACCESS_MODE else "Start your free 7-day trial", load_font(28, bold=True), GOLD_LIGHT)
     centered(draw, 564, "baizora.com", load_font(30), ELECTRIC)
     centered(draw, 620, f"Daily Scan: {scan_date}", load_font(20, mono=True), DIM)
 
@@ -1966,7 +1980,7 @@ def scene_outro_cn(scan_date):
 
     centered(draw, 432, "美股大盘价格与成交量分析平台", load_font_cn(26), MUTED)
     hline(draw, 496)
-    centered(draw, 518, "开始七天免费试用", load_font_cn(26, bold=True), GOLD_LIGHT)
+    centered(draw, 518, "完全免费，立即注册" if FREE_ACCESS_MODE else "开始七天免费试用", load_font_cn(26, bold=True), GOLD_LIGHT)
     centered(draw, 564, "baizora.com", load_font(30), ELECTRIC)
     centered(draw, 620, f"每日扫描：{scan_date}", load_font_cn(20), DIM)
 
@@ -3492,7 +3506,7 @@ def scene_index_changes_promo(date):
     y += 24
 
     f_cta = load_font(32, bold=True)
-    cta   = "baizora.com — 7-day free trial, totally free to start"
+    cta   = "baizora.com — totally free to use" if FREE_ACCESS_MODE else "baizora.com — 7-day free trial, totally free to start"
     draw.text((cx - tw(draw, cta, f_cta) // 2, y), cta, font=f_cta, fill=ELEC_BRIGHT)
 
     hline(draw, H - 68)
@@ -3536,7 +3550,7 @@ def scene_promo_with_change_ss(date):
     y += 20
 
     f_cta = load_font(26, bold=True)
-    cta = "baizora.com — 7-day free trial"
+    cta = "baizora.com — 100% free" if FREE_ACCESS_MODE else "baizora.com — 7-day free trial"
     draw.text((cx_left - tw(draw, cta, f_cta) // 2, y), cta, font=f_cta, fill=ELEC_BRIGHT)
 
     draw.line([(divx, 90), (divx, H - 48)], fill=BORDER)
@@ -3584,7 +3598,7 @@ def scene_outro_with_homepage(scan_date):
     f_sub = load_font(22)
     for label, y, col in [
         ("US Large-Cap Price & Volume Analytics", 418, MUTED),
-        ("Start your free 7-day trial",           470, GOLD_LIGHT),
+        ("100% Free — Sign Up in Seconds" if FREE_ACCESS_MODE else "Start your free 7-day trial", 470, GOLD_LIGHT),
         ("baizora.com",                            516, ELECTRIC),
         (f"Daily Scan: {scan_date}",               560, DIM),
     ]:
@@ -3648,11 +3662,14 @@ def _narrate_spotlight_change_log():
 
 
 def _narrate_spotlight_news():
+    cta = ("It's completely free to sign up at baizora dot com."
+           if FREE_ACCESS_MODE else
+           "Start your free seven-day trial at baizora dot com.")
     return (
         "Index changes are typically announced more than a week before they happen. "
         "Baizora's curated news feed cuts through the noise, "
         "so you can act before the crowd. "
-        "Start your free seven-day trial at baizora dot com."
+        f"{cta}"
     )
 
 
@@ -3879,10 +3896,13 @@ def _narrate_spotlight_change_log_cn():
 
 
 def _narrate_spotlight_news_cn():
+    cta = ("立即前往baizora.com，免费注册即可使用。"
+           if FREE_ACCESS_MODE else
+           "立即前往baizora.com，开始七天免费体验。")
     return (
         "成分股变动通常提前一周以上公告。"
         "贝佐拉精选资讯，过滤噪音，让您抢先掌握动向。"
-        "立即前往baizora.com，开始七天免费体验。"
+        f"{cta}"
     )
 
 
@@ -3919,7 +3939,7 @@ def scene_index_changes_promo_cn(date):
     y += 24
 
     f_cta = load_font_cn(32, bold=True)
-    cta   = "baizora.com — 七天免费体验"
+    cta   = "baizora.com — 完全免费" if FREE_ACCESS_MODE else "baizora.com — 七天免费体验"
     draw.text((cx - tw(draw, cta, f_cta) // 2, y), cta, font=f_cta, fill=ELEC_BRIGHT)
 
     hline(draw, H - 68)
@@ -3962,7 +3982,7 @@ def scene_promo_with_change_ss_cn(date):
     y += 20
 
     f_cta = load_font_cn(26, bold=True)
-    cta = "baizora.com — 七天免费体验"
+    cta = "baizora.com — 完全免费" if FREE_ACCESS_MODE else "baizora.com — 七天免费体验"
     draw.text((cx_left - tw(draw, cta, f_cta) // 2, y), cta, font=f_cta, fill=ELEC_BRIGHT)
 
     draw.line([(divx, 90), (divx, H - 48)], fill=BORDER)
@@ -4007,7 +4027,7 @@ def scene_outro_cn_with_homepage(scan_date):
     f_sub = load_font_cn(20)
     for label, y, col in [
         ("美股大盘价格与成交量分析平台", 418, MUTED),
-        ("开始七天免费试用",              468, GOLD_LIGHT),
+        ("完全免费，立即注册" if FREE_ACCESS_MODE else "开始七天免费试用", 468, GOLD_LIGHT),
         ("baizora.com",                  514, ELECTRIC),
         (f"每日扫描：{scan_date}",         558, DIM),
     ]:
@@ -4215,7 +4235,9 @@ def build_extreme_1y(data, output):
          opener),
         (scene_movers_table(f"Top 3 Gainers — {label}  ({date})", gainers, date,
                             max_rows=3,
-                            cta_text=f"Want to see all top {label.lower()} performers? Visit baizora.com — Free 7-day trial.",
+                            cta_text=(f"Want to see all top {label.lower()} performers? Visit baizora.com — totally free to use."
+                                      if FREE_ACCESS_MODE else
+                                      f"Want to see all top {label.lower()} performers? Visit baizora.com — Free 7-day trial."),
                             tf=tf), 17,
          f"S&P 500 + Nasdaq-100 stocks — highest trailing {window} price appreciation",
          f"{_narrate_tf(gainers)}"),
@@ -4378,12 +4400,16 @@ def build_extreme_1y_cn(data, output):
          f"S&P 500 + 纳斯达克100 大盘股{label_cn}领涨榜 — 贝佐拉",
          opener_cn),
         (scene_movers_table_cn(f"{tf['rank_cn']}  ({date})", gainers, date,
-                               cta_text="想查看完整榜单？访问baizora.com — 提供七天免费试用。",
+                               cta_text=("想查看完整榜单？访问baizora.com — 完全免费使用。"
+                                         if FREE_ACCESS_MODE else
+                                         "想查看完整榜单？访问baizora.com — 提供七天免费试用。"),
                                tf=tf), 22,
          f"S&P 500 + 纳斯达克100 — 过去{window_cn}涨幅最大的大盘股",
          f"{_narrate_tf_cn(gainers)}"
          f"这些大盘股来自S&P 500和纳斯达克100，过去{window_cn}涨幅遥遥领先全市场。"
-         "想查看完整榜单，访问baizora.com，提供七天免费试用。"),
+         + ("想查看完整榜单，访问baizora.com，完全免费使用。"
+            if FREE_ACCESS_MODE else
+            "想查看完整榜单，访问baizora.com，提供七天免费试用。")),
         (scene_top3_sparklines(
             f"{label_cn}领涨股 — 走势图  ({date})", gainers, date,
             "想了解更多？访问baizora.com获取S&P 500和纳斯达克100完整分析。", tf=tf), 7,

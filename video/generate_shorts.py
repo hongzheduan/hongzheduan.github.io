@@ -29,6 +29,7 @@ from generate_video import (
     load_font, load_font_cn, tw, th, pct_color, pct_str, encode, DATA_FILE,
     TUESDAY_TF_ROTATION, _tuesday_tf, WEDNESDAY_TF_ROTATION, _wednesday_tf,
     _compute_breakouts, THURSDAY_TF_ROTATION, _thursday_tf, _get_verified_members,
+    FREE_ACCESS_MODE,
 )
 from generate_thumbnail import load_headline_font, _bg_volume_bars, _bg_candlesticks, _glow_line
 
@@ -846,7 +847,10 @@ def scene_ad_short(scan_date, lang="en"):
     y += 75
     hline_s(draw, y, x0=240, x1=SW - 240)
 
-    cta = "Start your free 7-day trial" if lang == "en" else "开始七天免费试用"
+    if FREE_ACCESS_MODE:
+        cta = "100% Free — Sign Up Now" if lang == "en" else "完全免费，立即注册"
+    else:
+        cta = "Start your free 7-day trial" if lang == "en" else "开始七天免费试用"
     y += 50
     centered_s(draw, y, cta, load_font(38, bold=True) if lang == "en" else load_font_cn(36, bold=True), GOLD_LIGHT)
     y += 70

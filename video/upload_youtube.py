@@ -26,6 +26,11 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).parent
 COVERING_DIR = SCRIPT_DIR / "covering"
 
+# Same flag as generate_video.py's FREE_ACCESS_MODE (mirrors assets/feature_flags.js
+# on the website) — duplicated, not imported, since this script is meant to stay a
+# standalone upload utility. Keep both copies in sync.
+FREE_ACCESS_MODE = True
+
 # Same weekday mapping as generate_shorts.py's cover_path_for() — duplicated (not
 # imported) since this script is meant to stay a standalone upload utility.
 _WEEKDAY_BY_TYPE = {
@@ -189,11 +194,15 @@ def upload(file_path, title, description, privacy, category_id="22", thumbnail_p
 DISCLAIMER_EN = (
     "For informational purposes only. Not financial advice. "
     "Past performance does not guarantee future results.\n\n"
-    "Data: baizora.com | Free 7-day trial available."
+    + ("Data: baizora.com | Free for every signed-in user."
+       if FREE_ACCESS_MODE else
+       "Data: baizora.com | Free 7-day trial available.")
 )
 DISCLAIMER_CN = (
     "仅供参考，不构成投资建议。过往表现不代表未来结果。\n\n"
-    "数据来源：baizora.com | 提供七天免费试用。"
+    + ("数据来源：baizora.com | 登录即可免费使用。"
+       if FREE_ACCESS_MODE else
+       "数据来源：baizora.com | 提供七天免费试用。")
 )
 
 PLATFORM_LINK_EN = (
