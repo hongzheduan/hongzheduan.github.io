@@ -893,7 +893,7 @@ _SHORT_AD_LINE_CN = "本图表可免费下载，网址baizora点com。"
 # visually) rather than trying to trim the exact right amount off upstream beats.
 _CLOSING_TAGLINE_EN = "Baizora makes things simple."
 _CLOSING_TAGLINE_CN = "贝佐拉，化繁为简。"
-_CLOSING_TAGLINE_DUR_EN = 6.0
+_CLOSING_TAGLINE_DUR_EN = 6.5
 _CLOSING_TAGLINE_DUR_CN = 6.0
 
 
