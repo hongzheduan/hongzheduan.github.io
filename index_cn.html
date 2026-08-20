@@ -1205,7 +1205,7 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  <span id="ann-promo">输入优惠码FRIEND50，所有方案立减50%<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">新订阅用户前七天免费<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"></span><span id="ann-status">全部数据更新至：<span id="ann-date">…</span></span>
+  <span id="ann-promo"></span><span id="ann-status">全部数据更新至：<span id="ann-date">…</span></span>
 </div>
 <script>
 fetch('data/latest.json').then(r=>r.json()).then(d=>{
@@ -1811,10 +1811,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     observer.observe(c);
   });
 
-  /* ── Free access mode: announce free, hide Plans/Free Tier nav links ── */
+  /* ── Free access mode: hide promo + Plans/Free Tier nav links ── */
   if (window.FREE_ACCESS_MODE) {
     const promo = document.getElementById('ann-promo');
-    if (promo) promo.innerHTML = '贝佐拉对所有用户免费开放 — 登录即可探索完整平台<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">';
+    if (promo) promo.style.display = 'none';
     ['navPlansBtn', 'mobileStartFreeBtn'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';

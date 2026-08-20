@@ -1202,7 +1202,7 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  <span id="ann-promo">50% off all plans with code FRIEND50<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">First 7 days free for new subscribers<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br"></span><span id="ann-status">All data updated: <span id="ann-date">…</span></span>
+  <span id="ann-promo"></span><span id="ann-status">All data updated: <span id="ann-date">…</span></span>
 </div>
 <script>
 fetch('data/latest.json').then(r=>r.json()).then(d=>{
@@ -1795,10 +1795,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     observer.observe(c);
   });
 
-  /* ── Free access mode: announce free, hide Plans/Free Tier nav links ── */
+  /* ── Free access mode: hide promo + Plans/Free Tier nav links ── */
   if (window.FREE_ACCESS_MODE) {
     const promo = document.getElementById('ann-promo');
-    if (promo) promo.innerHTML = 'Baizora is free for everyone — sign in and explore the full platform<span class="ann-sep"> &nbsp;·&nbsp; </span><br class="ann-br">';
+    if (promo) promo.style.display = 'none';
     ['navPlansBtn', 'mobileStartFreeBtn'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
