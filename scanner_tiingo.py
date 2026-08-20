@@ -553,6 +553,10 @@ def update_and_detect_changes():
         print("Warning: could not fetch Nasdaq-100 from web, using cached list")
         new_nasdaq100_raw = sorted(old_nasdaq100)
 
+    # Apply known ticker renames before diffing — see TICKER_RENAMES above.
+    new_sp500_raw     = [TICKER_RENAMES.get(t, t) for t in new_sp500_raw]
+    new_nasdaq100_raw = [TICKER_RENAMES.get(t, t) for t in new_nasdaq100_raw]
+
     new_sp500     = set(new_sp500_raw)
     new_nasdaq100 = set(new_nasdaq100_raw)
 
@@ -855,6 +859,20 @@ def get_tickers():
 
 TICKER_ALIASES = {
     # "BNY": "bny",  # uncomment only if Tiingo still returns BK for Bank of New York Mellon
+}
+
+# =========================
+# TICKER RENAMES
+# A constituent keeps its index membership but changes ticker symbol (company
+# rebrand/rename, same legal entity/CIK). Applied to the freshly-scraped
+# slickcharts list in update_and_detect_changes() *before* diffing against the
+# previous day's list, so the rename never shows up as a misleading "removed
+# EQR / added VMRK" index-membership-change item — regardless of whether
+# slickcharts itself has already updated its own listing. Remove an entry once
+# slickcharts reliably reports the new symbol on its own (no longer needed).
+# =========================
+TICKER_RENAMES = {
+    "EQR": "VMRK",  # Equity Residential -> Vivmark Residential, effective 2026-08-12 (SEC EDGAR CIK 906107)
 }
 
 TICKER_SECTOR_OVERRIDE = {

@@ -13432,106 +13432,6 @@
       "url": "https://www.sec.gov/Archives/edgar/data/1101239/000110123925000028/eqix-20250730.htm"
     }
   ],
-  "EQR": [
-    {
-      "date": "2026-08-17",
-      "items": "1.01,2.03,9.01",
-      "label": "Material Agreement",
-      "type": [
-        "agreement"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526354068/d372623d8k.htm"
-    },
-    {
-      "date": "2026-08-17",
-      "items": "2.01,3.03,5.02,5.03,7.01,9.01",
-      "label": "Acquisition / Disposition Completed + Leadership Change",
-      "type": [
-        "acquisition",
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/906107/000114036126033377/ef20080318_8k.htm"
-    },
-    {
-      "date": "2026-07-22",
-      "eps": 0.3,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2026-06-30",
-      "revenue": null,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526312445/eqr-20260722.htm"
-    },
-    {
-      "date": "2026-06-08",
-      "items": "5.02,8.01,9.01",
-      "label": "Leadership Change",
-      "type": [
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526261709/d126845d8k.htm"
-    },
-    {
-      "date": "2026-05-21",
-      "items": "1.01,5.02,5.03,7.01,8.01,9.01",
-      "label": "Leadership Change + Material Agreement",
-      "type": [
-        "agreement",
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526233381/d228019d8k.htm"
-    },
-    {
-      "date": "2026-04-28",
-      "eps": 0.24,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2026-03-31",
-      "revenue": null,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526187339/eqr-20260428.htm"
-    },
-    {
-      "date": "2026-02-05",
-      "eps": 1.01,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-12-31",
-      "revenue": null,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526039455/eqr-20260205.htm"
-    },
-    {
-      "date": "2025-10-28",
-      "eps": 0.76,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-09-30",
-      "revenue": null,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312525253637/eqr-20251028.htm"
-    },
-    {
-      "date": "2025-08-04",
-      "eps": 0.5,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-06-30",
-      "revenue": null,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/906107/000095017025102035/eqr-20250804.htm"
-    }
-  ],
   "EQT": [
     {
       "date": "2026-07-21",
@@ -38227,6 +38127,106 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1396009/000114036125028104/ef20052989_8k.htm"
+    }
+  ],
+  "VMRK": [
+    {
+      "date": "2026-08-17",
+      "items": "1.01,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526354068/d372623d8k.htm"
+    },
+    {
+      "date": "2026-08-17",
+      "items": "2.01,3.03,5.02,5.03,7.01,9.01",
+      "label": "Acquisition / Disposition Completed + Leadership Change",
+      "type": [
+        "acquisition",
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/906107/000114036126033377/ef20080318_8k.htm"
+    },
+    {
+      "date": "2026-07-22",
+      "eps": 0.3,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": "2026-06-30",
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526312445/eqr-20260722.htm"
+    },
+    {
+      "date": "2026-06-08",
+      "items": "5.02,8.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526261709/d126845d8k.htm"
+    },
+    {
+      "date": "2026-05-21",
+      "items": "1.01,5.02,5.03,7.01,8.01,9.01",
+      "label": "Leadership Change + Material Agreement",
+      "type": [
+        "agreement",
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526233381/d228019d8k.htm"
+    },
+    {
+      "date": "2026-04-28",
+      "eps": 0.24,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": "2026-03-31",
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526187339/eqr-20260428.htm"
+    },
+    {
+      "date": "2026-02-05",
+      "eps": 1.01,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": "2025-12-31",
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312526039455/eqr-20260205.htm"
+    },
+    {
+      "date": "2025-10-28",
+      "eps": 0.76,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": "2025-09-30",
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/906107/000119312525253637/eqr-20251028.htm"
+    },
+    {
+      "date": "2025-08-04",
+      "eps": 0.5,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": "2025-06-30",
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/906107/000095017025102035/eqr-20250804.htm"
     }
   ],
   "VRSK": [
