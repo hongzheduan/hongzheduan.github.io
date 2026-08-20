@@ -902,6 +902,7 @@
       <button class="window-btn" onclick="setWindow('SCORES', this)" style="margin-left:8px;border-color:rgba(96,165,250,0.35);color:#60a5fa;">评分</button>
       <button class="window-btn" onclick="setWindow('BAIZ', this)" style="margin-left:4px;border-color:rgba(192,132,252,0.35);color:#c084fc;">贝佐拉评分</button>
       <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:4px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">基本面</button>
+      <button class="window-btn" onclick="setWindow('TECH', this)" style="margin-left:4px;border-color:rgba(34,211,238,0.35);color:#22d3ee;">技术面</button>
     </div>
     <div class="toolbar-sep"></div>
     <div class="toolbar-search">
@@ -1023,6 +1024,14 @@
             <tr><td>Beta（波动率）</td><td>30日Beta值，反映股票对大盘涨跌的敏感程度。Beta &gt; 1表示波动高于市场</td></tr>
             <tr><td>市盈/行业</td><td>该股市盈率相对所在行业均值的偏差（百分比）。正值 = 溢价；负值 = 折价。行业均值仅基于标普500和纳斯达克100成分股计算</td></tr>
             <tr><td>行业平均PE</td><td>同行业内所有标普500和纳斯达克100成分股的平均市盈率，可在代码详情面板中查看</td></tr>
+          </table>
+
+          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; 技术指标（技术面标签页）</div>
+          <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
+            <tr><th>列名</th><th>说明</th></tr>
+            <tr><td>偏离SMA20 / 偏离SMA200</td><td>当前价格与20日/200日均线之间的绝对距离（百分比，均线由服务端基于最多730天历史数据计算）。绿色 = 价格高于均线；红色 = 价格低于均线。股价接近（或略低于）SMA200常被视为潜在买入观察点，因为该均线常起到长期支撑作用——并非保证，只是一种常见的技术面判断</td></tr>
+            <tr><td>MACD</td><td>MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）；红色 = 低于信号线（偏空）。两线交叉时颜色会翻转</td></tr>
           </table>
         </div>
 
@@ -1317,7 +1326,37 @@
     }
 
     /* ── BUILD TABLE ── */
+    function computeSmaDist(r) {
+      const sma = candleData && candleData.sma && candleData.sma[r.Ticker];
+      const price = r._livePrice ?? r.Price;
+      [["SMA20", "Dist20", "Above20", "sma20"], ["SMA200", "Dist200", "Above200", "sma200"]].forEach(([smaKey, distKey, aboveKey, arrKey]) => {
+        const smaArr = sma && sma[arrKey];
+        const smaVal = smaArr ? smaArr[smaArr.length - 1] : null;
+        if (smaVal != null && price != null) {
+          r[smaKey]   = smaVal;
+          r[distKey]  = Math.abs(price / smaVal - 1) * 100;
+          r[aboveKey] = price >= smaVal;
+        } else {
+          r[smaKey] = r[distKey] = r[aboveKey] = null;
+        }
+      });
+    }
+
+    function computeMacdHist(r) {
+      const raw = candleData && candleData.data && candleData.data[r.Ticker];
+      const price = r._livePrice ?? r.Price;
+      if (!raw || raw.length < 35 || price == null) { r.MacdPct = r.MacdAbove = null; return; }
+      const { macdLine, signalLine } = _computeMacd(raw, 12, 26, 9);
+      let i = macdLine.length - 1;
+      while (i >= 0 && (macdLine[i] == null || signalLine[i] == null)) i--;
+      if (i < 0) { r.MacdPct = r.MacdAbove = null; return; }
+      const diff = macdLine[i] - signalLine[i];
+      r.MacdPct = Math.abs(diff / price) * 100;
+      r.MacdAbove = diff >= 0;
+    }
+
     function buildTable(arr, w) {
+      if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); });
       arr = sorted(arr);
 
       /* ── 评分视图（原始分项） ── */
@@ -1410,6 +1449,37 @@
             <td class="neutral">${r.Volatility30D != null ? (r.Volatility30D * 100).toFixed(1) + "%" : "—"}</td>
             <td class="${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</td>
             <td class="neutral" style="font-size:11px;color:#94a3b8;">${r.Sector || "—"}</td>
+          </tr>`;
+        }).join("");
+        return head + "<tbody>" + rows + "</tbody>";
+      }
+
+      if (w === "TECH") {
+        const head = `<thead><tr>
+          ${thSort("Ticker",  "代码")}
+          ${thStatic("Spark1Y","年趋势线")}
+          ${thSort("Price",   "价格")}
+          ${thSort("Dist20",  "偏离SMA20")}
+          ${thSort("Dist200", "偏离SMA200")}
+          ${thSort("MacdPct", "MACD")}
+        </tr></thead>`;
+        const rows = arr.slice(0, 600).map(r => {
+          const sparkSVG = renderSparkline(
+            r.Spark1Y,
+            r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+            r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
+          );
+          const price   = r._livePrice ?? r.Price;
+          const cls20   = r.Above20  == null ? "neutral" : (r.Above20  ? "positive" : "negative");
+          const cls200  = r.Above200 == null ? "neutral" : (r.Above200 ? "positive" : "negative");
+          const clsMacd = r.MacdAbove == null ? "neutral" : (r.MacdAbove ? "positive" : "negative");
+          return `<tr>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+            <td class="spark-cell">${sparkSVG}</td>
+            <td class="neutral">${price != null ? price.toFixed(2) : "—"}</td>
+            <td class="${cls20}">${r.Dist20  != null ? r.Dist20.toFixed(1)  + "%" : "—"}</td>
+            <td class="${cls200}">${r.Dist200 != null ? r.Dist200.toFixed(1) + "%" : "—"}</td>
+            <td class="${clsMacd}">${r.MacdPct != null ? r.MacdPct.toFixed(2) + "%" : "—"}</td>
           </tr>`;
         }).join("");
         return head + "<tbody>" + rows + "</tbody>";
@@ -1667,6 +1737,9 @@
       "MomentumScore":   { label: "动能评分",    desc: "动能评分（0–100）。跨1月、3月、6月、1年的持续上涨强度排名。绿色（>50）= 多周期涨幅优于大多数同类。100 = 全市场动能最强。" },
       "VolPressureScore":{ label: "量压评分",    desc: "量压评分（−100至100）。成交量是流入还是流出？绿色 = 买盘压力（上涨日成交量放大）。红色 = 卖盘压力（下跌日成交量放大）。趋近0 = 量轻或信号中性。" },
       "TrendScore":      { label: "趋势评分",    desc: "趋势评分（0–100）。6个周期（2周→1年）中有几个呈正收益。绿色（>50）= 多数周期向上。100 = 全部6个周期均涨。0 = 全部下跌。" },
+      "Dist20":          { label: "偏离SMA20",   desc: "价格与20日均线之间的绝对距离（百分比）。绿色 = 价格高于均线，红色 = 价格低于均线。" },
+      "Dist200":         { label: "偏离SMA200",  desc: "价格与200日均线之间的绝对距离（百分比）。绿色 = 价格高于均线，红色 = 价格低于均线。股价接近（或略低于）SMA200常被视为潜在买入观察点，因为该均线常起到长期支撑作用——并非保证。" },
+      "MacdPct":         { label: "MACD",        desc: "MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）。红色 = 低于信号线（偏空）。两线交叉时颜色会翻转。" },
     };
 
     const WIN_CN = { "1D": "1天", "2W": "2周", "1M": "1月", "3M": "3月", "6M": "6月", "9M": "9月", "1Y": "1年" };
@@ -1801,6 +1874,7 @@
           const activeTf = document.querySelector('.tf-btn.active');
           _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
         }
+        if (currentWindow === "TECH") render();
       })
       .catch(() => {});
 

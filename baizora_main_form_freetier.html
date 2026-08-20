@@ -892,6 +892,7 @@
       <button class="window-btn" onclick="setWindow('SCORES', this)" style="margin-left:8px;border-color:rgba(96,165,250,0.35);color:#60a5fa;">SCORES</button>
       <button class="window-btn" onclick="setWindow('BAIZ', this)" style="margin-left:4px;border-color:rgba(192,132,252,0.35);color:#c084fc;">BAIZORA</button>
       <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:4px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">FUND</button>
+      <button class="window-btn" onclick="setWindow('TECH', this)" style="margin-left:4px;border-color:rgba(34,211,238,0.35);color:#22d3ee;">TECH</button>
     </div>
     <div class="toolbar-sep"></div>
     <div class="toolbar-search">
@@ -1014,6 +1015,14 @@
             <tr><td>Beta</td><td>30-day beta — sensitivity of the stock's price to broad market moves. Beta &gt; 1 means higher volatility than the market</td></tr>
             <tr><td>PE vs Sector</td><td>This stock's P/E relative to its sector average, as a percentage difference. Positive = premium; negative = discount. Sector average is calculated from S&amp;P 500 and Nasdaq-100 members only</td></tr>
             <tr><td>Sector Avg PE</td><td>Average P/E of all stocks in the same sector within the S&amp;P 500 and Nasdaq-100 universe. Shown in the ticker detail panel</td></tr>
+          </table>
+
+          <div class="readme-label" style="margin-top:28px;">◈ &nbsp; Technicals (TECH Tab)</div>
+          <table class="col-table">
+            <colgroup><col style="width:160px"><col></colgroup>
+            <tr><th>Column</th><th>Description</th></tr>
+            <tr><td>Dist SMA20 / Dist SMA200</td><td>Absolute distance between the current price and the 20-day / 200-day moving average, as a percentage (SMAs computed server-side from up to 730 days of history). Green = price is above the average, red = price is below it. A stock trading close to (or just under) its SMA200 is often watched as a potential entry point, since the average tends to act as long-term support — not a guarantee, just a common technical read</td></tr>
+            <tr><td>MACD</td><td>Absolute distance between the MACD line and signal line (standard 12/26/9), as a percentage of price. Green = MACD above signal (bullish bias); red = below (bearish bias). Color flips exactly when the two lines cross</td></tr>
           </table>
         </div>
 
@@ -1309,8 +1318,40 @@
       </svg>`;
     }
 
+    /* ── TECHNICALS: distance from SMA20/SMA200, computed client-side from the already-fetched candles.json ── */
+    function computeSmaDist(r) {
+      const sma = candleData && candleData.sma && candleData.sma[r.Ticker];
+      const price = r._livePrice ?? r.Price;
+      [["SMA20", "Dist20", "Above20", "sma20"], ["SMA200", "Dist200", "Above200", "sma200"]].forEach(([smaKey, distKey, aboveKey, arrKey]) => {
+        const smaArr = sma && sma[arrKey];
+        const smaVal = smaArr ? smaArr[smaArr.length - 1] : null;
+        if (smaVal != null && price != null) {
+          r[smaKey]   = smaVal;
+          r[distKey]  = Math.abs(price / smaVal - 1) * 100;
+          r[aboveKey] = price >= smaVal;
+        } else {
+          r[smaKey] = r[distKey] = r[aboveKey] = null;
+        }
+      });
+    }
+
     /* ── BUILD TABLE ── */
+    /* ── MACD histogram (MACD line − signal line) as % of price — standard 12/26/9, independent of the modal chart's editable MACD settings ── */
+    function computeMacdHist(r) {
+      const raw = candleData && candleData.data && candleData.data[r.Ticker];
+      const price = r._livePrice ?? r.Price;
+      if (!raw || raw.length < 35 || price == null) { r.MacdPct = r.MacdAbove = null; return; }
+      const { macdLine, signalLine } = _computeMacd(raw, 12, 26, 9);
+      let i = macdLine.length - 1;
+      while (i >= 0 && (macdLine[i] == null || signalLine[i] == null)) i--;
+      if (i < 0) { r.MacdPct = r.MacdAbove = null; return; }
+      const diff = macdLine[i] - signalLine[i];
+      r.MacdPct = Math.abs(diff / price) * 100;
+      r.MacdAbove = diff >= 0;
+    }
+
     function buildTable(arr, w) {
+      if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); });
       arr = sorted(arr);
 
       /* ── SCORES VIEW (raw sub-scores) ── */
@@ -1403,6 +1444,38 @@
             <td class="neutral">${r.Volatility30D != null ? (r.Volatility30D * 100).toFixed(1) + "%" : "—"}</td>
             <td class="${colorClass(peVs)}">${peVs != null ? (peVs > 0 ? "+" : "") + peVs.toFixed(1) + "%" : "—"}</td>
             <td class="neutral" style="font-size:11px;color:#94a3b8;">${r.Sector || "—"}</td>
+          </tr>`;
+        }).join("");
+        return head + "<tbody>" + rows + "</tbody>";
+      }
+
+      /* ── TECHNICALS VIEW (distance from SMA20 / SMA200) ── */
+      if (w === "TECH") {
+        const head = `<thead><tr>
+          ${thSort("Ticker",  "Ticker")}
+          ${thStatic("Spark1Y","1Y Trend")}
+          ${thSort("Price",   "Price")}
+          ${thSort("Dist20",  "Dist SMA20")}
+          ${thSort("Dist200", "Dist SMA200")}
+          ${thSort("MacdPct", "MACD")}
+        </tr></thead>`;
+        const rows = arr.slice(0, 600).map(r => {
+          const sparkSVG = renderSparkline(
+            r.Spark1Y,
+            r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
+            r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
+          );
+          const price   = r._livePrice ?? r.Price;
+          const cls20   = r.Above20  == null ? "neutral" : (r.Above20  ? "positive" : "negative");
+          const cls200  = r.Above200 == null ? "neutral" : (r.Above200 ? "positive" : "negative");
+          const clsMacd = r.MacdAbove == null ? "neutral" : (r.MacdAbove ? "positive" : "negative");
+          return `<tr>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+            <td class="spark-cell">${sparkSVG}</td>
+            <td class="neutral">${price != null ? price.toFixed(2) : "—"}</td>
+            <td class="${cls20}">${r.Dist20  != null ? r.Dist20.toFixed(1)  + "%" : "—"}</td>
+            <td class="${cls200}">${r.Dist200 != null ? r.Dist200.toFixed(1) + "%" : "—"}</td>
+            <td class="${clsMacd}">${r.MacdPct != null ? r.MacdPct.toFixed(2) + "%" : "—"}</td>
           </tr>`;
         }).join("");
         return head + "<tbody>" + rows + "</tbody>";
@@ -1660,6 +1733,9 @@
       "MomentumScore":   { label: "Momentum",      desc: "Momentum Score (0–100). Ranks how consistently this stock has been rising across 1M, 3M, 6M, and 1Y. Green (>50) = stronger than most peers across multiple timeframes. 100 = top momentum in the universe." },
       "VolPressureScore":{ label: "Vol Pressure",  desc: "Volume Pressure (−100 to 100). Is heavy volume flowing in or out? Green = buying pressure (high volume on an up day). Red = selling pressure (high volume on a down day). Near 0 = light or neutral volume." },
       "TrendScore":      { label: "Trend",         desc: "Trend Score (0–100). Counts how many of the 6 timeframes (2W → 1Y) show a positive return. Green (>50) = majority of periods trending up. 100 = all 6 windows rising. 0 = all falling." },
+      "Dist20":          { label: "Dist SMA20",    desc: "Absolute distance between price and the 20-day moving average, as a percentage. Green = price above the average, red = price below it." },
+      "Dist200":         { label: "Dist SMA200",   desc: "Absolute distance between price and the 200-day moving average, as a percentage. Green = price above the average, red = price below it. Trading close to (or just under) the SMA200 is a common technical read for a potential entry point, since the average often acts as long-term support — not a guarantee." },
+      "MacdPct":         { label: "MACD",          desc: "Absolute distance between the MACD line and the signal line (standard 12/26/9), as a percentage of price. Green = MACD line above the signal line (bullish bias). Red = below (bearish bias). The color flips exactly when the two lines cross." },
     };
 
     function getWindowColDesc(key, w) {
@@ -1794,6 +1870,7 @@
           const activeTf = document.querySelector('.tf-btn.active');
           _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
         }
+        if (currentWindow === "TECH") render();
       })
       .catch(() => {});
 
