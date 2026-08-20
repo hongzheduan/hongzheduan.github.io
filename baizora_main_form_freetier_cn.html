@@ -1032,6 +1032,7 @@
             <tr><th>列名</th><th>说明</th></tr>
             <tr><td>偏离SMA20 / 偏离SMA200</td><td>当前价格与20日/200日均线之间的绝对距离（百分比，均线由服务端基于最多730天历史数据计算）。绿色 = 价格高于均线；红色 = 价格低于均线。股价接近（或略低于）SMA200常被视为潜在买入观察点，因为该均线常起到长期支撑作用——并非保证，只是一种常见的技术面判断</td></tr>
             <tr><td>MACD</td><td>MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）；红色 = 低于信号线（偏空）。两线交叉时颜色会翻转</td></tr>
+            <tr><td>SMA20突破 / SMA200突破</td><td>今日K线实体（开盘价到收盘价）是否穿越了对应均线——即该均线落在今日开盘价与收盘价之间。▲绿色 = 向上突破（低开高走，收盘高于均线）；▼红色 = 向下突破（高开低走，收盘低于均线）；空白 = 今日未发生突破</td></tr>
           </table>
         </div>
 
@@ -1328,8 +1329,12 @@
     /* ── BUILD TABLE ── */
     function computeSmaDist(r) {
       const sma = candleData && candleData.sma && candleData.sma[r.Ticker];
+      const raw = candleData && candleData.data && candleData.data[r.Ticker];
+      const today = raw && raw.length ? raw[raw.length - 1] : null;
+      const open  = today ? today[0] : null;
+      const close = today ? today[3] : null;
       const price = r._livePrice ?? r.Price;
-      [["SMA20", "Dist20", "Above20", "sma20"], ["SMA200", "Dist200", "Above200", "sma200"]].forEach(([smaKey, distKey, aboveKey, arrKey]) => {
+      [["SMA20", "Dist20", "Above20", "Break20", "sma20"], ["SMA200", "Dist200", "Above200", "Break200", "sma200"]].forEach(([smaKey, distKey, aboveKey, breakKey, arrKey]) => {
         const smaArr = sma && sma[arrKey];
         const smaVal = smaArr ? smaArr[smaArr.length - 1] : null;
         if (smaVal != null && price != null) {
@@ -1338,6 +1343,12 @@
           r[aboveKey] = price >= smaVal;
         } else {
           r[smaKey] = r[distKey] = r[aboveKey] = null;
+        }
+        if (smaVal != null && open != null && close != null) {
+          const lo = Math.min(open, close), hi = Math.max(open, close);
+          r[breakKey] = (smaVal >= lo && smaVal <= hi) ? (close >= open ? 1 : -1) : 0;
+        } else {
+          r[breakKey] = null;
         }
       });
     }
@@ -1459,9 +1470,11 @@
           ${thSort("Ticker",  "代码")}
           ${thStatic("Spark1Y","年趋势线")}
           ${thSort("Price",   "价格")}
-          ${thSort("Dist20",  "偏离SMA20")}
-          ${thSort("Dist200", "偏离SMA200")}
-          ${thSort("MacdPct", "MACD")}
+          ${thSort("Dist20",   "偏离SMA20")}
+          ${thSort("Break20",  "SMA20突破")}
+          ${thSort("Dist200",  "偏离SMA200")}
+          ${thSort("Break200", "SMA200突破")}
+          ${thSort("MacdPct",  "MACD")}
         </tr></thead>`;
         const rows = arr.slice(0, 600).map(r => {
           const sparkSVG = renderSparkline(
@@ -1473,12 +1486,16 @@
           const cls20   = r.Above20  == null ? "neutral" : (r.Above20  ? "positive" : "negative");
           const cls200  = r.Above200 == null ? "neutral" : (r.Above200 ? "positive" : "negative");
           const clsMacd = r.MacdAbove == null ? "neutral" : (r.MacdAbove ? "positive" : "negative");
+          const brk20   = { cls: r.Break20  > 0 ? "positive" : r.Break20  < 0 ? "negative" : "neutral", sym: r.Break20  == null ? "—" : r.Break20  > 0 ? "▲" : r.Break20  < 0 ? "▼" : "—" };
+          const brk200  = { cls: r.Break200 > 0 ? "positive" : r.Break200 < 0 ? "negative" : "neutral", sym: r.Break200 == null ? "—" : r.Break200 > 0 ? "▲" : r.Break200 < 0 ? "▼" : "—" };
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="neutral">${price != null ? price.toFixed(2) : "—"}</td>
             <td class="${cls20}">${r.Dist20  != null ? r.Dist20.toFixed(1)  + "%" : "—"}</td>
+            <td class="${brk20.cls}">${brk20.sym}</td>
             <td class="${cls200}">${r.Dist200 != null ? r.Dist200.toFixed(1) + "%" : "—"}</td>
+            <td class="${brk200.cls}">${brk200.sym}</td>
             <td class="${clsMacd}">${r.MacdPct != null ? r.MacdPct.toFixed(2) + "%" : "—"}</td>
           </tr>`;
         }).join("");
@@ -1739,7 +1756,9 @@
       "TrendScore":      { label: "趋势评分",    desc: "趋势评分（0–100）。6个周期（2周→1年）中有几个呈正收益。绿色（>50）= 多数周期向上。100 = 全部6个周期均涨。0 = 全部下跌。" },
       "Dist20":          { label: "偏离SMA20",   desc: "价格与20日均线之间的绝对距离（百分比）。绿色 = 价格高于均线，红色 = 价格低于均线。" },
       "Dist200":         { label: "偏离SMA200",  desc: "价格与200日均线之间的绝对距离（百分比）。绿色 = 价格高于均线，红色 = 价格低于均线。股价接近（或略低于）SMA200常被视为潜在买入观察点，因为该均线常起到长期支撑作用——并非保证。" },
+      "Break20":         { label: "SMA20突破",   desc: "今日K线实体（开盘到收盘）是否穿越SMA20——即SMA20落在今日开盘价与收盘价之间。▲绿色 = 向上突破（低开高走）。▼红色 = 向下突破（高开低走）。空白 = 均线在今日开盘收盘区间之外，未突破。" },
       "MacdPct":         { label: "MACD",        desc: "MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）。红色 = 低于信号线（偏空）。两线交叉时颜色会翻转。" },
+      "Break200":        { label: "SMA200突破",  desc: "今日K线实体（开盘到收盘）是否穿越SMA200——即SMA200落在今日开盘价与收盘价之间。▲绿色 = 向上突破（低开高走）。▼红色 = 向下突破（高开低走）。空白 = 均线在今日开盘收盘区间之外，未突破。" },
     };
 
     const WIN_CN = { "1D": "1天", "2W": "2周", "1M": "1月", "3M": "3月", "6M": "6月", "9M": "9月", "1Y": "1年" };
