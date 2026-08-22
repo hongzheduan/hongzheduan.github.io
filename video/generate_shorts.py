@@ -11,7 +11,7 @@ Structure (target ~27s total):
   3. Ad     (5s)  — Baizora branding + CTA, reserved as the last 5 seconds per spec
 
 Usage:
-    py generate_shorts.py --type volume_spikes
+    py generate_shorts.py --type near_sma200
 """
 
 import argparse
@@ -45,7 +45,11 @@ SW, SH = 1080, 1920  # YouTube Shorts: vertical 9:16
 COVERING_DIR = SCRIPT_DIR / "covering"
 
 _WEEKDAY_BY_TYPE = {
-    "volume_spikes": "Monday",
+    # Real art added 2026-08-22 (video/covering/SMA200_1-4.png, split from
+    # video/covering/sma200.png) -- replaces Monday's retired volume_spikes
+    # category (see build_near_sma200_short). Old Monday_1-4.png (volume_spikes'
+    # art) left in place, unreferenced -- not deleted, just orphaned.
+    "near_sma200": "SMA200",
     "best_performer": "Tuesday",
     "6m_breakout": "Wednesday",
     "1y_vol_peak": "Thursday",
@@ -308,7 +312,13 @@ _RANGE_DUR_EN = 5.5
 _RANGE_DUR_CN = 5.0
 
 
-def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_label=None, lang="en", theme="dark", range_ext=None):
+_SMA200_LINE_COLOR = (167, 139, 250)  # matches the dashboard's own SMA200 overlay
+# color (violet-400 #a78bfa), sampled directly from a real chart screenshot
+# (video/sma200_sample.png) rather than picked freehand, so the video's line
+# reads as "the same feature" to anyone who's seen it on the site.
+
+
+def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_label=None, lang="en", theme="dark", range_ext=None, show_sma200=False):
     """Real 1-year daily OHLCV candlesticks + a volume panel underneath (price ~78%
     / volume ~22%, volume bars color-matched to candle direction at reduced opacity)
     — same visual language as the real dashboard's candlestick chart, replacing the
@@ -348,6 +358,21 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
     lows = [b[2] for b in bars]
     vols = [b[4] for b in bars]
     mn_v, mx_v = min(lows), max(highs)
+    sma200_vals = None
+    if show_sma200:
+        # Same candles.json "sma" dict the TECH tab's computeSmaDist reads
+        # (see project_tech_view_sma_distance memory) -- index-aligned with
+        # `bars`, so no date-matching needed. Extend the price axis's own
+        # min/max to include the SMA200 series too, so the line is never
+        # clipped even on a card where price and the average sit close
+        # together (the whole point of this category).
+        sma200_vals = (_load_candles().get("sma", {}).get(ticker, {}).get("sma200") or [])[:len(bars)]
+        valid = [v for v in sma200_vals if v is not None]
+        if valid:
+            mn_v = min(mn_v, min(valid))
+            mx_v = max(mx_v, max(valid))
+        else:
+            sma200_vals = None
     if mx_v <= mn_v:
         return
     max_vol = max(vols) or 1
@@ -366,6 +391,14 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
     for lvl in grid_levels:
         gy = py(lvl)
         draw.line([(x0, gy), (x1, gy)], fill=grid_color, width=1)
+
+    # SMA200 overlay, drawn before the candles so the candle bodies sit visibly
+    # on top of it where price crosses the average -- that crossing/hugging is
+    # the entire visual point for Monday's near_sma200 category.
+    if sma200_vals:
+        pts = [(x0 + (i + 0.5) * slot_w, py(v)) for i, v in enumerate(sma200_vals) if v is not None]
+        if len(pts) >= 2:
+            draw.line(pts, fill=_SMA200_LINE_COLOR, width=3, joint="curve")
 
     for i, (o, h, l, c, v) in enumerate(bars):
         cx = x0 + (i + 0.5) * slot_w
@@ -387,6 +420,16 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
     tf_label = "1Y TREND" if lang == "en" else "年趋势线"
     f_tf = load_font(15, mono=True, bold=True) if lang == "en" else load_font_cn(15, bold=True)
     draw.text((x0, price_y0 - 22), tf_label, font=f_tf, fill=axis_text)
+    if sma200_vals:
+        # Placed right after "1Y TREND" on the same line, not right-aligned to
+        # x1 -- that side is the price axis's own territory (dollar chips at 3
+        # gridline heights, one of them sitting right at this same y for a chart
+        # whose high is near the top of its range), and its chip backgrounds
+        # would paint over a right-aligned label here since they're drawn after
+        # this point in the function. A bare colored line with no label at all
+        # would just read as an unexplained squiggle in a narration-less frame.
+        tf_label_w = tw(draw, tf_label, f_tf)
+        draw.text((x0 + tf_label_w + 16, price_y0 - 22), "— SMA200", font=f_tf, fill=_SMA200_LINE_COLOR)
 
     # Price axis: dollar value at each of the 3 gridlines, right-aligned to the
     # chart's right edge with a small backing chip so it stays readable regardless
@@ -469,7 +512,8 @@ def _draw_candles_with_volume(img, draw, ticker, region, peak_idx=None, peak_lab
 
 
 def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=True,
-                      peak_label_en=None, peak_label_cn=None, theme="dark", value_fmt="pct"):
+                      peak_label_en=None, peak_label_cn=None, theme="dark", value_fmt="pct",
+                      show_sma200=False):
     """Hero card for a single ticker — replaces the old shared 5-row table so the
     Short shows one stock at a time (name + the narrated metric + its 1-year
     candlestick trend, all together) instead of a static list everyone's narrated
@@ -516,7 +560,7 @@ def scene_stock_card(row, rank, lang, value_key, sub_en, sub_cn, gold_leader=Tru
     peak_idx = row.get("_peak_idx")
     peak_label = (peak_label_en if lang == "en" else peak_label_cn) if peak_idx is not None else None
     range_ext = row.get("_range_ext")
-    _draw_candles_with_volume(img, draw, ticker, region, peak_idx=peak_idx, peak_label=peak_label, lang=lang, theme=theme, range_ext=range_ext)
+    _draw_candles_with_volume(img, draw, ticker, region, peak_idx=peak_idx, peak_label=peak_label, lang=lang, theme=theme, range_ext=range_ext, show_sma200=show_sma200)
 
     f_pct = load_headline_font(130)
     pct_y = region[3] + 40
@@ -875,8 +919,14 @@ def scene_ad_short(scan_date, lang="en"):
 # hold at the very end. Monday/Wednesday/Friday/Saturday are unaffected and keep
 # the full build_ad_reel() sequence below. Durations: real edge-tts measurement at
 # SHORTS_TTS_RATE, EN 3.12s / CN 3.12s, +buffer.
-_SHORT_AD_LINE_EN = "This chart is free to download, at baizora.com."
-_SHORT_AD_LINE_CN = "本图表可免费下载，网址baizora点com。"
+# "baizora.com" dropped 2026-08-22 (user request) -- it immediately preceded
+# _CLOSING_TAGLINE_EN/CN ("Baizora makes things simple.") with no gap, reading as
+# a redundant back-to-back mention (the URL is already shown on-screen throughout
+# scene_ad_short's card, see "baizora.com" text drawn at line ~857). Shorter text
+# only opens up more silence within the existing 3.5s hold_sec below -- safe by
+# construction, no re-measurement needed (padding was already generous, not tight).
+_SHORT_AD_LINE_EN = "This chart is free to download."
+_SHORT_AD_LINE_CN = "本图表可免费下载。"
 
 # Closing narration every video ends on now (user request, 2026-08-01) -- spoken
 # over the same, unchanged scene_ad_short card (previously silent for Monday/
@@ -896,15 +946,59 @@ _CLOSING_TAGLINE_CN = "贝佐拉，化繁为简。"
 _CLOSING_TAGLINE_DUR_EN = 6.5
 _CLOSING_TAGLINE_DUR_CN = 6.0
 
+# Weekday-specific "we report this regularly" subscribe line (user request,
+# 2026-08-22, extended from Monday's near_sma200 category to every category,
+# weekends included) -- spoken as an extra beat just before the closing tagline
+# in every live category. CN wording is the user's own template ("本频道每周*都
+# 会...敬请关注"), applied verbatim per weekday rather than reusing Monday's
+# earlier "订阅频道，不要错过" phrasing (retired in favor of this one for
+# consistency across all 6). One flat duration per language, sized to the
+# longest real weekday line (Tuesday+Thursday's combined line, since that
+# category runs on both days and needs one shared sentence) -- all 6 lines
+# measured within ~0.5s of each other, not worth a per-line budget.
+# EN measured (edge-tts, SHORTS_TTS_RATE): Sun 3.17s, Sat 3.22s, Wed 3.19s,
+# Tue+Thu 3.67s, Fri 3.17s, Mon 3.12s -- budget covers the 3.67s max, +buffer.
+# CN measured: Mon 3.19s, Tue+Thu 3.65s, Wed 3.24s, Fri 3.31s, Sat 3.36s, Sun
+# 3.31s -- budget covers the 3.65s max, +buffer.
+_SUBSCRIBE_DUR_EN = 4.0
+_SUBSCRIBE_DUR_CN = 3.9
+_SUBSCRIBE_MON_EN = "We report this every Monday — subscribe so you don't miss it."
+_SUBSCRIBE_MON_CN = "本频道每周一都会带来这个专题，敬请关注。"
+_SUBSCRIBE_TUETHU_EN = "We report this every Tuesday and Thursday — subscribe so you don't miss it."
+_SUBSCRIBE_TUETHU_CN = "本频道每周二和周四都会带来这个专题，敬请关注。"
+_SUBSCRIBE_WED_EN = "We report this every Wednesday — subscribe so you don't miss it."
+_SUBSCRIBE_WED_CN = "本频道每周三都会带来这个专题，敬请关注。"
+_SUBSCRIBE_FRI_EN = "We report this every Friday — subscribe so you don't miss it."
+_SUBSCRIBE_FRI_CN = "本频道每周五都会带来这个专题，敬请关注。"
+_SUBSCRIBE_SAT_EN = "We report this every Saturday — subscribe so you don't miss it."
+_SUBSCRIBE_SAT_CN = "本频道每周六都会带来这个专题，敬请关注。"
+_SUBSCRIBE_SUN_EN = "We report this every Sunday — subscribe so you don't miss it."
+_SUBSCRIBE_SUN_CN = "本频道每周日都会带来这个专题，敬请关注。"
 
-def _short_ad_outro_frame(date, lang):
+
+def _short_ad_outro_frame(date, lang, subscribe_en=None, subscribe_cn=None):
     """Sunday/Tuesday/Thursday: download-CTA line, then the closing tagline, both
     spoken over the same still image (two narration beats, one frame each, per
-    the same multi-beat-over-one-image pattern Friday's spotlight already uses)."""
+    the same multi-beat-over-one-image pattern Friday's spotlight already uses).
+
+    subscribe_en/subscribe_cn (optional, added 2026-08-22): a category- and
+    weekday-specific "we report this every X" line (see the _SUBSCRIBE_* module
+    constants), spoken as a 3rd beat between the download line and the closing
+    tagline. Left optional rather than required so avg_volume -- unreferenced
+    in production since the 2026-08-15 rotation rework, still calls this helper
+    with no args -- doesn't need one."""
     img = scene_ad_short(date, lang=lang)
     if lang == "cn":
-        return [(img, 3.5, None, _SHORT_AD_LINE_CN), (img, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN)]
-    return [(img, 3.5, None, _SHORT_AD_LINE_EN), (img, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN)]
+        beats = [(img, 3.5, None, _SHORT_AD_LINE_CN)]
+        if subscribe_cn:
+            beats.append((img, _SUBSCRIBE_DUR_CN, None, subscribe_cn))
+        beats.append((img, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
+        return beats
+    beats = [(img, 3.5, None, _SHORT_AD_LINE_EN)]
+    if subscribe_en:
+        beats.append((img, _SUBSCRIBE_DUR_EN, None, subscribe_en))
+    beats.append((img, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
+    return beats
 
 
 # ── Ad reel (replaces the old static ad card as the main CTA scene) ────────────────
@@ -956,8 +1050,15 @@ _AD_PITCH_CN = ("本视频的图表同样可在baizora点com免费下载。"
 # once the main pitch above has already finished — reverted to the original,
 # unchanged (the earlier simplification touched this too; user only asked for the
 # downloadability sentence to be added at the start of the pitch above).
-_AD_PITCH2_EN = "Full stock detail in thirty seconds — baizora dot com."
-_AD_PITCH2_CN = "半分钟看懂个股全部信息。baizora点com。"
+# "— baizora dot com." dropped 2026-08-22 (user request) -- this beat runs
+# immediately into scene_ad_short's _CLOSING_TAGLINE_EN/CN ("Baizora makes things
+# simple.") with no gap, and baizora.com was already spoken once in _AD_PITCH_EN
+# above, so saying it twice back-to-back right before the closing tagline read as
+# redundant. This beat's timing is driven by the still's frame hold_sec, not by
+# how long the speech runs (see comment above _AD_PITCH_EN), so a shorter line
+# just leaves a bit more silence over the still -- safe by construction.
+_AD_PITCH2_EN = "Full stock detail in thirty seconds."
+_AD_PITCH2_CN = "半分钟看懂个股全部信息。"
 
 
 def _contain_dims(sw, sh, box_w, box_h):
@@ -1281,93 +1382,299 @@ def _embed_cover(output, cover_path, ffmpeg_path=None):
     print(f"  [cover] embedded {Path(cover_path).name} as poster frame")
 
 
-def build_volume_spikes_short(data, output, lang="en", share_dir=None):
+_HOOK_NARRATION_SMA200_EN = [
+    "These S&P 500 and Nasdaq-100 stocks have held above their 200-day average all month, and are now testing it as support.",
+    "After a month above their 200-day moving average, these S&P 500 and Nasdaq-100 stocks are now pulling back to test it.",
+]
+
+_HOOK_NARRATION_SMA200_CN = [
+    "这些标普500和纳斯达克100成分股，过去一个月始终站稳200日均线上方，如今正回踩测试支撑。",
+    "过去一个月始终高于200日均线的标普500和纳斯达克100成分股，如今正回踩均线支撑位。",
+]
+
+# Two beats spoken over the same website-screenshot still (same multi-beat-over-
+# one-image pattern _short_ad_outro_frame already uses): first explains the
+# color convention the real DIST SMA200 column uses (green = still above the
+# 200-day average, red = already broken below it -- matches computeSmaDist's
+# Above200 color rule in the dashboard's TECH tab, see
+# project_tech_view_sma_distance memory), then names the actual column so the
+# viewer knows what to look for. Considered visually circling/highlighting the
+# column in the screenshot itself instead (pixel-detected its header at
+# x~1214-1322, y~0-136 via its accent-blue color), but describing both in
+# narration is simpler and doesn't break if the screenshot is ever swapped for
+# a different capture.
+_SMA200_COLOR_LINE_EN = "Green means it's above the average, red means it's below."
+_SMA200_COLOR_LINE_CN = "绿色表示高于均线，红色表示低于均线。"
+_SMA200_WEBSITE_LINE_EN = "You can find this yourself — just sort by Dist SMA200 on our website."
+_SMA200_WEBSITE_LINE_CN = "你也可以自己查看，在网站上按DIST SMA200排序即可。"
+
+# Spoken over _frame_sma200_sample -- reworded 2026-08-22 (user request) to
+# explicitly name "SMA200" (the earlier wording only ever said "the average",
+# never the variable itself) and to explicitly flag AVGO as one example, not a
+# recommendation of that specific ticker -- per
+# feedback_avoid_stock_recommendation_wording, this category screens/reports a
+# pattern, it doesn't issue a buy call on the tickers shown. User's own word
+# choice, "resistance" (also used in the video/covering/sma200.png cover art) --
+# kept as-is rather than substituting "support," even though the mechanics
+# shown (price approaching and rebounding from ABOVE) are textbook support
+# behavior, since the user chose this wording twice independently.
+_SMA200_SAMPLE_LINE_EN = "SMA200 is a strong resistance — AVGO is just one example. Notice how it touches the average and bounces back, again and again."
+_SMA200_SAMPLE_LINE_CN = "SMA200是很强的阻力位，AVGO只是一个例子。它多次触及此均线后反弹。"
+
+def _compute_near_sma200(data, window_days=21, band=(0.0, 2.0)):
+    """Monday's category (replaces the retired volume_spikes, 2026-08-22, user
+    request). A stock qualifies if its close has been at/above its 200-day
+    average every session for the trailing month (window_days=21) AND is still
+    at/above it today — i.e. holding the average as support from above, not
+    having broken below it. Filtered to a tight 0-2% distance band (user
+    request), then ranked by market cap descending (largest first) — deliberately
+    NOT by closeness, the band already guarantees "near."
+
+    This is a fresh Python port of the dashboard TECH tab's computeSmaDist logic
+    (see project_tech_view_sma_distance memory) — that helper only runs in the
+    browser and has no "stayed above for a month" concept (it's a same-day
+    snapshot only), so it couldn't be reused as-is for this video."""
+    candles = _load_candles()
+    sma = candles.get("sma", {})
+    bars_by_ticker = candles.get("data", {})
+    candidates = []
+    for row in data["data"]:
+        ticker = row.get("Ticker", "")
+        s200 = sma.get(ticker, {}).get("sma200")
+        bars = bars_by_ticker.get(ticker)
+        if not s200 or not bars or len(bars) < window_days + 1:
+            continue
+        recent_closes = [b[3] for b in bars[-(window_days + 1):]]
+        recent_sma = s200[-(window_days + 1):]
+        if any(v is None for v in recent_sma):
+            continue
+        prev_closes, prev_sma = recent_closes[:-1], recent_sma[:-1]
+        today_close, today_sma = recent_closes[-1], recent_sma[-1]
+        if today_sma is None or today_sma <= 0:
+            continue
+        if not all(c >= s for c, s in zip(prev_closes, prev_sma)):
+            continue  # broke below the 200-day average at some point in the trailing month
+        if today_close < today_sma:
+            continue  # already broken below it today
+        dist = (today_close / today_sma - 1) * 100
+        if not (band[0] <= dist <= band[1]):
+            continue
+        row["_smaDistPct"] = round(dist, 2)
+        candidates.append(row)
+    candidates.sort(key=lambda r: -(r.get("MarketCap") or 0))
+    return candidates[:3]
+
+
+def _narrate_ticker_lines_sma200(rows, key="_smaDistPct"):
+    """Custom phrasing (not the generic _narrate_ticker_lines "up N percent"
+    template) since this category isn't about a gain — it's about proximity to
+    the 200-day average, and rows are ordered by market cap, not by that
+    proximity. Row count is data-driven (1-3, same as Thursday's vol-peak
+    category) since the 0-2% band can turn up fewer than 3 candidates on a
+    given day."""
+    n = len(rows)
+    lines = []
+    for i, row in enumerate(rows):
+        ticker = row.get("Ticker", "")
+        v = abs(row.get(key) or 0)
+        if n == 1:
+            lines.append(f"Only one stock qualifies within 0 to 2 percent of its 200-day average today — "
+                          f"{ticker}, just {v:.1f} percent above it.")
+        elif i == 0:
+            # States the actual screening rule (0-2% band) before the ranking
+            # rule (largest market cap) -- user request, 2026-08-22: viewers
+            # need to hear *why* these 3 first, not just which one is biggest.
+            lines.append(f"We screen for stocks within 0 to 2 percent of their 200-day average, then take the "
+                          f"3 with the largest market cap. First up, {ticker}, just {v:.1f} percent above it.")
+        elif i == n - 1:
+            lines.append(f"And rounding it out, {ticker}, {v:.1f} percent above the average.")
+        else:
+            lines.append(f"{ticker} follows, {v:.1f} percent above its 200-day average.")
+    return lines
+
+
+def _narrate_ticker_lines_sma200_cn(rows, key="_smaDistPct"):
+    n = len(rows)
+    lines = []
+    for i, row in enumerate(rows):
+        ticker = row.get("Ticker", "")
+        v = abs(row.get(key) or 0)
+        if n == 1:
+            lines.append(f"今天只有一只股票在200日均线0到2%以内——{ticker}，仅高于均线{v:.1f}%。")
+        elif i == 0:
+            lines.append(f"我们筛选出距离200日均线0到2%以内的股票，再从中选出市值最大的3只。"
+                          f"首先是{ticker}，高于均线{v:.1f}%。")
+        elif i == n - 1:
+            lines.append(f"最后是{ticker}，高于200日均线{v:.1f}%。")
+        else:
+            lines.append(f"{ticker}紧随其后，高于均线{v:.1f}%。")
+    return lines
+
+
+def _frame_website_screenshot(lang):
+    """Closing 'find it yourself' frame for Monday's SMA200 category — a real,
+    full dashboard screenshot (video/sma200_sort.png: nav bar + TECH tab toolbar
+    + the actual DIST SMA200-sorted table), not a cropped/staged excerpt. This
+    doesn't reuse _frame_ad_asset's fixed 940x1320 portrait box (sized for the
+    ad reel's portrait stills/video) — the screenshot itself is wide/short
+    (1431x468, a real browser capture), so that box would leave it tiny with a
+    huge empty gap top/bottom. Instead: width-driven contain into a near-full-
+    width box, pinned close under the heading rather than centered in the full
+    canvas (see the y=280 comment below)."""
+    heading = "FIND IT ON OUR SITE" if lang == "en" else "在我们网站即可查看"
+    img, draw = new_frame_s()
+    dot_grid_s(draw)
+    f_head = load_headline_font(50) if lang == "en" else load_font_cn(40, bold=True)
+    centered_s(draw, 110, heading, f_head, GOLD_LIGHT)
+    asset = Image.open(SCRIPT_DIR / "sma200_sort.png").convert("RGB")
+    # Near-full-bleed width (not the same generous max_h the portrait ad-reel box
+    # gets) and pinned close under the heading, not vertically centered in the
+    # full canvas -- a 3:1 landscape image on a 9:16 canvas is always going to
+    # leave dead space below it; pinning it high reads as intentional, centering
+    # it in a huge empty band read as a rendering mistake in preview.
+    box_w, max_h = SW - 40, 700
+    nw, nh = _contain_dims(*asset.size, box_w, max_h)
+    asset = asset.resize((nw, nh), Image.LANCZOS)
+    x = (SW - nw) // 2
+    y = 280
+    draw.rectangle([x - 8, y - 8, x + nw + 8, y + nh + 8], outline=ELECTRIC, width=4)
+    img.paste(asset, (x, y))
+    centered_s(draw, y + nh + 60, "baizora.com", load_font(40), ELECTRIC)
+    return img
+
+
+def _frame_sma200_sample(lang):
+    """Second closing frame -- a real ticker-detail-modal chart (video/
+    sma200_sample.png: AVGO, 6M window, SMA overlay on) so viewers see what the
+    pattern actually looks like on a live chart, not just a table of numbers.
+    Less extreme aspect ratio than the sort screenshot (972x495, ~2:1 vs ~3:1)
+    so it renders a bit larger at the same near-full-bleed width."""
+    heading = "SEE IT ON THE CHART" if lang == "en" else "图表上一目了然"
+    img, draw = new_frame_s()
+    dot_grid_s(draw)
+    f_head = load_headline_font(50) if lang == "en" else load_font_cn(40, bold=True)
+    centered_s(draw, 110, heading, f_head, GOLD_LIGHT)
+    asset = Image.open(SCRIPT_DIR / "sma200_sample.png").convert("RGB")
+    box_w, max_h = SW - 40, 900
+    nw, nh = _contain_dims(*asset.size, box_w, max_h)
+    asset = asset.resize((nw, nh), Image.LANCZOS)
+    x = (SW - nw) // 2
+    y = 280
+    draw.rectangle([x - 8, y - 8, x + nw + 8, y + nh + 8], outline=ELECTRIC, width=4)
+    img.paste(asset, (x, y))
+    centered_s(draw, y + nh + 60, "baizora.com", load_font(40), ELECTRIC)
+    return img
+
+
+def build_near_sma200_short(data, output, lang="en", share_dir=None):
+    """Monday — replaces the retired Volume Spikes category (2026-08-22, user
+    request). Top 3 stocks that have held above their 200-day average all month
+    and are now within 0-2% of it (testing it as support from above), ranked by
+    market cap. See _compute_near_sma200 for the full qualification rule.
+
+    Closing is deliberately minimal (user request, 2026-08-22) — unlike every
+    other weekday, this one skips both the full 3-part ad reel AND the short-ad
+    "baizora.com" line entirely. Just the real DIST SMA200 dashboard screenshot
+    (video/sma200_sort.png, "you can find this yourself on our site") followed
+    straight by the standard closing tagline. No separate CTA/signup pitch."""
     date = data["date"]
     date_obj = datetime.date.fromisoformat(date)
-    # Sorted (and displayed) by volume vs. the 21-day average — not VolumeChange1D
-    # (day-over-day change vs. yesterday), which is what this category used to sort
-    # by despite the card labeling itself "VS 21-DAY AVERAGE VOLUME." Real bug: the
-    # label and the underlying metric didn't match. VolumeVsMA21_1D is a ratio
-    # (e.g. 1.35 = 135% of the 21-day average); converted to a percent-above-average
-    # figure so the card's big number reads the same way ("+35%") as before.
-    rows = sorted(data["data"], key=lambda r: r.get("VolumeVsMA21_1D") or -9999, reverse=True)[:3]
-    for r in rows:
-        ratio = r.get("VolumeVsMA21_1D")
-        r["_volMa21Pct"] = round((ratio - 1) * 100, 2) if ratio is not None else 0.0
+    rows = _compute_near_sma200(data)
 
-    # Durations below = actually-measured edge-tts speech time at SHORTS_TTS_RATE (EN)
-    # or SHORTS_TTS_VOICE_CN (CN) for this exact wording pattern, +~0.15s buffer each —
-    # not estimates. Guessed budgets consistently ran short (e.g. the EN leader line
-    # "TICKER leads, up N percent" alone measured 3.02s against a guessed 2.05s slot),
-    # which is what caused dropped/cut-off narration. If the narration templates in
-    # _narrate_ticker_lines(_cn) change, re-measure rather than re-guess.
+    if not rows:
+        print("No stocks within 0-2% of their 200-day average today — falling back to the price-jump topic.")
+        _build_price_jump_fallback(data, output, lang, share_dir, date, date_obj)
+        return
+
+    # Durations below = actually-measured edge-tts speech time at SHORTS_TTS_RATE,
+    # +~0.2-0.3s buffer each — not estimates (worst-case ticker "GOOGL", worst-case
+    # in-band value "2.0", per feedback_measure_tts_duration). Real edge-tts
+    # measurement flagged a genuine bug worth remembering: batching many
+    # edge_tts.Communicate() calls across separate asyncio.run() invocations in one
+    # process silently truncated 2 of 12 CN clips to ~40% of their real length (no
+    # exception raised) — re-measuring each line in its own fresh process gave the
+    # correct, much longer durations. Don't trust a single batched measurement run
+    # for CN without a spot-check in isolation.
+    n = len(rows)
+    def _dur(i):
+        if n == 1:
+            # Now states the 0-2% screening rule explicitly (user request,
+            # 2026-08-22) -- much longer than a bare "only one qualifies" line.
+            # Measured 5.86s/5.57s, +buffer.
+            return 6.1 if lang == "en" else 5.8
+        if i == 0:
+            # States the screening rule (0-2% band) AND the ranking rule
+            # (largest market cap) before naming the ticker -- measured
+            # 8.23s/8.47s, +buffer.
+            return 8.5 if lang == "en" else 8.7
+        if i == n - 1:
+            return 3.5 if lang == "en" else 3.8
+        return 3.5 if lang == "en" else 3.3
+    ticker_durs = [_dur(i) for i in range(n)]
+
+    sub_en, sub_cn = "ABOVE 200-DAY AVERAGE", "高于200日均线"
+    share_criteria = (
+        "Screened from the S&P 500 + Nasdaq-100 for stocks that closed at or above their 200-day moving "
+        "average every session over the past month, and are now within 0-2% of it — ranked by market cap."
+        if lang == "en" else
+        "从标普500和纳斯达克100成分股中，筛选出过去一个月每个交易日收盘价均不低于200日均线、"
+        "且目前距离均线在0-2%以内的个股，按市值排序。")
+
     if lang == "cn":
-        ticker_lines = _narrate_ticker_lines_cn(rows, n=3)
-        ticker_durs = [2.8, 3.1, 3.5]
-        # Re-measured after adding the "S&P 500 and Nasdaq-100" mention: 4.08s/4.32s, +buffer.
-        hook_dur, hook_text = 4.65, random.choice(_HOOK_NARRATION_CN)
+        ticker_lines = _narrate_ticker_lines_sma200_cn(rows)
+        hook_dur, hook_text = 6.9, random.choice(_HOOK_NARRATION_SMA200_CN)  # measured 6.60s/6.22s, +buffer
         tts_voice = SHORTS_TTS_VOICE_CN
     else:
-        ticker_lines = _narrate_ticker_lines(rows, n=3)
-        ticker_durs = [3.2, 2.7, 3.8]
-        # Re-measured after adding the "S&P 500 and Nasdaq-100" mention: 5.26s/5.50s/5.18s, +buffer.
-        hook_dur, hook_text = 5.8, random.choice(_HOOK_NARRATION_EN)
+        ticker_lines = _narrate_ticker_lines_sma200(rows)
+        hook_dur, hook_text = 6.6, random.choice(_HOOK_NARRATION_SMA200_EN)  # measured 6.31s/6.22s, +buffer
         tts_voice = "en-US-ChristopherNeural"
 
     frames = [
-        (scene_hook_generic(date, lang, ["BIGGEST VOLUME", "SPIKES TODAY"], ["今日成交量", "暴涨股票"],
+        (scene_hook_generic(date, lang, ["TESTING THEIR", "200-DAY SUPPORT"], ["回踩", "200日均线支撑"],
                             "S&P 500  ·  Nasdaq-100", "标普500 · 纳斯达克100", bg_style="bars"),
          hook_dur, None, hook_text),
     ]
-    # One stock at a time (name + volume-change number + 1Y trend together) — replaces
-    # the old shared 5-row table so each narrated ticker gets its own hero card instead
-    # of all narration pointing at one static list.
+    # One stock at a time (name + distance-from-average number + 1Y trend
+    # together) — same per-ticker hero-card shape every other category uses.
     for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
         row["_range_ext"] = _compute_range_extremes(row.get("Ticker", ""))
-        card = scene_stock_card(row, i + 1, lang, "_volMa21Pct",
-                                 "VS 21-DAY AVERAGE VOLUME", "对比21日平均成交量")
+        card = scene_stock_card(row, i + 1, lang, "_smaDistPct", sub_en, sub_cn, show_sma200=True)
         frames.append((card, dur, None, line))
         range_line = _range_narration_line(row["_range_ext"], lang)
         if range_line:
             frames.append((card, _RANGE_DUR_CN if lang == "cn" else _RANGE_DUR_EN, None, range_line))
         if share_dir:
-            caption = "Unusual volume spike vs the 21-day average" if lang == "en" else "较21日均量的成交量异动"
-            criteria = ("Screened from the S&P 500 + Nasdaq-100 for the largest single-day volume spike "
-                        "vs. each stock's own 21-day average volume." if lang == "en" else
-                        "从标普500和纳斯达克100成分股中，筛选出较自身21日平均成交量涨幅最大的个股。")
-            light_card = scene_stock_card(row, i + 1, lang, "_volMa21Pct",
-                                           "VS 21-DAY AVERAGE VOLUME", "对比21日平均成交量", theme="light")
-            _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "volume_spikes", i + 1,
-                              criteria=criteria)
+            v = row.get("_smaDistPct", 0)
+            caption = (f"Held above its 200-day average all month, now {v:.1f}% above it" if lang == "en"
+                       else f"过去一个月站稳200日均线上方，如今高出{v:.1f}%")
+            light_card = scene_stock_card(row, i + 1, lang, "_smaDistPct", sub_en, sub_cn, theme="light", show_sma200=True)
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "near_sma200", i + 1,
+                              criteria=share_criteria)
 
-    # Ad reel replaces the old dashboard-screenshot + static-card CTA: real footage
-    # (advertise_0.png -> advertise_1.mp4 -> advertise_2.png) with the condensed pitch
-    # narrated entirely across it (see _AD_PITCH_EN/_CN — measured to finish well
-    # before the reel ends). Ends on scene_ad_short (the previous static brand card)
-    # unchanged, silent, as the final slide — "end on the previous slide" per explicit
-    # instruction.
-    ad_entries = build_ad_reel(lang=lang)
-    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
-    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
-    first = ad_entries[0]
-    if len(ad_entries) > 1:
-        # 3-part reel (both languages): main pitch on the first still, the short
-        # second beat on the last still (advertise_2.png) — it only has ~3-4s of
-        # runway once the main pitch finishes, so it has to be terse.
-        ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
-        last = ad_entries[-1]
-        ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
+    # Minimal closing (see docstring) — real DIST SMA200 screenshot, then a real
+    # chart showing the pattern, then straight to the closing-tagline brand card
+    # (with a category-specific subscribe ask spoken first). No ad reel, no
+    # _AD_PITCH/_SHORT_AD_LINE narration at all for this category.
+    website_frame = _frame_website_screenshot(lang)
+    sample_frame = _frame_sma200_sample(lang)
+    ad_card = scene_ad_short(date, lang=lang)
+    if lang == "cn":
+        # Order swapped 2026-08-22 (user request): name the variable (Dist
+        # SMA200) BEFORE explaining what the colors mean, not after.
+        frames.append((website_frame, 4.3, None, _SMA200_WEBSITE_LINE_CN))  # measured 4.06s, +buffer
+        frames.append((website_frame, 3.4, None, _SMA200_COLOR_LINE_CN))    # measured 3.12s, +buffer
+        frames.append((sample_frame, 5.9, None, _SMA200_SAMPLE_LINE_CN))    # measured 5.62s, +buffer
+        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_MON_CN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
     else:
-        # Fallback if a language's reel is ever a single clip with nowhere else to
-        # attach a second narration slot — both beats spoken back-to-back as one clip.
-        ad_entries[0] = (first[0], first[1], first[2], ad_pitch + " " + ad_pitch2)
-    frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang),
-                   _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
-                   _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
+        frames.append((website_frame, 4.3, None, _SMA200_WEBSITE_LINE_EN))  # measured 4.08s, +buffer
+        frames.append((website_frame, 3.3, None, _SMA200_COLOR_LINE_EN))    # measured 3.02s, +buffer
+        frames.append((sample_frame, 7.7, None, _SMA200_SAMPLE_LINE_EN))    # measured 7.44s, +buffer
+        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_MON_EN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
-    cover = cover_path_for("volume_spikes" + ("_cn" if lang == "cn" else ""), date_obj)
+    cover = cover_path_for("near_sma200" + ("_cn" if lang == "cn" else ""), date_obj)
     if cover:
         _embed_cover(output, cover)
 
@@ -1427,7 +1734,8 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
     # Shortened ad treatment (user request, 2026-08-01): just the brand outro
     # card with a short spoken downloadability line, no 3-part ad reel. Only
     # Tuesday/Thursday/Sunday changed this way -- see _short_ad_outro_frame.
-    frames += _short_ad_outro_frame(date, lang)
+    # Sunday-specific subscribe line added 2026-08-22 (see _SUBSCRIBE_SUN_EN/CN).
+    frames += _short_ad_outro_frame(date, lang, subscribe_en=_SUBSCRIBE_SUN_EN, subscribe_cn=_SUBSCRIBE_SUN_CN)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("best_performer" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1501,7 +1809,12 @@ def build_worst_performer_short(data, output, lang="en", share_dir=None):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang),
+    # Saturday-specific subscribe line, added 2026-08-22 (see _SUBSCRIBE_SAT_EN/CN)
+    # -- extra beat over the same closing brand card, before the closing tagline.
+    ad_card = scene_ad_short(date, lang=lang)
+    frames.append((ad_card, _SUBSCRIBE_DUR_CN if lang == "cn" else _SUBSCRIBE_DUR_EN, None,
+                   _SUBSCRIBE_SAT_CN if lang == "cn" else _SUBSCRIBE_SAT_EN))
+    frames.append((ad_card,
                    _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
                    _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
@@ -1706,7 +2019,7 @@ def _build_price_jump_fallback(data, output, lang, share_dir, date, date_obj):
                    _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
-    cover = cover_path_for("volume_spikes" + ("_cn" if lang == "cn" else ""), date_obj)
+    cover = cover_path_for("near_sma200" + ("_cn" if lang == "cn" else ""), date_obj)
     if cover:
         _embed_cover(output, cover)
 
@@ -1833,7 +2146,12 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang),
+    # Wednesday-specific subscribe line, added 2026-08-22 (see _SUBSCRIBE_WED_EN/CN)
+    # -- extra beat over the same closing brand card, before the closing tagline.
+    ad_card = scene_ad_short(date, lang=lang)
+    frames.append((ad_card, _SUBSCRIBE_DUR_CN if lang == "cn" else _SUBSCRIBE_DUR_EN, None,
+                   _SUBSCRIBE_WED_CN if lang == "cn" else _SUBSCRIBE_WED_EN))
+    frames.append((ad_card,
                    _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
                    _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
@@ -1900,8 +2218,8 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
     vol_key = "_volPeakPct"
 
     if not rows:
-        print(f"No {tf['label_en']} volume-record stocks today — falling back to Monday's volume-spikes topic.")
-        build_volume_spikes_short(data, output, lang=lang, share_dir=share_dir)
+        print(f"No {tf['label_en']} volume-record stocks today — falling back to Monday's near-SMA200 topic.")
+        build_near_sma200_short(data, output, lang=lang, share_dir=share_dir)
         return
 
     window_en, window_cn = tf["window_en"], tf["window_cn"]
@@ -1968,7 +2286,10 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
                               criteria=share_criteria)
 
     # Shortened ad treatment (user request, 2026-08-01) -- see _short_ad_outro_frame.
-    frames += _short_ad_outro_frame(date, lang)
+    # This category runs both Tuesday and Thursday (see the 2026-08-15 rework
+    # commit "Rework Tuesday/Sunday category video rotation"), so the subscribe
+    # line names both days rather than picking one (see _SUBSCRIBE_TUETHU_EN/CN).
+    frames += _short_ad_outro_frame(date, lang, subscribe_en=_SUBSCRIBE_TUETHU_EN, subscribe_cn=_SUBSCRIBE_TUETHU_CN)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("1y_vol_peak" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -2121,7 +2442,12 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
     last = ad_entries[-1]
     ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
     frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang),
+    # Friday-specific subscribe line, added 2026-08-22 (see _SUBSCRIBE_FRI_EN/CN)
+    # -- extra beat over the same closing brand card, before the closing tagline.
+    ad_card = scene_ad_short(date, lang=lang)
+    frames.append((ad_card, _SUBSCRIBE_DUR_CN if lang == "cn" else _SUBSCRIBE_DUR_EN, None,
+                   _SUBSCRIBE_FRI_CN if lang == "cn" else _SUBSCRIBE_FRI_EN))
+    frames.append((ad_card,
                    _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
                    _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
@@ -2132,7 +2458,7 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
 
 
 BUILDERS = {
-    "volume_spikes": build_volume_spikes_short,
+    "near_sma200": build_near_sma200_short,
     "best_performer": build_best_performer_short,
     "6m_breakout": build_6m_breakout_short,
     "1y_vol_peak": build_1y_vol_peak_short,

@@ -398,7 +398,7 @@ jobs:
         run: |
           DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat 7=Sun
           if [ "$DOW" = "1" ]; then
-            echo "VIDEO_TYPES=volume_spikes volume_spikes_cn" >> $GITHUB_ENV
+            echo "VIDEO_TYPES=near_sma200 near_sma200_cn" >> $GITHUB_ENV
           elif [ "$DOW" = "2" ]; then
             echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
           elif [ "$DOW" = "3" ]; then
@@ -464,7 +464,7 @@ jobs:
               if echo "$type" | grep -q "_cn$"; then
                 cp "video/${type}.mp4" data/latest_video_cn.mp4
                 case "$type" in
-                  volume_spikes_cn)    CN_NAME="异常成交量" ;;
+                  near_sma200_cn)      CN_NAME="回踩200日均线" ;;
                   best_performer_cn)   CN_NAME="最佳涨幅股" ;;
                   6m_breakout_cn)      CN_NAME="6个月突破" ;;
                   1y_vol_peak_cn)      CN_NAME="年成交量峰值" ;;
@@ -475,7 +475,7 @@ jobs:
               else
                 cp "video/${type}.mp4" data/latest_video_en.mp4
                 case "$type" in
-                  volume_spikes)    EN_NAME="Unusual Volume Spikes" ;;
+                  near_sma200)      EN_NAME="Testing 200-Day Support" ;;
                   best_performer)   EN_NAME="Top Price Movers" ;;
                   6m_breakout)      EN_NAME="6-Month Breakout" ;;
                   1y_vol_peak)      EN_NAME="1Y Volume Peak" ;;

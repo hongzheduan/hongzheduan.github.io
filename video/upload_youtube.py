@@ -34,7 +34,7 @@ FREE_ACCESS_MODE = True
 # Same weekday mapping as generate_shorts.py's cover_path_for() — duplicated (not
 # imported) since this script is meant to stay a standalone upload utility.
 _WEEKDAY_BY_TYPE = {
-    "volume_spikes": "Monday",
+    "near_sma200": "SMA200",  # replaces retired volume_spikes, 2026-08-22
     "best_performer": "Tuesday",
     "6m_breakout": "Wednesday",
     "1y_vol_peak": "Thursday",
@@ -235,17 +235,17 @@ def make_meta(video_type, date):
             title,
             f"Today's biggest price and volume movers in the Nasdaq-100, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
         )
-    if video_type == "volume_spikes":
+    if video_type == "near_sma200":
         title = random.choice([
-            f"Biggest Volume Spikes Today — {date}",
-            f"Top Unusual Volume Stocks Today — {date}",
-            f"Today's Biggest Volume Surges — {date}",
-            f"Stocks With Unusual Volume Today — {date}",
-            f"Top Volume Breakouts Today — {date}",
+            f"Stocks Testing Their 200-Day Support — {date}",
+            f"Near Their 200-Day Average — {date}",
+            f"Testing the 200-Day Line — {date}",
+            f"Holding Above the 200-Day Average — {date}",
         ])
         return (
             title,
-            f"Large-cap stocks with unusual trading volume today ({date}), across S&P 500 and Nasdaq-100.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Large-cap stocks that have held above their 200-day moving average for the past month and are "
+            f"now within 0-2% of it, ranked by market cap, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "best_performer":
         tf    = _tuesday_tf(date)
@@ -312,17 +312,16 @@ def make_meta(video_type, date):
             title,
             f"截至{date}，S&P 500和纳斯达克100中过去{window_cn}日均成交量最高的大盘股。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
         )
-    if video_type == "volume_spikes_cn":
+    if video_type == "near_sma200_cn":
         title = random.choice([
-            f"今日成交量激增最多股票 — {date}",
-            f"今日成交量最异常股票 — {date}",
-            f"今日成交量暴涨股票 — {date}",
-            f"今日成交量异常股票 — {date}",
-            f"今日成交量突破股票 — {date}",
+            f"回踩200日均线支撑的股票 — {date}",
+            f"逼近200日均线的股票 — {date}",
+            f"站稳200日均线上方的股票 — {date}",
         ])
         return (
             title,
-            f"S&P 500和纳斯达克100中今日出现异常交易量的大盘股（{date}）。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"截至{date}，过去一个月始终站稳200日均线上方、目前距离均线在0-2%以内的大盘股，按市值排序。"
+            f"\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "best_performer_cn":
         tf       = _tuesday_tf(date)
