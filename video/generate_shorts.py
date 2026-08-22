@@ -1675,10 +1675,21 @@ def _build_volume_spike_fallback(data, output, lang, share_dir, date, date_obj):
         frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_MON_CN))
         frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
     else:
-        # +2s extra silent viewing time, same as every other bespoke closing this session.
-        frames.append((volma21_frame, 7.3, None, _VOLMA21_VARIABLE_LINE_EN))  # measured 5.06s, +buffer, +2s
+        # Tightened 2026-08-22 (user: noticeable dead air "before 'click ticker'"
+        # and again "before 'baizora makes things simple'") -- CN pacing was
+        # confirmed fine ("cn is ok otherwise"), EN-only fix. Two changes:
+        # (1) dropped the earlier +2s extra-viewing bonus on this beat -- with
+        # a SECOND spoken beat stacked on the same still right after it, that
+        # bonus read as the video going quiet mid-thought, not as "more time to
+        # look," so it's gone here specifically (other single-beat screenshots
+        # elsewhere keep their +2s, no complaint there). (2) subscribe beat
+        # given its own tight duration (real 3.12s + buffer) instead of the
+        # shared _SUBSCRIBE_DUR_EN=4.0 (sized for Tuesday+Thursday's longer
+        # combined line) -- that shared constant is unchanged for every other
+        # category, this call site just no longer inherits its slack.
+        frames.append((volma21_frame, 5.4, None, _VOLMA21_VARIABLE_LINE_EN))  # measured 5.06s, +buffer
         frames.append((volma21_frame, 3.9, None, _VOLMA21_VERIFY_LINE_EN))    # measured 3.67s, +buffer
-        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_MON_EN))
+        frames.append((ad_card, 3.4, None, _SUBSCRIBE_MON_EN))                # measured 3.12s, +buffer
         frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
@@ -1860,6 +1871,10 @@ _VOLRANK_VARIABLE_LINE_CN = "您也可以自己查看，按VOL RANK排序，就�
 # volume-spike fallback -- names the VOL/MA21 column (1D view, ratio of
 # today's volume to the 21-day average) rather than leaving the underlying
 # variable unstated. Real edge-tts measurement: EN 5.06s, CN 4.20s, +buffer.
+# A longer, "explain what it measures" version was tried (user first suggested
+# "say a bit more for the silent time" as an alternative to trimming the
+# beat's hold_sec) but the trimmed version (see the closing block below) was
+# confirmed good before the longer version shipped -- reverted, not built on.
 _VOLMA21_VARIABLE_LINE_EN = "You can find this yourself — the VOL/MA21 variable gets you this result on our website."
 _VOLMA21_VARIABLE_LINE_CN = "您也可以自己查看，在我们网站上，VOL/MA21变量就能得到这个结果。"
 
