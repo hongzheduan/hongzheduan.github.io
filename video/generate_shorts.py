@@ -1626,8 +1626,19 @@ def build_near_sma200_short(data, output, lang="en", share_dir=None):
     rows = _compute_near_sma200(data)
 
     if not rows:
-        print("No stocks within 0-2% of their 200-day average today — falling back to the price-jump topic.")
-        _build_price_jump_fallback(data, output, lang, share_dir, date, date_obj)
+        # Deliberately NOT falling back to a different topic (unlike Wednesday's
+        # 6m_breakout, which falls back to price-jump) -- user request, 2026-08-22:
+        # "use previous monday's video as fallback." Writing nothing here means
+        # scanner.yml's copy step (`if [ -f "video/${type}.mp4" ]`) skips this
+        # language entirely, so data/latest_video_en.mp4/_cn.mp4 simply keep
+        # LAST week's near_sma200 video untouched, and the already-fixed
+        # metadata-merge logic (see the 2026-07-08 build_6m_breakout_short fix,
+        # same file) correctly leaves data/latest_video_meta.json's date alone
+        # too, since EN_NAME/CN_NAME stay empty for this run -- no stale-video-
+        # with-fresh-date bug reintroduced. Exact same "print + return, write
+        # nothing" pattern build_index_spotlight_short already uses for its own
+        # "no new members today" case.
+        print("No stocks within 0-2% of their 200-day average today — keeping last week's video (no file written).")
         return
 
     # Durations below = actually-measured edge-tts speech time at SHORTS_TTS_RATE,
@@ -2347,6 +2358,12 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
     vol_key = "_volPeakPct"
 
     if not rows:
+        # Falls into Monday's builder, which -- as of 2026-08-22 -- may itself
+        # write nothing if ITS screen is also empty that day (see the "keeping
+        # last week's video" comment in build_near_sma200_short). That's fine:
+        # the cascade just means this run also silently keeps last week's
+        # 1y_vol_peak video, same graceful-skip behavior, nothing extra needed
+        # here.
         print(f"No {tf['label_en']} volume-record stocks today — falling back to Monday's near-SMA200 topic.")
         build_near_sma200_short(data, output, lang=lang, share_dir=share_dir)
         return
