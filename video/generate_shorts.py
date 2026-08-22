@@ -1610,6 +1610,83 @@ def _frame_sma200_sample(lang):
     return img
 
 
+def _build_volume_spike_fallback(data, output, lang, share_dir, date, date_obj):
+    """Monday fallback — used when _compute_near_sma200 finds zero stocks within
+    0-2% of their 200-day average (user request, 2026-08-22: "use previous
+    monday's video as fallback ... use largest volume change from ma21").
+    Revives the ORIGINAL, pre-2026-08-22 Monday theme (largest single-day
+    volume spike vs. each stock's own 21-day average, VolumeVsMA21_1D) as a
+    fallback topic rather than leaving the day silent. Adapted, not
+    reimplemented, from the retired build_volume_spikes_short (deleted in
+    commit 8546e949 -- recovered via `git show bd012d62:
+    video/generate_shorts.py` for this). Closing given the same bespoke
+    real-screenshot treatment as every primary category this session (user
+    request: "use vol_ma21.png, mention VOL/MA21 variable can get this
+    result") rather than the generic ad reel -- see
+    _frame_dashboard_sort/_VOLMA21_VARIABLE_LINE_EN/CN below."""
+    rows = sorted(data["data"], key=lambda r: r.get("VolumeVsMA21_1D") or -9999, reverse=True)[:3]
+    for r in rows:
+        ratio = r.get("VolumeVsMA21_1D")
+        r["_volMa21Pct"] = round((ratio - 1) * 100, 2) if ratio is not None else 0.0
+
+    # Durations unchanged from the original build_volume_spikes_short -- real
+    # edge-tts measurements from when this was the primary Monday category,
+    # still valid since the narration templates (_narrate_ticker_lines(_cn),
+    # _HOOK_NARRATION_EN/_CN) are untouched.
+    if lang == "cn":
+        ticker_lines = _narrate_ticker_lines_cn(rows, n=3)
+        ticker_durs = [2.8, 3.1, 3.5]
+        hook_dur, hook_text = 4.65, random.choice(_HOOK_NARRATION_CN)
+        tts_voice = SHORTS_TTS_VOICE_CN
+    else:
+        ticker_lines = _narrate_ticker_lines(rows, n=3)
+        ticker_durs = [3.2, 2.7, 3.8]
+        hook_dur, hook_text = 5.8, random.choice(_HOOK_NARRATION_EN)
+        tts_voice = "en-US-ChristopherNeural"
+
+    frames = [
+        (scene_hook_generic(date, lang, ["BIGGEST VOLUME", "SPIKES TODAY"], ["今日成交量", "暴涨股票"],
+                            "S&P 500  ·  Nasdaq-100", "标普500 · 纳斯达克100", bg_style="bars"),
+         hook_dur, None, hook_text),
+    ]
+    for i, (row, dur, line) in enumerate(zip(rows, ticker_durs, ticker_lines)):
+        row["_range_ext"] = _compute_range_extremes(row.get("Ticker", ""))
+        card = scene_stock_card(row, i + 1, lang, "_volMa21Pct",
+                                 "VS 21-DAY AVERAGE VOLUME", "对比21日平均成交量")
+        frames.append((card, dur, None, line))
+        range_line = _range_narration_line(row["_range_ext"], lang)
+        if range_line:
+            frames.append((card, _RANGE_DUR_CN if lang == "cn" else _RANGE_DUR_EN, None, range_line))
+        if share_dir:
+            caption = "Unusual volume spike vs the 21-day average" if lang == "en" else "较21日均量的成交量异动"
+            criteria = ("Screened from the S&P 500 + Nasdaq-100 for the largest single-day volume spike "
+                        "vs. each stock's own 21-day average volume." if lang == "en" else
+                        "从标普500和纳斯达克100成分股中，筛选出较自身21日平均成交量涨幅最大的个股。")
+            light_card = scene_stock_card(row, i + 1, lang, "_volMa21Pct",
+                                           "VS 21-DAY AVERAGE VOLUME", "对比21日平均成交量", theme="light")
+            _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "volume_spikes", i + 1,
+                              criteria=criteria)
+
+    volma21_frame = _frame_dashboard_sort(lang, "vol_ma21.png")
+    ad_card = scene_ad_short(date, lang=lang)
+    if lang == "cn":
+        frames.append((volma21_frame, 4.5, None, _VOLMA21_VARIABLE_LINE_CN))  # measured 4.20s, +buffer
+        frames.append((volma21_frame, 4.0, None, _VOLMA21_VERIFY_LINE_CN))    # measured 3.74s, +buffer
+        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_MON_CN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
+    else:
+        # +2s extra silent viewing time, same as every other bespoke closing this session.
+        frames.append((volma21_frame, 7.3, None, _VOLMA21_VARIABLE_LINE_EN))  # measured 5.06s, +buffer, +2s
+        frames.append((volma21_frame, 3.9, None, _VOLMA21_VERIFY_LINE_EN))    # measured 3.67s, +buffer
+        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_MON_EN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
+    encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
+
+    cover = cover_path_for("near_sma200" + ("_cn" if lang == "cn" else ""), date_obj)
+    if cover:
+        _embed_cover(output, cover)
+
+
 def build_near_sma200_short(data, output, lang="en", share_dir=None):
     """Monday — replaces the retired Volume Spikes category (2026-08-22, user
     request). Top 3 stocks that have held above their 200-day average all month
@@ -1626,19 +1703,15 @@ def build_near_sma200_short(data, output, lang="en", share_dir=None):
     rows = _compute_near_sma200(data)
 
     if not rows:
-        # Deliberately NOT falling back to a different topic (unlike Wednesday's
-        # 6m_breakout, which falls back to price-jump) -- user request, 2026-08-22:
-        # "use previous monday's video as fallback." Writing nothing here means
-        # scanner.yml's copy step (`if [ -f "video/${type}.mp4" ]`) skips this
-        # language entirely, so data/latest_video_en.mp4/_cn.mp4 simply keep
-        # LAST week's near_sma200 video untouched, and the already-fixed
-        # metadata-merge logic (see the 2026-07-08 build_6m_breakout_short fix,
-        # same file) correctly leaves data/latest_video_meta.json's date alone
-        # too, since EN_NAME/CN_NAME stay empty for this run -- no stale-video-
-        # with-fresh-date bug reintroduced. Exact same "print + return, write
-        # nothing" pattern build_index_spotlight_short already uses for its own
-        # "no new members today" case.
-        print("No stocks within 0-2% of their 200-day average today — keeping last week's video (no file written).")
+        # Falls back to the ORIGINAL Monday theme (largest volume spike vs. each
+        # stock's own 21-day average) -- user clarified 2026-08-22 after an
+        # earlier "write nothing, let last week's video stand" attempt: "use
+        # largest volume change from ma21 (previous monday video theme)". Same
+        # fallback shape Wednesday's 6m_breakout already uses for its own
+        # zero-qualifier case (_build_price_jump_fallback) -- a distinct,
+        # honestly-labeled topic, not a repackaged SMA200 claim.
+        print("No stocks within 0-2% of their 200-day average today — falling back to the volume-spike topic.")
+        _build_volume_spike_fallback(data, output, lang, share_dir, date, date_obj)
         return
 
     # Durations below = actually-measured edge-tts speech time at SHORTS_TTS_RATE,
@@ -1782,6 +1855,21 @@ _PCHG_VARIABLE_LINE_CN = "您也可以自己查看，按P CHG%排序，就能方
 # CN 4.94s, +buffer.
 _VOLRANK_VARIABLE_LINE_EN = "You can find this yourself — sort by Vol Rank on our website to see it for any timeframe."
 _VOLRANK_VARIABLE_LINE_CN = "您也可以自己查看，按VOL RANK排序，就能查看任意时间段的成交量排名。"
+
+# Spoken over _frame_dashboard_sort(lang, "vol_ma21.png") for the Monday
+# volume-spike fallback -- names the VOL/MA21 column (1D view, ratio of
+# today's volume to the 21-day average) rather than leaving the underlying
+# variable unstated. Real edge-tts measurement: EN 5.06s, CN 4.20s, +buffer.
+_VOLMA21_VARIABLE_LINE_EN = "You can find this yourself — the VOL/MA21 variable gets you this result on our website."
+_VOLMA21_VARIABLE_LINE_CN = "您也可以自己查看，在我们网站上，VOL/MA21变量就能得到这个结果。"
+
+# Second beat spoken over the SAME volma21_frame still (no separate screenshot
+# -- user explicitly said not to add one, the existing +2s EN viewing-time
+# slack already covers it): tells viewers they can click through to a real
+# candlestick chart to verify the volume themselves, rather than just trusting
+# the table number. Real edge-tts measurement: EN 3.67s, CN 3.74s, +buffer.
+_VOLMA21_VERIFY_LINE_EN = "Click any ticker to see its candlestick chart and verify the volume yourself."
+_VOLMA21_VERIFY_LINE_CN = "点击任意股票代码，查看K线图即可自行验证。"
 
 # Spoken over Friday's two closing screenshots (video/EN_memberchange1.png,
 # video/EN_memberchange2.png -- reused for CN too, no CN-specific capture
@@ -2358,12 +2446,6 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
     vol_key = "_volPeakPct"
 
     if not rows:
-        # Falls into Monday's builder, which -- as of 2026-08-22 -- may itself
-        # write nothing if ITS screen is also empty that day (see the "keeping
-        # last week's video" comment in build_near_sma200_short). That's fine:
-        # the cascade just means this run also silently keeps last week's
-        # 1y_vol_peak video, same graceful-skip behavior, nothing extra needed
-        # here.
         print(f"No {tf['label_en']} volume-record stocks today — falling back to Monday's near-SMA200 topic.")
         build_near_sma200_short(data, output, lang=lang, share_dir=share_dir)
         return
