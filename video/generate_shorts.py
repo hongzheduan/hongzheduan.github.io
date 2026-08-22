@@ -1772,6 +1772,25 @@ _PCHG_VARIABLE_LINE_CN = "您也可以自己查看，按P CHG%排序，就能方
 _VOLRANK_VARIABLE_LINE_EN = "You can find this yourself — sort by Vol Rank on our website to see it for any timeframe."
 _VOLRANK_VARIABLE_LINE_CN = "您也可以自己查看，按VOL RANK排序，就能查看任意时间段的成交量排名。"
 
+# Spoken over Friday's two closing screenshots (video/EN_memberchange1.png,
+# video/EN_memberchange2.png -- reused for CN too, no CN-specific capture
+# exists yet, same "EN asset stands in for CN" precedent as the old ad reel's
+# advertise_2.png). These are two genuinely DIFFERENT data sources with two
+# DIFFERENT real cadences -- checked before writing either line, not assumed:
+# memberchange1 is data/index_news.json (pending/rumored membership news,
+# refreshed hourly by the separate news_refresh.yml cron, confirmed via
+# project_index_news_hourly_cadence memory); memberchange2 is
+# data/index_changes.json (confirmed official additions/removals, written
+# once per trading day by the main scanner -- a genuinely different, correctly
+# "daily" claim, NOT the same bug). Getting this backwards would put a false
+# "hourly" claim on the wrong screenshot. "Don't miss the train" (user's own
+# phrasing) frames the hourly cadence as an early-access advantage, echoing
+# index_news.html's own existing tagline "Know before the crowd."
+_FRI_NEWS_LINE_EN = "We track this membership news hourly — get it early, so you don't miss the train."
+_FRI_NEWS_LINE_CN = "我们每小时追踪指数成分股新闻，抢先知道，不错过这趟车。"
+_FRI_CHANGES_LINE_EN = "And we keep the full confirmed history, updated after each trading day."
+_FRI_CHANGES_LINE_CN = "我们还保留完整的确认变动记录，每个交易日收盘后更新。"
+
 
 def build_best_performer_short(data, output, lang="en", share_dir=None):
     date = data["date"]
@@ -2555,26 +2574,30 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
         (spotlight_img, spot2_dur, None, spot2_line),
     ]
 
-    # Ad reel, same as the other weekdays: real footage with the platform pitch, then
-    # a short second beat with the CTA, then the unchanged silent outro card. Replaces
-    # the old membership-change screenshot cluster (that content is now part of the
-    # shared reel's screen recording anyway).
-    ad_entries = build_ad_reel(lang=lang)
-    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
-    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
-    first = ad_entries[0]
-    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
-    last = ad_entries[-1]
-    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
-    frames += ad_entries
-    # Friday-specific subscribe line, added 2026-08-22 (see _SUBSCRIBE_FRI_EN/CN)
-    # -- extra beat over the same closing brand card, before the closing tagline.
+    # Custom minimal closing (user request, 2026-08-22, "use EN_memberchange1.png
+    # and EN_memberchange2 for these two days" -- same bespoke dashboard-
+    # screenshot closing as every other category now uses, see
+    # build_best_performer_short / project_regular_cadence_subscribe_line
+    # memory): two real screenshots, each correctly describing its own actual
+    # cadence (see _FRI_NEWS_LINE/_FRI_CHANGES_LINE comment above -- these are
+    # two different data sources with two different real refresh rates, not
+    # the same thing twice), then the subscribe line, then the closing
+    # tagline. Replaces the 3-part ad reel entirely for this category.
+    news_frame = _frame_dashboard_sort(lang, "EN_memberchange1.png")
+    changes_frame = _frame_dashboard_sort(lang, "EN_memberchange2.png")
     ad_card = scene_ad_short(date, lang=lang)
-    frames.append((ad_card, _SUBSCRIBE_DUR_CN if lang == "cn" else _SUBSCRIBE_DUR_EN, None,
-                   _SUBSCRIBE_FRI_CN if lang == "cn" else _SUBSCRIBE_FRI_EN))
-    frames.append((ad_card,
-                   _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
-                   _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
+    if lang == "cn":
+        frames.append((news_frame, 4.7, None, _FRI_NEWS_LINE_CN))       # measured 4.44s, +buffer
+        frames.append((changes_frame, 4.1, None, _FRI_CHANGES_LINE_CN)) # measured 3.79s, +buffer
+        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_FRI_CN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
+    else:
+        # +2s extra silent viewing time per screenshot, same as every other
+        # bespoke closing this session (user request).
+        frames.append((news_frame, 6.2, None, _FRI_NEWS_LINE_EN))       # measured 3.91s, +buffer, +2s
+        frames.append((changes_frame, 5.9, None, _FRI_CHANGES_LINE_EN)) # measured 3.65s, +buffer, +2s
+        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_FRI_EN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("index_spotlight" + ("_cn" if lang == "cn" else ""), date_obj)
