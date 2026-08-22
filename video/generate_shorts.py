@@ -1436,7 +1436,7 @@ _HOOK_NARRATION_SMA200_CN = [
 _SMA200_COLOR_LINE_EN = "Green means it's above the average, red means it's below."
 _SMA200_COLOR_LINE_CN = "绿色表示高于均线，红色表示低于均线。"
 _SMA200_WEBSITE_LINE_EN = "You can find this yourself — just sort by Dist SMA200 on our website."
-_SMA200_WEBSITE_LINE_CN = "你也可以自己查看，在网站上按DIST SMA200排序即可。"
+_SMA200_WEBSITE_LINE_CN = "您也可以自己查看，在网站上按DIST SMA200排序即可。"
 
 # Spoken over _frame_sma200_sample -- reworded 2026-08-22 (user request) to
 # explicitly name "SMA200" (the earlier wording only ever said "the average",
@@ -1758,7 +1758,7 @@ def _frame_pchg_sort(lang, filename):
 # Saturday, added 2026-08-22 -- no need to measure/maintain 2 near-identical
 # lines. Real edge-tts measurement: EN 4.56s, CN 4.80s, +buffer.
 _PCHG_VARIABLE_LINE_EN = "You can find this yourself — sort by P Chg% on our website to get it for any timeframe."
-_PCHG_VARIABLE_LINE_CN = "你也可以自己查看，按P CHG%排序，就能方便查看任意时间段的数据。"
+_PCHG_VARIABLE_LINE_CN = "您也可以自己查看，按P CHG%排序，就能方便查看任意时间段的数据。"
 
 
 def build_best_performer_short(data, output, lang="en", share_dir=None):
