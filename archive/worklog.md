@@ -298,3 +298,4 @@
 2026-08-21 22:47 UTC  630PM-scan
 2026-08-22 04:37 UTC  11PM-full
 2026-08-22 05:23 UTC  EDGAR-only
+  no-news-video (Claude API failed or no qualifying stories): news_report news_report_cn
