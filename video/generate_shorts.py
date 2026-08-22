@@ -932,19 +932,33 @@ _SHORT_AD_LINE_CN = "本图表可免费下载。"
 # over the same, unchanged scene_ad_short card (previously silent for Monday/
 # Wednesday/Friday/Saturday, previously ending on _SHORT_AD_LINE_EN/CN alone for
 # Sunday/Tuesday/Thursday). No visual change to the card itself, narration only.
-# Real edge-tts measurement at SHORTS_TTS_RATE: EN 1.92s, CN 2.14s. Real bug
-# found 2026-08-01: at the original tight +0.3s buffer, this closing line --
-# the single most important one, since the user's explicit ask was for every
-# video to END on it -- got clipped or dropped entirely on several categories
-# once the new range-narration beats were added, because generate_narration()
-# schedules every clip sequentially and small overruns on EARLIER beats
-# cascade forward, eating into whatever's scheduled last. Padded generously
-# (this is a static outro card either way, so holding it longer costs nothing
-# visually) rather than trying to trim the exact right amount off upstream beats.
+# Real edge-tts measurement at SHORTS_TTS_RATE (re-verified 2026-08-22, isolated
+# subprocess per feedback_edge_tts_batch_truncation_bug): EN 1.92s, CN 2.14s.
+# Real bug found 2026-08-01: at the original tight +0.3s buffer, this closing
+# line -- the single most important one, since the user's explicit ask was for
+# every video to END on it -- got clipped or dropped entirely on several
+# categories once the new range-narration beats were added, because
+# generate_narration() schedules every clip sequentially and small overruns on
+# EARLIER beats cascade forward, eating into whatever's scheduled last. Fixed
+# at the time by padding this LAST frame generously (6.5s/6.0s) rather than
+# trying to trim the exact right amount off upstream beats.
+#
+# Trimmed back down 2026-08-22 (user noticed ~4s of dead silence at the end of
+# every sample video and asked to shorten it) -- since this is the FINAL frame,
+# any slack past the real ~2s of audio is pure trailing silence with nothing
+# after it to justify holding the frame open, unlike padding on a mid-video
+# beat (which "costs nothing visually" since something else plays next either
+# way). The 4.5s+ cushion was a one-off defensive patch for a SPECIFIC
+# unmeasured beat from 2026-08-01; since then every beat added to every
+# category (this whole session included) has been individually edge-tts
+# measured with its own small buffer before shipping, so the systemic risk
+# that originally justified a multi-second cushion is much lower now. Dropped
+# to a normal ~0.5-0.6s buffer, matching the buffer size used everywhere else
+# in this file, rather than a bespoke large one for just this beat.
 _CLOSING_TAGLINE_EN = "Baizora makes things simple."
 _CLOSING_TAGLINE_CN = "贝佐拉，化繁为简。"
-_CLOSING_TAGLINE_DUR_EN = 6.5
-_CLOSING_TAGLINE_DUR_CN = 6.0
+_CLOSING_TAGLINE_DUR_EN = 2.5
+_CLOSING_TAGLINE_DUR_CN = 2.7
 
 # Weekday-specific "we report this regularly" subscribe line (user request,
 # 2026-08-22, extended from Monday's near_sma200 category to every category,
@@ -1383,13 +1397,13 @@ def _embed_cover(output, cover_path, ffmpeg_path=None):
 
 
 _HOOK_NARRATION_SMA200_EN = [
-    "These S&P 500 and Nasdaq-100 stocks have held above their 200-day average all month, and are now testing it as support.",
-    "After a month above their 200-day moving average, these S&P 500 and Nasdaq-100 stocks are now pulling back to test it.",
+    "These S&P 500 and Nasdaq-100 stocks have held above their 200-day average for at least a month, and are now testing it as support.",
+    "After holding above their 200-day moving average for at least a month, these S&P 500 and Nasdaq-100 stocks are now pulling back to test it.",
 ]
 
 _HOOK_NARRATION_SMA200_CN = [
-    "这些标普500和纳斯达克100成分股，过去一个月始终站稳200日均线上方，如今正回踩测试支撑。",
-    "过去一个月始终高于200日均线的标普500和纳斯达克100成分股，如今正回踩均线支撑位。",
+    "这些标普500和纳斯达克100成分股，至少一个月内始终站稳200日均线上方，如今正回踩测试支撑。",
+    "至少一个月内始终高于200日均线的标普500和纳斯达克100成分股，如今正回踩均线支撑位。",
 ]
 
 # Two beats spoken over the same website-screenshot still (same multi-beat-over-
@@ -1421,14 +1435,28 @@ _SMA200_WEBSITE_LINE_CN = "你也可以自己查看，在网站上按DIST SMA200
 _SMA200_SAMPLE_LINE_EN = "SMA200 is a strong resistance — AVGO is just one example. Notice how it touches the average and bounces back, again and again."
 _SMA200_SAMPLE_LINE_CN = "SMA200是很强的阻力位，AVGO只是一个例子。它多次触及此均线后反弹。"
 
-def _compute_near_sma200(data, window_days=21, band=(0.0, 2.0)):
+def _compute_near_sma200(data, window_days=22, band=(0.0, 2.0)):
     """Monday's category (replaces the retired volume_spikes, 2026-08-22, user
     request). A stock qualifies if its close has been at/above its 200-day
-    average every session for the trailing month (window_days=21) AND is still
-    at/above it today — i.e. holding the average as support from above, not
-    having broken below it. Filtered to a tight 0-2% distance band (user
-    request), then ranked by market cap descending (largest first) — deliberately
-    NOT by closeness, the band already guarantees "near."
+    average every session for the trailing window_days=22 sessions AND is
+    still at/above it today — i.e. holding the average as support from above,
+    not having broken below it. Filtered to a tight 0-2% distance band (user
+    request), then ranked by market cap descending (largest first) —
+    deliberately NOT by closeness, the band already guarantees "near."
+
+    Narration/criteria copy says "at least one month" (user request,
+    2026-08-22). window_days bumped 21 -> 22 to make that claim actually true:
+    checked real candles.json dates and 21 trading days only spanned 29
+    calendar days (2026-07-22 -> 2026-08-20) -- under a month, which would
+    have made "at least one month" an overclaim. 22 trading days spans 30
+    calendar days over the same real window -- confirmed via AskUserQuestion
+    (offered "bump to 22" vs. "say 'about a month' and leave 21 alone"; user
+    picked the bump). A prior attempt made window_days fully dynamic (derived
+    from real calendar dates via a new _month_window_days() helper, so it
+    could never fall short across any holiday-heavy stretch) -- reverted per
+    explicit user feedback ("the video is ok, just change the narrative") that
+    this was scope creep on a request that was really just about wording.
+    Don't re-add that dynamic-window logic without the user re-raising it.
 
     This is a fresh Python port of the dashboard TECH tab's computeSmaDist logic
     (see project_tech_view_sma_distance memory) — that helper only runs in the
@@ -1615,18 +1643,18 @@ def build_near_sma200_short(data, output, lang="en", share_dir=None):
     sub_en, sub_cn = "ABOVE 200-DAY AVERAGE", "高于200日均线"
     share_criteria = (
         "Screened from the S&P 500 + Nasdaq-100 for stocks that closed at or above their 200-day moving "
-        "average every session over the past month, and are now within 0-2% of it — ranked by market cap."
+        "average every session for at least the past month, and are now within 0-2% of it — ranked by market cap."
         if lang == "en" else
-        "从标普500和纳斯达克100成分股中，筛选出过去一个月每个交易日收盘价均不低于200日均线、"
+        "从标普500和纳斯达克100成分股中，筛选出至少一个月内每个交易日收盘价均不低于200日均线、"
         "且目前距离均线在0-2%以内的个股，按市值排序。")
 
     if lang == "cn":
         ticker_lines = _narrate_ticker_lines_sma200_cn(rows)
-        hook_dur, hook_text = 6.9, random.choice(_HOOK_NARRATION_SMA200_CN)  # measured 6.60s/6.22s, +buffer
+        hook_dur, hook_text = 7.0, random.choice(_HOOK_NARRATION_SMA200_CN)  # measured 6.72s/6.36s, +buffer
         tts_voice = SHORTS_TTS_VOICE_CN
     else:
         ticker_lines = _narrate_ticker_lines_sma200(rows)
-        hook_dur, hook_text = 6.6, random.choice(_HOOK_NARRATION_SMA200_EN)  # measured 6.31s/6.22s, +buffer
+        hook_dur, hook_text = 7.0, random.choice(_HOOK_NARRATION_SMA200_EN)  # measured 6.50s/6.79s, +buffer
         tts_voice = "en-US-ChristopherNeural"
 
     frames = [
@@ -1645,8 +1673,8 @@ def build_near_sma200_short(data, output, lang="en", share_dir=None):
             frames.append((card, _RANGE_DUR_CN if lang == "cn" else _RANGE_DUR_EN, None, range_line))
         if share_dir:
             v = row.get("_smaDistPct", 0)
-            caption = (f"Held above its 200-day average all month, now {v:.1f}% above it" if lang == "en"
-                       else f"过去一个月站稳200日均线上方，如今高出{v:.1f}%")
+            caption = (f"Held above its 200-day average for at least a month, now {v:.1f}% above it" if lang == "en"
+                       else f"至少一个月内站稳200日均线上方，如今高出{v:.1f}%")
             light_card = scene_stock_card(row, i + 1, lang, "_smaDistPct", sub_en, sub_cn, theme="light", show_sma200=True)
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "near_sma200", i + 1,
                               criteria=share_criteria)
