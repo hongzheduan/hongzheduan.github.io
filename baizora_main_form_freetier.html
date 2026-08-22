@@ -974,6 +974,7 @@
             <tr><td>1D V CHG%</td><td>Volume change (%) vs the previous session's volume</td></tr>
             <tr><td>VOL/MA21</td><td>Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity</td></tr>
             <tr><td>P CHG%</td><td>Total price change (%) from start of selected window to today — only shown for 2W and longer</td></tr>
+            <tr><td>VOL RANK</td><td>Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window) — only shown for 2W and longer</td></tr>
             <tr><td>MAX P CHG%</td><td>Largest single-day price increase (%) within the selected window</td></tr>
             <tr><td>MAX P% Day</td><td>Days ago when the max price increase occurred within the selected window</td></tr>
             <tr><td>V@P Day</td><td>Volume change on the highest-price-increase day within the selected window</td></tr>
@@ -1361,8 +1362,25 @@
       r.MacdAbove = diff >= 0;
     }
 
+    /* ── VOL RANK: where today's volume ranks among all days in the selected window
+       (1 = highest-volume day in that window) — computed client-side from the same
+       candles.json raw daily volume computeSmaDist/computeMacdHist already read.
+       Trading-day counts match TIMEFRAMES in scanner_tiingo.py exactly. ── */
+    const VOL_RANK_WINDOW_DAYS = { "2W": 10, "1M": 21, "3M": 63, "6M": 126, "9M": 189, "1Y": 252 };
+    function computeVolRank(r, w) {
+      const days = VOL_RANK_WINDOW_DAYS[w];
+      const raw = candleData && candleData.data && candleData.data[r.Ticker];
+      if (!days || !raw || raw.length < 2) { r.VolRank = r.VolRankTotal = null; return; }
+      const vols = raw.slice(-days).map(b => b[4]);
+      const today = vols[vols.length - 1];
+      if (today == null) { r.VolRank = r.VolRankTotal = null; return; }
+      r.VolRank = 1 + vols.filter(v => v > today).length;
+      r.VolRankTotal = vols.length;
+    }
+
     function buildTable(arr, w) {
       if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); });
+      if (VOL_RANK_WINDOW_DAYS[w]) arr.forEach(r => computeVolRank(r, w));
       arr = sorted(arr);
 
       /* ── SCORES VIEW (raw sub-scores) ── */
@@ -1509,6 +1527,7 @@
         // Non-1D: show window price change first, then existing rolling stats
         windowHead = `
           ${thSort(`${w}PriceChange`,            "P CHG%",   "group-start")}
+          ${thSort("VolRank",                    "VOL RANK")}
           ${thSort(`${w}MaxPriceChange`,         "MAX P CHG%")}
           ${thSort(`${w}MaxPriceChangeDay`,       "MAX P% Day")}
           ${thSort(`${w}VolumeChangeAtMaxPrice`,  "V@P Day")}
@@ -1563,9 +1582,11 @@
           const pAtV = r[`${w}PriceChangeAtMaxVolume`];
 
           const fmt = v => (v ?? "—");
+          const volRank = r.VolRank;
 
           windowCells = `
             <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
+            <td class="${volRank === 1 ? 'positive' : 'neutral'}">${volRank != null ? '#' + volRank : '—'}</td>
             <td class="${colorClass(maxP)}">${fmt(maxP)}%</td>
             <td class="neutral">${fmt(pDay)}</td>
             <td class="${colorClass(vAtP)}">${fmt(vAtP)}%</td>
@@ -1755,6 +1776,7 @@
       "Break20":         { label: "SMA20 Break",   desc: "Whether today's candle body crossed the SMA20 line — i.e. the SMA20 sits between today's open and close. ▲ green = crossed upward (opened below, closed above). ▼ red = crossed downward (opened above, closed below). Blank = the average stayed outside today's open-close range, no cross." },
       "MacdPct":         { label: "MACD",          desc: "Absolute distance between the MACD line and the signal line (standard 12/26/9), as a percentage of price. Green = MACD line above the signal line (bullish bias). Red = below (bearish bias). The color flips exactly when the two lines cross." },
       "Break200":        { label: "SMA200 Break",  desc: "Whether today's candle body crossed the SMA200 line — i.e. the SMA200 sits between today's open and close. ▲ green = crossed upward (opened below, closed above). ▼ red = crossed downward (opened above, closed below). Blank = the average stayed outside today's open-close range, no cross." },
+      "VolRank":         { label: "VOL RANK",      desc: "Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window). Only shown for 2W and longer." },
     };
 
     function getWindowColDesc(key, w) {
@@ -1889,7 +1911,7 @@
           const activeTf = document.querySelector('.tf-btn.active');
           _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
         }
-        if (currentWindow === "TECH") render();
+        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow]) render();
       })
       .catch(() => {});
 

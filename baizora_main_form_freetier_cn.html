@@ -983,6 +983,7 @@
             <tr><td>日成交量变化</td><td>与前一交易日相比成交量的变动</td></tr>
             <tr><td>成交量/MA21</td><td>最近交易日成交量与21日均量的比值（>1表示成交量偏高）</td></tr>
             <tr><td>总涨幅</td><td>从所选周期起始至今的总价格变动（%）— 仅在2周及以上周期显示</td></tr>
+            <tr><td>量排名</td><td>今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）— 仅在2周及以上周期显示</td></tr>
             <tr><td>日最大价涨</td><td>所选周期内最大单日价格涨幅</td></tr>
             <tr><td>最大价涨日</td><td>所选周期内最大单日价涨发生于多少天前</td></tr>
             <tr><td>量@价日</td><td>所选周期内最大价涨当日的成交量变化</td></tr>
@@ -1366,8 +1367,24 @@
       r.MacdAbove = diff >= 0;
     }
 
+    /* ── 量排名：今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）——
+       与computeSmaDist/computeMacdHist读取同一份candles.json原始每日成交量数据。
+       交易日数与scanner_tiingo.py的TIMEFRAMES完全一致。 ── */
+    const VOL_RANK_WINDOW_DAYS = { "2W": 10, "1M": 21, "3M": 63, "6M": 126, "9M": 189, "1Y": 252 };
+    function computeVolRank(r, w) {
+      const days = VOL_RANK_WINDOW_DAYS[w];
+      const raw = candleData && candleData.data && candleData.data[r.Ticker];
+      if (!days || !raw || raw.length < 2) { r.VolRank = r.VolRankTotal = null; return; }
+      const vols = raw.slice(-days).map(b => b[4]);
+      const today = vols[vols.length - 1];
+      if (today == null) { r.VolRank = r.VolRankTotal = null; return; }
+      r.VolRank = 1 + vols.filter(v => v > today).length;
+      r.VolRankTotal = vols.length;
+    }
+
     function buildTable(arr, w) {
       if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); });
+      if (VOL_RANK_WINDOW_DAYS[w]) arr.forEach(r => computeVolRank(r, w));
       arr = sorted(arr);
 
       /* ── 评分视图（原始分项） ── */
@@ -1513,6 +1530,7 @@
         // Non-1D: show window price change first, then existing rolling stats
         windowHead = `
           ${thSort(`${w}PriceChange`,            "总涨幅",   "group-start")}
+          ${thSort("VolRank",                    "量排名")}
           ${thSort(`${w}MaxPriceChange`,         "日最大价涨")}
           ${thSort(`${w}MaxPriceChangeDay`,       "最大价涨日")}
           ${thSort(`${w}VolumeChangeAtMaxPrice`,  "量@价日")}
@@ -1567,9 +1585,11 @@
           const pAtV = r[`${w}PriceChangeAtMaxVolume`];
 
           const fmt = v => (v ?? "—");
+          const volRank = r.VolRank;
 
           windowCells = `
             <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
+            <td class="${volRank === 1 ? 'positive' : 'neutral'}">${volRank != null ? '#' + volRank : '—'}</td>
             <td class="${colorClass(maxP)}">${fmt(maxP)}%</td>
             <td class="neutral">${fmt(pDay)}</td>
             <td class="${colorClass(vAtP)}">${fmt(vAtP)}%</td>
@@ -1759,6 +1779,7 @@
       "Break20":         { label: "SMA20突破",   desc: "今日K线实体（开盘到收盘）是否穿越SMA20——即SMA20落在今日开盘价与收盘价之间。▲绿色 = 向上突破（低开高走）。▼红色 = 向下突破（高开低走）。空白 = 均线在今日开盘收盘区间之外，未突破。" },
       "MacdPct":         { label: "MACD",        desc: "MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）。红色 = 低于信号线（偏空）。两线交叉时颜色会翻转。" },
       "Break200":        { label: "SMA200突破",  desc: "今日K线实体（开盘到收盘）是否穿越SMA200——即SMA200落在今日开盘价与收盘价之间。▲绿色 = 向上突破（低开高走）。▼红色 = 向下突破（高开低走）。空白 = 均线在今日开盘收盘区间之外，未突破。" },
+      "VolRank":         { label: "量排名",      desc: "今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）。仅在2周及以上周期显示。" },
     };
 
     const WIN_CN = { "1D": "1天", "2W": "2周", "1M": "1月", "3M": "3月", "6M": "6月", "9M": "9月", "1Y": "1年" };
@@ -1893,7 +1914,7 @@
           const activeTf = document.querySelector('.tf-btn.active');
           _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
         }
-        if (currentWindow === "TECH") render();
+        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow]) render();
       })
       .catch(() => {});
 
