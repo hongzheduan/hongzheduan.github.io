@@ -994,6 +994,16 @@ _SUBSCRIBE_DUR_EN = 4.0
 _SUBSCRIBE_DUR_CN = 3.9
 _SUBSCRIBE_MON_EN = "We report this every Monday — subscribe so you don't miss it."
 _SUBSCRIBE_MON_CN = "本频道每周一都会带来这个专题，敬请关注。"
+# Combined Monday+Wednesday line (added 2026-08-22 when Wednesday's primary
+# theme became the shared near_sma200 content -- see build_6m_breakout_short)
+# -- used by the near_sma200 render itself (shown either day), NOT by Monday's
+# own volume-spike fallback above (that one only ever airs on Monday, so it
+# correctly keeps saying "every Monday" alone) or Wednesday's own breakout
+# fallback below (which correctly keeps saying "every Wednesday" alone) --
+# only the shared PRIMARY content says both days. Real edge-tts measurement:
+# EN 3.65s, CN 3.67s, both fit the existing shared _SUBSCRIBE_DUR_EN/CN budget.
+_SUBSCRIBE_MONWED_EN = "We report this every Monday and Wednesday — subscribe so you don't miss it."
+_SUBSCRIBE_MONWED_CN = "本频道每周一和周三都会带来这个专题，敬请关注。"
 _SUBSCRIBE_TUETHU_EN = "We report this every Tuesday and Thursday — subscribe so you don't miss it."
 _SUBSCRIBE_TUETHU_CN = "本频道每周二和周四都会带来这个专题，敬请关注。"
 _SUBSCRIBE_WED_EN = "We report this every Wednesday — subscribe so you don't miss it."
@@ -1436,7 +1446,7 @@ _HOOK_NARRATION_SMA200_CN = [
 _SMA200_COLOR_LINE_EN = "Green means it's above the average, red means it's below."
 _SMA200_COLOR_LINE_CN = "绿色表示高于均线，红色表示低于均线。"
 _SMA200_WEBSITE_LINE_EN = "You can find this yourself — just sort by Dist SMA200 on our website."
-_SMA200_WEBSITE_LINE_CN = "您也可以自己查看，在网站上按DIST SMA200排序即可。"
+_SMA200_WEBSITE_LINE_CN = "用户也可以自己查看，在网站上按DIST SMA200排序即可。"
 
 # Spoken over _frame_sma200_sample -- reworded 2026-08-22 (user request) to
 # explicitly name "SMA200" (the earlier wording only ever said "the average",
@@ -1670,7 +1680,7 @@ def _build_volume_spike_fallback(data, output, lang, share_dir, date, date_obj):
     volma21_frame = _frame_dashboard_sort(lang, "vol_ma21.png")
     ad_card = scene_ad_short(date, lang=lang)
     if lang == "cn":
-        frames.append((volma21_frame, 4.5, None, _VOLMA21_VARIABLE_LINE_CN))  # measured 4.20s, +buffer
+        frames.append((volma21_frame, 4.8, None, _VOLMA21_VARIABLE_LINE_CN))  # measured 4.46s (您->用户 swap), +buffer
         frames.append((volma21_frame, 4.0, None, _VOLMA21_VERIFY_LINE_CN))    # measured 3.74s, +buffer
         frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_MON_CN))
         frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
@@ -1704,27 +1714,43 @@ def build_near_sma200_short(data, output, lang="en", share_dir=None):
     and are now within 0-2% of it (testing it as support from above), ranked by
     market cap. See _compute_near_sma200 for the full qualification rule.
 
-    Closing is deliberately minimal (user request, 2026-08-22) — unlike every
-    other weekday, this one skips both the full 3-part ad reel AND the short-ad
-    "baizora.com" line entirely. Just the real DIST SMA200 dashboard screenshot
-    (video/sma200_sort.png, "you can find this yourself on our site") followed
-    straight by the standard closing tagline. No separate CTA/signup pitch."""
+    Also Wednesday's PRIMARY theme as of 2026-08-22 (user: Wednesday's old
+    breakout theme "is not popular") -- see build_6m_breakout_short below,
+    which shares this exact same render via _render_near_sma200. This
+    function stays Monday's own thin wrapper: compute, and on zero qualifiers
+    fall back to the ORIGINAL Monday theme (largest volume spike vs. each
+    stock's own 21-day average) -- distinct from Wednesday's own fallback
+    (its retired breakout logic, now _build_breakout_fallback)."""
     date = data["date"]
     date_obj = datetime.date.fromisoformat(date)
     rows = _compute_near_sma200(data)
 
     if not rows:
-        # Falls back to the ORIGINAL Monday theme (largest volume spike vs. each
-        # stock's own 21-day average) -- user clarified 2026-08-22 after an
-        # earlier "write nothing, let last week's video stand" attempt: "use
-        # largest volume change from ma21 (previous monday video theme)". Same
-        # fallback shape Wednesday's 6m_breakout already uses for its own
-        # zero-qualifier case (_build_price_jump_fallback) -- a distinct,
-        # honestly-labeled topic, not a repackaged SMA200 claim.
+        # User clarified 2026-08-22 after an earlier "write nothing, let last
+        # week's video stand" attempt: "use largest volume change from ma21
+        # (previous monday video theme)" -- a distinct, honestly-labeled
+        # topic, not a repackaged SMA200 claim.
         print("No stocks within 0-2% of their 200-day average today — falling back to the volume-spike topic.")
         _build_volume_spike_fallback(data, output, lang, share_dir, date, date_obj)
         return
 
+    _render_near_sma200(data, output, lang, share_dir, rows, date, date_obj)
+
+
+def _render_near_sma200(data, output, lang, share_dir, rows, date, date_obj):
+    """Shared render for the near_sma200 content -- extracted 2026-08-22 so
+    both Monday (build_near_sma200_short) and Wednesday (build_6m_breakout_
+    short) can show the identical category when each has real qualifiers,
+    while still falling back to their OWN distinct topic (volume-spike vs.
+    breakout) on an empty day. Closing is deliberately minimal, unlike every
+    other weekday: skips both the full 3-part ad reel AND the short-ad
+    "baizora.com" line entirely. Just the real DIST SMA200 dashboard
+    screenshot (video/sma200_sort.png, "you can find this yourself on our
+    site") followed straight by the standard closing tagline. No separate
+    CTA/signup pitch. Subscribe line says "every Monday and Wednesday"
+    (_SUBSCRIBE_MONWED_EN/CN) since this exact content can now air either
+    day -- distinct from each day's own fallback, which still names its own
+    single day."""
     # Durations below = actually-measured edge-tts speech time at SHORTS_TTS_RATE,
     # +~0.2-0.3s buffer each — not estimates (worst-case ticker "GOOGL", worst-case
     # in-band value "2.0", per feedback_measure_tts_duration). Real edge-tts
@@ -1800,16 +1826,16 @@ def build_near_sma200_short(data, output, lang="en", share_dir=None):
     if lang == "cn":
         # Order swapped 2026-08-22 (user request): name the variable (Dist
         # SMA200) BEFORE explaining what the colors mean, not after.
-        frames.append((website_frame, 4.3, None, _SMA200_WEBSITE_LINE_CN))  # measured 4.06s, +buffer
+        frames.append((website_frame, 4.6, None, _SMA200_WEBSITE_LINE_CN))  # measured 4.30s (您->用户 swap), +buffer
         frames.append((website_frame, 3.4, None, _SMA200_COLOR_LINE_CN))    # measured 3.12s, +buffer
         frames.append((sample_frame, 5.9, None, _SMA200_SAMPLE_LINE_CN))    # measured 5.62s, +buffer
-        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_MON_CN))
+        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_MONWED_CN))
         frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
     else:
         frames.append((website_frame, 4.3, None, _SMA200_WEBSITE_LINE_EN))  # measured 4.08s, +buffer
         frames.append((website_frame, 3.3, None, _SMA200_COLOR_LINE_EN))    # measured 3.02s, +buffer
         frames.append((sample_frame, 7.7, None, _SMA200_SAMPLE_LINE_EN))    # measured 7.44s, +buffer
-        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_MON_EN))
+        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_MONWED_EN))
         frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
@@ -1855,7 +1881,7 @@ def _frame_dashboard_sort(lang, filename):
 # Saturday, added 2026-08-22 -- no need to measure/maintain 2 near-identical
 # lines. Real edge-tts measurement: EN 4.56s, CN 4.80s, +buffer.
 _PCHG_VARIABLE_LINE_EN = "You can find this yourself — sort by P Chg% on our website to get it for any timeframe."
-_PCHG_VARIABLE_LINE_CN = "您也可以自己查看，按P CHG%排序，就能方便查看任意时间段的数据。"
+_PCHG_VARIABLE_LINE_CN = "用户也可以自己查看，按P CHG%排序，就能方便查看任意时间段的数据。"
 
 # Spoken over _frame_dashboard_sort(lang, "peakvolume.png") for Tuesday+
 # Thursday's 1y_vol_peak category -- names the new VOL RANK column (added the
@@ -1865,7 +1891,7 @@ _PCHG_VARIABLE_LINE_CN = "您也可以自己查看，按P CHG%排序，就能方
 # site column until VOL RANK shipped). Real edge-tts measurement: EN 4.27s,
 # CN 4.94s, +buffer.
 _VOLRANK_VARIABLE_LINE_EN = "You can find this yourself — sort by Vol Rank on our website to see it for any timeframe."
-_VOLRANK_VARIABLE_LINE_CN = "您也可以自己查看，按VOL RANK排序，就能查看任意时间段的成交量排名。"
+_VOLRANK_VARIABLE_LINE_CN = "用户也可以自己查看，按VOL RANK排序，就能查看任意时间段的成交量排名。"
 
 # Spoken over _frame_dashboard_sort(lang, "vol_ma21.png") for the Monday
 # volume-spike fallback -- names the VOL/MA21 column (1D view, ratio of
@@ -1876,7 +1902,7 @@ _VOLRANK_VARIABLE_LINE_CN = "您也可以自己查看，按VOL RANK排序，就�
 # beat's hold_sec) but the trimmed version (see the closing block below) was
 # confirmed good before the longer version shipped -- reverted, not built on.
 _VOLMA21_VARIABLE_LINE_EN = "You can find this yourself — the VOL/MA21 variable gets you this result on our website."
-_VOLMA21_VARIABLE_LINE_CN = "您也可以自己查看，在我们网站上，VOL/MA21变量就能得到这个结果。"
+_VOLMA21_VARIABLE_LINE_CN = "用户也可以自己查看，在我们网站上，VOL/MA21变量就能得到这个结果。"
 
 # Second beat spoken over the SAME volma21_frame still (no separate screenshot
 # -- user explicitly said not to add one, the existing +2s EN viewing-time
@@ -1968,7 +1994,7 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
     best_frame = _frame_dashboard_sort(lang, "best.png")
     ad_card = scene_ad_short(date, lang=lang)
     if lang == "cn":
-        frames.append((best_frame, 5.1, None, _PCHG_VARIABLE_LINE_CN))  # measured 4.80s, +buffer
+        frames.append((best_frame, 5.4, None, _PCHG_VARIABLE_LINE_CN))  # measured 5.09s (您->用户 swap), +buffer
         frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_SUN_CN))
         frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
     else:
@@ -2052,7 +2078,7 @@ def build_worst_performer_short(data, output, lang="en", share_dir=None):
     worst_frame = _frame_dashboard_sort(lang, "worst.png")
     ad_card = scene_ad_short(date, lang=lang)
     if lang == "cn":
-        frames.append((worst_frame, 5.1, None, _PCHG_VARIABLE_LINE_CN))  # measured 4.80s, +buffer
+        frames.append((worst_frame, 5.4, None, _PCHG_VARIABLE_LINE_CN))  # measured 5.09s (您->用户 swap), +buffer
         frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_SAT_CN))
         frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
     else:
@@ -2267,9 +2293,16 @@ def _build_price_jump_fallback(data, output, lang, share_dir, date, date_obj):
         _embed_cover(output, cover)
 
 
-def build_6m_breakout_short(data, output, lang="en", share_dir=None):
-    date = data["date"]
-    date_obj = datetime.date.fromisoformat(date)
+def _build_breakout_fallback(data, output, lang, share_dir, date, date_obj):
+    """Wednesday fallback (was Wednesday's PRIMARY category until 2026-08-22,
+    user request: "current theme is not popular" -- swapped to the shared
+    near_sma200 content as primary, see the new build_6m_breakout_short below,
+    this original breakout-detection logic demoted to its fallback). Stocks
+    that pulled back the window's min_drawdown% or more from a high, then
+    broke out to a new high within the past week. Unchanged otherwise --
+    still keeps its own subscribe line (_SUBSCRIBE_WED_EN/CN, "every
+    Wednesday") since this specific breakout topic really is Wednesday-only,
+    even though it's no longer the day's default content."""
     tf = _wednesday_tf(date)
     # 1-week lookback (not the long-form video's default 2-week) — this Short runs
     # weekly, and a 2-week window risked re-selecting the same breakout ticker two
@@ -2402,6 +2435,28 @@ def build_6m_breakout_short(data, output, lang="en", share_dir=None):
     cover = cover_path_for("6m_breakout" + ("_cn" if lang == "cn" else ""), date_obj)
     if cover:
         _embed_cover(output, cover)
+
+
+def build_6m_breakout_short(data, output, lang="en", share_dir=None):
+    """Wednesday — as of 2026-08-22, primary theme swapped to the shared
+    near_sma200 content (user request: the old breakout theme "is not
+    popular"). Same qualification rule as Monday (_compute_near_sma200),
+    same shared render (_render_near_sma200, "every Monday and Wednesday"
+    subscribe line). On zero qualifiers, falls back to Wednesday's OWN
+    original theme (_build_breakout_fallback, the pullback-then-breakout
+    logic this function replaced as primary) -- explicit user instruction:
+    "use current theme as fall back" -- NOT Monday's volume-spike fallback,
+    which stays Monday-only."""
+    date = data["date"]
+    date_obj = datetime.date.fromisoformat(date)
+    rows = _compute_near_sma200(data)
+
+    if not rows:
+        print("No stocks within 0-2% of their 200-day average today — falling back to Wednesday's breakout topic.")
+        _build_breakout_fallback(data, output, lang, share_dir, date, date_obj)
+        return
+
+    _render_near_sma200(data, output, lang, share_dir, rows, date, date_obj)
 
 
 def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
@@ -2540,7 +2595,7 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
     peakvol_frame = _frame_dashboard_sort(lang, "peakvolume.png")
     ad_card = scene_ad_short(date, lang=lang)
     if lang == "cn":
-        frames.append((peakvol_frame, 5.2, None, _VOLRANK_VARIABLE_LINE_CN))  # measured 4.94s, +buffer
+        frames.append((peakvol_frame, 5.4, None, _VOLRANK_VARIABLE_LINE_CN))  # measured 5.11s (您->用户 swap), +buffer
         frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_TUETHU_CN))
         frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
     else:
