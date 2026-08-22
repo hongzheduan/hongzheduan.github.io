@@ -913,12 +913,15 @@ def scene_ad_short(scan_date, lang="en"):
     return img
 
 
-# Shortened ad treatment for Sunday/Tuesday/Thursday only (user request, 2026-08-01)
-# -- skips the 3-part ad reel below entirely and just holds scene_ad_short's brand
-# card with a short spoken downloadability line, instead of the usual silent 3.0s
-# hold at the very end. Monday/Wednesday/Friday/Saturday are unaffected and keep
-# the full build_ad_reel() sequence below. Durations: real edge-tts measurement at
-# SHORTS_TTS_RATE, EN 3.12s / CN 3.12s, +buffer.
+# Shortened ad treatment, originally for Sunday/Tuesday/Thursday (user request,
+# 2026-08-01) -- skips the 3-part ad reel below entirely and just holds
+# scene_ad_short's brand card with a short spoken downloadability line, instead
+# of the usual silent 3.0s hold at the very end. Monday/Wednesday/Friday/
+# Saturday are unaffected and keep the full build_ad_reel() sequence below.
+# Sunday moved OFF this helper 2026-08-22 to its own bespoke closing (see
+# _frame_best_performer_sort) -- only Tuesday/Thursday (1y_vol_peak) still call
+# this one. Durations: real edge-tts measurement at SHORTS_TTS_RATE, EN 3.12s /
+# CN 3.12s, +buffer.
 # "baizora.com" dropped 2026-08-22 (user request) -- it immediately preceded
 # _CLOSING_TAGLINE_EN/CN ("Baizora makes things simple.") with no gap, reading as
 # a redundant back-to-back mention (the URL is already shown on-screen throughout
@@ -952,13 +955,26 @@ _SHORT_AD_LINE_CN = "本图表可免费下载。"
 # unmeasured beat from 2026-08-01; since then every beat added to every
 # category (this whole session included) has been individually edge-tts
 # measured with its own small buffer before shipping, so the systemic risk
-# that originally justified a multi-second cushion is much lower now. Dropped
-# to a normal ~0.5-0.6s buffer, matching the buffer size used everywhere else
-# in this file, rather than a bespoke large one for just this beat.
+# that originally justified a multi-second cushion is much lower now.
+#
+# First cut to 2.5s/2.7s (a normal ~0.5-0.6s buffer, matching everywhere else
+# in this file) -- but a real render of Sunday's EN video (best_performer, 10
+# scenes incl. this session's new closing beats) then hit a real 0.2s cutoff
+# warning on THIS exact scene: cumulative small overruns from several
+# pre-existing, already-shipped ticker-narration beats (each individually
+# fine, budgeted before this session and never revisited) added up across a
+# longer-than-Monday's beat count and ate into the tight margin. Monday's own
+# render passed clean at 2.5s/2.7s, proving this is data/category-dependent,
+# not a fixed amount -- so the safe fix is a bit more margin here specifically
+# (this is the one beat where a cutoff is worst, per the explicit "every video
+# must end on this line" requirement), not chasing down every upstream beat's
+# exact budget. Settled on ~2s buffer as a middle ground: notably shorter than
+# the old 6.5s/6.0s (still saves ~2.5-2.9s per video) while tolerating real
+# cascading drift from beats this session didn't touch or re-verify.
 _CLOSING_TAGLINE_EN = "Baizora makes things simple."
 _CLOSING_TAGLINE_CN = "贝佐拉，化繁为简。"
-_CLOSING_TAGLINE_DUR_EN = 2.5
-_CLOSING_TAGLINE_DUR_CN = 2.7
+_CLOSING_TAGLINE_DUR_EN = 3.9
+_CLOSING_TAGLINE_DUR_CN = 4.1
 
 # Weekday-specific "we report this regularly" subscribe line (user request,
 # 2026-08-22, extended from Monday's near_sma200 category to every category,
@@ -1707,6 +1723,39 @@ def build_near_sma200_short(data, output, lang="en", share_dir=None):
         _embed_cover(output, cover)
 
 
+def _frame_best_performer_sort(lang):
+    """Closing 'find it yourself' frame for Sunday's best_performer category —
+    mirrors Monday's _frame_website_screenshot (see
+    project_monday_near_sma200_category memory), same near-full-bleed-width,
+    pinned-under-the-heading composition, just a different real screenshot
+    (video/best.png: the main SCORES table sorted by P CHG%, WINDOW toolbar
+    visible) and a different variable name spoken over it."""
+    heading = "FIND IT ON OUR SITE" if lang == "en" else "在我们网站即可查看"
+    img, draw = new_frame_s()
+    dot_grid_s(draw)
+    f_head = load_headline_font(50) if lang == "en" else load_font_cn(40, bold=True)
+    centered_s(draw, 110, heading, f_head, GOLD_LIGHT)
+    asset = Image.open(SCRIPT_DIR / "best.png").convert("RGB")
+    box_w, max_h = SW - 40, 900
+    nw, nh = _contain_dims(*asset.size, box_w, max_h)
+    asset = asset.resize((nw, nh), Image.LANCZOS)
+    x = (SW - nw) // 2
+    y = 280
+    draw.rectangle([x - 8, y - 8, x + nw + 8, y + nh + 8], outline=ELECTRIC, width=4)
+    img.paste(asset, (x, y))
+    centered_s(draw, y + nh + 60, "baizora.com", load_font(40), ELECTRIC)
+    return img
+
+
+# Spoken over _frame_best_performer_sort -- names the actual column ("P Chg%",
+# used across every WINDOW toggle: 1D/2W/1M/3M/6M/9M/1Y) so viewers know they
+# can get this same ranking for any timeframe themselves, not just the one
+# rotation window this Short happened to show. Real edge-tts measurement:
+# EN 4.56s, CN 4.80s, +buffer.
+_SUNDAY_VARIABLE_LINE_EN = "You can find this yourself — sort by P Chg% on our website to get it for any timeframe."
+_SUNDAY_VARIABLE_LINE_CN = "你也可以自己查看，按P CHG%排序，就能方便查看任意时间段的数据。"
+
+
 def build_best_performer_short(data, output, lang="en", share_dir=None):
     date = data["date"]
     date_obj = datetime.date.fromisoformat(date)
@@ -1759,11 +1808,26 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "best_performer", i + 1,
                               criteria=share_criteria)
 
-    # Shortened ad treatment (user request, 2026-08-01): just the brand outro
-    # card with a short spoken downloadability line, no 3-part ad reel. Only
-    # Tuesday/Thursday/Sunday changed this way -- see _short_ad_outro_frame.
-    # Sunday-specific subscribe line added 2026-08-22 (see _SUBSCRIBE_SUN_EN/CN).
-    frames += _short_ad_outro_frame(date, lang, subscribe_en=_SUBSCRIBE_SUN_EN, subscribe_cn=_SUBSCRIBE_SUN_CN)
+    # Custom minimal closing (user request, 2026-08-22, "same structure" as
+    # Monday's near_sma200 category -- see _frame_website_screenshot /
+    # project_monday_near_sma200_category memory): a real dashboard screenshot
+    # naming the variable that drives this category, then the subscribe line,
+    # then the closing tagline. Replaces the old short-ad treatment
+    # (_short_ad_outro_frame's "chart is free to download" line) for Sunday
+    # specifically -- Tuesday/Thursday (1y_vol_peak) still use that helper.
+    best_frame = _frame_best_performer_sort(lang)
+    ad_card = scene_ad_short(date, lang=lang)
+    if lang == "cn":
+        frames.append((best_frame, 5.1, None, _SUNDAY_VARIABLE_LINE_CN))  # measured 4.80s, +buffer
+        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_SUN_CN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
+    else:
+        # +2s beyond the narration's own buffer (user request, 2026-08-22) --
+        # extra silent viewing time on the screenshot itself so it doesn't
+        # feel rushed, not a narration-timing fix (real speech is 4.56s).
+        frames.append((best_frame, 6.8, None, _SUNDAY_VARIABLE_LINE_EN))
+        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_SUN_EN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("best_performer" + ("_cn" if lang == "cn" else ""), date_obj)
