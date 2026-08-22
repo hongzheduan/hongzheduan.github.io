@@ -916,12 +916,12 @@ def scene_ad_short(scan_date, lang="en"):
 # Shortened ad treatment, originally for Sunday/Tuesday/Thursday (user request,
 # 2026-08-01) -- skips the 3-part ad reel below entirely and just holds
 # scene_ad_short's brand card with a short spoken downloadability line, instead
-# of the usual silent 3.0s hold at the very end. Monday/Wednesday/Friday/
-# Saturday are unaffected and keep the full build_ad_reel() sequence below.
-# Sunday moved OFF this helper 2026-08-22 to its own bespoke closing (see
-# _frame_best_performer_sort) -- only Tuesday/Thursday (1y_vol_peak) still call
-# this one. Durations: real edge-tts measurement at SHORTS_TTS_RATE, EN 3.12s /
-# CN 3.12s, +buffer.
+# of the usual silent 3.0s hold at the very end. Wednesday/Friday are
+# unaffected and keep the full build_ad_reel() sequence below. Sunday moved
+# OFF this helper 2026-08-22 to its own bespoke closing (see _frame_pchg_sort),
+# and Saturday followed the same day (also _frame_pchg_sort, worst.png) --
+# only Tuesday/Thursday (1y_vol_peak) still call this one. Durations: real
+# edge-tts measurement at SHORTS_TTS_RATE, EN 3.12s / CN 3.12s, +buffer.
 # "baizora.com" dropped 2026-08-22 (user request) -- it immediately preceded
 # _CLOSING_TAGLINE_EN/CN ("Baizora makes things simple.") with no gap, reading as
 # a redundant back-to-back mention (the URL is already shown on-screen throughout
@@ -1723,19 +1723,22 @@ def build_near_sma200_short(data, output, lang="en", share_dir=None):
         _embed_cover(output, cover)
 
 
-def _frame_best_performer_sort(lang):
-    """Closing 'find it yourself' frame for Sunday's best_performer category —
-    mirrors Monday's _frame_website_screenshot (see
-    project_monday_near_sma200_category memory), same near-full-bleed-width,
-    pinned-under-the-heading composition, just a different real screenshot
-    (video/best.png: the main SCORES table sorted by P CHG%, WINDOW toolbar
-    visible) and a different variable name spoken over it."""
+def _frame_pchg_sort(lang, filename):
+    """Closing 'find it yourself' frame shared by Sunday's best_performer and
+    Saturday's worst_performer — mirrors Monday's _frame_website_screenshot
+    (see project_monday_near_sma200_category memory), same near-full-bleed-
+    width, pinned-under-the-heading composition. filename picks the real
+    screenshot: video/best.png (Sunday, P CHG% sorted descending) or
+    video/worst.png (Saturday, same table sorted ascending) — same SCORES
+    table + WINDOW toolbar either way, so one frame function covers both;
+    only the underlying image differs, the narration spoken over it is
+    identical (see _PCHG_VARIABLE_LINE_EN/CN below)."""
     heading = "FIND IT ON OUR SITE" if lang == "en" else "在我们网站即可查看"
     img, draw = new_frame_s()
     dot_grid_s(draw)
     f_head = load_headline_font(50) if lang == "en" else load_font_cn(40, bold=True)
     centered_s(draw, 110, heading, f_head, GOLD_LIGHT)
-    asset = Image.open(SCRIPT_DIR / "best.png").convert("RGB")
+    asset = Image.open(SCRIPT_DIR / filename).convert("RGB")
     box_w, max_h = SW - 40, 900
     nw, nh = _contain_dims(*asset.size, box_w, max_h)
     asset = asset.resize((nw, nh), Image.LANCZOS)
@@ -1747,13 +1750,15 @@ def _frame_best_performer_sort(lang):
     return img
 
 
-# Spoken over _frame_best_performer_sort -- names the actual column ("P Chg%",
-# used across every WINDOW toggle: 1D/2W/1M/3M/6M/9M/1Y) so viewers know they
-# can get this same ranking for any timeframe themselves, not just the one
-# rotation window this Short happened to show. Real edge-tts measurement:
-# EN 4.56s, CN 4.80s, +buffer.
-_SUNDAY_VARIABLE_LINE_EN = "You can find this yourself — sort by P Chg% on our website to get it for any timeframe."
-_SUNDAY_VARIABLE_LINE_CN = "你也可以自己查看，按P CHG%排序，就能方便查看任意时间段的数据。"
+# Spoken over _frame_pchg_sort -- names the actual column ("P Chg%", used
+# across every WINDOW toggle: 1D/2W/1M/3M/6M/9M/1Y) so viewers know they can
+# get this same ranking for any timeframe themselves, not just the one
+# rotation window this Short happened to show. Category-agnostic wording
+# (doesn't say "best"/"worst") so it's shared verbatim by both Sunday and
+# Saturday, added 2026-08-22 -- no need to measure/maintain 2 near-identical
+# lines. Real edge-tts measurement: EN 4.56s, CN 4.80s, +buffer.
+_PCHG_VARIABLE_LINE_EN = "You can find this yourself — sort by P Chg% on our website to get it for any timeframe."
+_PCHG_VARIABLE_LINE_CN = "你也可以自己查看，按P CHG%排序，就能方便查看任意时间段的数据。"
 
 
 def build_best_performer_short(data, output, lang="en", share_dir=None):
@@ -1815,17 +1820,17 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
     # then the closing tagline. Replaces the old short-ad treatment
     # (_short_ad_outro_frame's "chart is free to download" line) for Sunday
     # specifically -- Tuesday/Thursday (1y_vol_peak) still use that helper.
-    best_frame = _frame_best_performer_sort(lang)
+    best_frame = _frame_pchg_sort(lang, "best.png")
     ad_card = scene_ad_short(date, lang=lang)
     if lang == "cn":
-        frames.append((best_frame, 5.1, None, _SUNDAY_VARIABLE_LINE_CN))  # measured 4.80s, +buffer
+        frames.append((best_frame, 5.1, None, _PCHG_VARIABLE_LINE_CN))  # measured 4.80s, +buffer
         frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_SUN_CN))
         frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
     else:
         # +2s beyond the narration's own buffer (user request, 2026-08-22) --
         # extra silent viewing time on the screenshot itself so it doesn't
         # feel rushed, not a narration-timing fix (real speech is 4.56s).
-        frames.append((best_frame, 6.8, None, _SUNDAY_VARIABLE_LINE_EN))
+        frames.append((best_frame, 6.8, None, _PCHG_VARIABLE_LINE_EN))
         frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_SUN_EN))
         frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
@@ -1893,22 +1898,23 @@ def build_worst_performer_short(data, output, lang="en", share_dir=None):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "worst_performer", i + 1,
                               criteria=share_criteria)
 
-    ad_entries = build_ad_reel(lang=lang)
-    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
-    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
-    first = ad_entries[0]
-    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
-    last = ad_entries[-1]
-    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
-    frames += ad_entries
-    # Saturday-specific subscribe line, added 2026-08-22 (see _SUBSCRIBE_SAT_EN/CN)
-    # -- extra beat over the same closing brand card, before the closing tagline.
+    # Custom minimal closing (user request, 2026-08-22, "same for saturday's,
+    # using worst.png" -- mirrors Sunday's best_performer closing exactly, see
+    # build_best_performer_short / project_regular_cadence_subscribe_line
+    # memory): a real dashboard screenshot naming the P Chg% variable, then the
+    # subscribe line, then the closing tagline. Replaces the old 3-part ad
+    # reel entirely for this category.
+    worst_frame = _frame_pchg_sort(lang, "worst.png")
     ad_card = scene_ad_short(date, lang=lang)
-    frames.append((ad_card, _SUBSCRIBE_DUR_CN if lang == "cn" else _SUBSCRIBE_DUR_EN, None,
-                   _SUBSCRIBE_SAT_CN if lang == "cn" else _SUBSCRIBE_SAT_EN))
-    frames.append((ad_card,
-                   _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
-                   _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
+    if lang == "cn":
+        frames.append((worst_frame, 5.1, None, _PCHG_VARIABLE_LINE_CN))  # measured 4.80s, +buffer
+        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_SAT_CN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
+    else:
+        # +2s extra silent viewing time, same as Sunday's (user request).
+        frames.append((worst_frame, 6.8, None, _PCHG_VARIABLE_LINE_EN))
+        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_SAT_EN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("worst_performer" + ("_cn" if lang == "cn" else ""), date_obj)
