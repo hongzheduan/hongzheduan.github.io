@@ -918,8 +918,8 @@ def scene_ad_short(scan_date, lang="en"):
 # scene_ad_short's brand card with a short spoken downloadability line, instead
 # of the usual silent 3.0s hold at the very end. Wednesday/Friday are
 # unaffected and keep the full build_ad_reel() sequence below. Sunday moved
-# OFF this helper 2026-08-22 to its own bespoke closing (see _frame_pchg_sort),
-# and Saturday followed the same day (also _frame_pchg_sort, worst.png) --
+# OFF this helper 2026-08-22 to its own bespoke closing (see _frame_dashboard_sort),
+# and Saturday followed the same day (also _frame_dashboard_sort, worst.png) --
 # only Tuesday/Thursday (1y_vol_peak) still call this one. Durations: real
 # edge-tts measurement at SHORTS_TTS_RATE, EN 3.12s / CN 3.12s, +buffer.
 # "baizora.com" dropped 2026-08-22 (user request) -- it immediately preceded
@@ -1723,16 +1723,18 @@ def build_near_sma200_short(data, output, lang="en", share_dir=None):
         _embed_cover(output, cover)
 
 
-def _frame_pchg_sort(lang, filename):
-    """Closing 'find it yourself' frame shared by Sunday's best_performer and
-    Saturday's worst_performer — mirrors Monday's _frame_website_screenshot
-    (see project_monday_near_sma200_category memory), same near-full-bleed-
-    width, pinned-under-the-heading composition. filename picks the real
-    screenshot: video/best.png (Sunday, P CHG% sorted descending) or
-    video/worst.png (Saturday, same table sorted ascending) — same SCORES
-    table + WINDOW toolbar either way, so one frame function covers both;
-    only the underlying image differs, the narration spoken over it is
-    identical (see _PCHG_VARIABLE_LINE_EN/CN below)."""
+def _frame_dashboard_sort(lang, filename):
+    """Closing 'find it yourself' frame shared by every category with a real
+    dashboard-screenshot closing — mirrors Monday's original
+    _frame_website_screenshot (see project_monday_near_sma200_category
+    memory), same near-full-bleed-width, pinned-under-the-heading
+    composition. filename picks the real screenshot: video/best.png (Sunday,
+    P CHG% sorted descending), video/worst.png (Saturday, same table sorted
+    ascending), or video/peakvolume.png (Tuesday+Thursday, same table sorted
+    by the VOL RANK column) — same underlying table + WINDOW toolbar every
+    time, so one frame function covers all of them; only the image and the
+    narration spoken over it differ (see _PCHG_VARIABLE_LINE_EN/CN and
+    _VOLRANK_VARIABLE_LINE_EN/CN below)."""
     heading = "FIND IT ON OUR SITE" if lang == "en" else "在我们网站即可查看"
     img, draw = new_frame_s()
     dot_grid_s(draw)
@@ -1750,7 +1752,7 @@ def _frame_pchg_sort(lang, filename):
     return img
 
 
-# Spoken over _frame_pchg_sort -- names the actual column ("P Chg%", used
+# Spoken over _frame_dashboard_sort -- names the actual column ("P Chg%", used
 # across every WINDOW toggle: 1D/2W/1M/3M/6M/9M/1Y) so viewers know they can
 # get this same ranking for any timeframe themselves, not just the one
 # rotation window this Short happened to show. Category-agnostic wording
@@ -1759,6 +1761,16 @@ def _frame_pchg_sort(lang, filename):
 # lines. Real edge-tts measurement: EN 4.56s, CN 4.80s, +buffer.
 _PCHG_VARIABLE_LINE_EN = "You can find this yourself — sort by P Chg% on our website to get it for any timeframe."
 _PCHG_VARIABLE_LINE_CN = "您也可以自己查看，按P CHG%排序，就能方便查看任意时间段的数据。"
+
+# Spoken over _frame_dashboard_sort(lang, "peakvolume.png") for Tuesday+
+# Thursday's 1y_vol_peak category -- names the new VOL RANK column (added the
+# same session, see baizora_main_form.html) rather than a computed-only value
+# with no dashboard equivalent, closing the gap flagged when this category's
+# closing was first discussed (its _volPeakPct metric wasn't a real sortable
+# site column until VOL RANK shipped). Real edge-tts measurement: EN 4.27s,
+# CN 4.94s, +buffer.
+_VOLRANK_VARIABLE_LINE_EN = "You can find this yourself — sort by Vol Rank on our website to see it for any timeframe."
+_VOLRANK_VARIABLE_LINE_CN = "您也可以自己查看，按VOL RANK排序，就能查看任意时间段的成交量排名。"
 
 
 def build_best_performer_short(data, output, lang="en", share_dir=None):
@@ -1820,7 +1832,7 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
     # then the closing tagline. Replaces the old short-ad treatment
     # (_short_ad_outro_frame's "chart is free to download" line) for Sunday
     # specifically -- Tuesday/Thursday (1y_vol_peak) still use that helper.
-    best_frame = _frame_pchg_sort(lang, "best.png")
+    best_frame = _frame_dashboard_sort(lang, "best.png")
     ad_card = scene_ad_short(date, lang=lang)
     if lang == "cn":
         frames.append((best_frame, 5.1, None, _PCHG_VARIABLE_LINE_CN))  # measured 4.80s, +buffer
@@ -1904,7 +1916,7 @@ def build_worst_performer_short(data, output, lang="en", share_dir=None):
     # memory): a real dashboard screenshot naming the P Chg% variable, then the
     # subscribe line, then the closing tagline. Replaces the old 3-part ad
     # reel entirely for this category.
-    worst_frame = _frame_pchg_sort(lang, "worst.png")
+    worst_frame = _frame_dashboard_sort(lang, "worst.png")
     ad_card = scene_ad_short(date, lang=lang)
     if lang == "cn":
         frames.append((worst_frame, 5.1, None, _PCHG_VARIABLE_LINE_CN))  # measured 4.80s, +buffer
@@ -2383,11 +2395,26 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, row_share_caption, share_dir, "1y_vol_peak", i + 1,
                               criteria=share_criteria)
 
-    # Shortened ad treatment (user request, 2026-08-01) -- see _short_ad_outro_frame.
-    # This category runs both Tuesday and Thursday (see the 2026-08-15 rework
-    # commit "Rework Tuesday/Sunday category video rotation"), so the subscribe
-    # line names both days rather than picking one (see _SUBSCRIBE_TUETHU_EN/CN).
-    frames += _short_ad_outro_frame(date, lang, subscribe_en=_SUBSCRIBE_TUETHU_EN, subscribe_cn=_SUBSCRIBE_TUETHU_CN)
+    # Custom minimal closing (user request, 2026-08-22, "use peakvolume.png for
+    # these two days" -- same bespoke dashboard-screenshot closing as Sunday/
+    # Saturday, see build_best_performer_short / project_regular_cadence_
+    # subscribe_line memory): a real screenshot naming the VOL RANK variable,
+    # then the subscribe line, then the closing tagline. Replaces the old
+    # short-ad treatment entirely for this category. This category runs both
+    # Tuesday and Thursday (see the 2026-08-15 rework commit "Rework Tuesday/
+    # Sunday category video rotation"), so the subscribe line names both days
+    # rather than picking one (see _SUBSCRIBE_TUETHU_EN/CN).
+    peakvol_frame = _frame_dashboard_sort(lang, "peakvolume.png")
+    ad_card = scene_ad_short(date, lang=lang)
+    if lang == "cn":
+        frames.append((peakvol_frame, 5.2, None, _VOLRANK_VARIABLE_LINE_CN))  # measured 4.94s, +buffer
+        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_TUETHU_CN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
+    else:
+        # +2s extra silent viewing time, same as Sunday/Saturday's (user request).
+        frames.append((peakvol_frame, 6.5, None, _VOLRANK_VARIABLE_LINE_EN))
+        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_TUETHU_EN))
+        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("1y_vol_peak" + ("_cn" if lang == "cn" else ""), date_obj)
