@@ -13,6 +13,12 @@ Disallow: /baizora_main_form_cn.html
 Disallow: /success.html
 Disallow: /success_cn.html
 
+# Sign-in-gated pages (redirect to login.html for signed-out visitors, incl. Googlebot)
+Disallow: /index_news.html
+Disallow: /index_news_cn.html
+Disallow: /market_news.html
+Disallow: /market_news_cn.html
+
 # Internal testing pages (not for production use)
 Disallow: /baizora_yfinance_beta.html
 
