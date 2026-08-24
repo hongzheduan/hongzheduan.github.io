@@ -303,3 +303,4 @@
   no-news-video (Claude API failed or no qualifying stories): news_report_cn
   no-news-video (Claude API failed or no qualifying stories): news_report news_report_cn
   no-news-video (Claude API failed or no qualifying stories): news_report_cn
+  no-news-video (Claude API failed or no qualifying stories): news_report news_report_cn
