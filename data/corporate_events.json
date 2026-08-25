@@ -14060,6 +14060,15 @@
   ],
   "EXC": [
     {
+      "date": "2026-08-25",
+      "items": "5.02,7.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1109357/000110935726000084/exc-20260825.htm"
+    },
+    {
       "date": "2026-07-30",
       "eps": null,
       "items": "2.02,7.01,9.01",
@@ -18112,11 +18121,11 @@
     },
     {
       "date": "2026-08-18",
-      "eps": null,
+      "eps": 4.79,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-08-02",
+      "revenue": 47861000000,
       "type": [
         "earnings"
       ],
@@ -20070,6 +20079,18 @@
     }
   ],
   "INTU": [
+    {
+      "date": "2026-08-25",
+      "eps": null,
+      "items": "2.02,8.01,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/896878/000089687826000029/intu-20260825.htm"
+    },
     {
       "date": "2026-05-20",
       "eps": 11.09,
@@ -35459,6 +35480,15 @@
   ],
   "TRGP": [
     {
+      "date": "2026-08-25",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1389170/000119312526364099/d135085d8k.htm"
+    },
+    {
       "date": "2026-08-06",
       "eps": 3.54,
       "items": "2.02,7.01,9.01",
@@ -35775,6 +35805,15 @@
     }
   ],
   "TSCO": [
+    {
+      "date": "2026-08-25",
+      "items": "1.01,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/916365/000091636526000065/tsco-20260819.htm"
+    },
     {
       "date": "2026-08-07",
       "items": "5.02",
