@@ -317,3 +317,4 @@
 2026-08-25 22:51 UTC  630PM-scan
 2026-08-26 04:44 UTC  11PM-full
   no-news-video (Claude API failed or no qualifying stories): news_report_cn
+  no-news-video (Claude API failed or no qualifying stories): news_report news_report_cn
