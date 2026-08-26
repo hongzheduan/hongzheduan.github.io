@@ -574,6 +574,8 @@
     .sh-rank { font-family: 'DM Mono',monospace; font-size: 11px; color: #94a3b8; text-align: center; }
     .sh-info { min-width: 0; }
     .sh-ticker-name { font-family: 'DM Mono',monospace; font-size: 13px; font-weight: 600; color: #fff; }
+    .sh-ticker-name a { color: inherit; text-decoration: none; }
+    .sh-ticker-name a:hover { color: var(--electric-bright); }
     .sh-company-name { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
     .sh-spark svg { display: block; }
     .sh-chg { font-family: 'DM Mono',monospace; font-size: 12px; font-weight: 600; text-align: left; }
@@ -2514,7 +2516,7 @@ function buildSparkPath(arr) {
       return `<div class="sh-row">
         <div class="sh-rank">${i+1}</div>
         <div class="sh-info">
-          <div class="sh-ticker-name">${t.ticker} <span style="display:inline-flex;gap:2px;vertical-align:middle;">${badges}</span></div>
+          <div class="sh-ticker-name">${BaizoraChart.tickerLinkHtml(t.ticker, 'tk-link')} <span style="display:inline-flex;gap:2px;vertical-align:middle;">${badges}</span></div>
           <div class="sh-company-name">${t.company || ''}</div>
         </div>
         <div class="sh-spark">${spark}</div>
@@ -2523,6 +2525,19 @@ function buildSparkPath(arr) {
         <div class="sh-score">${score}</div>
       </div>`;
     }).join('');
+
+    grid.addEventListener('click', function(e) {
+      const link = e.target.closest('.bz-chart-link');
+      if (!link) return;
+      e.preventDefault();
+      const ticker = link.dataset.ticker;
+      const t = d.top10.find(x => x.ticker === ticker);
+      BaizoraChart.open(ticker, {
+        name: t ? t.company : '',
+        price: t ? t.price : null,
+        chg: t ? t.change1d : null
+      });
+    });
   }).catch(() => {
     const grid = document.getElementById('shGrid');
     if (grid) grid.innerHTML = '<div style="padding:24px;text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:#475569;">Data not yet available — check back after market close.</div>';
