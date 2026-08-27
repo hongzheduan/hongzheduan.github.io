@@ -319,3 +319,4 @@
   no-news-video (Claude API failed or no qualifying stories): news_report_cn
   no-news-video (Claude API failed or no qualifying stories): news_report news_report_cn
 2026-08-27 00:08 UTC  430PM-scan
+2026-08-27 00:36 UTC  500PM-scan
