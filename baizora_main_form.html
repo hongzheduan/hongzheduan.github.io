@@ -1050,7 +1050,7 @@
     // into the current free-form list shape ({smaList:[...]}) so pre-existing localStorage/
     // Firestore prefs from before the dynamic add/delete rework don't get silently discarded.
     function _migrateSmaPrefs(p) {
-      const dflt = { smaList: [20, 50, 200], bbActive: false, bbPeriod: 20, bbMult: 2, macdActive: false, macdFast: 12, macdSlow: 26, macdSignal: 9 };
+      const dflt = { smaList: [20, 50, 200], bbActive: false, bbPeriod: 20, bbMult: 2, macdActive: false, macdFast: 12, macdSlow: 26, macdSignal: 9, vpActive: false };
       if (!p) return dflt;
       let smaList;
       if (Array.isArray(p.smaList)) {
@@ -1072,6 +1072,7 @@
       const macdActive = "macdActive" in p ? !!p.macdActive : (Array.isArray(p.active) && p.active.includes("macd"));
       return {
         smaList, bbActive, macdActive,
+        vpActive: "vpActive" in p ? !!p.vpActive : false,
         bbPeriod: p.bbPeriod || 20, bbMult: p.bbMult || 2,
         macdFast: p.macdFast || 12, macdSlow: p.macdSlow || 26, macdSignal: p.macdSignal || 9
       };
@@ -2108,7 +2109,7 @@
     }
 
     /* ── CANDLESTICK RENDERER ── */
-    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData) {
+    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
@@ -2204,6 +2205,65 @@
           ctx.fill();
         }
       });
+      // Volume-by-price histogram ("volume profile") — horizontal bars along the
+      // right edge of the price panel showing how much volume traded in each price
+      // bucket over the visible window. Each day's volume is spread across the
+      // buckets its high–low range spans, weighted by the overlap, then split into
+      // up-day (close ≥ open) and down-day volume and stacked. The dashed gold line
+      // marks the point of control (highest-volume price level). Drawn before the
+      // candles so wicks and bodies stay legible on top.
+      if (volProfile) {
+        const VP_BUCKETS = 24;
+        const vpUp = new Array(VP_BUCKETS).fill(0);
+        const vpDn = new Array(VP_BUCKETS).fill(0);
+        const vpSpan = hi - lo;
+        const vpBucket = p => Math.max(0, Math.min(VP_BUCKETS - 1, Math.floor((p - lo) / vpSpan * VP_BUCKETS)));
+        candles.forEach(c => {
+          if (!c) return;
+          const [o, h, l, cv, v] = c;
+          if (!v || h == null || l == null) return;
+          const arr = cv >= o ? vpUp : vpDn;
+          const b0 = vpBucket(l), b1 = vpBucket(h);
+          if (b0 === b1) { arr[b0] += v; return; }
+          const rng = h - l;
+          for (let b = b0; b <= b1; b++) {
+            const top = lo + (b + 1) / VP_BUCKETS * vpSpan;
+            const bot = lo + b / VP_BUCKETS * vpSpan;
+            const ov = Math.min(h, top) - Math.max(l, bot);
+            if (ov > 0) arr[b] += v * (ov / rng);
+          }
+        });
+        let vpMax = 0, vpPoc = 0;
+        for (let b = 0; b < VP_BUCKETS; b++) {
+          const t = vpUp[b] + vpDn[b];
+          if (t > vpMax) { vpMax = t; vpPoc = b; }
+        }
+        if (vpMax > 0) {
+          const vpMaxW = (W - pad.left - pad.right) * 0.30;
+          const vpRight = W - pad.right;
+          const vpBH = priceH / VP_BUCKETS;
+          for (let b = 0; b < VP_BUCKETS; b++) {
+            const yTop = pad.top + priceH * (1 - (b + 1) / VP_BUCKETS);
+            const barH = Math.max(1, vpBH - 1);
+            const wUp = vpUp[b] / vpMax * vpMaxW;
+            const wDn = vpDn[b] / vpMax * vpMaxW;
+            ctx.fillStyle = "rgba(34,197,94,0.20)";
+            ctx.fillRect(vpRight - wUp, yTop, wUp, barH);
+            ctx.fillStyle = "rgba(239,68,68,0.20)";
+            ctx.fillRect(vpRight - wUp - wDn, yTop, wDn, barH);
+          }
+          const pocY = pad.top + priceH * (1 - (vpPoc + 0.5) / VP_BUCKETS);
+          ctx.strokeStyle = "rgba(245,158,11,0.5)";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath(); ctx.moveTo(pad.left, pocY); ctx.lineTo(vpRight, pocY); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = "#64748b";
+          ctx.font = `8px 'DM Mono', monospace`;
+          ctx.textAlign = "left";
+          ctx.fillText("VOL·PRICE", pad.left + 3, pad.top + 10);
+        }
+      }
       candles.forEach((c, i) => {
         if (!c) return;
         const [o, h, l, cv] = c;
@@ -2401,6 +2461,9 @@
       document.getElementById("macdSignalInput").value = _macdSignal;
       document.getElementById("macdToggles").classList.remove("open");
       document.getElementById("macdDrawerToggle").classList.remove("open");
+      document.getElementById("vpChip").classList.toggle("active", !!smaPrefs.vpActive);
+      document.getElementById("vpToggles").classList.remove("open");
+      document.getElementById("vpDrawerToggle").classList.remove("open");
       _baizKey = smaPrefs.baizKey || null;
       document.querySelectorAll('#baizToggles .sma-btn[data-baiz]').forEach(b => b.classList.toggle('active', b.dataset.baiz === _baizKey));
       document.getElementById("baizDrawerToggle").textContent = (BAIZ_LABELS[_baizKey] || "Baizora") + " ▾";
@@ -2444,6 +2507,7 @@
         bbPeriod: _bbPeriod, bbMult: _bbMult,
         macdActive: document.getElementById("macdChip").classList.contains("active"),
         macdFast: _macdFast, macdSlow: _macdSlow, macdSignal: _macdSignal,
+        vpActive: document.getElementById("vpChip").classList.contains("active"),
         baizKey: _baizKey
       };
       saveSmaPrefs();
@@ -2594,7 +2658,8 @@
         }
         canvas.style.height = (280 + (macdData ? 110 : 0) + (scoreData ? 90 : 0)) + "px";
 
-        renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData);
+        const vpActive = document.getElementById("vpChip").classList.contains("active");
+        renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive);
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
       }
@@ -2684,6 +2749,7 @@
     _setupDrawer("smaDrawerToggle", "smaToggles");
     _setupDrawer("bbDrawerToggle", "bbToggles");
     _setupDrawer("macdDrawerToggle", "macdToggles");
+    _setupDrawer("vpDrawerToggle", "vpToggles");
     _setupDrawer("baizDrawerToggle", "baizToggles");
     _setupDrawer("tfDrawerToggle", "candleTimeframes");
 
@@ -2697,6 +2763,15 @@
     });
 
     document.getElementById("macdToggles").addEventListener("click", e => {
+      const btn = e.target.closest(".sma-btn");
+      if (!btn || !_modalTicker) return;
+      btn.classList.toggle("active");
+      _saveSmaPrefsNow();
+      const activeTf = document.querySelector(".tf-btn.active");
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+    });
+
+    document.getElementById("vpToggles").addEventListener("click", e => {
       const btn = e.target.closest(".sma-btn");
       if (!btn || !_modalTicker) return;
       btn.classList.toggle("active");
@@ -2981,6 +3056,12 @@
           <input type="number" id="macdSlowInput" min="2" max="200" value="26" title="Slow EMA period (default 26)">
           <input type="number" id="macdSignalInput" min="2" max="100" value="9" title="Signal EMA period (default 9)">
           <button type="button" class="sma-add-btn" id="macdApply">Set</button>
+        </div>
+      </div>
+      <div class="overlay-drawer-wrap">
+        <button type="button" class="overlay-drawer-toggle" id="vpDrawerToggle">Vol Profile &#9662;</button>
+        <div class="overlay-drawer-panel" id="vpToggles">
+          <button class="sma-btn" id="vpChip" data-vp="1" title="Volume traded at each price level over the visible window. Green = volume on up days (close ≥ open); red = volume on down days (close &lt; open), stacked to the left of the green. The gold dashed line marks the price level with the most volume (point of control). Not buy vs sell volume — daily data can't show that.">Volume by Price</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">
