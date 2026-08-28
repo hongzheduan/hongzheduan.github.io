@@ -17,8 +17,13 @@ on:
     - cron: "0 21 * * 1-5"    # 5:00 PM ET weekdays  — retry if 4:30 PM data not yet available (actual ~7:00 PM ET); no EDGAR
     - cron: "30 21 * * 1-5"   # 5:30 PM ET weekdays  — retry if 4:30 PM data not yet available
     - cron: "30 22 * * 1-5"   # 6:30 PM ET weekdays  — final data
-    - cron: "0 4 * * 2-6"    # 11 PM ET weekdays — full EDGAR + market scan, no videos
-    - cron: "0 5 * * 0,6"    # midnight ET weekends — EDGAR refresh only
+    - cron: "0 4 * * 2-6"    # midnight ET weekdays (11 PM ET only under EST/winter — this UTC
+                               # time is fixed and doesn't shift with DST, so during EDT/summer
+                               # it lands an hour later than "11 PM" — plus the usual ~40-90 min
+                               # GH Actions schedule-dispatch delay on top) — full EDGAR + market
+                               # scan, no videos
+    - cron: "0 5 * * 0,6"    # 1 AM ET weekends (midnight ET only under EST/winter — same fixed-UTC
+                               # DST drift as above) — EDGAR refresh only
     - cron: "0 14 * * 0,6"   # 10:00 AM ET weekends — category video only, no market scan (news report
                                # video moved to the dedicated 1:00 PM ET slot above); moved earlier from
                                # 4:00 PM ET 2026-08-02 so weekend viewers have the whole day to watch
