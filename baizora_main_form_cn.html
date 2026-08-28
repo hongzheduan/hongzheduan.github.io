@@ -991,6 +991,7 @@
             <tr><td>偏离SMA20 / 偏离SMA200</td><td>当前价格与20日/200日均线之间的绝对距离（百分比，均线由服务端基于最多730天历史数据计算）。绿色 = 价格高于均线；红色 = 价格低于均线。股价接近（或略低于）SMA200常被视为潜在买入观察点，因为该均线常起到长期支撑作用——并非保证，只是一种常见的技术面判断</td></tr>
             <tr><td>MACD</td><td>MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）；红色 = 低于信号线（偏空）。两线交叉时颜色会翻转</td></tr>
             <tr><td>SMA20突破 / SMA200突破</td><td>今日K线实体（开盘价到收盘价）是否穿越了对应均线——即该均线落在今日开盘价与收盘价之间。▲绿色 = 向上突破（低开高走，收盘高于均线）；▼红色 = 向下突破（高开低走，收盘低于均线）；空白 = 今日未发生突破</td></tr>
+            <tr><td>偏离POC</td><td>当前价格与成交量分布控制点（过去约6个月内成交量最大的价格水平）之间的绝对距离，以百分比表示。绿色 = 价格在该水平上方；红色 = 下方。控制点常作为支撑/阻力位或价格的磁吸位。算法与图表的成交量分布叠加图一致</td></tr>
           </table>
         </div>
 
@@ -1441,8 +1442,47 @@
       r.VolRankTotal = vols.length;
     }
 
+    /* ── 控制点（POC）：过去 POC_WINDOW_DAYS 个交易日内成交量最大的价格水平。
+       将该周期的价格区间（最低价→最高价）分成24个区间，每日成交量按重叠比例
+       分摊到其最高价–最低价所跨越的各区间——与图表的成交量分布叠加图算法一致。
+       以当前价格与该水平之间的绝对百分比距离显示；绿色 = 价格在其上方，红色 = 下方。
+       与图表默认的6月周期保持一致。 ── */
+    const POC_WINDOW_DAYS = 126;
+    function computePocDist(r) {
+      const raw = candleData && candleData.data && candleData.data[r.Ticker];
+      const price = r._livePrice ?? r.Price;
+      if (!raw || raw.length < 2 || price == null) { r.PocPrice = r.PocDist = r.AbovePoc = null; return; }
+      const win = raw.slice(-POC_WINDOW_DAYS).filter(Boolean);
+      let lo = Infinity, hi = -Infinity;
+      win.forEach(b => { if (b[2] < lo) lo = b[2]; if (b[1] > hi) hi = b[1]; });
+      if (!(hi > lo)) { r.PocPrice = r.PocDist = r.AbovePoc = null; return; }
+      const N = 24, span = hi - lo;
+      const buckets = new Array(N).fill(0);
+      const bktOf = p => Math.max(0, Math.min(N - 1, Math.floor((p - lo) / span * N)));
+      win.forEach(b => {
+        const h = b[1], l = b[2], v = b[4];
+        if (!v || h == null || l == null) return;
+        const b0 = bktOf(l), b1 = bktOf(h);
+        if (b0 === b1) { buckets[b0] += v; return; }
+        const rng = h - l;
+        for (let k = b0; k <= b1; k++) {
+          const top = lo + (k + 1) / N * span;
+          const bot = lo + k / N * span;
+          const ov = Math.min(h, top) - Math.max(l, bot);
+          if (ov > 0) buckets[k] += v * (ov / rng);
+        }
+      });
+      let maxV = 0, poc = 0;
+      for (let k = 0; k < N; k++) if (buckets[k] > maxV) { maxV = buckets[k]; poc = k; }
+      if (maxV <= 0) { r.PocPrice = r.PocDist = r.AbovePoc = null; return; }
+      const pocPrice = lo + (poc + 0.5) / N * span;
+      r.PocPrice = pocPrice;
+      r.PocDist  = Math.abs(price / pocPrice - 1) * 100;
+      r.AbovePoc = price >= pocPrice;
+    }
+
     function buildTable(arr, w) {
-      if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); });
+      if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); computePocDist(r); });
       if (VOL_RANK_WINDOW_DAYS[w]) arr.forEach(r => computeVolRank(r, w));
       arr = sorted(arr);
 
@@ -1552,6 +1592,7 @@
           ${thSort("Dist200",  "偏离SMA200")}
           ${thSort("Break200", "SMA200突破")}
           ${thSort("MacdPct",  "MACD")}
+          ${thSort("PocDist",  "偏离POC")}
         </tr></thead>`;
         const rows = arr.slice(0, 600).map(r => {
           const sparkSVG = renderSparkline(
@@ -1563,6 +1604,7 @@
           const cls20   = r.Above20  == null ? "neutral" : (r.Above20  ? "positive" : "negative");
           const cls200  = r.Above200 == null ? "neutral" : (r.Above200 ? "positive" : "negative");
           const clsMacd = r.MacdAbove == null ? "neutral" : (r.MacdAbove ? "positive" : "negative");
+          const clsPoc  = r.AbovePoc  == null ? "neutral" : (r.AbovePoc  ? "positive" : "negative");
           const brk20   = { cls: r.Break20  > 0 ? "positive" : r.Break20  < 0 ? "negative" : "neutral", sym: r.Break20  == null ? "—" : r.Break20  > 0 ? "▲" : r.Break20  < 0 ? "▼" : "—" };
           const brk200  = { cls: r.Break200 > 0 ? "positive" : r.Break200 < 0 ? "negative" : "neutral", sym: r.Break200 == null ? "—" : r.Break200 > 0 ? "▲" : r.Break200 < 0 ? "▼" : "—" };
           return `<tr>
@@ -1574,6 +1616,7 @@
             <td class="${cls200}">${r.Dist200 != null ? r.Dist200.toFixed(1) + "%" : "—"}</td>
             <td class="${brk200.cls}">${brk200.sym}</td>
             <td class="${clsMacd}">${r.MacdPct != null ? r.MacdPct.toFixed(2) + "%" : "—"}</td>
+            <td class="${clsPoc}">${r.PocDist != null ? r.PocDist.toFixed(1) + "%" : "—"}</td>
           </tr>`;
         }).join("");
         return head + "<tbody>" + rows + "</tbody>";
@@ -1844,6 +1887,7 @@
       "Break20":         { label: "SMA20突破",   desc: "今日K线实体（开盘到收盘）是否穿越SMA20——即SMA20落在今日开盘价与收盘价之间。▲绿色 = 向上突破（低开高走）。▼红色 = 向下突破（高开低走）。空白 = 均线在今日开盘收盘区间之外，未突破。" },
       "MacdPct":         { label: "MACD",        desc: "MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）。红色 = 低于信号线（偏空）。两线交叉时颜色会翻转。" },
       "Break200":        { label: "SMA200突破",  desc: "今日K线实体（开盘到收盘）是否穿越SMA200——即SMA200落在今日开盘价与收盘价之间。▲绿色 = 向上突破（低开高走）。▼红色 = 向下突破（高开低走）。空白 = 均线在今日开盘收盘区间之外，未突破。" },
+      "PocDist":         { label: "偏离POC",      desc: "当前价格与成交量分布控制点（过去约6个月内成交量最大的价格水平）之间的绝对百分比距离。绿色 = 价格在该水平上方，红色 = 下方。控制点常作为价格的磁吸位或支撑/阻力位，距离越小说明价格正处于历史成交最密集的水平。算法与图表的成交量分布叠加图一致。" },
       "VolRank":         { label: "量排名",      desc: "今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）。仅在2周及以上周期显示。" },
     };
 

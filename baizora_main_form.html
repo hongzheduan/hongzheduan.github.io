@@ -985,6 +985,7 @@
             <tr><td>Dist SMA20 / Dist SMA200</td><td>Absolute distance between the current price and the 20-day / 200-day moving average, as a percentage (SMAs computed server-side from up to 730 days of history). Green = price is above the average, red = price is below it. A stock trading close to (or just under) its SMA200 is often watched as a potential entry point, since the average tends to act as long-term support — not a guarantee, just a common technical read</td></tr>
             <tr><td>MACD</td><td>Absolute distance between the MACD line and signal line (standard 12/26/9), as a percentage of price. Green = MACD above signal (bullish bias); red = below (bearish bias). Color flips exactly when the two lines cross</td></tr>
             <tr><td>SMA20 Break / SMA200 Break</td><td>Whether today's candle body crossed the moving average — i.e. the SMA sits between today's open and close. ▲ green = crossed upward (opened below, closed above the average); ▼ red = crossed downward; blank = no cross today</td></tr>
+            <tr><td>Dist POC</td><td>Absolute distance between the current price and the volume profile's point of control — the price level that traded the most volume over the last ~6 months — as a percentage. Green = price above that level, red = below. The point of control often acts as support/resistance or a magnet for price. Same calculation as the chart's Vol Profile overlay</td></tr>
           </table>
         </div>
 
@@ -1440,9 +1441,50 @@
       r.VolRankTotal = vols.length;
     }
 
+    /* ── POINT OF CONTROL: the price level that saw the most volume over the last
+       POC_WINDOW_DAYS trading days. The window's price range (lowest low → highest
+       high) is split into 24 buckets and each day's volume is spread across the
+       buckets its high–low span covers, weighted by overlap — the same method as
+       the chart's volume-profile overlay. Reported as the absolute % distance
+       between the current price and that level; green = price above it, red = below.
+       Kept in sync with the modal chart's default 6M timeframe. ── */
+    const POC_WINDOW_DAYS = 126;
+    function computePocDist(r) {
+      const raw = candleData && candleData.data && candleData.data[r.Ticker];
+      const price = r._livePrice ?? r.Price;
+      if (!raw || raw.length < 2 || price == null) { r.PocPrice = r.PocDist = r.AbovePoc = null; return; }
+      const win = raw.slice(-POC_WINDOW_DAYS).filter(Boolean);
+      let lo = Infinity, hi = -Infinity;
+      win.forEach(b => { if (b[2] < lo) lo = b[2]; if (b[1] > hi) hi = b[1]; });
+      if (!(hi > lo)) { r.PocPrice = r.PocDist = r.AbovePoc = null; return; }
+      const N = 24, span = hi - lo;
+      const buckets = new Array(N).fill(0);
+      const bktOf = p => Math.max(0, Math.min(N - 1, Math.floor((p - lo) / span * N)));
+      win.forEach(b => {
+        const h = b[1], l = b[2], v = b[4];
+        if (!v || h == null || l == null) return;
+        const b0 = bktOf(l), b1 = bktOf(h);
+        if (b0 === b1) { buckets[b0] += v; return; }
+        const rng = h - l;
+        for (let k = b0; k <= b1; k++) {
+          const top = lo + (k + 1) / N * span;
+          const bot = lo + k / N * span;
+          const ov = Math.min(h, top) - Math.max(l, bot);
+          if (ov > 0) buckets[k] += v * (ov / rng);
+        }
+      });
+      let maxV = 0, poc = 0;
+      for (let k = 0; k < N; k++) if (buckets[k] > maxV) { maxV = buckets[k]; poc = k; }
+      if (maxV <= 0) { r.PocPrice = r.PocDist = r.AbovePoc = null; return; }
+      const pocPrice = lo + (poc + 0.5) / N * span;
+      r.PocPrice = pocPrice;
+      r.PocDist  = Math.abs(price / pocPrice - 1) * 100;
+      r.AbovePoc = price >= pocPrice;
+    }
+
     /* ── BUILD TABLE ── */
     function buildTable(arr, w) {
-      if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); });
+      if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); computePocDist(r); });
       if (VOL_RANK_WINDOW_DAYS[w]) arr.forEach(r => computeVolRank(r, w));
       arr = sorted(arr);
 
@@ -1552,6 +1594,7 @@
           ${thSort("Dist200",  "Dist SMA200")}
           ${thSort("Break200", "SMA200 Break")}
           ${thSort("MacdPct",  "MACD")}
+          ${thSort("PocDist",  "Dist POC")}
         </tr></thead>`;
         const rows = arr.slice(0, 600).map(r => {
           const sparkSVG = renderSparkline(
@@ -1563,6 +1606,7 @@
           const cls20   = r.Above20  == null ? "neutral" : (r.Above20  ? "positive" : "negative");
           const cls200  = r.Above200 == null ? "neutral" : (r.Above200 ? "positive" : "negative");
           const clsMacd = r.MacdAbove == null ? "neutral" : (r.MacdAbove ? "positive" : "negative");
+          const clsPoc  = r.AbovePoc  == null ? "neutral" : (r.AbovePoc  ? "positive" : "negative");
           const brk20   = { cls: r.Break20  > 0 ? "positive" : r.Break20  < 0 ? "negative" : "neutral", sym: r.Break20  == null ? "—" : r.Break20  > 0 ? "▲" : r.Break20  < 0 ? "▼" : "—" };
           const brk200  = { cls: r.Break200 > 0 ? "positive" : r.Break200 < 0 ? "negative" : "neutral", sym: r.Break200 == null ? "—" : r.Break200 > 0 ? "▲" : r.Break200 < 0 ? "▼" : "—" };
           return `<tr>
@@ -1574,6 +1618,7 @@
             <td class="${cls200}">${r.Dist200 != null ? r.Dist200.toFixed(1) + "%" : "—"}</td>
             <td class="${brk200.cls}">${brk200.sym}</td>
             <td class="${clsMacd}">${r.MacdPct != null ? r.MacdPct.toFixed(2) + "%" : "—"}</td>
+            <td class="${clsPoc}">${r.PocDist != null ? r.PocDist.toFixed(1) + "%" : "—"}</td>
           </tr>`;
         }).join("");
         return head + "<tbody>" + rows + "</tbody>";
@@ -1844,6 +1889,7 @@
       "Break20":         { label: "SMA20 Break",   desc: "Whether today's candle body crossed the SMA20 line — i.e. the SMA20 sits between today's open and close. ▲ green = crossed upward (opened below, closed above). ▼ red = crossed downward (opened above, closed below). Blank = the average stayed outside today's open-close range, no cross." },
       "MacdPct":         { label: "MACD",          desc: "Absolute distance between the MACD line and the signal line (standard 12/26/9), as a percentage of price. Green = MACD line above the signal line (bullish bias). Red = below (bearish bias). The color flips exactly when the two lines cross." },
       "Break200":        { label: "SMA200 Break",  desc: "Whether today's candle body crossed the SMA200 line — i.e. the SMA200 sits between today's open and close. ▲ green = crossed upward (opened below, closed above). ▼ red = crossed downward (opened above, closed below). Blank = the average stayed outside today's open-close range, no cross." },
+      "PocDist":         { label: "Dist POC",      desc: "Absolute distance between the current price and the volume profile's point of control — the price level that traded the most volume over the last ~6 months — as a percentage. Green = price above that level, red = below. The point of control often acts as a magnet or as support/resistance, so a small distance means price is sitting right at the level with the heaviest historical trading. Same calculation as the chart's Vol Profile overlay." },
       "VolRank":         { label: "VOL RANK",      desc: "Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window). Only shown for 2W and longer." },
     };
 
