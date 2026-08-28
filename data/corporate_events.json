@@ -10862,6 +10862,15 @@
   ],
   "DG": [
     {
+      "date": "2026-08-28",
+      "items": "5.02,7.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/29534/000110465926102689/tm2624201d1_8k.htm"
+    },
+    {
       "date": "2026-08-27",
       "eps": 2.48,
       "items": "2.02,7.01,9.01",
@@ -22572,6 +22581,15 @@
   ],
   "LMT": [
     {
+      "date": "2026-08-28",
+      "items": "1.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/936468/000119312526371750/d177255d8k.htm"
+    },
+    {
       "date": "2026-07-23",
       "eps": 7.94,
       "items": "2.02,9.01",
@@ -24716,6 +24734,15 @@
     }
   ],
   "MO": [
+    {
+      "date": "2026-08-28",
+      "items": "5.02,7.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/764180/000076418026000098/mo-20260827.htm"
+    },
     {
       "date": "2026-07-30",
       "eps": 1.37,
@@ -34399,10 +34426,10 @@
   "TJX": [
     {
       "date": "2026-08-19",
-      "eps": null,
+      "eps": 1.36,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
+      "period_end": "2026-08-01",
       "revenue": null,
       "type": [
         "earnings"
