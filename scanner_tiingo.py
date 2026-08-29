@@ -3364,26 +3364,30 @@ if __name__ == "__main__":
         print("OHLCV_SOURCE=yfinance — skipping Tiingo publish-delay probe.")
         data_confirmed = True
 
-        # SKIP_IF_COMPLETE=1 is set only by the late-night safety-net cron
-        # (0 4 * * 2-6 — see scanner.yml). Its whole job is to recover a day whose
-        # 4:30 PM ET scan was silently dropped by GitHub's scheduler. If latest.json
-        # already carries a complete, non-partial update for the most recent trading
-        # day, there's nothing to recover — exit before doing a full redundant scan.
+        # SKIP_IF_COMPLETE=1 is set by the 4:30 PM ET primary cron and the ~midnight ET
+        # safety-net cron (0 4 * * 2-6 — see scanner.yml). If latest.json already carries
+        # a complete, non-partial update for the most recent *completed* trading session,
+        # there's nothing to do — exit before a redundant scan (and, for the primary cron,
+        # before the workflow's video steps would build a duplicate). "Completed" = today's
+        # session only counts once its close has passed (~4 PM ET); before that, or after
+        # midnight, the most recent completed session is the prior trading day. On a normal
+        # untouched day latest.json still holds yesterday's date here, so the scan proceeds.
         # (In Tiingo mode the equivalent check lives further down, in the probe path.)
         if os.environ.get("SKIP_IF_COMPLETE", "").lower() in ("1", "true", "yes"):
             try:
-                # This cron fires after midnight ET, before the next session opens, so the
-                # last *completed* trading day is the most recent one strictly before today
-                # — that's the session the (possibly dropped) 4:30 PM ET scan was for.
-                _recent   = get_trading_days((today - timedelta(days=10)).strftime("%Y-%m-%d"),
-                                             (today - timedelta(days=1)).strftime("%Y-%m-%d"))
+                _now_et = datetime.now(pytz.timezone("America/New_York"))
+                _end = _now_et.date()
+                if (_now_et.hour, _now_et.minute) < (16, 5):
+                    _end = _end - timedelta(days=1)
+                _recent = get_trading_days((_end - timedelta(days=10)).strftime("%Y-%m-%d"),
+                                           _end.strftime("%Y-%m-%d"))
                 _expected = _recent[-1] if _recent else None
                 with open(OUTPUT_JSON) as f:
                     _existing = json.load(f)
                 if _expected and _existing.get("date") == _expected and not _existing.get("partialUpdate", False):
-                    print(f"{_expected} already fully updated — skipping safety-net rescan.")
+                    print(f"{_expected} already fully updated — skipping redundant scan.")
                     sys.exit(0)
-                print(f"Data stale (have {_existing.get('date')}, expected {_expected}) — running safety-net scan.")
+                print(f"Data stale (have {_existing.get('date')}, expected {_expected}) — scanning.")
             except Exception as e:
                 print(f"SKIP_IF_COMPLETE check failed ({e}) — proceeding with scan.")
     elif FORCE_RUN:
@@ -3431,16 +3435,18 @@ if __name__ == "__main__":
             print(f"Today's data not available after {PROBE_RETRIES} attempts — special closure or delay, skipping.")
             sys.exit(0)
 
-        # 5:00 PM slot only: skip if the 4:30 PM run already landed a complete,
-        # non-partial update — nothing left to catch. 5:30/6:30 PM stay unconditional
-        # safety nets regardless of what 5:00 PM finds (set via SKIP_IF_COMPLETE, only
-        # true for the 5:00 PM cron — see scanner.yml).
+        # SKIP_IF_COMPLETE (Tiingo path): skip if latest.json already holds a complete,
+        # non-partial update for the confirmed latest session — nothing left to do.
+        # Set by the 4:30 PM primary, the 5:00 PM retry, and the ~midnight safety-net
+        # crons (see scanner.yml); 5:30/6:30 PM stay unconditional safety nets. The
+        # probe above already resolved _TIINGO_LAST_DATE to the real latest session,
+        # so no separate wall-clock date math is needed on this path.
         if os.environ.get("SKIP_IF_COMPLETE", "").lower() in ("1", "true", "yes"):
             try:
                 with open(OUTPUT_JSON) as f:
                     _existing = json.load(f)
                 if _existing.get("date") == _TIINGO_LAST_DATE and not _existing.get("partialUpdate", False):
-                    print(f"{_TIINGO_LAST_DATE} already fully updated (0 stale tickers) — skipping 5:00 PM rescan.")
+                    print(f"{_TIINGO_LAST_DATE} already fully updated (0 stale tickers) — skipping redundant rescan.")
                     sys.exit(0)
             except Exception:
                 pass

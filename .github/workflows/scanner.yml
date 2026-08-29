@@ -147,6 +147,12 @@ jobs:
             echo "IS_VIDEO_RUN=True" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=False"  >> $GITHUB_ENV
             echo "PROBE_RETRIES=2" >> $GITHUB_ENV   # probe at 4:30, retry at 5:00
+            # No-op if a manual "Run workflow" (or, in Tiingo mode, an earlier retry)
+            # already landed today's complete data — so a heavily-delayed firing of
+            # this cron that lands after a manual catch-up doesn't rescan and, more
+            # importantly, doesn't build+upload a duplicate category video. On a normal
+            # untouched day the data isn't complete yet when this runs, so it runs fully.
+            echo "SKIP_IF_COMPLETE=1" >> $GITHUB_ENV
           elif [ "$EVENT" = "workflow_dispatch" ]; then
             # manual trigger — full EDGAR refresh + market scan; videos only if
             # explicitly requested via the run_videos input (default: no videos).
@@ -423,23 +429,48 @@ jobs:
             DATA_DOW=$(python -c "import json, datetime; print(datetime.date.fromisoformat(json.load(open('data/latest.json'))['date']).isoweekday())" 2>/dev/null || true)
             [ -n "$DATA_DOW" ] && DOW=$DATA_DOW
           fi
-          if [ "$DOW" = "1" ]; then
-            echo "VIDEO_TYPES=near_sma200 near_sma200_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "2" ]; then
-            echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "3" ]; then
-            echo "VIDEO_TYPES=6m_breakout 6m_breakout_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "4" ]; then
-            echo "VIDEO_TYPES=1y_vol_peak 1y_vol_peak_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "5" ]; then
-            echo "VIDEO_TYPES=index_spotlight index_spotlight_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "6" ]; then
-            echo "VIDEO_TYPES=worst_performer worst_performer_cn" >> $GITHUB_ENV
-          elif [ "$DOW" = "7" ]; then
-            echo "VIDEO_TYPES=best_performer best_performer_cn" >> $GITHUB_ENV
-          else
-            echo "VIDEO_TYPES=" >> $GITHUB_ENV
+          case "$DOW" in
+            1) VIDEO_TYPES="near_sma200 near_sma200_cn" ;;
+            2) VIDEO_TYPES="1y_vol_peak 1y_vol_peak_cn" ;;
+            3) VIDEO_TYPES="6m_breakout 6m_breakout_cn" ;;
+            4) VIDEO_TYPES="1y_vol_peak 1y_vol_peak_cn" ;;
+            5) VIDEO_TYPES="index_spotlight index_spotlight_cn" ;;
+            6) VIDEO_TYPES="worst_performer worst_performer_cn" ;;
+            7) VIDEO_TYPES="best_performer best_performer_cn" ;;
+            *) VIDEO_TYPES="" ;;
+          esac
+
+          # Dedup guard — scheduled weekday runs only. If a language's category video
+          # for the current data date + this exact category is already recorded in
+          # data/latest_video_meta.json, drop it: a heavily-delayed firing of the
+          # 4:30 PM cron that lands after a manual "Run workflow" (with the video
+          # option) would otherwise build and re-upload the same video (there is no
+          # dedup on YouTube's side). Manual dispatch is never filtered here — a
+          # deliberate re-run always regenerates.
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$SKIP_SCAN" != "1" ] && [ -n "$VIDEO_TYPES" ]; then
+            VIDEO_TYPES=$(VIDEO_TYPES="$VIDEO_TYPES" python -c "
+          import json, os
+          try:
+              data_date = json.load(open('data/latest.json')).get('date')
+          except Exception:
+              data_date = None
+          try:
+              meta = json.load(open('data/latest_video_meta.json'))
+          except Exception:
+              meta = {}
+          keep = []
+          for t in os.environ['VIDEO_TYPES'].split():
+              lang = 'cn' if t.endswith('_cn') else 'en'
+              base = t[:-3] if t.endswith('_cn') else t
+              m = meta.get(lang, {})
+              if data_date and m.get('date') == data_date and m.get('type') == base:
+                  continue
+              keep.append(t)
+          print(' '.join(keep))
+          " 2>/dev/null || echo "$VIDEO_TYPES")
           fi
+
+          echo "VIDEO_TYPES=$VIDEO_TYPES" >> $GITHUB_ENV
 
       - name: Generate daily videos
         if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True' && env.VIDEO_TYPES != ''
@@ -484,11 +515,12 @@ jobs:
             python video/generate_shorts.py --type "$BASE_TYPE" --lang "$LANG" --output "video/${type}.mp4" --share-dir data/social_cards "${DATE_ARGS[@]}"
           done
           # Copy generated videos to fixed paths and write name metadata
-          EN_NAME="" CN_NAME=""
+          EN_NAME="" CN_NAME="" EN_TYPE="" CN_TYPE=""
           for type in $VIDEO_TYPES; do
             if [ -f "video/${type}.mp4" ]; then
               if echo "$type" | grep -q "_cn$"; then
                 cp "video/${type}.mp4" data/latest_video_cn.mp4
+                CN_TYPE="${type%_cn}"
                 case "$type" in
                   near_sma200_cn)      CN_NAME="回踩200日均线" ;;
                   best_performer_cn)   CN_NAME="最佳涨幅股" ;;
@@ -500,6 +532,7 @@ jobs:
                 esac
               else
                 cp "video/${type}.mp4" data/latest_video_en.mp4
+                EN_TYPE="$type"
                 case "$type" in
                   near_sma200)      EN_NAME="Testing 200-Day Support" ;;
                   best_performer)   EN_NAME="Top Price Movers" ;;
@@ -525,7 +558,7 @@ jobs:
           else
             VID_DATE=$(python -c "import json; print(json.load(open('data/latest.json'))['date'])")
           fi
-          EN_NAME="$EN_NAME" EN_DATE="$VID_DATE" CN_NAME="$CN_NAME" CN_DATE="$VID_DATE" python -c "
+          EN_NAME="$EN_NAME" EN_DATE="$VID_DATE" EN_TYPE="$EN_TYPE" CN_NAME="$CN_NAME" CN_DATE="$VID_DATE" CN_TYPE="$CN_TYPE" python -c "
           import json, os
 
           try:
@@ -536,10 +569,12 @@ jobs:
           en_name = os.environ.get('EN_NAME', '')
           cn_name = os.environ.get('CN_NAME', '')
 
+          # 'type' is the category slug (e.g. index_spotlight) — used by the 'Select
+          # daily video types' dedup guard to tell whether today's video was already made.
           if en_name:
-              meta['en'] = {'name': en_name, 'date': os.environ['EN_DATE'], 'url': ''}
+              meta['en'] = {'name': en_name, 'type': os.environ.get('EN_TYPE', ''), 'date': os.environ['EN_DATE'], 'url': ''}
           if cn_name:
-              meta['cn'] = {'name': cn_name, 'date': os.environ['CN_DATE'], 'url': ''}
+              meta['cn'] = {'name': cn_name, 'type': os.environ.get('CN_TYPE', ''), 'date': os.environ['CN_DATE'], 'url': ''}
 
           json.dump(meta, open('data/latest_video_meta.json', 'w'))
           "
