@@ -411,6 +411,18 @@ jobs:
         if: env.IS_HOLIDAY != 'True' && env.IS_VIDEO_RUN == 'True'
         run: |
           DOW=$(date +%u)   # 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat 7=Sun
+          # Weekend cron (0 14 * * 0,6) runs 10 AM ET / 14:00 UTC — a wide margin to
+          # midnight either way, so the wall-clock DOW above is fine there. But the
+          # weekday cron fires 20:30 UTC (4:30 PM ET), only ~3.5 h from UTC midnight:
+          # a long GitHub Actions schedule delay rolls `date +%u` to the next day and
+          # picks the wrong category for a video that's still today's. On weekday runs
+          # a real scan happened, so anchor the category to the trading date the scan
+          # actually produced (data/latest.json's own "date") — that can't drift no
+          # matter when the job runs.
+          if [ "$SKIP_SCAN" != "1" ]; then
+            DATA_DOW=$(python -c "import json, datetime; print(datetime.date.fromisoformat(json.load(open('data/latest.json'))['date']).isoweekday())" 2>/dev/null || true)
+            [ -n "$DATA_DOW" ] && DOW=$DATA_DOW
+          fi
           if [ "$DOW" = "1" ]; then
             echo "VIDEO_TYPES=near_sma200 near_sma200_cn" >> $GITHUB_ENV
           elif [ "$DOW" = "2" ]; then
