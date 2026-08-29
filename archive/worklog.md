@@ -333,3 +333,4 @@
   no-news-video (Claude API failed or no qualifying stories): news_report_cn
 2026-08-29 02:03 UTC  manual
   no-news-video (Claude API failed or no qualifying stories): news_report news_report_cn
+2026-08-29 03:03 UTC  430PM-scan

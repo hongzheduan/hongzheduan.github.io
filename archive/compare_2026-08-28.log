@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-08-28
 Threshold: >10% for all metrics
-124 flagged diffs above threshold
+125 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -92,27 +92,28 @@ VOLUME  -- 1 flagged (>10%)
     WAT      ours=0.44  yf=0.44  diff=1.1%
 
 ------------------------------------------------------------
-MKTCAP  -- 8 flagged (>10%)
-  FLAGGED (top 8 of 8):
+MKTCAP  -- 9 flagged (>10%)
+  FLAGGED (top 9 of 9):
     MNST     ours=$45.90B  yf=$91.80B  diff=50.0% ***
     PCG      ours=$44.49B  yf=$36.56B  diff=21.7% ***
     MLM      ours=$31.90B  yf=$37.71B  diff=15.4% ***
     SPG      ours=$69.42B  yf=$81.45B  diff=14.8% ***
-    UDR      ours=$12.06B  yf=$13.75B  diff=12.3% ***
+    CPT      ours=$10.69B  yf=$12.31B  diff=13.1% ***
     BXP      ours=$11.07B  yf=$12.54B  diff=11.7% ***
     ERIE     ours=$12.03B  yf=$13.62B  diff=11.6% ***
+    UDR      ours=$12.06B  yf=$13.64B  diff=11.6% ***
     CHTR     ours=$18.32B  yf=$20.70B  diff=11.5% ***
   TOP 10 LARGEST DIFF:
     MNST     ours=$45.90B  yf=$91.80B  diff=50.0% ***
     PCG      ours=$44.49B  yf=$36.56B  diff=21.7% ***
     MLM      ours=$31.90B  yf=$37.71B  diff=15.4% ***
     SPG      ours=$69.42B  yf=$81.45B  diff=14.8% ***
-    UDR      ours=$12.06B  yf=$13.75B  diff=12.3% ***
+    CPT      ours=$10.69B  yf=$12.31B  diff=13.1% ***
     BXP      ours=$11.07B  yf=$12.54B  diff=11.7% ***
     ERIE     ours=$12.03B  yf=$13.62B  diff=11.6% ***
+    UDR      ours=$12.06B  yf=$13.64B  diff=11.6% ***
     CHTR     ours=$18.32B  yf=$20.70B  diff=11.5% ***
     ACN      ours=$126.57B  yf=$116.03B  diff=9.1%
-    WDAY     ours=$54.59B  yf=$50.56B  diff=8.0%
 
 ------------------------------------------------------------
 PE  -- 53 flagged (>10%)
@@ -134,7 +135,7 @@ PE  -- 53 flagged (>10%)
     BIIB     ours=23.490  yf=38.810  diff=39.5% ***
     JCI      ours=25.240  yf=39.211  diff=35.6% ***
     MDLZ     ours=30.870  yf=22.842  diff=35.1% ***
-    FER      ours=40.680  yf=60.546  diff=32.8% ***
+    FER      ours=40.680  yf=61.821  diff=34.2% ***
     C        ours=19.010  yf=14.337  diff=32.6% ***
     LEN      ours=10.140  yf=13.531  diff=25.1% ***
   TOP 10 LARGEST DIFF:
