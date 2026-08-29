@@ -3363,6 +3363,29 @@ if __name__ == "__main__":
         # mechanism the Tiingo path uses, just confirmed after the fetch instead of before.
         print("OHLCV_SOURCE=yfinance — skipping Tiingo publish-delay probe.")
         data_confirmed = True
+
+        # SKIP_IF_COMPLETE=1 is set only by the late-night safety-net cron
+        # (0 4 * * 2-6 — see scanner.yml). Its whole job is to recover a day whose
+        # 4:30 PM ET scan was silently dropped by GitHub's scheduler. If latest.json
+        # already carries a complete, non-partial update for the most recent trading
+        # day, there's nothing to recover — exit before doing a full redundant scan.
+        # (In Tiingo mode the equivalent check lives further down, in the probe path.)
+        if os.environ.get("SKIP_IF_COMPLETE", "").lower() in ("1", "true", "yes"):
+            try:
+                # This cron fires after midnight ET, before the next session opens, so the
+                # last *completed* trading day is the most recent one strictly before today
+                # — that's the session the (possibly dropped) 4:30 PM ET scan was for.
+                _recent   = get_trading_days((today - timedelta(days=10)).strftime("%Y-%m-%d"),
+                                             (today - timedelta(days=1)).strftime("%Y-%m-%d"))
+                _expected = _recent[-1] if _recent else None
+                with open(OUTPUT_JSON) as f:
+                    _existing = json.load(f)
+                if _expected and _existing.get("date") == _expected and not _existing.get("partialUpdate", False):
+                    print(f"{_expected} already fully updated — skipping safety-net rescan.")
+                    sys.exit(0)
+                print(f"Data stale (have {_existing.get('date')}, expected {_expected}) — running safety-net scan.")
+            except Exception as e:
+                print(f"SKIP_IF_COMPLETE check failed ({e}) — proceeding with scan.")
     elif FORCE_RUN:
         print("FORCE_RUN=1 — skipping market probe, using latest available Tiingo data.")
         data_confirmed = True

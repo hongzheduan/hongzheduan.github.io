@@ -17,11 +17,13 @@ on:
     - cron: "0 21 * * 1-5"    # 5:00 PM ET weekdays  — retry if 4:30 PM data not yet available (actual ~7:00 PM ET); no EDGAR
     - cron: "30 21 * * 1-5"   # 5:30 PM ET weekdays  — retry if 4:30 PM data not yet available
     - cron: "30 22 * * 1-5"   # 6:30 PM ET weekdays  — final data
-    - cron: "0 4 * * 2-6"    # midnight ET weekdays (11 PM ET only under EST/winter — this UTC
+    - cron: "0 4 * * 2-6"    # ~midnight ET weekdays (11 PM ET only under EST/winter — this UTC
                                # time is fixed and doesn't shift with DST, so during EDT/summer
                                # it lands an hour later than "11 PM" — plus the usual ~40-90 min
                                # GH Actions schedule-dispatch delay on top) — full EDGAR + market
-                               # scan, no videos
+                               # scan, no videos. Also the yfinance-mode safety-net: recovers a
+                               # day whose 4:30 PM ET scan GitHub silently dropped (no-ops via
+                               # SKIP_IF_COMPLETE when latest.json is already current).
     - cron: "0 5 * * 0,6"    # 1 AM ET weekends (midnight ET only under EST/winter — same fixed-UTC
                                # DST drift as above) — EDGAR refresh only
     - cron: "0 14 * * 0,6"   # 10:00 AM ET weekends — category video only, no market scan (news report
@@ -126,13 +128,18 @@ jobs:
             echo "IS_NEWS_RUN=False"  >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "0 4 * * 2-6" ]; then
-            # 11 PM ET weekdays — full EDGAR + market scan, no videos
+            # ~midnight ET weekdays — full EDGAR + market scan, no videos. In yfinance
+            # mode this is the safety-net that recovers a day whose 4:30 PM ET scan was
+            # dropped by GitHub's scheduler (see the trailing exclusion block below):
+            # SKIP_IF_COMPLETE makes it a fast no-op when latest.json is already current,
+            # and a full scan only when the afternoon run really was missed.
             echo "FORCE_RUN=1"    >> $GITHUB_ENV
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
             echo "SKIP_EDGAR="    >> $GITHUB_ENV
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+            echo "SKIP_IF_COMPLETE=1" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "30 20 * * 1-5" ]; then
             # News report video moved to the dedicated 1:00 PM ET slot above.
             echo "EDGAR_ONLY="    >> $GITHUB_ENV
@@ -181,14 +188,16 @@ jobs:
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 5:30 PM and 6:30 PM: probe once and exit, always run in full
           fi
 
-          # In yfinance mode (OHLCV_SOURCE_SWITCH), only the 4:30 PM weekday cron, the
-          # weekend EDGAR-only cron, and manual runs actually scan — the 5:00/5:30/6:30 PM
-          # and 11 PM weekday crons exist solely to retry Tiingo's publish-delay problem,
-          # which yfinance doesn't have, so re-running them would just hit Yahoo for no
-          # reason. Written as one trailing exclusion (not per-branch) so a new cron can't
-          # silently forget to set this, unlike a per-branch flag would risk.
+          # In yfinance mode (OHLCV_SOURCE_SWITCH) the price scan runs for: the 4:30 PM
+          # weekday cron (primary), the ~midnight ET cron (0 4 * * 2-6, safety-net — see
+          # its branch above; SKIP_IF_COMPLETE makes it a no-op unless the 4:30 PM run
+          # was dropped by GitHub's scheduler), the two weekend crons, and manual runs.
+          # The 5:00/5:30/6:30 PM weekday retry crons stay excluded — they only ever
+          # existed for Tiingo's per-ticker publish delay, which yfinance doesn't have.
+          # One trailing exclusion (not per-branch) so a new cron can't silently forget it.
           if [ "${{ env.OHLCV_SOURCE_SWITCH }}" = "yfinance" ] \
              && [ "$SCHEDULE" != "30 20 * * 1-5" ] \
+             && [ "$SCHEDULE" != "0 4 * * 2-6" ] \
              && [ "$SCHEDULE" != "0 5 * * 0,6" ] \
              && [ "$SCHEDULE" != "0 14 * * 0,6" ] \
              && [ "$EVENT" != "workflow_dispatch" ]; then
