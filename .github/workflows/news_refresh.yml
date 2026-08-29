@@ -1,8 +1,10 @@
 name: Market News Refresh
 
 # Refreshes data/market_news.json, data/market_news_cn.json, data/index_news.json, and the news
-# section of daily_briefing.txt / daily_briefing_cn.txt every hour, independent of the main
-# scanner. The homepage used to fetch the market-news feed live from the /api/market-news Cloud
+# section of daily_briefing.txt / daily_briefing_cn.txt once a day around noon ET, independent of
+# the main scanner (which also rewrites these same files on its weekday post-close run). Was hourly
+# through 2026-08; dropped to daily 2026-08-29 — the feeds don't change often enough intraday to
+# justify 24 commits/day. The homepage used to fetch the market-news feed live from the /api/market-news Cloud
 # Function, but Google started bot-blocking the Cloud Function's GCP egress IP (HTTP 503) on
 # 2026-07-02, leaving that feed stuck on stale cached data. This job re-fetches from a GitHub
 # Actions runner IP (unaffected) so both the homepage card and the downloadable briefing stay in
@@ -13,7 +15,8 @@ name: Market News Refresh
 
 on:
   schedule:
-    - cron: "5 * * * *"   # 5 minutes past every hour
+    - cron: "0 16 * * *"   # ~noon ET daily (16:00 UTC under EDT; 11:00 AM ET under EST — fixed UTC,
+                           #  no DST shift). GH Actions schedule dispatch is typically 40-90 min late.
   workflow_dispatch:
 
 permissions:

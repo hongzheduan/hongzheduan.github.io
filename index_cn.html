@@ -1273,7 +1273,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 <div class="hero-bullets">
         <div class="hero-bullet">值得信赖的基础设施 — <span id="heroInfraStripe">支付由 Stripe 处理，</span>基本面数据来自美国证监会 SEC EDGAR，账户登录由 Google Firebase 保护</div>
         <div class="hero-bullet">注释年走势图：标注成交量峰值日与最大价涨日，一目了然</div>
-        <div class="hero-bullet">标普500与纳斯达克100成分股变动及相关资讯，每小时追踪</div>
+        <div class="hero-bullet">标普500与纳斯达克100成分股变动及相关资讯，每日追踪</div>
         <div class="hero-bullet" id="heroBulletFree" style="display:none;">完全免费 — 登录用户均可使用完整平台，无需订阅</div>
       </div>
 
@@ -1508,7 +1508,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <!-- 左侧：指数成员资格新闻 -->
     <div class="hp-news-panel">
       <div class="hp-news-eyebrow">◈ &nbsp; 指数动态</div>
-      <div class="hp-news-heading">指数成分股变动新闻与记录 <span style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每小时更新）</span></div>
+      <div class="hp-news-heading">指数成分股变动新闻与记录 <span style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每日更新）</span></div>
       <div class="hp-news-sub">标普500 &amp; 纳斯达克100 — 成分股调入与调出</div>
       <div class="hp-news-tabs" id="hpCatTabs"></div>
       <div class="hp-news-list" id="hpNewsList"><div class="hp-news-msg">加载中…</div></div>
@@ -1541,7 +1541,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
       </div>
       <hr class="digest-div">
-      <div class="digest-news-label">市场资讯 <span id="newsUpdatedNote" style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每小时更新）</span></div>
+      <div class="digest-news-label">市场资讯 <span id="newsUpdatedNote" style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每日更新）</span></div>
       <div id="digestNews"><div class="digest-msg">加载中…</div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
         <span style="font-family:'DM Mono',monospace;font-size:9px;color:#475569;letter-spacing:0.03em;">来自第三方媒体 · 不代表平台立场</span>
@@ -1615,7 +1615,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
               <div class="mini-bullet"><span><strong>独家贝佐拉评分：</strong>将五大信号汇聚为一。</span></div>
               <div class="mini-bullet"><span><strong>视觉化异动标记：</strong>一年走势图标记最大价格与成交量变动日。</span></div>
               <div class="mini-bullet"><span><strong>基本面数据可靠：</strong>直接来源于SEC备案资料。</span></div>
-              <div class="mini-bullet"><span><strong>成分股变动追踪：</strong>每小时更新标普500与纳斯达克100成分股变动资讯。</span></div>
+              <div class="mini-bullet"><span><strong>成分股变动追踪：</strong>每日更新标普500与纳斯达克100成分股变动资讯。</span></div>
               <div class="mini-bullet"><span><strong>免费体验：</strong>通过<a href="baizora_main_form_freetier_cn.html">免费版</a>探索全部股票数据，无需登录。</span></div>
               <div class="mini-bullet"><span><strong>如何对比：</strong>贝佐拉与 <a href="assets/compare_cn.html">Finviz、TradingView</a> 的真实对比，包括它们更适合的场景。</span></div>
             </div>
@@ -1640,7 +1640,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
             <span class="q-text">今日数据什么时候更新？</span>
             <span class="q-icon">+</span>
           </div>
-          <div class="faq-a"><div class="faq-a-inner">个人主页数据于美股收盘后更新，工作日通常在美东时间下午6点至7点之间完成。市场新闻每小时更新一次。每日新闻视频约在美东时间下午2:30更新。图表精选工作日约美东时间下午6点更新，周末约美东时间上午10点更新。</div></div>
+          <div class="faq-a"><div class="faq-a-inner">个人主页数据于美股收盘后更新，工作日通常在美东时间下午6点至7点之间完成。市场新闻每日于美东时间中午前后刷新，工作日收盘后再更新一次。每日新闻视频约在美东时间下午2:30更新。图表精选工作日约美东时间下午6点更新，周末约美东时间上午10点更新。</div></div>
         </div>
         <div class="faq-item">
           <div class="faq-q" onclick="toggleFaqMini(this)">
@@ -2560,7 +2560,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   };
 
   (async () => {
-    // Reads the static file kept fresh by the hourly news_refresh.yml GitHub Action (same
+    // Reads the static file kept fresh by the daily news_refresh.yml GitHub Action (same
     // fix pattern as the Market News card below) rather than calling the /index-news Cloud
     // Function live — that CF does several sequential RSS fetches plus a per-item translation
     // loop on every cache miss, which showed up as a multi-second wait on every page load.
@@ -2639,7 +2639,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     }
   })();
 
-  // Reads the static file kept fresh by the hourly news_refresh.yml GitHub Action, rather than
+  // Reads the static file kept fresh by the daily news_refresh.yml GitHub Action, rather than
   // calling the /api/market-news Cloud Function live — Google has been bot-blocking that
   // function's GCP egress IP (HTTP 503) since 2026-07-02, so the live path was stuck on stale data.
   async function _fetchNews() {
@@ -2649,7 +2649,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       _news = await r.json();
       renderNews(_news);
       const note = document.getElementById("newsUpdatedNote");
-      if (note && _news.fetched) note.textContent = "（每小时更新 · " + _news.fetched + "）";
+      if (note && _news.fetched) note.textContent = "（每日更新 · " + _news.fetched + "）";
     } catch(e) {
       const el = document.getElementById("digestNews");
       if (el) el.innerHTML = '<div class="digest-msg">—</div>';

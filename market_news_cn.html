@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>贝佐拉 | 市场资讯</title>
   <!-- SEO -->
-  <meta name="description" content="标普500与纳斯达克100今日市场新闻要闻，来源于金融新闻媒体，每小时更新。">
+  <meta name="description" content="标普500与纳斯达克100今日市场新闻要闻，来源于金融新闻媒体，每日更新。">
   <link rel="canonical" href="https://baizora.com/market_news_cn.html">
   <link rel="alternate" hreflang="zh-Hans" href="https://baizora.com/market_news_cn.html">
   <link rel="alternate" hreflang="en" href="https://baizora.com/market_news.html">
@@ -21,12 +21,12 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://baizora.com/market_news_cn.html">
   <meta property="og:title" content="贝佐拉 | 市场资讯">
-  <meta property="og:description" content="今日市场新闻要闻，来源于金融新闻媒体，每小时更新。">
+  <meta property="og:description" content="今日市场新闻要闻，来源于金融新闻媒体，每日更新。">
   <meta property="og:image" content="https://baizora.com/assets/baize_favicon_v2.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="贝佐拉 | 市场资讯">
-  <meta name="twitter:description" content="今日市场新闻要闻，来源于金融新闻媒体，每小时更新。">
+  <meta name="twitter:description" content="今日市场新闻要闻，来源于金融新闻媒体，每日更新。">
   <meta name="twitter:image" content="https://baizora.com/assets/baize_favicon_v2.png">
   <link rel="icon" href="assets/baize_favicon_v2.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -299,7 +299,7 @@
 
     <div class="page-eyebrow">◈ &nbsp; 市场资讯</div>
     <h1 class="page-title">市场资讯</h1>
-    <p class="page-sub">今日市场新闻要闻，来源于金融新闻媒体，每小时更新。</p>
+    <p class="page-sub">今日市场新闻要闻，来源于金融新闻媒体，每日更新。</p>
 
     <div class="info-banner">
       新闻通过 Google News RSS 抓取，代表第三方媒体观点，不代表平台立场。点击标题可跳转至原文来源。
@@ -346,7 +346,7 @@
     async function loadNews() {
       const container = document.getElementById("newsContainer");
       try {
-        // Reads the static file kept fresh by the hourly news_refresh.yml GitHub Action rather
+        // Reads the static file kept fresh by the daily news_refresh.yml GitHub Action rather
         // than calling the /api/market-news Cloud Function live — see index_cn.html's digest
         // card for the same reasoning (that CF has been bot-blocked / stuck on stale data).
         const res = await fetch("data/market_news_cn.json?t=" + Date.now());
