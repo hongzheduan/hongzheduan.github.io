@@ -340,3 +340,4 @@
 2026-08-29 10:56 UTC  11PM-full
 2026-08-29 11:30 UTC  EDGAR-only
   no-news-video (Claude API failed or no qualifying stories): news_report_cn
+  no-news-video (Claude API failed or no qualifying stories): news_report news_report_cn
