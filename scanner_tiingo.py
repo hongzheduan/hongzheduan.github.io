@@ -2902,9 +2902,19 @@ def export_daily_digest(df):
         if n_dropped:
             print(f"[digest] dropped {n_dropped} CN headline(s) that failed translation")
         fetched_cn = fetched_en
-        with open(MARKET_NEWS_CN_JSON, "w", encoding="utf-8") as f:
-            json.dump({"fetched": fetched_cn, "items": items_cn}, f, ensure_ascii=False)
-        print(f"Market news CN JSON: {len(items_cn)} items")
+        if items_en and not items_cn:
+            # Wholesale translation failure (items_en had content, none of it survived translation) —
+            # don't overwrite a previously-good market_news_cn.json with an empty list.
+            print(f"[digest] CN translation failed for all {len(items_en)} headlines — leaving existing {MARKET_NEWS_CN_JSON} untouched")
+            try:
+                with open(MARKET_NEWS_CN_JSON, encoding="utf-8") as f:
+                    items_cn = json.load(f).get("items", [])
+            except (OSError, json.JSONDecodeError):
+                items_cn = []
+        else:
+            with open(MARKET_NEWS_CN_JSON, "w", encoding="utf-8") as f:
+                json.dump({"fetched": fetched_cn, "items": items_cn}, f, ensure_ascii=False)
+            print(f"Market news CN JSON: {len(items_cn)} items")
         headlines_cn = [f"  • {it['title_cn']}" + (f" — {it['source']}" if it['source'] else "") for it in items_cn]
 
         with open(BRIEFING_TXT_CN, "w", encoding="utf-8") as f:
