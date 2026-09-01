@@ -2,11 +2,11 @@
   "A": [
     {
       "date": "2026-08-26",
-      "eps": null,
+      "eps": 1.28,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-07-31",
+      "revenue": 1878000000,
       "type": [
         "earnings"
       ],
@@ -6194,6 +6194,15 @@
   ],
   "CAT": [
     {
+      "date": "2026-09-01",
+      "items": "1.01,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/18230/000110465926104197/tm2624321d1_8k.htm"
+    },
+    {
       "date": "2026-08-04",
       "eps": 7.77,
       "items": "2.02,7.01,9.01",
@@ -10685,6 +10694,18 @@
     }
   ],
   "DELL": [
+    {
+      "date": "2026-09-01",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1571996/000157199626000039/dell-20260901.htm"
+    },
     {
       "date": "2026-06-16",
       "items": "1.01,2.03,9.01",
@@ -23650,6 +23671,18 @@
   ],
   "MDT": [
     {
+      "date": "2026-09-01",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1613103/000162828026059697/mdt-20260901.htm"
+    },
+    {
       "date": "2026-06-03",
       "eps": 0.97,
       "items": "2.02,9.01",
@@ -24758,6 +24791,15 @@
     }
   ],
   "MRNA": [
+    {
+      "date": "2026-09-01",
+      "items": "1.01,2.03,3.02,8.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1682852/000119312526378505/d108896d8k.htm"
+    },
     {
       "date": "2026-07-31",
       "eps": -1.97,
@@ -27732,6 +27774,18 @@
   ],
   "PANW": [
     {
+      "date": "2026-09-01",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1327567/000132756726000019/panw-20260901.htm"
+    },
+    {
       "date": "2026-08-21",
       "items": "5.02,5.03,9.01",
       "label": "Leadership Change",
@@ -30455,6 +30509,15 @@
   ],
   "RJF": [
     {
+      "date": "2026-09-01",
+      "items": "5.02,7.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/720005/000072000526000075/rjf-20260826.htm"
+    },
+    {
       "date": "2026-07-22",
       "eps": 3.01,
       "items": "2.02,9.01",
@@ -30948,11 +31011,11 @@
   "ROST": [
     {
       "date": "2026-08-20",
-      "eps": null,
+      "eps": 2.66,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-08-01",
+      "revenue": 6264886000,
       "type": [
         "earnings"
       ],
@@ -36955,6 +37018,15 @@
   ],
   "VRTX": [
     {
+      "date": "2026-09-01",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/875320/000087532026000264/vrtx-20260827.htm"
+    },
+    {
       "date": "2026-08-03",
       "eps": 4.31,
       "items": "2.02,9.01",
@@ -38925,6 +38997,15 @@
     }
   ],
   "YUM": [
+    {
+      "date": "2026-09-01",
+      "items": "5.02,7.01,8.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1041061/000104106126000187/yum-20260901.htm"
+    },
     {
       "date": "2026-08-21",
       "items": "5.02",
