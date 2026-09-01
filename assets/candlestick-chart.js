@@ -286,7 +286,7 @@
     }
   }
 
-  const state = { ticker: null, tf: 126 };
+  const state = { ticker: null, tf: 252 };
   let modalBuilt = false;
 
   function ensureModal() {
@@ -367,7 +367,7 @@
     ensureModal();
     meta = meta || {};
     state.ticker = ticker;
-    state.tf = 126;
+    state.tf = 252;
     document.getElementById('bzChartTicker').textContent = ticker;
     document.getElementById('bzChartName').textContent = meta.name || '';
     document.getElementById('bzChartPrice').textContent = meta.price != null ? '$' + meta.price.toFixed(2) : '';
@@ -378,7 +378,7 @@
     } else {
       chgEl.textContent = '';
     }
-    document.querySelectorAll('#bzChartModal .bz-tf-btn').forEach(b => b.classList.toggle('active', b.dataset.tf === '126'));
+    document.querySelectorAll('#bzChartModal .bz-tf-btn').forEach(b => b.classList.toggle('active', b.dataset.tf === '252'));
     document.getElementById('bzChartModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
     draw();

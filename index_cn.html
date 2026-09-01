@@ -717,15 +717,14 @@
     .idx-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .idx-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
     .idx-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-    .idx-ticker { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 0.02em; }
+    .idx-ticker { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 0.02em; text-decoration: none; }
+    .idx-ticker:hover { color: var(--electric-bright); }
     .idx-name { font-size: 12px; color: #94a3b8; margin-top: 2px; }
     .idx-price-wrap { text-align: right; }
     .idx-price { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 600; color: #fff; }
     .idx-chg { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; margin-top: 2px; }
     .idx-chart-box { border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
     .idx-chart-box canvas { width: 100%; height: 200px; display: block; }
-    .idx-more { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); text-decoration: none; }
-    .idx-more:hover { opacity: 0.75; }
     @media (max-width: 720px) {
       .idx-grid { grid-template-columns: 1fr; }
     }
@@ -781,7 +780,8 @@
     .digest-col-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
     .digest-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
     .digest-row:last-child { border-bottom: none; }
-    .digest-dtk { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); font-weight: 500; min-width: 40px; }
+    .digest-dtk { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); font-weight: 500; min-width: 40px; text-decoration: none; }
+    .digest-dtk:hover { opacity: 0.75; }
     .digest-dname { font-size: 10px; color: #64748b; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .digest-dpct { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; flex-shrink: 0; }
     .digest-pos { color: #64c487; } .digest-neg { color: #c46464; }
@@ -1474,7 +1474,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <div class="idx-card">
       <div class="idx-head">
         <div>
-          <div class="idx-ticker">VOO</div>
+          <a href="stocks/VOO.html" class="idx-ticker">VOO</a>
           <div class="idx-name">先锋标普500 ETF</div>
         </div>
         <div class="idx-price-wrap">
@@ -1483,12 +1483,11 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
       </div>
       <div class="idx-chart-box"><canvas id="idxChart-VOO"></canvas></div>
-      <a href="stocks/VOO.html" class="idx-more">VOO 完整分析 →</a>
     </div>
     <div class="idx-card">
       <div class="idx-head">
         <div>
-          <div class="idx-ticker">QQQ</div>
+          <a href="stocks/QQQ.html" class="idx-ticker">QQQ</a>
           <div class="idx-name">景顺纳斯达克100 ETF</div>
         </div>
         <div class="idx-price-wrap">
@@ -1497,7 +1496,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
       </div>
       <div class="idx-chart-box"><canvas id="idxChart-QQQ"></canvas></div>
-      <a href="stocks/QQQ.html" class="idx-more">QQQ 完整分析 →</a>
     </div>
   </div>
 </section>
@@ -1745,7 +1743,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="assets/candlestick-chart.js?v=5"></script>
+<script src="assets/candlestick-chart.js?v=6"></script>
 <script>
   firebase.initializeApp({
     apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
@@ -2596,12 +2594,16 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
   function _f(n, d) { return (n != null && !isNaN(+n)) ? (+n).toFixed(d != null ? d : 2) : "—"; }
 
+  function _tkHtml(ticker) {
+    return window.BaizoraChart ? BaizoraChart.tickerLinkHtml(ticker, 'digest-dtk') : `<span class="digest-dtk">${ticker}</span>`;
+  }
+
   function renderGainers(data) {
     const el = document.getElementById("digestGainers"); if (!el) return;
     if (!data || !data.top_gainers || !data.top_gainers.length) { el.innerHTML = '<div class="digest-msg">—</div>'; return; }
     el.innerHTML = data.top_gainers.slice(0, 3).map(r => {
       const pos = (r.chg1d || 0) >= 0;
-      return `<div class="digest-row"><span class="digest-dtk">${r.ticker}</span><span class="digest-dname">${r.name || ""}</span><span class="digest-dpct ${pos ? "digest-pos" : "digest-neg"}">${pos ? "+" : ""}${_f(r.chg1d)}%</span></div>`;
+      return `<div class="digest-row">${_tkHtml(r.ticker)}<span class="digest-dname">${r.name || ""}</span><span class="digest-dpct ${pos ? "digest-pos" : "digest-neg"}">${pos ? "+" : ""}${_f(r.chg1d)}%</span></div>`;
     }).join("");
   }
 
@@ -2609,9 +2611,19 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     const el = document.getElementById("digestVolume"); if (!el) return;
     if (!data || !data.top_volume || !data.top_volume.length) { el.innerHTML = '<div class="digest-msg">—</div>'; return; }
     el.innerHTML = data.top_volume.slice(0, 3).map(r =>
-      `<div class="digest-row"><span class="digest-dtk">${r.ticker}</span><span class="digest-dname">${r.name || ""}</span><span class="digest-dpct digest-pos">+${_f(r.volchg, 0)}%</span></div>`
+      `<div class="digest-row">${_tkHtml(r.ticker)}<span class="digest-dname">${r.name || ""}</span><span class="digest-dpct digest-pos">+${_f(r.volchg, 0)}%</span></div>`
     ).join("");
   }
+
+  const _digestMovers = document.querySelector(".digest-movers");
+  if (_digestMovers) _digestMovers.addEventListener("click", function(e) {
+    const link = e.target.closest(".bz-chart-link");
+    if (!link || !window.BaizoraChart || !_digest) return;
+    e.preventDefault();
+    const ticker = link.dataset.ticker;
+    const r = (_digest.top_gainers || []).find(x => x.ticker === ticker) || (_digest.top_volume || []).find(x => x.ticker === ticker);
+    BaizoraChart.open(ticker, { name: r ? r.name : "", price: r ? r.price : null, chg: r ? r.chg1d : null });
+  });
 
   function renderNews(newsData) {
     const el = document.getElementById("digestNews"); if (!el) return;

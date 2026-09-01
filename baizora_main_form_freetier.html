@@ -1025,7 +1025,6 @@
             <tr><th>Column</th><th>Description</th></tr>
             <tr><td>Dist SMA20 / Dist SMA200</td><td>Absolute distance between the current price and the 20-day / 200-day moving average, as a percentage (SMAs computed server-side from up to 730 days of history). Green = price is above the average, red = price is below it. A stock trading close to (or just under) its SMA200 is often watched as a potential entry point, since the average tends to act as long-term support — not a guarantee, just a common technical read</td></tr>
             <tr><td>MACD</td><td>Absolute distance between the MACD line and signal line (standard 12/26/9), as a percentage of price. Green = MACD above signal (bullish bias); red = below (bearish bias). Color flips exactly when the two lines cross</td></tr>
-            <tr><td>SMA20 Break / SMA200 Break</td><td>Whether today's candle body crossed the moving average — i.e. the SMA sits between today's open and close. ▲ green = crossed upward (opened below, closed above the average); ▼ red = crossed downward; blank = no cross today</td></tr>
           </table>
         </div>
 
@@ -1324,12 +1323,8 @@
     /* ── TECHNICALS: distance from SMA20/SMA200, computed client-side from the already-fetched candles.json ── */
     function computeSmaDist(r) {
       const sma = candleData && candleData.sma && candleData.sma[r.Ticker];
-      const raw = candleData && candleData.data && candleData.data[r.Ticker];
-      const today = raw && raw.length ? raw[raw.length - 1] : null;
-      const open  = today ? today[0] : null;
-      const close = today ? today[3] : null;
       const price = r._livePrice ?? r.Price;
-      [["SMA20", "Dist20", "Above20", "Break20", "sma20"], ["SMA200", "Dist200", "Above200", "Break200", "sma200"]].forEach(([smaKey, distKey, aboveKey, breakKey, arrKey]) => {
+      [["SMA20", "Dist20", "Above20", "sma20"], ["SMA200", "Dist200", "Above200", "sma200"]].forEach(([smaKey, distKey, aboveKey, arrKey]) => {
         const smaArr = sma && sma[arrKey];
         const smaVal = smaArr ? smaArr[smaArr.length - 1] : null;
         if (smaVal != null && price != null) {
@@ -1338,12 +1333,6 @@
           r[aboveKey] = price >= smaVal;
         } else {
           r[smaKey] = r[distKey] = r[aboveKey] = null;
-        }
-        if (smaVal != null && open != null && close != null) {
-          const lo = Math.min(open, close), hi = Math.max(open, close);
-          r[breakKey] = (smaVal >= lo && smaVal <= hi) ? (close >= open ? 1 : -1) : 0;
-        } else {
-          r[breakKey] = null;
         }
       });
     }
@@ -1486,9 +1475,7 @@
           ${thStatic("Spark1Y","1Y Trend")}
           ${thSort("Price",   "Price")}
           ${thSort("Dist20",   "Dist SMA20")}
-          ${thSort("Break20",  "SMA20 Break")}
           ${thSort("Dist200",  "Dist SMA200")}
-          ${thSort("Break200", "SMA200 Break")}
           ${thSort("MacdPct",  "MACD")}
         </tr></thead>`;
         const rows = arr.slice(0, 600).map(r => {
@@ -1501,16 +1488,12 @@
           const cls20   = r.Above20  == null ? "neutral" : (r.Above20  ? "positive" : "negative");
           const cls200  = r.Above200 == null ? "neutral" : (r.Above200 ? "positive" : "negative");
           const clsMacd = r.MacdAbove == null ? "neutral" : (r.MacdAbove ? "positive" : "negative");
-          const brk20   = { cls: r.Break20  > 0 ? "positive" : r.Break20  < 0 ? "negative" : "neutral", sym: r.Break20  == null ? "—" : r.Break20  > 0 ? "▲" : r.Break20  < 0 ? "▼" : "—" };
-          const brk200  = { cls: r.Break200 > 0 ? "positive" : r.Break200 < 0 ? "negative" : "neutral", sym: r.Break200 == null ? "—" : r.Break200 > 0 ? "▲" : r.Break200 < 0 ? "▼" : "—" };
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="neutral">${price != null ? price.toFixed(2) : "—"}</td>
             <td class="${cls20}">${r.Dist20  != null ? r.Dist20.toFixed(1)  + "%" : "—"}</td>
-            <td class="${brk20.cls}">${brk20.sym}</td>
             <td class="${cls200}">${r.Dist200 != null ? r.Dist200.toFixed(1) + "%" : "—"}</td>
-            <td class="${brk200.cls}">${brk200.sym}</td>
             <td class="${clsMacd}">${r.MacdPct != null ? r.MacdPct.toFixed(2) + "%" : "—"}</td>
           </tr>`;
         }).join("");
@@ -1774,9 +1757,7 @@
       "TrendScore":      { label: "Trend",         desc: "Trend Score (0–100). Counts how many of the 6 timeframes (2W → 1Y) show a positive return. Green (>50) = majority of periods trending up. 100 = all 6 windows rising. 0 = all falling." },
       "Dist20":          { label: "Dist SMA20",    desc: "Absolute distance between price and the 20-day moving average, as a percentage. Green = price above the average, red = price below it." },
       "Dist200":         { label: "Dist SMA200",   desc: "Absolute distance between price and the 200-day moving average, as a percentage. Green = price above the average, red = price below it. Trading close to (or just under) the SMA200 is a common technical read for a potential entry point, since the average often acts as long-term support — not a guarantee." },
-      "Break20":         { label: "SMA20 Break",   desc: "Whether today's candle body crossed the SMA20 line — i.e. the SMA20 sits between today's open and close. ▲ green = crossed upward (opened below, closed above). ▼ red = crossed downward (opened above, closed below). Blank = the average stayed outside today's open-close range, no cross." },
       "MacdPct":         { label: "MACD",          desc: "Absolute distance between the MACD line and the signal line (standard 12/26/9), as a percentage of price. Green = MACD line above the signal line (bullish bias). Red = below (bearish bias). The color flips exactly when the two lines cross." },
-      "Break200":        { label: "SMA200 Break",  desc: "Whether today's candle body crossed the SMA200 line — i.e. the SMA200 sits between today's open and close. ▲ green = crossed upward (opened below, closed above). ▼ red = crossed downward (opened above, closed below). Blank = the average stayed outside today's open-close range, no cross." },
       "VolRank":         { label: "VOL RANK",      desc: "Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window). Only shown for 2W and longer." },
     };
 
@@ -1910,7 +1891,7 @@
         candleData = d;
         if (_modalTicker) {
           const activeTf = document.querySelector('.tf-btn.active');
-          _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+          _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
         }
         if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow]) render();
       })
@@ -2300,7 +2281,7 @@
       document.body.style.overflow = "hidden";
 
       // reset timeframe to 3M and SMA toggles off on each open
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "126"));
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "252"));
       document.getElementById("tfDrawerToggle").textContent = "6M ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
@@ -2330,7 +2311,7 @@
       document.getElementById("baizDrawerToggle").classList.remove("open");
 
       requestAnimationFrame(() => {
-        _renderModalChart(ticker, 126);
+        _renderModalChart(ticker, 252);
       });
     }
 
@@ -2390,7 +2371,7 @@
     }
     function _rerenderChart() {
       const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
     }
     function _addSmaPeriod(period) {
       if (!period || period < 2 || period > 250 || !_modalTicker) return;
@@ -2576,7 +2557,7 @@
         if (!btn || !_modalTicker) return;
         btn.classList.toggle("active");
         const activeTf = document.querySelector(".tf-btn.active");
-        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
       });
 
       document.getElementById("bbApply").addEventListener("click", () => {
@@ -2588,7 +2569,7 @@
         chip.textContent = "BB (" + p + "," + m + ")";
         chip.classList.add("active");
         const activeTf = document.querySelector(".tf-btn.active");
-        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
       });
       document.getElementById("bbPeriodInput").addEventListener("keydown", e => {
         if (e.key === "Enter") { e.preventDefault(); document.getElementById("bbApply").click(); }
@@ -2602,7 +2583,7 @@
         if (!btn || !_modalTicker) return;
         btn.classList.toggle("active");
         const activeTf = document.querySelector(".tf-btn.active");
-        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
       });
 
       document.getElementById("macdApply").addEventListener("click", () => {
@@ -2615,7 +2596,7 @@
         chip.textContent = "MACD (" + f + "," + s + "," + sig + ")";
         chip.classList.add("active");
         const activeTf = document.querySelector(".tf-btn.active");
-        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
       });
       ["macdFastInput", "macdSlowInput", "macdSignalInput"].forEach(id => {
         document.getElementById(id).addEventListener("keydown", e => {
@@ -2633,7 +2614,7 @@
         if (_baizKey) btn.classList.add("active");
         document.getElementById("baizDrawerToggle").textContent = (BAIZ_LABELS[_baizKey] || "Baizora") + " ▾";
         const activeTf = document.querySelector(".tf-btn.active");
-        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 126);
+        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
       });
 
       document.getElementById("modalClose").addEventListener("click", closeTickerModal);
@@ -2762,8 +2743,8 @@
           <button class="tf-btn" data-tf="5">1W</button>
           <button class="tf-btn" data-tf="21">1M</button>
           <button class="tf-btn" data-tf="63">3M</button>
-          <button class="tf-btn active" data-tf="126">6M</button>
-          <button class="tf-btn" data-tf="252">1Y</button>
+          <button class="tf-btn" data-tf="126">6M</button>
+          <button class="tf-btn active" data-tf="252">1Y</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">
