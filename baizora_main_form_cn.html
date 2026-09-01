@@ -2444,9 +2444,9 @@
       document.getElementById("tickerModal").style.display = "flex";
       document.body.style.overflow = "hidden";
 
-      // reset timeframe to 6M; restore the user's saved SMA selection on each open
+      // reset timeframe to 1Y; restore the user's saved SMA selection on each open
       document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "252"));
-      document.getElementById("tfDrawerToggle").textContent = "6月 ▾";
+      document.getElementById("tfDrawerToggle").textContent = "1年 ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
       _smaList = (smaPrefs.smaList && smaPrefs.smaList.length ? smaPrefs.smaList.slice(0, 5) : [20, 50, 200]);
@@ -3022,7 +3022,7 @@
       </div>
       <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
       <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="tfDrawerToggle">6月 &#9662;</button>
+        <button type="button" class="overlay-drawer-toggle" id="tfDrawerToggle">1年 &#9662;</button>
         <div class="overlay-drawer-panel" id="candleTimeframes" style="width:auto;">
           <button class="tf-btn" data-tf="5">1周</button>
           <button class="tf-btn" data-tf="21">1月</button>
