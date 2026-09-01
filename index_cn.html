@@ -338,9 +338,9 @@
       font-size: 10px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--electric-bright);
+      color: #2563eb;
       border: 1px solid rgba(59,130,246,0.25);
-      background: rgba(59,130,246,0.06);
+      background: #ffffff;
       padding: 6px 14px;
       border-radius: 999px;
       margin-bottom: 20px;
@@ -458,7 +458,7 @@
     }
 
     .btn-secondary:hover { border-color: rgba(59,130,246,0.3); color: var(--white); background: rgba(59,130,246,0.05); }
-    .hero-cta .btn-secondary { background: rgba(255,255,255,0.06); }
+    .hero-cta .btn-secondary, .cta-mini-btns .btn-secondary { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
 
     .hero-cta { flex-wrap: nowrap; }
     .cta-mini-btns { flex-wrap: nowrap !important; }
@@ -643,7 +643,7 @@
     .card:hover { border-color: rgba(59,130,246,0.25); background: #f8fafc; transform: translateY(-3px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
     .card:hover::before { opacity: 1; }
 
-    .card-icon { width: 36px; height: 36px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .card-icon { width: 36px; height: 36px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; color: #2563eb; }
     .card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .card-head h3 { margin-bottom: 0; }
     .card h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #1d4ed8; margin-bottom: 8px; }
@@ -793,8 +793,8 @@
     .digest-news-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
     .digest-news-item { padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
     .digest-news-item:last-child { border-bottom: none; }
-    .digest-news-link { font-size: 11px; color: #1e293b; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; transition: color 0.15s; }
-    .digest-news-link:hover { color: #2563eb; }
+    .digest-news-link { font-size: 11px; font-weight: 500; color: #2563eb; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; transition: color 0.15s; }
+    .digest-news-link:hover { color: #0f172a; text-decoration: underline; }
     .digest-news-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: #475569; margin-top: 2px; }
     .digest-video-row { margin-top: auto; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .digest-dl { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: #2563eb; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s; }
@@ -808,7 +808,8 @@
     .share-gallery-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.01em; }
     .share-gallery-sub { font-size: 12px; color: #64748b; margin-bottom: 18px; }
     .share-gallery-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; min-width: 0; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
-    .share-card { flex: 0 0 148px; background: rgba(6,13,31,0.7); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; text-align: left; scroll-snap-align: start; }
+    .share-card { flex: 0 0 148px; background: rgba(6,13,31,0.7); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; text-align: left; scroll-snap-align: start; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+    .share-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.45); border-color: rgba(59,130,246,0.4); }
     .share-card-thumb { width: 100%; height: 180px; object-fit: cover; object-position: top; display: block; background: #060d1f; }
     .share-card-body { padding: 10px 10px 12px; }
     .share-card-ticker { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--electric-bright); font-weight: 600; }
@@ -830,7 +831,7 @@
     .faq-mini-list .faq-item { border-top: 1px solid #e2e8f0; overflow: hidden; }
     .faq-mini-list .faq-item:last-child { border-bottom: 1px solid #e2e8f0; }
     .faq-mini-list .faq-q { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 13px 0; cursor: pointer; user-select: none; }
-    .faq-mini-list .faq-q:hover .q-text { color: #0f172a; }
+    .faq-mini-list .faq-q:hover .q-text { color: #2563eb; }
     .faq-mini-list .q-text { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.4; transition: color 0.2s; min-width: 0; flex: 1; }
     .faq-mini-list .faq-item.open .q-text { color: #0f172a; }
     .faq-mini-list .q-icon { flex-shrink: 0; width: 18px; height: 18px; border: 1px solid rgba(15,23,42,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.25s; color: #64748b; font-size: 12px; line-height: 1; }
@@ -862,8 +863,8 @@
     .hp-news-item { padding: 9px 0; border-bottom: 1px solid #f1f5f9; }
     .hp-news-item:last-child { border-bottom: none; }
     .hp-news-item-date { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; margin-bottom: 2px; }
-    .hp-news-item-title { font-size: 12px; font-weight: 500; color: #0f172a; text-decoration: none; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.15s; }
-    .hp-news-item-title:hover { color: #2563eb; }
+    .hp-news-item-title { font-size: 12px; font-weight: 500; color: #2563eb; text-decoration: none; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.15s; }
+    .hp-news-item-title:hover { color: #0f172a; text-decoration: underline; }
     .hp-news-item-source { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; margin-top: 2px; }
     .hp-news-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
     .hp-news-viewall { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: var(--electric-bright); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s; }
@@ -872,27 +873,27 @@
     .hp-news-msg { font-size: 12px; color: #64748b; padding: 20px 0; text-align: center; }
 
     /* ── FOOTER ── */
-    footer { position: relative; z-index: 10; border-top: 1px solid var(--border); padding: 28px 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-    .footer-disclaimer { font-family: 'DM Mono', monospace; font-size: 11px; color: #94a3b8; letter-spacing: 0.05em; text-align: center; }
-    .footer-copy { font-family: 'DM Mono', monospace; font-size: 11px; color: #94a3b8; letter-spacing: 0.05em; text-align: center; }
+    footer { position: relative; z-index: 10; background: #ffffff; border-top: 1px solid #e2e8f0; padding: 28px 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .footer-disclaimer { font-family: 'DM Mono', monospace; font-size: 11px; color: #64748b; letter-spacing: 0.05em; text-align: center; }
+    .footer-copy { font-family: 'DM Mono', monospace; font-size: 11px; color: #64748b; letter-spacing: 0.05em; text-align: center; }
     .footer-row { width: 100%; display: flex; align-items: flex-start; justify-content: space-between; margin-top: 10px; flex-wrap: wrap; gap: 24px; }
     .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
     .footer-legal { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
     .footer-legal .footer-copy { text-align: right; }
-    .footer-links a { font-family: 'DM Mono', monospace; font-size: 12px; color: #94a3b8; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
-    .footer-links a:hover { color: var(--electric-bright); }
-    .footer-email { font-family: 'DM Mono', monospace; font-size: 12px; color: #94a3b8; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
-    .footer-email:hover { color: var(--electric-bright); }
-    .footer-yt { display: inline-flex; align-items: center; vertical-align: middle; gap: 5px; font-family: 'DM Mono', monospace; font-size: 12px; color: #94a3b8; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
-    .footer-yt:hover { color: var(--electric-bright); }
+    .footer-links a { font-family: 'DM Mono', monospace; font-size: 12px; color: #64748b; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
+    .footer-links a:hover { color: #2563eb; }
+    .footer-email { font-family: 'DM Mono', monospace; font-size: 12px; color: #64748b; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
+    .footer-email:hover { color: #2563eb; }
+    .footer-yt { display: inline-flex; align-items: center; vertical-align: middle; gap: 5px; font-family: 'DM Mono', monospace; font-size: 12px; color: #64748b; text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
+    .footer-yt:hover { color: #2563eb; }
     .footer-contact-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
     .footer-social-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
     .footer-social { display: flex; align-items: center; justify-content: flex-start; gap: 10px; flex-wrap: wrap; }
-    .footer-social-icon { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid var(--border); transition: background 0.2s, border-color 0.2s, transform 0.2s; }
-    .footer-social-icon:hover { background: rgba(255,255,255,0.12); border-color: var(--electric-bright); transform: translateY(-1px); }
+    .footer-social-icon { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(15,23,42,0.05); border: 1px solid rgba(15,23,42,0.1); transition: background 0.2s, border-color 0.2s, transform 0.2s; }
+    .footer-social-icon:hover { background: rgba(15,23,42,0.1); border-color: #2563eb; transform: translateY(-1px); }
     .footer-video-links { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; letter-spacing: 0.05em; }
     .footer-video-links a { color: #64748b; text-decoration: none; }
-    .footer-video-links a:hover { color: var(--electric-bright); }
+    .footer-video-links a:hover { color: #2563eb; }
 
     /* ── ANIMATIONS ── */
     .fade-up { opacity: 0; transform: translateY(24px); animation: fadeUp 0.7s ease forwards; }
@@ -1302,7 +1303,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
     <!-- RIGHT: 最近交易日涨幅最大股票 -->
     <div class="hero-right">
-      <div id="shBadge" style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#22c55e;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);padding:6px 14px;border-radius:999px;margin-bottom:10px;">涨幅榜</div>
+      <div id="shBadge" style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#16a34a;border:1px solid rgba(34,197,94,0.25);background:#ffffff;padding:6px 14px;border-radius:999px;margin-bottom:10px;">涨幅榜</div>
       <div class="sh-card">
         <div class="sh-scroll-wrap">
           <div class="sh-header">
@@ -1313,9 +1314,9 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
           </div>
         </div>
       </div>
-      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#94a3b8;letter-spacing:0.04em;text-align:center;margin-top:8px;line-height:1.8;">
-        年趋势线：<svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><polygon points="4,0 0,8 8,8" fill="#94a3b8"/></svg> 最高成交量日（绿=当日价涨，红=当日价跌） &nbsp;·&nbsp; <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><circle cx="4" cy="4" r="3.5" fill="#94a3b8"/></svg> 最大价涨日（绿=当日量增，红=当日量减）<br>
-        排名点：<span style="color:#22c55e;">●</span> 前10 &nbsp;<span style="color:#f59e0b;">●</span> 前50 &nbsp;<span style="color:#64748b;">●</span> 50名外 &nbsp;·&nbsp; 左旧 &nbsp;·&nbsp; <a href="baizora_main_form_freetier_cn.html" style="color:#3b82f6;text-decoration:none;">查看完整结果 →</a>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#e2e8f0;letter-spacing:0.04em;text-align:center;margin-top:8px;line-height:1.8;">
+        年趋势线：<svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><polygon points="4,0 0,8 8,8" fill="#e2e8f0"/></svg> 最高成交量日（绿=当日价涨，红=当日价跌） &nbsp;·&nbsp; <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><circle cx="4" cy="4" r="3.5" fill="#e2e8f0"/></svg> 最大价涨日（绿=当日量增，红=当日量减）<br>
+        排名点：<span style="color:#22c55e;">●</span> 前10 &nbsp;<span style="color:#f59e0b;">●</span> 前50 &nbsp;<span style="color:#cbd5e1;">●</span> 50名外 &nbsp;·&nbsp; 左旧 &nbsp;·&nbsp; <a href="baizora_main_form_freetier_cn.html" style="color:#3b82f6;text-decoration:none;">查看完整结果 →</a>
       </div>
     </div><!-- /hero-right -->
 
@@ -1356,12 +1357,12 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 <section class="features" style="padding-top:20px;">
   <div class="section-label">探索数据的方式</div>
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">为精准分析而构建<br><em>为高效发现而设计</em></h2>
-  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.04em;text-align:center;margin-top:8px;margin-bottom:40px;">历史规律不代表未来表现。&nbsp;·&nbsp; 仅提供市场数据 &nbsp;·&nbsp; 不构成投资建议</p>
+  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#e2e8f0;letter-spacing:0.04em;text-align:center;margin-top:8px;margin-bottom:40px;">历史规律不代表未来表现。&nbsp;·&nbsp; 仅提供市场数据 &nbsp;·&nbsp; 不构成投资建议</p>
 
   <div class="cards">
     <div class="card fade-up">
       <div class="card-head">
-        <div class="card-icon" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.25);">⊕</div>
+        <div class="card-icon" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.25);color:#b45309;">⊕</div>
         <h3 style="color:#b45309;">贝佐拉评分——以此为筛选起点</h3>
       </div>
       <p>切换到<strong style="color:#0f172a;">评分</strong>标签页，按<strong style="color:#b45309;">贝佐拉评分</strong>排序——该分值综合了RS、动能、突破、趋势和量压五项信号。<strong style="color:#b45309;">70分以上</strong>代表整体强势，<strong style="color:#dc2626;">30分以下</strong>整体偏弱。再结合各分项交叉验证：RS高 + 突破评分高，意味着该股兼具多周期持续动能与当日量价共振，是深入分析前最有效的预筛选组合。</p>
@@ -1392,7 +1393,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     </div>
     <div class="card fade-up delay-3">
       <div class="card-head">
-        <div class="card-icon" style="background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.2);">◈</div>
+        <div class="card-icon" style="background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.2);color:#c2410c;">◈</div>
         <h3>指数调仓追踪</h3>
       </div>
       <p>查看<strong style="color:#0f172a;">指数成分</strong>标签中待纳入标普500或纳斯达克100的股票。即将入选的个股往往在调仓日前被指数基金系统性买入——这是一种有据可查的消息驱动型规律。</p>
@@ -1452,7 +1453,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 <section class="hm-section">
   <div class="section-label">实时快照</div>
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">市场<em>热力图</em></h2>
-  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.04em;text-align:center;margin-top:-30px;margin-bottom:24px;">方块大小 = √市值 &nbsp;·&nbsp; 颜色 = 当日涨跌幅 &nbsp;·&nbsp; 按行业分组 &nbsp;·&nbsp; <span id="hmDataDate">数据截至 …</span></p>
+  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#e2e8f0;letter-spacing:0.04em;text-align:center;margin-top:-30px;margin-bottom:24px;">方块大小 = √市值 &nbsp;·&nbsp; 颜色 = 当日涨跌幅 &nbsp;·&nbsp; 按行业分组 &nbsp;·&nbsp; <span id="hmDataDate">数据截至 …</span></p>
 
   <div class="hm-toggle">
     <button class="hm-toggle-btn active" id="hmBtnSP" onclick="hmSwitch('sp500')">标普500</button>
@@ -1483,7 +1484,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 <section class="hm-section" style="padding-top:10px;">
   <div class="section-label">近1年走势</div>
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">热力图<em>背后的指数</em></h2>
-  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.04em;text-align:center;margin-top:-30px;margin-bottom:24px;">VOO 与 QQQ — 分别追踪上方热力图中的标普500与纳斯达克100</p>
+  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#e2e8f0;letter-spacing:0.04em;text-align:center;margin-top:-30px;margin-bottom:24px;">VOO 与 QQQ — 分别追踪上方热力图中的标普500与纳斯达克100</p>
 
   <div class="idx-grid">
     <div class="idx-card">
@@ -1727,7 +1728,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <span class="footer-email" style="font-weight:700;">关注我们：</span>
       <div class="footer-social">
         <a href="https://www.youtube.com/@baizorastock" target="_blank" rel="noopener" class="footer-social-icon" title="YouTube" aria-label="YouTube">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#ef4444"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#dc2626"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
         </a>
         <span class="footer-video-links">（<a id="videoWatchLink" href="data/latest_video_cn.mp4" target="_blank">最新视频</a> <a id="videoDownloadLink" href="data/latest_video_cn.mp4" download title="下载">↓</a>）</span>
       </div>
@@ -1738,7 +1739,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       </div>
       <div class="footer-social">
         <a href="https://x.com/baizorastock" target="_blank" rel="noopener" class="footer-social-icon" title="X（推特）" aria-label="X（推特）">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffffff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="#0f172a"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         </a>
       </div>
     </div>
