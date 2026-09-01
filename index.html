@@ -64,6 +64,9 @@
       color: var(--white);
       min-height: 100vh;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
 
     body::before {
@@ -336,6 +339,7 @@
       gap: 8px;
       font-family: 'DM Mono', monospace;
       font-size: 10px;
+      font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: #2563eb;
@@ -348,7 +352,7 @@
 
     .hero-title {
       font-size: clamp(32px, 4vw, 44px);
-      font-weight: 400;
+      font-weight: 700;
       line-height: 1.2;
       letter-spacing: 0.04em;
       color: #1d4ed8;
@@ -378,7 +382,7 @@
       gap: 10px;
       font-size: 15px;
       color: #334155;
-      font-weight: 400;
+      font-weight: 500;
       line-height: 1.5;
       text-align: center;
     }
@@ -505,15 +509,16 @@
       align-items: center;
       gap: 8px;
       padding: 0 32px;
-      font-family: 'DM Mono', monospace;
+      font-family: 'DM Sans', sans-serif;
       font-size: 12px;
-      color: #64748b;
+      font-weight: 600;
+      color: #0f172a;
       border-right: 1px solid #e2e8f0;
     }
 
     .ticker-item .sym { color: #334155; font-weight: 500; }
-    .ticker-item .up { color: #16a34a; }
-    .ticker-item .dn { color: #dc2626; }
+    .ticker-item .up { color: #15803d; }
+    .ticker-item .dn { color: #ef4444; }
 
     /* ── PROMO TICKER STRIP ── */
     .promo-ticker-wrap {
@@ -579,14 +584,14 @@
     .sh-ticker-name a:hover { color: var(--electric); }
     .sh-company-name { font-size: 11px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
     .sh-spark svg { display: block; }
-    .sh-chg { font-family: 'DM Mono',monospace; font-size: 12px; font-weight: 600; text-align: left; }
-    .sh-chg.up { color: #16a34a; } .sh-chg.dn { color: #dc2626; }
+    .sh-chg { font-family: 'DM Sans',sans-serif; font-size: 12px; font-weight: 600; text-align: left; }
+    .sh-chg.up { color: #15803d; } .sh-chg.dn { color: #ef4444; }
     .sh-dots { display: flex; gap: 3px; align-items: center; }
     .sh-dot { width: 20px; height: 20px; border-radius: 50%; font-family: 'DM Mono',monospace; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: default; }
     .sh-dot.top10 { background: rgba(34,197,94,0.12); color: #15803d; border: 1px solid rgba(34,197,94,0.3); }
     .sh-dot.top50 { background: rgba(245,158,11,0.1); color: #b45309; border: 1px solid rgba(245,158,11,0.25); }
     .sh-dot.miss  { background: rgba(100,116,139,0.08); color: #64748b; border: 1px solid rgba(100,116,139,0.2); }
-    .sh-score { font-family: 'DM Mono',monospace; font-size: 12px; color: #b45309; text-align: right; }
+    .sh-score { font-family: 'DM Sans',sans-serif; font-size: 12px; font-weight: 600; color: #b45309; text-align: right; }
     .sh-badges { display: flex; gap: 3px; flex-wrap: nowrap; }
     .sh-badge { font-family: 'DM Mono',monospace; font-size: 8px; padding: 1px 4px; border-radius: 3px; font-weight: 600; }
     .sh-badge-sp { background: rgba(59,130,246,0.1); color: #2563eb; }
@@ -640,8 +645,8 @@
     .idx-ticker:hover { color: #2563eb; }
     .idx-name { font-size: 12px; color: #64748b; margin-top: 2px; }
     .idx-price-wrap { text-align: right; }
-    .idx-price { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 600; color: #0f172a; }
-    .idx-chg { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; margin-top: 2px; }
+    .idx-price { font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 600; color: #0f172a; }
+    .idx-chg { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; margin-top: 2px; }
     .idx-chart-box { border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
     .idx-chart-box canvas { width: 100%; height: 200px; display: block; }
     @media (max-width: 720px) {
@@ -732,7 +737,7 @@
     .card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .card-head h3 { margin-bottom: 0; }
     .card h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #1d4ed8; margin-bottom: 8px; }
-    .card p { font-size: 14px; color: #334155; line-height: 1.7; font-weight: 400; }
+    .card p { font-size: 14px; color: #334155; line-height: 1.7; font-weight: 500; }
 
     .spark-demo-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 16px; }
     .spark-demo {
@@ -748,7 +753,7 @@
 
     .spark-demo::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent); }
     .spark-demo h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #1d4ed8; margin-bottom: 6px; }
-    .spark-demo p { font-size: 14px; color: #334155; line-height: 1.7; font-weight: 400; margin-bottom: 16px; }
+    .spark-demo p { font-size: 14px; color: #334155; line-height: 1.7; font-weight: 500; margin-bottom: 16px; }
 
     .spark-demo-grid { display: flex; flex-direction: column; gap: 18px; }
     .spark-demo-text { min-width: 0; }
@@ -756,7 +761,7 @@
     @media (max-width: 768px) { .spark-demo-row { grid-template-columns: 1fr; } }
 
     .spark-legend { display: flex; flex-direction: column; gap: 8px; margin-bottom: 0; }
-    .spark-legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 12px; color: #334155; letter-spacing: 0.06em; }
+    .spark-legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: #334155; letter-spacing: 0.06em; }
 
     .spark-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
     .spark-row:last-child { border-bottom: none; }
@@ -777,7 +782,7 @@
 
     /* ── DIGEST PANEL ── */
     .digest-panel { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; text-align: left; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
-    .digest-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
+    .digest-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
     .digest-heading { font-family: 'DM Serif Display', serif; font-size: 18px; color: #0f172a; margin-bottom: 14px; letter-spacing: -0.01em; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
     .digest-date { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; font-weight: 400; flex-shrink: 0; }
     .digest-movers { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
@@ -787,8 +792,8 @@
     .digest-dtk { font-family: 'DM Mono', monospace; font-size: 11px; color: #2563eb; font-weight: 500; min-width: 40px; text-decoration: none; }
     .digest-dtk:hover { opacity: 0.75; }
     .digest-dname { font-size: 10px; color: #64748b; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .digest-dpct { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; flex-shrink: 0; }
-    .digest-pos { color: #16a34a; } .digest-neg { color: #dc2626; }
+    .digest-dpct { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .digest-pos { color: #15803d; } .digest-neg { color: #ef4444; }
     .digest-div { border: none; border-top: 1px solid #e2e8f0; margin: 12px 0; }
     .digest-news-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
     .digest-news-item { padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
@@ -804,7 +809,7 @@
     /* ── SHARE-CARD GALLERY ── */
     .share-gallery-section { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 0 40px 50px; }
     .share-gallery-panel { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; min-width: 0; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
-    .share-gallery-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
+    .share-gallery-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
     .share-gallery-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.01em; }
     .share-gallery-sub { font-size: 12px; color: #64748b; margin-bottom: 18px; }
     .share-gallery-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; min-width: 0; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
@@ -824,7 +829,7 @@
     .gallery-faq-section { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 0 40px 50px; }
     .gallery-faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
     .faq-mini-panel { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; text-align: left; min-width: 0; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
-    .faq-mini-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
+    .faq-mini-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
     .faq-mini-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.01em; }
     .faq-mini-sub { font-size: 12px; color: #64748b; margin-bottom: 10px; }
     .faq-mini-list { flex: 1; }
@@ -837,7 +842,7 @@
     .faq-mini-list .q-icon { flex-shrink: 0; width: 18px; height: 18px; border: 1px solid rgba(15,23,42,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.25s; color: #64748b; font-size: 12px; line-height: 1; }
     .faq-mini-list .faq-item.open .q-icon { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: #2563eb; transform: rotate(45deg); }
     .faq-mini-list .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
-    .faq-mini-list .faq-a-inner { padding-bottom: 14px; font-size: 12.5px; color: #334155; line-height: 1.7; font-weight: 300; }
+    .faq-mini-list .faq-a-inner { padding-bottom: 14px; font-size: 12.5px; color: #334155; line-height: 1.7; font-weight: 500; }
     .faq-mini-list .faq-a-inner a { color: #2563eb; text-decoration: none; }
     .faq-mini-list .faq-a-inner a:hover { text-decoration: underline; }
     .faq-mini-footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
@@ -851,7 +856,7 @@
     .cta-mini-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 
     .hp-news-panel { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 24px; padding: 32px 28px; display: flex; flex-direction: column; text-align: left; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
-    .hp-news-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
+    .hp-news-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
     .hp-news-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.01em; }
     .hp-news-sub { font-size: 12px; color: #64748b; margin-bottom: 16px; }
     .hp-news-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
@@ -1281,7 +1286,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <div class="hero-left-card">
         <h1 class="hero-title" style="font-size:clamp(22px,2.2vw,28px);">Pulse of the Market — Price, Volume, Trend at a Glance</h1>
 
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#78350f;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:7px 12px;line-height:1.5;margin-bottom:10px;">All the data in one row: Sort → check sparkline → scores → fundamentals — stop switching between tools to piece together the same picture</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:#78350f;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:7px 12px;line-height:1.5;margin-bottom:10px;">All the data in one row: Sort → check sparkline → scores → fundamentals — stop switching between tools to piece together the same picture</div>
         <div class="hero-bullets">
           <div class="hero-bullet">Built on trusted infrastructure — <span id="heroInfraStripe">payments via Stripe, </span>fundamentals from SEC EDGAR, auth via Google Firebase</div>
           <div class="hero-bullet">S&amp;P 500 &amp; Nasdaq-100 index changes and news tracked daily</div>
@@ -1298,7 +1303,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
     <!-- RIGHT: last session's top price movers -->
     <div class="hero-right">
-      <div id="shBadge" style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#16a34a;border:1px solid rgba(34,197,94,0.25);background:#ffffff;padding:6px 14px;border-radius:999px;margin-bottom:10px;">Top Price Movers</div>
+      <div id="shBadge" style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#16a34a;border:1px solid rgba(34,197,94,0.25);background:#ffffff;padding:6px 14px;border-radius:999px;margin-bottom:10px;">Top Price Movers</div>
       <div class="sh-card">
         <div class="sh-scroll-wrap">
           <div class="sh-header">
@@ -1377,8 +1382,8 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       </div>
       <p>Switch to the <strong style="color:#0f172a;">TECH</strong> tab and sort by <strong style="color:#0f172a;">Dist SMA200</strong> — the closer to zero, the nearer price is trading to its 200-day moving average, a level long-term investors watch as key support. A stock pulling back toward that line while still holding above it can be a healthy setup worth watching for a bounce.</p>
       <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
-        <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.06em;padding:4px 12px;border-radius:5px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#16a34a;">+0.4% above</span>
-        <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.06em;padding:4px 12px;border-radius:5px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#dc2626;">−0.6% below</span>
+        <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.02em;padding:4px 12px;border-radius:5px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#15803d;">+0.4% above</span>
+        <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.02em;padding:4px 12px;border-radius:5px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;">−0.6% below</span>
       </div>
     </div>
     <div class="card fade-up delay-3">
@@ -2273,7 +2278,7 @@ function buildSparkPath(arr) {
     var lo = minP - buf, hi = maxP + buf;
     function toY(p) { return pad.top + priceH * (1 - (p - lo) / (hi - lo)); }
     ctx.clearRect(0, 0, W, H);
-    ctx.font = "10px 'DM Mono',monospace";
+    ctx.font = "600 10px 'DM Sans',sans-serif";
     ctx.textAlign = "right";
     for (var gi = 0; gi <= 3; gi++) {
       var p = lo + (hi - lo) * (gi / 3);
@@ -2283,7 +2288,7 @@ function buildSparkPath(arr) {
       ctx.fillStyle = "#64748b";
       ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 5, y + 4);
     }
-    ctx.font = "10px 'DM Mono',monospace"; ctx.textAlign = "center";
+    ctx.font = "10px 'DM Sans',sans-serif"; ctx.textAlign = "center";
     var lastMo = -1, lastYr = -1, moCount = 0;
     dates.forEach(function(d, i) {
       var dt = new Date(d + 'T12:00:00');
@@ -2357,7 +2362,7 @@ function buildSparkPath(arr) {
       if (chgEl && r.PriceChange1D != null) {
         var pc = r.PriceChange1D;
         chgEl.textContent = (pc >= 0 ? '+' : '') + pc.toFixed(2) + '%';
-        chgEl.style.color = pc >= 0 ? '#16a34a' : '#dc2626';
+        chgEl.style.color = pc >= 0 ? '#15803d' : '#ef4444';
       }
     });
   }).catch(function() {});
@@ -2464,7 +2469,7 @@ function buildSparkPath(arr) {
         const arr = pc >= 0 ? '▲' : '▼';
         const s   = pc >= 0 ? '+' : '';
         const dir = dirs[t];
-        const priceStyle = dir ? `color:${dir==='up'?'#16a34a':'#dc2626'}` : '';
+        const priceStyle = dir ? `color:${dir==='up'?'#15803d':'#ef4444'}` : '';
         return `<a href="stocks/${t}.html" class="ticker-item" style="text-decoration:none;cursor:pointer;"><span class="sym">${t}</span> <span style="${priceStyle}">$${(d.last||0).toFixed(2)}</span> <span class="${cls}">${arr} ${s}${pc.toFixed(1)}%</span></a>`;
       }).join('');
       track.innerHTML = html + html;
@@ -2719,7 +2724,7 @@ function buildSparkPath(arr) {
 
     const pocPrice = lo + (poc + 0.5) / VP_BUCKETS * span;
     ctx.fillStyle = '#b45309';
-    ctx.font = "9px 'DM Mono',monospace";
+    ctx.font = "600 9px 'DM Sans',sans-serif";
     ctx.textAlign = 'right';
     ctx.fillText('$' + pocPrice.toFixed(0), pad.left - 5, pocY + 3);
   }
