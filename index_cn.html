@@ -732,25 +732,26 @@
       .idx-grid { grid-template-columns: 1fr; }
     }
 
+    .spark-demo-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 16px; }
     .spark-demo {
       background: #ffffff;
       border: 1px solid rgba(59,130,246,0.15);
       border-radius: 16px;
       padding: 28px 30px;
-      margin-top: 16px;
       position: relative;
       overflow: hidden;
       box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+      min-width: 0;
     }
 
     .spark-demo::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent); }
     .spark-demo h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #1d4ed8; margin-bottom: 6px; }
     .spark-demo p { font-size: 14px; color: #334155; line-height: 1.7; font-weight: 400; margin-bottom: 16px; }
 
-    .spark-demo-grid { display: flex; gap: 36px; align-items: center; }
-    .spark-demo-text { flex: 1.2; min-width: 0; }
-    .spark-demo-charts { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-    @media (max-width: 768px) { .spark-demo-grid { flex-direction: column; align-items: stretch; } }
+    .spark-demo-grid { display: flex; flex-direction: column; gap: 18px; }
+    .spark-demo-text { min-width: 0; }
+    .spark-demo-charts { min-width: 0; display: flex; flex-direction: column; }
+    @media (max-width: 768px) { .spark-demo-row { grid-template-columns: 1fr; } }
 
     .spark-legend { display: flex; flex-direction: column; gap: 8px; margin-bottom: 0; }
     .spark-legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 12px; color: #334155; letter-spacing: 0.06em; }
@@ -762,9 +763,6 @@
     .up-c { color: #16a34a; }
     .dn-c { color: #dc2626; }
 
-    .timeframe-demo { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
-    .tf-btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 5px; border: 1px solid rgba(15,23,42,0.12); background: transparent; color: #64748b; cursor: default; }
-    .tf-btn.active { background: var(--electric); border-color: var(--electric); color: white; }
 
     /* ── BOTTOM CTA ── */
     .bottom-cta { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 40px 40px 90px; text-align: center; }
@@ -1378,17 +1376,12 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <div class="card fade-up delay-2">
       <div class="card-head">
         <div class="card-icon">◷</div>
-        <h3>中期动能</h3>
+        <h3>贴近200日均线</h3>
       </div>
-      <p>切换至<strong style="color:#0f172a;">3月</strong>或<strong style="color:#0f172a;">6月</strong>周期，按<strong style="color:#0f172a;">总涨幅</strong>排序。筛出处于持续上升趋势中的股票，而非单日脉冲——趋势越稳，数据越一致。</p>
-      <div class="timeframe-demo" style="margin-top:12px;">
-        <span class="tf-btn">1天</span>
-        <span class="tf-btn">2周</span>
-        <span class="tf-btn">1月</span>
-        <span class="tf-btn active">3月</span>
-        <span class="tf-btn active">6月</span>
-        <span class="tf-btn">9月</span>
-        <span class="tf-btn">1年</span>
+      <p>切换至<strong style="color:#0f172a;">TECH（技术面）</strong>标签页，按<strong style="color:#0f172a;">偏离SMA200</strong>排序——数值越接近0，代表价格越贴近200日均线，这是长线投资者重点关注的关键支撑位。若股价回调至该均线附近但仍守住上方，往往是值得关注的健康回调结构。</p>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+        <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.06em;padding:4px 12px;border-radius:5px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#16a34a;">+0.4% 均线上方</span>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.06em;padding:4px 12px;border-radius:5px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#dc2626;">−0.6% 均线下方</span>
       </div>
     </div>
     <div class="card fade-up delay-3">
@@ -1400,49 +1393,80 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     </div>
   </div>
 
-  <div class="spark-demo fade-up">
-    <div class="spark-demo-grid">
-      <div class="spark-demo-text">
-        <h3>📈 读懂走势图</h3>
-        <p>当▲三角和●圆点同时显示为<strong style="color:#16a34a;">绿色</strong>且位置相近时，代表高成交量日与最大单日涨幅出现在同一时期——这是主力资金介入的信号，历史上往往预示后续明显上涨行情。</p>
+  <div class="spark-demo-row">
+    <div class="spark-demo fade-up">
+      <div class="spark-demo-grid">
+        <div class="spark-demo-text">
+          <h3>📈 读懂走势图</h3>
+          <p>当▲三角和●圆点同时显示为<strong style="color:#16a34a;">绿色</strong>且位置相近时，代表高成交量日与最大单日涨幅出现在同一时期——这是主力资金介入的信号，历史上往往预示后续明显上涨行情。</p>
 
-        <div class="spark-legend">
-          <div class="spark-legend-item">
-            <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#16a34a"/></svg>
-            最大成交量日（当日上涨）
+          <div class="spark-legend">
+            <div class="spark-legend-item">
+              <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#16a34a"/></svg>
+              最大成交量日（当日上涨）
+            </div>
+            <div class="spark-legend-item">
+              <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#dc2626"/></svg>
+              最大成交量日（当日下跌）
+            </div>
+            <div class="spark-legend-item">
+              <svg width="14" height="12" viewBox="0 0 14 12">
+                <circle cx="7" cy="6" r="5.5" fill="#16a34a" opacity="0.25"/>
+                <circle cx="7" cy="6" r="3.2" fill="#16a34a" stroke="rgba(255,255,255,0.9)" stroke-width="1.4"/>
+              </svg>
+              最大价涨日（成交量放大）
+            </div>
+            <div class="spark-legend-item">
+              <svg width="14" height="12" viewBox="0 0 14 12">
+                <circle cx="7" cy="6" r="5.5" fill="#dc2626" opacity="0.25"/>
+                <circle cx="7" cy="6" r="3.2" fill="#dc2626" stroke="rgba(255,255,255,0.9)" stroke-width="1.4"/>
+              </svg>
+              最大价涨日（成交量萎缩）
+            </div>
           </div>
-          <div class="spark-legend-item">
-            <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#dc2626"/></svg>
-            最大成交量日（当日下跌）
-          </div>
-          <div class="spark-legend-item">
-            <svg width="14" height="12" viewBox="0 0 14 12">
-              <circle cx="7" cy="6" r="5.5" fill="#16a34a" opacity="0.25"/>
-              <circle cx="7" cy="6" r="3.2" fill="#16a34a" stroke="rgba(255,255,255,0.9)" stroke-width="1.4"/>
-            </svg>
-            最大价涨日（成交量放大）
-          </div>
-          <div class="spark-legend-item">
-            <svg width="14" height="12" viewBox="0 0 14 12">
-              <circle cx="7" cy="6" r="5.5" fill="#dc2626" opacity="0.25"/>
-              <circle cx="7" cy="6" r="3.2" fill="#dc2626" stroke="rgba(255,255,255,0.9)" stroke-width="1.4"/>
-            </svg>
-            最大价涨日（成交量萎缩）
+        </div>
+
+        <div class="spark-demo-charts">
+          <div class="spark-row" id="sparkRow-WDC">
+            <div class="spark-ticker">WDC</div>
+            <div class="spark-svg-wrap">
+              <svg width="200" height="56" fill="none"></svg>
+            </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="spark-demo-charts">
-        <div class="spark-row" id="sparkRow-WDC">
-          <div class="spark-ticker">WDC</div>
-          <div class="spark-svg-wrap">
-            <svg width="200" height="56" fill="none"></svg>
+    <div class="spark-demo fade-up delay-1">
+      <div class="spark-demo-grid">
+        <div class="spark-demo-text">
+          <h3>📊 成交量分布叠加图</h3>
+          <p>每张图表都内置成交量分布叠加图——直观展示过去6个月内各价位的实际成交量分布，帮助你发现支撑位、阻力位以及价格倾向聚集的区间。</p>
+
+          <div class="spark-legend">
+            <div class="spark-legend-item">
+              <svg width="14" height="12" viewBox="0 0 14 12"><rect x="1" y="2" width="12" height="8" rx="1.5" fill="#16a34a"/></svg>
+              上涨日成交量
+            </div>
+            <div class="spark-legend-item">
+              <svg width="14" height="12" viewBox="0 0 14 12"><rect x="1" y="2" width="12" height="8" rx="1.5" fill="#dc2626"/></svg>
+              下跌日成交量
+            </div>
+            <div class="spark-legend-item">
+              <svg width="14" height="12" viewBox="0 0 14 12"><line x1="0" y1="6" x2="14" y2="6" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,2"/></svg>
+              控制点——成交最密集的价位
+            </div>
           </div>
+
+          <p style="margin-top:14px;margin-bottom:0;"><a href="pricing_cn.html" style="color:#2563eb;text-decoration:none;font-weight:600;font-size:13px;">在任意图表中体验 →</a></p>
         </div>
-        <div class="spark-row" id="sparkRow-SNDK">
-          <div class="spark-ticker">SNDK</div>
-          <div class="spark-svg-wrap">
-            <svg width="200" height="56" fill="none"></svg>
+
+        <div class="spark-demo-charts">
+          <div class="spark-row" id="vpRow-WDC">
+            <div class="spark-ticker">WDC</div>
+            <div class="spark-svg-wrap">
+              <canvas id="vpChart-WDC" style="width:100%;height:70px;display:block;"></canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -2372,7 +2396,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 // Spark demo: real data — change TICKERS[0] to swap the example ticker
 (function() {
-  const TICKERS = ["WDC", "SNDK"];
+  const TICKERS = ["WDC"];
 
   function buildSparkSvg(spark, triIdx, dotIdx, triColor, dotColor, H) {
     if (!spark || spark.length < 2) return '';
@@ -2419,6 +2443,96 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         svg.innerHTML = buildSparkSvg(spark, triIdx, dotIdx, triColor, dotColor, H);
       }
     });
+  }).catch(() => {});
+})();
+
+// Volume Profile demo: real data, same volume-by-price algorithm as the main dashboard's
+// Vol Profile chart overlay — 24 price buckets over the trailing 6 months, each day's
+// volume spread across the buckets its high-low range spans, split up-day (green) vs
+// down-day (red), gold dashed line at the point of control (busiest price bucket).
+(function() {
+  const VP_TICKER = 'WDC';
+  const VP_WINDOW_DAYS = 126;
+  const VP_BUCKETS = 24;
+
+  function drawVolProfile(canvas, ohlcv) {
+    if (!canvas || !ohlcv || !ohlcv.length) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width) return;
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    const W = rect.width, H = rect.height;
+    const pad = { top: 6, right: 8, bottom: 6, left: 44 };
+    const chartH = H - pad.top - pad.bottom;
+
+    let lo = Infinity, hi = -Infinity;
+    ohlcv.forEach(c => { if (c[1] > hi) hi = c[1]; if (c[2] < lo) lo = c[2]; });
+    const span = (hi - lo) || 1;
+    const bucket = p => Math.max(0, Math.min(VP_BUCKETS - 1, Math.floor((p - lo) / span * VP_BUCKETS)));
+
+    const up = new Array(VP_BUCKETS).fill(0);
+    const dn = new Array(VP_BUCKETS).fill(0);
+    ohlcv.forEach(c => {
+      const o = c[0], h = c[1], l = c[2], cl = c[3], v = c[4];
+      if (!v || h == null || l == null) return;
+      const arr = cl >= o ? up : dn;
+      const b0 = bucket(l), b1 = bucket(h);
+      if (b0 === b1) { arr[b0] += v; return; }
+      const rng = h - l;
+      for (let b = b0; b <= b1; b++) {
+        const top = lo + (b + 1) / VP_BUCKETS * span;
+        const bot = lo + b / VP_BUCKETS * span;
+        const ov = Math.min(h, top) - Math.max(l, bot);
+        if (ov > 0) arr[b] += v * (ov / rng);
+      }
+    });
+
+    let max = 0, poc = 0;
+    for (let b = 0; b < VP_BUCKETS; b++) {
+      const t = up[b] + dn[b];
+      if (t > max) { max = t; poc = b; }
+    }
+    ctx.clearRect(0, 0, W, H);
+    if (max <= 0) return;
+
+    const barMaxW = W - pad.left - pad.right;
+    const bucketH = chartH / VP_BUCKETS;
+    for (let b = 0; b < VP_BUCKETS; b++) {
+      const y = pad.top + chartH * (1 - (b + 1) / VP_BUCKETS);
+      const bh = Math.max(1, bucketH - 1);
+      const wUp = up[b] / max * barMaxW;
+      const wDn = dn[b] / max * barMaxW;
+      ctx.fillStyle = 'rgba(22,163,74,0.6)';
+      ctx.fillRect(pad.left, y, wUp, bh);
+      ctx.fillStyle = 'rgba(220,38,38,0.5)';
+      ctx.fillRect(pad.left + wUp, y, wDn, bh);
+    }
+
+    const pocY = pad.top + chartH * (1 - (poc + 0.5) / VP_BUCKETS);
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(pad.left, pocY); ctx.lineTo(W - pad.right, pocY); ctx.stroke();
+    ctx.setLineDash([]);
+
+    const pocPrice = lo + (poc + 0.5) / VP_BUCKETS * span;
+    ctx.fillStyle = '#b45309';
+    ctx.font = "9px 'DM Mono',monospace";
+    ctx.textAlign = 'right';
+    ctx.fillText('$' + pocPrice.toFixed(0), pad.left - 5, pocY + 3);
+  }
+
+  fetch('data/candles.json').then(r => r.json()).then(cj => {
+    const d = (cj.data || {})[VP_TICKER];
+    if (!d || !d.length) return;
+    const win = d.slice(-VP_WINDOW_DAYS);
+    const canvas = document.getElementById('vpChart-' + VP_TICKER);
+    if (!canvas) return;
+    drawVolProfile(canvas, win);
+    window.addEventListener('resize', () => drawVolProfile(canvas, win));
   }).catch(() => {});
 })();
 
