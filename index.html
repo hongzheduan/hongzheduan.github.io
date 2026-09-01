@@ -37,7 +37,7 @@
   <meta name="theme-color" content="#060d1f">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -570,11 +570,11 @@
 
     /* ── SCORE HISTORY TOP 10 ── */
     .sh-section { max-width: 860px; margin: 0 auto; padding: 60px 24px 40px; }
-    .sh-card { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; overflow: hidden; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+    .sh-card { grid-column: 2; grid-row: 1; min-width: 0; background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; overflow: hidden; box-shadow: 0 16px 40px rgba(0,0,0,0.35); display: flex; flex-direction: column; }
     .sh-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .sh-header { display: grid; grid-template-columns: 28px 110px 140px 72px 120px 76px; gap: 12px; padding: 8px 16px; border-bottom: 1px solid #e2e8f0; min-width: 640px; }
-    .sh-header span { font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b; }
-    .sh-row { display: grid; grid-template-columns: 28px 110px 140px 72px 120px 76px; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid #f1f5f9; transition: background 0.15s; min-width: 640px; }
+    .sh-header { display: grid; grid-template-columns: 24px 108px 138px 62px 114px 72px; gap: 8px; padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+    .sh-header span { font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #0f172a; }
+    .sh-row { display: grid; grid-template-columns: 24px 108px 138px 62px 114px 72px; gap: 8px; align-items: center; padding: 10px 10px; border-bottom: 1px solid #f1f5f9; transition: background 0.15s; }
     .sh-row:last-child { border-bottom: none; }
     .sh-row:hover { background: rgba(59,130,246,0.05); }
     .sh-rank { font-family: 'DM Mono',monospace; font-size: 11px; color: #64748b; text-align: center; }
@@ -703,6 +703,7 @@
       font-size: 13.5px;
       color: #334155;
       line-height: 1.7;
+      font-weight: 500;
     }
     @media (max-width: 768px) {
       .steps { grid-template-columns: 1fr; }
@@ -789,7 +790,7 @@
     .digest-col-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
     .digest-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid #f1f5f9; }
     .digest-row:last-child { border-bottom: none; }
-    .digest-dtk { font-family: 'DM Mono', monospace; font-size: 11px; color: #2563eb; font-weight: 500; min-width: 40px; text-decoration: none; }
+    .digest-dtk { font-family: 'DM Mono', monospace; font-size: 11px; color: #0f172a; font-weight: 700; min-width: 40px; text-decoration: none; }
     .digest-dtk:hover { opacity: 0.75; }
     .digest-dname { font-size: 10px; color: #64748b; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .digest-dpct { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; flex-shrink: 0; }
@@ -798,7 +799,7 @@
     .digest-news-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
     .digest-news-item { padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
     .digest-news-item:last-child { border-bottom: none; }
-    .digest-news-link { font-size: 11px; font-weight: 500; color: #2563eb; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; transition: color 0.15s; }
+    .digest-news-link { font-size: 11px; font-weight: 700; color: #2563eb; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; transition: color 0.15s; }
     .digest-news-link:hover { color: #0f172a; text-decoration: underline; }
     .digest-news-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: #475569; margin-top: 2px; }
     .digest-dl { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: #2563eb; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s; }
@@ -854,6 +855,7 @@
     .cta-mini { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
     .cta-mini-tagline { font-size: 13px; color: #94a3b8; }
     .cta-mini-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .cta-mini-btns #ctaStartFreeMini { min-width: 260px; justify-content: center; }
 
     .hp-news-panel { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 24px; padding: 32px 28px; display: flex; flex-direction: column; text-align: left; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
     .hp-news-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
@@ -868,7 +870,7 @@
     .hp-news-item { padding: 9px 0; border-bottom: 1px solid #f1f5f9; }
     .hp-news-item:last-child { border-bottom: none; }
     .hp-news-item-date { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; margin-bottom: 2px; }
-    .hp-news-item-title { font-size: 12px; font-weight: 500; color: #2563eb; text-decoration: none; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.15s; }
+    .hp-news-item-title { font-size: 12px; font-weight: 700; color: #2563eb; text-decoration: none; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.15s; }
     .hp-news-item-title:hover { color: #0f172a; text-decoration: underline; }
     .hp-news-item-source { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; margin-top: 2px; }
     .hp-news-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
@@ -941,23 +943,23 @@
     }
 
     /* ══ TWO-COLUMN HERO ══ */
+    /* Grid (not flex) so the two cards in row 1 are forced to identical height
+       by the grid track, independent of how tall each card's own footer row is. */
     .hero-split {
-      display: flex;
-      align-items: flex-start;
-      gap: 72px;
+      display: grid;
+      grid-template-columns: 45% 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 72px;
+      row-gap: 0;
+      align-items: stretch;
       text-align: left;
     }
 
-    .hero-left {
-      flex: 0 0 40%;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0;
-    }
-
     .hero-left-card {
+      grid-column: 1;
+      grid-row: 1;
       width: 100%;
+      min-width: 0;
       background: #ffffff;
       border: 1px solid rgba(15,23,42,0.06);
       border-radius: 16px;
@@ -965,16 +967,12 @@
       padding: 24px;
     }
 
-    .hero-right {
-      flex: 1;
-      min-width: 0;
-    }
-
     /* Override centered defaults when inside the split */
     .hero-split .hero-title    { text-align: left; }
     .hero-split .hero-bullets  { align-items: flex-start; margin-left: 0; }
     .hero-split .hero-bullet   { justify-content: flex-start; text-align: left; }
-    .hero-split .hero-cta      { justify-content: flex-start; margin-top: 20px; }
+    .hero-split .hero-cta      { grid-column: 1 / -1; grid-row: 2; min-width: 0; justify-content: center; align-self: start; margin-top: 20px; }
+    .hero-split .hero-cta #ctaStartFreeHero { min-width: 260px; justify-content: center; }
 
     /* ── DASHBOARD MOCK ── */
     .dash-mock {
@@ -1201,9 +1199,11 @@
 
     /* ── MOBILE: collapse to single column ── */
     @media (max-width: 900px) {
-      .hero-split { flex-direction: column; text-align: center; gap: 32px; }
-      .hero-left { flex: none; width: 100%; align-items: center; }
-      .hero-right { width: 100%; max-width: 100%; margin: 0 auto; }
+      .hero-split { grid-template-columns: 1fr; row-gap: 32px; text-align: center; }
+      .hero-left-card, .sh-card, .hero-split .hero-cta { grid-column: 1; grid-row: auto; }
+      .hero-left-card { order: 1; }
+      .hero-split .hero-cta { order: 2; }
+      .sh-card { order: 3; width: 100%; max-width: 100%; margin: 0 auto; }
       .dash-mock { min-width: 0; width: 100%; overflow: hidden; }
       .dash-mock-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; max-width: 100%; }
       .dash-mock-wrap::after { content: '← Scroll to see more columns'; display:block; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:#94a3b8; padding:6px 0; letter-spacing:0.08em; }
@@ -1280,45 +1280,41 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 <section class="hero">
   <div class="hero-split fade-up delay-1">
 
-    <!-- LEFT -->
-    <div class="hero-left">
-      <div class="hero-eyebrow" style="margin-bottom:10px;">◈ &nbsp; For self-directed investors who do their own research</div>
-      <div class="hero-left-card">
-        <h1 class="hero-title" style="font-size:clamp(22px,2.2vw,28px);">Pulse of the Market — Price, Volume, Trend at a Glance</h1>
+    <!-- LEFT CARD -->
+    <div class="hero-left-card">
+      <div class="hero-eyebrow" style="margin-bottom:10px;background:rgba(37,99,235,0.06);">◈ &nbsp; For self-directed investors who do their own research</div>
+      <h1 class="hero-title" style="font-size:clamp(22px,2.2vw,28px);">Pulse of the Market — Price, Volume, Trend at a Glance</h1>
 
-        <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:#78350f;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:7px 12px;line-height:1.5;margin-bottom:10px;">All the data in one row: Sort → check sparkline → scores → fundamentals — stop switching between tools to piece together the same picture</div>
-        <div class="hero-bullets">
-          <div class="hero-bullet">Built on trusted infrastructure — <span id="heroInfraStripe">payments via Stripe, </span>fundamentals from SEC EDGAR, auth via Google Firebase</div>
-          <div class="hero-bullet">S&amp;P 500 &amp; Nasdaq-100 index changes and news tracked daily</div>
-          <div class="hero-bullet" id="heroBulletFree" style="display:none;">Totally free — full platform access for every signed-in user, no subscription required</div>
+      <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:#78350f;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:7px 12px;line-height:1.5;margin-bottom:10px;">All the data in one row: Sort → check sparkline → scores → fundamentals — stop switching between tools to piece together the same picture</div>
+      <div class="hero-bullets">
+        <div class="hero-bullet">Built on trusted infrastructure — <span id="heroInfraStripe">payments via Stripe, </span>fundamentals from SEC EDGAR, auth via Google Firebase</div>
+        <div class="hero-bullet">S&amp;P 500 &amp; Nasdaq-100 index changes and news tracked daily</div>
+        <div class="hero-bullet" id="heroBulletFree" style="display:none;">Totally free — full platform access for every signed-in user, no subscription required</div>
+      </div>
+    </div><!-- /hero-left-card -->
+
+    <!-- RIGHT CARD: last session's top price movers -->
+    <div class="sh-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:24px 24px 10px;">
+        <div id="shBadge" style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#16a34a;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.06);padding:6px 14px;border-radius:999px;">Top Price Movers</div>
+        <a href="baizora_main_form_freetier.html" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.06em;color:#2563eb;text-decoration:none;white-space:nowrap;">See full results →</a>
+      </div>
+      <div class="sh-scroll-wrap">
+        <div class="sh-header">
+          <span>#</span><span>Ticker</span><span style="cursor:help;justify-self:start;width:fit-content;text-decoration:underline dotted #94a3b8;text-underline-offset:2px;" title="▲ triangle = highest-volume day of the year (green = price up that day, red = down). ● circle = largest single-day price move (green = volume up that day, red = down).">1Y Trend</span><span>Move</span><span>Score Rank · last 5 sessions</span><span style="text-align:right;">Baizora Score</span>
+        </div>
+        <div id="shGrid">
+          <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#64748b;">Loading…</div>
         </div>
       </div>
+    </div><!-- /sh-card -->
 
-      <div class="hero-cta">
-        <a href="pricing.html" class="btn-gold" id="ctaStartFreeHero">Start Free<span class="btn-sub">latest · all 500+ tickers</span></a>
-        <a href="baizora_main_form_freetier.html" class="btn-secondary">Free Tier<span class="btn-sub">top 20 movers per index · no login</span></a>
-      </div>
+    <!-- LEFT FOOTER -->
+    <div class="hero-cta">
+      <a href="pricing.html" class="btn-gold" id="ctaStartFreeHero">Start Free<span class="btn-sub">latest · all 500+ tickers</span></a>
+      <a href="baizora_main_form_freetier.html" class="btn-secondary">Free Tier<span class="btn-sub">top 20 movers per index · no login</span></a>
+    </div>
 
-    </div><!-- /hero-left -->
-
-    <!-- RIGHT: last session's top price movers -->
-    <div class="hero-right">
-      <div id="shBadge" style="display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#16a34a;border:1px solid rgba(34,197,94,0.25);background:#ffffff;padding:6px 14px;border-radius:999px;margin-bottom:10px;">Top Price Movers</div>
-      <div class="sh-card">
-        <div class="sh-scroll-wrap">
-          <div class="sh-header">
-            <span>#</span><span>Ticker</span><span>1Y Trend</span><span>Move</span><span>Score Rank · last 5 sessions</span><span style="text-align:right;">Baizora Score</span>
-          </div>
-          <div id="shGrid">
-            <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#64748b;">Loading…</div>
-          </div>
-        </div>
-      </div>
-      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#e2e8f0;letter-spacing:0.04em;text-align:center;margin-top:8px;line-height:1.8;">
-        1Y Trend: <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><polygon points="4,0 0,8 8,8" fill="#e2e8f0"/></svg> highest-vol day (green = price up, red = down) &nbsp;·&nbsp; <svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><circle cx="4" cy="4" r="3.5" fill="#e2e8f0"/></svg> largest price-gain day (green = volume up, red = volume down)<br>
-        Rank dots: <span style="color:#22c55e;">●</span> top 10 &nbsp;<span style="color:#f59e0b;">●</span> top 50 &nbsp;<span style="color:#cbd5e1;">●</span> outside &nbsp;·&nbsp; left oldest &nbsp;·&nbsp; <a href="baizora_main_form_freetier.html" style="color:#3b82f6;text-decoration:none;">See full results →</a>
-      </div>
-    </div><!-- /hero-right -->
 
   </div><!-- /hero-split -->
 </section>
@@ -1605,7 +1601,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <a href="pricing.html" class="btn-gold" id="ctaStartFreeMini">Start Free<span class="btn-sub">latest · all 500+ tickers</span></a>
       <a href="baizora_main_form_freetier.html" class="btn-secondary">Free Tier<span class="btn-sub">top 20 movers per index · no login</span></a>
     </div>
-    <div class="cta-mini-tagline">Unique scores combining price & volume signals · 7-day free trial · cancel anytime</div>
+    <div class="cta-mini-tagline" id="ctaMiniTagline">Unique scores combining price & volume signals · 7-day free trial · cancel anytime</div>
   </div>
 
 </section>
@@ -1860,6 +1856,8 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     if (freeItemHome) freeItemHome.style.display = 'block';
     const heroBulletFree = document.getElementById('heroBulletFree');
     if (heroBulletFree) heroBulletFree.style.display = 'flex';
+    const ctaMiniTagline = document.getElementById('ctaMiniTagline');
+    if (ctaMiniTagline) ctaMiniTagline.textContent = 'Unique scores combining price & volume signals · no subscription required';
   }
 
   /* ── Dynamic auth state ── */
@@ -2532,7 +2530,7 @@ function buildSparkPath(arr) {
     const badge = document.getElementById('shBadge');
     if (badge && d.top10[0]?.session) badge.textContent = d.top10[0].session + ' · Top Price Movers';
 
-    grid.innerHTML = d.top10.slice(0, 6).map((t, i) => {
+    grid.innerHTML = d.top10.slice(0, 5).map((t, i) => {
       const chg    = t.change1d ?? 0;
       const chgCls = chg >= 0 ? 'up' : 'dn';
       const chgStr = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
