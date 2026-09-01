@@ -351,8 +351,8 @@
       font-weight: 400;
       line-height: 1.2;
       letter-spacing: 0.04em;
-      color: #60a5fa;
-      margin-bottom: 16px;
+      color: #1d4ed8;
+      margin-bottom: 10px;
     }
 
     .hero-text-block {
@@ -365,8 +365,8 @@
     .hero-bullets {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin: 0 auto 20px;
+      gap: 6px;
+      margin: 0 auto 12px;
       max-width: 540px;
       align-items: center;
     }
@@ -377,7 +377,7 @@
       justify-content: center;
       gap: 10px;
       font-size: 15px;
-      color: #cbd5e1;
+      color: #334155;
       font-weight: 400;
       line-height: 1.5;
       text-align: center;
@@ -385,7 +385,7 @@
 
     .hero-bullet::before {
       content: '◆';
-      color: var(--electric-bright);
+      color: #2563eb;
       font-size: 8px;
       flex-shrink: 0;
       margin-top: 1px;
@@ -474,9 +474,9 @@
     .ticker-wrap {
       position: relative;
       z-index: 10;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      background: rgba(13, 30, 61, 0.5);
+      border-top: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+      background: #ffffff;
       overflow: hidden;
       padding: 12px 0;
       width: 100%;
@@ -506,20 +506,20 @@
       padding: 0 32px;
       font-family: 'DM Mono', monospace;
       font-size: 12px;
-      color: #94a3b8;
-      border-right: 1px solid var(--border);
+      color: #64748b;
+      border-right: 1px solid #e2e8f0;
     }
 
-    .ticker-item .sym { color: #94a3b8; font-weight: 500; }
-    .ticker-item .up { color: #64c487; }
-    .ticker-item .dn { color: #c46464; }
+    .ticker-item .sym { color: #334155; font-weight: 500; }
+    .ticker-item .up { color: #16a34a; }
+    .ticker-item .dn { color: #dc2626; }
 
     /* ── PROMO TICKER STRIP ── */
     .promo-ticker-wrap {
       position: relative;
       z-index: 10;
       border-bottom: 1px solid rgba(59,130,246,0.18);
-      background: rgba(59,130,246,0.06);
+      background: #ffffff;
       overflow: hidden;
       padding: 9px 0;
       width: 100%;
@@ -541,15 +541,15 @@
       font-family: 'DM Mono', monospace;
       font-size: 11px;
       letter-spacing: 0.07em;
-      color: #94a3b8;
+      color: #64748b;
       border-right: 1px solid rgba(59,130,246,0.15);
       text-decoration: none;
       cursor: pointer;
       transition: color 0.15s;
     }
-    .promo-ticker-item:hover { color: #ffffff; }
-    .promo-ticker-item .promo-label { color: #60a5fa; font-weight: 500; }
-    .promo-ticker-item .promo-arrow { color: #60a5fa; font-size: 13px; }
+    .promo-ticker-item:hover { color: #0f172a; }
+    .promo-ticker-item .promo-label { color: #2563eb; font-weight: 500; }
+    .promo-ticker-item .promo-arrow { color: #2563eb; font-size: 13px; }
 
     /* ── FEATURES ── */
     .features {
@@ -564,32 +564,32 @@
 
     /* ── SCORE HISTORY TOP 10 ── */
     .sh-section { max-width: 860px; margin: 0 auto; padding: 60px 24px 40px; }
-    .sh-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    .sh-card { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; overflow: hidden; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
     .sh-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .sh-header { display: grid; grid-template-columns: 28px 110px 140px 72px 120px 76px; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--border); min-width: 640px; }
-    .sh-header span { font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #94a3b8; }
-    .sh-row { display: grid; grid-template-columns: 28px 110px 140px 72px 120px 76px; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); transition: background 0.15s; min-width: 640px; }
+    .sh-header { display: grid; grid-template-columns: 28px 110px 140px 72px 120px 76px; gap: 12px; padding: 8px 16px; border-bottom: 1px solid #e2e8f0; min-width: 640px; }
+    .sh-header span { font-family: 'DM Mono',monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b; }
+    .sh-row { display: grid; grid-template-columns: 28px 110px 140px 72px 120px 76px; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid #f1f5f9; transition: background 0.15s; min-width: 640px; }
     .sh-row:last-child { border-bottom: none; }
-    .sh-row:hover { background: rgba(59,130,246,0.04); }
-    .sh-rank { font-family: 'DM Mono',monospace; font-size: 11px; color: #94a3b8; text-align: center; }
+    .sh-row:hover { background: rgba(59,130,246,0.05); }
+    .sh-rank { font-family: 'DM Mono',monospace; font-size: 11px; color: #64748b; text-align: center; }
     .sh-info { min-width: 0; }
-    .sh-ticker-name { font-family: 'DM Mono',monospace; font-size: 13px; font-weight: 600; color: #fff; }
+    .sh-ticker-name { font-family: 'DM Mono',monospace; font-size: 13px; font-weight: 600; color: #0f172a; }
     .sh-ticker-name a { color: inherit; text-decoration: none; }
-    .sh-ticker-name a:hover { color: var(--electric-bright); }
-    .sh-company-name { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+    .sh-ticker-name a:hover { color: var(--electric); }
+    .sh-company-name { font-size: 11px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
     .sh-spark svg { display: block; }
     .sh-chg { font-family: 'DM Mono',monospace; font-size: 12px; font-weight: 600; text-align: left; }
-    .sh-chg.up { color: #22c55e; } .sh-chg.dn { color: #ef4444; }
+    .sh-chg.up { color: #16a34a; } .sh-chg.dn { color: #dc2626; }
     .sh-dots { display: flex; gap: 3px; align-items: center; }
     .sh-dot { width: 20px; height: 20px; border-radius: 50%; font-family: 'DM Mono',monospace; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: default; }
-    .sh-dot.top10 { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
-    .sh-dot.top50 { background: rgba(245,158,11,0.08); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+    .sh-dot.top10 { background: rgba(34,197,94,0.12); color: #15803d; border: 1px solid rgba(34,197,94,0.3); }
+    .sh-dot.top50 { background: rgba(245,158,11,0.1); color: #b45309; border: 1px solid rgba(245,158,11,0.25); }
     .sh-dot.miss  { background: rgba(100,116,139,0.08); color: #64748b; border: 1px solid rgba(100,116,139,0.2); }
-    .sh-score { font-family: 'DM Mono',monospace; font-size: 12px; color: #fcd34d; text-align: right; }
+    .sh-score { font-family: 'DM Mono',monospace; font-size: 12px; color: #b45309; text-align: right; }
     .sh-badges { display: flex; gap: 3px; flex-wrap: nowrap; }
     .sh-badge { font-family: 'DM Mono',monospace; font-size: 8px; padding: 1px 4px; border-radius: 3px; font-weight: 600; }
-    .sh-badge-sp { background: rgba(59,130,246,0.1); color: #60a5fa; }
-    .sh-badge-nd { background: rgba(168,85,247,0.1); color: #c084fc; }
+    .sh-badge-sp { background: rgba(59,130,246,0.1); color: #2563eb; }
+    .sh-badge-nd { background: rgba(168,85,247,0.1); color: #7e22ce; }
     @media (max-width: 640px) {
       .sh-company-name { display: none; }
     }
@@ -633,13 +633,13 @@
 
     /* ── INDEX TREND CHARTS (VOO / QQQ) ── */
     .idx-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-    .idx-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+    .idx-card { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; padding: 20px; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
     .idx-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-    .idx-ticker { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 0.02em; text-decoration: none; }
-    .idx-ticker:hover { color: var(--electric-bright); }
-    .idx-name { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .idx-ticker { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: 0.02em; text-decoration: none; }
+    .idx-ticker:hover { color: #2563eb; }
+    .idx-name { font-size: 12px; color: #64748b; margin-top: 2px; }
     .idx-price-wrap { text-align: right; }
-    .idx-price { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 600; color: #fff; }
+    .idx-price { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 600; color: #0f172a; }
     .idx-chg { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; margin-top: 2px; }
     .idx-chart-box { border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
     .idx-chart-box canvas { width: 100%; height: 200px; display: block; }
@@ -656,15 +656,16 @@
     .steps {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 2px;
+      gap: 1px;
       margin-bottom: 16px;
-      background: var(--border);
-      border: 1px solid var(--border);
+      background: #e2e8f0;
+      border: 1px solid rgba(15,23,42,0.06);
       border-radius: 16px;
       overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
     }
     .step {
-      background: rgba(13,30,61,0.6);
+      background: #ffffff;
       padding: 32px 28px;
       position: relative;
     }
@@ -672,7 +673,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.18em;
-      color: var(--electric-bright);
+      color: #2563eb;
       margin-bottom: 20px;
       display: flex;
       align-items: center;
@@ -682,19 +683,19 @@
       content: '';
       flex: 1;
       height: 1px;
-      background: linear-gradient(90deg, rgba(96,165,250,0.35), transparent);
+      background: linear-gradient(90deg, rgba(37,99,235,0.35), transparent);
     }
     .step h3 {
       font-family: 'DM Sans', sans-serif;
       font-size: 16px;
       font-weight: 600;
-      color: #f1f5f9;
+      color: #0f172a;
       margin-bottom: 10px;
       line-height: 1.3;
     }
     .step p {
       font-size: 13.5px;
-      color: #cbd5e1;
+      color: #334155;
       line-height: 1.7;
     }
     @media (max-width: 768px) {
@@ -703,13 +704,14 @@
     }
 
     .card {
-      background: rgba(13, 30, 61, 0.6);
-      border: 1px solid var(--border);
+      background: #ffffff;
+      border: 1px solid rgba(15,23,42,0.06);
       border-radius: 16px;
       padding: 28px 30px;
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
     }
 
     .card::before {
@@ -722,28 +724,29 @@
       transition: opacity 0.3s;
     }
 
-    .card:hover { border-color: rgba(59,130,246,0.25); background: rgba(13, 30, 61, 0.9); transform: translateY(-3px); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .card:hover { border-color: rgba(59,130,246,0.25); background: #f8fafc; transform: translateY(-3px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
     .card:hover::before { opacity: 1; }
 
     .card-icon { width: 36px; height: 36px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
     .card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .card-head h3 { margin-bottom: 0; }
-    .card h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #60a5fa; margin-bottom: 8px; }
-    .card p { font-size: 14px; color: #cbd5e1; line-height: 1.7; font-weight: 400; }
+    .card h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #1d4ed8; margin-bottom: 8px; }
+    .card p { font-size: 14px; color: #334155; line-height: 1.7; font-weight: 400; }
 
     .spark-demo {
-      background: rgba(13, 30, 61, 0.6);
-      border: 1px solid rgba(59,130,246,0.2);
+      background: #ffffff;
+      border: 1px solid rgba(59,130,246,0.15);
       border-radius: 16px;
       padding: 28px 30px;
       margin-top: 16px;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
     }
 
     .spark-demo::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent); }
-    .spark-demo h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #60a5fa; margin-bottom: 6px; }
-    .spark-demo p { font-size: 14px; color: #cbd5e1; line-height: 1.7; font-weight: 400; margin-bottom: 16px; }
+    .spark-demo h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #1d4ed8; margin-bottom: 6px; }
+    .spark-demo p { font-size: 14px; color: #334155; line-height: 1.7; font-weight: 400; margin-bottom: 16px; }
 
     .spark-demo-grid { display: flex; gap: 36px; align-items: center; }
     .spark-demo-text { flex: 1.2; min-width: 0; }
@@ -751,17 +754,17 @@
     @media (max-width: 768px) { .spark-demo-grid { flex-direction: column; align-items: stretch; } }
 
     .spark-legend { display: flex; flex-direction: column; gap: 8px; margin-bottom: 0; }
-    .spark-legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 12px; color: #cbd5e1; letter-spacing: 0.06em; }
+    .spark-legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 12px; color: #334155; letter-spacing: 0.06em; }
 
-    .spark-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .spark-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
     .spark-row:last-child { border-bottom: none; }
-    .spark-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: #94a3b8; width: 44px; flex-shrink: 0; }
+    .spark-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: #64748b; width: 44px; flex-shrink: 0; }
     .spark-svg-wrap { flex: 1; }
-    .up-c { color: #64c487; }
-    .dn-c { color: #c46464; }
+    .up-c { color: #16a34a; }
+    .dn-c { color: #dc2626; }
 
     .timeframe-demo { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
-    .tf-btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: default; }
+    .tf-btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 4px 12px; border-radius: 5px; border: 1px solid rgba(15,23,42,0.12); background: transparent; color: #64748b; cursor: default; }
     .tf-btn.active { background: var(--electric); border-color: var(--electric); color: white; }
 
     /* ── BOTTOM CTA ── */
@@ -774,36 +777,36 @@
     .cta-two-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
 
     /* ── DIGEST PANEL ── */
-    .digest-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; text-align: left; }
-    .digest-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
-    .digest-heading { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--white); margin-bottom: 14px; letter-spacing: -0.01em; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .digest-panel { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; text-align: left; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+    .digest-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
+    .digest-heading { font-family: 'DM Serif Display', serif; font-size: 18px; color: #0f172a; margin-bottom: 14px; letter-spacing: -0.01em; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
     .digest-date { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; font-weight: 400; flex-shrink: 0; }
     .digest-movers { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
     .digest-col-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
-    .digest-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .digest-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid #f1f5f9; }
     .digest-row:last-child { border-bottom: none; }
-    .digest-dtk { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--electric-bright); font-weight: 500; min-width: 40px; text-decoration: none; }
+    .digest-dtk { font-family: 'DM Mono', monospace; font-size: 11px; color: #2563eb; font-weight: 500; min-width: 40px; text-decoration: none; }
     .digest-dtk:hover { opacity: 0.75; }
     .digest-dname { font-size: 10px; color: #64748b; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .digest-dpct { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; flex-shrink: 0; }
-    .digest-pos { color: #64c487; } .digest-neg { color: #c46464; }
-    .digest-div { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 12px 0; }
+    .digest-pos { color: #16a34a; } .digest-neg { color: #dc2626; }
+    .digest-div { border: none; border-top: 1px solid #e2e8f0; margin: 12px 0; }
     .digest-news-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
-    .digest-news-item { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .digest-news-item { padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
     .digest-news-item:last-child { border-bottom: none; }
-    .digest-news-link { font-size: 11px; color: #e2e8f0; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; transition: color 0.15s; }
-    .digest-news-link:hover { color: var(--electric-bright); }
+    .digest-news-link { font-size: 11px; color: #1e293b; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; transition: color 0.15s; }
+    .digest-news-link:hover { color: #2563eb; }
     .digest-news-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: #475569; margin-top: 2px; }
-    .digest-dl { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: var(--electric-bright); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s; }
+    .digest-dl { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: #2563eb; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s; }
     .digest-dl:hover { opacity: 0.75; }
     .digest-video-row { margin-top: auto; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .digest-msg { font-size: 12px; color: #64748b; padding: 14px 0; text-align: center; }
 
     /* ── SHARE-CARD GALLERY ── */
     .share-gallery-section { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 0 40px 50px; }
-    .share-gallery-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; min-width: 0; }
-    .share-gallery-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
-    .share-gallery-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); margin-bottom: 4px; letter-spacing: -0.01em; }
+    .share-gallery-panel { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; min-width: 0; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+    .share-gallery-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
+    .share-gallery-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.01em; }
     .share-gallery-sub { font-size: 12px; color: #64748b; margin-bottom: 18px; }
     .share-gallery-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; min-width: 0; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
     .share-card { flex: 0 0 148px; background: rgba(6,13,31,0.7); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; text-align: left; scroll-snap-align: start; }
@@ -820,52 +823,53 @@
     /* ── HOMEPAGE GALLERY + FAQ ── */
     .gallery-faq-section { position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 0 40px 50px; }
     .gallery-faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
-    .faq-mini-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; text-align: left; min-width: 0; }
-    .faq-mini-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
-    .faq-mini-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); margin-bottom: 4px; letter-spacing: -0.01em; }
+    .faq-mini-panel { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; text-align: left; min-width: 0; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+    .faq-mini-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
+    .faq-mini-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.01em; }
     .faq-mini-sub { font-size: 12px; color: #64748b; margin-bottom: 10px; }
     .faq-mini-list { flex: 1; }
-    .faq-mini-list .faq-item { border-top: 1px solid var(--border); overflow: hidden; }
-    .faq-mini-list .faq-item:last-child { border-bottom: 1px solid var(--border); }
+    .faq-mini-list .faq-item { border-top: 1px solid #e2e8f0; overflow: hidden; }
+    .faq-mini-list .faq-item:last-child { border-bottom: 1px solid #e2e8f0; }
     .faq-mini-list .faq-q { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 13px 0; cursor: pointer; user-select: none; }
-    .faq-mini-list .faq-q:hover .q-text { color: var(--white); }
-    .faq-mini-list .q-text { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: #cbd5e1; line-height: 1.4; transition: color 0.2s; min-width: 0; flex: 1; }
-    .faq-mini-list .faq-item.open .q-text { color: var(--white); }
-    .faq-mini-list .q-icon { flex-shrink: 0; width: 18px; height: 18px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.25s; color: var(--muted); font-size: 12px; line-height: 1; }
-    .faq-mini-list .faq-item.open .q-icon { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: var(--electric-bright); transform: rotate(45deg); }
+    .faq-mini-list .faq-q:hover .q-text { color: #0f172a; }
+    .faq-mini-list .q-text { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.4; transition: color 0.2s; min-width: 0; flex: 1; }
+    .faq-mini-list .faq-item.open .q-text { color: #0f172a; }
+    .faq-mini-list .q-icon { flex-shrink: 0; width: 18px; height: 18px; border: 1px solid rgba(15,23,42,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.25s; color: #64748b; font-size: 12px; line-height: 1; }
+    .faq-mini-list .faq-item.open .q-icon { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: #2563eb; transform: rotate(45deg); }
     .faq-mini-list .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
-    .faq-mini-list .faq-a-inner { padding-bottom: 14px; font-size: 12.5px; color: var(--muted); line-height: 1.7; font-weight: 300; }
-    .faq-mini-list .faq-a-inner a { color: var(--electric-bright); text-decoration: none; }
+    .faq-mini-list .faq-a-inner { padding-bottom: 14px; font-size: 12.5px; color: #334155; line-height: 1.7; font-weight: 300; }
+    .faq-mini-list .faq-a-inner a { color: #2563eb; text-decoration: none; }
     .faq-mini-list .faq-a-inner a:hover { text-decoration: underline; }
-    .faq-mini-footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .faq-mini-footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
     .mini-bullet-list { display: flex; flex-direction: column; gap: 7px; }
     .mini-bullet { display: flex; align-items: baseline; gap: 8px; }
-    .mini-bullet::before { content: '◆'; color: var(--electric-bright); font-size: 6px; flex-shrink: 0; }
+    .mini-bullet::before { content: '◆'; color: #2563eb; font-size: 6px; flex-shrink: 0; }
 
     /* ── CTA MINI ── */
     .cta-mini { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
     .cta-mini-tagline { font-size: 13px; color: #94a3b8; }
     .cta-mini-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 
-    .hp-news-panel { background: rgba(13,30,61,0.6); border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 32px 28px; display: flex; flex-direction: column; text-align: left; }
-    .hp-news-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 4px; }
-    .hp-news-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--white); margin-bottom: 4px; letter-spacing: -0.01em; }
+    .hp-news-panel { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 24px; padding: 32px 28px; display: flex; flex-direction: column; text-align: left; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+    .hp-news-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; margin-bottom: 4px; }
+    .hp-news-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.01em; }
     .hp-news-sub { font-size: 12px; color: #64748b; margin-bottom: 16px; }
     .hp-news-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-    .hp-cat-tab { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: #94a3b8; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
-    .hp-cat-tab:hover { color: var(--white); border-color: rgba(255,255,255,0.2); }
-    .hp-cat-tab.hp-add { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.35); color: #86efac; }
-    .hp-cat-tab.hp-rem { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.35); color: #fca5a5; }
+    .hp-cat-tab { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(15,23,42,0.12); background: transparent; color: #64748b; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
+    .hp-cat-tab:hover { color: #0f172a; border-color: rgba(15,23,42,0.25); }
+    .hp-cat-tab.hp-add { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.35); color: #15803d; }
+    .hp-cat-tab.hp-rem { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.35); color: #b91c1c; }
     .hp-news-list { flex: 1; }
-    .hp-news-item { padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .hp-news-item { padding: 9px 0; border-bottom: 1px solid #f1f5f9; }
     .hp-news-item:last-child { border-bottom: none; }
     .hp-news-item-date { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; margin-bottom: 2px; }
-    .hp-news-item-title { font-size: 12px; font-weight: 500; color: var(--white); text-decoration: none; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.15s; }
-    .hp-news-item-title:hover { color: var(--electric-bright); }
+    .hp-news-item-title { font-size: 12px; font-weight: 500; color: #0f172a; text-decoration: none; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.15s; }
+    .hp-news-item-title:hover { color: #2563eb; }
     .hp-news-item-source { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; margin-top: 2px; }
-    .hp-news-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
+    .hp-news-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
     .hp-news-viewall { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: var(--electric-bright); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s; }
     .hp-news-viewall:hover { opacity: 0.75; }
+    .hp-news-panel .hp-news-viewall, .share-gallery-panel .hp-news-viewall, .faq-mini-panel .hp-news-viewall { color: #2563eb; }
     .hp-news-msg { font-size: 12px; color: #64748b; padding: 20px 0; text-align: center; }
 
     /* ── FOOTER ── */
@@ -945,6 +949,15 @@
       flex-direction: column;
       align-items: flex-start;
       gap: 0;
+    }
+
+    .hero-left-card {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid rgba(15,23,42,0.06);
+      border-radius: 16px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+      padding: 24px;
     }
 
     .hero-right {
@@ -1190,7 +1203,7 @@
       .dash-mock-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; max-width: 100%; }
       .dash-mock-wrap::after { content: '← Scroll to see more columns'; display:block; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:#94a3b8; padding:6px 0; letter-spacing:0.08em; }
       .hero-split .hero-title    { text-align: center; font-size: 44px; }
-      .hero-split .hero-bullets  { align-items: flex-start; text-align: left; width: 100%; max-width: 100%; margin: 0 0 20px; background: rgba(13,30,61,0.55); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 18px; }
+      .hero-split .hero-bullets  { align-items: flex-start; text-align: left; width: 100%; max-width: 100%; margin: 0 0 20px; background: rgba(15,23,42,0.03); border: 1px solid rgba(15,23,42,0.06); border-radius: 12px; padding: 16px 18px; }
       .hero-split .hero-bullet   { justify-content: flex-start; text-align: left; }
       .hero-split .hero-cta      { justify-content: center; flex-wrap: wrap; gap: 8px; }
       .hero-split .hero-cta .btn-gold { width: 100%; justify-content: center; }
@@ -1264,15 +1277,16 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
     <!-- LEFT -->
     <div class="hero-left">
-      <div class="hero-eyebrow" style="margin-bottom:18px;">◈ &nbsp; For self-directed investors who do their own research</div>
-      <h1 class="hero-title" style="font-size:clamp(28px,2.8vw,34px);">Pulse of the Market — Price, Volume, Trend at a Glance</h1>
+      <div class="hero-eyebrow" style="margin-bottom:10px;">◈ &nbsp; For self-directed investors who do their own research</div>
+      <div class="hero-left-card">
+        <h1 class="hero-title" style="font-size:clamp(22px,2.2vw,28px);">Pulse of the Market — Price, Volume, Trend at a Glance</h1>
 
-      <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#cbd5e1;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:8px 12px;line-height:1.5;margin-bottom:14px;">All the data in one row: Sort → check sparkline → scores → fundamentals — stop switching between tools to piece together the same picture</div>
-      <div class="hero-bullets">
-        <div class="hero-bullet">Built on trusted infrastructure — <span id="heroInfraStripe">payments via Stripe, </span>fundamentals from SEC EDGAR, auth via Google Firebase</div>
-        <div class="hero-bullet">Annotated sparklines: peak volume and price days marked — a year of history, instantly</div>
-        <div class="hero-bullet">S&amp;P 500 &amp; Nasdaq-100 index changes and news tracked daily</div>
-        <div class="hero-bullet" id="heroBulletFree" style="display:none;">Totally free — full platform access for every signed-in user, no subscription required</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#78350f;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:7px 12px;line-height:1.5;margin-bottom:10px;">All the data in one row: Sort → check sparkline → scores → fundamentals — stop switching between tools to piece together the same picture</div>
+        <div class="hero-bullets">
+          <div class="hero-bullet">Built on trusted infrastructure — <span id="heroInfraStripe">payments via Stripe, </span>fundamentals from SEC EDGAR, auth via Google Firebase</div>
+          <div class="hero-bullet">S&amp;P 500 &amp; Nasdaq-100 index changes and news tracked daily</div>
+          <div class="hero-bullet" id="heroBulletFree" style="display:none;">Totally free — full platform access for every signed-in user, no subscription required</div>
+        </div>
       </div>
 
       <div class="hero-cta">
@@ -1291,7 +1305,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
             <span>#</span><span>Ticker</span><span>1Y Trend</span><span>Move</span><span>Score Rank · last 5 sessions</span><span style="text-align:right;">Baizora Score</span>
           </div>
           <div id="shGrid">
-            <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;">Loading…</div>
+            <div style="padding:32px;text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:#64748b;">Loading…</div>
           </div>
         </div>
       </div>
@@ -1344,24 +1358,24 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <div class="card fade-up">
       <div class="card-head">
         <div class="card-icon" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.25);">⊕</div>
-        <h3 style="color:#fcd34d;">Baizora Score — Use It as a Filter</h3>
+        <h3 style="color:#b45309;">Baizora Score — Use It as a Filter</h3>
       </div>
-      <p>Switch to the <strong style="color:var(--white);">Scores</strong> tab and sort by <strong style="color:#fcd34d;">Baizora</strong> — a composite of RS, Momentum, Breakout, Trend, and Volume Pressure. Stocks scoring <strong style="color:#fcd34d;">70+</strong> are broadly strong across all signals; below <strong style="color:#ef4444;">30</strong> are broadly weak. Cross-reference individual scores to understand why: high RS + high Breakout means sustained multi-week strength confirmed by today's price and volume action — a powerful pre-filter before deeper analysis.</p>
-      <p style="margin-top:10px;"><a href="assets/baizscore_backtest.html" style="color:var(--electric-bright);text-decoration:none;font-weight:600;font-size:13px;">See the historical backtest →</a></p>
+      <p>Switch to the <strong style="color:#0f172a;">Scores</strong> tab and sort by <strong style="color:#b45309;">Baizora</strong> — a composite of RS, Momentum, Breakout, Trend, and Volume Pressure. Stocks scoring <strong style="color:#b45309;">70+</strong> are broadly strong across all signals; below <strong style="color:#dc2626;">30</strong> are broadly weak. Cross-reference individual scores to understand why: high RS + high Breakout means sustained multi-week strength confirmed by today's price and volume action — a powerful pre-filter before deeper analysis.</p>
+      <p style="margin-top:10px;"><a href="assets/baizscore_backtest.html" style="color:#2563eb;text-decoration:none;font-weight:600;font-size:13px;">See the historical backtest →</a></p>
     </div>
     <div class="card fade-up delay-1">
       <div class="card-head">
         <div class="card-icon">⟁</div>
         <h3>Volume Spike Breakout</h3>
       </div>
-      <p>Sort <strong style="color:var(--white);">1D V CHG%</strong> highest to lowest. Volume surging 100%+ alongside a rising price is a classic breakout signal. Volume surging with a flat price — quiet accumulation — is a different pattern worth tracking. Both start with the same sort; the price column tells the story.</p>
+      <p>Sort <strong style="color:#0f172a;">1D V CHG%</strong> highest to lowest. Volume surging 100%+ alongside a rising price is a classic breakout signal. Volume surging with a flat price — quiet accumulation — is a different pattern worth tracking. Both start with the same sort; the price column tells the story.</p>
     </div>
     <div class="card fade-up delay-2">
       <div class="card-head">
         <div class="card-icon">◷</div>
         <h3>Multi-Week Momentum</h3>
       </div>
-      <p>Switch to the <strong style="color:var(--white);">3M</strong> or <strong style="color:var(--white);">6M</strong> window and sort by <strong style="color:var(--white);">P CHG%</strong>. This surfaces stocks in a sustained uptrend — not just a one-day pop — a useful filter for identifying sustained moves in the data.</p>
+      <p>Switch to the <strong style="color:#0f172a;">3M</strong> or <strong style="color:#0f172a;">6M</strong> window and sort by <strong style="color:#0f172a;">P CHG%</strong>. This surfaces stocks in a sustained uptrend — not just a one-day pop — a useful filter for identifying sustained moves in the data.</p>
       <div class="timeframe-demo" style="margin-top:12px;">
         <span class="tf-btn">1D</span>
         <span class="tf-btn">2W</span>
@@ -1377,7 +1391,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         <div class="card-icon" style="background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.2);">◈</div>
         <h3>Index Rebalancing Tracker</h3>
       </div>
-      <p>Check the <strong style="color:var(--white);">Index Membership</strong> tab for pending S&amp;P 500 or Nasdaq-100 additions. Stocks about to join a major index get systematically bought by index funds ahead of the rebalance date — a well-documented, news-driven pattern.</p>
+      <p>Check the <strong style="color:#0f172a;">Index Membership</strong> tab for pending S&amp;P 500 or Nasdaq-100 additions. Stocks about to join a major index get systematically bought by index funds ahead of the rebalance date — a well-documented, news-driven pattern.</p>
     </div>
   </div>
 
@@ -1385,28 +1399,28 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <div class="spark-demo-grid">
       <div class="spark-demo-text">
         <h3>📈 Reading the Sparkline</h3>
-        <p>Look for sparklines where both markers appear <strong style="color:#64c487;">green</strong> and close together — the ▲ triangle marks the highest-volume day of the year, the ● circle marks the largest single-day price move. When both are green and recent, they reflect institutional buying activity that has historically preceded strong advances.</p>
+        <p>Look for sparklines where both markers appear <strong style="color:#16a34a;">green</strong> and close together — the ▲ triangle marks the highest-volume day of the year, the ● circle marks the largest single-day price move. When both are green and recent, they reflect institutional buying activity that has historically preceded strong advances.</p>
 
         <div class="spark-legend">
           <div class="spark-legend-item">
-            <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#64c487"/></svg>
+            <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#16a34a"/></svg>
             Highest-volume day (price was up)
           </div>
           <div class="spark-legend-item">
-            <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#ef4444"/></svg>
+            <svg width="14" height="12" viewBox="0 0 14 12"><polygon points="7,0 0,11 14,11" fill="#dc2626"/></svg>
             Highest-volume day (price was down)
           </div>
           <div class="spark-legend-item">
             <svg width="14" height="12" viewBox="0 0 14 12">
-              <circle cx="7" cy="6" r="5.5" fill="#64c487" opacity="0.25"/>
-              <circle cx="7" cy="6" r="3.2" fill="#64c487" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
+              <circle cx="7" cy="6" r="5.5" fill="#16a34a" opacity="0.25"/>
+              <circle cx="7" cy="6" r="3.2" fill="#16a34a" stroke="rgba(255,255,255,0.9)" stroke-width="1.4"/>
             </svg>
             Largest price-gain day (volume elevated)
           </div>
           <div class="spark-legend-item">
             <svg width="14" height="12" viewBox="0 0 14 12">
-              <circle cx="7" cy="6" r="5.5" fill="#ef4444" opacity="0.25"/>
-              <circle cx="7" cy="6" r="3.2" fill="#ef4444" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>
+              <circle cx="7" cy="6" r="5.5" fill="#dc2626" opacity="0.25"/>
+              <circle cx="7" cy="6" r="3.2" fill="#dc2626" stroke="rgba(255,255,255,0.9)" stroke-width="1.4"/>
             </svg>
             Largest price-gain day (volume low)
           </div>
@@ -1521,7 +1535,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <div class="digest-eyebrow">◈ &nbsp; Daily Briefing</div>
       <div class="digest-heading">Today's Market Briefing</div>
       <div style="display:flex;gap:6px;margin-bottom:14px;">
-        <input type="email" id="digestEmailInput" placeholder="you@email.com" style="flex:1;min-width:0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 10px;outline:none;">
+        <input type="email" id="digestEmailInput" placeholder="you@email.com" style="flex:1;min-width:0;background:#f8fafc;border:1px solid rgba(15,23,42,0.15);border-radius:8px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 10px;outline:none;">
         <button id="digestSubscribeBtn" style="background:var(--electric);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">Get This Daily →</button>
       </div>
       <div id="digestSubscribeMsg" style="font-size:11px;margin:-8px 0 14px;display:none;"></div>
@@ -1543,9 +1557,9 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         <a href="market_news.html" id="digestViewAllBtn" onclick="return hpViewAll(event, 'market_news.html', 'Market News')" class="digest-dl" title="View all market news">View all →</a>
       </div>
       <div class="digest-video-row">
-        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--electric-bright);letter-spacing:0.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;color:#2563eb;letter-spacing:0.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
           <a href="https://www.youtube.com/@baizora-en3" target="_blank" rel="noopener" class="digest-dl" style="display:inline-flex;vertical-align:middle;">
-            <svg width="12" height="12" style="flex-shrink:0;" viewBox="0 0 24 24" fill="#ef4444"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+            <svg width="12" height="12" style="flex-shrink:0;" viewBox="0 0 24 24" fill="#dc2626"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
             News Channel
           </a> (<a id="newsVideoWatchLink" href="data/latest_video_news_en.mp4" target="_blank" class="digest-dl" style="vertical-align:middle;"><span id="newsVideoDate">…</span></a> <a id="newsVideoDownloadLink" href="data/latest_video_news_en.mp4" download class="digest-dl" style="vertical-align:middle;" title="Download">↓</a>)
         </span>
@@ -2238,7 +2252,7 @@ function buildSparkPath(arr) {
     for (var gi = 0; gi <= 3; gi++) {
       var p = lo + (hi - lo) * (gi / 3);
       var y = toY(p);
-      ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(15,23,42,0.08)"; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
       ctx.fillStyle = "#64748b";
       ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 5, y + 4);
@@ -2261,8 +2275,8 @@ function buildSparkPath(arr) {
       var o = c[0], h = c[1], l = c[2], cl = c[3];
       var green = cl >= o;
       var x = toX(i), mid = x + cndW / 2;
-      ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
-      ctx.fillStyle = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
+      ctx.strokeStyle = green ? "#16a34a" : "#dc2626";
+      ctx.fillStyle = green ? "rgba(22,163,74,0.75)" : "rgba(220,38,38,0.75)";
       ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
       var bTop = toY(Math.max(o, cl));
@@ -2273,13 +2287,13 @@ function buildSparkPath(arr) {
     if (hasVol) {
       var volTop = pad.top + priceH + gap;
       var maxVol = Math.max.apply(null, ohlcv.map(function(c) { return c[4] || 0; }));
-      ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(15,23,42,0.08)"; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(pad.left, volTop); ctx.lineTo(W - pad.right, volTop); ctx.stroke();
       ohlcv.forEach(function(c, i) {
         if (!c[4]) return;
         var green = c[3] >= c[0];
         var bH = Math.round((c[4] / maxVol) * (volH - 4));
-        ctx.fillStyle = green ? "rgba(34,197,94,0.45)" : "rgba(239,68,68,0.45)";
+        ctx.fillStyle = green ? "rgba(22,163,74,0.45)" : "rgba(220,38,38,0.45)";
         ctx.fillRect(toX(i), volTop + (volH - 4) - bH, cndW, bH);
       });
     }
@@ -2317,7 +2331,7 @@ function buildSparkPath(arr) {
       if (chgEl && r.PriceChange1D != null) {
         var pc = r.PriceChange1D;
         chgEl.textContent = (pc >= 0 ? '+' : '') + pc.toFixed(2) + '%';
-        chgEl.style.color = pc >= 0 ? '#22c55e' : '#ef4444';
+        chgEl.style.color = pc >= 0 ? '#16a34a' : '#dc2626';
       }
     });
   }).catch(function() {});
@@ -2424,7 +2438,7 @@ function buildSparkPath(arr) {
         const arr = pc >= 0 ? '▲' : '▼';
         const s   = pc >= 0 ? '+' : '';
         const dir = dirs[t];
-        const priceStyle = dir ? `color:${dir==='up'?'#22c55e':'#ef4444'}` : '';
+        const priceStyle = dir ? `color:${dir==='up'?'#16a34a':'#dc2626'}` : '';
         return `<a href="stocks/${t}.html" class="ticker-item" style="text-decoration:none;cursor:pointer;"><span class="sym">${t}</span> <span style="${priceStyle}">$${(d.last||0).toFixed(2)}</span> <span class="${cls}">${arr} ${s}${pc.toFixed(1)}%</span></a>`;
       }).join('');
       track.innerHTML = html + html;
@@ -2460,12 +2474,12 @@ function buildSparkPath(arr) {
     if (triIdx != null && triIdx < data.length) {
       const ai = data.length - 1 - triIdx;
       const tx = posX(ai), ty = posY(data[ai]);
-      markers += `<polygon points="${tx},${ty-6} ${tx-3.5},${ty} ${tx+3.5},${ty}" fill="${tc}" stroke="rgba(6,13,31,0.9)" stroke-width="1"/>`;
+      markers += `<polygon points="${tx},${ty-6} ${tx-3.5},${ty} ${tx+3.5},${ty}" fill="${tc}" stroke="rgba(255,255,255,0.9)" stroke-width="1"/>`;
     }
     if (dotIdx != null && dotIdx < data.length) {
       const ai = data.length - 1 - dotIdx;
       const dx = posX(ai), dy = posY(data[ai]);
-      markers += `<circle cx="${dx}" cy="${dy}" r="4" fill="${dc}" opacity="0.25"/><circle cx="${dx}" cy="${dy}" r="2.5" fill="${dc}" stroke="rgba(6,13,31,0.9)" stroke-width="1.1"/>`;
+      markers += `<circle cx="${dx}" cy="${dy}" r="4" fill="${dc}" opacity="0.25"/><circle cx="${dx}" cy="${dy}" r="2.5" fill="${dc}" stroke="rgba(255,255,255,0.9)" stroke-width="1.1"/>`;
     }
     return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none"><polyline points="${pts}" stroke="${col}" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>${markers}</svg>`;
   }
@@ -2571,10 +2585,10 @@ function buildSparkPath(arr) {
 
     const tX = px(triIdx), tY = py(triIdx);
     const tipY = Math.max(tY - 5, 1).toFixed(1);
-    const tri = `<polygon points="${tX},${tipY} ${(tX-4.5).toFixed(1)},${(+tipY+8.6).toFixed(1)} ${(tX+4.5).toFixed(1)},${(+tipY+8.6).toFixed(1)}" fill="${triColor}" stroke="rgba(6,13,31,0.95)" stroke-width="1.3" stroke-linejoin="round"/>`;
+    const tri = `<polygon points="${tX},${tipY} ${(tX-4.5).toFixed(1)},${(+tipY+8.6).toFixed(1)} ${(tX+4.5).toFixed(1)},${(+tipY+8.6).toFixed(1)}" fill="${triColor}" stroke="rgba(255,255,255,0.9)" stroke-width="1.3" stroke-linejoin="round"/>`;
 
     const dX = px(dotIdx), dY = py(dotIdx);
-    const dot = `<circle cx="${dX}" cy="${dY}" r="5.5" fill="${dotColor}" opacity="0.25"/><circle cx="${dX}" cy="${dY}" r="3.2" fill="${dotColor}" stroke="rgba(6,13,31,0.95)" stroke-width="1.4"/>`;
+    const dot = `<circle cx="${dX}" cy="${dY}" r="5.5" fill="${dotColor}" opacity="0.25"/><circle cx="${dX}" cy="${dY}" r="3.2" fill="${dotColor}" stroke="rgba(255,255,255,0.9)" stroke-width="1.4"/>`;
 
     return `<path d="${pathD}" stroke="${lineColor}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>${tri}${dot}`;
   }
@@ -2774,7 +2788,7 @@ function buildSparkPath(arr) {
     const msg   = document.getElementById("digestSubscribeMsg");
     const email = input.value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      msg.textContent = "Please enter a valid email."; msg.style.color = "#ef4444"; msg.style.display = "block";
+      msg.textContent = "Please enter a valid email."; msg.style.color = "#dc2626"; msg.style.display = "block";
       return;
     }
     subBtn.disabled = true;
@@ -2787,15 +2801,15 @@ function buildSparkPath(arr) {
       });
       if (r.ok) {
         msg.textContent = "Subscribed — check your inbox tomorrow.";
-        msg.style.color = "#22c55e";
+        msg.style.color = "#16a34a";
         input.value = "";
       } else {
         msg.textContent = "Something went wrong. Please try again.";
-        msg.style.color = "#ef4444";
+        msg.style.color = "#dc2626";
       }
     } catch (e) {
       msg.textContent = "Something went wrong. Please try again.";
-      msg.style.color = "#ef4444";
+      msg.style.color = "#dc2626";
     } finally {
       subBtn.disabled = false;
     }
