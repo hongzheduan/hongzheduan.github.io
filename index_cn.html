@@ -34,14 +34,14 @@
   </script>
   <link rel="icon" href="assets/baize_favicon_v2.png">
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#060d1f">
+  <meta name="theme-color" content="#012169">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --navy: #060d1f;
+      --navy: #012169;
       --navy-mid: #0d1e3d;
       --navy-light: #162847;
       --electric: #3b82f6;
@@ -95,7 +95,7 @@
     .announcement {
       position: relative;
       z-index: 100;
-      background: linear-gradient(90deg, #7c2d12, #92400e, #7c2d12);
+      background: linear-gradient(90deg, #4b9cd3, #6cb4e0, #4b9cd3);
       background-size: 200% 100%;
       animation: shimmer 4s ease infinite;
       text-align: center;
@@ -103,7 +103,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 11px;
       letter-spacing: 0.1em;
-      color: var(--gold-light);
+      color: #0a2a4d;
       font-weight: 500;
     }
     .ann-br { display: none; }
@@ -116,7 +116,7 @@
     .announcement .dot {
       display: inline-block;
       width: 6px; height: 6px;
-      background: var(--gold);
+      background: #0a2a4d;
       border-radius: 50%;
       margin-right: 8px;
       animation: pulse-dot 1.5s ease infinite;
@@ -146,7 +146,7 @@
       z-index: 200;
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      background: rgba(6, 13, 31, 0.92);
+      background: rgba(1, 33, 105, 0.92);
       border-bottom: 1px solid var(--border);
       height: 56px;
       display: flex;
@@ -218,7 +218,7 @@
       top: calc(100% + 8px);
       right: 0;
       width: 210px;
-      background: rgba(13,30,61,0.98);
+      background: rgba(1, 33, 105, 0.98);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
@@ -274,7 +274,7 @@
       position: fixed;
       left: 0; right: 0;
       z-index: 199;
-      background: rgba(6, 13, 31, 0.98);
+      background: rgba(1, 33, 105, 0.98);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(20px);
       padding: 12px 20px 20px;
@@ -687,7 +687,7 @@
 
     /* ── MARKET HEATMAP ── */
     .hm-section { max-width: 1100px; margin: 0 auto; padding: 60px 24px 30px; }
-    .hm-toggle { display: flex; flex-wrap: wrap; gap: 8px; row-gap: 10px; justify-content: center; margin-top: 22px; margin-bottom: 28px; }
+    .hm-toggle { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; row-gap: 10px; justify-content: center; margin-top: 22px; margin-bottom: 28px; }
     .hm-toggle-btn { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.06em; padding: 7px 18px; border-radius: 7px; border: 1px solid var(--border); background: rgba(13,30,61,0.5); color: var(--muted); cursor: pointer; transition: all 0.15s; }
     .hm-toggle-btn:hover { color: #fff; border-color: rgba(59,130,246,0.35); }
     .hm-toggle-btn.active { background: var(--electric); border-color: var(--electric); color: #fff; }
@@ -710,6 +710,8 @@
     .hm-seemore-wrap { text-align: center; margin-top: 20px; }
     .hm-seemore { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.03em; color: var(--electric-bright); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 10px 20px; border: 1px solid rgba(59,130,246,0.3); border-radius: 999px; background: rgba(59,130,246,0.06); transition: all 0.15s; }
     .hm-seemore:hover { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.5); }
+    .hm-toggle .hm-seemore { margin-left: auto; padding: 7px 16px; font-size: 11px; }
+    @media (max-width: 760px) { .hm-toggle .hm-seemore { margin-left: 0; } }
     .hm-sector { position: absolute; box-sizing: border-box; border: 2px solid #060d1f; overflow: hidden; }
     .hm-sector-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #cbd5e1; background: rgba(6,13,31,0.85); padding: 3px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hm-tile { position: absolute; box-sizing: border-box; border: 1px solid #060d1f; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; overflow: hidden; transition: filter 0.1s; }
@@ -900,6 +902,26 @@
     .footer-video-links a { color: #64748b; text-decoration: none; }
     .footer-video-links a:hover { color: #2563eb; }
 
+    /* ── FOOTER: Carolina blue ── */
+    footer { background: #4b9cd3; border-top-color: #3a86bf; }
+    footer .footer-disclaimer,
+    footer .footer-copy,
+    footer .footer-links a,
+    footer .footer-email,
+    footer .footer-email a,
+    footer .footer-yt,
+    footer .footer-video-links,
+    footer .footer-video-links a { color: #08213f; }
+    footer .footer-links a:hover,
+    footer .footer-email a:hover,
+    footer .footer-yt:hover,
+    footer .footer-video-links a:hover { color: #ffffff; }
+    footer .footer-social-icon { background: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.6); }
+    footer .footer-social-icon:hover { background: #ffffff; border-color: #ffffff; }
+    @media (max-width: 768px) {
+      footer .footer-links { border-top-color: rgba(8,33,63,0.25); }
+    }
+
     /* ── ANIMATIONS ── */
     .fade-up { opacity: 0; transform: translateY(24px); animation: fadeUp 0.7s ease forwards; }
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
@@ -980,10 +1002,10 @@
     /* ── DASHBOARD MOCK ── */
     .dash-mock {
       background: #060d1f;
-      border: 1px solid rgba(59,130,246,0.18);
+      border: 1px solid rgba(75,156,211,0.4);
       border-radius: 12px;
       overflow: visible;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(59,130,246,0.06);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(75,156,211,0.3), 0 0 44px rgba(75,156,211,0.1);
       font-family: 'DM Mono', monospace;
       position: relative;
     }
@@ -1476,7 +1498,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 <section class="hm-section">
   <div class="section-label">实时快照</div>
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">市场<em>热力图</em></h2>
-  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#e2e8f0;letter-spacing:0.04em;text-align:center;margin-top:-30px;margin-bottom:24px;">方块大小 = √市值 &nbsp;·&nbsp; 颜色 = 当日涨跌幅 &nbsp;·&nbsp; 按行业分组 &nbsp;·&nbsp; <span id="hmDataDate">数据截至 …</span></p>
 
   <div class="hm-toggle">
     <button class="hm-toggle-btn active" id="hmBtnSP" onclick="hmSwitch('sp500')">标普500</button>
@@ -1485,6 +1506,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <input type="text" id="hmSearchInput" class="hm-search-input" placeholder="查找代码…" maxlength="6" autocomplete="off" spellcheck="false">
       <button class="hm-search-btn" id="hmSearchBtn" title="查找" aria-label="查找代码">🔍</button>
     </div>
+    <a href="market_heatmap_cn.html" class="hm-seemore" onclick="return hpViewAll(event, 'market_heatmap_cn.html', '市场热力图', true)">完整热力图 — 贝佐拉评分与估值 →</a>
   </div>
   <div class="hm-search-msg" id="hmSearchMsg"></div>
 
@@ -1495,10 +1517,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <span>上涨</span>
     </div>
     <div class="hm-wrap" id="hmWrap"><div class="hm-msg">加载中…</div></div>
-  </div>
-
-  <div class="hm-seemore-wrap">
-    <a href="market_heatmap_cn.html" class="hm-seemore" onclick="return hpViewAll(event, 'market_heatmap_cn.html', '市场热力图', true)">查看完整交互式热力图 — 贝佐拉评分与估值视图 →</a>
   </div>
 </section>
 
@@ -1860,7 +1878,15 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     });
     ['ctaStartFreeHero', 'ctaStartFreeMini'].forEach(id => {
       const btn = document.getElementById(id);
-      if (btn) { btn.href = 'signup_cn.html'; btn.childNodes[0].textContent = '免费注册'; }
+      if (btn) {
+        btn.href = 'signup_cn.html';
+        btn.childNodes[0].textContent = '免费注册';
+        const sub = btn.querySelector('.btn-sub');
+        if (sub) {
+          sub.childNodes[0].textContent = '全部股票';
+          if (sub.lastChild) sub.lastChild.textContent = '无需订阅';
+        }
+      }
     });
     ['heroInfraStripe', 'faqTrialItemHome'].forEach(id => {
       const el = document.getElementById(id);
