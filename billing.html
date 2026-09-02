@@ -35,7 +35,7 @@
       --gold: #f59e0b;
       --gold-light: #fcd34d;
       --white: #f8fafc;
-      --muted: #94a3b8;
+      --muted: #cbd5e1;
       --border: rgba(255,255,255,0.07);
     }
 
@@ -220,8 +220,8 @@
     }
 
     .plan {
-      background: rgba(13, 30, 61, 0.6);
-      border: 1px solid var(--border);
+      background: #ffffff;
+      border: 1px solid rgba(15,23,42,0.06);
       border-radius: 20px;
       padding: 32px 28px;
       text-align: left;
@@ -230,6 +230,7 @@
       flex-direction: column;
       transition: all 0.3s ease;
       overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
     }
 
     .plan::before {
@@ -243,17 +244,17 @@
     }
 
     .plan:hover {
-      border-color: rgba(59,130,246,0.2);
+      border-color: rgba(59,130,246,0.25);
       transform: translateY(-4px);
-      box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.45);
     }
 
     .plan:hover::before { opacity: 1; }
 
     /* Featured plan */
     .plan.featured {
-      border-color: rgba(59,130,246,0.35);
-      background: rgba(59,130,246,0.07);
+      border-color: rgba(59,130,246,0.4);
+      background: #f0f6ff;
     }
 
     .plan.featured::before { opacity: 1; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.5), transparent); }
@@ -266,9 +267,9 @@
       font-size: 10px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      background: rgba(59,130,246,0.15);
-      color: var(--electric-bright);
-      border: 1px solid rgba(59,130,246,0.25);
+      background: rgba(59,130,246,0.12);
+      color: #2563eb;
+      border: 1px solid rgba(59,130,246,0.3);
       padding: 4px 10px;
       border-radius: 999px;
     }
@@ -279,7 +280,7 @@
       font-size: 11px;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: #475569;
       margin-bottom: 16px;
     }
 
@@ -295,7 +296,7 @@
       font-family: 'DM Sans', sans-serif;
       font-size: 20px;
       font-weight: 600;
-      color: var(--muted);
+      color: #475569;
       margin-top: 4px;
     }
 
@@ -303,7 +304,7 @@
       font-family: 'DM Serif Display', serif;
       font-size: 56px;
       line-height: 1;
-      color: var(--white);
+      color: #0f172a;
       letter-spacing: -0.03em;
     }
 
@@ -319,7 +320,7 @@
     .period {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
-      color: #94a3b8;
+      color: #64748b;
       letter-spacing: 0.08em;
       margin-bottom: 8px;
     }
@@ -329,9 +330,9 @@
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.08em;
-      color: #86efac;
+      color: #15803d;
       background: rgba(34,197,94,0.1);
-      border: 1px solid rgba(34,197,94,0.2);
+      border: 1px solid rgba(34,197,94,0.25);
       padding: 3px 8px;
       border-radius: 999px;
       margin-bottom: 24px;
@@ -340,7 +341,7 @@
     /* Divider */
     .plan-divider {
       height: 1px;
-      background: var(--border);
+      background: rgba(15,23,42,0.1);
       margin: 20px 0;
     }
 
@@ -357,32 +358,32 @@
       align-items: flex-start;
       gap: 10px;
       font-size: 13px;
-      color: #94a3b8;
+      color: #334155;
       margin-bottom: 10px;
       line-height: 1.5;
       font-weight: 300;
     }
 
     li .check {
-      color: var(--electric-bright);
+      color: #2563eb;
       font-size: 14px;
       flex-shrink: 0;
       margin-top: 1px;
     }
 
     li .cross {
-      color: #475569;
+      color: #94a3b8;
       font-size: 14px;
       flex-shrink: 0;
       margin-top: 1px;
     }
 
     .plan.free-tier {
-      border-color: rgba(255,255,255,0.06);
-      background: rgba(1,33,105,0.7);
+      border-color: rgba(15,23,42,0.08);
+      background: #f8fafc;
     }
 
-    .featured li { color: #cbd5e1; }
+    .featured li { color: #334155; }
 
     /* Buttons */
     .plan-btn {
@@ -402,15 +403,15 @@
     }
 
     .btn-outline {
-      background: rgba(59,130,246,0.15);
-      border: 1px solid rgba(59,130,246,0.35);
-      color: var(--white);
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.3);
+      color: #1d4ed8;
     }
 
     .btn-outline:hover {
-      background: rgba(59,130,246,0.25);
-      border-color: rgba(59,130,246,0.6);
-      color: var(--white);
+      background: rgba(59,130,246,0.16);
+      border-color: rgba(59,130,246,0.5);
+      color: #1d4ed8;
     }
 
     .btn-filled {
@@ -450,7 +451,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 11px;
       letter-spacing: 0.06em;
-      color: #64748b;
+      color: #cbd5e1;
       margin-top: -30px;
       margin-bottom: 24px;
     }
@@ -458,7 +459,7 @@
     .trial-notice {
       font-family: 'DM Sans', sans-serif;
       font-size: 12px;
-      color: #94a3b8;
+      color: #cbd5e1;
       text-align: center;
       max-width: 520px;
       margin: 0 auto 48px;
@@ -485,7 +486,7 @@
     .footer-left {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
-      color: #94a3b8;
+      color: #cbd5e1;
       letter-spacing: 0.05em;
     }
 
@@ -499,7 +500,7 @@
     .footer-links a {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
-      color: #94a3b8;
+      color: #cbd5e1;
       text-decoration: none;
       letter-spacing: 0.05em;
       transition: color 0.2s;
@@ -621,7 +622,7 @@
 
   <!-- Footer -->
   <footer>
-    <div style="width:100%;font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;letter-spacing:0.05em;text-align:center;">
+    <div style="width:100%;font-family:'DM Mono',monospace;font-size:11px;color:#cbd5e1;letter-spacing:0.05em;text-align:center;">
       Baizora provides market data for informational purposes only. Not financial advice.
     </div>
     <div class="footer-left">
