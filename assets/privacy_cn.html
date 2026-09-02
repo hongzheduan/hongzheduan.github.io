@@ -17,13 +17,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root{--navy:#060d1f;--navy-mid:#0d1e3d;--electric:#3b82f6;--electric-bright:#60a5fa;--white:#f8fafc;--muted:#94a3b8;--border:rgba(255,255,255,0.07);--border-bright:rgba(255,255,255,0.12);}
+    :root{--navy:#012169;--navy-mid:#0d1e3d;--electric:#3b82f6;--electric-bright:#60a5fa;--white:#f8fafc;--muted:#cbd5e1;--border:rgba(255,255,255,0.07);--border-bright:rgba(255,255,255,0.12);}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
     body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
     body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4;}
     .glow{position:fixed;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse at center,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
-    header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(6,13,31,0.92);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+    header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(1,33,105,0.92);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
     .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
     .logo-wrap img{height:36px;}
     .brand-cn{font-size:18px;font-weight:700;letter-spacing:4px;background:linear-gradient(90deg,var(--white),var(--electric-bright));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
@@ -35,7 +35,7 @@
     .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;padding:6px 7px;border:1px solid var(--border);border-radius:6px;background:transparent;flex-shrink:0;}
     .hamburger span{display:block;width:18px;height:2px;background:var(--muted);border-radius:2px;}
     .hamburger:hover span{background:var(--white);}
-    .mobile-drawer{display:none;position:fixed;left:0;right:0;background:rgba(6,13,31,0.98);border-bottom:1px solid var(--border-bright);backdrop-filter:blur(20px);z-index:190;flex-direction:column;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+    .mobile-drawer{display:none;position:fixed;left:0;right:0;background:rgba(1,33,105,0.98);border-bottom:1px solid var(--border-bright);backdrop-filter:blur(20px);z-index:190;flex-direction:column;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
     .mobile-drawer.open{display:flex;}
     .mobile-drawer a{display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);transition:color 0.15s,background 0.15s;}
     .mobile-drawer a:last-child{border-bottom:none;}
@@ -53,13 +53,13 @@
     .section p:last-child{margin-bottom:0;}
     .section strong{color:var(--white);font-weight:600;}
     .back-wrap{margin-top:56px;}
-    .back-link{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#475569;text-decoration:none;transition:color 0.2s;}
+    .back-link{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#cbd5e1;text-decoration:none;transition:color 0.2s;}
     .back-link:hover{color:var(--electric-bright);}
     footer{position:relative;z-index:10;border-top:1px solid var(--border);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
-    .footer-left{font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;letter-spacing:0.05em;}
+    .footer-left{font-family:'DM Mono',monospace;font-size:11px;color:#cbd5e1;letter-spacing:0.05em;}
     .footer-left a{color:inherit;text-decoration:none;}
     .footer-links{display:flex;gap:20px;flex-wrap:wrap;}
-    .footer-links a{font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;text-decoration:none;letter-spacing:0.05em;transition:color 0.2s;}
+    .footer-links a{font-family:'DM Mono',monospace;font-size:11px;color:#cbd5e1;text-decoration:none;letter-spacing:0.05em;transition:color 0.2s;}
     .footer-links a:hover{color:var(--electric-bright);}
     @media(max-width:640px){header{padding:0 16px;height:56px;}nav{display:none;}.hamburger{display:flex;}.container{padding:48px 20px 72px;}footer{padding:24px 20px;flex-direction:column;text-align:center;}.footer-links{justify-content:center;}}
   </style>
@@ -69,7 +69,6 @@
 
 <header>
   <a href="../index_cn.html" class="logo-wrap">
-    <img src="baize_favicon_v2.png" alt="贝佐拉">
     <div class="brand-cn">贝佐拉</div>
   </a>
   <nav>

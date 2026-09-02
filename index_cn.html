@@ -569,7 +569,7 @@
     .section-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--electric-bright); margin-bottom: 16px; }
 
     .section-title { font-family: 'DM Serif Display', serif; font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em; color: #f1f5f9; margin-bottom: 50px; }
-    .section-title em { font-style: italic; color: #94a3b8; }
+    .section-title em { font-style: italic; color: #60a5fa; }
 
     /* ── HOW IT WORKS ── */
     .steps {
@@ -704,7 +704,7 @@
     }
     .hm-tile.hm-flash { animation: hmFlashPulse 0.6s ease-in-out 3; z-index: 30; }
     .hm-card { background: rgba(13,30,61,0.5); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
-    .hm-legend { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; letter-spacing: 0.04em; }
+    .hm-legend { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; font-family: 'DM Mono', monospace; font-size: 10px; color: #cbd5e1; letter-spacing: 0.04em; }
     .hm-legend-bar { width: 160px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #b91c1c, #33415b 50%, #157f3d); }
     .hm-wrap { position: relative; width: 100%; overflow: hidden; border-radius: 8px; }
     .hm-seemore-wrap { text-align: center; margin-top: 20px; }
@@ -722,7 +722,7 @@
     .hm-tooltip .hmt-ticker { font-family: 'DM Mono', monospace; font-weight: 700; color: #60a5fa; font-size: 13px; }
     .hm-tooltip .hmt-name { color: #94a3b8; font-size: 11px; margin: 2px 0 6px; }
     .hm-tooltip .hmt-row { display: flex; justify-content: space-between; gap: 16px; font-family: 'DM Mono', monospace; font-size: 11px; color: #cbd5e1; }
-    .hm-msg { text-align: center; padding: 60px 0; color: #64748b; font-family: 'DM Mono', monospace; font-size: 12px; }
+    .hm-msg { text-align: center; padding: 60px 0; color: #cbd5e1; font-family: 'DM Mono', monospace; font-size: 12px; }
 
     /* ── INDEX TREND CHARTS (VOO / QQQ) ── */
     .idx-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
@@ -853,7 +853,7 @@
 
     /* ── CTA MINI ── */
     .cta-mini { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
-    .cta-mini-tagline { font-size: 13px; color: #94a3b8; }
+    .cta-mini-tagline { font-size: 13px; color: #cbd5e1; }
     .cta-mini-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
     .cta-mini-btns #ctaStartFreeMini { min-width: 178px; justify-content: center; }
 
@@ -998,6 +998,16 @@
     .hero-split .hero-bullet   { justify-content: flex-start; text-align: left; }
     .hero-split .hero-cta      { grid-column: 1 / -1; grid-row: 2; min-width: 0; justify-content: center; align-self: start; margin-top: 20px; }
     .hero-split .hero-cta #ctaStartFreeHero { min-width: 178px; justify-content: center; }
+    .hero-builton {
+      grid-column: 1 / -1;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #cbd5e1;
+      text-align: center;
+      margin-top: 12px;
+    }
 
     /* ── DASHBOARD MOCK ── */
     .dash-mock {
@@ -1224,10 +1234,11 @@
     /* ── MOBILE: collapse to single column ── */
     @media (max-width: 900px) {
       .hero-split { grid-template-columns: 1fr; row-gap: 32px; text-align: center; }
-      .hero-left-card, .sh-card, .hero-split .hero-cta { grid-column: 1; grid-row: auto; }
+      .hero-left-card, .sh-card, .hero-split .hero-cta, .hero-builton { grid-column: 1; grid-row: auto; }
       .hero-left-card { order: 1; }
       .hero-split .hero-cta { order: 2; }
       .sh-card { order: 3; width: 100%; max-width: 100%; margin: 0 auto; }
+      .hero-builton { order: 4; }
       .dash-mock { min-width: 0; width: 100%; overflow: hidden; }
       .dash-mock-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; max-width: 100%; }
       .dash-mock-wrap::after { content: '← 滑动查看更多列'; display:block; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:#94a3b8; padding:6px 0; letter-spacing:0.08em; }
@@ -1270,7 +1281,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 <header>
   <a href="index_cn.html" class="logo-wrap">
-    <img src="assets/baize_favicon_v2.png" alt="Baizora">
     <span class="brand-cn">贝佐拉</span>
   </a>
 
@@ -1309,10 +1319,11 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <div class="hero-eyebrow" style="margin-bottom:10px;background:rgba(37,99,235,0.06);font-weight:500;">贝佐拉，化繁为简</div>
       <h1 class="hero-title" style="font-size:clamp(18px,2.2vw,27px);">快速把握市场脉搏<br>一屏看清量价趋势</h1>
 
-      <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:#78350f;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:7px 12px;line-height:1.5;margin-bottom:10px;">独特设计，所有市场信息及股票评分，尽在一行：排序 → 查看走势图 → 评分 → 基本面 — 告别多工具来回切换</div>
+      <p style="font-family:'DM Sans',sans-serif;font-size:14px;color:#475569;line-height:1.6;margin:0 0 14px;">任意指标排序，查看一年走势图，参考贝佐拉评分与 SEC 基本面 — 无需在多个工具间来回切换。</p>
       <div class="hero-bullets">
-        <div class="hero-bullet">值得信赖的基础设施 — <span id="heroInfraStripe">支付由 Stripe 处理，</span>基本面数据来自美国证监会 SEC EDGAR，账户登录由 Google Firebase 保护</div>
-        <div class="hero-bullet">标普500与纳斯达克100成分股变动及相关资讯，每日追踪</div>
+        <div class="hero-bullet">7 个时间周期同屏一行 — 从1天到1年，无需切换图表</div>
+        <div class="hero-bullet">只聚焦驱动大盘的两大指数 — 不必在上万只股票里大海捞针</div>
+        <div class="hero-bullet" id="heroBulletPaid">只有数据：无广告，无买卖建议 · 每月 $9.99，7 天免费试用</div>
         <div class="hero-bullet" id="heroBulletFree" style="display:none;">完全免费 — 登录用户均可使用完整平台，无需订阅</div>
       </div>
     </div><!-- /hero-left-card -->
@@ -1339,6 +1350,8 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <a href="baizora_main_form_freetier_cn.html" class="btn-secondary">免费版<span class="btn-sub">各指数20强异动<span class="btn-sub-sep"> · </span><br class="btn-sub-br">无需登录</span></a>
     </div>
 
+    <div class="hero-builton">技术支撑：<span id="heroInfraStripe">Stripe 支付 · </span>SEC EDGAR 基本面 · Google Firebase 账户</div>
+
   </div><!-- /hero-split -->
 </section>
 
@@ -1351,7 +1364,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 </div>
 
 <section class="features" style="padding:90px 60px 20px;">
-  <div class="section-label">使用方式</div>
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">三步找到<em>下一个信号</em></h2>
 
   <div class="steps">
@@ -1374,7 +1386,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 </section>
 
 <section class="features" style="padding-top:20px;">
-  <div class="section-label">探索数据的方式</div>
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">为精准分析而构建<br><em>为高效发现而设计</em></h2>
   <p style="font-family:'DM Mono',monospace;font-size:11px;color:#e2e8f0;letter-spacing:0.04em;text-align:center;margin-top:8px;margin-bottom:40px;">历史规律不代表未来表现。&nbsp;·&nbsp; 仅提供市场数据 &nbsp;·&nbsp; 不构成投资建议</p>
 
@@ -1496,7 +1507,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 </section>
 
 <section class="hm-section">
-  <div class="section-label">实时快照</div>
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">市场<em>热力图</em></h2>
 
   <div class="hm-toggle">
@@ -1523,9 +1533,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 <div class="hm-tooltip" id="hmTooltip"></div>
 
 <section class="hm-section" style="padding-top:10px;">
-  <div class="section-label">近1年走势</div>
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">热力图<em>背后的指数</em></h2>
-  <p style="font-family:'DM Mono',monospace;font-size:11px;color:#e2e8f0;letter-spacing:0.04em;text-align:center;margin-top:-30px;margin-bottom:24px;">VOO 与 QQQ — 分别追踪上方热力图中的标普500与纳斯达克100</p>
 
   <div class="idx-grid">
     <div class="idx-card">
@@ -1562,7 +1570,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
     <!-- 左侧：指数成员资格新闻 -->
     <div class="hp-news-panel">
-      <div class="hp-news-eyebrow">◈ &nbsp; 指数动态</div>
       <div class="hp-news-heading">指数成分股变动新闻与记录 <span style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每日更新）</span></div>
       <div class="hp-news-sub">标普500 &amp; 纳斯达克100 — 成分股调入与调出</div>
       <div class="hp-news-tabs" id="hpCatTabs"></div>
@@ -1578,7 +1585,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
     <!-- 右侧：今日市场简报 -->
     <div class="digest-panel">
-      <div class="digest-eyebrow">◈ &nbsp; 每日简报</div>
       <div class="digest-heading">今日市场简报</div>
       <div style="display:flex;gap:6px;margin-bottom:14px;">
         <input type="email" id="digestEmailInput" placeholder="you@email.com" style="flex:1;min-width:0;background:#f8fafc;border:1px solid rgba(15,23,42,0.15);border-radius:8px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 10px;outline:none;">
@@ -1631,7 +1637,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <div class="share-gallery-panel">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
         <div>
-          <div class="share-gallery-eyebrow">◈ &nbsp; 图表精选</div>
           <div class="share-gallery-heading">今日精选图表 — 免费下载</div>
           <div class="share-gallery-sub">来自今日视频 · 工作日约美东时间下午6点更新，周末约美东时间上午10点更新 · 登录后即可下载，用于社交媒体分享、演示或个人笔记</div>
         </div>
@@ -1645,7 +1650,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     </div>
 
     <div class="faq-mini-panel">
-      <div class="faq-mini-eyebrow">◈ &nbsp; 帮助中心</div>
       <div class="faq-mini-heading">快速解答</div>
       <div class="faq-mini-sub">常见问题 — 点击展开</div>
       <div class="faq-mini-list">
@@ -1888,7 +1892,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         }
       }
     });
-    ['heroInfraStripe', 'faqTrialItemHome'].forEach(id => {
+    ['heroInfraStripe', 'heroBulletPaid', 'faqTrialItemHome'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });

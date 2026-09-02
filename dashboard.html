@@ -14,14 +14,14 @@
   <title>Baizora | Dashboard</title>
   <link rel="icon" href="assets/baize_favicon_v2.png">
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#060d1f">
+  <meta name="theme-color" content="#012169">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --navy: #060d1f;
+      --navy: #012169;
       --navy-mid: #0d1e3d;
       --electric: #3b82f6;
       --electric-bright: #60a5fa;
@@ -62,7 +62,7 @@
       top: 0;
       z-index: 100;
       height: 56px;
-      background: rgba(6,13,31,0.95);
+      background: rgba(1,33,105,0.92);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(20px);
       display: flex;
@@ -154,7 +154,7 @@
       position: fixed;
       left: 0; right: 0;
       z-index: 99;
-      background: rgba(6,13,31,0.98);
+      background: rgba(1,33,105,0.98);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(20px);
       padding: 12px 20px 20px;
@@ -206,7 +206,7 @@
       font-family: 'DM Serif Display', serif;
       font-size: clamp(28px, 4vw, 40px);
       letter-spacing: -0.02em;
-      color: #94a3b8;
+      color: var(--white);
       margin-bottom: 6px;
     }
 
@@ -262,8 +262,8 @@
     }
 
     .tool-card {
-      background: rgba(13,30,61,0.6);
-      border: 1px solid var(--border);
+      background: #ffffff;
+      border: 1px solid rgba(15,23,42,0.06);
       border-radius: 14px;
       padding: 24px;
       text-decoration: none;
@@ -273,6 +273,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
     }
 
     .tool-card::before {
@@ -285,7 +286,7 @@
       transition: opacity 0.25s;
     }
 
-    .tool-card:hover { border-color: rgba(59,130,246,0.3); background: rgba(13,30,61,0.9); transform: translateY(-2px); box-shadow: 0 16px 48px rgba(0,0,0,0.3); }
+    .tool-card:hover { border-color: rgba(59,130,246,0.25); background: #f8fafc; transform: translateY(-3px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
     .tool-card:hover::before { opacity: 1; }
 
     .tool-card.gold-border { border-color: rgba(245,158,11,0.2); }
@@ -305,15 +306,15 @@
     .tool-card.locked .tool-tag.tag-soon {
       pointer-events: auto;
       cursor: pointer;
-      color: #60a5fa;
-      background: rgba(59,130,246,0.15);
-      border: 1px solid rgba(59,130,246,0.35);
+      color: #2563eb;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.3);
       font-weight: 600;
     }
     .tool-card.locked .tool-tag.tag-soon:hover {
-      background: rgba(59,130,246,0.28);
-      border-color: rgba(59,130,246,0.55);
-      color: var(--white);
+      background: rgba(59,130,246,0.16);
+      border-color: rgba(59,130,246,0.5);
+      color: #1d4ed8;
     }
 
     .tool-icon {
@@ -321,6 +322,7 @@
       border-radius: 10px;
       background: rgba(59,130,246,0.1);
       border: 1px solid rgba(59,130,246,0.2);
+      color: #2563eb;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -337,12 +339,12 @@
       font-family: 'DM Sans', sans-serif;
       font-size: 15px;
       font-weight: 600;
-      color: var(--white);
+      color: #1d4ed8;
     }
 
     .tool-desc {
       font-size: 13px;
-      color: #cbd5e1;
+      color: #334155;
       font-weight: 400;
       line-height: 1.6;
     }
@@ -361,11 +363,11 @@
       align-self: flex-start;
     }
 
-    .tag-live    { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.2);  color: #86efac; }
-    .tag-soon    { background: rgba(148,163,184,0.1);border: 1px solid rgba(148,163,184,0.25);color: #94a3b8; }
-    .tag-account { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: #60a5fa; }
-    .tag-free    { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); color: var(--gold-light); }
-    .tag-testing { background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.25); color: #fb923c; }
+    .tag-live    { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.25);  color: #16a34a; }
+    .tag-soon    { background: rgba(100,116,139,0.1);border: 1px solid rgba(100,116,139,0.25);color: #64748b; }
+    .tag-account { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); color: #2563eb; }
+    .tag-free    { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #b45309; }
+    .tag-testing { background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.3); color: #c2410c; }
 
     .tool-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; flex-wrap: wrap; }
     .tool-footer .tool-tag { margin-top: 0; }
@@ -384,17 +386,18 @@
       align-items: center;
       gap: 10px;
       padding: 14px 16px;
-      background: rgba(13,30,61,0.4);
-      border: 1px solid var(--border);
+      background: #ffffff;
+      border: 1px solid rgba(15,23,42,0.06);
       border-radius: 10px;
       text-decoration: none;
       font-size: 13px;
-      color: #cbd5e1;
+      color: #334155;
       font-weight: 500;
       transition: all 0.2s;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
     }
 
-    .quick-link:hover { background: rgba(59,130,246,0.08); color: var(--white); border-color: rgba(59,130,246,0.3); }
+    .quick-link:hover { background: #f8fafc; color: #1d4ed8; border-color: rgba(59,130,246,0.25); transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0,0,0,0.3); }
     .quick-link-icon { font-size: 16px; }
 
     @media (max-width: 640px) {
@@ -412,8 +415,7 @@
   <!-- Header -->
   <header>
     <a href="./" class="header-left">
-      <img src="assets/baize_favicon_v2.png" alt="Baizora">
-      <span class="logo-text">Baiz<span>ora</span></span>
+      <span class="logo-text">Baiz<span style="color:#60a5fa;">ora</span></span>
     </a>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
       <div class="header-right">
@@ -464,7 +466,7 @@
         <div class="tool-name">Market Heatmap</div>
         <div class="tool-desc">Interactive S&amp;P 500 / Nasdaq-100 treemap, sized by market cap. Color by 1D change, Baizora Score, or P/E vs sector average, with ticker search.</div>
         <div class="tool-footer">
-          <div class="tool-tag" style="color:#4ade80;background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.25);">● Live</div>
+          <div class="tool-tag" style="color:#16a34a;background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.25);">● Live</div>
         </div>
       </a>
 
@@ -473,7 +475,7 @@
         <div class="tool-name">Index Membership News</div>
         <div class="tool-desc">Pending and recent additions and removals from S&amp;P 500 and Nasdaq-100, sourced from financial news. Updated daily after market close.</div>
         <div class="tool-footer">
-          <div class="tool-tag" style="color:#fb923c;background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.25);">● Live</div>
+          <div class="tool-tag" style="color:#c2410c;background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.3);">● Live</div>
         </div>
       </a>
 
@@ -482,7 +484,7 @@
         <div class="tool-name">Chart Archive</div>
         <div class="tool-desc">One month of featured stock charts from Baizora's daily videos, free to download for social media, presentations, or your own notes.</div>
         <div class="tool-footer">
-          <div class="tool-tag" style="color:#60a5fa;background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.2);">▤ Free</div>
+          <div class="tool-tag" style="color:#2563eb;background:rgba(96,165,250,0.12);border-color:rgba(96,165,250,0.3);">▤ Free</div>
         </div>
       </a>
 
@@ -491,7 +493,7 @@
         <div class="tool-name">Free Tier · Top Movers</div>
         <div class="tool-desc">Today's top 20 movers in the S&amp;P 500 + top 20 in the Nasdaq-100, no login required.</div>
         <div class="tool-footer">
-          <div class="tool-tag" style="color:#f59e0b;background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);">◑ Free</div>
+          <div class="tool-tag" style="color:#b45309;background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);">◑ Free</div>
           <span class="tool-date" id="freeTierDate"></span>
         </div>
       </a>

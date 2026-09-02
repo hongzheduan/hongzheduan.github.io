@@ -18,7 +18,7 @@
 
   <style>
     :root {
-      --navy: #060d1f;
+      --navy: #012169;
       --navy-mid: #0d1e3d;
       --navy-light: #162847;
       --electric: #3b82f6;
@@ -109,7 +109,7 @@
       z-index: 20;
       border: 1px solid var(--border);
       background: transparent;
-      color: var(--muted);
+      color: #cbd5e1;
       padding: 6px 14px;
       border-radius: 7px;
       font-family: 'DM Sans', sans-serif;
@@ -126,8 +126,8 @@
       width: 100%;
       max-width: 400px;
       padding: 44px 40px;
-      background: rgba(13, 30, 61, 0.7);
-      border: 1px solid var(--border);
+      background: #ffffff;
+      border: 1px solid rgba(15,23,42,0.06);
       border-radius: 20px;
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -154,7 +154,7 @@
       font-size: 10px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--electric-bright);
+      color: #2563eb;
       margin-bottom: 10px;
     }
 
@@ -162,14 +162,14 @@
       font-family: 'DM Serif Display', serif;
       font-size: 32px;
       letter-spacing: -0.02em;
-      color: var(--white);
+      color: #1d4ed8;
       margin-bottom: 6px;
       line-height: 1.1;
     }
 
     .card-sub {
       font-size: 13px;
-      color: var(--muted);
+      color: #475569;
       margin-bottom: 32px;
       font-weight: 300;
     }
@@ -186,7 +186,7 @@
       font-size: 10px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: #475569;
     }
 
     .input-wrap { position: relative; }
@@ -194,17 +194,17 @@
     input {
       width: 100%;
       padding: 12px 14px;
-      background: rgba(6, 13, 31, 0.6);
-      border: 1px solid var(--border);
+      background: #f8fafc;
+      border: 1px solid rgba(15,23,42,0.12);
       border-radius: 9px;
-      color: var(--white);
+      color: #0f172a;
       font-family: 'DM Sans', sans-serif;
       font-size: 14px;
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    input::placeholder { color: #4b6280; }
+    input::placeholder { color: #94a3b8; }
 
     input:focus {
       border-color: rgba(59,130,246,0.5);
@@ -219,7 +219,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--muted);
+      color: #64748b;
       padding: 2px;
       display: flex;
       align-items: center;
@@ -237,14 +237,14 @@
 
     .forgot-row a {
       font-size: 12px;
-      color: var(--muted);
+      color: #2563eb;
       text-decoration: none;
       transition: color 0.2s;
       font-family: 'DM Mono', monospace;
       letter-spacing: 0.03em;
     }
 
-    .forgot-row a:hover { color: var(--electric-bright); }
+    .forgot-row a:hover { color: #1d4ed8; }
 
     .btn-login {
       width: 100%;
@@ -295,32 +295,32 @@
       content: '';
       flex: 1;
       height: 1px;
-      background: var(--border);
+      background: rgba(15,23,42,0.12);
     }
 
     .divider span {
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.1em;
-      color: #64748b;
+      color: #475569;
       text-transform: uppercase;
     }
 
     .signup-row {
       text-align: center;
       font-size: 13px;
-      color: var(--muted);
+      color: #475569;
       font-weight: 300;
     }
 
     .signup-row a {
-      color: var(--electric-bright);
+      color: #2563eb;
       text-decoration: none;
       font-weight: 500;
       transition: color 0.2s;
     }
 
-    .signup-row a:hover { color: var(--white); }
+    .signup-row a:hover { color: #1d4ed8; }
 
     .error-msg {
       display: none;
@@ -329,7 +329,7 @@
       border-radius: 8px;
       padding: 10px 14px;
       font-size: 13px;
-      color: #fca5a5;
+      color: #b91c1c;
       margin-bottom: 16px;
       font-weight: 300;
     }
@@ -343,7 +343,7 @@
       border-radius: 8px;
       padding: 10px 14px;
       font-size: 13px;
-      color: #86efac;
+      color: #15803d;
       margin-bottom: 16px;
       font-weight: 300;
     }
@@ -362,13 +362,13 @@
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.1em;
-      color: #94a3b8;
+      color: #cbd5e1;
       text-decoration: none;
       text-transform: uppercase;
       transition: color 0.2s;
     }
 
-    .page-footer a:hover { color: var(--muted); }
+    .page-footer a:hover { color: var(--white); }
 
     @media (max-width: 480px) {
       .card { margin: 20px; padding: 36px 28px; }
@@ -381,8 +381,7 @@
   <div class="glow"></div>
 
   <a href="./" class="logo-wrap">
-    <img src="assets/baize_favicon_v2.png" alt="Baizora">
-    <span class="logo-text">Baiz<span>ora</span></span>
+    <span class="logo-text">Baiz<span style="color:#60a5fa;">ora</span></span>
   </a>
   <a href="./" class="home-btn">Home</a>
 

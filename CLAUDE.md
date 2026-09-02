@@ -83,22 +83,22 @@ API base: `https://us-central1-baizora.cloudfunctions.net/api/`
 
 ## Branding Rules
 
-### Logo image
-- File: `assets/baize_favicon_v2.png` — used on ALL pages
-- Height: `36px` on all pages (mobile responsive overrides may reduce to 28–32px)
+### Logo — wordmark only (no image)
+The `baize_favicon_v2.png` creature illustration was **retired from all headers** (2026-09-02) — it read as AI-generated art and undercut the "serious data infrastructure" positioning. Headers are now a pure wordmark. The old png files still back the browser-tab favicon / `og:image` only (a proper geometric favicon is a separate TODO).
 
 ### EN logo
 ```html
 <a href="./" class="logo-wrap">
-  <img src="assets/baize_favicon_v2.png" alt="Baizora">
-  <span class="logo-text" style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;">Baiz<span style="color:#3b82f6;">ora</span></span>
+  <span class="logo-text" style="font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;">Baiz<span style="color:#60a5fa;">ora</span></span>
 </a>
 ```
+- Two-tone: "Baiz" white (`#f8fafc`), "ora" electric-bright (`#60a5fa`)
+- DM Serif Display, ~20px (some pages 22px), letter-spacing `-0.02em`
+- No `<img>` in the header. `.logo-wrap img { height:36px }` rules are now dead — harmless, left in place.
 
 ### CN logo (贝佐拉 — ALWAYS use this in all CN pages)
 ```html
 <a href="./" class="logo-wrap">
-  <img src="assets/baize_favicon_v2.png" alt="Baizora">
   <span class="brand-cn">贝佐拉</span>
 </a>
 ```

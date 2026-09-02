@@ -43,7 +43,7 @@
 
   <style>
     :root {
-      --navy: #060d1f;
+      --navy: #012169;
       --navy-mid: #0d1e3d;
       --electric: #3b82f6;
       --electric-bright: #60a5fa;
@@ -103,7 +103,7 @@
       z-index: 200;
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      background: rgba(6,13,31,0.85);
+      background: rgba(1,33,105,0.85);
       border-bottom: 1px solid var(--border);
       padding: 0 32px;
       height: 56px;
@@ -476,7 +476,7 @@
 
     .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px 6px; border: 1px solid var(--border); border-radius: 6px; background: transparent; flex-shrink: 0; }
     .hamburger span { display: block; width: 18px; height: 2px; background: var(--muted); border-radius: 2px; }
-    .mobile-drawer { display: none; position: fixed; left: 0; right: 0; background: rgba(6,13,31,0.98); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); z-index: 190; flex-direction: column; padding: 8px; gap: 4px; }
+    .mobile-drawer { display: none; position: fixed; left: 0; right: 0; background: rgba(1,33,105,0.98); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); z-index: 190; flex-direction: column; padding: 8px; gap: 4px; }
     .mobile-drawer.open { display: flex; }
     .mobile-drawer a, .mobile-drawer button { display: block; width: 100%; padding: 12px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; background: transparent; border: 1px solid transparent; cursor: pointer; text-align: left; transition: all 0.2s; }
     .mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(59,130,246,0.08); color: var(--white); }
@@ -497,8 +497,7 @@
 
   <header>
     <a href="./" class="logo-wrap">
-      <img src="assets/baize_favicon_v2.png" alt="Baizora">
-      <span class="logo-text">Baiz<span>ora</span></span>
+      <span class="logo-text">Baiz<span style="color:#60a5fa;">ora</span></span>
     </a>
     <div class="header-right">
       <a href="pricing_cn.html" class="nav-btn">中文</a>
