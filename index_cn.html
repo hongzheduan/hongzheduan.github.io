@@ -1044,6 +1044,9 @@
       .hero-left-card p { color: #cbd5e1 !important; font-size: 16px; line-height: 1.7; }
       .hero-left-card .hero-bullet { color: #dbe4f0; font-size: 15.5px; }
       .hero-left-card .hero-bullet::before { color: #60a5fa; }
+      /* don't stretch the movers card to the tall pitch column — sit it at the top,
+         so it ends just below the last row instead of leaving dead space */
+      .hero-split .sh-card { align-self: start; padding-bottom: 12px; }
     }
 
     /* Override centered defaults when inside the split */
