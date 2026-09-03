@@ -847,6 +847,25 @@
     .faq-mini-list .faq-a-inner a { color: #2563eb; text-decoration: none; }
     .faq-mini-list .faq-a-inner a:hover { text-decoration: underline; }
     .faq-mini-footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+
+    /* Desktop: de-box Today's Featured Charts / Quick Answers, split by one centre rule */
+    @media (min-width: 901px) {
+      .gallery-faq-grid { gap: 0; }
+      .share-gallery-panel, .faq-mini-panel { background: transparent; border: none; box-shadow: none; padding: 0; }
+      .share-gallery-panel { padding-right: 52px; border-right: 1px solid rgba(255,255,255,0.13); }
+      .faq-mini-panel { padding-left: 52px; }
+      .share-gallery-heading, .faq-mini-heading { color: #ffffff; }
+      .share-gallery-sub, .faq-mini-sub, .share-gallery-note { color: #94a3b8; }
+      .share-gallery-panel .hp-news-viewall, .faq-mini-panel .hp-news-viewall { color: #93c5fd; }
+      .faq-mini-list .faq-item, .faq-mini-list .faq-item:last-child { border-color: rgba(255,255,255,0.1); }
+      .faq-mini-list .q-text { color: #e2e8f0; }
+      .faq-mini-list .faq-item.open .q-text { color: #ffffff; }
+      .faq-mini-list .faq-q:hover .q-text { color: #93c5fd; }
+      .faq-mini-list .q-icon { border-color: rgba(255,255,255,0.25); color: #94a3b8; }
+      .faq-mini-list .faq-item.open .q-icon { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); color: #93c5fd; }
+      .faq-mini-list .faq-a-inner { color: #cbd5e1; }
+      .faq-mini-list .faq-a-inner a { color: #93c5fd; }
+    }
     .mini-bullet-list { display: flex; flex-direction: column; gap: 7px; }
     .mini-bullet { display: flex; align-items: baseline; gap: 8px; }
     .mini-bullet::before { content: '◆'; color: #2563eb; font-size: 6px; flex-shrink: 0; }
@@ -1674,7 +1693,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <div class="share-gallery-panel">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
         <div>
-          <div class="share-gallery-heading">今日精选图表 — 免费下载</div>
+          <div class="share-gallery-heading">今日精选图表</div>
           <div class="share-gallery-sub">来自今日视频 · 工作日约美东时间下午6点更新，周末约美东时间上午10点更新 · 登录后即可下载，用于社交媒体分享、演示或个人笔记</div>
         </div>
         <a href="chart_archive_cn.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive_cn.html', '图表存档为订阅用户专享内容。', true)">
@@ -1687,8 +1706,16 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     </div>
 
     <div class="faq-mini-panel">
-      <div class="faq-mini-heading">快速解答</div>
-      <div class="faq-mini-sub">常见问题 — 点击展开</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div class="faq-mini-heading">快速解答</div>
+          <div class="faq-mini-sub">常见问题 — 点击展开</div>
+        </div>
+        <a href="assets/faq_cn.html" class="hp-news-viewall" style="flex-shrink:0;">
+          查看完整常见问题
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
       <div class="faq-mini-list">
         <div class="faq-item" id="faqFreeItemHome" style="display:none;">
           <div class="faq-q" onclick="toggleFaqMini(this)">
@@ -1759,12 +1786,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
           </div>
           <div class="faq-a"><div class="faq-a-inner">期待您的来信，欢迎提出任何建议或反馈。发送邮件至 <a href="mailto:support@baizora.com">support@baizora.com</a>，我们会尽快回复，通常当天即可收到回复。您也可以点击右下角的「问」按钮，联系我们的AI助手，全天候在线。</div></div>
         </div>
-      </div>
-      <div class="faq-mini-footer">
-        <a href="assets/faq_cn.html" class="hp-news-viewall">
-          查看完整常见问题
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
       </div>
     </div>
 

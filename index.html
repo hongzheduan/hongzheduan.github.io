@@ -849,6 +849,25 @@
     .faq-mini-list .faq-a-inner a { color: #2563eb; text-decoration: none; }
     .faq-mini-list .faq-a-inner a:hover { text-decoration: underline; }
     .faq-mini-footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+
+    /* Desktop: de-box Today's Featured Charts / Quick Answers, split by one centre rule */
+    @media (min-width: 901px) {
+      .gallery-faq-grid { gap: 0; }
+      .share-gallery-panel, .faq-mini-panel { background: transparent; border: none; box-shadow: none; padding: 0; }
+      .share-gallery-panel { padding-right: 52px; border-right: 1px solid rgba(255,255,255,0.13); }
+      .faq-mini-panel { padding-left: 52px; }
+      .share-gallery-heading, .faq-mini-heading { color: #ffffff; }
+      .share-gallery-sub, .faq-mini-sub, .share-gallery-note { color: #94a3b8; }
+      .share-gallery-panel .hp-news-viewall, .faq-mini-panel .hp-news-viewall { color: #93c5fd; }
+      .faq-mini-list .faq-item, .faq-mini-list .faq-item:last-child { border-color: rgba(255,255,255,0.1); }
+      .faq-mini-list .q-text { color: #e2e8f0; }
+      .faq-mini-list .faq-item.open .q-text { color: #ffffff; }
+      .faq-mini-list .faq-q:hover .q-text { color: #93c5fd; }
+      .faq-mini-list .q-icon { border-color: rgba(255,255,255,0.25); color: #94a3b8; }
+      .faq-mini-list .faq-item.open .q-icon { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); color: #93c5fd; }
+      .faq-mini-list .faq-a-inner { color: #cbd5e1; }
+      .faq-mini-list .faq-a-inner a { color: #93c5fd; }
+    }
     .mini-bullet-list { display: flex; flex-direction: column; gap: 7px; }
     .mini-bullet { display: flex; align-items: baseline; gap: 8px; }
     .mini-bullet::before { content: '◆'; color: #2563eb; font-size: 6px; flex-shrink: 0; }
@@ -1674,7 +1693,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <div class="share-gallery-panel">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
         <div>
-          <div class="share-gallery-heading">Today's Featured Charts — Free to Download</div>
+          <div class="share-gallery-heading">Today's Featured Charts</div>
           <div class="share-gallery-sub">From today's video · updates around 6 PM ET on weekdays, 10 AM ET on weekends · sign in to download for social media, presentations, or your own notes</div>
         </div>
         <a href="chart_archive.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive.html', 'Chart Archive', true)">
@@ -1687,8 +1706,16 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     </div>
 
     <div class="faq-mini-panel">
-      <div class="faq-mini-heading">Quick Answers</div>
-      <div class="faq-mini-sub">Common questions — click to expand</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div class="faq-mini-heading">Quick Answers</div>
+          <div class="faq-mini-sub">Common questions — click to expand</div>
+        </div>
+        <a href="assets/faq.html" class="hp-news-viewall" style="flex-shrink:0;">
+          View full FAQ
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
       <div class="faq-mini-list">
         <div class="faq-item" id="faqFreeItemHome" style="display:none;">
           <div class="faq-q" onclick="toggleFaqMini(this)">
@@ -1759,12 +1786,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
           </div>
           <div class="faq-a"><div class="faq-a-inner">We look forward to hearing from you, and welcome all suggestions and feedback. Email <a href="mailto:support@baizora.com">support@baizora.com</a> and we'll respond as soon as possible, typically the same day. Or click <strong>Ask</strong> in the bottom-right corner for our AI assistant, available 24/7.</div></div>
         </div>
-      </div>
-      <div class="faq-mini-footer">
-        <a href="assets/faq.html" class="hp-news-viewall">
-          View full FAQ
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
       </div>
     </div>
 
