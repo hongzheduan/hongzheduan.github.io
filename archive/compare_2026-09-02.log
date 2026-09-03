@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-09-02
 Threshold: >10% for all metrics
-138 flagged diffs above threshold
+140 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -134,8 +134,8 @@ MKTCAP  -- 12 flagged (>10%)
     UDR      ours=$11.89B  yf=$13.44B  diff=11.5% ***
 
 ------------------------------------------------------------
-PE  -- 52 flagged (>10%)
-  FLAGGED (top 20 of 52):
+PE  -- 53 flagged (>10%)
+  FLAGGED (top 20 of 53):
     TPL      ours=374.820  yf=47.153  diff=694.9% ***
     COF      ours=55.260  yf=11.639  diff=374.8% ***
     DD       ours=156.390  yf=56.808  diff=175.3% ***
@@ -169,12 +169,12 @@ PE  -- 52 flagged (>10%)
     MNST     ours=20.560  yf=41.514  diff=50.5% ***
 
 ------------------------------------------------------------
-EPS  -- 59 flagged (>10%)
-  FLAGGED (top 20 of 59):
+EPS  -- 60 flagged (>10%)
+  FLAGGED (top 20 of 60):
     PSKY     ours=-0.300  yf=0.030  diff=1100.0% ***
     NBIS     ours=0.330  yf=-0.080  diff=512.5% ***
     CRWD     ours=0.220  yf=0.040  diff=450.0% ***
-    NFLX     ours=-9.240  yf=3.180  diff=390.6% ***
+    NFLX     ours=-9.240  yf=3.260  diff=383.4% ***
     GPN      ours=-2.970  yf=2.110  diff=240.8% ***
     NOW      ours=-1.620  yf=1.530  diff=205.9% ***
     OMC      ours=-0.370  yf=0.350  diff=205.7% ***
@@ -195,7 +195,7 @@ EPS  -- 59 flagged (>10%)
     PSKY     ours=-0.300  yf=0.030  diff=1100.0% ***
     NBIS     ours=0.330  yf=-0.080  diff=512.5% ***
     CRWD     ours=0.220  yf=0.040  diff=450.0% ***
-    NFLX     ours=-9.240  yf=3.180  diff=390.6% ***
+    NFLX     ours=-9.240  yf=3.260  diff=383.4% ***
     GPN      ours=-2.970  yf=2.110  diff=240.8% ***
     NOW      ours=-1.620  yf=1.530  diff=205.9% ***
     OMC      ours=-0.370  yf=0.350  diff=205.7% ***
