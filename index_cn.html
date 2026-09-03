@@ -885,6 +885,32 @@
     .hp-news-panel .hp-news-viewall, .share-gallery-panel .hp-news-viewall, .faq-mini-panel .hp-news-viewall { color: #2563eb; }
     .hp-news-msg { font-size: 12px; color: #64748b; padding: 20px 0; text-align: center; }
 
+    /* Desktop: the two news panels shed their box and sit on the Duke-blue page */
+    @media (min-width: 901px) {
+      .hp-news-panel, .digest-panel {
+        background: transparent; border: none; box-shadow: none; padding: 0;
+      }
+      .hp-news-heading, .digest-heading { color: #ffffff; }
+      .hp-news-sub, .digest-col-label, .digest-news-label, .hp-news-msg, .digest-msg,
+      .hp-news-item-date, .hp-news-item-source, .digest-dname { color: #94a3b8; }
+      .hp-news-panel span[style*="#475569"], .hp-news-panel span[style*="#64748b"],
+      .digest-panel span[style*="#475569"], .digest-panel span[style*="#64748b"] { color: #94a3b8 !important; }
+      .hp-news-item, .digest-news-item, .digest-row { border-bottom-color: rgba(255,255,255,0.1); }
+      .hp-news-footer, .digest-div { border-top-color: rgba(255,255,255,0.12); }
+      .digest-div { border-top: 1px solid rgba(255,255,255,0.12); }
+      .hp-news-item-title, .digest-news-link,
+      .hp-news-panel .hp-news-viewall, .digest-dl { color: #93c5fd; }
+      .hp-news-item-title:hover, .digest-news-link:hover { color: #ffffff; }
+      .digest-dtk { color: #e2e8f0; }
+      .digest-pos { color: #4ade80; }
+      .digest-neg { color: #f87171; }
+      .hp-cat-tab { border-color: rgba(255,255,255,0.18); color: #cbd5e1; }
+      .hp-cat-tab:hover { color: #ffffff; border-color: rgba(255,255,255,0.4); }
+      .hp-cat-tab.hp-add { color: #4ade80; }
+      .hp-cat-tab.hp-rem { color: #f87171; }
+      #digestEmailInput { background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.18) !important; color: #e2e8f0 !important; }
+    }
+
     /* ── FOOTER ── */
     footer { position: relative; z-index: 10; background: #ffffff; border-top: 1px solid #e2e8f0; padding: 28px 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
     .footer-disclaimer { font-family: 'DM Mono', monospace; font-size: 11px; color: #64748b; letter-spacing: 0.05em; text-align: center; }
