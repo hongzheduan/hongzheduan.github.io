@@ -764,6 +764,38 @@
     .spark-legend { display: flex; flex-direction: column; gap: 8px; margin-bottom: 0; }
     .spark-legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: #334155; letter-spacing: 0.06em; }
 
+    /* Desktop: de-box the whole Precision Analysis grid — cards sit straight on the
+       Duke-blue page, one vertical centre rule per group; copy recoloured light. */
+    @media (min-width: 901px) {
+      .cards {
+        gap: 36px 0;
+        background: linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.12)) 50% 0 / 1px 100% no-repeat;
+      }
+      .spark-demo-row {
+        gap: 0; margin-top: 36px;
+        background: linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.12)) 50% 0 / 1px 100% no-repeat;
+      }
+      .card, .spark-demo {
+        background: transparent !important; border: none !important; box-shadow: none !important; padding: 0;
+      }
+      .card::before, .spark-demo::before { display: none; }
+      .card:hover, .spark-demo:hover { background: transparent !important; box-shadow: none !important; transform: none !important; }
+      .card:nth-child(odd),  .spark-demo:first-child { padding-right: 44px; }
+      .card:nth-child(even), .spark-demo:last-child  { padding-left: 44px; }
+
+      .card h3, .spark-demo h3 { color: #ffffff; }
+      .card h3[style*="#b45309"] { color: #fcd34d !important; }
+      .card p, .spark-demo p, .spark-legend-item { color: #cbd5e1; }
+      .card p strong[style*="#0f172a"], .spark-demo p strong[style*="#0f172a"] { color: #f1f5f9 !important; }
+      .card p strong[style*="#b45309"] { color: #fbbf24 !important; }
+      .card p strong[style*="#dc2626"] { color: #f87171 !important; }
+      .card p strong[style*="#16a34a"], .spark-demo p strong[style*="#16a34a"] { color: #4ade80 !important; }
+      .card span[style*="#15803d"] { color: #4ade80 !important; }
+      .card span[style*="#ef4444"] { color: #f87171 !important; }
+      .card a[style*="#2563eb"], .spark-demo a[style*="#2563eb"] { color: #93c5fd !important; }
+      .card-icon { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.2) !important; color: #93c5fd !important; }
+    }
+
     .spark-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
     .spark-row:last-child { border-bottom: none; }
     .spark-ticker { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: #64748b; width: 44px; flex-shrink: 0; }
