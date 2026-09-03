@@ -660,76 +660,6 @@
 
     .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
-    /* ── HOW IT WORKS ── */
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      margin-bottom: 16px;
-      background: #e2e8f0;
-      border: 1px solid rgba(15,23,42,0.06);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
-    }
-    .step {
-      background: #ffffff;
-      padding: 32px 28px;
-      position: relative;
-    }
-    .step-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      color: #2563eb;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .step-num::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, rgba(37,99,235,0.35), transparent);
-    }
-    .step h3 {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      color: #0f172a;
-      margin-bottom: 10px;
-      line-height: 1.3;
-    }
-    .step p {
-      font-size: 13.5px;
-      color: #334155;
-      line-height: 1.7;
-      font-weight: 500;
-    }
-    @media (max-width: 768px) {
-      .steps { grid-template-columns: 1fr; }
-      .step-num::after { display: none; }
-    }
-
-    /* Desktop: de-box the Three Steps panel — sits on the Duke-blue page,
-       two vertical centre rules between the columns, copy recoloured light. */
-    @media (min-width: 901px) {
-      .steps {
-        gap: 0; border: none; border-radius: 0; overflow: visible; box-shadow: none;
-        background:
-          linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.12)) 33.333% 0 / 1px 100% no-repeat,
-          linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.12)) 66.667% 0 / 1px 100% no-repeat;
-      }
-      .step { background: transparent; padding: 0 40px; }
-      .step:first-child { padding-left: 0; }
-      .step:last-child { padding-right: 0; }
-      .step h3 { color: #ffffff; }
-      .step p { color: #cbd5e1; }
-      .step-num { color: #93c5fd; }
-      .step-num::after { background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent); }
-    }
-
     .card {
       background: #ffffff;
       border: 1px solid rgba(15,23,42,0.06);
@@ -1377,21 +1307,20 @@
     @media (max-width: 900px) {
       .hero-left-card, .hp-news-panel, .digest-panel,
       .share-gallery-panel, .faq-mini-panel,
-      .card, .spark-demo, .steps, .step {
+      .card, .spark-demo {
         background: transparent !important; border: none !important; box-shadow: none !important;
         border-right: none !important; padding-left: 0 !important; padding-right: 0 !important;
       }
-      .cards, .spark-demo-row, .steps { background-image: none !important; }
-      .steps { gap: 26px !important; }
+      .cards, .spark-demo-row { background-image: none !important; }
       .card::before, .spark-demo::before { display: none; }
       .card:hover, .spark-demo:hover { background: transparent !important; box-shadow: none !important; transform: none !important; }
 
       .hero-left-card .hero-title, .hp-news-heading, .digest-heading,
       .share-gallery-heading, .faq-mini-heading,
-      .card h3, .spark-demo h3, .step h3 { color: #ffffff; }
+      .card h3, .spark-demo h3 { color: #ffffff; }
       .card h3[style*="#b45309"] { color: #fcd34d !important; }
       .hero-left-card .hero-eyebrow { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.16); color: #93c5fd; }
-      .hero-left-card p, .card p, .spark-demo p, .step p, .spark-legend-item,
+      .hero-left-card p, .card p, .spark-demo p, .spark-legend-item,
       .hero-left-card .hero-bullet,
       .hp-news-sub, .digest-col-label, .digest-news-label, .hp-news-msg, .digest-msg,
       .hp-news-item-date, .hp-news-item-source, .digest-dname,
@@ -1401,7 +1330,7 @@
       .card p strong[style*="#b45309"] { color: #fbbf24 !important; }
       .card p strong[style*="#dc2626"] { color: #f87171 !important; }
       .card p strong[style*="#16a34a"], .spark-demo p strong[style*="#16a34a"] { color: #4ade80 !important; }
-      .card a[style*="#2563eb"], .spark-demo a[style*="#2563eb"], .step-num,
+      .card a[style*="#2563eb"], .spark-demo a[style*="#2563eb"],
       .hp-news-panel .hp-news-viewall, .digest-dl,
       .share-gallery-panel .hp-news-viewall, .faq-mini-panel .hp-news-viewall { color: #93c5fd !important; }
       .hp-news-item-title, .digest-news-link { color: #ffffff !important; font-weight: 700; }
@@ -1411,7 +1340,6 @@
       .faq-mini-list .faq-item, .faq-mini-list .faq-item:last-child { border-color: transparent; }
       .faq-mini-list .faq-item.open .q-text { color: #ffffff; }
       .digest-div { border-color: transparent !important; }
-      .step-num::after { background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent); }
       #digestEmailInput { background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.18) !important; color: #e2e8f0 !important; }
     }
   </style>
@@ -1528,29 +1456,8 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   <div class="promo-ticker-track" id="promoTrack"></div>
 </div>
 
-<section class="features" style="padding:90px 60px 20px;">
-  <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">Three Steps to <em>Your Next Signal</em></h2>
 
-  <div class="steps">
-    <div class="step fade-up">
-      <div class="step-num">01</div>
-      <h3>Sort &amp; Scan</h3>
-      <p>Pick a metric — 1-day % change, volume spike, or the Baizora Score — and sort the whole S&amp;P 500 or Nasdaq-100 in one table. No switching between tools to piece together the same picture.</p>
-    </div>
-    <div class="step fade-up delay-1">
-      <div class="step-num">02</div>
-      <h3>Check the Sparkline</h3>
-      <p>Spot the annotated 1-year markers — peak volume and price days — at a glance. A year of history, instantly, with no separate charting tool needed.</p>
-    </div>
-    <div class="step fade-up delay-2">
-      <div class="step-num">03</div>
-      <h3>Click a Ticker</h3>
-      <p>Open the full candlestick chart with SMA and Bollinger Band overlays, fundamentals, and score history for deeper analysis.</p>
-    </div>
-  </div>
-</section>
-
-<section class="features" style="padding-top:20px;">
+<section class="features" style="padding-top:72px;">
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">Built for Precision Analysis<br><em>Designed for Smarter Discovery</em></h2>
   <p style="font-family:'DM Mono',monospace;font-size:11px;color:#e2e8f0;letter-spacing:0.04em;text-align:center;margin-top:8px;margin-bottom:40px;">Past patterns are not predictive of future results. &nbsp;·&nbsp; Market data only &nbsp;·&nbsp; Not investment advice</p>
 
