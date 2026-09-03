@@ -901,9 +901,10 @@
       .hp-news-item-date, .hp-news-item-source, .digest-dname { color: #94a3b8; }
       .hp-news-panel span[style*="#475569"], .hp-news-panel span[style*="#64748b"],
       .digest-panel span[style*="#475569"], .digest-panel span[style*="#64748b"] { color: #94a3b8 !important; }
-      .hp-news-item, .digest-news-item, .digest-row { border-bottom-color: rgba(255,255,255,0.1); }
-      .hp-news-footer, .digest-div { border-top-color: rgba(255,255,255,0.12); }
-      .digest-div { border-top: 1px solid rgba(255,255,255,0.12); }
+      /* drop the internal horizontal rules — only the centre divider stays; spacing carries the separation */
+      .hp-news-item, .digest-news-item, .digest-row { border-bottom-color: transparent; }
+      .hp-news-footer { border-top-color: transparent; }
+      .digest-div { border-top-color: transparent; }
       .hp-news-item-title, .digest-news-link,
       .hp-news-item-title:hover, .digest-news-link:hover { color: #ffffff; font-weight: 700; }
       .hp-news-panel .hp-news-viewall, .digest-dl { color: #93c5fd; }
