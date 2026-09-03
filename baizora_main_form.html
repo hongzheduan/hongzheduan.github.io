@@ -836,17 +836,17 @@
     <button class="m-danger" id="drawerLogout">↪ Sign out</button>
   </div>
 
-  <!-- Toolbar — NEW timeframes: 1D 2W 1M 3M 6M 9M 1Y -->
+  <!-- Toolbar — timeframes: 1D 3M 6M 9M 1Y 2Y 5Y -->
   <div class="toolbar" id="toolbar">
     <span class="toolbar-label">Window</span>
     <div class="window-btns">
       <button class="window-btn active" onclick="setWindow('1D', this)">1D</button>
-      <button class="window-btn" onclick="setWindow('2W', this)">2W</button>
-      <button class="window-btn" onclick="setWindow('1M', this)">1M</button>
       <button class="window-btn" onclick="setWindow('3M', this)">3M</button>
       <button class="window-btn" onclick="setWindow('6M', this)">6M</button>
       <button class="window-btn" onclick="setWindow('9M', this)">9M</button>
       <button class="window-btn" onclick="setWindow('1Y', this)">1Y</button>
+      <button class="window-btn" onclick="setWindow('2Y', this)">2Y</button>
+      <button class="window-btn" onclick="setWindow('5Y', this)">5Y</button>
       <button class="window-btn" onclick="setWindow('SCORES', this)" style="margin-left:8px;border-color:rgba(96,165,250,0.35);color:#60a5fa;">SCORES</button>
       <button class="window-btn" onclick="setWindow('BAIZ', this)" style="margin-left:4px;border-color:rgba(192,132,252,0.35);color:#c084fc;">BAIZORA</button>
       <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:4px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">FUND</button>
@@ -932,8 +932,8 @@
             <tr><td>PRICE/MA21</td><td>Current price as a ratio of the 21-day moving average. Values above 1 indicate price above the MA</td></tr>
             <tr><td>1D V CHG%</td><td>Volume change (%) vs the previous session's volume</td></tr>
             <tr><td>VOL/MA21</td><td>Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity</td></tr>
-            <tr><td>P CHG%</td><td>Total price change (%) from start of selected window to today — only shown for 2W and longer</td></tr>
-            <tr><td>VOL RANK</td><td>Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window) — only shown for 2W and longer</td></tr>
+            <tr><td>P CHG%</td><td>Total price change (%) from start of selected window to today — only shown for 3M and longer</td></tr>
+            <tr><td>VOL RANK</td><td>Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window) — only shown for 3M through 1Y</td></tr>
             <tr><td>MAX P CHG%</td><td>Largest single-day price increase (%) within the selected window</td></tr>
             <tr><td>MAX P% Day</td><td>Days ago when the max price increase occurred within the selected window</td></tr>
             <tr><td>V@P Day</td><td>Volume change on the highest-price-increase day within the selected window</td></tr>
@@ -1416,8 +1416,10 @@
     /* ── VOL RANK: where today's volume ranks among all days in the selected window
        (1 = highest-volume day in that window) — computed client-side from the same
        candles.json raw daily volume computeSmaDist/computeMacdHist already read.
-       Trading-day counts match TIMEFRAMES in scanner_tiingo.py exactly. ── */
-    const VOL_RANK_WINDOW_DAYS = { "2W": 10, "1M": 21, "3M": 63, "6M": 126, "9M": 189, "1Y": 252 };
+       Trading-day counts match TIMEFRAMES in scanner_tiingo.py. Only windows that fit
+       inside candles.json's 252-day (1Y) export get a rank — 2Y/5Y are omitted (their
+       VOL RANK column is hidden), since the daily volume history isn't in candles.json. ── */
+    const VOL_RANK_WINDOW_DAYS = { "3M": 63, "6M": 126, "9M": 189, "1Y": 252 };
     function computeVolRank(r, w) {
       const days = VOL_RANK_WINDOW_DAYS[w];
       const raw = candleData && candleData.data && candleData.data[r.Ticker];
@@ -1607,6 +1609,8 @@
       }
 
       const is1D = (w === "1D");
+      // VOL RANK needs per-day volume from candles.json (1Y). Hidden for 2Y/5Y.
+      const showVolRank = !!VOL_RANK_WINDOW_DAYS[w];
 
       /* Window column headers */
       let windowHead = "";
@@ -1617,7 +1621,7 @@
         // Non-1D: show window price change first, then existing rolling stats
         windowHead = `
           ${thSort(`${w}PriceChange`,            "P CHG%",   "group-start")}
-          ${thSort("VolRank",                    "VOL RANK")}
+          ${showVolRank ? thSort("VolRank",      "VOL RANK") : ""}
           ${thSort(`${w}MaxPriceChange`,         "MAX P CHG%")}
           ${thSort(`${w}MaxPriceChangeDay`,       "MAX P% Day")}
           ${thSort(`${w}VolumeChangeAtMaxPrice`,  "V@P Day")}
@@ -1673,10 +1677,13 @@
 
           const fmt = v => (v ?? "—");
           const volRank = r.VolRank;
+          const volRankCell = showVolRank
+            ? `<td class="${volRank === 1 ? 'positive' : 'neutral'}">${volRank != null ? '#' + volRank : '—'}</td>`
+            : "";
 
           windowCells = `
             <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
-            <td class="${volRank === 1 ? 'positive' : 'neutral'}">${volRank != null ? '#' + volRank : '—'}</td>
+            ${volRankCell}
             <td class="${colorClass(maxP)}">${fmt(maxP)}%</td>
             <td class="neutral">${fmt(pDay)}</td>
             <td class="${colorClass(vAtP)}">${fmt(vAtP)}%</td>
@@ -1870,7 +1877,7 @@
       "Dist200":         { label: "Dist SMA200",   desc: "Absolute distance between price and the 200-day moving average, as a percentage. Green = price above the average, red = price below it. Trading close to (or just under) the SMA200 is a common technical read for a potential entry point, since the average often acts as long-term support — not a guarantee." },
       "MacdPct":         { label: "MACD",          desc: "Absolute distance between the MACD line and the signal line (standard 12/26/9), as a percentage of price. Green = MACD line above the signal line (bullish bias). Red = below (bearish bias). The color flips exactly when the two lines cross." },
       "PocDist":         { label: "Dist POC",      desc: "Absolute distance between the current price and the volume profile's point of control — the price level that traded the most volume over the last ~6 months — as a percentage. Green = price above that level, red = below. The point of control often acts as a magnet or as support/resistance, so a small distance means price is sitting right at the level with the heaviest historical trading. Same calculation as the chart's Vol Profile overlay." },
-      "VolRank":         { label: "VOL RANK",      desc: "Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window). Only shown for 2W and longer." },
+      "VolRank":         { label: "VOL RANK",      desc: "Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window). Only shown for 3M through 1Y." },
     };
 
     function getWindowColDesc(key, w) {
@@ -2005,6 +2012,20 @@
         if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
       })
       .catch(() => {});
+
+    /* ── WEEKLY CANDLES (~5Y, lazy — only fetched when the chart's 2Y/5Y button is used) ── */
+    let weeklyData = null;
+    let weeklyFetchPromise = null;
+    let weeklyLoadFailed = false;
+    function loadWeekly() {
+      if (!weeklyFetchPromise) {
+        weeklyFetchPromise = fetch("data/candles_weekly.json")
+          .then(r => { if (!r.ok) throw new Error("weekly " + r.status); return r.json(); })
+          .then(d => { weeklyData = d; return d; })
+          .catch(() => { weeklyLoadFailed = true; });
+      }
+      return weeklyFetchPromise;
+    }
 
     /* ── COMPANY DESCRIPTIONS (Wikipedia-sourced, decoupled from price vendor) ── */
     let descData = null;
@@ -2460,8 +2481,9 @@
       document.getElementById("tickerModal").style.display = "flex";
       document.body.style.overflow = "hidden";
 
-      // reset timeframe to 1Y; restore the user's saved SMA selection on each open
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "252"));
+      // reset timeframe to 1Y daily; restore the user's saved SMA selection on each open
+      _modalRes = 'd';
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "252" && b.dataset.res !== "w"));
       document.getElementById("tfDrawerToggle").textContent = "1Y ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
@@ -2616,13 +2638,24 @@
     }
 
     let _modalTicker = null;
+    let _modalRes = 'd';   // 'd' = daily (candles.json); 'w' = weekly (candles_weekly.json) for the 2Y/5Y buttons
     function _renderModalChart(ticker, tf) {
       _modalTicker = ticker;
-      const rawCandles = candleData?.data?.[ticker];
-      const rawSma     = candleData?.sma?.[ticker];
-      const dates      = candleData?.dates;
+      const weekly     = _modalRes === 'w';
       const canvas     = document.getElementById("candleCanvas");
       const noData     = document.getElementById("candleNoData");
+      if (weekly && !weeklyData) {
+        canvas.style.display = "none"; noData.style.display = "flex";
+        if (weeklyLoadFailed) { noData.textContent = "Multi-year data unavailable right now"; return; }
+        // First 2Y/5Y open: pull the ~5Y weekly file, then re-render if still on this view.
+        loadWeekly().then(() => { if (_modalTicker === ticker && _modalRes === 'w') _renderModalChart(ticker, tf); });
+        noData.textContent = "Loading multi-year data…";
+        return;
+      }
+      const src        = weekly ? weeklyData : candleData;
+      const rawCandles = src?.data?.[ticker];
+      const rawSma     = src?.sma?.[ticker];
+      const dates      = src?.dates;
       if (rawCandles && rawCandles.length > 0 && dates) {
         // Left-pad with nulls when ticker has fewer bars than the shared dates array
         // so each null becomes an empty space at the correct calendar position.
@@ -2632,29 +2665,32 @@
         const slice = Math.min(tf, dates.length);
         const slicedDates   = dates.slice(-slice);
         const slicedCandles = candles.slice(-slice);
-        // Insert null entries for weekday trading days missing from the data
-        const filled = fillCalendarGaps(slicedDates, slicedCandles);
+        // Weekly bars are already 7 days apart — running them through the daily
+        // weekday gap-filler would inject ~4 empty bars between every real one.
+        const filled = weekly
+          ? { dates: slicedDates, candles: slicedCandles }
+          : fillCalendarGaps(slicedDates, slicedCandles);
         canvas.style.display = "block"; noData.style.display = "none";
 
-        // Each series gets the same left-pad + slice + calendar-gap-fill treatment
-        // as the candles so it lines up 1:1 with filled.candles/filled.dates by index.
+        // Each series gets the same left-pad + slice + (daily-only) calendar-gap-fill
+        // treatment as the candles so it lines up 1:1 with filled.candles/filled.dates.
         const alignToDates = raw => {
           const padded = !raw ? new Array(dates.length).fill(null)
             : (raw.length < dates.length ? new Array(dates.length - raw.length).fill(null).concat(raw) : raw);
           const slicedVals = padded.slice(-slice);
-          return fillCalendarGaps(slicedDates, slicedVals).candles;
+          return weekly ? slicedVals : fillCalendarGaps(slicedDates, slicedVals).candles;
         };
-        // Prefer the backend-precomputed sma20/50/200 (full validity across the whole
-        // window, since it's rolled from the scanner's full 730-day history) when a
-        // list period happens to match one of those; any other period is computed
-        // client-side from just the visible ~252-day export (see _computeCustomSma).
+        // Prefer the backend-precomputed sma20/50/200 when a list period matches one.
+        // Daily: rolled from the scanner's full ~5Y history, so valid across the whole
+        // window. Weekly: 20/50/200-WEEK means, so sma200 is a partial line (needs ~3.8y
+        // of weeks). Any other period is computed client-side from the visible export.
         const smaLines = _smaList.map((period, i) => {
           const backendKey = "sma" + period;
           const raw = (rawSma && rawSma[backendKey]) ? rawSma[backendKey] : _computeCustomSma(candles, period);
           return { color: SMA_PALETTE[i % SMA_PALETTE.length], values: alignToDates(raw) };
         });
         let scoreData = null;
-        if (_baizKey) {
+        if (_baizKey && !weekly) {   // score spark is a daily ~252-pt series; no weekly equivalent
           const row = allRows.find(x => x.Ticker === ticker);
           const rawScoreVals = row ? row[_baizKey + "Spark1Y"] : null;
           if (rawScoreVals && rawScoreVals.length) {
@@ -2688,6 +2724,9 @@
         renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive);
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
+        noData.textContent = weekly
+          ? "Multi-year data not available for this ticker yet"
+          : "No chart data available yet";
       }
     }
 
@@ -2699,6 +2738,7 @@
       document.getElementById("tfDrawerToggle").textContent = btn.textContent + " ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
+      _modalRes = btn.dataset.res === 'w' ? 'w' : 'd';
       _renderModalChart(_modalTicker, parseInt(btn.dataset.tf));
     });
 
@@ -3052,6 +3092,8 @@
           <button class="tf-btn" data-tf="63">3M</button>
           <button class="tf-btn" data-tf="126">6M</button>
           <button class="tf-btn active" data-tf="252">1Y</button>
+          <button class="tf-btn" data-tf="104" data-res="w">2Y</button>
+          <button class="tf-btn" data-tf="260" data-res="w">5Y</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">

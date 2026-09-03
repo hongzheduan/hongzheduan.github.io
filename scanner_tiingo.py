@@ -58,6 +58,8 @@ TIMEFRAMES = {
     "6M": 126,
     "9M": 189,
     "1Y": 252,
+    "2Y": 500,
+    "5Y": 1260,
 }
 
 OUTPUT_JSON   = os.path.join(DATA_DIR,    "latest.json")
@@ -1244,7 +1246,7 @@ def build_ohlcv_cache_yfinance(tickers, from_date):
     there's no separate initial-vs-bulk-latest split here)."""
     cutoff_str = from_date
     print(f"OHLCV cache (yfinance): fetching {len(tickers)} tickers …")
-    fetched = fetch_yfinance_bulk(tickers, period="2y")
+    fetched = fetch_yfinance_bulk(tickers, period="5y")
     updated = 0
     for ticker in tickers:
         bars = fetched.get(ticker)
@@ -1262,14 +1264,14 @@ def build_ohlcv_cache_yfinance(tickers, from_date):
 def build_ohlcv_cache(tickers, from_date, sleep_time=0.15):
     """
     Ensure every ticker has an up-to-date per-ticker cache file.
-    1. Initial fetch for tickers with no cache file (full 2Y history, one call each).
+    1. Initial fetch for tickers with no cache file (full ~5Y history, one call each).
     2. Bulk latest call for all tickers to add today's EOD.
     """
     if USE_YFINANCE:
         build_ohlcv_cache_yfinance(tickers, from_date)
         return
 
-    cutoff_str = from_date  # trim bars older than 2Y
+    cutoff_str = from_date  # trim bars older than the ~5Y lookback
 
     missing = [t for t in tickers if not os.path.exists(_cache_path(t))]
     if missing:
@@ -2384,19 +2386,69 @@ def calculate_period_metrics(df, label, days):
 # SCAN
 # =========================
 
+def _build_weekly_series(df, max_weeks=265):
+    """Resample one ticker's daily OHLCV df (cols Date/Open/High/Low/Close/Volume,
+    ascending) to weekly bars — one per calendar week (Mon–Fri), labelled by the
+    last actual trading day in that week. Returns (dates[list[str]],
+    candles[list[[o,h,l,c,v]]], sma{sma20,sma50,sma200}) or None.
+
+    Weekly SMA200 needs ~3.8y of weeks, so on a ~5y series it is non-null only for
+    the most recent stretch — the chart draws it as an intentional partial line."""
+    if df is None or df.empty:
+        return None
+    d = df[["Date", "Open", "High", "Low", "Close", "Volume"]].dropna(subset=["Close"]).copy()
+    if d.empty:
+        return None
+    d["EndDate"] = d["Date"]                       # preserved through resample for the real week-end label
+    g = d.resample("W-FRI", on="Date")
+    w = pd.DataFrame({
+        "Open":    g["Open"].first(),
+        "High":    g["High"].max(),
+        "Low":     g["Low"].min(),
+        "Close":   g["Close"].last(),
+        "Volume":  g["Volume"].sum(),
+        "EndDate": g["EndDate"].max(),
+    }).dropna(subset=["Close"])
+    if w.empty:
+        return None
+    w = w.tail(max_weeks).reset_index(drop=True)
+    s20  = w["Close"].rolling(20).mean()
+    s50  = w["Close"].rolling(50).mean()
+    s200 = w["Close"].rolling(200).mean()
+    dates, candles, a20, a50, a200 = [], [], [], [], []
+    for i, row in w.iterrows():
+        o, h, l, c, v = row["Open"], row["High"], row["Low"], row["Close"], row["Volume"]
+        if not all(pd.notna(x) for x in (o, h, l, c)) or pd.isna(row["EndDate"]):
+            continue
+        dates.append(pd.Timestamp(row["EndDate"]).strftime("%Y-%m-%d"))
+        candles.append([
+            round(float(o), 2), round(float(h), 2), round(float(l), 2), round(float(c), 2),
+            int(v) if pd.notna(v) and v > 0 else 0,
+        ])
+        a20.append(round(float(s20.iloc[i]), 2)  if pd.notna(s20.iloc[i])  else None)
+        a50.append(round(float(s50.iloc[i]), 2)  if pd.notna(s50.iloc[i])  else None)
+        a200.append(round(float(s200.iloc[i]), 2) if pd.notna(s200.iloc[i]) else None)
+    if not candles:
+        return None
+    return dates, candles, {"sma20": a20, "sma50": a50, "sma200": a200}
+
+
 def scan():
     tickers, sp_set, nd_set, etf_set = get_tickers()
     universe_set        = set(tickers)
     results             = []
     candles_out         = {}
     smas_out            = {}
+    weekly_raw          = {}   # ticker -> (dates, candles, sma) for candles_weekly.json
     sector_mktcap_sum   = {}
     sector_earnings_sum = {}
 
     print(f"Total tickers: {len(tickers)}")
 
     to_date   = _TIINGO_LAST_DATE
-    from_date = (datetime.now(pytz.timezone('America/New_York')) - timedelta(days=730)).strftime("%Y-%m-%d")
+    # ~5Y lookback (1830 calendar days ≈ 1260 trading days) for the 5Y window metrics.
+    # Matches the yfinance period="5y" fetch in build_ohlcv_cache_yfinance.
+    from_date = (datetime.now(pytz.timezone('America/New_York')) - timedelta(days=1830)).strftime("%Y-%m-%d")
 
     # Build / update per-ticker OHLCV cache
     build_ohlcv_cache(tickers, from_date)
@@ -2540,7 +2592,7 @@ def scan():
 
             try:
                 candle_rows = df.tail(252)
-                # Rolling means computed over the FULL df (up to 730 days of history,
+                # Rolling means computed over the FULL df (up to ~5Y of history,
                 # see build_ohlcv_cache's from_date above) so SMA200 has real lookback
                 # for every bar in the exported 252-day window, not just the tail end —
                 # only genuinely new listings (<200 trading days of total history) will
@@ -2561,6 +2613,13 @@ def scan():
                 if candles:
                     candles_out[ticker] = candles
                     smas_out[ticker] = {"sma20": sma20_l, "sma50": sma50_l, "sma200": sma200_l}
+            except Exception:
+                pass
+
+            try:
+                wk = _build_weekly_series(df)
+                if wk:
+                    weekly_raw[ticker] = wk
             except Exception:
                 pass
 
@@ -2704,7 +2763,7 @@ def scan():
     if "VolumeChange1D" in df.columns:
         df = df.sort_values("VolumeChange1D", ascending=False)
 
-    return df, candles_out, smas_out, trading_days
+    return df, candles_out, smas_out, weekly_raw, trading_days
 
 
 # =========================
@@ -2799,6 +2858,40 @@ def export_candles(candles_out, smas_out, trading_days):
     with open(path, "w") as f:
         json.dump(payload, f)
     print(f"Candles export: {len(candles_out)} tickers, {len(dates)} dates, {len(smas_out)} with SMA data")
+
+
+def export_candles_weekly(weekly_raw):
+    """Write data/candles_weekly.json — ~5Y of weekly bars, same shape as
+    candles.json (shared `dates` axis, per-ticker candle/SMA arrays aligned to it
+    with null gaps). Loaded lazily by the paid dashboard chart's 2Y / 5Y views."""
+    if not weekly_raw:
+        print("Weekly candles export: nothing to write (weekly_raw empty)")
+        return
+
+    all_dates = sorted({d for dates, _c, _s in weekly_raw.values() for d in dates})
+    idx_of = {d: i for i, d in enumerate(all_dates)}
+    n = len(all_dates)
+
+    data, sma = {}, {}
+    for ticker, (dates, candles, smad) in weekly_raw.items():
+        row_c = [None] * n
+        row20, row50, row200 = [None] * n, [None] * n, [None] * n
+        for k, d in enumerate(dates):
+            i = idx_of.get(d)
+            if i is None:
+                continue
+            row_c[i]   = candles[k]
+            row20[i]   = smad["sma20"][k]
+            row50[i]   = smad["sma50"][k]
+            row200[i]  = smad["sma200"][k]
+        data[ticker] = row_c
+        sma[ticker]  = {"sma20": row20, "sma50": row50, "sma200": row200}
+
+    payload = {"date": DATE_STR, "dates": all_dates, "data": data, "sma": sma}
+    path = os.path.join(DATA_DIR, "candles_weekly.json")
+    with open(path, "w") as f:
+        json.dump(payload, f)
+    print(f"Weekly candles export: {len(data)} tickers, {n} weeks")
 
 
 def _build_briefing_txt(market_date, scan_time, digest, headlines):
@@ -3472,7 +3565,7 @@ if __name__ == "__main__":
     # 3. (archive cleanup disabled — all daily CSVs kept in git permanently)
 
     # 4. Run scan
-    df, candles_out, smas_out, trading_days = scan()
+    df, candles_out, smas_out, weekly_raw, trading_days = scan()
 
     # 4a. yfinance mode: confirm the scan date from the actual results (majority vote
     # across df["Date"]) rather than probing beforehand — see the USE_YFINANCE branch
@@ -3496,6 +3589,7 @@ if __name__ == "__main__":
             df = df[~stale_mask].reset_index(drop=True)
             candles_out = {t: c for t, c in candles_out.items() if t not in _STALE_TICKERS_EXCLUDED}
             smas_out    = {t: s for t, s in smas_out.items()    if t not in _STALE_TICKERS_EXCLUDED}
+            weekly_raw  = {t: w for t, w in weekly_raw.items()  if t not in _STALE_TICKERS_EXCLUDED}
 
     print(df.head(10))
 
@@ -3507,6 +3601,7 @@ if __name__ == "__main__":
 
     # 6b. Export candle data
     export_candles(candles_out, smas_out, trading_days)
+    export_candles_weekly(weekly_raw)
 
     # 6c. Export daily digest + downloadable briefing for homepage card
     export_daily_digest(df)

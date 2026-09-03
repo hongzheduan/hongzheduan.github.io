@@ -843,17 +843,17 @@
     <button class="m-danger" id="drawerLogout">↪ 退出登录</button>
   </div>
 
-  <!-- Toolbar — NEW timeframes: 1D 2W 1M 3M 6M 9M 1Y -->
+  <!-- Toolbar — timeframes: 1D 3M 6M 9M 1Y 2Y 5Y -->
   <div class="toolbar" id="toolbar">
     <span class="toolbar-label">周期</span>
     <div class="window-btns">
       <button class="window-btn active" onclick="setWindow('1D', this)">1天</button>
-      <button class="window-btn" onclick="setWindow('2W', this)">2周</button>
-      <button class="window-btn" onclick="setWindow('1M', this)">1月</button>
       <button class="window-btn" onclick="setWindow('3M', this)">3月</button>
       <button class="window-btn" onclick="setWindow('6M', this)">6月</button>
       <button class="window-btn" onclick="setWindow('9M', this)">9月</button>
       <button class="window-btn" onclick="setWindow('1Y', this)">1年</button>
+      <button class="window-btn" onclick="setWindow('2Y', this)">2年</button>
+      <button class="window-btn" onclick="setWindow('5Y', this)">5年</button>
       <button class="window-btn" onclick="setWindow('SCORES', this)" style="margin-left:8px;border-color:rgba(96,165,250,0.35);color:#60a5fa;">评分</button>
       <button class="window-btn" onclick="setWindow('BAIZ', this)" style="margin-left:4px;border-color:rgba(192,132,252,0.35);color:#c084fc;">贝佐拉评分</button>
       <button class="window-btn" onclick="setWindow('FUND', this)" style="margin-left:4px;border-color:rgba(245,158,11,0.35);color:#f59e0b;">基本面</button>
@@ -938,8 +938,8 @@
             <tr><td>价格/MA21</td><td>最新收盘价与21日均线的比值（>1表示价格在均线上方）</td></tr>
             <tr><td>日成交量变化</td><td>与前一交易日相比成交量的变动</td></tr>
             <tr><td>成交量/MA21</td><td>最近交易日成交量与21日均量的比值（>1表示成交量偏高）</td></tr>
-            <tr><td>总涨幅</td><td>从所选周期起始至今的总价格变动（%）— 仅在2周及以上周期显示</td></tr>
-            <tr><td>量排名</td><td>今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）— 仅在2周及以上周期显示</td></tr>
+            <tr><td>总涨幅</td><td>从所选周期起始至今的总价格变动（%）— 仅在3月及以上周期显示</td></tr>
+            <tr><td>量排名</td><td>今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）— 仅在3月至1年周期显示</td></tr>
             <tr><td>日最大价涨</td><td>所选周期内最大单日价格涨幅</td></tr>
             <tr><td>最大价涨日</td><td>所选周期内最大单日价涨发生于多少天前</td></tr>
             <tr><td>量@价日</td><td>所选周期内最大价涨当日的成交量变化</td></tr>
@@ -1418,7 +1418,8 @@
     /* ── 量排名：今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）——
        与computeSmaDist/computeMacdHist读取同一份candles.json原始每日成交量数据。
        交易日数与scanner_tiingo.py的TIMEFRAMES完全一致。 ── */
-    const VOL_RANK_WINDOW_DAYS = { "2W": 10, "1M": 21, "3M": 63, "6M": 126, "9M": 189, "1Y": 252 };
+    // 仅涵盖 candles.json 的 252 天（1年）导出窗口；2年/5年不计算量排名（该列会隐藏）。
+    const VOL_RANK_WINDOW_DAYS = { "3M": 63, "6M": 126, "9M": 189, "1Y": 252 };
     function computeVolRank(r, w) {
       const days = VOL_RANK_WINDOW_DAYS[w];
       const raw = candleData && candleData.data && candleData.data[r.Ticker];
@@ -1605,6 +1606,8 @@
       }
 
       const is1D = (w === "1D");
+      // 量排名需要 candles.json 的每日成交量（1年）。2年/5年不显示。
+      const showVolRank = !!VOL_RANK_WINDOW_DAYS[w];
 
       /* Window column headers */
       let windowHead = "";
@@ -1615,7 +1618,7 @@
         // Non-1D: show window price change first, then existing rolling stats
         windowHead = `
           ${thSort(`${w}PriceChange`,            "总涨幅",   "group-start")}
-          ${thSort("VolRank",                    "量排名")}
+          ${showVolRank ? thSort("VolRank",      "量排名") : ""}
           ${thSort(`${w}MaxPriceChange`,         "日最大价涨")}
           ${thSort(`${w}MaxPriceChangeDay`,       "最大价涨日")}
           ${thSort(`${w}VolumeChangeAtMaxPrice`,  "量@价日")}
@@ -1671,10 +1674,13 @@
 
           const fmt = v => (v ?? "—");
           const volRank = r.VolRank;
+          const volRankCell = showVolRank
+            ? `<td class="${volRank === 1 ? 'positive' : 'neutral'}">${volRank != null ? '#' + volRank : '—'}</td>`
+            : "";
 
           windowCells = `
             <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
-            <td class="${volRank === 1 ? 'positive' : 'neutral'}">${volRank != null ? '#' + volRank : '—'}</td>
+            ${volRankCell}
             <td class="${colorClass(maxP)}">${fmt(maxP)}%</td>
             <td class="neutral">${fmt(pDay)}</td>
             <td class="${colorClass(vAtP)}">${fmt(vAtP)}%</td>
@@ -1868,10 +1874,10 @@
       "Dist200":         { label: "偏离SMA200",  desc: "价格与200日均线之间的绝对距离（百分比）。绿色 = 价格高于均线，红色 = 价格低于均线。股价接近（或略低于）SMA200常被视为潜在买入观察点，因为该均线常起到长期支撑作用——并非保证。" },
       "MacdPct":         { label: "MACD",        desc: "MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）。红色 = 低于信号线（偏空）。两线交叉时颜色会翻转。" },
       "PocDist":         { label: "偏离POC",      desc: "当前价格与成交量分布控制点（过去约6个月内成交量最大的价格水平）之间的绝对百分比距离。绿色 = 价格在该水平上方，红色 = 下方。控制点常作为价格的磁吸位或支撑/阻力位，距离越小说明价格正处于历史成交最密集的水平。算法与图表的成交量分布叠加图一致。" },
-      "VolRank":         { label: "量排名",      desc: "今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）。仅在2周及以上周期显示。" },
+      "VolRank":         { label: "量排名",      desc: "今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）。仅在3月至1年周期显示。" },
     };
 
-    const WIN_CN = { "1D": "1天", "2W": "2周", "1M": "1月", "3M": "3月", "6M": "6月", "9M": "9月", "1Y": "1年" };
+    const WIN_CN = { "1D": "1天", "3M": "3月", "6M": "6月", "9M": "9月", "1Y": "1年", "2Y": "2年", "5Y": "5年" };
 
     function getWindowColDesc(key, w) {
       const wl = WIN_CN[w] || w;
@@ -2003,6 +2009,20 @@
         if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
       })
       .catch(() => {});
+
+    /* ── 周线数据（约5年，懒加载 — 仅在使用图表的 2年/5年 按钮时拉取） ── */
+    let weeklyData = null;
+    let weeklyFetchPromise = null;
+    let weeklyLoadFailed = false;
+    function loadWeekly() {
+      if (!weeklyFetchPromise) {
+        weeklyFetchPromise = fetch("data/candles_weekly.json")
+          .then(r => { if (!r.ok) throw new Error("weekly " + r.status); return r.json(); })
+          .then(d => { weeklyData = d; return d; })
+          .catch(() => { weeklyLoadFailed = true; });
+      }
+      return weeklyFetchPromise;
+    }
 
     /* ── COMPANY DESCRIPTIONS (Wikipedia-sourced, decoupled from price vendor) ── */
     let descData = null;
@@ -2443,8 +2463,9 @@
       document.getElementById("tickerModal").style.display = "flex";
       document.body.style.overflow = "hidden";
 
-      // reset timeframe to 1Y; restore the user's saved SMA selection on each open
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "252"));
+      // reset timeframe to 1Y daily; restore the user's saved SMA selection on each open
+      _modalRes = 'd';
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "252" && b.dataset.res !== "w"));
       document.getElementById("tfDrawerToggle").textContent = "1年 ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
@@ -2599,13 +2620,23 @@
     }
 
     let _modalTicker = null;
+    let _modalRes = 'd';   // 'd' = 日线 (candles.json)；'w' = 周线 (candles_weekly.json)，用于 2年/5年 按钮
     function _renderModalChart(ticker, tf) {
       _modalTicker = ticker;
-      const rawCandles = candleData?.data?.[ticker];
-      const rawSma     = candleData?.sma?.[ticker];
-      const dates      = candleData?.dates;
+      const weekly     = _modalRes === 'w';
       const canvas     = document.getElementById("candleCanvas");
       const noData     = document.getElementById("candleNoData");
+      if (weekly && !weeklyData) {
+        canvas.style.display = "none"; noData.style.display = "flex";
+        if (weeklyLoadFailed) { noData.textContent = "多年数据暂时不可用"; return; }
+        loadWeekly().then(() => { if (_modalTicker === ticker && _modalRes === 'w') _renderModalChart(ticker, tf); });
+        noData.textContent = "正在加载多年数据…";
+        return;
+      }
+      const src        = weekly ? weeklyData : candleData;
+      const rawCandles = src?.data?.[ticker];
+      const rawSma     = src?.sma?.[ticker];
+      const dates      = src?.dates;
       if (rawCandles && rawCandles.length > 0 && dates) {
         // Left-pad with nulls when ticker has fewer bars than the shared dates array
         // so each null becomes an empty space at the correct calendar position.
@@ -2615,27 +2646,28 @@
         const slice = Math.min(tf, dates.length);
         const slicedDates   = dates.slice(-slice);
         const slicedCandles = candles.slice(-slice);
-        // Insert null entries for weekday trading days missing from the data
-        const filled = fillCalendarGaps(slicedDates, slicedCandles);
+        // 周线本身已相隔 7 天，若走日线的缺口填充器会在每根真实K线之间塞入约4根空K线。
+        const filled = weekly
+          ? { dates: slicedDates, candles: slicedCandles }
+          : fillCalendarGaps(slicedDates, slicedCandles);
         canvas.style.display = "block"; noData.style.display = "none";
 
         const alignToDates = raw => {
           const padded = !raw ? new Array(dates.length).fill(null)
             : (raw.length < dates.length ? new Array(dates.length - raw.length).fill(null).concat(raw) : raw);
           const slicedVals = padded.slice(-slice);
-          return fillCalendarGaps(slicedDates, slicedVals).candles;
+          return weekly ? slicedVals : fillCalendarGaps(slicedDates, slicedVals).candles;
         };
-        // Prefer the backend-precomputed sma20/50/200 (full validity across the whole
-        // window, since it's rolled from the scanner's full 730-day history) when a
-        // list period happens to match one of those; any other period is computed
-        // client-side from just the visible ~252-day export (see _computeCustomSma).
+        // 列表周期匹配 sma20/50/200 时优先用后端预计算值。日线：由完整 ~5Y 历史滚动而来，
+        // 全窗口有效。周线：为 20/50/200 “周” 均线，故 sma200 是部分线（需 ~3.8 年的周数据）。
+        // 其它周期在前端按可见数据计算。
         const smaLines = _smaList.map((period, i) => {
           const backendKey = "sma" + period;
           const raw = (rawSma && rawSma[backendKey]) ? rawSma[backendKey] : _computeCustomSma(candles, period);
           return { color: SMA_PALETTE[i % SMA_PALETTE.length], values: alignToDates(raw) };
         });
         let scoreData = null;
-        if (_baizKey) {
+        if (_baizKey && !weekly) {   // 评分火花线是 ~252 点的日线序列，无周线对应
           const row = allRows.find(x => x.Ticker === ticker);
           const rawScoreVals = row ? row[_baizKey + "Spark1Y"] : null;
           if (rawScoreVals && rawScoreVals.length) {
@@ -2669,6 +2701,7 @@
         renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive);
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
+        noData.textContent = weekly ? "该股票暂无多年数据" : "暂无图表数据";
       }
     }
 
@@ -2680,6 +2713,7 @@
       document.getElementById("tfDrawerToggle").textContent = btn.textContent + " ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
+      _modalRes = btn.dataset.res === 'w' ? 'w' : 'd';
       _renderModalChart(_modalTicker, parseInt(btn.dataset.tf));
     });
 
@@ -3028,6 +3062,8 @@
           <button class="tf-btn" data-tf="63">3月</button>
           <button class="tf-btn" data-tf="126">6月</button>
           <button class="tf-btn active" data-tf="252">1年</button>
+          <button class="tf-btn" data-tf="104" data-res="w">2年</button>
+          <button class="tf-btn" data-tf="260" data-res="w">5年</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">
