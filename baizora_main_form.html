@@ -2220,6 +2220,11 @@
       );
       ctx.font = `11px 'DM Mono', monospace`;
       ctx.textAlign = "center";
+      // One x-axis label per month boundary, thinned to ~7 total so multi-year
+      // (weekly 2Y/5Y) spans don't crowd; daily 6M/1Y land on stride 1-2 as before.
+      let _pm = -1, _monthBoundaries = 0;
+      dates.forEach(d => { const m = new Date(d + 'T12:00:00').getMonth(); if (m !== _pm) { _monthBoundaries++; _pm = m; } });
+      const moStride = Math.max(1, Math.ceil(_monthBoundaries / 7));
       let lastMo = -1, lastYr = -1, moCount = 0;
       dates.forEach((d, i) => {
         const dt = new Date(d + 'T12:00:00');
@@ -2232,7 +2237,7 @@
         } else {
           if (mo === lastMo && !isLast) return;
           if (!isLast) { lastMo = mo; moCount++; }
-          if (n >= 200 && moCount % 2 === 0 && !isLast) return;
+          if (!isLast && (moCount - 1) % moStride !== 0) return;
           const moName = dt.toLocaleDateString("en-US", { month: "short" });
           const label  = isLast
             ? dt.toLocaleDateString("en-US", { month: "short", day: "numeric" })

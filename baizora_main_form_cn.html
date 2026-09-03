@@ -2212,6 +2212,11 @@
       );
       ctx.font = `11px 'DM Mono', monospace`;
       ctx.textAlign = "center";
+      // 每个月份边界一个X轴标签，最多约7个，避免多年（周线2年/5年）跨度拥挤；
+      // 日线6月/1年 的步长仍为 1-2，与之前一致。
+      let _pm = -1, _monthBoundaries = 0;
+      dates.forEach(d => { const m = new Date(d + 'T12:00:00').getMonth(); if (m !== _pm) { _monthBoundaries++; _pm = m; } });
+      const moStride = Math.max(1, Math.ceil(_monthBoundaries / 7));
       let lastMo = -1, lastYr = -1, moCount = 0;
       dates.forEach((d, i) => {
         const dt = new Date(d + 'T12:00:00');
@@ -2224,7 +2229,7 @@
         } else {
           if (mo === lastMo && !isLast) return;
           if (!isLast) { lastMo = mo; moCount++; }
-          if (n >= 200 && moCount % 2 === 0 && !isLast) return;
+          if (!isLast && (moCount - 1) % moStride !== 0) return;
           const moName = dt.toLocaleDateString("zh-CN", { month: "short" });
           const label  = isLast
             ? dt.toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" })
