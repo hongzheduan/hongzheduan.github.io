@@ -250,6 +250,7 @@ jobs:
           cp data/latest_yfinance.json "$TMPBAK/" 2>/dev/null || true
           cp data/latest_d1.json       "$TMPBAK/" 2>/dev/null || true
           cp data/candles.json         "$TMPBAK/" 2>/dev/null || true
+          cp data/candles_weekly.json  "$TMPBAK/" 2>/dev/null || true
           cp data/index_changes.json   "$TMPBAK/" 2>/dev/null || true
           cp data/index_news.json      "$TMPBAK/" 2>/dev/null || true
           cp data/sp500_symbols.txt    "$TMPBAK/" 2>/dev/null || true
@@ -274,6 +275,7 @@ jobs:
           cp "$TMPBAK/latest_yfinance.json"  data/ 2>/dev/null || true
           cp "$TMPBAK/latest_d1.json"        data/ 2>/dev/null || true
           cp "$TMPBAK/candles.json"          data/ 2>/dev/null || true
+          cp "$TMPBAK/candles_weekly.json"   data/ 2>/dev/null || true
           cp "$TMPBAK/index_changes.json"    data/ 2>/dev/null || true
           cp "$TMPBAK/index_news.json"       data/ 2>/dev/null || true
           cp "$TMPBAK/sp500_symbols.txt"     data/ 2>/dev/null || true
@@ -296,6 +298,7 @@ jobs:
           git add data/latest_yfinance.json            2>/dev/null || true
           git add data/latest_d1.json                  2>/dev/null || true
           git add data/candles.json                    2>/dev/null || true
+          git add data/candles_weekly.json             2>/dev/null || true
           git add data/index_changes.json              2>/dev/null || true
           git add data/index_news.json                 2>/dev/null || true
           git add data/sp500_symbols.txt               2>/dev/null || true
