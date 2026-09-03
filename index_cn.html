@@ -1239,11 +1239,11 @@
 
     /* ── MOBILE: collapse to single column ── */
     @media (max-width: 900px) {
-      .hero-split { grid-template-columns: 1fr; row-gap: 32px; text-align: center; }
+      .hero-split { grid-template-columns: 1fr; row-gap: 22px; text-align: center; }
       .hero-left-card, .sh-card, .hero-split .hero-cta, .hero-builton { grid-column: 1; grid-row: auto; }
       .hero-left-card { order: 1; }
-      .hero-split .hero-cta { order: 2; }
-      .hero-builton { order: 3; }
+      .hero-split .hero-cta { order: 2; margin-top: 0; margin-bottom: 0; }
+      .hero-builton { order: 3; margin-top: 0; }
       .sh-card { order: 4; width: 100%; max-width: 100%; margin: 0 auto; }
       .dash-mock { min-width: 0; width: 100%; overflow: hidden; }
       .dash-mock-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; max-width: 100%; }
