@@ -27,7 +27,7 @@
     body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
     .glow{position:fixed;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse at center,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
 
-    header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(6,13,31,0.92);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+    header{position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(1,33,105,0.92);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
     .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
     .logo-wrap img{height:36px;}
     .logo-text{font-family:'DM Serif Display',serif;font-size:clamp(20px, 5vw, 30px);color:var(--white);letter-spacing:-0.02em;}
@@ -41,7 +41,7 @@
     .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;padding:6px 7px;border:1px solid var(--border);border-radius:6px;background:transparent;flex-shrink:0;}
     .hamburger span{display:block;width:18px;height:2px;background:var(--muted);border-radius:2px;transition:background 0.2s;}
     .hamburger:hover span{background:var(--white);}
-    .mobile-drawer{display:none;position:fixed;left:0;right:0;background:rgba(6,13,31,0.98);border-bottom:1px solid var(--border-bright);backdrop-filter:blur(20px);z-index:190;flex-direction:column;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+    .mobile-drawer{display:none;position:fixed;left:0;right:0;background:rgba(1,33,105,0.98);border-bottom:1px solid var(--border-bright);backdrop-filter:blur(20px);z-index:190;flex-direction:column;padding:4px 0;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
     .mobile-drawer.open{display:flex;}
     .mobile-drawer a{display:block;padding:14px 20px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid var(--border);}
     .mobile-drawer a:last-child{border-bottom:none;}
@@ -144,6 +144,8 @@
       footer{padding:24px 20px;flex-direction:column;text-align:center;}
       .footer-links{justify-content:center;}
     }
+      /* footer: Carolina blue */
+    footer{background:#4b9cd3;border-top-color:#3a86bf}footer .footer-left,footer .footer-left a,footer .footer-links a{color:#08213f}footer .footer-left a:hover,footer .footer-links a:hover{color:#fff}
   </style>
 </head>
 <body>
