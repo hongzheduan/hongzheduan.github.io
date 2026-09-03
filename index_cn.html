@@ -859,8 +859,10 @@
       .share-gallery-panel .hp-news-viewall, .faq-mini-panel .hp-news-viewall { color: #93c5fd; }
       /* no item rules on desktop — they clashed with the page's background lines; padding carries the separation */
       .faq-mini-list .faq-item, .faq-mini-list .faq-item:last-child { border-color: transparent; }
-      /* keep the +/- marker next to the question, not stranded at the far edge of the wide panel */
-      .faq-mini-list .faq-q { justify-content: flex-start; gap: 10px; }
+      /* wide de-boxed panel: put the +/- marker on the LEFT as a disclosure toggle,
+         question right after it — nothing stranded at the far edge */
+      .faq-mini-list .faq-q { justify-content: flex-start; gap: 12px; align-items: center; }
+      .faq-mini-list .q-icon { order: -1; margin-top: 0; }
       .faq-mini-list .q-text { flex: 0 1 auto; }
       .faq-mini-list .q-text { color: #e2e8f0; }
       .faq-mini-list .faq-item.open .q-text { color: #ffffff; }
