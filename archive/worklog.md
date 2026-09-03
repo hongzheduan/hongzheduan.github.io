@@ -367,3 +367,4 @@
 2026-09-03 03:21 UTC  manual
 2026-09-03 03:47 UTC  manual
 2026-09-03 08:46 UTC  11PM-full
+  no-news-video (Claude API failed or no qualifying stories): news_report_cn
