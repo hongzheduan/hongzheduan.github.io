@@ -712,6 +712,24 @@
       .step-num::after { display: none; }
     }
 
+    /* Desktop: de-box the Three Steps panel — sits on the Duke-blue page,
+       two vertical centre rules between the columns, copy recoloured light. */
+    @media (min-width: 901px) {
+      .steps {
+        gap: 0; border: none; border-radius: 0; overflow: visible; box-shadow: none;
+        background:
+          linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.12)) 33.333% 0 / 1px 100% no-repeat,
+          linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.12)) 66.667% 0 / 1px 100% no-repeat;
+      }
+      .step { background: transparent; padding: 0 40px; }
+      .step:first-child { padding-left: 0; }
+      .step:last-child { padding-right: 0; }
+      .step h3 { color: #ffffff; }
+      .step p { color: #cbd5e1; }
+      .step-num { color: #93c5fd; }
+      .step-num::after { background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent); }
+    }
+
     .card {
       background: #ffffff;
       border: 1px solid rgba(15,23,42,0.06);
