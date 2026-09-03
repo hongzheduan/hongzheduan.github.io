@@ -1372,6 +1372,48 @@
       .hero-split .hero-cta .btn-secondary { width: 100%; min-width: 0; justify-content: center; }
       .col-legend-grid { text-align: left; }
     }
+    /* Mobile (<=900px): same de-boxed look as desktop — borderless panels on the
+       Duke-blue page, no dividers (single column), copy recoloured light. */
+    @media (max-width: 900px) {
+      .hero-left-card, .hp-news-panel, .digest-panel,
+      .share-gallery-panel, .faq-mini-panel,
+      .card, .spark-demo, .steps, .step {
+        background: transparent !important; border: none !important; box-shadow: none !important;
+        border-right: none !important; padding-left: 0 !important; padding-right: 0 !important;
+      }
+      .cards, .spark-demo-row, .steps { background-image: none !important; }
+      .steps { gap: 26px !important; }
+      .card::before, .spark-demo::before { display: none; }
+      .card:hover, .spark-demo:hover { background: transparent !important; box-shadow: none !important; transform: none !important; }
+
+      .hero-left-card .hero-title, .hp-news-heading, .digest-heading,
+      .share-gallery-heading, .faq-mini-heading,
+      .card h3, .spark-demo h3, .step h3 { color: #ffffff; }
+      .card h3[style*="#b45309"] { color: #fcd34d !important; }
+      .hero-left-card .hero-eyebrow { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.16); color: #93c5fd; }
+      .hero-left-card p, .card p, .spark-demo p, .step p, .spark-legend-item,
+      .hero-left-card .hero-bullet,
+      .hp-news-sub, .digest-col-label, .digest-news-label, .hp-news-msg, .digest-msg,
+      .hp-news-item-date, .hp-news-item-source, .digest-dname,
+      .share-gallery-sub, .faq-mini-sub, .share-gallery-note,
+      .faq-mini-list .q-text, .faq-mini-list .faq-a-inner { color: #cbd5e1 !important; }
+      .card p strong[style*="#0f172a"], .spark-demo p strong[style*="#0f172a"] { color: #f1f5f9 !important; }
+      .card p strong[style*="#b45309"] { color: #fbbf24 !important; }
+      .card p strong[style*="#dc2626"] { color: #f87171 !important; }
+      .card p strong[style*="#16a34a"], .spark-demo p strong[style*="#16a34a"] { color: #4ade80 !important; }
+      .card a[style*="#2563eb"], .spark-demo a[style*="#2563eb"], .step-num,
+      .hp-news-panel .hp-news-viewall, .digest-dl,
+      .share-gallery-panel .hp-news-viewall, .faq-mini-panel .hp-news-viewall { color: #93c5fd !important; }
+      .hp-news-item-title, .digest-news-link { color: #ffffff !important; font-weight: 700; }
+      .card-icon { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.2) !important; color: #93c5fd !important; }
+      .hero-left-card .hero-bullet::before { color: #60a5fa; }
+      .faq-mini-list .q-icon { border-color: rgba(255,255,255,0.25); color: #94a3b8; }
+      .faq-mini-list .faq-item, .faq-mini-list .faq-item:last-child { border-color: transparent; }
+      .faq-mini-list .faq-item.open .q-text { color: #ffffff; }
+      .digest-div { border-color: transparent !important; }
+      .step-num::after { background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent); }
+      #digestEmailInput { background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.18) !important; color: #e2e8f0 !important; }
+    }
   </style>
   <script src="assets/feature_flags.js?v=3"></script>
 </head>
