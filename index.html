@@ -1618,22 +1618,23 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
     <!-- Left: Index Membership News -->
     <div class="hp-news-panel">
-      <div class="hp-news-heading">Index Membership News & Records <span style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">(updates daily)</span></div>
-      <div class="hp-news-sub">S&amp;P 500 &amp; Nasdaq-100 — pending additions &amp; removals</div>
-      <div class="hp-news-tabs" id="hpCatTabs"></div>
-      <div class="hp-news-list" id="hpNewsList"><div class="hp-news-msg">Loading…</div></div>
-      <div class="hp-news-footer">
-        <span style="font-family:'DM Mono',monospace;font-size:10px;color:#64748b;" id="hpLastUpdated"></span>
+      <div class="hp-news-heading" style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;">
+        <span>Index Membership News &amp; Records <span style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">(updates daily)</span></span>
         <a href="index_news.html" class="hp-news-viewall" onclick="return hpViewAll(event, 'index_news.html', 'Index Membership News &amp; Records')">
           View all
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
+      <div class="hp-news-sub">S&amp;P 500 &amp; Nasdaq-100 — pending additions &amp; removals</div>
+      <div class="hp-news-tabs" id="hpCatTabs"></div>
+      <div class="hp-news-list" id="hpNewsList"><div class="hp-news-msg">Loading…</div></div>
     </div>
 
     <!-- Right: Today's Market Briefing -->
     <div class="digest-panel">
-      <div class="digest-heading">Today's Market Briefing</div>
+      <div class="digest-heading">Today's Market Briefing
+        <a href="market_news.html" id="digestViewAllBtn" onclick="return hpViewAll(event, 'market_news.html', 'Market News')" class="digest-dl" title="View all market news">View all →</a>
+      </div>
       <div style="display:flex;gap:6px;margin-bottom:14px;">
         <input type="email" id="digestEmailInput" placeholder="you@email.com" style="flex:1;min-width:0;background:#f8fafc;border:1px solid rgba(15,23,42,0.15);border-radius:8px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 10px;outline:none;">
         <button id="digestSubscribeBtn" style="background:var(--electric);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">Get This Daily →</button>
@@ -1652,18 +1653,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <hr class="digest-div">
       <div class="digest-news-label">Market News <span id="newsUpdatedNote" style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">(updates daily)</span></div>
       <div id="digestNews"><div class="digest-msg">Loading…</div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#475569;letter-spacing:0.03em;">Third-party news · views not our own</span>
-        <a href="market_news.html" id="digestViewAllBtn" onclick="return hpViewAll(event, 'market_news.html', 'Market News')" class="digest-dl" title="View all market news">View all →</a>
-      </div>
-      <div class="digest-video-row">
-        <span style="font-family:'DM Mono',monospace;font-size:10px;color:#2563eb;letter-spacing:0.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-          <a href="https://www.youtube.com/@baizora-en3" target="_blank" rel="noopener" class="digest-dl" style="display:inline-flex;vertical-align:middle;">
-            <svg width="12" height="12" style="flex-shrink:0;" viewBox="0 0 24 24" fill="#dc2626"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
-            News Channel
-          </a> (<a id="newsVideoWatchLink" href="data/latest_video_news_en.mp4" target="_blank" class="digest-dl" style="vertical-align:middle;"><span id="newsVideoDate">…</span></a> <a id="newsVideoDownloadLink" href="data/latest_video_news_en.mp4" download class="digest-dl" style="vertical-align:middle;" title="Download">↓</a>)
-        </span>
-      </div>
     </div>
 
   </div>
@@ -1824,6 +1813,12 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#dc2626"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
         </a>
         <span class="footer-video-links">(<a id="videoWatchLink" href="data/latest_video_en.mp4" target="_blank">latest video</a> <a id="videoDownloadLink" href="data/latest_video_en.mp4" download title="Download">↓</a>)</span>
+      </div>
+      <div class="footer-social">
+        <a href="https://www.youtube.com/@baizora-en3" target="_blank" rel="noopener" class="footer-social-icon" title="News Channel" aria-label="News Channel">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#dc2626"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+        </a>
+        <span class="footer-video-links">News Channel (<a id="newsVideoWatchLink" href="data/latest_video_news_en.mp4" target="_blank"><span id="newsVideoDate">latest</span></a> <a id="newsVideoDownloadLink" href="data/latest_video_news_en.mp4" download title="Download">↓</a>)</span>
       </div>
       <div class="footer-social">
         <a href="https://www.linkedin.com/company/baizora" target="_blank" rel="noopener" class="footer-social-icon" title="LinkedIn" aria-label="LinkedIn">
@@ -2871,12 +2866,6 @@ function buildSparkPath(arr) {
       const res = await fetch("data/index_news.json?t=" + Date.now());
       if (!res.ok) throw new Error("fetch failed");
       let data = await res.json();
-      const upd = document.getElementById("hpLastUpdated");
-      if (upd) {
-        const _now = new Date();
-        const _checked = _now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) + ' ' + _now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false }) + ' ET';
-        upd.textContent = "checked " + _checked;
-      }
       if (data.items && data.items.length) {
         const seen = new Set();
         allItems = data.items.filter(it => { const k = it.title + '|' + it.category; if (seen.has(k)) return false; seen.add(k); return true; });

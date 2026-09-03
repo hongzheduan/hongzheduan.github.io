@@ -1618,22 +1618,23 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
     <!-- 左侧：指数成员资格新闻 -->
     <div class="hp-news-panel">
-      <div class="hp-news-heading">指数成分股变动新闻与记录 <span style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每日更新）</span></div>
-      <div class="hp-news-sub">标普500 &amp; 纳斯达克100 — 成分股调入与调出</div>
-      <div class="hp-news-tabs" id="hpCatTabs"></div>
-      <div class="hp-news-list" id="hpNewsList"><div class="hp-news-msg">加载中…</div></div>
-      <div class="hp-news-footer">
-        <span style="font-family:'DM Mono',monospace;font-size:10px;color:#64748b;" id="hpLastUpdated"></span>
+      <div class="hp-news-heading" style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;">
+        <span>指数成分股变动新闻与记录 <span style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每日更新）</span></span>
         <a href="index_news_cn.html" class="hp-news-viewall" onclick="return hpViewAll(event, 'index_news_cn.html', '成分股变动记录仅对订阅用户开放。')">
           查看全部
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
+      <div class="hp-news-sub">标普500 &amp; 纳斯达克100 — 成分股调入与调出</div>
+      <div class="hp-news-tabs" id="hpCatTabs"></div>
+      <div class="hp-news-list" id="hpNewsList"><div class="hp-news-msg">加载中…</div></div>
     </div>
 
     <!-- 右侧：今日市场简报 -->
     <div class="digest-panel">
-      <div class="digest-heading">今日市场简报</div>
+      <div class="digest-heading">今日市场简报
+        <a href="market_news_cn.html" id="digestViewAllBtn" onclick="return hpViewAll(event, 'market_news_cn.html', '市场资讯完整列表为订阅用户专享内容。')" class="digest-dl" title="查看全部市场资讯">查看全部 →</a>
+      </div>
       <div style="display:flex;gap:6px;margin-bottom:14px;">
         <input type="email" id="digestEmailInput" placeholder="you@email.com" style="flex:1;min-width:0;background:#f8fafc;border:1px solid rgba(15,23,42,0.15);border-radius:8px;color:#0f172a;font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 10px;outline:none;">
         <button id="digestSubscribeBtn" style="background:var(--electric);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">订阅每日简报 →</button>
@@ -1652,18 +1653,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <hr class="digest-div">
       <div class="digest-news-label">市场资讯 <span id="newsUpdatedNote" style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每日更新）</span></div>
       <div id="digestNews"><div class="digest-msg">加载中…</div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:#475569;letter-spacing:0.03em;">来自第三方媒体 · 不代表平台立场</span>
-        <a href="market_news_cn.html" id="digestViewAllBtn" onclick="return hpViewAll(event, 'market_news_cn.html', '市场资讯完整列表为订阅用户专享内容。')" class="digest-dl" title="查看全部市场资讯">查看全部 →</a>
-      </div>
-      <div class="digest-video-row">
-        <span style="font-family:'DM Mono',monospace;font-size:10px;color:#2563eb;letter-spacing:0.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-          <a href="https://www.youtube.com/@baizora-en3" target="_blank" rel="noopener" class="digest-dl" style="display:inline-flex;vertical-align:middle;">
-            <svg width="12" height="12" style="flex-shrink:0;" viewBox="0 0 24 24" fill="#dc2626"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
-            新闻频道
-          </a> (<a id="newsVideoWatchLink" href="data/latest_video_news_cn.mp4" target="_blank" class="digest-dl" style="vertical-align:middle;"><span id="newsVideoDate">…</span></a> <a id="newsVideoDownloadLink" href="data/latest_video_news_cn.mp4" download class="digest-dl" style="vertical-align:middle;" title="下载">↓</a>)
-        </span>
-      </div>
     </div>
 
   </div>
@@ -1824,6 +1813,12 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#dc2626"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
         </a>
         <span class="footer-video-links">（<a id="videoWatchLink" href="data/latest_video_cn.mp4" target="_blank">最新视频</a> <a id="videoDownloadLink" href="data/latest_video_cn.mp4" download title="下载">↓</a>）</span>
+      </div>
+      <div class="footer-social">
+        <a href="https://www.youtube.com/@baizora-en3" target="_blank" rel="noopener" class="footer-social-icon" title="新闻频道" aria-label="新闻频道">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#dc2626"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+        </a>
+        <span class="footer-video-links">新闻频道 （<a id="newsVideoWatchLink" href="data/latest_video_news_cn.mp4" target="_blank"><span id="newsVideoDate">最新</span></a> <a id="newsVideoDownloadLink" href="data/latest_video_news_cn.mp4" download title="下载">↓</a>）</span>
       </div>
       <div class="footer-social">
         <a href="https://www.linkedin.com/company/baizora" target="_blank" rel="noopener" class="footer-social-icon" title="LinkedIn" aria-label="LinkedIn">
@@ -2775,12 +2770,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       const res = await fetch("data/index_news.json?t=" + Date.now());
       if (!res.ok) throw new Error("fetch failed");
       let data = await res.json();
-      const upd = document.getElementById("hpLastUpdated");
-      if (upd) {
-        const _now = new Date();
-        const _checked = _now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) + ' ' + _now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York', hour12: false }) + ' ET';
-        upd.textContent = "检查时间 " + _checked;
-      }
       if (data.items && data.items.length) {
         allItems = data.items;
         buildTabs();
