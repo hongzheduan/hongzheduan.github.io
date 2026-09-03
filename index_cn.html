@@ -885,11 +885,15 @@
     .hp-news-panel .hp-news-viewall, .share-gallery-panel .hp-news-viewall, .faq-mini-panel .hp-news-viewall { color: #2563eb; }
     .hp-news-msg { font-size: 12px; color: #64748b; padding: 20px 0; text-align: center; }
 
-    /* Desktop: the two news panels shed their box and sit on the Duke-blue page */
+    /* Desktop: the two news panels shed their box and sit on the Duke-blue page,
+       separated by a single hairline rule down the middle instead of two borders. */
     @media (min-width: 901px) {
+      .cta-two-panel { gap: 0; }
       .hp-news-panel, .digest-panel {
         background: transparent; border: none; box-shadow: none; padding: 0;
       }
+      .hp-news-panel { padding-right: 52px; border-right: 1px solid rgba(255,255,255,0.13); }
+      .digest-panel  { padding-left: 52px; }
       .hp-news-heading, .digest-heading { color: #ffffff; }
       .hp-news-sub, .digest-col-label, .digest-news-label, .hp-news-msg, .digest-msg,
       .hp-news-item-date, .hp-news-item-source, .digest-dname { color: #94a3b8; }
