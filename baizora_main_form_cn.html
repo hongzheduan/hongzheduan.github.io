@@ -767,9 +767,9 @@
     .sma-add-btn { background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.18); color: #64748b; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .sma-add-btn:hover { color: #2dd4bf; border-color: #2dd4bf; }
     .sma-add-btn:disabled { opacity: .35; cursor: not-allowed; }
-    #candleCanvas { width: 100%; height: 280px; display: block; border-radius: 8px; }
+    #candleCanvas { width: 100%; height: 330px; display: block; border-radius: 8px; }
     #candleNoData {
-      width: 100%; height: 280px; display: none;
+      width: 100%; height: 330px; display: none;
       align-items: center; justify-content: center;
       color: #64748b; font-size: 14px;
       background: rgba(255,255,255,0.02); border-radius: 8px;
@@ -2161,6 +2161,13 @@
       const ctx = canvas.getContext("2d");
       ctx.scale(dpr, dpr);
       const W = rect.width, H = rect.height;
+      // Light theme palette (chart canvas is painted white below)
+      const C_BG = "#ffffff";
+      const C_GRID = "rgba(0,0,0,0.09)";
+      const C_GRID_FAINT = "rgba(0,0,0,0.06)";
+      const C_ZERO = "rgba(0,0,0,0.16)";
+      const C_AXIS = "#64748b";
+      const C_AXIS_HI = "#1e293b";
       const hasVol  = candles.some(c => c && c[4] > 0);
       const volH    = hasVol ? Math.round(H * 0.22) : 0;
       const gap     = hasVol ? 6 : 0;
@@ -2185,18 +2192,20 @@
       const lo   = minP - buf, hi = maxP + buf;
       const toY  = p => pad.top + priceH * (1 - (p - lo) / (hi - lo));
       ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = C_BG;
+      ctx.fillRect(0, 0, W, H);
       ctx.font = `11px 'DM Mono', monospace`;
       ctx.textAlign = "right";
       for (let i = 0; i <= 4; i++) {
         const p = lo + (hi - lo) * (i / 4), y = toY(p);
-        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.strokeStyle = C_GRID; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-        ctx.fillStyle = "#64748b";
+        ctx.fillStyle = C_AXIS;
         ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 5, y + 4);
       }
       const latestDate = new Date(dates[dates.length - 1] + 'T12:00:00');
       ctx.font = `10px 'DM Mono', monospace`;
-      ctx.fillStyle = "#475569";
+      ctx.fillStyle = C_AXIS;
       ctx.fillText(
         latestDate.toLocaleDateString("zh-CN", { year: "numeric", month: "numeric", day: "numeric" }),
         W - pad.right, pad.top - 4
@@ -2210,7 +2219,7 @@
         const isLast = i === n - 1;
         if (n < 100) {
           if (i % Math.round(n / 6) !== 0 && !isLast) return;
-          ctx.fillStyle = isLast ? "#94a3b8" : "#64748b";
+          ctx.fillStyle = isLast ? C_AXIS_HI : C_AXIS;
           ctx.fillText(dt.toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" }), toX(i) + cndW / 2, H - 8);
         } else {
           if (mo === lastMo && !isLast) return;
@@ -2221,7 +2230,7 @@
             ? dt.toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" })
             : (yr !== lastYr ? `${moName}'${String(yr).slice(-2)}` : moName);
           if (!isLast) lastYr = yr;
-          ctx.fillStyle = isLast ? "#94a3b8" : "#64748b";
+          ctx.fillStyle = isLast ? C_AXIS_HI : C_AXIS;
           ctx.fillText(label, toX(i) + cndW / 2, H - 8);
         }
       });
@@ -2238,7 +2247,7 @@
           ctx.moveTo(pts[0][0], pts[0][1]);
           for (let k = 1; k < pts.length; k++) ctx.lineTo(pts[k][0], pts[k][1]);
           ctx.closePath();
-          ctx.fillStyle = band.fill || "rgba(244,114,182,0.08)";
+          ctx.fillStyle = band.fill || "rgba(219,39,119,0.10)";
           ctx.fill();
         }
       });
@@ -2285,9 +2294,9 @@
             const barH = Math.max(1, vpBH - 1);
             const wUp = vpUp[b] / vpMax * vpMaxW;
             const wDn = vpDn[b] / vpMax * vpMaxW;
-            ctx.fillStyle = "rgba(34,197,94,0.20)";
+            ctx.fillStyle = "rgba(22,163,74,0.28)";
             ctx.fillRect(vpLeft, yTop, wUp, barH);
-            ctx.fillStyle = "rgba(239,68,68,0.20)";
+            ctx.fillStyle = "rgba(220,38,38,0.26)";
             ctx.fillRect(vpLeft + wUp, yTop, wDn, barH);
           }
           const pocY = pad.top + priceH * (1 - (vpPoc + 0.5) / VP_BUCKETS);
@@ -2302,8 +2311,8 @@
         if (!c) return;
         const [o, h, l, cv] = c;
         const green = cv >= o, x = toX(i), mid = x + cndW / 2;
-        ctx.strokeStyle = green ? "#22c55e" : "#ef4444";
-        ctx.fillStyle   = green ? "rgba(34,197,94,0.75)" : "rgba(239,68,68,0.75)";
+        ctx.strokeStyle = green ? "#16a34a" : "#dc2626";
+        ctx.fillStyle   = green ? "rgba(22,163,74,0.85)" : "rgba(220,38,38,0.85)";
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(mid, toY(h)); ctx.lineTo(mid, toY(l)); ctx.stroke();
         const bTop = toY(Math.max(o, cv)), bH = Math.max(1, toY(Math.min(o, cv)) - bTop);
@@ -2326,9 +2335,9 @@
       if (hasVol) {
         const volTop = pad.top + priceH + gap;
         const maxVol = Math.max(...candles.map(c => c ? c[4] || 0 : 0));
-        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.strokeStyle = C_GRID; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(pad.left, volTop); ctx.lineTo(W - pad.right, volTop); ctx.stroke();
-        ctx.fillStyle = "#475569"; ctx.font = `9px 'DM Mono', monospace`;
+        ctx.fillStyle = C_AXIS; ctx.font = `9px 'DM Mono', monospace`;
         ctx.textAlign = "right";
         ctx.fillText("量", pad.left - 5, volTop + 9);
         candles.forEach((c, i) => {
@@ -2336,24 +2345,24 @@
           const [o,,, cv, v] = c;
           const green = cv >= o;
           const bH = Math.round((v / maxVol) * (volH - 4));
-          ctx.fillStyle = green ? "rgba(34,197,94,0.45)" : "rgba(239,68,68,0.45)";
+          ctx.fillStyle = green ? "rgba(22,163,74,0.55)" : "rgba(220,38,38,0.5)";
           ctx.fillRect(toX(i), volTop + (volH - 4) - bH, cndW, bH);
         });
       }
       if (hasScore) {
         const scoreTop = pad.top + priceH + gap + volH + gap3;
         const sToY = v => scoreTop + scoreH * (1 - v / 100);
-        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.strokeStyle = C_GRID; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(pad.left, scoreTop); ctx.lineTo(W - pad.right, scoreTop); ctx.stroke();
-        ctx.fillStyle = "#475569"; ctx.font = `9px 'DM Mono', monospace`;
+        ctx.fillStyle = C_AXIS; ctx.font = `9px 'DM Mono', monospace`;
         ctx.textAlign = "right";
         ctx.fillText(scoreData.label.toUpperCase(), pad.left - 5, scoreTop + 9);
         [0, 50, 100].forEach(v => {
           const y = sToY(v);
-          ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.setLineDash(v === 50 ? [2, 2] : []);
+          ctx.strokeStyle = C_GRID_FAINT; ctx.setLineDash(v === 50 ? [2, 2] : []);
           ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
           ctx.setLineDash([]);
-          ctx.fillStyle = "#475569"; ctx.font = `8px 'DM Mono', monospace`; ctx.textAlign = "right";
+          ctx.fillStyle = C_AXIS; ctx.font = `8px 'DM Mono', monospace`; ctx.textAlign = "right";
           ctx.fillText(String(v), pad.left - 5, y + 3);
         });
         ctx.strokeStyle = scoreData.color; ctx.lineWidth = 1.5;
@@ -2378,13 +2387,13 @@
         const mBuf = (mMax - mMin) * 0.1 || 1;
         const mLo = mMin - mBuf, mHi = mMax + mBuf;
         const mToY = v => macdTop + macdH * (1 - (v - mLo) / (mHi - mLo));
-        ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+        ctx.strokeStyle = C_GRID; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(pad.left, macdTop); ctx.lineTo(W - pad.right, macdTop); ctx.stroke();
-        ctx.fillStyle = "#475569"; ctx.font = `9px 'DM Mono', monospace`;
+        ctx.fillStyle = C_AXIS; ctx.font = `9px 'DM Mono', monospace`;
         ctx.textAlign = "right";
         ctx.fillText("MACD", pad.left - 5, macdTop + 9);
         const zeroY = mToY(0);
-        ctx.strokeStyle = "rgba(255,255,255,0.10)"; ctx.setLineDash([2, 2]);
+        ctx.strokeStyle = C_ZERO; ctx.setLineDash([2, 2]);
         ctx.beginPath(); ctx.moveTo(pad.left, zeroY); ctx.lineTo(W - pad.right, zeroY); ctx.stroke();
         ctx.setLineDash([]);
         candles.forEach((c, i) => {
@@ -2392,7 +2401,7 @@
           if (v == null) return;
           const y1 = mToY(v);
           const top = Math.min(zeroY, y1), h = Math.max(1, Math.abs(y1 - zeroY));
-          ctx.fillStyle = v >= 0 ? "rgba(34,197,94,0.5)" : "rgba(239,68,68,0.5)";
+          ctx.fillStyle = v >= 0 ? "rgba(22,163,74,0.55)" : "rgba(220,38,38,0.5)";
           ctx.fillRect(toX(i), top, cndW, h);
         });
         const drawMacdLine = (vals, color) => {
@@ -2408,8 +2417,8 @@
           });
           ctx.stroke();
         };
-        drawMacdLine(macd.macd, "#22d3ee");
-        drawMacdLine(macd.signal, "#f59e0b");
+        drawMacdLine(macd.macd, "#0891b2");
+        drawMacdLine(macd.signal, "#d97706");
       }
     }
 
@@ -2452,9 +2461,9 @@
         ["1年涨幅",    y1v, y1c],
       ];
       document.getElementById("modalStats").innerHTML = stats.map(([k,v,c]) =>
-        `<div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 14px;">
-          <div style="color:#64748b;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:.06em;">${k}</div>
-          <div style="color:${c||'#fff'};font-size:14px;margin-top:4px;">${v}</div>
+        `<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:5px 10px;">
+          <div style="color:#64748b;font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.06em;">${k}</div>
+          <div style="color:${c||'#fff'};font-size:13px;margin-top:1px;">${v}</div>
         </div>`
       ).join("");
       document.getElementById("tickerModal").style.display = "flex";
@@ -2502,10 +2511,10 @@
       });
     }
 
-    const _SMA_COLORS = { bb: "#f472b6" };
+    const _SMA_COLORS = { bb: "#db2777" };
     // Rotating fixed palette for the free-form SMA list — index = position in
     // _smaList, so cap SMA_MAX at the palette length rather than cycling past it.
-    const SMA_PALETTE = ["#f59e0b", "#60a5fa", "#a78bfa", "#2dd4bf", "#fb7185"];
+    const SMA_PALETTE = ["#d97706", "#2563eb", "#7c3aed", "#0d9488", "#e11d48"];
     const SMA_MAX = 5;
     let _smaList = [20, 50, 200];
     let _bbPeriod = 20, _bbMult = 2;
@@ -2692,7 +2701,7 @@
           const { macdLine, signalLine, hist } = _computeMacd(candles, _macdFast, _macdSlow, _macdSignal);
           macdData = { macd: alignToDates(macdLine), signal: alignToDates(signalLine), hist: alignToDates(hist) };
         }
-        canvas.style.height = (280 + (macdData ? 110 : 0) + (scoreData ? 90 : 0)) + "px";
+        canvas.style.height = (330 + (macdData ? 110 : 0) + (scoreData ? 90 : 0)) + "px";
 
         const vpActive = document.getElementById("vpChip").classList.contains("active");
         renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive);
@@ -3110,7 +3119,7 @@
       </div>
       <canvas id="candleCanvas"></canvas>
       <div id="candleNoData">暂无图表数据</div>
-      <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:18px;"></div>
+      <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:6px;margin-top:12px;"></div>
       <div id="modalEvents"><div class="modal-events-title">公司重大事件</div><div id="modalEventsList"></div></div>
       <div id="modalDesc"><span id="modalDescBody"></span><span id="modalDescSep"> &middot; </span><a id="modalDescSource" href="#" target="_blank" rel="noopener">来源 &#8599;</a></div>
     </div>
