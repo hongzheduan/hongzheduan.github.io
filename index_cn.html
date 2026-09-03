@@ -1692,31 +1692,27 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   <div class="gallery-faq-grid">
 
     <div class="share-gallery-panel">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-        <div>
-          <div class="share-gallery-heading">今日精选图表</div>
-          <div class="share-gallery-sub">来自今日视频 · 工作日约美东时间下午6点更新，周末约美东时间上午10点更新 · 登录后即可下载，用于社交媒体分享、演示或个人笔记</div>
-        </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;">
+        <div class="share-gallery-heading">今日精选图表</div>
         <a href="chart_archive_cn.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive_cn.html', '图表存档为订阅用户专享内容。', true)">
           查看全部
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
+      <div class="share-gallery-sub">来自今日视频 · 工作日约美东时间下午6点更新，周末约美东时间上午10点更新 · 登录后即可下载，用于社交媒体分享、演示或个人笔记</div>
       <div class="share-gallery-row" id="shareGalleryRow"><div class="digest-msg">加载中…</div></div>
       <div class="share-gallery-note">欢迎免费使用与分享 — 请保留图片中的贝佐拉（Baizora）水印。</div>
     </div>
 
     <div class="faq-mini-panel">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-        <div>
-          <div class="faq-mini-heading">快速解答</div>
-          <div class="faq-mini-sub">常见问题 — 点击展开</div>
-        </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;">
+        <div class="faq-mini-heading">快速解答</div>
         <a href="assets/faq_cn.html" class="hp-news-viewall" style="flex-shrink:0;">
           查看完整常见问题
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
+      <div class="faq-mini-sub">常见问题 — 点击展开</div>
       <div class="faq-mini-list">
         <div class="faq-item" id="faqFreeItemHome" style="display:none;">
           <div class="faq-q" onclick="toggleFaqMini(this)">

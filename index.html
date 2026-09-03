@@ -1692,31 +1692,27 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   <div class="gallery-faq-grid">
 
     <div class="share-gallery-panel">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-        <div>
-          <div class="share-gallery-heading">Today's Featured Charts</div>
-          <div class="share-gallery-sub">From today's video · updates around 6 PM ET on weekdays, 10 AM ET on weekends · sign in to download for social media, presentations, or your own notes</div>
-        </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;">
+        <div class="share-gallery-heading">Today's Featured Charts</div>
         <a href="chart_archive.html" class="hp-news-viewall" style="flex-shrink:0;" onclick="return hpViewAll(event, 'chart_archive.html', 'Chart Archive', true)">
           View all
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
+      <div class="share-gallery-sub">From today's video · updates around 6 PM ET on weekdays, 10 AM ET on weekends · sign in to download for social media, presentations, or your own notes</div>
       <div class="share-gallery-row" id="shareGalleryRow"><div class="digest-msg">Loading…</div></div>
       <div class="share-gallery-note">Free to use and share — please keep the Baizora watermark intact.</div>
     </div>
 
     <div class="faq-mini-panel">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-        <div>
-          <div class="faq-mini-heading">Quick Answers</div>
-          <div class="faq-mini-sub">Common questions — click to expand</div>
-        </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;">
+        <div class="faq-mini-heading">Quick Answers</div>
         <a href="assets/faq.html" class="hp-news-viewall" style="flex-shrink:0;">
           View full FAQ
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
+      <div class="faq-mini-sub">Common questions — click to expand</div>
       <div class="faq-mini-list">
         <div class="faq-item" id="faqFreeItemHome" style="display:none;">
           <div class="faq-q" onclick="toggleFaqMini(this)">
