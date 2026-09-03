@@ -2253,12 +2253,13 @@
         }
       });
       // Volume-by-price histogram ("volume profile") — horizontal bars along the
-      // right edge of the price panel showing how much volume traded in each price
+      // left edge of the price panel showing how much volume traded in each price
       // bucket over the visible window. Each day's volume is spread across the
       // buckets its high–low range spans, weighted by the overlap, then split into
-      // up-day (close ≥ open) and down-day volume and stacked. The dashed gold line
-      // marks the point of control (highest-volume price level). Drawn before the
-      // candles so wicks and bodies stay legible on top.
+      // up-day (close ≥ open) and down-day volume and stacked (up-day hugs the
+      // edge, down-day toward the center). The dashed gold line marks the point of
+      // control (highest-volume price level). Drawn before the candles so wicks
+      // and bodies stay legible on top.
       if (volProfile) {
         const VP_BUCKETS = 24;
         const vpUp = new Array(VP_BUCKETS).fill(0);
@@ -2287,7 +2288,7 @@
         }
         if (vpMax > 0) {
           const vpMaxW = (W - pad.left - pad.right) * 0.30;
-          const vpRight = W - pad.right;
+          const vpLeft = pad.left;
           const vpBH = priceH / VP_BUCKETS;
           for (let b = 0; b < VP_BUCKETS; b++) {
             const yTop = pad.top + priceH * (1 - (b + 1) / VP_BUCKETS);
@@ -2295,20 +2296,16 @@
             const wUp = vpUp[b] / vpMax * vpMaxW;
             const wDn = vpDn[b] / vpMax * vpMaxW;
             ctx.fillStyle = "rgba(34,197,94,0.20)";
-            ctx.fillRect(vpRight - wUp, yTop, wUp, barH);
+            ctx.fillRect(vpLeft, yTop, wUp, barH);
             ctx.fillStyle = "rgba(239,68,68,0.20)";
-            ctx.fillRect(vpRight - wUp - wDn, yTop, wDn, barH);
+            ctx.fillRect(vpLeft + wUp, yTop, wDn, barH);
           }
           const pocY = pad.top + priceH * (1 - (vpPoc + 0.5) / VP_BUCKETS);
           ctx.strokeStyle = "rgba(245,158,11,0.5)";
           ctx.lineWidth = 1;
           ctx.setLineDash([3, 3]);
-          ctx.beginPath(); ctx.moveTo(pad.left, pocY); ctx.lineTo(vpRight, pocY); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(pad.left, pocY); ctx.lineTo(W - pad.right, pocY); ctx.stroke();
           ctx.setLineDash([]);
-          ctx.fillStyle = "#64748b";
-          ctx.font = `8px 'DM Mono', monospace`;
-          ctx.textAlign = "left";
-          ctx.fillText("VOL·PRICE", pad.left + 3, pad.top + 10);
         }
       }
       candles.forEach((c, i) => {
@@ -3129,7 +3126,7 @@
       <div class="overlay-drawer-wrap">
         <button type="button" class="overlay-drawer-toggle" id="vpDrawerToggle">Vol Profile &#9662;</button>
         <div class="overlay-drawer-panel" id="vpToggles">
-          <button class="sma-btn" id="vpChip" data-vp="1" title="Volume traded at each price level over the visible window. Green = volume on up days (close ≥ open); red = volume on down days (close &lt; open), stacked to the left of the green. The gold dashed line marks the price level with the most volume (point of control). Not buy vs sell volume — daily data can't show that.">Volume by Price</button>
+          <button class="sma-btn" id="vpChip" data-vp="1" title="Volume traded at each price level over the visible window. Green = volume on up days (close ≥ open); red = volume on down days (close &lt; open), stacked to the right of the green. Bars run from the left edge of the chart. The gold dashed line marks the price level with the most volume (point of control). Not buy vs sell volume — daily data can't show that.">Volume by Price</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">
