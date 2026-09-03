@@ -2448,6 +2448,8 @@
       const [m1v, m1c] = fmtChg(r["1MPriceChange"]);
       const [m3v, m3c] = fmtChg(r["3MPriceChange"]);
       const [y1v, y1c] = fmtChg(r["1YPriceChange"]);
+      const [y2v, y2c] = fmtChg(r["2YPriceChange"]);
+      const [y5v, y5c] = fmtChg(r["5YPriceChange"]);
       const stats = [
         ["市盈率",     r.PE     != null ? r.PE.toFixed(1)                              : "—"],
         ["每股收益",   r.EPS    != null ? r.EPS.toFixed(2)                             : "—"],
@@ -2459,6 +2461,8 @@
         ["1月涨幅",    m1v, m1c],
         ["3月涨幅",    m3v, m3c],
         ["1年涨幅",    y1v, y1c],
+        ["2年涨幅",    y2v, y2c],
+        ["5年涨幅",    y5v, y5c],
       ];
       document.getElementById("modalStats").innerHTML = stats.map(([k,v,c]) =>
         `<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:5px 10px;">
