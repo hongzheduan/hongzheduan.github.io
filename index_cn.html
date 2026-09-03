@@ -340,7 +340,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: #2563eb;
       border: 1px solid rgba(59,130,246,0.25);
@@ -1040,13 +1040,49 @@
     @media (min-width: 901px) {
       .hero-left-card { background: transparent; border: none; box-shadow: none; padding: 0; }
       .hero-left-card .hero-eyebrow { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.16); color: #93c5fd; font-size: 11px; }
-      .hero-left-card .hero-title { color: #ffffff; font-size: clamp(28px, 3.4vw, 42px) !important; line-height: 1.3; }
+      .hero-left-card .hero-title { color: #ffffff; font-size: clamp(26px, 3vw, 37px) !important; line-height: 1.3; }
       .hero-left-card p { color: #cbd5e1 !important; font-size: 16px; line-height: 1.7; }
       .hero-left-card .hero-bullet { color: #dbe4f0; font-size: 15.5px; }
       .hero-left-card .hero-bullet::before { color: #60a5fa; }
+      .hero-left-card .pulse-find__lead { color: #60a5fa; font-size: 22px; }
+      .hero-left-card .pulse-find__list { border-left-color: rgba(96,165,250,0.40); }
+      .hero-left-card .pulse-find__list li { color: #e2e8f0; font-size: 20px; line-height: 1.5; }
       /* don't stretch the movers card to the tall pitch column — sit it at the top,
          so it ends just below the last row instead of leaving dead space */
       .hero-split .sh-card { align-self: start; padding-bottom: 12px; }
+    }
+
+    /* "Powerful sort to find" criteria list in the hero-left-card */
+    .pulse-find { text-align: left; margin: 22px 0 16px; }
+    .pulse-find__lead {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 19px;
+      letter-spacing: -0.01em;
+      color: #60a5fa;
+      margin: 0 0 12px;
+    }
+    .pulse-find__list {
+      list-style: none;
+      margin: 0;
+      padding: 2px 0 2px 16px;
+      border-left: 2px solid rgba(37,99,235,0.28);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .pulse-find__list li {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 18px;
+      line-height: 1.45;
+      font-weight: 500;
+      color: #e2e8f0;
+    }
+    .pulse-find__list li.pulse-find__more {
+      font-style: italic;
+      font-weight: 400;
+      color: #93c5fd;
     }
 
     /* Override centered defaults when inside the split */
@@ -1412,15 +1448,21 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
     <!-- LEFT CARD -->
     <div class="hero-left-card">
-      <div class="hero-eyebrow" style="margin-bottom:10px;background:rgba(37,99,235,0.06);font-weight:500;">贝佐拉，化繁为简</div>
-      <h1 class="hero-title" style="font-size:clamp(18px,2.2vw,27px);">快速把握市场脉搏<br>一屏看清量价趋势</h1>
+      <div class="hero-eyebrow" style="margin-bottom:10px;background:rgba(37,99,235,0.06);font-weight:500;">S&amp;P 500 与 Nasdaq-100 &nbsp;·&nbsp; 一屏尽览 &nbsp;·&nbsp; <span id="pitchFreeChip">完全免费</span></div>
+      <h1 class="hero-title" style="font-size:clamp(21px,2.4vw,29px);">快速把握市场脉搏<br>一屏看清量价趋势</h1>
 
-      <p style="font-family:'DM Sans',sans-serif;font-size:14px;color:#475569;line-height:1.6;margin:0 0 14px;">一键按任意信号排序整个指数。快速找出当日涨跌幅居前的股票、异常成交量，或正处于关键价位的标的，例如贴近200日均线或成交量最密集的价位。一屏搞定，无需来回切换。</p>
+      <div class="pulse-find">
+        <div class="pulse-find__lead">强力排序，轻松找出</div>
+        <ul class="pulse-find__list">
+          <li>当日涨跌幅居前的股票</li>
+          <li>异常成交量</li>
+          <li>处于关键价位的股票，如 SMA200</li>
+          <li>逼近成交量最密集价位的股票</li>
+          <li class="pulse-find__more">以及更多</li>
+        </ul>
+      </div>
       <div class="hero-bullets">
-        <div class="hero-bullet">7 个时间周期同屏一行，从1天到5年，无需切换图表</div>
-        <div class="hero-bullet">只聚焦驱动大盘的两大指数，不必在上万只股票里大海捞针</div>
         <div class="hero-bullet" id="heroBulletPaid">只有数据：无广告，无买卖建议 · 每月 $9.99，7 天免费试用</div>
-        <div class="hero-bullet" id="heroBulletFree" style="display:none;">完全免费：登录用户均可使用完整平台，无需订阅</div>
       </div>
     </div><!-- /hero-left-card -->
 
@@ -1962,8 +2004,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     });
     const freeItemHome = document.getElementById('faqFreeItemHome');
     if (freeItemHome) freeItemHome.style.display = 'block';
-    const heroBulletFree = document.getElementById('heroBulletFree');
-    if (heroBulletFree) heroBulletFree.style.display = 'flex';
     const ctaMiniTagline = document.getElementById('ctaMiniTagline');
     if (ctaMiniTagline) ctaMiniTagline.textContent = '独特评分系统 · 综合价格与成交量信号 · 无需订阅';
   }

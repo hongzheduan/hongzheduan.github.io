@@ -340,7 +340,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: #2563eb;
       border: 1px solid rgba(59,130,246,0.25);
@@ -1012,9 +1012,9 @@
        by the grid track, independent of how tall each card's own footer row is. */
     .hero-split {
       display: grid;
-      grid-template-columns: 45% 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(590px, 620px);
       grid-template-rows: auto auto;
-      column-gap: 72px;
+      column-gap: 48px;
       row-gap: 0;
       align-items: stretch;
       text-align: left;
@@ -1037,14 +1037,51 @@
     @media (min-width: 901px) {
       .hero-left-card { background: transparent; border: none; box-shadow: none; padding: 0; }
       .hero-left-card .hero-eyebrow { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.16); color: #93c5fd; font-size: 11px; }
-      .hero-left-card .hero-title { color: #ffffff; font-size: clamp(22px, 2.5vw, 29px) !important; line-height: 1.3; }
+      .hero-left-card .hero-title { color: #ffffff; font-size: clamp(26px, 3vw, 36px) !important; line-height: 1.3; }
       .hero-left-card p { color: #cbd5e1 !important; font-size: 16.5px; line-height: 1.62; }
       .hero-left-card .hero-bullet { color: #dbe4f0; font-size: 16px; }
       .hero-left-card .hero-bullet::before { color: #60a5fa; }
+      .hero-left-card .pulse-find__lead { color: #60a5fa; font-size: 22px; }
+      .hero-left-card .pulse-find__list { border-left-color: rgba(96,165,250,0.40); }
+      .hero-left-card .pulse-find__list li { color: #e2e8f0; font-size: 20px; line-height: 1.5; }
       /* don't stretch the movers card to the tall pitch column — sit it at the top,
          so it ends just below the last row instead of leaving dead space */
       .hero-split .sh-card { align-self: start; padding-bottom: 12px; }
     }
+
+    /* "Powerful sort to find" criteria list in the hero-left-card */
+    .pulse-find { text-align: left; margin: 22px 0 16px; }
+    .pulse-find__lead {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 19px;
+      letter-spacing: -0.01em;
+      color: #60a5fa;
+      margin: 0 0 12px;
+    }
+    .pulse-find__list {
+      list-style: none;
+      margin: 0;
+      padding: 2px 0 2px 16px;
+      border-left: 2px solid rgba(37,99,235,0.28);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .pulse-find__list li {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 18px;
+      line-height: 1.45;
+      font-weight: 500;
+      color: #e2e8f0;
+    }
+    .pulse-find__list li.pulse-find__more {
+      font-style: italic;
+      font-weight: 400;
+      color: #93c5fd;
+    }
+
 
     /* Override centered defaults when inside the split */
     .hero-split .hero-title    { text-align: left; }
@@ -1411,15 +1448,21 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
     <!-- LEFT CARD -->
     <div class="hero-left-card">
-      <div class="hero-eyebrow" style="margin-bottom:10px;background:rgba(37,99,235,0.06);font-weight:500;">Baizora makes things simple</div>
-      <h1 class="hero-title" style="font-size:clamp(22px,2.2vw,28px);">Pulse of the Market:<br>Price, Volume, Trend at a Glance</h1>
+      <div class="hero-eyebrow" style="margin-bottom:10px;background:rgba(37,99,235,0.06);font-weight:500;">S&amp;P 500 &amp; Nasdaq-100 &nbsp;·&nbsp; One screen &nbsp;·&nbsp; <span id="pitchFreeChip">Totally free</span></div>
+      <h1 class="hero-title" style="font-size:clamp(26px,2.8vw,34px);">Pulse of the Market:<br>Price, Volume and Trend</h1>
 
-      <p style="font-family:'DM Sans',sans-serif;font-size:14px;color:#475569;line-height:1.55;margin:0 0 14px;">Sort the whole index by any signal. Find the day's biggest price movers, unusual volume, or stocks sitting right at a key level like the 200-day average or the price where volume is heaviest. One screen, no more switching tabs.</p>
+      <div class="pulse-find">
+        <div class="pulse-find__lead">Powerful sort to easily find</div>
+        <ul class="pulse-find__list">
+          <li>Day's biggest price movers</li>
+          <li>Unusual volume</li>
+          <li>Stocks trading at a key level such as the SMA200</li>
+          <li>Stocks approaching their heaviest-volume price</li>
+          <li class="pulse-find__more">and much more</li>
+        </ul>
+      </div>
       <div class="hero-bullets">
-        <div class="hero-bullet">7 timeframes in one row, 1D to 5Y. No chart flipping.</div>
-        <div class="hero-bullet">Just the two indexes that move the market, not 10,000 tickers to wade through</div>
         <div class="hero-bullet" id="heroBulletPaid">Data only: no ads, no buy/sell calls · $9.99/mo, 7-day free trial</div>
-        <div class="hero-bullet" id="heroBulletFree" style="display:none;">Totally free: full platform access for every signed-in user, no subscription required</div>
       </div>
     </div><!-- /hero-left-card -->
 
@@ -1945,8 +1988,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     });
     const freeItemHome = document.getElementById('faqFreeItemHome');
     if (freeItemHome) freeItemHome.style.display = 'block';
-    const heroBulletFree = document.getElementById('heroBulletFree');
-    if (heroBulletFree) heroBulletFree.style.display = 'flex';
     const ctaMiniTagline = document.getElementById('ctaMiniTagline');
     if (ctaMiniTagline) ctaMiniTagline.textContent = 'Unique scores combining price & volume signals · no subscription required';
   }
