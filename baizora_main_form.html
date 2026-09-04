@@ -925,7 +925,7 @@
             <colgroup><col style="width:160px"><col></colgroup>
             <tr><th>Column</th><th>Description</th></tr>
             <tr><td>TICKER</td><td>Stock symbol — click to open candlestick chart with PE, EPS, Beta, volatility &amp; sector</td></tr>
-            <tr><td>1Y TREND</td><td>1-year normalized price sparkline. <strong>&#9650; Triangle</strong> = highest-volume day (green=price up, red=price down). <strong>&#9679; Circle</strong> = highest-price-change day (green=volume up, red=volume down).</td></tr>
+            <tr><td>1Y TREND</td><td>Normalized price sparkline. On the 3M-5Y timeframe views, shows that window's own trend (e.g. 2Y shows a 2-year trend) and the column header changes to match — 1D and the SCORES/BAIZORA/FUND/TECH tabs always show the fixed 1-year trend. <strong>&#9650; Triangle</strong> = highest-volume day (green=price up, red=price down). <strong>&#9679; Circle</strong> = highest-price-change day (green=volume up, red=volume down).</td></tr>
             <tr><td>PRICE</td><td>Latest closing price in USD</td></tr>
             <tr><td>VOL(M)</td><td>Trading volume in millions of shares for the most recent session</td></tr>
             <tr><td>1D P CHG%</td><td>Price change (%) vs the previous session's closing price</td></tr>
@@ -1481,12 +1481,58 @@
       r.AbovePoc = price >= pocPrice;
     }
 
+    /* ── PER-WINDOW SPARKLINE: the "1Y Trend" column shows that window's own
+       length on the 3M/6M/9M/1Y/2Y/5Y table views (1D keeps the 1Y trend — a
+       1-day sparkline would be meaningless). Same min-max normalization the
+       server uses for Spark1Y (scanner_tiingo.py's normalize()), just computed
+       client-side over whichever slice of candles.json/candles_weekly.json
+       matches the selected window — reuses POC_DAYS_BY_W/POC_WEEKS_BY_W so the
+       window definitions can't drift out of sync with the Dist POC column. ── */
+    function normalizeCloses(raw, n) {
+      if (!raw) return null;
+      const win = raw.slice(-n).filter(Boolean);
+      if (win.length < 2) return null;
+      const closes = win.map(b => b[3]);
+      const lo = Math.min(...closes), hi = Math.max(...closes);
+      if (!(hi > lo)) return closes.map(() => 0.5);
+      return closes.map(c => (c - lo) / (hi - lo));
+    }
+    function computeWindowSpark(r, w) {
+      if (POC_DAYS_BY_W[w]) {
+        r.SparkW = normalizeCloses(candleData && candleData.data && candleData.data[r.Ticker], POC_DAYS_BY_W[w]);
+      } else if (POC_WEEKS_BY_W[w]) {
+        r.SparkW = normalizeCloses(weeklyData && weeklyData.data && weeklyData.data[r.Ticker], POC_WEEKS_BY_W[w]);
+      } else {
+        r.SparkW = null;
+      }
+    }
+    // Returns the [data, maxVolDay, priceAtMaxVol, maxPriceDay, volAtMaxPrice] args
+    // for renderSparkline(): the fixed 1Y series/markers for 1D (and whenever the
+    // window-specific series hasn't loaded yet), else the window's own series with
+    // its own ${w}Max*Day marker fields. Those day-count fields are trading days;
+    // for 2Y/5Y the sparkline itself is weekly bars, so days-ago is converted to an
+    // approximate weeks-ago index (~5 trading days/week) before marker lookup.
+    function windowSparkArgs(r, w) {
+      if (w === "1D" || !r.SparkW) {
+        return [r.Spark1Y, r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"], r["1YMaxPriceChangeDay"], r["1YVolumeChangeAtMaxPrice"]];
+      }
+      const toIdx = POC_WEEKS_BY_W[w] ? (d => d / 5) : (d => d);
+      return [
+        r.SparkW,
+        toIdx(r[`${w}MaxVolumeChangeDay`]),
+        r[`${w}PriceChangeAtMaxVolume`],
+        toIdx(r[`${w}MaxPriceChangeDay`]),
+        r[`${w}VolumeChangeAtMaxPrice`],
+      ];
+    }
+
     /* ── BUILD TABLE ── */
     function buildTable(arr, w) {
       if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); computePocDist(r); });
       if (VOL_RANK_WINDOW_DAYS[w]) arr.forEach(r => computeVolRank(r, w));
       if (POC_DAYS_BY_W[w])  arr.forEach(r => computePocDist(r, { days: POC_DAYS_BY_W[w] }));
       if (POC_WEEKS_BY_W[w]) arr.forEach(r => computePocDist(r, { days: POC_WEEKS_BY_W[w], weekly: true }));
+      if (POC_DAYS_BY_W[w] || POC_WEEKS_BY_W[w]) arr.forEach(r => computeWindowSpark(r, w));
       arr = sorted(arr);
 
       /* ── SCORES VIEW (raw sub-scores) ── */
@@ -1649,9 +1695,12 @@
         ${thSort("VolumeChange1D",  "1D V CHG%")}
         ${thSort("VolumeVsMA21_1D", "VOL/MA21")}` : "";
 
+      const sparkKey   = showPoc ? "SparkW" : "Spark1Y";
+      const sparkLabel = showPoc ? `${w} Trend` : "1Y Trend";
+
       const head = `<thead><tr>
         ${thSort("Ticker",          "Ticker")}
-        ${thStatic("Spark1Y",       "1Y Trend")}
+        ${thStatic(sparkKey,        sparkLabel)}
         ${thSort("Price",           "Price" + ((window.BAIZORA_LIVE_PRICES && isMarketOpen()) ? "<span class='live-tag'>live</span>" : ""))}
         ${thSort("VolumeM",         "Vol (M)")}
         ${oneDayCols}
@@ -1664,14 +1713,8 @@
         const pma  = r.PriceVsMA21_1D;
         const vma  = r.VolumeVsMA21_1D;
 
-        /* Sparkline always uses Spark1Y + 1Y max-volume info */
-        const sparkSVG = renderSparkline(
-          r.Spark1Y,
-          r["1YMaxVolumeChangeDay"],
-          r["1YPriceChangeAtMaxVolume"],
-          r["1YMaxPriceChangeDay"],
-          r["1YVolumeChangeAtMaxPrice"]
-        );
+        /* Sparkline: window's own length on 3M-5Y, fixed 1Y on 1D — see windowSparkArgs() */
+        const sparkSVG = renderSparkline(...windowSparkArgs(r, w));
 
         /* Rolling window cells */
         let windowCells = "";
@@ -1905,6 +1948,7 @@
     };
 
     function getWindowColDesc(key, w) {
+      if (key === "SparkW")                     return { label: `${w} Trend`, desc: `${w} normalized price sparkline. ▲ Triangle = highest-volume day in the ${w} window (green=price up, red=price down). ● Circle = highest-price-change day (green=volume up, red=volume down).` };
       if (key === `${w}PriceChange`)            return { label: "P CHG%",    desc: `Total price change (%) from the start of the ${w} window to today.` };
       if (key === `${w}MaxPriceChange`)         return { label: "MAX P CHG%",    desc: `Largest single-day price increase (%) within the ${w} window. Color shows whether volume rose or fell that same day (green = volume up, red = volume down), not the sign of this value.` };
       if (key === `${w}MaxVolumeChange`)        return { label: "MAX V CHG%",    desc: `Largest single-day volume increase (%) within the ${w} window. Color shows whether price rose or fell that same day (green = price up, red = price down), not the sign of this value.` };

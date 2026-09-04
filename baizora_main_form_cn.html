@@ -931,7 +931,7 @@
             <colgroup><col style="width:160px"><col></colgroup>
             <tr><th>列名</th><th>说明</th></tr>
             <tr><td>代码</td><td>股票代码 — 点击查看K线图，以及市盈率、EPS、Beta、波动率及行业信息</td></tr>
-            <tr><td>年趋势线</td><td>一年标准化价格走势图。<strong>&#9650; 三角形 </strong> = 最大成交量上涨日（绿色=价格上涨，红色=价格下跌）。 <strong>&#9679; 圆圈</strong> = 价格上涨最大日（绿色=成交量上升，红色=成交量下降）。</td></tr>
+            <tr><td>年趋势线</td><td>标准化价格走势图。在3M至5Y周期表格中，会显示该周期自身长度的走势（例如2Y显示两年走势），列名也会相应改变——1D及评分/贝佐拉评分/基本面/技术面标签页始终固定显示一年走势。<strong>&#9650; 三角形 </strong> = 最大成交量上涨日（绿色=价格上涨，红色=价格下跌）。 <strong>&#9679; 圆圈</strong> = 价格上涨最大日（绿色=成交量上升，红色=成交量下降）。</td></tr>
             <tr><td>价格</td><td>最新收盘价（美元）</td></tr>
             <tr><td>成交量（百万）</td><td>最近交易日以百万股为单位的成交量</td></tr>
             <tr><td>日价格变化</td><td>与前一交易日收盘价相比的价格变动（%）</td></tr>
@@ -1477,11 +1477,51 @@
       r.AbovePoc = price >= pocPrice;
     }
 
+    /* ── 各周期趋势图：3M/6M/9M/1Y/2Y/5Y 表格视图中，"年趋势线"列显示对应周期
+       自身长度的走势（1D 仍固定显示1年走势——单日走势图没有意义）。归一化算法
+       与服务端 Spark1Y 的 normalize() 一致，只是在客户端按所选周期从
+       candles.json / candles_weekly.json 中截取——复用 POC_DAYS_BY_W /
+       POC_WEEKS_BY_W，避免与「偏离POC」列的周期定义脱节。 ── */
+    function normalizeCloses(raw, n) {
+      if (!raw) return null;
+      const win = raw.slice(-n).filter(Boolean);
+      if (win.length < 2) return null;
+      const closes = win.map(b => b[3]);
+      const lo = Math.min(...closes), hi = Math.max(...closes);
+      if (!(hi > lo)) return closes.map(() => 0.5);
+      return closes.map(c => (c - lo) / (hi - lo));
+    }
+    function computeWindowSpark(r, w) {
+      if (POC_DAYS_BY_W[w]) {
+        r.SparkW = normalizeCloses(candleData && candleData.data && candleData.data[r.Ticker], POC_DAYS_BY_W[w]);
+      } else if (POC_WEEKS_BY_W[w]) {
+        r.SparkW = normalizeCloses(weeklyData && weeklyData.data && weeklyData.data[r.Ticker], POC_WEEKS_BY_W[w]);
+      } else {
+        r.SparkW = null;
+      }
+    }
+    // 2Y/5Y 用周K数据，而 ${w}Max*Day 字段单位是交易日，因此换算为约周数
+    // （约5个交易日=1周）再定位标记点。
+    function windowSparkArgs(r, w) {
+      if (w === "1D" || !r.SparkW) {
+        return [r.Spark1Y, r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"], r["1YMaxPriceChangeDay"], r["1YVolumeChangeAtMaxPrice"]];
+      }
+      const toIdx = POC_WEEKS_BY_W[w] ? (d => d / 5) : (d => d);
+      return [
+        r.SparkW,
+        toIdx(r[`${w}MaxVolumeChangeDay`]),
+        r[`${w}PriceChangeAtMaxVolume`],
+        toIdx(r[`${w}MaxPriceChangeDay`]),
+        r[`${w}VolumeChangeAtMaxPrice`],
+      ];
+    }
+
     function buildTable(arr, w) {
       if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); computePocDist(r); });
       if (VOL_RANK_WINDOW_DAYS[w]) arr.forEach(r => computeVolRank(r, w));
       if (POC_DAYS_BY_W[w])  arr.forEach(r => computePocDist(r, { days: POC_DAYS_BY_W[w] }));
       if (POC_WEEKS_BY_W[w]) arr.forEach(r => computePocDist(r, { days: POC_WEEKS_BY_W[w], weekly: true }));
+      if (POC_DAYS_BY_W[w] || POC_WEEKS_BY_W[w]) arr.forEach(r => computeWindowSpark(r, w));
       arr = sorted(arr);
 
       /* ── 评分视图（原始分项） ── */
@@ -1644,9 +1684,12 @@
         ${thSort("VolumeChange1D",  "日成交量变化")}
         ${thSort("VolumeVsMA21_1D", "成交量/MA21")}` : "";
 
+      const sparkKey   = showPoc ? "SparkW" : "Spark1Y";
+      const sparkLabel = showPoc ? `${WIN_CN[w] || w}趋势线` : "年趋势线";
+
       const head = `<thead><tr>
         ${thSort("Ticker",          "代码")}
-        ${thStatic("Spark1Y",       "年趋势线")}
+        ${thStatic(sparkKey,        sparkLabel)}
         ${thSort("Price",           "价格" + ((window.BAIZORA_LIVE_PRICES && isMarketOpen()) ? "<span class='live-tag'>实时</span>" : ""))}
         ${thSort("VolumeM",         "成交量(M)")}
         ${oneDayCols}
@@ -1659,14 +1702,8 @@
         const pma  = r.PriceVsMA21_1D;
         const vma  = r.VolumeVsMA21_1D;
 
-        /* Sparkline always uses Spark1Y + 1Y max-volume info */
-        const sparkSVG = renderSparkline(
-          r.Spark1Y,
-          r["1YMaxVolumeChangeDay"],
-          r["1YPriceChangeAtMaxVolume"],
-          r["1YMaxPriceChangeDay"],
-          r["1YVolumeChangeAtMaxPrice"]
-        );
+        /* 走势图：3M-5Y 显示对应周期自身长度，1D 固定显示1年——见 windowSparkArgs() */
+        const sparkSVG = renderSparkline(...windowSparkArgs(r, w));
 
         /* Rolling window cells */
         let windowCells = "";
@@ -1902,6 +1939,7 @@
 
     function getWindowColDesc(key, w) {
       const wl = WIN_CN[w] || w;
+      if (key === "SparkW")                     return { label: `${wl}趋势线`, desc: `${wl}标准化价格走势图。▲ 三角形 = ${wl}周期内成交量最高日（绿色=价格上涨，红色=价格下跌）。● 圆圈 = 价格变动最大日（绿色=成交量上升，红色=成交量下降）。` };
       if (key === `${w}PriceChange`)            return { label: "总涨幅",    desc: `从${wl}周期起始至今的总价格变动（%）。` };
       if (key === `${w}MaxPriceChange`)         return { label: "日最大价涨",    desc: `${wl}周期内最大单日价格涨幅（%）。颜色反映当天成交量是升是降（绿=放量，红=缩量），与数值本身的正负无关。` };
       if (key === `${w}MaxVolumeChange`)        return { label: "日最大量涨",    desc: `${wl}周期内最大单日成交量涨幅（%）。颜色反映当天价格是涨是跌（绿=价涨，红=价跌），与数值本身的正负无关。` };
