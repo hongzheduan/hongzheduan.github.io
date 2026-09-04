@@ -375,12 +375,17 @@
       window.location.href = "index_cn.html";
     };
 
+    // 标普500 与 纳指100 合并为一个「新加入」、一个「移除」标签（各自涵盖两个指数）；
+    // 每条新闻的所属指数放在来源行。
     const CATEGORIES = [
-      { key: "S&P 500 addition",    label: "S&P 500 — 新加入",       cls: "active-add" },
-      { key: "S&P 500 removal",     label: "S&P 500 — 移除",         cls: "active-rem" },
-      { key: "Nasdaq-100 addition", label: "NASDAQ-100 — 新加入",    cls: "active-add" },
-      { key: "Nasdaq-100 removal",  label: "NASDAQ-100 — 移除",      cls: "active-rem" },
+      { key: "add", label: "新加入", cls: "active-add", cats: ["S&P 500 addition", "Nasdaq-100 addition"] },
+      { key: "rem", label: "移除",   cls: "active-rem", cats: ["S&P 500 removal",  "Nasdaq-100 removal"]  },
     ];
+    const INDEX_CN = { "S&P 500": "标普500", "Nasdaq-100": "纳指100" };
+    const indexOf = it => {
+      const raw = (it.category || "").replace(/\s+(addition|removal)$/i, "").trim();
+      return INDEX_CN[raw] || raw;
+    };
 
     let allItems = [];
     let activeKey = CATEGORIES[0].key;
@@ -417,7 +422,7 @@
     function buildTabs() {
       const tabsEl = document.getElementById("catTabs");
       tabsEl.innerHTML = CATEGORIES.map(cat => {
-        const count = allItems.filter(it => it.category === cat.key).length;
+        const count = allItems.filter(it => cat.cats.includes(it.category)).length;
         return `<button class="cat-tab" data-key="${cat.key}" data-cls="${cat.cls}" onclick="selectTab('${cat.key}')">${cat.label} (${count})</button>`;
       }).join("");
       document.querySelector(`.cat-tab[data-key="${activeKey}"]`)?.classList.add(CATEGORIES.find(c => c.key === activeKey).cls);
@@ -435,7 +440,8 @@
     function renderCategory(key) {
       const container = document.getElementById("newsContainer");
       const countEl   = document.getElementById("catCount");
-      const items = allItems.filter(it => it.category === key);
+      const cat = CATEGORIES.find(c => c.key === key) || CATEGORIES[0];
+      const items = allItems.filter(it => cat.cats.includes(it.category));
 
       if (items.length === 0) {
         countEl.textContent = "";
@@ -449,11 +455,12 @@
         const suffix = " - " + it.source;
         const titleEn = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title;
         const title = it.title_cn || titleEn;
+        const src = [indexOf(it), it.source].filter(Boolean).join(" · ");
         return `<div class="news-item">
           <div class="news-date">${it.date}</div>
           <div class="news-body">
             <a class="news-title" href="${it.link}" target="_blank" rel="noopener noreferrer">${escHtml(title)}</a>
-            <div class="news-source">${escHtml(it.source)}</div>
+            <div class="news-source">${escHtml(src)}</div>
           </div>
         </div>`;
       }).join("");

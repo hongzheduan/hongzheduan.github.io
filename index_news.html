@@ -376,12 +376,13 @@
       window.location.href = "login.html";
     };
 
+    // S&P 500 and Nasdaq-100 are combined into one ADDITIONS / one REMOVALS tab
+    // (each spans both indexes); the per-item index is shown on the source line.
     const CATEGORIES = [
-      { key: "S&P 500 addition",    label: "S&P 500 — ADDITION",    cls: "active-add" },
-      { key: "S&P 500 removal",     label: "S&P 500 — REMOVAL",     cls: "active-rem" },
-      { key: "Nasdaq-100 addition", label: "NASDAQ-100 — ADDITION", cls: "active-add" },
-      { key: "Nasdaq-100 removal",  label: "NASDAQ-100 — REMOVAL",  cls: "active-rem" },
+      { key: "add", label: "ADDITIONS", cls: "active-add", cats: ["S&P 500 addition", "Nasdaq-100 addition"] },
+      { key: "rem", label: "REMOVALS",  cls: "active-rem", cats: ["S&P 500 removal",  "Nasdaq-100 removal"]  },
     ];
+    const indexOf = it => (it.category || "").replace(/\s+(addition|removal)$/i, "").trim();
 
     let allItems = [];
     let activeKey = CATEGORIES[0].key;
@@ -419,7 +420,7 @@
     function buildTabs() {
       const tabsEl = document.getElementById("catTabs");
       tabsEl.innerHTML = CATEGORIES.map(cat => {
-        const count = allItems.filter(it => it.category === cat.key).length;
+        const count = allItems.filter(it => cat.cats.includes(it.category)).length;
         return `<button class="cat-tab" data-key="${cat.key}" data-cls="${cat.cls}" onclick="selectTab('${cat.key}')">${cat.label} (${count})</button>`;
       }).join("");
       document.querySelector(`.cat-tab[data-key="${activeKey}"]`)?.classList.add(CATEGORIES.find(c => c.key === activeKey).cls);
@@ -437,7 +438,8 @@
     function renderCategory(key) {
       const container = document.getElementById("newsContainer");
       const countEl   = document.getElementById("catCount");
-      const items = allItems.filter(it => it.category === key);
+      const cat = CATEGORIES.find(c => c.key === key) || CATEGORIES[0];
+      const items = allItems.filter(it => cat.cats.includes(it.category));
 
       if (items.length === 0) {
         countEl.textContent = "";
@@ -450,11 +452,12 @@
       container.innerHTML = items.map(it => {
         const suffix = " - " + it.source;
         const title = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title;
+        const src = [indexOf(it), it.source].filter(Boolean).join(" · ");
         return `<div class="news-item">
           <div class="news-date">${it.date}</div>
           <div class="news-body">
             <a class="news-title" href="${it.link}" target="_blank" rel="noopener noreferrer">${escHtml(title)}</a>
-            <div class="news-source">${escHtml(it.source)}</div>
+            <div class="news-source">${escHtml(src)}</div>
           </div>
         </div>`;
       }).join("");
