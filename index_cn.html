@@ -336,7 +336,9 @@
     .hero-eyebrow {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 3px 8px;
       font-family: 'DM Mono', monospace;
       font-size: 10px;
       font-weight: 700;
@@ -349,6 +351,7 @@
       border-radius: 999px;
       margin-bottom: 20px;
     }
+    .hero-eyebrow .he-dot { opacity: 0.5; }
 
     .hero-title {
       font-size: clamp(36px, 5.5vw, 52px);
@@ -885,6 +888,7 @@
     .hp-news-item-title { font-size: 12px; font-weight: 700; color: #2563eb; text-decoration: none; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.15s; }
     .hp-news-item-title:hover { color: #0f172a; text-decoration: underline; }
     .hp-news-item-source { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; margin-top: 2px; }
+    .hp-news-item-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: #64748b; margin-top: 3px; }
     .hp-news-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
     .hp-news-viewall { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; color: var(--electric-bright); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.15s; }
     .hp-news-viewall:hover { opacity: 0.75; }
@@ -1360,7 +1364,7 @@
       .share-gallery-heading, .faq-mini-heading,
       .card h3, .spark-demo h3 { color: #ffffff; }
       .card h3[style*="#b45309"] { color: #fcd34d !important; }
-      .hero-left-card .hero-eyebrow { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.16); color: #93c5fd; }
+      .hero-left-card .hero-eyebrow { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.16); color: #93c5fd; letter-spacing: 0.12em; line-height: 1.5; border-radius: 14px; padding: 7px 16px; }
       .hero-left-card p, .card p, .spark-demo p, .spark-legend-item,
       .hero-left-card .hero-bullet,
       .hp-news-sub, .digest-col-label, .digest-news-label, .hp-news-msg, .digest-msg,
@@ -1374,7 +1378,16 @@
       .card a[style*="#2563eb"], .spark-demo a[style*="#2563eb"],
       .hp-news-panel .hp-news-viewall, .digest-dl,
       .share-gallery-panel .hp-news-viewall, .faq-mini-panel .hp-news-viewall { color: #93c5fd !important; }
-      .hp-news-item-title, .digest-news-link { color: #ffffff !important; font-weight: 700; }
+      .hp-news-item-title, .digest-news-link { color: #93c5fd !important; font-weight: 700; }
+      .hp-news-item, .digest-news-item, .digest-row { border-bottom-color: transparent !important; }
+      .hp-news-footer { border-top-color: transparent !important; }
+      .hp-news-item-meta { color: #94a3b8 !important; }
+      .digest-dtk { color: #e2e8f0 !important; }
+      .hp-cat-tab { color: #cbd5e1 !important; border-color: rgba(255,255,255,0.2) !important; }
+      .hp-cat-tab:hover { color: #ffffff !important; border-color: rgba(255,255,255,0.4) !important; }
+      .hp-cat-tab.hp-add { color: #4ade80 !important; }
+      .hp-cat-tab.hp-rem { color: #f87171 !important; }
+      .hpn-note { color: #cbd5e1 !important; white-space: nowrap; }
       .card-icon { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.2) !important; color: #93c5fd !important; }
       .hero-left-card .hero-bullet::before { color: #60a5fa; }
       .faq-mini-list .q-icon { border-color: rgba(255,255,255,0.25); color: #94a3b8; }
@@ -1448,7 +1461,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
     <!-- LEFT CARD -->
     <div class="hero-left-card">
-      <div class="hero-eyebrow" style="margin-bottom:10px;background:rgba(37,99,235,0.06);font-weight:500;">S&amp;P 500 与 Nasdaq-100 &nbsp;·&nbsp; 一屏尽览 &nbsp;·&nbsp; <span id="pitchFreeChip">完全免费</span></div>
+      <div class="hero-eyebrow" style="margin-bottom:10px;background:rgba(37,99,235,0.06);font-weight:500;"><span>S&amp;P 500 与 Nasdaq-100</span><span class="he-dot">·</span><span>一屏尽览</span><span class="he-dot">·</span><span id="pitchFreeChip">完全免费</span></div>
       <h1 class="hero-title" style="font-size:clamp(21px,2.4vw,29px);">快速把握市场脉搏<br>一屏看清量价趋势</h1>
 
       <div class="pulse-find">
@@ -1684,7 +1697,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     <!-- 左侧：指数成员资格新闻 -->
     <div class="hp-news-panel">
       <div class="hp-news-heading" style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;">
-        <span>指数成分股变动新闻与记录 <span style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每日更新）</span></span>
+        <span>指数成分股变动新闻与记录 <span class="hpn-note" style="color:#334155;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每日更新）</span></span>
         <a href="index_news_cn.html" class="hp-news-viewall" onclick="return hpViewAll(event, 'index_news_cn.html', '成分股变动记录仅对订阅用户开放。')">
           查看全部
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -1716,7 +1729,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </div>
       </div>
       <hr class="digest-div">
-      <div class="digest-news-label">市场资讯 <span id="newsUpdatedNote" style="color:#475569;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每日更新）</span></div>
+      <div class="digest-news-label">市场资讯 <span id="newsUpdatedNote" class="hpn-note" style="color:#334155;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;">（每日更新）</span></div>
       <div id="digestNews"><div class="digest-msg">加载中…</div></div>
     </div>
 
@@ -2796,10 +2809,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       const suffix = " - " + it.source;
       const titleEn = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title;
       const title = it.title_cn || titleEn;
+      const meta = [it.date, it.source].filter(Boolean).map(escHtml).join(" · ");
       return `<div class="hp-news-item">
-        <div class="hp-news-item-date">${it.date}</div>
         <a class="hp-news-item-title" href="${it.link}" target="_blank" rel="noopener noreferrer">${escHtml(title)}</a>
-        <div class="hp-news-item-source">${escHtml(it.source)}</div>
+        <div class="hp-news-item-meta">${meta}</div>
       </div>`;
     }).join("");
   }
