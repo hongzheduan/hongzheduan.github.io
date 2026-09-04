@@ -858,7 +858,7 @@
   <div class="tab-row">
     <button class="tab-btn active" onclick="show('sp500', this)">S&P 500</button>
     <button class="tab-btn" onclick="show('nasdaq', this)">Nasdaq 100</button>
-    <button class="tab-btn" onclick="show('etf', this)">ETFs</button>
+    <button class="tab-btn" onclick="show('etf', this)">ETF</button>
     <button class="tab-btn" onclick="showUpsell()">★ Watchlist</button>
     <button class="tab-btn" onclick="show('readme', this)">README</button>
     <button class="tab-btn" onclick="showUpsell('membership')">MEMBERSHIP CHANGE</button>
@@ -868,7 +868,7 @@
   <div class="mobile-drawer" id="mobileDrawer">
     <button onclick="show('sp500', document.querySelectorAll('.tab-btn')[0]); toggleMenu();">S&P 500</button>
     <button onclick="show('nasdaq', document.querySelectorAll('.tab-btn')[1]); toggleMenu();">Nasdaq 100</button>
-    <button onclick="show('etf', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">ETFs</button>
+    <button onclick="show('etf', document.querySelectorAll('.tab-btn')[2]); toggleMenu();">ETF</button>
     <button onclick="showUpsell(); toggleMenu();">★ Watchlist</button>
     <button onclick="show('readme', document.querySelectorAll('.tab-btn')[4]); toggleMenu();">README</button>
     <button onclick="showUpsell('membership'); toggleMenu();">MEMBERSHIP CHANGE</button>
@@ -1175,7 +1175,7 @@
         rowCount.textContent = `${watchlist.size} SAVED${dateSuffix}`;
       } else {
         const rows  = activeTab === "sp500" ? spRows.length : activeTab === "nasdaq" ? ndRows.length : etfRows.length;
-        const label = activeTab === "sp500" ? "S&P 500 Top Movers" : activeTab === "nasdaq" ? "Nasdaq 100 Top Movers" : "ETFs";
+        const label = activeTab === "sp500" ? "S&P 500 Top Movers" : activeTab === "nasdaq" ? "Nasdaq 100 Top Movers" : "ETF";
         rowCount.textContent = `${rows} SYMBOLS · ${label}${dateSuffix}`;
       }
     }
