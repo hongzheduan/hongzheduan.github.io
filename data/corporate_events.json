@@ -4373,10 +4373,10 @@
   "BBY": [
     {
       "date": "2026-08-27",
-      "eps": null,
+      "eps": 1.48,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
+      "period_end": "2026-08-01",
       "revenue": null,
       "type": [
         "earnings"
@@ -8985,6 +8985,15 @@
   ],
   "CRM": [
     {
+      "date": "2026-09-04",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000197/crm-20260902.htm"
+    },
+    {
       "date": "2026-08-26",
       "eps": 4.29,
       "items": "2.02,9.01",
@@ -11392,6 +11401,15 @@
     }
   ],
   "DTE": [
+    {
+      "date": "2026-09-04",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/936340/000093634026000154/dte-20260901.htm"
+    },
     {
       "date": "2026-07-31",
       "eps": null,
@@ -14955,6 +14973,15 @@
     }
   ],
   "FLEX": [
+    {
+      "date": "2026-09-04",
+      "items": "1.01,8.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/866374/000119312526382492/d108491d8k.htm"
+    },
     {
       "date": "2026-07-29",
       "eps": 0.76,
@@ -23737,6 +23764,15 @@
   ],
   "MNST": [
     {
+      "date": "2026-09-04",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/865752/000110465926105498/tm2624805d1_8k.htm"
+    },
+    {
       "date": "2026-08-06",
       "eps": null,
       "items": "2.02,7.01,9.01",
@@ -31835,6 +31871,15 @@
   ],
   "STX": [
     {
+      "date": "2026-09-04",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1137789/000113778926000201/stx-20260902.htm"
+    },
+    {
       "date": "2026-07-28",
       "eps": 5.61,
       "items": "2.02,7.01,9.01",
@@ -32325,6 +32370,16 @@
     }
   ],
   "SYY": [
+    {
+      "date": "2026-09-04",
+      "items": "1.01,2.03,5.02,9.01",
+      "label": "Leadership Change + Material Agreement",
+      "type": [
+        "agreement",
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/96021/000095014226002498/eh260826448_8k.htm"
+    },
     {
       "date": "2026-08-20",
       "items": "5.02,7.01,9.01",
