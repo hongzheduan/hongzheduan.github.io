@@ -3214,13 +3214,20 @@ def fetch_and_save_index_news(lookback_days=7, max_age_days=2):
 
     Google News RSS is queried with narrow membership-change phrases ("added to S&P 500",
     etc.). Those queries return few real hits, so Google pads them with months-old
-    articles carrying a *re-surfaced* pubDate that looks fresh. We therefore verify every
-    candidate against its real publisher-page date and keep only items genuinely
-    published within `max_age_days`. Anything whose real date can't be confirmed is
-    dropped — the feature is meant to show current membership news or nothing, never
-    stale headlines. `lookback_days` is only a cheap pubDate pre-filter to bound how many
-    links we resolve (re-surfacing makes articles look newer, never older, so a pubDate
-    already older than a few days is safe to skip without a network round-trip).
+    articles carrying a *re-surfaced* pubDate that looks fresh. We therefore resolve every
+    candidate to its publisher page, read the real publish date, and only ADD it if that
+    date is within `max_age_days`; anything older or unconfirmable is skipped. Items that
+    are already in the file stay (see the merge below) — this is a gate on what gets
+    published, not a filter on what the homepage shows.
+
+    max_age_days is 2, not 1, on purpose: this job runs ~daily, so a story published
+    yesterday but indexed by Google *after* yesterday's run would be missed entirely if
+    we only accepted same-day items. Two days gives that late-arriving news one more
+    chance to be picked up.
+
+    `lookback_days` is only a cheap pubDate pre-filter to bound how many links we resolve
+    (re-surfacing makes articles look newer, never older, so a pubDate already older than
+    a few days is safe to skip without a network round-trip).
     """
     print("Fetching index membership news...")
     cutoff    = datetime.now(timezone.utc) - timedelta(days=lookback_days)
