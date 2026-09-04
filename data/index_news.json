@@ -1,6 +1,7 @@
 {
   "fetched": "2026-09-03",
-  "lookback_days": 7,
+  "max_age_days": 2,
+  "retention_days": 120,
   "items": [
     {
       "category": "S&P 500 addition",

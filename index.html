@@ -2900,15 +2900,10 @@ function buildSparkPath(arr) {
   function renderList(key) {
     const list = document.getElementById("hpNewsList");
     if (!list) return;
-    // Safety net: the scanner only writes items verified as <=2 days old, but on a run
-    // where verification fails it leaves the previous file in place — hide anything that
-    // has since gone stale so the homepage never shows month-old "news".
-    const FRESH_MS = 4 * 864e5;
-    const items = allItems
-      .filter(it => it.category === key)
-      .filter(it => { const t = Date.parse(it.date); return isNaN(t) || (Date.now() - t) < FRESH_MS; })
-      .slice(0, 8);
-    if (!items.length) { list.innerHTML = '<div class="hp-news-msg">No membership-change news in the last few days.</div>'; return; }
+    // The scanner only ADDS an item once its real publish date is verified <=2 days old,
+    // then keeps it on the feed (see fetch_and_save_index_news); we render as-is.
+    const items = allItems.filter(it => it.category === key).slice(0, 8);
+    if (!items.length) { list.innerHTML = '<div class="hp-news-msg">No recent membership-change news.</div>'; return; }
     list.innerHTML = items.map(it => {
       const suffix = " - " + it.source;
       const title = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title;

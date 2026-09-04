@@ -3267,19 +3267,36 @@ def fetch_and_save_index_news(lookback_days=7, max_age_days=2):
         print("  [news] 0 items fetched (likely a transient RSS/network failure) — leaving existing index_news.json untouched")
         return
 
-    # Verify each candidate's real publication date and keep only genuinely recent ones.
+    path = os.path.join(DATA_DIR, "index_news.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            existing = json.load(f).get("items", [])
+    except (FileNotFoundError, ValueError):
+        existing = []
+
+    def _norm(t):
+        return re.sub(r"\s+", " ", (t or "")).strip().lower()
+
+    known = {it.get("link", "") for it in existing} | {_norm(it.get("title")) for it in existing}
+
+    # A published item stays put once it's in the file ("once published, keep it there").
+    # New items are only ADDED if their *real* publish date is within max_age_days — Google
+    # News RSS pads these narrow phrase queries with months-old articles carrying a
+    # re-surfaced pubDate, so verify against the publisher page before publishing.
     today   = datetime.now(timezone.utc).date()
     session = requests.Session()
-    seen_links = set()
-    verified   = []
+    added   = []
     for it in all_items:
-        if it["link"] in seen_links:
+        if it["link"] in known or _norm(it["title"]) in known:
             continue
-        seen_links.add(it["link"])
+        known.add(it["link"]); known.add(_norm(it["title"]))
         resolved = _resolve_gnews_url(it["link"], session)
-        real     = _article_pub_date(resolved, session) if resolved else None
+        if resolved and resolved in known:
+            time.sleep(0.2)
+            continue
+        real = _article_pub_date(resolved, session) if resolved else None
         if not real:
-            print(f"  [news] drop (date unverifiable): {it['title'][:70]}")
+            print(f"  [news] skip (real date unverifiable): {it['title'][:70]}")
             time.sleep(0.25)
             continue
         try:
@@ -3288,37 +3305,44 @@ def fetch_and_save_index_news(lookback_days=7, max_age_days=2):
             time.sleep(0.25)
             continue
         if age < 0 or age > max_age_days:
-            print(f"  [news] drop (real date {real}, {age}d old): {it['title'][:70]}")
+            print(f"  [news] skip (real date {real}, {age}d old): {it['title'][:70]}")
             time.sleep(0.25)
             continue
         it["date"] = real
         it["link"] = resolved
-        verified.append(it)
+        known.add(resolved)
+        suffix = " - " + it["source"]
+        clean  = it["title"][:-len(suffix)] if it["title"].endswith(suffix) else it["title"]
+        it["title_cn"] = _translate_to_zh(clean)
+        added.append(it)
         time.sleep(0.25)
 
-    if not verified:
-        print(f"  [news] 0 items newer than {max_age_days}d after date verification — "
-              "leaving existing index_news.json untouched")
-        return
-    all_items = verified
+    # Merge new items on top of everything already published; drop only the genuinely
+    # ancient (kept RETENTION_DAYS so a story stays on the page for months), newest first.
+    RETENTION_DAYS = 120
+    cutoff_date = today - timedelta(days=RETENTION_DAYS)
+    merged, seen = [], set()
+    for it in added + existing:
+        k = it.get("link", "") or _norm(it.get("title"))
+        if k in seen:
+            continue
+        seen.add(k)
+        try:
+            if datetime.strptime(it["date"], "%Y-%m-%d").date() < cutoff_date:
+                continue
+        except (KeyError, ValueError):
+            pass
+        merged.append(it)
+    merged.sort(key=lambda x: x.get("date", ""), reverse=True)
 
-    all_items.sort(key=lambda x: x["date"], reverse=True)
-    print(f"  [news] {len(all_items)} verified recent item(s); translating titles to Chinese...")
-    for item in all_items:
-        suffix = " - " + item["source"]
-        clean  = item["title"][:-len(suffix)] if item["title"].endswith(suffix) else item["title"]
-        item["title_cn"] = _translate_to_zh(clean)
-        time.sleep(0.2)
-
-    out = {
-        "fetched":       datetime.now().strftime("%Y-%m-%d"),
-        "lookback_days": lookback_days,
-        "items":         all_items,
-    }
-    path = os.path.join(DATA_DIR, "index_news.json")
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"  [news] saved {len(all_items)} articles to {path}")
+        json.dump({
+            "fetched":        datetime.now().strftime("%Y-%m-%d"),
+            "max_age_days":   max_age_days,
+            "retention_days": RETENTION_DAYS,
+            "items":          merged,
+        }, f, ensure_ascii=False, indent=2)
+    print(f"  [news] {len(added)} new item(s); {len(merged)} total after merge -> {path}")
 
 
 

@@ -2801,14 +2801,10 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   function renderList(key) {
     const list = document.getElementById("hpNewsList");
     if (!list) return;
-    // 兜底：扫描器只写入经核实为 2 天内的条目；若某次核实失败会沿用上一份文件，
-    // 这里过滤掉已过期的条目，避免首页显示过时"新闻"。
-    const FRESH_MS = 4 * 864e5;
-    const items = allItems
-      .filter(it => it.category === key)
-      .filter(it => { const t = Date.parse(it.date); return isNaN(t) || (Date.now() - t) < FRESH_MS; })
-      .slice(0, 8);
-    if (!items.length) { list.innerHTML = '<div class="hp-news-msg">近几日无成分股变动新闻。</div>'; return; }
+    // 扫描器仅在某条新闻的真实发布日期核实为 2 天内时才「新增」，
+    // 之后会保留在列表中（见 fetch_and_save_index_news）；这里按原样渲染。
+    const items = allItems.filter(it => it.category === key).slice(0, 8);
+    if (!items.length) { list.innerHTML = '<div class="hp-news-msg">暂无成分股变动新闻。</div>'; return; }
     list.innerHTML = items.map(it => {
       const suffix = " - " + it.source;
       const titleEn = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title;
