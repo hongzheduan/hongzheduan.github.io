@@ -3281,10 +3281,17 @@ def fetch_and_save_index_news(lookback_days=7, max_age_days=2):
     except (FileNotFoundError, ValueError):
         existing = []
 
-    def _norm(t):
-        return re.sub(r"\s+", " ", (t or "")).strip().lower()
+    def _key(title, source=""):
+        # Google returns the same story from many outlets with the source appended to the
+        # title ("... - Yahoo Finance" / "... - TradingView"); strip that and non-alnum so
+        # near-identical headlines collapse to one.
+        t = title or ""
+        if source and t.endswith(" - " + source):
+            t = t[: -(len(source) + 3)]
+        return re.sub(r"[^a-z0-9]+", " ", t.lower()).strip()
 
-    known = {it.get("link", "") for it in existing} | {_norm(it.get("title")) for it in existing}
+    known = ({it.get("link", "") for it in existing}
+             | {_key(it.get("title", ""), it.get("source", "")) for it in existing})
 
     # A published item stays put once it's in the file ("once published, keep it there").
     # New items are only ADDED if their *real* publish date is within max_age_days — Google
@@ -3294,9 +3301,10 @@ def fetch_and_save_index_news(lookback_days=7, max_age_days=2):
     session = requests.Session()
     added   = []
     for it in all_items:
-        if it["link"] in known or _norm(it["title"]) in known:
+        k = _key(it["title"], it["source"])
+        if it["link"] in known or k in known:
             continue
-        known.add(it["link"]); known.add(_norm(it["title"]))
+        known.add(it["link"]); known.add(k)
         resolved = _resolve_gnews_url(it["link"], session)
         if resolved and resolved in known:
             time.sleep(0.2)
@@ -3330,10 +3338,10 @@ def fetch_and_save_index_news(lookback_days=7, max_age_days=2):
     cutoff_date = today - timedelta(days=RETENTION_DAYS)
     merged, seen = [], set()
     for it in added + existing:
-        k = it.get("link", "") or _norm(it.get("title"))
-        if k in seen:
+        k = _key(it.get("title", ""), it.get("source", ""))
+        if it.get("link", "") in seen or k in seen:
             continue
-        seen.add(k)
+        seen.add(it.get("link", "")); seen.add(k)
         try:
             if datetime.strptime(it["date"], "%Y-%m-%d").date() < cutoff_date:
                 continue
