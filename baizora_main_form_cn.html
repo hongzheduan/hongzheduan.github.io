@@ -940,10 +940,8 @@
             <tr><td>成交量/MA21</td><td>最近交易日成交量与21日均量的比值（>1表示成交量偏高）</td></tr>
             <tr><td>总涨幅</td><td>从所选周期起始至今的总价格变动（%）— 仅在3月及以上周期显示</td></tr>
             <tr><td>量排名</td><td>今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）— 仅在3月至1年周期显示</td></tr>
-            <tr><td>日最大价涨</td><td>所选周期内最大单日价格涨幅。颜色反映当天成交量是升是降（绿=放量，红=缩量），与数值本身正负无关</td></tr>
-            <tr><td>最大价涨日</td><td>所选周期内最大单日价涨发生于多少天前</td></tr>
-            <tr><td>日最大量涨</td><td>所选周期内最大单日成交量涨幅。颜色反映当天价格是涨是跌（绿=价涨，红=价跌），与数值本身正负无关</td></tr>
-            <tr><td>最大量涨日</td><td>所选周期内最大单日量涨发生于多少天前</td></tr>
+            <tr><td>日最大价涨</td><td>所选周期内最大单日价格涨幅。颜色反映当天成交量是升是降（绿=放量，红=缩量），与数值本身正负无关。趋势图的圆圈标记标出了具体是哪一天</td></tr>
+            <tr><td>日最大量涨</td><td>所选周期内最大单日成交量涨幅。颜色反映当天价格是涨是跌（绿=价涨，红=价跌），与数值本身正负无关。趋势图的三角形标记标出了具体是哪一天</td></tr>
             <tr><td>偏离POC</td><td>当前价格与成交量分布控制点（该周期内成交量最大的价格水平）之间的绝对距离，以百分比表示。绿色 = 价格在该水平上方；红色 = 下方 — 仅在3月至5年周期显示</td></tr>
           </table>
 
@@ -1671,9 +1669,7 @@
           ${thSort(`${w}PriceChange`,            "总涨幅",   "group-start")}
           ${showVolRank ? thSort("VolRank",      "量排名") : ""}
           ${thSort(`${w}MaxPriceChange`,         "日最大价涨")}
-          ${thSort(`${w}MaxPriceChangeDay`,       "最大价涨日")}
           ${thSort(`${w}MaxVolumeChange`,         "日最大量涨")}
-          ${thSort(`${w}MaxVolumeChangeDay`,      "最大量涨日")}
           ${showPoc ? thSort("PocDist",           "偏离POC") : ""}`;
       }
 
@@ -1713,10 +1709,8 @@
         } else {
           const chgP = r[`${w}PriceChange`];      // total price change over window
           const maxP = r[`${w}MaxPriceChange`];
-          const pDay = r[`${w}MaxPriceChangeDay`];
           const vAtP = r[`${w}VolumeChangeAtMaxPrice`];
           const maxV = r[`${w}MaxVolumeChange`];
-          const vDay = r[`${w}MaxVolumeChangeDay`];
           const pAtV = r[`${w}PriceChangeAtMaxVolume`];
 
           const fmt = v => (v ?? "—");
@@ -1730,15 +1724,14 @@
             : "";
 
           // 日最大价涨/日最大量涨 显示各自的数值，但颜色改为反映当天「另一方」
-          // 的涨跌（价涨日当天成交量是否放大、量涨日当天价格是否上涨）——
-          // 用颜色代替原来的量@价日/价@量日两列，省出列位给「偏离POC」。
+          // 的涨跌（价涨日当天成交量是否放大、量涨日当天价格是否上涨）。
+          // 「最大价涨日/最大量涨日」两列也已移除——趋势图自身的圆圈/三角形
+          // 标记已经标出了具体是哪一天。
           windowCells = `
             <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
             ${volRankCell}
             <td class="${colorClass(vAtP)}">${fmt(maxP)}%</td>
-            <td class="neutral">${fmt(pDay)}</td>
             <td class="${colorClass(pAtV)}">${fmt(maxV)}%</td>
-            <td class="neutral">${fmt(vDay)}</td>
             ${pocCell}`;
         }
 
@@ -1941,10 +1934,8 @@
       const wl = WIN_CN[w] || w;
       if (key === "SparkW")                     return { label: `${wl}趋势线`, desc: `${wl}标准化价格走势图。▲ 三角形 = ${wl}周期内成交量最高日（绿色=价格上涨，红色=价格下跌）。● 圆圈 = 价格变动最大日（绿色=成交量上升，红色=成交量下降）。` };
       if (key === `${w}PriceChange`)            return { label: "总涨幅",    desc: `从${wl}周期起始至今的总价格变动（%）。` };
-      if (key === `${w}MaxPriceChange`)         return { label: "日最大价涨",    desc: `${wl}周期内最大单日价格涨幅（%）。颜色反映当天成交量是升是降（绿=放量，红=缩量），与数值本身的正负无关。` };
-      if (key === `${w}MaxVolumeChange`)        return { label: "日最大量涨",    desc: `${wl}周期内最大单日成交量涨幅（%）。颜色反映当天价格是涨是跌（绿=价涨，红=价跌），与数值本身的正负无关。` };
-      if (key === `${w}MaxPriceChangeDay`)      return { label: "最大价涨日",   desc: `${wl}周期内最大价涨发生于多少天前。` };
-      if (key === `${w}MaxVolumeChangeDay`)     return { label: "最大量涨日",   desc: `${wl}周期内最大量涨发生于多少天前。` };
+      if (key === `${w}MaxPriceChange`)         return { label: "日最大价涨",    desc: `${wl}周期内最大单日价格涨幅（%）。颜色反映当天成交量是升是降（绿=放量，红=缩量），与数值本身的正负无关。趋势图的圆圈标记标出了具体是哪一天。` };
+      if (key === `${w}MaxVolumeChange`)        return { label: "日最大量涨",    desc: `${wl}周期内最大单日成交量涨幅（%）。颜色反映当天价格是涨是跌（绿=价涨，红=价跌），与数值本身的正负无关。趋势图的三角形标记标出了具体是哪一天。` };
       return null;
     }
 

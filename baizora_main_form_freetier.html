@@ -966,7 +966,7 @@
             <colgroup><col style="width:160px"><col></colgroup>
             <tr><th>Column</th><th>Description</th></tr>
             <tr><td>TICKER</td><td>Stock symbol — click to open candlestick chart with PE, EPS, Beta, volatility &amp; sector</td></tr>
-            <tr><td>1Y TREND</td><td>1-year normalized price sparkline. <strong>&#9650; Triangle</strong> = highest-volume day (green=price up, red=price down). <strong>&#9679; Circle</strong> = highest-price-change day (green=volume up, red=volume down).</td></tr>
+            <tr><td>1Y TREND</td><td>Normalized price sparkline. On the 3M-5Y timeframe views, shows that window's own trend (e.g. 2Y shows a 2-year trend) and the column header changes to match — 1D and the SCORES/BAIZORA/FUND/TECH tabs always show the fixed 1-year trend. <strong>&#9650; Triangle</strong> = highest-volume day (green=price up, red=price down). <strong>&#9679; Circle</strong> = highest-price-change day (green=volume up, red=volume down).</td></tr>
             <tr><td>PRICE</td><td>Latest closing price in USD</td></tr>
             <tr><td>VOL(M)</td><td>Trading volume in millions of shares for the most recent session</td></tr>
             <tr><td>1D P CHG%</td><td>Price change (%) vs the previous session's closing price</td></tr>
@@ -975,12 +975,8 @@
             <tr><td>VOL/MA21</td><td>Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity</td></tr>
             <tr><td>P CHG%</td><td>Total price change (%) from start of selected window to today — only shown for 3M and longer</td></tr>
             <tr><td>VOL RANK</td><td>Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window) — only shown for 3M through 1Y</td></tr>
-            <tr><td>MAX P CHG%</td><td>Largest single-day price increase (%) within the selected window</td></tr>
-            <tr><td>MAX P% Day</td><td>Days ago when the max price increase occurred within the selected window</td></tr>
-            <tr><td>V@P Day</td><td>Volume change on the highest-price-increase day within the selected window</td></tr>
-            <tr><td>MAX V CHG%</td><td>Largest single-day volume increase within the selected window</td></tr>
-            <tr><td>MAX V% Day</td><td>Days ago when the max volume increase occurred within the selected window</td></tr>
-            <tr><td>P@V Day</td><td>Price change on the highest-volume-increase day within the selected window</td></tr>
+            <tr><td>MAX P CHG%</td><td>Largest single-day price increase (%) within the selected window. Color shows whether volume rose or fell that same day (green = volume up, red = volume down), not the sign of this value. The trend sparkline's circle marker shows which day</td></tr>
+            <tr><td>MAX V CHG%</td><td>Largest single-day volume increase within the selected window. Color shows whether price rose or fell that same day (green = price up, red = price down), not the sign of this value. The trend sparkline's triangle marker shows which day</td></tr>
           </table>
 
           <div class="readme-label" style="margin-top:28px;">◈ &nbsp; Baizora Scores (BAIZORA Tab)</div>
@@ -1368,9 +1364,56 @@
       r.VolRankTotal = vols.length;
     }
 
+    /* ── PER-WINDOW SPARKLINE: the "1Y Trend" column shows that window's own
+       length on the 3M/6M/9M/1Y/2Y/5Y table views (1D keeps the 1Y trend — a
+       1-day sparkline would be meaningless). Same min-max normalization the
+       server uses for Spark1Y (scanner_tiingo.py's normalize()), just computed
+       client-side over whichever slice of candles.json (3M-1Y, reusing
+       VOL_RANK_WINDOW_DAYS' day counts) or candles_weekly.json (2Y/5Y,
+       SPARK_WEEKS_BY_W below) matches the selected window. ── */
+    const SPARK_WEEKS_BY_W = { "2Y": 104, "5Y": 260 };
+    function normalizeCloses(raw, n) {
+      if (!raw) return null;
+      const win = raw.slice(-n).filter(Boolean);
+      if (win.length < 2) return null;
+      const closes = win.map(b => b[3]);
+      const lo = Math.min(...closes), hi = Math.max(...closes);
+      if (!(hi > lo)) return closes.map(() => 0.5);
+      return closes.map(c => (c - lo) / (hi - lo));
+    }
+    function computeWindowSpark(r, w) {
+      if (VOL_RANK_WINDOW_DAYS[w]) {
+        r.SparkW = normalizeCloses(candleData && candleData.data && candleData.data[r.Ticker], VOL_RANK_WINDOW_DAYS[w]);
+      } else if (SPARK_WEEKS_BY_W[w]) {
+        r.SparkW = normalizeCloses(weeklyData && weeklyData.data && weeklyData.data[r.Ticker], SPARK_WEEKS_BY_W[w]);
+      } else {
+        r.SparkW = null;
+      }
+    }
+    // Returns the [data, maxVolDay, priceAtMaxVol, maxPriceDay, volAtMaxPrice] args
+    // for renderSparkline(): the fixed 1Y series/markers for 1D (and whenever the
+    // window-specific series hasn't loaded yet), else the window's own series with
+    // its own ${w}Max*Day marker fields. Those day-count fields are trading days;
+    // for 2Y/5Y the sparkline itself is weekly bars, so days-ago is converted to an
+    // approximate weeks-ago index (~5 trading days/week) before marker lookup.
+    function windowSparkArgs(r, w) {
+      if (w === "1D" || !r.SparkW) {
+        return [r.Spark1Y, r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"], r["1YMaxPriceChangeDay"], r["1YVolumeChangeAtMaxPrice"]];
+      }
+      const toIdx = SPARK_WEEKS_BY_W[w] ? (d => d / 5) : (d => d);
+      return [
+        r.SparkW,
+        toIdx(r[`${w}MaxVolumeChangeDay`]),
+        r[`${w}PriceChangeAtMaxVolume`],
+        toIdx(r[`${w}MaxPriceChangeDay`]),
+        r[`${w}VolumeChangeAtMaxPrice`],
+      ];
+    }
+
     function buildTable(arr, w) {
       if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); });
       if (VOL_RANK_WINDOW_DAYS[w]) arr.forEach(r => computeVolRank(r, w));
+      if (VOL_RANK_WINDOW_DAYS[w] || SPARK_WEEKS_BY_W[w]) arr.forEach(r => computeWindowSpark(r, w));
       arr = sorted(arr);
 
       /* ── SCORES VIEW (raw sub-scores) ── */
@@ -1503,6 +1546,8 @@
       const is1D = (w === "1D");
       // VOL RANK needs per-day volume from candles.json (1Y). Hidden for 2Y/5Y.
       const showVolRank = !!VOL_RANK_WINDOW_DAYS[w];
+      // Per-window trend sparkline: 3M-1Y from daily candles.json, 2Y/5Y from weekly candles_weekly.json.
+      const showSparkW = !!(VOL_RANK_WINDOW_DAYS[w] || SPARK_WEEKS_BY_W[w]);
 
       /* Window column headers */
       let windowHead = "";
@@ -1515,11 +1560,7 @@
           ${thSort(`${w}PriceChange`,            "P CHG%",   "group-start")}
           ${showVolRank ? thSort("VolRank",      "VOL RANK") : ""}
           ${thSort(`${w}MaxPriceChange`,         "MAX P CHG%")}
-          ${thSort(`${w}MaxPriceChangeDay`,       "MAX P% Day")}
-          ${thSort(`${w}VolumeChangeAtMaxPrice`,  "V@P Day")}
-          ${thSort(`${w}MaxVolumeChange`,         "MAX V CHG%")}
-          ${thSort(`${w}MaxVolumeChangeDay`,      "MAX V% Day")}
-          ${thSort(`${w}PriceChangeAtMaxVolume`,  "P@V Day")}`;
+          ${thSort(`${w}MaxVolumeChange`,         "MAX V CHG%")}`;
       }
 
       // For 1D view: show 1D-specific cols; for other windows: show window price change + window stats only
@@ -1529,9 +1570,12 @@
         ${thSort("VolumeChange1D",  "1D V CHG%")}
         ${thSort("VolumeVsMA21_1D", "VOL/MA21")}` : "";
 
+      const sparkKey   = showSparkW ? "SparkW" : "Spark1Y";
+      const sparkLabel = showSparkW ? `${w} Trend` : "1Y Trend";
+
       const head = `<thead><tr>
         ${thSort("Ticker",          "Ticker")}
-        ${thStatic("Spark1Y",       "1Y Trend")}
+        ${thStatic(sparkKey,        sparkLabel)}
         ${thSort("Price",           "Price")}
         ${thSort("VolumeM",         "Vol (M)")}
         ${oneDayCols}
@@ -1544,14 +1588,8 @@
         const pma  = r.PriceVsMA21_1D;
         const vma  = r.VolumeVsMA21_1D;
 
-        /* Sparkline always uses Spark1Y + 1Y max-volume info */
-        const sparkSVG = renderSparkline(
-          r.Spark1Y,
-          r["1YMaxVolumeChangeDay"],
-          r["1YPriceChangeAtMaxVolume"],
-          r["1YMaxPriceChangeDay"],
-          r["1YVolumeChangeAtMaxPrice"]
-        );
+        /* Sparkline: window's own length on 3M-5Y, fixed 1Y on 1D — see windowSparkArgs() */
+        const sparkSVG = renderSparkline(...windowSparkArgs(r, w));
 
         /* Rolling window cells */
         let windowCells = "";
@@ -1561,10 +1599,8 @@
         } else {
           const chgP = r[`${w}PriceChange`];      // total price change over window
           const maxP = r[`${w}MaxPriceChange`];
-          const pDay = r[`${w}MaxPriceChangeDay`];
           const vAtP = r[`${w}VolumeChangeAtMaxPrice`];
           const maxV = r[`${w}MaxVolumeChange`];
-          const vDay = r[`${w}MaxVolumeChangeDay`];
           const pAtV = r[`${w}PriceChangeAtMaxVolume`];
 
           const fmt = v => (v ?? "—");
@@ -1573,15 +1609,16 @@
             ? `<td class="${volRank === 1 ? 'positive' : 'neutral'}">${volRank != null ? '#' + volRank : '—'}</td>`
             : "";
 
+          // MAX P CHG% / MAX V CHG% show their own magnitude but are colored by the
+          // OTHER metric's move that same day (was volume confirming the price move,
+          // and vice versa) instead of a dedicated V@P Day / P@V Day column. The
+          // "days ago" columns are gone too — the trend sparkline's own
+          // triangle/circle markers already show where in the window each event landed.
           windowCells = `
             <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
             ${volRankCell}
-            <td class="${colorClass(maxP)}">${fmt(maxP)}%</td>
-            <td class="neutral">${fmt(pDay)}</td>
-            <td class="${colorClass(vAtP)}">${fmt(vAtP)}%</td>
-            <td class="${colorClass(maxV)}">${fmt(maxV)}%</td>
-            <td class="neutral">${fmt(vDay)}</td>
-            <td class="${colorClass(pAtV)}">${fmt(pAtV)}%</td>`;
+            <td class="${colorClass(vAtP)}">${fmt(maxP)}%</td>
+            <td class="${colorClass(pAtV)}">${fmt(maxV)}%</td>`;
         }
 
         // 1D-specific cells (only shown in 1D view)
@@ -1689,6 +1726,11 @@
     /* ── RENDER ── */
     function render() {
       const w = currentWindow;
+      // 2Y/5Y's trend sparkline needs weekly bars (candles.json's daily export is
+      // only ~1Y) — lazy-load once, then re-render when it lands.
+      if ((w === "2Y" || w === "5Y") && !weeklyData && !weeklyLoadFailed) {
+        loadWeekly().then(() => { if (currentWindow === "2Y" || currentWindow === "5Y") render(); });
+      }
       const filter = r => !searchQuery || r.Ticker.includes(searchQuery);
       const sp = spRows.filter(filter);
       const nd = ndRows.filter(filter);
@@ -1767,13 +1809,10 @@
     };
 
     function getWindowColDesc(key, w) {
+      if (key === "SparkW")                     return { label: `${w} Trend`, desc: `${w} normalized price sparkline. ▲ Triangle = highest-volume day in the ${w} window (green=price up, red=price down). ● Circle = highest-price-change day (green=volume up, red=volume down).` };
       if (key === `${w}PriceChange`)            return { label: "P CHG%",    desc: `Total price change (%) from the start of the ${w} window to today.` };
-      if (key === `${w}MaxPriceChange`)         return { label: "MAX P CHG%",    desc: `Largest single-day price increase (%) within the ${w} window.` };
-      if (key === `${w}MaxVolumeChange`)        return { label: "MAX V CHG%",    desc: `Largest single-day volume increase (%) within the ${w} window.` };
-      if (key === `${w}MaxPriceChangeDay`)      return { label: "MAX P% Day",   desc: `Days ago when the maximum price increase occurred in the ${w} window.` };
-      if (key === `${w}MaxVolumeChangeDay`)     return { label: "MAX V% Day",   desc: `Days ago when the maximum volume increase occurred in the ${w} window.` };
-      if (key === `${w}PriceChangeAtMaxVolume`) return { label: "P@V Day",   desc: `Price change (%) on the highest-volume day in the ${w} window.` };
-      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: "V@P Day", desc: `Volume change (%) on the highest-price-increase day in the ${w} window.` };
+      if (key === `${w}MaxPriceChange`)         return { label: "MAX P CHG%",    desc: `Largest single-day price increase (%) within the ${w} window. Color shows whether volume rose or fell that same day (green = volume up, red = volume down), not the sign of this value.` };
+      if (key === `${w}MaxVolumeChange`)        return { label: "MAX V CHG%",    desc: `Largest single-day volume increase (%) within the ${w} window. Color shows whether price rose or fell that same day (green = price up, red = price down), not the sign of this value.` };
       return null;
     }
 
@@ -1901,6 +1940,24 @@
         if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow]) render();
       })
       .catch(() => {});
+
+    /* ── WEEKLY CANDLES (~5Y, lazy — only fetched when the 2Y/5Y table view needs a
+       trend sparkline; candles.json's daily export only covers ~1Y). This file's own
+       chart modal has no 2Y/5Y weekly zoom, so this fetch exists solely for the
+       per-window sparkline below — see project_2y5y_timeframe_extension /
+       project_volume_profile_chart in the main dashboard for the original pattern. ── */
+    let weeklyData = null;
+    let weeklyFetchPromise = null;
+    let weeklyLoadFailed = false;
+    function loadWeekly() {
+      if (!weeklyFetchPromise) {
+        weeklyFetchPromise = fetch("data/candles_weekly.json")
+          .then(r => { if (!r.ok) throw new Error("weekly " + r.status); return r.json(); })
+          .then(d => { weeklyData = d; return d; })
+          .catch(() => { weeklyLoadFailed = true; });
+      }
+      return weeklyFetchPromise;
+    }
 
     /* ── COMPANY DESCRIPTIONS (Wikipedia-sourced, decoupled from price vendor) ── */
     let descData = null;

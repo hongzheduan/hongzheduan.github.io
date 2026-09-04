@@ -934,10 +934,8 @@
             <tr><td>VOL/MA21</td><td>Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity</td></tr>
             <tr><td>P CHG%</td><td>Total price change (%) from start of selected window to today — only shown for 3M and longer</td></tr>
             <tr><td>VOL RANK</td><td>Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window) — only shown for 3M through 1Y</td></tr>
-            <tr><td>MAX P CHG%</td><td>Largest single-day price increase (%) within the selected window. Color shows whether volume rose or fell that same day (green = volume up, red = volume down), not the sign of this value</td></tr>
-            <tr><td>MAX P% Day</td><td>Days ago when the max price increase occurred within the selected window</td></tr>
-            <tr><td>MAX V CHG%</td><td>Largest single-day volume increase within the selected window. Color shows whether price rose or fell that same day (green = price up, red = price down), not the sign of this value</td></tr>
-            <tr><td>MAX V% Day</td><td>Days ago when the max volume increase occurred within the selected window</td></tr>
+            <tr><td>MAX P CHG%</td><td>Largest single-day price increase (%) within the selected window. Color shows whether volume rose or fell that same day (green = volume up, red = volume down), not the sign of this value. The trend sparkline's circle marker shows which day</td></tr>
+            <tr><td>MAX V CHG%</td><td>Largest single-day volume increase within the selected window. Color shows whether price rose or fell that same day (green = price up, red = price down), not the sign of this value. The trend sparkline's triangle marker shows which day</td></tr>
             <tr><td>DIST POC</td><td>Absolute distance between the current price and the volume profile's point of control (the price level that traded the most volume) within the selected window, as a percentage. Green = price above that level, red = below — only shown for 3M through 5Y</td></tr>
           </table>
 
@@ -1682,9 +1680,7 @@
           ${thSort(`${w}PriceChange`,            "P CHG%",   "group-start")}
           ${showVolRank ? thSort("VolRank",      "VOL RANK") : ""}
           ${thSort(`${w}MaxPriceChange`,         "MAX P CHG%")}
-          ${thSort(`${w}MaxPriceChangeDay`,       "MAX P% Day")}
           ${thSort(`${w}MaxVolumeChange`,         "MAX V CHG%")}
-          ${thSort(`${w}MaxVolumeChangeDay`,      "MAX V% Day")}
           ${showPoc ? thSort("PocDist",           "Dist POC") : ""}`;
       }
 
@@ -1724,10 +1720,8 @@
         } else {
           const chgP = r[`${w}PriceChange`];      // total price change over window
           const maxP = r[`${w}MaxPriceChange`];
-          const pDay = r[`${w}MaxPriceChangeDay`];
           const vAtP = r[`${w}VolumeChangeAtMaxPrice`];
           const maxV = r[`${w}MaxVolumeChange`];
-          const vDay = r[`${w}MaxVolumeChangeDay`];
           const pAtV = r[`${w}PriceChangeAtMaxVolume`];
 
           const fmt = v => (v ?? "—");
@@ -1742,15 +1736,15 @@
 
           // MAX P CHG% / MAX V CHG% show their own magnitude but are colored by the
           // OTHER metric's move that same day (was volume confirming the price move,
-          // and vice versa) instead of a dedicated V@P Day / P@V Day column — folds
-          // the same info in without spending 2 extra columns.
+          // and vice versa) instead of a dedicated V@P Day / P@V Day column. The
+          // "days ago" columns (MAX P% Day / MAX V% Day) are gone too — the trend
+          // sparkline's own triangle/circle markers already show where in the
+          // window each event landed.
           windowCells = `
             <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
             ${volRankCell}
             <td class="${colorClass(vAtP)}">${fmt(maxP)}%</td>
-            <td class="neutral">${fmt(pDay)}</td>
             <td class="${colorClass(pAtV)}">${fmt(maxV)}%</td>
-            <td class="neutral">${fmt(vDay)}</td>
             ${pocCell}`;
         }
 
@@ -1952,8 +1946,6 @@
       if (key === `${w}PriceChange`)            return { label: "P CHG%",    desc: `Total price change (%) from the start of the ${w} window to today.` };
       if (key === `${w}MaxPriceChange`)         return { label: "MAX P CHG%",    desc: `Largest single-day price increase (%) within the ${w} window. Color shows whether volume rose or fell that same day (green = volume up, red = volume down), not the sign of this value.` };
       if (key === `${w}MaxVolumeChange`)        return { label: "MAX V CHG%",    desc: `Largest single-day volume increase (%) within the ${w} window. Color shows whether price rose or fell that same day (green = price up, red = price down), not the sign of this value.` };
-      if (key === `${w}MaxPriceChangeDay`)      return { label: "MAX P% Day",   desc: `Days ago when the maximum price increase occurred in the ${w} window.` };
-      if (key === `${w}MaxVolumeChangeDay`)     return { label: "MAX V% Day",   desc: `Days ago when the maximum volume increase occurred in the ${w} window.` };
       return null;
     }
 
