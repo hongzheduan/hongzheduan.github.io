@@ -934,12 +934,11 @@
             <tr><td>VOL/MA21</td><td>Current volume as a ratio of the 21-day average volume. Values above 1 indicate elevated activity</td></tr>
             <tr><td>P CHG%</td><td>Total price change (%) from start of selected window to today — only shown for 3M and longer</td></tr>
             <tr><td>VOL RANK</td><td>Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window) — only shown for 3M through 1Y</td></tr>
-            <tr><td>MAX P CHG%</td><td>Largest single-day price increase (%) within the selected window</td></tr>
+            <tr><td>MAX P CHG%</td><td>Largest single-day price increase (%) within the selected window. Color shows whether volume rose or fell that same day (green = volume up, red = volume down), not the sign of this value</td></tr>
             <tr><td>MAX P% Day</td><td>Days ago when the max price increase occurred within the selected window</td></tr>
-            <tr><td>V@P Day</td><td>Volume change on the highest-price-increase day within the selected window</td></tr>
-            <tr><td>MAX V CHG%</td><td>Largest single-day volume increase within the selected window</td></tr>
+            <tr><td>MAX V CHG%</td><td>Largest single-day volume increase within the selected window. Color shows whether price rose or fell that same day (green = price up, red = price down), not the sign of this value</td></tr>
             <tr><td>MAX V% Day</td><td>Days ago when the max volume increase occurred within the selected window</td></tr>
-            <tr><td>P@V Day</td><td>Price change on the highest-volume-increase day within the selected window</td></tr>
+            <tr><td>DIST POC</td><td>Absolute distance between the current price and the volume profile's point of control (the price level that traded the most volume) within the selected window, as a percentage. Green = price above that level, red = below — only shown for 3M through 5Y</td></tr>
           </table>
 
           <div class="readme-label" style="margin-top:28px;">◈ &nbsp; Baizora Scores (BAIZORA Tab)</div>
@@ -983,7 +982,7 @@
             <tr><th>Column</th><th>Description</th></tr>
             <tr><td>Dist SMA20 / Dist SMA200</td><td>Absolute distance between the current price and the 20-day / 200-day moving average, as a percentage (SMAs computed server-side from up to 730 days of history). Green = price is above the average, red = price is below it. A stock trading close to (or just under) its SMA200 is often watched as a potential entry point, since the average tends to act as long-term support — not a guarantee, just a common technical read</td></tr>
             <tr><td>MACD</td><td>Absolute distance between the MACD line and signal line (standard 12/26/9), as a percentage of price. Green = MACD above signal (bullish bias); red = below (bearish bias). Color flips exactly when the two lines cross</td></tr>
-            <tr><td>Dist POC</td><td>Absolute distance between the current price and the volume profile's point of control — the price level that traded the most volume over the last ~6 months — as a percentage. Green = price above that level, red = below. The point of control often acts as support/resistance or a magnet for price. Same calculation as the chart's Vol Profile overlay</td></tr>
+            <tr><td>Dist POC</td><td>Absolute distance between the current price and the volume profile's point of control — the price level that traded the most volume over the last ~6 months (fixed here in TECH; the same column on the 3M-5Y tabs uses that tab's own window instead) — as a percentage. Green = price above that level, red = below. The point of control often acts as support/resistance or a magnet for price. Same calculation as the chart's Vol Profile overlay</td></tr>
           </table>
         </div>
 
@@ -1431,19 +1430,29 @@
       r.VolRankTotal = vols.length;
     }
 
-    /* ── POINT OF CONTROL: the price level that saw the most volume over the last
-       POC_WINDOW_DAYS trading days. The window's price range (lowest low → highest
-       high) is split into 24 buckets and each day's volume is spread across the
-       buckets its high–low span covers, weighted by overlap — the same method as
-       the chart's volume-profile overlay. Reported as the absolute % distance
-       between the current price and that level; green = price above it, red = below.
-       Kept in sync with the modal chart's default 6M timeframe. ── */
+    /* ── POINT OF CONTROL: the price level that saw the most volume over a trailing
+       window. The window's price range (lowest low → highest high) is split into 24
+       buckets and each day's volume is spread across the buckets its high–low span
+       covers, weighted by overlap — the same method as the chart's volume-profile
+       overlay. Reported as the absolute % distance between the current price and
+       that level; green = price above it, red = below.
+       TECH's own column (computePocDist(r), no opts) stays fixed at ~6 months —
+       kept in sync with the modal chart's default 6M timeframe, independent of
+       whatever the main WINDOW buttons are set to.
+       The 3M/6M/9M/1Y/2Y/5Y table views each pass their OWN window via opts, so
+       "Dist POC" there tracks whichever timeframe is currently selected (2Y/5Y
+       read weekly bars from candles_weekly.json — the daily candles.json export is
+       only ~252 sessions / 1Y, see POC_WEEKS_BY_W below). ── */
     const POC_WINDOW_DAYS = 126;
-    function computePocDist(r) {
-      const raw = candleData && candleData.data && candleData.data[r.Ticker];
+    const POC_DAYS_BY_W  = { "3M": 63, "6M": 126, "9M": 189, "1Y": 252 };
+    const POC_WEEKS_BY_W = { "2Y": 104, "5Y": 260 };
+    function computePocDist(r, opts) {
+      const days = (opts && opts.days) || POC_WINDOW_DAYS;
+      const src = (opts && opts.weekly) ? weeklyData : candleData;
+      const raw = src && src.data && src.data[r.Ticker];
       const price = r._livePrice ?? r.Price;
       if (!raw || raw.length < 2 || price == null) { r.PocPrice = r.PocDist = r.AbovePoc = null; return; }
-      const win = raw.slice(-POC_WINDOW_DAYS).filter(Boolean);
+      const win = raw.slice(-days).filter(Boolean);
       let lo = Infinity, hi = -Infinity;
       win.forEach(b => { if (b[2] < lo) lo = b[2]; if (b[1] > hi) hi = b[1]; });
       if (!(hi > lo)) { r.PocPrice = r.PocDist = r.AbovePoc = null; return; }
@@ -1476,6 +1485,8 @@
     function buildTable(arr, w) {
       if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); computePocDist(r); });
       if (VOL_RANK_WINDOW_DAYS[w]) arr.forEach(r => computeVolRank(r, w));
+      if (POC_DAYS_BY_W[w])  arr.forEach(r => computePocDist(r, { days: POC_DAYS_BY_W[w] }));
+      if (POC_WEEKS_BY_W[w]) arr.forEach(r => computePocDist(r, { days: POC_WEEKS_BY_W[w], weekly: true }));
       arr = sorted(arr);
 
       /* ── SCORES VIEW (raw sub-scores) ── */
@@ -1611,6 +1622,8 @@
       const is1D = (w === "1D");
       // VOL RANK needs per-day volume from candles.json (1Y). Hidden for 2Y/5Y.
       const showVolRank = !!VOL_RANK_WINDOW_DAYS[w];
+      // Dist POC: 3M-1Y from daily candles.json, 2Y/5Y from weekly candles_weekly.json.
+      const showPoc = !!(POC_DAYS_BY_W[w] || POC_WEEKS_BY_W[w]);
 
       /* Window column headers */
       let windowHead = "";
@@ -1624,10 +1637,9 @@
           ${showVolRank ? thSort("VolRank",      "VOL RANK") : ""}
           ${thSort(`${w}MaxPriceChange`,         "MAX P CHG%")}
           ${thSort(`${w}MaxPriceChangeDay`,       "MAX P% Day")}
-          ${thSort(`${w}VolumeChangeAtMaxPrice`,  "V@P Day")}
           ${thSort(`${w}MaxVolumeChange`,         "MAX V CHG%")}
           ${thSort(`${w}MaxVolumeChangeDay`,      "MAX V% Day")}
-          ${thSort(`${w}PriceChangeAtMaxVolume`,  "P@V Day")}`;
+          ${showPoc ? thSort("PocDist",           "Dist POC") : ""}`;
       }
 
       // For 1D view: show 1D-specific cols; for other windows: show window price change + window stats only
@@ -1680,16 +1692,23 @@
           const volRankCell = showVolRank
             ? `<td class="${volRank === 1 ? 'positive' : 'neutral'}">${volRank != null ? '#' + volRank : '—'}</td>`
             : "";
+          const clsPoc = r.AbovePoc == null ? "neutral" : (r.AbovePoc ? "positive" : "negative");
+          const pocCell = showPoc
+            ? `<td class="${clsPoc}">${r.PocDist != null ? r.PocDist.toFixed(1) + "%" : "—"}</td>`
+            : "";
 
+          // MAX P CHG% / MAX V CHG% show their own magnitude but are colored by the
+          // OTHER metric's move that same day (was volume confirming the price move,
+          // and vice versa) instead of a dedicated V@P Day / P@V Day column — folds
+          // the same info in without spending 2 extra columns.
           windowCells = `
             <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
             ${volRankCell}
-            <td class="${colorClass(maxP)}">${fmt(maxP)}%</td>
+            <td class="${colorClass(vAtP)}">${fmt(maxP)}%</td>
             <td class="neutral">${fmt(pDay)}</td>
-            <td class="${colorClass(vAtP)}">${fmt(vAtP)}%</td>
-            <td class="${colorClass(maxV)}">${fmt(maxV)}%</td>
+            <td class="${colorClass(pAtV)}">${fmt(maxV)}%</td>
             <td class="neutral">${fmt(vDay)}</td>
-            <td class="${colorClass(pAtV)}">${fmt(pAtV)}%</td>`;
+            ${pocCell}`;
         }
 
         // 1D-specific cells (only shown in 1D view)
@@ -1797,6 +1816,11 @@
     /* ── RENDER ── */
     function render() {
       const w = currentWindow;
+      // Dist POC on the 2Y/5Y table views needs weekly bars (candles.json's daily
+      // export is only ~1Y) — lazy-load once, then re-render when it lands.
+      if ((w === "2Y" || w === "5Y") && !weeklyData && !weeklyLoadFailed) {
+        loadWeekly().then(() => { if (currentWindow === "2Y" || currentWindow === "5Y") render(); });
+      }
       const filter = r => !searchQuery || r.Ticker.includes(searchQuery);
       const sp = spRows.filter(filter);
       const nd = ndRows.filter(filter);
@@ -1876,18 +1900,16 @@
       "Dist20":          { label: "Dist SMA20",    desc: "Absolute distance between price and the 20-day moving average, as a percentage. Green = price above the average, red = price below it." },
       "Dist200":         { label: "Dist SMA200",   desc: "Absolute distance between price and the 200-day moving average, as a percentage. Green = price above the average, red = price below it. Trading close to (or just under) the SMA200 is a common technical read for a potential entry point, since the average often acts as long-term support — not a guarantee." },
       "MacdPct":         { label: "MACD",          desc: "Absolute distance between the MACD line and the signal line (standard 12/26/9), as a percentage of price. Green = MACD line above the signal line (bullish bias). Red = below (bearish bias). The color flips exactly when the two lines cross." },
-      "PocDist":         { label: "Dist POC",      desc: "Absolute distance between the current price and the volume profile's point of control — the price level that traded the most volume over the last ~6 months — as a percentage. Green = price above that level, red = below. The point of control often acts as a magnet or as support/resistance, so a small distance means price is sitting right at the level with the heaviest historical trading. Same calculation as the chart's Vol Profile overlay." },
+      "PocDist":         { label: "Dist POC",      desc: "Absolute distance between the current price and the volume profile's point of control — the price level that traded the most volume over the selected window (fixed to the last ~6 months in the TECH tab) — as a percentage. Green = price above that level, red = below. The point of control often acts as a magnet or as support/resistance, so a small distance means price is sitting right at the level with the heaviest historical trading. Same calculation as the chart's Vol Profile overlay. Shown for 3M through 5Y, and in TECH." },
       "VolRank":         { label: "VOL RANK",      desc: "Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window). Only shown for 3M through 1Y." },
     };
 
     function getWindowColDesc(key, w) {
       if (key === `${w}PriceChange`)            return { label: "P CHG%",    desc: `Total price change (%) from the start of the ${w} window to today.` };
-      if (key === `${w}MaxPriceChange`)         return { label: "MAX P CHG%",    desc: `Largest single-day price increase (%) within the ${w} window.` };
-      if (key === `${w}MaxVolumeChange`)        return { label: "MAX V CHG%",    desc: `Largest single-day volume increase (%) within the ${w} window.` };
+      if (key === `${w}MaxPriceChange`)         return { label: "MAX P CHG%",    desc: `Largest single-day price increase (%) within the ${w} window. Color shows whether volume rose or fell that same day (green = volume up, red = volume down), not the sign of this value.` };
+      if (key === `${w}MaxVolumeChange`)        return { label: "MAX V CHG%",    desc: `Largest single-day volume increase (%) within the ${w} window. Color shows whether price rose or fell that same day (green = price up, red = price down), not the sign of this value.` };
       if (key === `${w}MaxPriceChangeDay`)      return { label: "MAX P% Day",   desc: `Days ago when the maximum price increase occurred in the ${w} window.` };
       if (key === `${w}MaxVolumeChangeDay`)     return { label: "MAX V% Day",   desc: `Days ago when the maximum volume increase occurred in the ${w} window.` };
-      if (key === `${w}PriceChangeAtMaxVolume`) return { label: "P@V Day",   desc: `Price change (%) on the highest-volume day in the ${w} window.` };
-      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: "V@P Day", desc: `Volume change (%) on the highest-price-increase day in the ${w} window.` };
       return null;
     }
 

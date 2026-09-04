@@ -940,12 +940,11 @@
             <tr><td>成交量/MA21</td><td>最近交易日成交量与21日均量的比值（>1表示成交量偏高）</td></tr>
             <tr><td>总涨幅</td><td>从所选周期起始至今的总价格变动（%）— 仅在3月及以上周期显示</td></tr>
             <tr><td>量排名</td><td>今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）— 仅在3月至1年周期显示</td></tr>
-            <tr><td>日最大价涨</td><td>所选周期内最大单日价格涨幅</td></tr>
+            <tr><td>日最大价涨</td><td>所选周期内最大单日价格涨幅。颜色反映当天成交量是升是降（绿=放量，红=缩量），与数值本身正负无关</td></tr>
             <tr><td>最大价涨日</td><td>所选周期内最大单日价涨发生于多少天前</td></tr>
-            <tr><td>量@价日</td><td>所选周期内最大价涨当日的成交量变化</td></tr>
-            <tr><td>日最大量涨</td><td>所选周期内最大单日成交量涨幅</td></tr>
+            <tr><td>日最大量涨</td><td>所选周期内最大单日成交量涨幅。颜色反映当天价格是涨是跌（绿=价涨，红=价跌），与数值本身正负无关</td></tr>
             <tr><td>最大量涨日</td><td>所选周期内最大单日量涨发生于多少天前</td></tr>
-            <tr><td>价@量日</td><td>所选周期内最大量涨当日的价格变化</td></tr>
+            <tr><td>偏离POC</td><td>当前价格与成交量分布控制点（该周期内成交量最大的价格水平）之间的绝对距离，以百分比表示。绿色 = 价格在该水平上方；红色 = 下方 — 仅在3月至5年周期显示</td></tr>
           </table>
 
           <div class="readme-label" style="margin-top:28px;">◈ &nbsp; 贝佐拉评分家族（贝佐拉评分标签页）</div>
@@ -989,7 +988,7 @@
             <tr><th>列名</th><th>说明</th></tr>
             <tr><td>偏离SMA20 / 偏离SMA200</td><td>当前价格与20日/200日均线之间的绝对距离（百分比，均线由服务端基于最多730天历史数据计算）。绿色 = 价格高于均线；红色 = 价格低于均线。股价接近（或略低于）SMA200常被视为潜在买入观察点，因为该均线常起到长期支撑作用——并非保证，只是一种常见的技术面判断</td></tr>
             <tr><td>MACD</td><td>MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）；红色 = 低于信号线（偏空）。两线交叉时颜色会翻转</td></tr>
-            <tr><td>偏离POC</td><td>当前价格与成交量分布控制点（过去约6个月内成交量最大的价格水平）之间的绝对距离，以百分比表示。绿色 = 价格在该水平上方；红色 = 下方。控制点常作为支撑/阻力位或价格的磁吸位。算法与图表的成交量分布叠加图一致</td></tr>
+            <tr><td>偏离POC</td><td>当前价格与成交量分布控制点（过去约6个月内成交量最大的价格水平——此处固定为6个月；3M至5Y标签页上的同名列会改用各自的周期）之间的绝对距离，以百分比表示。绿色 = 价格在该水平上方；红色 = 下方。控制点常作为支撑/阻力位或价格的磁吸位。算法与图表的成交量分布叠加图一致</td></tr>
           </table>
         </div>
 
@@ -1431,17 +1430,25 @@
       r.VolRankTotal = vols.length;
     }
 
-    /* ── 控制点（POC）：过去 POC_WINDOW_DAYS 个交易日内成交量最大的价格水平。
+    /* ── 控制点（POC）：某个周期内成交量最大的价格水平。
        将该周期的价格区间（最低价→最高价）分成24个区间，每日成交量按重叠比例
        分摊到其最高价–最低价所跨越的各区间——与图表的成交量分布叠加图算法一致。
        以当前价格与该水平之间的绝对百分比距离显示；绿色 = 价格在其上方，红色 = 下方。
-       与图表默认的6月周期保持一致。 ── */
+       TECH 标签页自身的这一列（computePocDist(r)，不传 opts）固定为约6个月，
+       与图表默认的6月周期保持一致，不受主 WINDOW 按钮影响。
+       3M/6M/9M/1Y/2Y/5Y 各时间窗表格则通过 opts 传入各自的周期，因此那里的
+       “偏离POC”会跟随当前选中的时间窗（2Y/5Y 从 candles_weekly.json 读取周K
+       ——candles.json 的日K导出只有约252天/1年，见下方 POC_WEEKS_BY_W）。 ── */
     const POC_WINDOW_DAYS = 126;
-    function computePocDist(r) {
-      const raw = candleData && candleData.data && candleData.data[r.Ticker];
+    const POC_DAYS_BY_W  = { "3M": 63, "6M": 126, "9M": 189, "1Y": 252 };
+    const POC_WEEKS_BY_W = { "2Y": 104, "5Y": 260 };
+    function computePocDist(r, opts) {
+      const days = (opts && opts.days) || POC_WINDOW_DAYS;
+      const src = (opts && opts.weekly) ? weeklyData : candleData;
+      const raw = src && src.data && src.data[r.Ticker];
       const price = r._livePrice ?? r.Price;
       if (!raw || raw.length < 2 || price == null) { r.PocPrice = r.PocDist = r.AbovePoc = null; return; }
-      const win = raw.slice(-POC_WINDOW_DAYS).filter(Boolean);
+      const win = raw.slice(-days).filter(Boolean);
       let lo = Infinity, hi = -Infinity;
       win.forEach(b => { if (b[2] < lo) lo = b[2]; if (b[1] > hi) hi = b[1]; });
       if (!(hi > lo)) { r.PocPrice = r.PocDist = r.AbovePoc = null; return; }
@@ -1473,6 +1480,8 @@
     function buildTable(arr, w) {
       if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); computePocDist(r); });
       if (VOL_RANK_WINDOW_DAYS[w]) arr.forEach(r => computeVolRank(r, w));
+      if (POC_DAYS_BY_W[w])  arr.forEach(r => computePocDist(r, { days: POC_DAYS_BY_W[w] }));
+      if (POC_WEEKS_BY_W[w]) arr.forEach(r => computePocDist(r, { days: POC_WEEKS_BY_W[w], weekly: true }));
       arr = sorted(arr);
 
       /* ── 评分视图（原始分项） ── */
@@ -1608,6 +1617,8 @@
       const is1D = (w === "1D");
       // 量排名需要 candles.json 的每日成交量（1年）。2年/5年不显示。
       const showVolRank = !!VOL_RANK_WINDOW_DAYS[w];
+      // 偏离POC：3M-1Y 用 candles.json 日K，2Y/5Y 用 candles_weekly.json 周K。
+      const showPoc = !!(POC_DAYS_BY_W[w] || POC_WEEKS_BY_W[w]);
 
       /* Window column headers */
       let windowHead = "";
@@ -1621,10 +1632,9 @@
           ${showVolRank ? thSort("VolRank",      "量排名") : ""}
           ${thSort(`${w}MaxPriceChange`,         "日最大价涨")}
           ${thSort(`${w}MaxPriceChangeDay`,       "最大价涨日")}
-          ${thSort(`${w}VolumeChangeAtMaxPrice`,  "量@价日")}
           ${thSort(`${w}MaxVolumeChange`,         "日最大量涨")}
           ${thSort(`${w}MaxVolumeChangeDay`,      "最大量涨日")}
-          ${thSort(`${w}PriceChangeAtMaxVolume`,  "价@量日")}`;
+          ${showPoc ? thSort("PocDist",           "偏离POC") : ""}`;
       }
 
       // For 1D view: show 1D-specific cols; for other windows: show window price change + window stats only
@@ -1677,16 +1687,22 @@
           const volRankCell = showVolRank
             ? `<td class="${volRank === 1 ? 'positive' : 'neutral'}">${volRank != null ? '#' + volRank : '—'}</td>`
             : "";
+          const clsPoc = r.AbovePoc == null ? "neutral" : (r.AbovePoc ? "positive" : "negative");
+          const pocCell = showPoc
+            ? `<td class="${clsPoc}">${r.PocDist != null ? r.PocDist.toFixed(1) + "%" : "—"}</td>`
+            : "";
 
+          // 日最大价涨/日最大量涨 显示各自的数值，但颜色改为反映当天「另一方」
+          // 的涨跌（价涨日当天成交量是否放大、量涨日当天价格是否上涨）——
+          // 用颜色代替原来的量@价日/价@量日两列，省出列位给「偏离POC」。
           windowCells = `
             <td class="${colorClass(chgP)} group-start">${fmt(chgP)}%</td>
             ${volRankCell}
-            <td class="${colorClass(maxP)}">${fmt(maxP)}%</td>
+            <td class="${colorClass(vAtP)}">${fmt(maxP)}%</td>
             <td class="neutral">${fmt(pDay)}</td>
-            <td class="${colorClass(vAtP)}">${fmt(vAtP)}%</td>
-            <td class="${colorClass(maxV)}">${fmt(maxV)}%</td>
+            <td class="${colorClass(pAtV)}">${fmt(maxV)}%</td>
             <td class="neutral">${fmt(vDay)}</td>
-            <td class="${colorClass(pAtV)}">${fmt(pAtV)}%</td>`;
+            ${pocCell}`;
         }
 
         // 1D-specific cells (only shown in 1D view)
@@ -1794,6 +1810,11 @@
     /* ── RENDER ── */
     function render() {
       const w = currentWindow;
+      // 2Y/5Y 的偏离POC需要周K数据（candles.json 的日K导出只有约1年）——
+      // 懒加载一次，加载完成后再重新渲染。
+      if ((w === "2Y" || w === "5Y") && !weeklyData && !weeklyLoadFailed) {
+        loadWeekly().then(() => { if (currentWindow === "2Y" || currentWindow === "5Y") render(); });
+      }
       const filter = r => !searchQuery || r.Ticker.includes(searchQuery);
       const sp = spRows.filter(filter);
       const nd = ndRows.filter(filter);
@@ -1873,7 +1894,7 @@
       "Dist20":          { label: "偏离SMA20",   desc: "价格与20日均线之间的绝对距离（百分比）。绿色 = 价格高于均线，红色 = 价格低于均线。" },
       "Dist200":         { label: "偏离SMA200",  desc: "价格与200日均线之间的绝对距离（百分比）。绿色 = 价格高于均线，红色 = 价格低于均线。股价接近（或略低于）SMA200常被视为潜在买入观察点，因为该均线常起到长期支撑作用——并非保证。" },
       "MacdPct":         { label: "MACD",        desc: "MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）。红色 = 低于信号线（偏空）。两线交叉时颜色会翻转。" },
-      "PocDist":         { label: "偏离POC",      desc: "当前价格与成交量分布控制点（过去约6个月内成交量最大的价格水平）之间的绝对百分比距离。绿色 = 价格在该水平上方，红色 = 下方。控制点常作为价格的磁吸位或支撑/阻力位，距离越小说明价格正处于历史成交最密集的水平。算法与图表的成交量分布叠加图一致。" },
+      "PocDist":         { label: "偏离POC",      desc: "当前价格与成交量分布控制点（所选周期内成交量最大的价格水平；TECH 标签页固定为约6个月）之间的绝对百分比距离。绿色 = 价格在该水平上方，红色 = 下方。控制点常作为价格的磁吸位或支撑/阻力位，距离越小说明价格正处于历史成交最密集的水平。算法与图表的成交量分布叠加图一致。3M 至 5Y 及 TECH 标签页均显示此列。" },
       "VolRank":         { label: "量排名",      desc: "今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）。仅在3月至1年周期显示。" },
     };
 
@@ -1882,12 +1903,10 @@
     function getWindowColDesc(key, w) {
       const wl = WIN_CN[w] || w;
       if (key === `${w}PriceChange`)            return { label: "总涨幅",    desc: `从${wl}周期起始至今的总价格变动（%）。` };
-      if (key === `${w}MaxPriceChange`)         return { label: "日最大价涨",    desc: `${wl}周期内最大单日价格涨幅（%）。` };
-      if (key === `${w}MaxVolumeChange`)        return { label: "日最大量涨",    desc: `${wl}周期内最大单日成交量涨幅（%）。` };
+      if (key === `${w}MaxPriceChange`)         return { label: "日最大价涨",    desc: `${wl}周期内最大单日价格涨幅（%）。颜色反映当天成交量是升是降（绿=放量，红=缩量），与数值本身的正负无关。` };
+      if (key === `${w}MaxVolumeChange`)        return { label: "日最大量涨",    desc: `${wl}周期内最大单日成交量涨幅（%）。颜色反映当天价格是涨是跌（绿=价涨，红=价跌），与数值本身的正负无关。` };
       if (key === `${w}MaxPriceChangeDay`)      return { label: "最大价涨日",   desc: `${wl}周期内最大价涨发生于多少天前。` };
       if (key === `${w}MaxVolumeChangeDay`)     return { label: "最大量涨日",   desc: `${wl}周期内最大量涨发生于多少天前。` };
-      if (key === `${w}PriceChangeAtMaxVolume`) return { label: "价@量日",   desc: `${wl}周期内最大量涨当日的价格变化（%）。` };
-      if (key === `${w}VolumeChangeAtMaxPrice`) return { label: "量@价日", desc: `${wl}周期内最大价涨当日的成交量变化（%）。` };
       return null;
     }
 
