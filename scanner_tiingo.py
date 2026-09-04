@@ -3146,7 +3146,82 @@ def _translate_to_zh(text):
         return ""
 
 
-def fetch_and_save_index_news(lookback_days=90):
+_GNEWS_ARTICLE_RE = re.compile(r"news\.google\.com/rss/articles/")
+_URL_DATE_RE      = re.compile(r"[/_-](20\d{2})[/_-](\d{2})[/_-](\d{2})(?:[/_.-]|$)")
+_PAGE_DATE_PATS   = [
+    re.compile(r'"datePublished"\s*:\s*"(20\d{2}-\d{2}-\d{2})'),
+    re.compile(r'"datePublished":"(20\d{2}-\d{2}-\d{2})'),
+    re.compile(r'article:published_time"\s+content="(20\d{2}-\d{2}-\d{2})'),
+    re.compile(r'itemprop="datePublished"[^>]+content="(20\d{2}-\d{2}-\d{2})'),
+    re.compile(r'name="(?:pubdate|publishdate|publish-date|date|article:published_time)"\s+content="(20\d{2}-\d{2}-\d{2})'),
+    re.compile(r'<time[^>]+datetime="(20\d{2}-\d{2}-\d{2})'),
+]
+
+
+def _resolve_gnews_url(rss_link, session):
+    """Resolve a news.google.com/rss/articles/<blob> link to the real publisher URL.
+
+    Google stopped 302-redirecting these to the publisher; the blob is now an opaque
+    signed token that only the DotsSplashUi/batchexecute endpoint can expand. Returns
+    the publisher URL, or None on any failure. Links that are already direct publisher
+    URLs are returned unchanged.
+    """
+    if not _GNEWS_ARTICLE_RE.search(rss_link):
+        return rss_link
+    try:
+        html = session.get(rss_link, headers=SCRAPE_HEADERS, timeout=15).text
+        art = re.search(r'data-n-a-id="([^"]+)"', html).group(1)
+        sig = re.search(r'data-n-a-sg="([^"]+)"', html).group(1)
+        ts  = re.search(r'data-n-a-ts="([^"]+)"', html).group(1)
+        inner = ('["garturlreq",[["X","X",["X","X"],null,null,1,1,"US:en",null,1,null,null,'
+                 'null,null,null,0,1],"X","X",1,[1,1,1],1,1,null,0,0,null,0],'
+                 '"%s",%s,"%s"]' % (art, ts, sig))
+        body = "f.req=" + requests.utils.quote(json.dumps([[["Fbv4je", inner, None, "generic"]]]))
+        resp = session.post(
+            "https://news.google.com/_/DotsSplashUi/data/batchexecute",
+            headers={**SCRAPE_HEADERS,
+                     "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"},
+            data=body, timeout=20,
+        ).text
+        m = re.search(r'https?://(?!news\.google\.com|www\.google\.com)[^\\"\]]+', resp)
+        return m.group(0) if m else None
+    except Exception:
+        return None
+
+
+def _article_pub_date(url, session):
+    """Best-effort true publication date ('YYYY-MM-DD') for a publisher URL: a date in
+    the URL path first, then common date meta tags on the page. None if undeterminable
+    (paywall / bot-block / no machine-readable date)."""
+    m = _URL_DATE_RE.search(url)
+    if m:
+        return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+    try:
+        r = session.get(url, headers=SCRAPE_HEADERS, timeout=12)
+        if r.status_code != 200:
+            return None
+        for pat in _PAGE_DATE_PATS:
+            m = pat.search(r.text)
+            if m:
+                return m.group(1)
+    except Exception:
+        pass
+    return None
+
+
+def fetch_and_save_index_news(lookback_days=7, max_age_days=2):
+    """Homepage "Index Membership News" feed.
+
+    Google News RSS is queried with narrow membership-change phrases ("added to S&P 500",
+    etc.). Those queries return few real hits, so Google pads them with months-old
+    articles carrying a *re-surfaced* pubDate that looks fresh. We therefore verify every
+    candidate against its real publisher-page date and keep only items genuinely
+    published within `max_age_days`. Anything whose real date can't be confirmed is
+    dropped — the feature is meant to show current membership news or nothing, never
+    stale headlines. `lookback_days` is only a cheap pubDate pre-filter to bound how many
+    links we resolve (re-surfacing makes articles look newer, never older, so a pubDate
+    already older than a few days is safe to skip without a network round-trip).
+    """
     print("Fetching index membership news...")
     cutoff    = datetime.now(timezone.utc) - timedelta(days=lookback_days)
     all_items = []
@@ -3192,8 +3267,43 @@ def fetch_and_save_index_news(lookback_days=90):
         print("  [news] 0 items fetched (likely a transient RSS/network failure) — leaving existing index_news.json untouched")
         return
 
+    # Verify each candidate's real publication date and keep only genuinely recent ones.
+    today   = datetime.now(timezone.utc).date()
+    session = requests.Session()
+    seen_links = set()
+    verified   = []
+    for it in all_items:
+        if it["link"] in seen_links:
+            continue
+        seen_links.add(it["link"])
+        resolved = _resolve_gnews_url(it["link"], session)
+        real     = _article_pub_date(resolved, session) if resolved else None
+        if not real:
+            print(f"  [news] drop (date unverifiable): {it['title'][:70]}")
+            time.sleep(0.25)
+            continue
+        try:
+            age = (today - datetime.strptime(real, "%Y-%m-%d").date()).days
+        except ValueError:
+            time.sleep(0.25)
+            continue
+        if age < 0 or age > max_age_days:
+            print(f"  [news] drop (real date {real}, {age}d old): {it['title'][:70]}")
+            time.sleep(0.25)
+            continue
+        it["date"] = real
+        it["link"] = resolved
+        verified.append(it)
+        time.sleep(0.25)
+
+    if not verified:
+        print(f"  [news] 0 items newer than {max_age_days}d after date verification — "
+              "leaving existing index_news.json untouched")
+        return
+    all_items = verified
+
     all_items.sort(key=lambda x: x["date"], reverse=True)
-    print(f"  [news] translating {len(all_items)} titles to Chinese...")
+    print(f"  [news] {len(all_items)} verified recent item(s); translating titles to Chinese...")
     for item in all_items:
         suffix = " - " + item["source"]
         clean  = item["title"][:-len(suffix)] if item["title"].endswith(suffix) else item["title"]

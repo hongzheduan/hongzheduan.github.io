@@ -913,8 +913,8 @@
       .hp-news-item, .digest-news-item, .digest-row { border-bottom-color: transparent; }
       .hp-news-footer { border-top-color: transparent; }
       .digest-div { border-top-color: transparent; }
-      .hp-news-item-title, .digest-news-link { color: #93c5fd; font-weight: 700; }
-      .hp-news-item-title:hover, .digest-news-link:hover { color: #bfdbfe; }
+      .hp-news-item-title, .digest-news-link,
+      .hp-news-item-title:hover, .digest-news-link:hover { color: #ffffff; font-weight: 700; }
       .hp-news-panel .hp-news-viewall, .digest-dl { color: #93c5fd; }
       .digest-dtk { color: #e2e8f0; }
       .digest-pos { color: #4ade80; }
@@ -1376,7 +1376,7 @@
       .card a[style*="#2563eb"], .spark-demo a[style*="#2563eb"],
       .hp-news-panel .hp-news-viewall, .digest-dl,
       .share-gallery-panel .hp-news-viewall, .faq-mini-panel .hp-news-viewall { color: #93c5fd !important; }
-      .hp-news-item-title, .digest-news-link { color: #93c5fd !important; font-weight: 700; }
+      .hp-news-item-title, .digest-news-link { color: #ffffff !important; font-weight: 700; }
       .hp-news-item, .digest-news-item, .digest-row { border-bottom-color: transparent !important; }
       .hp-news-footer { border-top-color: transparent !important; }
       .hp-news-item-meta, .digest-news-meta { color: #94a3b8 !important; }
@@ -2801,8 +2801,14 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
   function renderList(key) {
     const list = document.getElementById("hpNewsList");
     if (!list) return;
-    const items = allItems.filter(it => it.category === key).slice(0, 8);
-    if (!items.length) { list.innerHTML = '<div class="hp-news-msg">暂无相关文章。</div>'; return; }
+    // 兜底：扫描器只写入经核实为 2 天内的条目；若某次核实失败会沿用上一份文件，
+    // 这里过滤掉已过期的条目，避免首页显示过时"新闻"。
+    const FRESH_MS = 4 * 864e5;
+    const items = allItems
+      .filter(it => it.category === key)
+      .filter(it => { const t = Date.parse(it.date); return isNaN(t) || (Date.now() - t) < FRESH_MS; })
+      .slice(0, 8);
+    if (!items.length) { list.innerHTML = '<div class="hp-news-msg">近几日无成分股变动新闻。</div>'; return; }
     list.innerHTML = items.map(it => {
       const suffix = " - " + it.source;
       const titleEn = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title;
@@ -2899,7 +2905,9 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     const el = document.getElementById("digestNews"); if (!el) return;
     if (!newsData || !newsData.items || !newsData.items.length) { el.innerHTML = '<div class="digest-msg">—</div>'; return; }
     el.innerHTML = newsData.items.slice(0, 6).map(it => {
-      const title = it.title_cn || it.title;
+      const suffix = " - " + it.source;
+      const titleEn = (it.source && it.title.endsWith(suffix)) ? it.title.slice(0, -suffix.length) : it.title;
+      const title = it.title_cn || titleEn;
       return `<div class="digest-news-item"><a href="${it.link}" target="_blank" rel="noopener" class="digest-news-link">${title}</a><div class="digest-news-meta">${it.source || ""}${it.date ? " · " + it.date : ""}</div></div>`;
     }).join("");
   }
