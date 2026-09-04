@@ -982,7 +982,7 @@
             <tr><th>Column</th><th>Description</th></tr>
             <tr><td>Dist SMA20 / Dist SMA200</td><td>Absolute distance between the current price and the 20-day / 200-day moving average, as a percentage (SMAs computed server-side from up to 730 days of history). Green = price is above the average, red = price is below it. A stock trading close to (or just under) its SMA200 is often watched as a potential entry point, since the average tends to act as long-term support — not a guarantee, just a common technical read</td></tr>
             <tr><td>MACD</td><td>Absolute distance between the MACD line and signal line (standard 12/26/9), as a percentage of price. Green = MACD above signal (bullish bias); red = below (bearish bias). Color flips exactly when the two lines cross</td></tr>
-            <tr><td>Dist POC</td><td>Absolute distance between the current price and the volume profile's point of control — the price level that traded the most volume over the last ~6 months (fixed here in TECH; the same column on the 3M-5Y tabs uses that tab's own window instead) — as a percentage. Green = price above that level, red = below. The point of control often acts as support/resistance or a magnet for price. Same calculation as the chart's Vol Profile overlay</td></tr>
+            <tr><td>Dist POC</td><td>Absolute distance between the current price and the volume profile's point of control — the price level that traded the most volume over the last ~1 year (fixed here in TECH; the same column on the 3M-5Y tabs uses that tab's own window instead) — as a percentage. Green = price above that level, red = below. The point of control often acts as support/resistance or a magnet for price. Same calculation as the chart's Vol Profile overlay</td></tr>
           </table>
         </div>
 
@@ -1436,14 +1436,14 @@
        covers, weighted by overlap — the same method as the chart's volume-profile
        overlay. Reported as the absolute % distance between the current price and
        that level; green = price above it, red = below.
-       TECH's own column (computePocDist(r), no opts) stays fixed at ~6 months —
-       kept in sync with the modal chart's default 6M timeframe, independent of
-       whatever the main WINDOW buttons are set to.
+       TECH's own column (computePocDist(r), no opts) stays fixed at ~1 year —
+       matches the modal chart's own default timeframe (data-tf="252") —
+       independent of whatever the main WINDOW buttons are set to.
        The 3M/6M/9M/1Y/2Y/5Y table views each pass their OWN window via opts, so
        "Dist POC" there tracks whichever timeframe is currently selected (2Y/5Y
        read weekly bars from candles_weekly.json — the daily candles.json export is
        only ~252 sessions / 1Y, see POC_WEEKS_BY_W below). ── */
-    const POC_WINDOW_DAYS = 126;
+    const POC_WINDOW_DAYS = 252;
     const POC_DAYS_BY_W  = { "3M": 63, "6M": 126, "9M": 189, "1Y": 252 };
     const POC_WEEKS_BY_W = { "2Y": 104, "5Y": 260 };
     function computePocDist(r, opts) {
@@ -1900,7 +1900,7 @@
       "Dist20":          { label: "Dist SMA20",    desc: "Absolute distance between price and the 20-day moving average, as a percentage. Green = price above the average, red = price below it." },
       "Dist200":         { label: "Dist SMA200",   desc: "Absolute distance between price and the 200-day moving average, as a percentage. Green = price above the average, red = price below it. Trading close to (or just under) the SMA200 is a common technical read for a potential entry point, since the average often acts as long-term support — not a guarantee." },
       "MacdPct":         { label: "MACD",          desc: "Absolute distance between the MACD line and the signal line (standard 12/26/9), as a percentage of price. Green = MACD line above the signal line (bullish bias). Red = below (bearish bias). The color flips exactly when the two lines cross." },
-      "PocDist":         { label: "Dist POC",      desc: "Absolute distance between the current price and the volume profile's point of control — the price level that traded the most volume over the selected window (fixed to the last ~6 months in the TECH tab) — as a percentage. Green = price above that level, red = below. The point of control often acts as a magnet or as support/resistance, so a small distance means price is sitting right at the level with the heaviest historical trading. Same calculation as the chart's Vol Profile overlay. Shown for 3M through 5Y, and in TECH." },
+      "PocDist":         { label: "Dist POC",      desc: "Absolute distance between the current price and the volume profile's point of control — the price level that traded the most volume over the selected window (fixed to the last ~1 year in the TECH tab) — as a percentage. Green = price above that level, red = below. The point of control often acts as a magnet or as support/resistance, so a small distance means price is sitting right at the level with the heaviest historical trading. Same calculation as the chart's Vol Profile overlay. Shown for 3M through 5Y, and in TECH." },
       "VolRank":         { label: "VOL RANK",      desc: "Where today's volume ranks among all trading days in the selected window (1 = highest-volume day in that window). Only shown for 3M through 1Y." },
     };
 
