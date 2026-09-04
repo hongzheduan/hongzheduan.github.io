@@ -2929,6 +2929,16 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       const r = await fetch("data/market_news_cn.json?" + Date.now());
       if (!r.ok) throw new Error(r.status);
       _news = await r.json();
+      // The daily CN translation step is occasionally rate-limited by Google and
+      // lands an empty items array; fall back to the English feed so the panel is
+      // never blank (renderNews already prefers it.title_cn when present).
+      if (!_news.items || !_news.items.length) {
+        const rEn = await fetch("data/market_news.json?" + Date.now());
+        if (rEn.ok) {
+          const en = await rEn.json();
+          if (en.items && en.items.length) _news = { fetched: _news.fetched || en.fetched, items: en.items };
+        }
+      }
       renderNews(_news);
       const note = document.getElementById("newsUpdatedNote");
       if (note && _news.fetched) note.textContent = "（每日更新 · " + _news.fetched + "）";
