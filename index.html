@@ -2073,7 +2073,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     target = target || 'index_news.html';
     label = label || 'Index Membership News & Records';
     const user = firebase.auth().currentUser;
-    if (authOnly) {
+    if (authOnly || window.FREE_ACCESS_MODE) {
       window.location.href = user ? target : 'login.html';
       return;
     }

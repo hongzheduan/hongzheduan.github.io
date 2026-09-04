@@ -2087,7 +2087,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     target = target || 'index_news_cn.html';
     message = message || '成分股变动记录仅对订阅用户开放。';
     const user = firebase.auth().currentUser;
-    if (authOnly) {
+    if (authOnly || window.FREE_ACCESS_MODE) {
       window.location.href = user ? target : 'login_cn.html';
       return;
     }
