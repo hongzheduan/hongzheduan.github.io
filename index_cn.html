@@ -2790,30 +2790,36 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
 // 首页指数新闻面板
 (function() {
+  // 标普500 与 纳指100 合并为一个「调入」、一个「调出」标签（各自涵盖两个指数）；
+  // 每条新闻的所属指数放在下方的元信息行，避免合并后丢失区分。
   const CATS = [
-    { key: "S&P 500 addition",    label: "标普500 调入",  cls: "hp-add" },
-    { key: "S&P 500 removal",     label: "标普500 调出",  cls: "hp-rem" },
-    { key: "Nasdaq-100 addition", label: "纳指100 调入",  cls: "hp-add" },
-    { key: "Nasdaq-100 removal",  label: "纳指100 调出",  cls: "hp-rem" },
+    { key: "add", label: "调入", cls: "hp-add", cats: ["S&P 500 addition", "Nasdaq-100 addition"] },
+    { key: "rem", label: "调出", cls: "hp-rem", cats: ["S&P 500 removal",  "Nasdaq-100 removal"]  },
   ];
+  const INDEX_CN = { "S&P 500": "标普500", "Nasdaq-100": "纳指100" };
   let allItems = [], activeKey = CATS[0].key;
 
   function escHtml(s) {
     return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
+  function indexOf(it) {
+    const raw = (it.category || "").replace(/\s+(addition|removal)$/i, "").trim();
+    return INDEX_CN[raw] || raw;
+  }
 
   function renderList(key) {
     const list = document.getElementById("hpNewsList");
     if (!list) return;
+    const cat = CATS.find(c => c.key === key) || CATS[0];
     // 扫描器仅在某条新闻的真实发布日期核实为 2 天内时才「新增」，
     // 之后会保留在列表中（见 fetch_and_save_index_news）；这里按原样渲染。
-    const items = allItems.filter(it => it.category === key).slice(0, 8);
+    const items = allItems.filter(it => cat.cats.includes(it.category)).slice(0, 8);
     if (!items.length) { list.innerHTML = '<div class="hp-news-msg">暂无成分股变动新闻。</div>'; return; }
     list.innerHTML = items.map(it => {
       const suffix = " - " + it.source;
       const titleEn = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title;
       const title = it.title_cn || titleEn;
-      const meta = [it.date, it.source].filter(Boolean).map(escHtml).join(" · ");
+      const meta = [indexOf(it), it.date, it.source].filter(Boolean).map(escHtml).join(" · ");
       return `<div class="hp-news-item">
         <a class="hp-news-item-title" href="${it.link}" target="_blank" rel="noopener noreferrer">${escHtml(title)}</a>
         <div class="hp-news-item-meta">${meta}</div>
@@ -2825,7 +2831,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     const tabsEl = document.getElementById("hpCatTabs");
     if (!tabsEl) return;
     tabsEl.innerHTML = CATS.map(cat => {
-      const count = allItems.filter(it => it.category === cat.key).length;
+      const count = allItems.filter(it => cat.cats.includes(it.category)).length;
       return `<button class="hp-cat-tab${cat.key === activeKey ? ' ' + cat.cls : ''}" data-key="${cat.key}" data-cls="${cat.cls}" onclick="hpSelectTab('${cat.key}')">${cat.label} (${count})</button>`;
     }).join("");
   }

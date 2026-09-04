@@ -2885,29 +2885,33 @@ function buildSparkPath(arr) {
 
 // Homepage news panel
 (function() {
+  // S&P 500 and Nasdaq-100 are combined into one ADD / one REM tab (each spans both
+  // indexes); the per-item index is shown in the meta line so the distinction isn't lost.
   const CATS = [
-    { key: "S&P 500 addition",    label: "S&P 500 ADD",  cls: "hp-add" },
-    { key: "S&P 500 removal",     label: "S&P 500 REM",  cls: "hp-rem" },
-    { key: "Nasdaq-100 addition", label: "NDX-100 ADD",  cls: "hp-add" },
-    { key: "Nasdaq-100 removal",  label: "NDX-100 REM",  cls: "hp-rem" },
+    { key: "add", label: "ADDITIONS", cls: "hp-add", cats: ["S&P 500 addition", "Nasdaq-100 addition"] },
+    { key: "rem", label: "REMOVALS",  cls: "hp-rem", cats: ["S&P 500 removal",  "Nasdaq-100 removal"]  },
   ];
   let allItems = [], activeKey = CATS[0].key;
 
   function escHtml(s) {
     return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
+  function indexOf(it) {
+    return (it.category || "").replace(/\s+(addition|removal)$/i, "").trim();
+  }
 
   function renderList(key) {
     const list = document.getElementById("hpNewsList");
     if (!list) return;
+    const cat = CATS.find(c => c.key === key) || CATS[0];
     // The scanner only ADDS an item once its real publish date is verified <=2 days old,
     // then keeps it on the feed (see fetch_and_save_index_news); we render as-is.
-    const items = allItems.filter(it => it.category === key).slice(0, 8);
+    const items = allItems.filter(it => cat.cats.includes(it.category)).slice(0, 8);
     if (!items.length) { list.innerHTML = '<div class="hp-news-msg">No recent membership-change news.</div>'; return; }
     list.innerHTML = items.map(it => {
       const suffix = " - " + it.source;
       const title = it.title.endsWith(suffix) ? it.title.slice(0, -suffix.length) : it.title;
-      const meta = [it.date, it.source].filter(Boolean).map(escHtml).join(" · ");
+      const meta = [indexOf(it), it.date, it.source].filter(Boolean).map(escHtml).join(" · ");
       return `<div class="hp-news-item">
         <a class="hp-news-item-title" href="${it.link}" target="_blank" rel="noopener noreferrer">${escHtml(title)}</a>
         <div class="hp-news-item-meta">${meta}</div>
@@ -2919,7 +2923,7 @@ function buildSparkPath(arr) {
     const tabsEl = document.getElementById("hpCatTabs");
     if (!tabsEl) return;
     tabsEl.innerHTML = CATS.map(cat => {
-      const count = allItems.filter(it => it.category === cat.key).length;
+      const count = allItems.filter(it => cat.cats.includes(it.category)).length;
       return `<button class="hp-cat-tab${cat.key === activeKey ? ' ' + cat.cls : ''}" data-key="${cat.key}" data-cls="${cat.cls}" onclick="hpSelectTab('${cat.key}')">${cat.label} (${count})</button>`;
     }).join("");
   }
