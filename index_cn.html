@@ -1888,12 +1888,16 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
         </a>
         <span class="footer-video-links">每日榜单 （<a id="videoWatchLink" href="data/latest_video_cn.mp4" target="_blank">最新视频</a> <a id="videoDownloadLink" href="data/latest_video_cn.mp4" download title="下载">↓</a>）</span>
       </div>
+      <!-- CN news ("Market Pulse") video paused 2026-09-04 (scanner.yml NEWS_VIDEO_CN="off").
+           Kept here commented-out for easy restore if CN news video is resumed. -->
+      <!--
       <div class="footer-social">
         <a href="https://www.youtube.com/@baizora-en3" target="_blank" rel="noopener" class="footer-social-icon" title="新闻频道" aria-label="新闻频道">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#dc2626"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
         </a>
         <span class="footer-video-links">新闻频道 （<a id="newsVideoWatchLink" href="data/latest_video_news_cn.mp4" target="_blank"><span id="newsVideoDate">最新</span></a> <a id="newsVideoDownloadLink" href="data/latest_video_news_cn.mp4" download title="下载">↓</a>）</span>
       </div>
+      -->
       <div class="footer-social">
         <a href="https://www.linkedin.com/company/baizora" target="_blank" rel="noopener" class="footer-social-icon" title="LinkedIn" aria-label="LinkedIn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
@@ -2999,6 +3003,8 @@ fetch('data/latest_video_meta.json').then(r => r.json()).then(m => {
   if (dl && m.cn.url) dl.href = 'data/latest_video_cn.mp4';
 }).catch(() => {});
 
+/* CN news ("Market Pulse") video paused 2026-09-04 (scanner.yml NEWS_VIDEO_CN="off").
+   Kept commented-out for easy restore alongside the footer 新闻频道 link.
 fetch('data/latest_video_news_meta.json').then(r => r.json()).then(m => {
   if (!m.cn) return;
   const watch  = document.getElementById('newsVideoWatchLink');
@@ -3008,6 +3014,7 @@ fetch('data/latest_video_news_meta.json').then(r => r.json()).then(m => {
   if (watch && m.cn.url) watch.href = m.cn.url;
   if (dl && m.cn.url) dl.href = 'data/latest_video_news_cn.mp4';
 }).catch(() => {});
+*/
 
 function shareCardDownload(file, ticker, dateStr) {
   const user = firebase.auth().currentUser;

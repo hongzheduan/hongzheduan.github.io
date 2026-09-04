@@ -60,6 +60,13 @@ env:
   # matching live-intraday-price switch.
   OHLCV_SOURCE_SWITCH: "yfinance"
 
+  # Market-news ("Market Pulse") video: EN always runs; CN is gated on this flag.
+  # Set to "on" to resume generating + uploading the CN news video, then uncomment
+  # the 新闻频道 footer block + its JS in index_cn.html (both left in place,
+  # commented out, 2026-09-04 when this was flipped to "off"). "off" leaves the
+  # last CN news video frozen in data/, no fresh renders. EN news is unaffected.
+  NEWS_VIDEO_CN: "off"
+
 jobs:
   run-scanner:
     runs-on: ubuntu-latest
@@ -757,7 +764,9 @@ jobs:
           else
             python video/generate_news_report.py --lang en --output video/news_report_en.mp4 --date "$NEWS_DATE" || true
           fi
-          if [ -n "$SKIP_CN" ]; then
+          if [ "${NEWS_VIDEO_CN:-off}" != "on" ]; then
+            echo "CN news video disabled (NEWS_VIDEO_CN != 'on') — skipping generation"
+          elif [ -n "$SKIP_CN" ]; then
             echo "CN news video already generated today — skipping retry"
           else
             python video/generate_news_report.py --lang cn --output video/news_report_cn.mp4 --date "$NEWS_DATE" || true
@@ -813,7 +822,9 @@ jobs:
           # and --type diverge for EN specifically. Map them explicitly rather than
           # assuming "$type.mp4" is the real file (that mismatch silently made every EN
           # news video skip its own upload while CN uploaded fine).
-          for pair in "news_report:news_report_en" "news_report_cn:news_report_cn"; do
+          PAIRS="news_report:news_report_en"
+          [ "${NEWS_VIDEO_CN:-off}" = "on" ] && PAIRS="$PAIRS news_report_cn:news_report_cn"
+          for pair in $PAIRS; do
             TYPE="${pair%%:*}"
             FILE="${pair##*:}"
             if [ -f "video/${FILE}.mp4" ]; then
@@ -851,7 +862,9 @@ jobs:
         if: env.IS_HOLIDAY != 'True' && env.IS_NEWS_RUN == 'True'
         run: |
           SKIPPED=""
-          for pair in "news_report:news_report_en" "news_report_cn:news_report_cn"; do
+          PAIRS="news_report:news_report_en"
+          [ "${NEWS_VIDEO_CN:-off}" = "on" ] && PAIRS="$PAIRS news_report_cn:news_report_cn"
+          for pair in $PAIRS; do
             TYPE="${pair%%:*}"
             FILE="${pair##*:}"
             [ ! -f "video/${FILE}.mp4" ] && SKIPPED="$SKIPPED $TYPE"
