@@ -1924,6 +1924,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     </div>
   </div>
   <div class="footer-disclaimer">贝佐拉仅提供市场数据，供参考使用，不构成任何投资建议。</div>
+  <div class="footer-copy" id="visitorCountLine">访问量：<span id="visitorCount">1,500</span></div>
 </footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -3202,6 +3203,26 @@ fetch('data/latest_social_cards_meta.json').then(r => r.json()).then(cards => {
       <a id="hpGateSignin" href="login_cn.html" style="font-size:13px;color:#60a5fa;text-decoration:none;">已有订阅？登录 →</a>
     </div>
   </div>
+
+  <!-- 首页访问量计数 — 后端: functions/index.js /visits -->
+  <script>
+  (function () {
+    var API = "https://us-central1-baizora.cloudfunctions.net/api/visits";
+    var el = document.getElementById("visitorCount");
+    if (!el) return;
+    var counted = false;
+    try { counted = !!sessionStorage.getItem("bz_visit_counted"); } catch (e) {}
+    fetch(counted ? API : API + "?bump=1")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (d && typeof d.count === "number") {
+          el.textContent = d.count.toLocaleString("en-US");
+          try { sessionStorage.setItem("bz_visit_counted", "1"); } catch (e) {}
+        }
+      })
+      .catch(function () { /* 保留静态回退数字 */ });
+  })();
+  </script>
 
 </body>
 </html>

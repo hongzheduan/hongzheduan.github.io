@@ -801,6 +801,49 @@ app.post("/chat", express.json(), async (req, res) => {
 });
 
 /* ---------------------------
+   HOMEPAGE VISITOR COUNTER
+   Single Firestore doc stats/visitors { count }.
+     GET /visits          -> { count }             read only, for repeat views in a session
+     GET /visits?bump=1   -> { count }, increments  once per browser session (guarded client side)
+   GET with a query flag (not POST) so the plain fetch needs no body / Content-Length header,
+   which the Cloud Run front end rejects with 411.
+   Seeded at _VISITS_SEED on first write so the number reads realistically from launch.
+   Averages a tiny fraction of Firestore's ~1 write/sec single-doc limit at current traffic;
+   if the site ever spikes past that, switch to a sharded counter.
+--------------------------- */
+const _VISITS_SEED = 1500;
+const _visitsRef = () => admin.firestore().collection("stats").doc("visitors");
+
+app.get("/visits", async (req, res) => {
+  try {
+    const ref = _visitsRef();
+
+    if (!req.query.bump) {
+      const snap = await ref.get();
+      const count = snap.exists ? (snap.data().count || _VISITS_SEED) : _VISITS_SEED;
+      res.set("Cache-Control", "public, max-age=60");
+      return res.json({ count });
+    }
+
+    const count = await admin.firestore().runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const current = snap.exists ? (snap.data().count || _VISITS_SEED) : _VISITS_SEED;
+      const next = current + 1;
+      tx.set(ref, {
+        count: next,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+      return next;
+    });
+    res.set("Cache-Control", "no-store");
+    res.json({ count });
+  } catch (e) {
+    console.error("visits:", e.message);
+    res.status(500).json({ error: "unavailable" });
+  }
+});
+
+/* ---------------------------
    EXPORT
 --------------------------- */
 exports.api = onRequest(

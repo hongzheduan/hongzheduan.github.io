@@ -1919,6 +1919,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     </div>
   </div>
   <div class="footer-disclaimer">Baizora provides market data for informational purposes only. Not financial advice.</div>
+  <div class="footer-copy" id="visitorCountLine">Visitors: <span id="visitorCount">1,500</span></div>
 </footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -3182,6 +3183,26 @@ fetch('data/latest_social_cards_meta.json').then(r => r.json()).then(cards => {
       <a id="hpGateSignin" href="login.html" style="font-size:13px;color:#60a5fa;text-decoration:none;">Already subscribed? Sign in →</a>
     </div>
   </div>
+
+  <!-- Homepage visitor counter — backend: functions/index.js /visits -->
+  <script>
+  (function () {
+    var API = "https://us-central1-baizora.cloudfunctions.net/api/visits";
+    var el = document.getElementById("visitorCount");
+    if (!el) return;
+    var counted = false;
+    try { counted = !!sessionStorage.getItem("bz_visit_counted"); } catch (e) {}
+    fetch(counted ? API : API + "?bump=1")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (d && typeof d.count === "number") {
+          el.textContent = d.count.toLocaleString("en-US");
+          try { sessionStorage.setItem("bz_visit_counted", "1"); } catch (e) {}
+        }
+      })
+      .catch(function () { /* keep the static fallback number */ });
+  })();
+  </script>
 
 </body>
 </html>
