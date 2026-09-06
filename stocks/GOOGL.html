@@ -30,7 +30,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --navy:#060d1f; --navy-mid:#0d1e3d; --navy-light:#162847;
+      --navy:#012169; --navy-mid:#0d1e3d; --navy-light:#162847;
       --electric:#3b82f6; --electric-bright:#60a5fa;
       --gold:#f59e0b; --green:#22c55e; --red:#ef4444;
       --white:#ffffff; --muted:#cbd5e1; --border:rgba(255,255,255,0.09);
@@ -43,15 +43,12 @@
     nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border);}
     .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;}
     .logo-wrap img{height:32px;}
-    .logo-text{font-family:'DM Serif Display',serif;font-size:20px;color:#f8fafc;letter-spacing:-0.02em;}
+    .logo-text{font-family:'DM Serif Display',serif;font-size:clamp(20px, 5vw, 30px);color:#f8fafc;letter-spacing:-0.02em;}
     .nav-links{display:flex;gap:12px;align-items:center;}
     .nav-btn{padding:6px 16px;border-radius:8px;border:1px solid var(--border);font-size:14px;color:var(--muted);background:transparent;text-decoration:none;}
     .nav-btn-primary{background:var(--electric);color:white;border-color:var(--electric);}
 
     .page{max-width:1000px;margin:0 auto;padding:48px 24px 80px;}
-    .breadcrumb{font-size:13px;color:#64748b;margin-bottom:28px;}
-    .breadcrumb a{color:#64748b;}
-    .breadcrumb span{margin:0 6px;}
 
     .hero{margin-bottom:36px;}
     .company-name{font-size:15px;color:var(--muted);margin-bottom:6px;font-family:'DM Mono',monospace;letter-spacing:0.04em;}
@@ -63,32 +60,33 @@
     .badge{font-family:'DM Mono',monospace;font-size:12px;padding:4px 12px;border-radius:20px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:var(--electric-bright);}
     .scan-date{font-size:13px;color:#64748b;}
 
-    .summary-box{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;padding:24px 28px;margin-bottom:32px;line-height:1.75;color:var(--muted);font-size:15px;}
+    /* Content cards: white on the Duke-blue page (matches dashboard.html's .tool-card recipe) */
+    .summary-box{background:#ffffff;border:1px solid rgba(15,23,42,0.06);box-shadow:0 16px 40px rgba(0,0,0,0.35);border-radius:16px;padding:24px 28px;margin-bottom:32px;line-height:1.75;color:#334155;font-size:15px;}
 
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:32px;}
-    .stat-card{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:12px;padding:16px 20px;}
+    .stat-card{background:#ffffff;border:1px solid rgba(15,23,42,0.06);box-shadow:0 16px 40px rgba(0,0,0,0.35);border-radius:12px;padding:16px 20px;}
     .stat-label{font-family:'DM Mono',monospace;font-size:11px;color:#64748b;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;}
-    .stat-value{font-size:20px;font-weight:600;}
+    .stat-value{font-size:20px;font-weight:600;color:#0f172a;}
     .stat-sub{font-size:12px;color:#64748b;margin-top:2px;}
 
-    .section-title{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:14px;}
+    .section-title{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:14px;}
 
-    .chart-box{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:32px;}
+    .chart-box{background:#ffffff;border:1px solid rgba(15,23,42,0.06);box-shadow:0 16px 40px rgba(0,0,0,0.35);border-radius:16px;overflow:hidden;margin-bottom:32px;}
     .chart-box canvas{width:100%;height:360px;display:block;}
 
-    .tf-box{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:32px;}
+    .tf-box{background:#ffffff;border:1px solid rgba(15,23,42,0.06);box-shadow:0 16px 40px rgba(0,0,0,0.35);border-radius:16px;overflow:hidden;margin-bottom:32px;}
     table{width:100%;border-collapse:collapse;}
-    thead th{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;padding:14px 20px;text-align:left;border-bottom:1px solid var(--border);}
-    tbody tr{border-bottom:1px solid var(--border);}
+    thead th{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748b;padding:14px 20px;text-align:left;border-bottom:1px solid rgba(15,23,42,0.1);}
+    tbody tr{border-bottom:1px solid rgba(15,23,42,0.08);}
     tbody tr:last-child{border-bottom:none;}
-    tbody td{padding:14px 20px;font-size:15px;}
-    .tf-label{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);}
+    tbody td{padding:14px 20px;font-size:15px;color:#1e293b;}
+    .tf-label{font-family:'DM Mono',monospace;font-size:13px;color:#475569;}
     .dim{color:#94a3b8;}
 
     .peers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:32px;}
-    .peer-card{background:rgba(13,30,61,0.6);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-decoration:none;transition:border-color 0.15s,background 0.15s;}
-    .peer-card:hover{border-color:rgba(59,130,246,0.4);background:rgba(13,30,61,0.9);text-decoration:none;}
-    .peer-ticker{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:var(--white);margin-bottom:3px;}
+    .peer-card{background:#ffffff;border:1px solid rgba(15,23,42,0.06);box-shadow:0 16px 40px rgba(0,0,0,0.35);border-radius:12px;padding:14px 16px;text-decoration:none;transition:border-color 0.15s,background 0.15s;}
+    .peer-card:hover{border-color:rgba(59,130,246,0.4);background:#f8fafc;text-decoration:none;}
+    .peer-ticker{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:#0f172a;margin-bottom:3px;}
     .peer-name{font-size:12px;color:#64748b;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .peer-chg{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;}
 
@@ -97,7 +95,9 @@
     .cta-box p{color:var(--muted);margin-bottom:20px;font-size:15px;}
     .btn-gold{display:inline-block;padding:12px 32px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;font-weight:600;font-size:15px;text-decoration:none;}
 
-    footer{border-top:1px solid var(--border);padding:24px 40px;text-align:center;font-size:13px;color:#475569;line-height:2;}
+    footer{background:#4b9cd3;border-top:1px solid #3a86bf;padding:24px 40px;text-align:center;font-size:13px;color:#08213f;line-height:2;}
+    footer a{color:#08213f;}
+    footer a:hover{color:#ffffff;text-decoration:none;}
 
     @media(max-width:600px){
       nav{padding:14px 20px;}
@@ -112,7 +112,6 @@
 
 <nav>
   <a href="../" class="logo-wrap">
-    <img src="../assets/baize_favicon_v2.png" alt="Baizora">
     <span class="logo-text">Baiz<span style="color:#3b82f6;">ora</span></span>
   </a>
   <div class="nav-links">
@@ -122,10 +121,6 @@
 </nav>
 
 <div class="page">
-
-  <div class="breadcrumb">
-    <a href="../">Home</a><span>›</span>Stocks<span>›</span>GOOGL
-  </div>
 
   <div class="hero">
     <div class="company-name">Alphabet Inc.</div>
@@ -280,7 +275,6 @@
 </div>
 
 <footer>
-  <a href="../">Baizora</a> &nbsp;·&nbsp;
   <a href="../assets/about.html">About</a> &nbsp;·&nbsp;
   <a href="../assets/faq.html">FAQ</a> &nbsp;·&nbsp;
   <a href="../assets/privacy.html">Privacy</a> &nbsp;·&nbsp;
@@ -288,7 +282,7 @@
   <br>
   For informational purposes only. Not financial advice. Data updated daily after US market close.
   <br>
-  <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.04em;">Market Data Sourced by <a href="https://www.tiingo.com" target="_blank" rel="noopener" style="color:#475569;text-decoration:none;">Tiingo.com</a></span>
+  <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.04em;">Market Data &middot; Updated Daily After Market Close</span>
 </footer>
 
 
@@ -330,7 +324,7 @@
     for (var gi = 0; gi <= 4; gi++) {
       var p = lo + (hi - lo) * (gi / 4);
       var y = toY(p);
-      ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(15,23,42,0.08)"; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
       ctx.fillStyle = "#64748b";
       ctx.fillText(p >= 1000 ? p.toFixed(0) : p.toFixed(2), pad.left - 5, y + 4);
@@ -380,7 +374,7 @@
     if (hasVol) {
       var volTop = pad.top + priceH + gap;
       var maxVol = Math.max.apply(null, OHLCV.map(function(c) { return c[4] || 0; }));
-      ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(15,23,42,0.08)"; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(pad.left, volTop); ctx.lineTo(W - pad.right, volTop); ctx.stroke();
       ctx.fillStyle = "#475569"; ctx.font = "9px 'DM Mono',monospace"; ctx.textAlign = "right";
       ctx.fillText("VOL", pad.left - 5, volTop + 9);
