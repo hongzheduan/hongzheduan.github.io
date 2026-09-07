@@ -196,6 +196,10 @@
         <td>.github/workflows/scanner.yml<br><span class="inline-code">NEWS_VIDEO_CN</span></td>
         <td><strong>Not billing-related</strong> — listed here only because it's another video-pipeline reversible flag. Added 2026-09-04 to pause the Chinese-language "Market Pulse" market-news video (EN is unaffected). Top-level <span class="inline-code">env: NEWS_VIDEO_CN: "off"</span>; the Generate / Upload / worklog steps skip CN unless it's <span class="inline-code">"on"</span>. No Python was removed — <span class="inline-code">generate_news_report.py</span> / <span class="inline-code">upload_youtube.py</span> CN branches are intact. To resume: set the flag to <span class="inline-code">"on"</span> <em>and</em> uncomment the <span class="inline-code">新闻频道</span> footer block plus its <span class="inline-code">latest_video_news_meta.json</span> JS fetch in <span class="inline-code">index_cn.html</span> (both left in place, commented out). <span class="inline-code">data/latest_video_news_cn.mp4</span> and <span class="inline-code">meta.cn</span> stay frozen at their last values while off.</td>
       </tr>
+      <tr>
+        <td>robots.txt</td>
+        <td><strong>Not billing-related</strong> — part of the "private mode" initiative (Yahoo Finance ToS compliance, 2026-09-07). The whole file was replaced with a blanket <span class="inline-code">User-agent: *</span> / <span class="inline-code">Disallow: /</span> to stop all search-engine crawling and indexing, and the <span class="inline-code">Sitemap:</span> line was dropped. To restore public crawling: revert the file to its prior contents (the earlier per-page <span class="inline-code">Allow: /</span> + specific <span class="inline-code">Disallow</span> list is in git history — <span class="inline-code">git log -p -- robots.txt</span>) and re-add <span class="inline-code">Sitemap: https://baizora.com/sitemap.xml</span>. Note: <span class="inline-code">robots.txt</span> is forward-looking only — pages already indexed won't drop out on their own; use a Google Search Console removal request if that's needed.</td>
+      </tr>
     </table>
 
     <div class="warning-box">

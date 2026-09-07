@@ -1,25 +1,5 @@
+# Baizora is in private mode (2026-09-07). Disallow all crawling and indexing.
+# To restore public crawling, revert this file (see git history for the prior
+# per-page all/disallow list) and re-add the Sitemap line.
 User-agent: *
-Allow: /
-
-# Block authenticated / post-payment pages
-Disallow: /dashboard.html
-Disallow: /dashboard_cn.html
-Disallow: /account.html
-Disallow: /account_cn.html
-Disallow: /billing.html
-Disallow: /billing_cn.html
-Disallow: /baizora_main_form.html
-Disallow: /baizora_main_form_cn.html
-Disallow: /success.html
-Disallow: /success_cn.html
-
-# Sign-in-gated pages (redirect to login.html for signed-out visitors, incl. Googlebot)
-Disallow: /index_news.html
-Disallow: /index_news_cn.html
-Disallow: /market_news.html
-Disallow: /market_news_cn.html
-
-# Internal testing pages (not for production use)
-Disallow: /baizora_yfinance_beta.html
-
-Sitemap: https://baizora.com/sitemap.xml
+Disallow: /
