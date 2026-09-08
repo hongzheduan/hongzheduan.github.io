@@ -487,7 +487,7 @@
   });
 </script>
 
-<script src="assets/feature_flags.js?v=3"></script>
+<script src="assets/feature_flags.js?v=4"></script>
 <script src="assets/candlestick-chart.js?v=6"></script>
 <script>
   /* Mobile menu */
@@ -513,6 +513,7 @@
 
   /* Auth */
   firebase.auth().onAuthStateChanged(function(user) {
+    if (window.BAIZORA_PRIVATE_MODE && !user) { window.location.replace('login.html'); return; }   /* private mode: sign-in required — revert via assets/feature_flags.js */
     const btn      = document.getElementById('navLoginLogout');
     const dashBtn  = document.getElementById('navDashBtn');
     const emailEl  = document.getElementById('navUserEmail');

@@ -1047,7 +1047,7 @@
   </div>
 
 
-  <script src="assets/feature_flags.js?v=3"></script>
+  <script src="assets/feature_flags.js?v=4"></script>
   <script>
 
     /* ── CHART ICON ── */
@@ -2750,6 +2750,7 @@
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     onAuthStateChanged(auth, user => {
+      if (window.BAIZORA_PRIVATE_MODE && !user) { window.location.replace("login.html"); return; }   /* private mode: sign-in required — revert via assets/feature_flags.js */
       window._ftUser = user || null;
       const loginBtn       = document.getElementById("navLoginBtn");
       const emailEl        = document.getElementById("navUserEmail");

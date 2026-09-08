@@ -403,7 +403,20 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
     gtag('js', new Date());
     gtag('config', 'G-DWEPM8KFM9');
   </script>
-  <script src="../assets/feature_flags.js?v=3"></script>
+  <script src="../assets/feature_flags.js?v=4"></script>
+  <!-- Private mode (2026-09-08): sign-in required to view stock data (Yahoo Finance ToS compliance) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({{
+      apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
+      authDomain: "baizora.firebaseapp.com",
+      projectId: "baizora"
+    }});
+    firebase.auth().onAuthStateChanged(function(user) {{
+      if (window.BAIZORA_PRIVATE_MODE && !user) {{ window.location.replace("../login.html"); return; }}  /* revert via assets/feature_flags.js */
+    }});
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{ticker} {"ETF" if is_etf else "Stock"} Analysis | {name} Price &amp; Volume Trends | Baizora</title>

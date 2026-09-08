@@ -94,7 +94,8 @@
     <a href="#prereq">Prerequisites</a>
     <a href="#scanner">1. scanner.yml</a>
     <a href="#flags">2. feature_flags.js</a>
-    <a href="#attribution">3. Attribution text (optional)</a>
+    <a href="#private">3. Private mode + robots.txt</a>
+    <a href="#attribution">4. Attribution text (optional)</a>
     <a href="#verify">Verification</a>
     <a href="#order">Recommended order</a>
   </nav>
@@ -112,6 +113,7 @@
     <!-- OVERVIEW -->
     <h2 id="overview">Overview</h2>
     <p>In 2026-08, with no paying customers yet, Baizora switched from Tiingo's paid API to free yfinance for daily price/volume data, and disabled the live intraday price feature sitewide, to cut recurring cost. Both changes are controlled by exactly two flags — nothing else needs code changes to switch back. Fundamentals (SEC EDGAR) were never affected either way.</p>
+    <p>On 2026-09-07/08, while still on yfinance, the site was also locked down to reduce Yahoo Finance ToS exposure: <span class="inline-code">robots.txt</span> blocks all crawlers, and the previously-public data pages now require sign-in (flag <span class="inline-code">BAIZORA_PRIVATE_MODE</span>). Section 3 covers reverting both — do it when there's a licensed data source again.</p>
 
     <!-- PREREQ -->
     <h2 id="prereq">Prerequisites</h2>
@@ -140,8 +142,22 @@
       <p><strong>⚠ Manual copy fix — not flag-driven:</strong> on 2026-08-05, the "Live pricing" marketing bullet was removed from the Monthly plan feature list on <span class="inline-code">pricing.html</span> (<em>"Live pricing · daily scoring after market close"</em> → <em>"Daily scoring after market close"</em>) and its CN mirror <span class="inline-code">pricing_cn.html</span> (<em>"实时价格 · 每日盘后评分更新"</em> → <em>"每日盘后评分更新"</em>), since live pricing wasn't actually available. This is static marketing copy, not gated by <span class="inline-code">BAIZORA_LIVE_PRICES</span> — flipping the flag back to <span class="inline-code">true</span> will <strong>not</strong> restore it. Manually re-add the "Live pricing" clause to both files' Monthly plan bullet list once live pricing is back.</p>
     </div>
 
-    <!-- FILE 3 -->
-    <h2 id="attribution">3. Attribution / legal text <span class="line-ref">optional — not required for functionality</span></h2>
+    <!-- PRIVATE MODE -->
+    <h2 id="private">3. <span class="file-badge">assets/feature_flags.js</span> + <span class="file-badge">robots.txt</span> <span class="line-ref">private-site lockdown</span></h2>
+    <p>While price/volume data came from free yfinance, the site was also locked down to reduce Yahoo Finance ToS exposure (2026-09-07/08). Two independent reverts, both safe to do the moment there's a licensed data source again:</p>
+    <h3>3a. Re-open the previously-public data pages</h3>
+    <p>One line in <span class="inline-code">assets/feature_flags.js</span>:</p>
+    <pre><code><span class="del">window.BAIZORA_PRIVATE_MODE = true;</span>
+<span class="add">window.BAIZORA_PRIVATE_MODE = false;</span></code></pre>
+    <p>Effect: signed-out visitors stop being redirected to <span class="inline-code">login.html</span> on <span class="inline-code">baizora_main_form_freetier.html</span> (+ <span class="inline-code">_cn</span>), <span class="inline-code">top-price-movers.html</span>, <span class="inline-code">unusual-volume.html</span>, and all 24 <span class="inline-code">stocks/*.html</span>. Each gate is written <span class="inline-code">if (window.BAIZORA_PRIVATE_MODE &amp;&amp; !user) …</span>, so the single flag flip re-opens every one — no per-page edit. The stock-page gate also lives in <span class="inline-code">generate_stock_pages.py</span>'s template, so it survives the daily regen; flipping the flag is still all that's needed. Pages that were already login-only (dashboard, baizora_main_form, account, billing, chart_archive, index_news, market_news, market_heatmap) are unaffected. The homepage was deliberately never gated. Bump the <span class="inline-code">?v=</span> on <span class="inline-code">feature_flags.js</span> across all ~50 references in the same commit (currently <span class="inline-code">?v=4</span>) so cached copies don't keep the old value.</p>
+    <div class="optional-box">
+      <p>The <span class="inline-code">&lt;meta name="description"&gt;</span> on <span class="inline-code">top-price-movers.html</span> / <span class="inline-code">unusual-volume.html</span> still says "Free, no login required." — left untouched on purpose so it's accurate again the moment the flag flips off. No action needed either way.</p>
+    </div>
+    <h3>3b. Restore search-engine crawling</h3>
+    <p><span class="inline-code">robots.txt</span> was replaced with a blanket <span class="inline-code">User-agent: *</span> / <span class="inline-code">Disallow: /</span>. To go public again, restore the prior per-page allow/disallow list from git history (<span class="inline-code">git log -p -- robots.txt</span>) and re-add <span class="inline-code">Sitemap: https://baizora.com/sitemap.xml</span>. Note: pages already dropped from an index won't reappear instantly; robots.txt only controls crawling going forward.</p>
+
+    <!-- FILE 4 -->
+    <h2 id="attribution">4. Attribution / legal text <span class="line-ref">optional — not required for functionality</span></h2>
     <div class="optional-box">
       <p>Switching the two flags above is enough to restore full Tiingo + live-price functionality on its own. This step is purely cosmetic: while yfinance was primary, every "sourced by" credit and legal-page data-sourcing sentence was reworded to avoid naming a specific vendor (e.g. "Market Data · Updated Daily After Market Close" instead of "Market Data Sourced by Tiingo.com"). That generic wording stays accurate and safe even after switching back — there's no urgency to touch it. Only do this if you specifically want "Tiingo.com" branding restored.</p>
     </div>
@@ -170,18 +186,19 @@
     <ol style="padding-left:20px;">
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">1</span> Confirm both Tiingo credentials are valid (prerequisites above) — go/no-go gate, no code change</li>
       <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">2</span> Edit <strong>scanner.yml</strong> — flip <span class="inline-code">OHLCV_SOURCE_SWITCH</span></li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">3</span> Edit <strong>assets/feature_flags.js</strong> — flip <span class="inline-code">BAIZORA_LIVE_PRICES</span></li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">4</span> Commit both together, push</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">5</span> Manually trigger the workflow to verify immediately rather than waiting for the next cron</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">6</span> Run through the Verification checklist above</li>
-      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">7</span> (Optional) restore Tiingo-branded attribution text — see section 3</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">3</span> Edit <strong>assets/feature_flags.js</strong> — flip <span class="inline-code">BAIZORA_LIVE_PRICES</span>, and (if going public) flip <span class="inline-code">BAIZORA_PRIVATE_MODE</span> to <span class="inline-code">false</span> too; bump <span class="inline-code">feature_flags.js?v=</span> across all references</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">4</span> (If going public) restore <strong>robots.txt</strong> from git history — see section 3b</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">5</span> Commit together, push</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">6</span> Manually trigger the workflow to verify immediately rather than waiting for the next cron</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">7</span> Run through the Verification checklist above</li>
+      <li style="margin-bottom:8px;font-size:14px;color:#cbd5e1;line-height:1.6;"><span class="step-num">8</span> (Optional) restore Tiingo-branded attribution text — see section 4</li>
     </ol>
 
     <div class="tip-box" style="margin-top:32px;">
       <p>After pushing, GitHub Pages can take 1–3 minutes to propagate. Hard-refresh (Ctrl+Shift+R) before testing on the live site.</p>
     </div>
 
-    <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-08-01 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
+    <p style="margin-top:48px;font-family:'DM Mono',monospace;font-size:11px;color:#334155;">Last updated: 2026-09-08 · See also: <a href="methodology_2026-05-31.html" style="color:#475569;">Data Methodology</a></p>
 
   </div>
 </div>

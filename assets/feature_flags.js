@@ -9,6 +9,20 @@
 // close" label instead of live-updating.
 window.BAIZORA_LIVE_PRICES = false;
 
+// BAIZORA_PRIVATE_MODE: "private site" lockdown (2026-09-08), added to reduce
+// Yahoo Finance ToS exposure while price/volume data comes from free yfinance
+// (see assets/revert_yfinance_switch_checklist.html). When true, pages that
+// previously showed scanner data with NO login now redirect signed-out visitors
+// to login.html: baizora_main_form_freetier(.html/_cn), top-price-movers.html,
+// unusual-volume.html, and all stocks/*.html. Each gate is written as
+// `if (window.BAIZORA_PRIVATE_MODE && !user) { location.replace('login.html') }`,
+// so flipping this to `false` and pushing re-opens all of them — no other file
+// needs touching. Pages that were already login-only (dashboard, baizora_main_form,
+// account, billing, chart_archive, index_news, market_news, market_heatmap) are
+// unaffected either way. Homepage (index.html/_cn) deliberately left ungated.
+// Pair the revert with restoring robots.txt (git history) when going public again.
+window.BAIZORA_PRIVATE_MODE = true;
+
 // FREE_ACCESS_MODE: site-wide "everything free while we test visitor interest"
 // switch (2026-08-10). When true, every subscription paywall treats any signed-in
 // user as fully entitled — login is still required, only the billing check is
