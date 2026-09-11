@@ -15212,11 +15212,11 @@
   "GLW": [
     {
       "date": "2026-07-28",
-      "eps": null,
+      "eps": 0.64,
       "items": "2.02",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-06-30",
+      "revenue": 4505000000,
       "type": [
         "earnings"
       ],
@@ -19786,6 +19786,18 @@
     }
   ],
   "KR": [
+    {
+      "date": "2026-09-11",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/56873/000110465926106890/tm2625060d1_8k.htm"
+    },
     {
       "date": "2026-09-02",
       "items": "5.02,7.01,9.01",
@@ -25212,11 +25224,11 @@
   "ORCL": [
     {
       "date": "2026-09-10",
-      "eps": null,
+      "eps": 1.56,
       "items": "2.02,8.01,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-08-31",
+      "revenue": 19345000000,
       "type": [
         "earnings"
       ],
@@ -29343,6 +29355,15 @@
     }
   ],
   "SNDK": [
+    {
+      "date": "2026-09-11",
+      "items": "1.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/2023554/000119312526389293/d138343d8k.htm"
+    },
     {
       "date": "2026-08-05",
       "eps": 44.34,
