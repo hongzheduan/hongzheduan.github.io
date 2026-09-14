@@ -415,3 +415,4 @@
 2026-09-13 09:59 UTC  EDGAR-only
   no-news-video (Claude API failed or no qualifying stories): news_report
 2026-09-14 18:58 UTC  manual-midday-test
+  no-news-video (Claude API failed or no qualifying stories): news_report
