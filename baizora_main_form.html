@@ -2657,10 +2657,10 @@
       document.getElementById("tickerModal").style.display = "flex";
       document.body.style.overflow = "hidden";
 
-      // reset timeframe to 5Y weekly; restore the user's saved SMA selection on each open
-      _modalRes = 'w';
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "260" && b.dataset.res === "w"));
-      document.getElementById("tfDrawerToggle").textContent = "5Y ▾";
+      // reset timeframe to 1Y daily; restore the user's saved SMA selection on each open
+      _modalRes = 'd';
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "252" && !b.dataset.res));
+      document.getElementById("tfDrawerToggle").textContent = "1Y ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
       _smaList = (smaPrefs.smaList && smaPrefs.smaList.length ? smaPrefs.smaList.slice(0, 5) : [20, 50, 200]);
@@ -2695,7 +2695,7 @@
       document.getElementById("baizDrawerToggle").classList.remove("open");
 
       requestAnimationFrame(() => {
-        _renderModalChart(ticker, 260);
+        _renderModalChart(ticker, 252);
       });
     }
 
@@ -3371,15 +3371,15 @@
       </div>
       <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
       <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="tfDrawerToggle">5Y &#9662;</button>
+        <button type="button" class="overlay-drawer-toggle" id="tfDrawerToggle">1Y &#9662;</button>
         <div class="overlay-drawer-panel" id="candleTimeframes" style="width:auto;">
           <button class="tf-btn" data-tf="5">1W</button>
           <button class="tf-btn" data-tf="21">1M</button>
           <button class="tf-btn" data-tf="63">3M</button>
           <button class="tf-btn" data-tf="126">6M</button>
-          <button class="tf-btn" data-tf="252">1Y</button>
+          <button class="tf-btn active" data-tf="252">1Y</button>
           <button class="tf-btn" data-tf="104" data-res="w">2Y</button>
-          <button class="tf-btn active" data-tf="260" data-res="w">5Y</button>
+          <button class="tf-btn" data-tf="260" data-res="w">5Y</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">
