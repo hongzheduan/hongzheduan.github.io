@@ -322,6 +322,27 @@
 
     .signup-row a:hover { color: #1d4ed8; }
 
+    .private-notice {
+      display: none;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: var(--muted);
+      margin-bottom: 18px;
+      font-weight: 300;
+    }
+
+    .private-notice a {
+      color: var(--electric-bright);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .private-notice a:hover { text-decoration: underline; }
+
     .error-msg {
       display: none;
       background: rgba(239,68,68,0.1);
@@ -389,6 +410,8 @@
     <div class="card-eyebrow">◈ &nbsp; Secure Access</div>
     <h1 class="card-title">Welcome back</h1>
     <p class="card-sub">Sign in to your Baizora account</p>
+
+    <div class="private-notice" id="privateNotice">This is currently a private website. Existing users can still sign in below. New users, please contact <a href="mailto:support@baizora.com">support@baizora.com</a> for access.</div>
 
     <div class="error-msg" id="errorMsg"></div>
     <div class="success-msg" id="successMsg"></div>
@@ -475,6 +498,10 @@
     if (window.BAIZORA_PRIVATE_MODE) {
       var signupRow = document.querySelector('.signup-row');
       if (signupRow) signupRow.style.display = 'none';
+      var divider = document.querySelector('.divider');
+      if (divider) divider.style.display = 'none';
+      var privateNotice = document.getElementById('privateNotice');
+      if (privateNotice) privateNotice.style.display = 'block';
     }
   </script>
   <script type="module">
