@@ -14,12 +14,21 @@ window.BAIZORA_LIVE_PRICES = false;
 // (see assets/revert_yfinance_switch_checklist.html). When true, pages that
 // previously showed scanner data with NO login now redirect signed-out visitors
 // to login.html: baizora_main_form_freetier(.html/_cn), top-price-movers.html,
-// unusual-volume.html, and all stocks/*.html. Each gate is written as
+// unusual-volume.html, all stocks/*.html, and (2026-09-14) the homepage
+// index(.html/_cn) itself. Each gate is written as
 // `if (window.BAIZORA_PRIVATE_MODE && !user) { location.replace('login.html') }`,
 // so flipping this to `false` and pushing re-opens all of them — no other file
 // needs touching. Pages that were already login-only (dashboard, baizora_main_form,
 // account, billing, chart_archive, index_news, market_news, market_heatmap) are
-// unaffected either way. Homepage (index.html/_cn) deliberately left ungated.
+// unaffected either way.
+// 2026-09-14: also closes public account creation — reason: still no real signups
+// and the site keeps changing fast enough that a stray new account would just be
+// stale; reopen when ready to go public again. login(.html/_cn) hide their
+// "Create one"/"免费注册" link (`.signup-row`), and signup(.html/_cn) unconditionally
+// redirect to login (even a signed-in user gets bounced — no reason to reach the
+// signup form at all while this is on) so the direct URL isn't a bypass. Existing
+// accounts are completely unaffected — this only blocks *new* signups, any already-
+// registered user (owner + the 2 current outside users) still signs in normally.
 // Pair the revert with restoring robots.txt (git history) when going public again.
 window.BAIZORA_PRIVATE_MODE = true;
 

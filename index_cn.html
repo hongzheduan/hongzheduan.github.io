@@ -2038,6 +2038,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 
   /* ── Dynamic auth state ── */
   firebase.auth().onAuthStateChanged(function(user) {
+    if (window.BAIZORA_PRIVATE_MODE && !user) { window.location.replace('login_cn.html'); return; }   /* private mode: sign-in required — revert via assets/feature_flags.js */
     const btn         = document.getElementById('navLoginLogout');
     const dashBtn     = document.getElementById('navDashBtn');
     const emailEl     = document.getElementById('navUserEmail');

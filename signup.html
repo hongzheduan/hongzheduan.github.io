@@ -12,6 +12,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baizora | Sign Up</title>
+  <script src="assets/feature_flags.js?v=4"></script>
+  <script>
+    // private mode: no public account creation — revert via assets/feature_flags.js
+    if (window.BAIZORA_PRIVATE_MODE) { window.location.replace('login.html'); }
+  </script>
   <link rel="icon" type="image/png" sizes="32x32" href="assets/baize_favicon_v2.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
