@@ -2,6 +2,21 @@
 
 on:
   schedule:
+    - cron: "0 16 * * 1-5"    # 12:00 PM ET weekdays (11 AM ET under EST/winter — fixed-UTC DST
+                               # drift, same as the other crons below — plus the usual ~40-90 min
+                               # GH Actions delay, so actual fire typically lands ~12:40-1:30 PM ET,
+                               # inside the intended 12-2 PM window) — midday snapshot: a fresh
+                               # yfinance pull mid-session, so today's row is necessarily a partial
+                               # bar (open/high/low so far, last-traded price, volume-so-far), not
+                               # a finalized close. Deliberately unconditional (no SKIP_IF_COMPLETE)
+                               # — the whole point is a fresh look mid-day, not a catch-up retry.
+                               # No EDGAR re-fetch (uses the cached fundamentals), no videos, and
+                               # skips stock-page/company-description/corporate-events regen (see
+                               # MIDDAY_SNAPSHOT gating below) — those are fundamentals-cadence
+                               # tasks, not needed twice a day. The 4:30 PM ET run fully overwrites
+                               # this snapshot with the real close later the same day. Frontend:
+                               # latest.json's "midday" flag lets the announcement bar tell this
+                               # apart from a finalized session (see index.html/_cn.html).
     - cron: "0 17 * * *"      # 1:00 PM ET every day — news report video only, decoupled from the
                                # scan/category-video timing (doesn't need market data, and its own
                                # generation step alone takes ~30 min — see worklog delay pattern
@@ -101,6 +116,19 @@ jobs:
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+          elif [ "$SCHEDULE" = "0 16 * * 1-5" ]; then
+            # 12:00 PM ET weekdays — midday snapshot (see the cron comment above for the
+            # full rationale). Always scans (no SKIP_IF_COMPLETE), uses cached EDGAR
+            # fundamentals, no videos. MIDDAY_SNAPSHOT=1 tells scanner_tiingo.py to stamp
+            # latest.json's "midday" flag and tells the three fundamentals-cadence steps
+            # below (stock pages / company descriptions / corporate events) to skip —
+            # those already run once a day off the 4:30 PM scan, no need to double them.
+            echo "EDGAR_ONLY="    >> $GITHUB_ENV
+            echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
+            echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
+            echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+            echo "MIDDAY_SNAPSHOT=1" >> $GITHUB_ENV
           elif [ "$SCHEDULE" = "0 17 * * *" ]; then
             # 1:00 PM ET every day — news report video only, decoupled from category
             # video/scan timing since it doesn't need market data and its own generation
@@ -201,14 +229,16 @@ jobs:
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 5:30 PM and 6:30 PM: probe once and exit, always run in full
           fi
 
-          # In yfinance mode (OHLCV_SOURCE_SWITCH) the price scan runs for: the 4:30 PM
-          # weekday cron (primary), the ~midnight ET cron (0 4 * * 2-6, safety-net — see
-          # its branch above; SKIP_IF_COMPLETE makes it a no-op unless the 4:30 PM run
-          # was dropped by GitHub's scheduler), the two weekend crons, and manual runs.
-          # The 5:00/5:30/6:30 PM weekday retry crons stay excluded — they only ever
-          # existed for Tiingo's per-ticker publish delay, which yfinance doesn't have.
+          # In yfinance mode (OHLCV_SOURCE_SWITCH) the price scan runs for: the 12:00 PM
+          # weekday midday-snapshot cron, the 4:30 PM weekday cron (primary), the
+          # ~midnight ET cron (0 4 * * 2-6, safety-net — see its branch above;
+          # SKIP_IF_COMPLETE makes it a no-op unless the 4:30 PM run was dropped by
+          # GitHub's scheduler), the two weekend crons, and manual runs. The 5:00/5:30/
+          # 6:30 PM weekday retry crons stay excluded — they only ever existed for
+          # Tiingo's per-ticker publish delay, which yfinance doesn't have.
           # One trailing exclusion (not per-branch) so a new cron can't silently forget it.
           if [ "${{ env.OHLCV_SOURCE_SWITCH }}" = "yfinance" ] \
+             && [ "$SCHEDULE" != "0 16 * * 1-5" ] \
              && [ "$SCHEDULE" != "30 20 * * 1-5" ] \
              && [ "$SCHEDULE" != "0 4 * * 2-6" ] \
              && [ "$SCHEDULE" != "0 5 * * 0,6" ] \
@@ -229,6 +259,7 @@ jobs:
           PROBE_RETRIES: ${{ env.PROBE_RETRIES }}
           FORCE_RUN: ${{ env.FORCE_RUN }}
           SKIP_IF_COMPLETE: ${{ env.SKIP_IF_COMPLETE }}
+          MIDDAY_SNAPSHOT: ${{ env.MIDDAY_SNAPSHOT }}
         run: python scanner_tiingo.py
 
       - name: Commit updated data
@@ -242,6 +273,7 @@ jobs:
           EVENT="${{ github.event_name }}"
           if   [ "$SCHEDULE" = "0 5 * * 0,6"  ]; then RUN_TYPE="EDGAR-only"
           elif [ "$SCHEDULE" = "0 4 * * 2-6" ]; then RUN_TYPE="11PM-full"
+          elif [ "$SCHEDULE" = "0 16 * * 1-5" ]; then RUN_TYPE="12PM-midday"
           elif [ "$SCHEDULE" = "30 20 * * 1-5" ]; then RUN_TYPE="430PM-scan"
           elif [ "$SCHEDULE" = "0 21 * * 1-5"  ]; then RUN_TYPE="500PM-scan"
           elif [ "$SCHEDULE" = "30 21 * * 1-5" ]; then RUN_TYPE="530PM-scan"
@@ -348,7 +380,7 @@ jobs:
           rm -f /tmp/firebase-sa.json
 
       - name: Regenerate stock pages
-        if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1' && env.SKIP_SCAN != '1'
+        if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1' && env.SKIP_SCAN != '1' && env.MIDDAY_SNAPSHOT != '1'
         run: |
           git fetch origin main
           git rebase --autostash origin/main
@@ -370,7 +402,7 @@ jobs:
         # after a real price scan. Wrong auto-matches go in
         # data/company_description_overrides.json (ticker -> exact Wikipedia title),
         # not here.
-        if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1' && env.SKIP_SCAN != '1'
+        if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1' && env.SKIP_SCAN != '1' && env.MIDDAY_SNAPSHOT != '1'
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
@@ -393,7 +425,7 @@ jobs:
         # up fresh filings and drop events that have aged out of the window. Same
         # gating as "Regenerate stock pages" — runs on real scan days, roughly daily,
         # which is frequent enough given 8-Ks are filed within days of the event.
-        if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1' && env.SKIP_SCAN != '1'
+        if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1' && env.SKIP_SCAN != '1' && env.MIDDAY_SNAPSHOT != '1'
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"

@@ -2832,12 +2832,21 @@ def export(df):
     df.to_csv(output_csv, index=False)
     _rotate_prior_session(market_date)
 
+    # MIDDAY_SNAPSHOT=1 (set only by the 12:00 PM ET weekday cron — see scanner.yml)
+    # means today's row is necessarily a partial-day bar (market still open when
+    # fetched), not a finalized close. The frontend announcement bar reads this to
+    # avoid presenting a midday number as "all data updated" for the day. The 4:30 PM
+    # ET run that follows carries no such flag, so it clears back to false/absent
+    # once the real close lands, overwriting this same date's row.
+    is_midday = os.environ.get("MIDDAY_SNAPSHOT", "").lower() in ("1", "true", "yes")
+
     payload = {
         "date":   market_date,
         "status": "Updated",
         "count":  len(df),
         "partialUpdate": bool(_STALE_TICKERS_EXCLUDED),
         "staleTickers":  _STALE_TICKERS_EXCLUDED,
+        "midday": is_midday,
         "data":   df.to_dict(orient="records"),
     }
 
