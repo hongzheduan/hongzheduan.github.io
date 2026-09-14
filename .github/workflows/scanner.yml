@@ -60,6 +60,10 @@ on:
         description: "With run_videos=true, skip category video generation/upload entirely and only run the news report video (e.g. catching up after category video already published separately)"
         type: boolean
         default: false
+      midday_test:
+        description: "Replicate the 12:00 PM ET midday-snapshot cron (test the MIDDAY_SNAPSHOT path on demand instead of waiting for the next weekday noon firing)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -188,6 +192,19 @@ jobs:
             # importantly, doesn't build+upload a duplicate category video. On a normal
             # untouched day the data isn't complete yet when this runs, so it runs fully.
             echo "SKIP_IF_COMPLETE=1" >> $GITHUB_ENV
+          elif [ "$EVENT" = "workflow_dispatch" ] && [ "${{ github.event.inputs.midday_test }}" = "true" ]; then
+            # midday_test input — replicate the "0 16 * * 1-5" midday-snapshot cron on
+            # demand (see that cron's comment above for the full rationale) instead of
+            # waiting for the next weekday noon firing. Same env as the real cron branch,
+            # deliberately not FORCE_RUN=1 — the real cron doesn't force through the
+            # holiday/weekend gate either, so this only actually scans on a live trading
+            # day, same as production would.
+            echo "EDGAR_ONLY="    >> $GITHUB_ENV
+            echo "SKIP_EDGAR=1"   >> $GITHUB_ENV
+            echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
+            echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
+            echo "PROBE_RETRIES=1" >> $GITHUB_ENV
+            echo "MIDDAY_SNAPSHOT=1" >> $GITHUB_ENV
           elif [ "$EVENT" = "workflow_dispatch" ]; then
             # manual trigger — full EDGAR refresh + market scan; videos only if
             # explicitly requested via the run_videos input (default: no videos).
@@ -278,6 +295,7 @@ jobs:
           elif [ "$SCHEDULE" = "0 21 * * 1-5"  ]; then RUN_TYPE="500PM-scan"
           elif [ "$SCHEDULE" = "30 21 * * 1-5" ]; then RUN_TYPE="530PM-scan"
           elif [ "$SCHEDULE" = "30 22 * * 1-5" ]; then RUN_TYPE="630PM-scan"
+          elif [ "$EVENT" = "workflow_dispatch" ] && [ "${{ github.event.inputs.midday_test }}" = "true" ]; then RUN_TYPE="manual-midday-test"
           elif [ "$EVENT"    = "workflow_dispatch" ]; then RUN_TYPE="manual"
           else RUN_TYPE="unknown"; fi
           WORKLOG_ENTRY="$(date -u '+%Y-%m-%d %H:%M UTC')  $RUN_TYPE"
