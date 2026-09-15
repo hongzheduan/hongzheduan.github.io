@@ -3645,7 +3645,9 @@ if __name__ == "__main__":
                 _expected = _recent[-1] if _recent else None
                 with open(OUTPUT_JSON) as f:
                     _existing = json.load(f)
-                if _expected and _existing.get("date") == _expected and not _existing.get("partialUpdate", False):
+                if (_expected and _existing.get("date") == _expected
+                        and not _existing.get("partialUpdate", False)
+                        and not _existing.get("midday", False)):
                     print(f"{_expected} already fully updated — skipping redundant scan.")
                     sys.exit(0)
                 print(f"Data stale (have {_existing.get('date')}, expected {_expected}) — scanning.")
@@ -3706,7 +3708,9 @@ if __name__ == "__main__":
             try:
                 with open(OUTPUT_JSON) as f:
                     _existing = json.load(f)
-                if _existing.get("date") == _TIINGO_LAST_DATE and not _existing.get("partialUpdate", False):
+                if (_existing.get("date") == _TIINGO_LAST_DATE
+                        and not _existing.get("partialUpdate", False)
+                        and not _existing.get("midday", False)):
                     print(f"{_TIINGO_LAST_DATE} already fully updated (0 stale tickers) — skipping redundant rescan.")
                     sys.exit(0)
             except Exception:
