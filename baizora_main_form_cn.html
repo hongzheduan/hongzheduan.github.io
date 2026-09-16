@@ -1103,7 +1103,7 @@
     // into the current free-form list shape ({smaList:[...]}) so pre-existing localStorage/
     // Firestore prefs from before the dynamic add/delete rework don't get silently discarded.
     function _migrateSmaPrefs(p) {
-      const dflt = { smaList: [20, 50, 200], bbActive: false, bbPeriod: 20, bbMult: 2, macdActive: false, macdFast: 12, macdSlow: 26, macdSignal: 9, vpActive: false };
+      const dflt = { smaList: [20, 50, 200], bbActive: false, bbPeriod: 20, bbMult: 2, macdActive: false, macdFast: 12, macdSlow: 26, macdSignal: 9, vpActive: false, rsiActive: false, rsiPeriod: 14 };
       if (!p) return dflt;
       let smaList;
       if (Array.isArray(p.smaList)) {
@@ -1124,7 +1124,9 @@
         smaList, bbActive, macdActive,
         vpActive: "vpActive" in p ? !!p.vpActive : false,
         bbPeriod: p.bbPeriod || 20, bbMult: p.bbMult || 2,
-        macdFast: p.macdFast || 12, macdSlow: p.macdSlow || 26, macdSignal: p.macdSignal || 9
+        macdFast: p.macdFast || 12, macdSlow: p.macdSlow || 26, macdSignal: p.macdSignal || 9,
+        rsiActive: "rsiActive" in p ? !!p.rsiActive : false,
+        rsiPeriod: p.rsiPeriod || 14
       };
     }
     let smaPrefs = _migrateSmaPrefs(JSON.parse(localStorage.getItem("baizora_sma_prefs") || "null"));
@@ -2303,7 +2305,7 @@
     }
 
     /* ── CANDLESTICK RENDERER ── */
-    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile) {
+    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile, rsi) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
@@ -2318,17 +2320,26 @@
       const C_ZERO = "rgba(0,0,0,0.16)";
       const C_AXIS = "#64748b";
       const C_AXIS_HI = "#1e293b";
+      // Sub-panel heights are fixed pixel amounts, not a share of the canvas's total
+      // height — each panel's height + gap is added to canvas.style.height by the
+      // same fixed amount in _renderModalChart, so the price chart keeps a constant
+      // height no matter how many sub-panels (vol/score/MACD/RSI) are stacked below
+      // it. Previously these were % of H, so turning on a second/third oscillator
+      // shrank the price chart further with every addition.
       const hasVol  = candles.some(c => c && c[4] > 0);
-      const volH    = hasVol ? Math.round(H * 0.22) : 0;
+      const volH    = hasVol ? 56 : 0;
       const gap     = hasVol ? 6 : 0;
       const hasScore = !!(scoreData && scoreData.values && scoreData.values.some(v => v != null));
-      const scoreH   = hasScore ? Math.round(H * 0.20) : 0;
+      const scoreH   = hasScore ? 70 : 0;
       const gap3     = hasScore ? 6 : 0;
       const hasMacd = !!(macd && (macd.macd || macd.signal || macd.hist));
-      const macdH   = hasMacd ? Math.round(H * 0.24) : 0;
+      const macdH   = hasMacd ? 84 : 0;
       const gap2    = hasMacd ? 6 : 0;
+      const hasRsi = !!(rsi && rsi.values && rsi.values.some(v => v != null));
+      const rsiH   = hasRsi ? 70 : 0;
+      const gap4   = hasRsi ? 6 : 0;
       const pad    = { top: 20, right: 16, bottom: 28, left: 58 };
-      const priceH = H - pad.top - pad.bottom - volH - gap - scoreH - gap3 - macdH - gap2;
+      const priceH = H - pad.top - pad.bottom - volH - gap - scoreH - gap3 - macdH - gap2 - rsiH - gap4;
       const n      = candles.length;
       const slotW  = (W - pad.left - pad.right) / n;
       const cndW   = Math.max(1, slotW * 0.65);
@@ -2575,6 +2586,34 @@
         drawMacdLine(macd.macd, "#0891b2");
         drawMacdLine(macd.signal, "#d97706");
       }
+      if (hasRsi) {
+        const rsiTop = pad.top + priceH + gap + volH + gap3 + scoreH + gap2 + macdH + gap4;
+        const rToY = v => rsiTop + rsiH * (1 - v / 100);
+        ctx.strokeStyle = C_GRID; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad.left, rsiTop); ctx.lineTo(W - pad.right, rsiTop); ctx.stroke();
+        ctx.fillStyle = C_AXIS; ctx.font = `9px 'DM Mono', monospace`;
+        ctx.textAlign = "right";
+        ctx.fillText("RSI", pad.left - 5, rsiTop + 9);
+        [30, 50, 70].forEach(v => {
+          const y = rToY(v);
+          ctx.strokeStyle = v === 70 ? "rgba(220,38,38,0.25)" : (v === 30 ? "rgba(22,163,74,0.25)" : C_GRID_FAINT);
+          ctx.setLineDash(v === 50 ? [2, 2] : [3, 3]);
+          ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = C_AXIS; ctx.font = `8px 'DM Mono', monospace`; ctx.textAlign = "right";
+          ctx.fillText(String(v), pad.left - 5, y + 3);
+        });
+        ctx.strokeStyle = "#8b5cf6"; ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        let rStarted = false;
+        candles.forEach((c, i) => {
+          const v = rsi.values[i];
+          if (v == null) return;
+          const x = toX(i) + cndW / 2, y = rToY(v);
+          if (!rStarted) { ctx.moveTo(x, y); rStarted = true; } else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
     }
 
     /* ── TICKER MODAL ── */
@@ -2659,6 +2698,12 @@
       document.getElementById("vpChip").classList.toggle("active", !!smaPrefs.vpActive);
       document.getElementById("vpToggles").classList.remove("open");
       document.getElementById("vpDrawerToggle").classList.remove("open");
+      _rsiPeriod = smaPrefs.rsiPeriod || 14;
+      document.getElementById("rsiChip").textContent = "RSI (" + _rsiPeriod + ")";
+      document.getElementById("rsiChip").classList.toggle("active", !!smaPrefs.rsiActive);
+      document.getElementById("rsiPeriodInput").value = _rsiPeriod;
+      document.getElementById("rsiToggles").classList.remove("open");
+      document.getElementById("rsiDrawerToggle").classList.remove("open");
       _baizKey = smaPrefs.baizKey || null;
       document.querySelectorAll('#baizToggles .sma-btn[data-baiz]').forEach(b => b.classList.toggle('active', b.dataset.baiz === _baizKey));
       document.getElementById("baizDrawerToggle").textContent = (BAIZ_LABELS[_baizKey] || "贝佐拉") + " ▾";
@@ -2678,6 +2723,7 @@
     let _smaList = [20, 50, 200];
     let _bbPeriod = 20, _bbMult = 2;
     let _macdFast = 12, _macdSlow = 26, _macdSignal = 9;
+    let _rsiPeriod = 14;
     let _baizKey = null;
     const BAIZ_LABELS = { BaizScore: "贝佐拉", BaizMomentum: "动能+", BaizPersist: "持续度", BaizConviction: "信心指数" };
     const BAIZ_COLORS = { BaizScore: "#f59e0b", BaizMomentum: "#c084fc", BaizPersist: "#f472b6", BaizConviction: "#2dd4bf" };
@@ -2703,6 +2749,8 @@
         macdActive: document.getElementById("macdChip").classList.contains("active"),
         macdFast: _macdFast, macdSlow: _macdSlow, macdSignal: _macdSignal,
         vpActive: document.getElementById("vpChip").classList.contains("active"),
+        rsiActive: document.getElementById("rsiChip").classList.contains("active"),
+        rsiPeriod: _rsiPeriod,
         baizKey: _baizKey
       };
       saveSmaPrefs();
@@ -2783,6 +2831,38 @@
       const hist = macdLine.map((v, i) => (v != null && signalLine[i] != null) ? v - signalLine[i] : null);
       return { macdLine, signalLine, hist };
     }
+    // Wilder's RSI: seeds the average gain/loss from a simple mean over the first
+    // `period` changes, then smooths every change after that with a 1/period weight
+    // (the standard formulation, same smoothing family as _computeEma's k just
+    // expressed as a running average instead of a multiplier). Null closes (calendar
+    // gaps from fillCalendarGaps) are skipped without resetting the running averages.
+    function _computeRsi(candles, period) {
+      const closes = candles.map(c => c ? c[3] : null);
+      const out = new Array(closes.length).fill(null);
+      let prevClose = null, avgGain = null, avgLoss = null, gainSum = 0, lossSum = 0, seeded = 0;
+      for (let i = 0; i < closes.length; i++) {
+        const c = closes[i];
+        if (c == null) continue;
+        if (prevClose == null) { prevClose = c; continue; }
+        const diff = c - prevClose;
+        prevClose = c;
+        const gain = diff > 0 ? diff : 0;
+        const loss = diff < 0 ? -diff : 0;
+        if (avgGain == null) {
+          gainSum += gain; lossSum += loss; seeded++;
+          if (seeded === period) {
+            avgGain = gainSum / period;
+            avgLoss = lossSum / period;
+            out[i] = avgLoss === 0 ? 100 : 100 - 100 / (1 + avgGain / avgLoss);
+          }
+          continue;
+        }
+        avgGain = (avgGain * (period - 1) + gain) / period;
+        avgLoss = (avgLoss * (period - 1) + loss) / period;
+        out[i] = avgLoss === 0 ? 100 : 100 - 100 / (1 + avgGain / avgLoss);
+      }
+      return out;
+    }
 
     let _modalTicker = null;
     let _modalRes = 'd';   // 'd' = 日线 (candles.json)；'w' = 周线 (candles_weekly.json)，用于 2年/5年 按钮
@@ -2841,6 +2921,7 @@
         }
         let bbBand = null;
         let macdActive = false;
+        let rsiActive = false;
         const activeSmaKeys = Array.from(document.querySelectorAll(".sma-btn[data-sma].active"))
           .map(b => b.dataset.sma);
         activeSmaKeys.forEach(key => {
@@ -2853,6 +2934,7 @@
             return;
           }
           if (key === "macd") { macdActive = true; return; }
+          if (key === "rsi") { rsiActive = true; return; }
         });
 
         let macdData = null;
@@ -2860,10 +2942,14 @@
           const { macdLine, signalLine, hist } = _computeMacd(candles, _macdFast, _macdSlow, _macdSignal);
           macdData = { macd: alignToDates(macdLine), signal: alignToDates(signalLine), hist: alignToDates(hist) };
         }
-        canvas.style.height = (330 + (macdData ? 110 : 0) + (scoreData ? 90 : 0)) + "px";
+        let rsiData = null;
+        if (rsiActive) {
+          rsiData = { values: alignToDates(_computeRsi(candles, _rsiPeriod)) };
+        }
+        canvas.style.height = (330 + (macdData ? 90 : 0) + (scoreData ? 76 : 0) + (rsiData ? 76 : 0)) + "px";
 
         const vpActive = document.getElementById("vpChip").classList.contains("active");
-        renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive);
+        renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData);
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
         noData.textContent = weekly ? "该股票暂无多年数据" : "暂无图表数据";
@@ -2917,6 +3003,7 @@
     _setupDrawer("smaDrawerToggle", "smaToggles");
     _setupDrawer("bbDrawerToggle", "bbToggles");
     _setupDrawer("macdDrawerToggle", "macdToggles");
+    _setupDrawer("rsiDrawerToggle", "rsiToggles");
     _setupDrawer("vpDrawerToggle", "vpToggles");
     _setupDrawer("baizDrawerToggle", "baizToggles");
     _setupDrawer("tfDrawerToggle", "candleTimeframes");
@@ -2931,6 +3018,15 @@
     });
 
     document.getElementById("macdToggles").addEventListener("click", e => {
+      const btn = e.target.closest(".sma-btn");
+      if (!btn || !_modalTicker) return;
+      btn.classList.toggle("active");
+      _saveSmaPrefsNow();
+      const activeTf = document.querySelector(".tf-btn.active");
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+    });
+
+    document.getElementById("rsiToggles").addEventListener("click", e => {
       const btn = e.target.closest(".sma-btn");
       if (!btn || !_modalTicker) return;
       btn.classList.toggle("active");
@@ -2998,6 +3094,21 @@
       document.getElementById(id).addEventListener("keydown", e => {
         if (e.key === "Enter") { e.preventDefault(); document.getElementById("macdApply").click(); }
       });
+    });
+
+    document.getElementById("rsiApply").addEventListener("click", () => {
+      const p = parseInt(document.getElementById("rsiPeriodInput").value, 10);
+      if (!p || p < 2 || p > 100 || !_modalTicker) return;
+      _rsiPeriod = p;
+      const chip = document.getElementById("rsiChip");
+      chip.textContent = "RSI (" + p + ")";
+      chip.classList.add("active");
+      _saveSmaPrefsNow();
+      const activeTf = document.querySelector(".tf-btn.active");
+      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+    });
+    document.getElementById("rsiPeriodInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") { e.preventDefault(); document.getElementById("rsiApply").click(); }
     });
 
     function closeTickerModal() {
@@ -3366,6 +3477,14 @@
           <input type="number" id="macdSlowInput" min="2" max="200" value="26" title="慢线EMA周期 (默认26)">
           <input type="number" id="macdSignalInput" min="2" max="100" value="9" title="信号线EMA周期 (默认9)">
           <button type="button" class="sma-add-btn" id="macdApply">设置</button>
+        </div>
+      </div>
+      <div class="overlay-drawer-wrap">
+        <button type="button" class="overlay-drawer-toggle" id="rsiDrawerToggle">RSI &#9662;</button>
+        <div class="overlay-drawer-panel" id="rsiToggles">
+          <button class="sma-btn" id="rsiChip" data-sma="rsi" title="相对强弱指标（Wilder平滑法）。0-100的动量震荡指标；通常70以上为超买，30以下为超卖。">RSI (14)</button>
+          <input type="number" id="rsiPeriodInput" min="2" max="100" value="14" title="RSI周期 (默认14)">
+          <button type="button" class="sma-add-btn" id="rsiApply">设置</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">
