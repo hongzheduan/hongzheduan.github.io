@@ -3041,22 +3041,22 @@
     document.getElementById("candleCanvas").addEventListener("mouseleave", _hideChartHover);
 
     document.getElementById("candleTimeframes").addEventListener("click", e => {
-      if (!_modalTicker) return;
-      const resBtn = e.target.closest(".res-btn");
-      if (resBtn) {
-        document.querySelectorAll(".res-btn").forEach(b => b.classList.remove("active"));
-        resBtn.classList.add("active");
-        _modalRes = resBtn.dataset.res === 'w' ? 'w' : 'd';
-        _renderModalChart(_modalTicker, _currentTf());
-        return;
-      }
       const btn = e.target.closest(".tf-btn[data-period]");
-      if (!btn) return;
+      if (!btn || !_modalTicker) return;
       document.querySelectorAll(".tf-btn[data-period]").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById("tfDrawerToggle").textContent = btn.textContent + " ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
+      _renderModalChart(_modalTicker, _currentTf());
+    });
+
+    document.getElementById("resToggleWrap").addEventListener("click", e => {
+      const btn = e.target.closest(".res-btn");
+      if (!btn || !_modalTicker) return;
+      document.querySelectorAll(".res-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      _modalRes = btn.dataset.res === 'w' ? 'w' : 'd';
       _renderModalChart(_modalTicker, _currentTf());
     });
 
@@ -3520,13 +3520,13 @@
         <span id="modalPriceChange" style="font-size:15px;font-weight:600;"></span>
       </div>
       <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
+      <div id="resToggleWrap" style="display:inline-flex;gap:4px;margin:0 8px 10px 0;">
+        <button type="button" class="res-btn active" data-res="d" title="日K线">日线</button>
+        <button type="button" class="res-btn" data-res="w" title="周K线（首次使用时加载）">周线</button>
+      </div>
       <div class="overlay-drawer-wrap">
         <button type="button" class="overlay-drawer-toggle" id="tfDrawerToggle">1年 &#9662;</button>
         <div class="overlay-drawer-panel" id="candleTimeframes" style="width:auto;">
-          <div style="flex-basis:100%;display:flex;gap:6px;">
-            <button type="button" class="res-btn active" data-res="d" title="日K线">日线</button>
-            <button type="button" class="res-btn" data-res="w" title="周K线（首次使用时加载）">周线</button>
-          </div>
           <button class="tf-btn" data-period="1W">1周</button>
           <button class="tf-btn" data-period="1M">1月</button>
           <button class="tf-btn" data-period="3M">3月</button>
