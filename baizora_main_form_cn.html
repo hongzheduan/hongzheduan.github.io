@@ -2701,6 +2701,9 @@
       // reset timeframe to 1Y daily; restore the user's saved SMA selection on each open
       _modalRes = 'd';
       document.querySelectorAll(".res-btn").forEach(b => b.classList.toggle("active", b.dataset.res === "d"));
+      document.getElementById("resDrawerToggle").textContent = "日线 ▾";
+      document.getElementById("resToggles").classList.remove("open");
+      document.getElementById("resDrawerToggle").classList.remove("open");
       document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.period === "1Y"));
       document.getElementById("tfDrawerToggle").textContent = "1年 ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
@@ -3107,11 +3110,14 @@
       _renderModalChart(_modalTicker, _currentTf());
     });
 
-    document.getElementById("resToggleWrap").addEventListener("click", e => {
+    document.getElementById("resToggles").addEventListener("click", e => {
       const btn = e.target.closest(".res-btn");
       if (!btn || !_modalTicker) return;
       document.querySelectorAll(".res-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
+      document.getElementById("resDrawerToggle").textContent = btn.textContent + " ▾";
+      document.getElementById("resToggles").classList.remove("open");
+      document.getElementById("resDrawerToggle").classList.remove("open");
       _modalRes = btn.dataset.res === 'w' ? 'w' : 'd';
       _renderModalChart(_modalTicker, _currentTf());
     });
@@ -3155,6 +3161,7 @@
     _setupDrawer("vpDrawerToggle", "vpToggles");
     _setupDrawer("baizDrawerToggle", "baizToggles");
     _setupDrawer("tfDrawerToggle", "candleTimeframes");
+    _setupDrawer("resDrawerToggle", "resToggles");
 
     document.getElementById("bbToggles").addEventListener("click", e => {
       const btn = e.target.closest(".sma-btn");
@@ -3576,9 +3583,12 @@
         <span id="modalPriceChange" style="font-size:15px;font-weight:600;"></span>
       </div>
       <div id="modalName" style="color:#94a3b8;font-size:13px;margin:4px 0 20px;"></div>
-      <div id="resToggleWrap" style="display:inline-flex;gap:4px;margin:0 8px 10px 0;">
-        <button type="button" class="res-btn active" data-res="d" title="日K线">日线</button>
-        <button type="button" class="res-btn" data-res="w" title="周K线（首次使用时加载）">周线</button>
+      <div class="overlay-drawer-wrap">
+        <button type="button" class="overlay-drawer-toggle" id="resDrawerToggle">日线 &#9662;</button>
+        <div class="overlay-drawer-panel" id="resToggles" style="width:auto;">
+          <button type="button" class="res-btn active" data-res="d" title="日K线">日线</button>
+          <button type="button" class="res-btn" data-res="w" title="周K线（首次使用时加载）">周线</button>
+        </div>
       </div>
       <div class="overlay-drawer-wrap">
         <button type="button" class="overlay-drawer-toggle" id="tfDrawerToggle">1年 &#9662;</button>
