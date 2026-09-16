@@ -780,6 +780,7 @@
     .sma-add-btn { background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.18); color: #64748b; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .sma-add-btn:hover { color: #2dd4bf; border-color: #2dd4bf; }
     .sma-add-btn:disabled { opacity: .35; cursor: not-allowed; }
+    .tf-btn:disabled { opacity: .35; cursor: not-allowed; }
     #candleChartWrap { position: relative; }
     #candleCanvas { width: 100%; height: 330px; display: block; border-radius: 8px; }
     .chart-crosshair-v { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed rgba(148,163,184,0.55); pointer-events: none; display: none; }
@@ -2737,6 +2738,7 @@
       document.getElementById("tfDrawerToggle").textContent = "1Y ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
+      _updatePeriodAvailability();
       _smaList = (smaPrefs.smaList && smaPrefs.smaList.length ? smaPrefs.smaList.slice(0, 5) : [20, 50, 200]);
       _renderSmaChips();
       _bbPeriod = smaPrefs.bbPeriod || 20;
@@ -2960,6 +2962,27 @@
       const entry = PERIOD_TF[(btn && btn.dataset.period) || "1Y"] || PERIOD_TF["1Y"];
       return entry[_modalRes] || entry.d;
     }
+    // Daily bars only go back ~1Y (candles.json's export window), so 2Y/5Y under
+    // Daily would silently clamp to the same 1Y of data — grey those two period
+    // buttons out instead of letting the user pick a period that's a no-op. If
+    // the currently active period is one of them when Daily becomes active, fall
+    // back to 1Y so there's never a disabled button left showing as selected.
+    function _updatePeriodAvailability() {
+      const longBtns = document.querySelectorAll('.tf-btn[data-period="2Y"], .tf-btn[data-period="5Y"]');
+      const disable = _modalRes === 'd';
+      longBtns.forEach(b => {
+        b.disabled = disable;
+        b.title = disable ? "Daily bars only go back ~1Y — switch to Weekly to view this range" : "";
+      });
+      if (disable) {
+        const active = document.querySelector(".tf-btn[data-period].active");
+        if (active && (active.dataset.period === "2Y" || active.dataset.period === "5Y")) {
+          document.querySelectorAll(".tf-btn[data-period]").forEach(b => b.classList.remove("active"));
+          document.querySelector('.tf-btn[data-period="1Y"]').classList.add("active");
+          document.getElementById("tfDrawerToggle").textContent = "1Y ▾";
+        }
+      }
+    }
     function _renderModalChart(ticker, tf) {
       _modalTicker = ticker;
       _hideChartHover();
@@ -3162,6 +3185,7 @@
       document.getElementById("resToggles").classList.remove("open");
       document.getElementById("resDrawerToggle").classList.remove("open");
       _modalRes = btn.dataset.res === 'w' ? 'w' : 'd';
+      _updatePeriodAvailability();
       _renderModalChart(_modalTicker, _currentTf());
     });
 
