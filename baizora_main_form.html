@@ -780,7 +780,11 @@
     .sma-add-btn { background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.18); color: #64748b; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .sma-add-btn:hover { color: #2dd4bf; border-color: #2dd4bf; }
     .sma-add-btn:disabled { opacity: .35; cursor: not-allowed; }
+    #candleChartWrap { position: relative; }
     #candleCanvas { width: 100%; height: 330px; display: block; border-radius: 8px; }
+    .chart-crosshair-v { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed rgba(148,163,184,0.55); pointer-events: none; display: none; }
+    .chart-crosshair-h { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed rgba(148,163,184,0.55); pointer-events: none; display: none; }
+    .chart-tooltip { position: absolute; pointer-events: none; display: none; background: rgba(15,23,42,0.94); color: #e2e8f0; font-family: 'DM Mono',monospace; font-size: 11px; line-height: 1.6; padding: 6px 9px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.14); white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 5; }
     #candleNoData {
       width: 100%; height: 330px; display: none;
       align-items: center; justify-content: center;
@@ -2321,6 +2325,9 @@
     }
 
     /* ── CANDLESTICK RENDERER ── */
+    // Shared with the hover-crosshair mousemove handler below so the candle-index
+    // math there stays exactly in sync with what this function actually draws.
+    const CHART_PAD = { top: 20, right: 16, bottom: 28, left: 58 };
     function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile, rsi) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
@@ -2354,7 +2361,7 @@
       const hasRsi = !!(rsi && rsi.values && rsi.values.some(v => v != null));
       const rsiH   = hasRsi ? 70 : 0;
       const gap4   = hasRsi ? 6 : 0;
-      const pad    = { top: 20, right: 16, bottom: 28, left: 58 };
+      const pad    = CHART_PAD;
       const priceH = H - pad.top - pad.bottom - volH - gap - scoreH - gap3 - macdH - gap2 - rsiH - gap4;
       const n      = candles.length;
       const slotW  = (W - pad.left - pad.right) / n;
@@ -2897,6 +2904,15 @@
 
     let _modalTicker = null;
     let _modalRes = 'd';   // 'd' = daily (candles.json); 'w' = weekly (candles_weekly.json) — independently selectable per timeframe, not tied to a specific period button
+    // Snapshot of the currently-rendered candles/dates, kept in sync so the hover
+    // crosshair (mousemove handler below) can map a mouse X back to a candle index
+    // without re-running any of the chart's indicator math.
+    let _lastChartCandles = null, _lastChartDates = null;
+    function _hideChartHover() {
+      document.getElementById("chartCrosshairV").style.display = "none";
+      document.getElementById("chartCrosshairH").style.display = "none";
+      document.getElementById("chartTooltip").style.display = "none";
+    }
     // Each period button carries a data-period key; the actual bar count depends on
     // which resolution is active (weekly bars cover the same calendar span in ~1/5
     // the count of daily bars). Daily only goes back ~1Y (candles.json's export
@@ -2919,6 +2935,7 @@
     }
     function _renderModalChart(ticker, tf) {
       _modalTicker = ticker;
+      _hideChartHover();
       const weekly     = _modalRes === 'w';
       const canvas     = document.getElementById("candleCanvas");
       const noData     = document.getElementById("candleNoData");
@@ -3006,13 +3023,61 @@
 
         const vpActive = document.getElementById("vpChip").classList.contains("active");
         renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData);
+        _lastChartCandles = filled.candles;
+        _lastChartDates = filled.dates;
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
         noData.textContent = weekly
           ? "Weekly data not available for this ticker yet"
           : "No chart data available yet";
+        _lastChartCandles = null;
+        _lastChartDates = null;
       }
     }
+
+    // Hover crosshair: vertical line snaps to the nearest candle (so it's easy to
+    // read the same date's bar across every stacked sub-panel — Volume, Score,
+    // MACD, RSI); horizontal line just follows the raw cursor Y so it works as a
+    // ruler in whichever panel the mouse is over. Pure CSS-positioned overlay
+    // elements, not a canvas redraw — cheap enough to update on every mousemove.
+    document.getElementById("candleCanvas").addEventListener("mousemove", e => {
+      if (!_lastChartCandles || !_lastChartDates) return;
+      const canvas = document.getElementById("candleCanvas");
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      if (mx < 0 || mx > rect.width || my < 0 || my > rect.height) { _hideChartHover(); return; }
+      const n = _lastChartCandles.length;
+      const slotW = (rect.width - CHART_PAD.left - CHART_PAD.right) / n;
+      let idx = Math.floor((mx - CHART_PAD.left) / slotW);
+      idx = Math.max(0, Math.min(n - 1, idx));
+      const c = _lastChartCandles[idx];
+      if (!c) { _hideChartHover(); return; }
+      const [o, h, l, cl, v] = c;
+      const cx = CHART_PAD.left + idx * slotW + slotW / 2;
+      const crossV = document.getElementById("chartCrosshairV");
+      const crossH = document.getElementById("chartCrosshairH");
+      const tip = document.getElementById("chartTooltip");
+      crossV.style.left = cx + "px";
+      crossV.style.display = "block";
+      crossH.style.top = my + "px";
+      crossH.style.display = "block";
+      const dt = new Date(_lastChartDates[idx] + "T12:00:00");
+      const dateLbl = dt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      const green = cl >= o;
+      const clr = green ? "#4ade80" : "#f87171";
+      tip.innerHTML =
+        `<div style="color:#94a3b8;">${dateLbl}</div>` +
+        `<div>O <b>${o.toFixed(2)}</b> H <b>${h.toFixed(2)}</b> L <b>${l.toFixed(2)}</b> C <b style="color:${clr};">${cl.toFixed(2)}</b></div>` +
+        (v ? `<div style="color:#94a3b8;">VOL ${(v / 1e6).toFixed(2)}M</div>` : "");
+      tip.style.display = "block";
+      let left = mx + 14, top = my + 14;
+      const tipW = tip.offsetWidth, tipH = tip.offsetHeight;
+      if (left + tipW > rect.width) left = mx - tipW - 14;
+      if (top + tipH > rect.height) top = my - tipH - 14;
+      tip.style.left = Math.max(0, left) + "px";
+      tip.style.top = Math.max(0, top) + "px";
+    });
+    document.getElementById("candleCanvas").addEventListener("mouseleave", _hideChartHover);
 
     document.getElementById("candleTimeframes").addEventListener("click", e => {
       if (!_modalTicker) return;
@@ -3571,7 +3636,12 @@
           <button class="sma-btn" data-baiz="BaizConviction">Conviction</button>
         </div>
       </div>
-      <canvas id="candleCanvas"></canvas>
+      <div id="candleChartWrap">
+        <canvas id="candleCanvas"></canvas>
+        <div class="chart-crosshair-v" id="chartCrosshairV"></div>
+        <div class="chart-crosshair-h" id="chartCrosshairH"></div>
+        <div class="chart-tooltip" id="chartTooltip"></div>
+      </div>
       <div id="candleNoData">No chart data available yet</div>
       <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:6px;margin-top:12px;"></div>
       <div id="modalEvents"><div class="modal-events-title">Corporate Events</div><div id="modalEventsList"></div></div>
