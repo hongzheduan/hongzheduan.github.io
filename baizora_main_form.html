@@ -749,6 +749,8 @@
     #modalDescSep { display:none; color:#475569; }
     .tf-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .tf-btn.active, .tf-btn:hover { background: rgba(59,130,246,0.2); border-color: #3b82f6; color: #60a5fa; }
+    .res-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
+    .res-btn.active, .res-btn:hover { background: rgba(59,130,246,0.2); border-color: #3b82f6; color: #60a5fa; }
     .overlay-drawer-wrap { position: relative; display: inline-block; margin: 0 8px 10px 0; }
     .overlay-drawer-toggle { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .overlay-drawer-toggle:hover, .overlay-drawer-toggle.open { color: #cbd5e1; border-color: rgba(255,255,255,0.25); }
@@ -2698,7 +2700,8 @@
 
       // reset timeframe to 1Y daily; restore the user's saved SMA selection on each open
       _modalRes = 'd';
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.tf === "252" && !b.dataset.res));
+      document.querySelectorAll(".res-btn").forEach(b => b.classList.toggle("active", b.dataset.res === "d"));
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.period === "1Y"));
       document.getElementById("tfDrawerToggle").textContent = "1Y ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
@@ -2740,7 +2743,7 @@
       document.getElementById("baizDrawerToggle").classList.remove("open");
 
       requestAnimationFrame(() => {
-        _renderModalChart(ticker, 252);
+        _renderModalChart(ticker, _currentTf());
       });
     }
 
@@ -2794,8 +2797,7 @@
       document.getElementById("customSmaAdd").disabled = atCap;
     }
     function _rerenderChart() {
-      const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+      _renderModalChart(_modalTicker, _currentTf());
     }
     function _addSmaPeriod(period) {
       if (!period || period < 2 || period > 250 || !_modalTicker) return;
@@ -2894,7 +2896,27 @@
     }
 
     let _modalTicker = null;
-    let _modalRes = 'd';   // 'd' = daily (candles.json); 'w' = weekly (candles_weekly.json) for the 2Y/5Y buttons
+    let _modalRes = 'd';   // 'd' = daily (candles.json); 'w' = weekly (candles_weekly.json) — independently selectable per timeframe, not tied to a specific period button
+    // Each period button carries a data-period key; the actual bar count depends on
+    // which resolution is active (weekly bars cover the same calendar span in ~1/5
+    // the count of daily bars). Daily only goes back ~1Y (candles.json's export
+    // window) — picking Daily with a 2Y/5Y period simply clamps to what's available,
+    // same graceful fallback _renderModalChart already does for any tf longer than
+    // the loaded history.
+    const PERIOD_TF = {
+      "1W": { d: 5,    w: 1   },
+      "1M": { d: 21,   w: 4   },
+      "3M": { d: 63,   w: 13  },
+      "6M": { d: 126,  w: 26  },
+      "1Y": { d: 252,  w: 52  },
+      "2Y": { d: 504,  w: 104 },
+      "5Y": { d: 1260, w: 260 }
+    };
+    function _currentTf() {
+      const btn = document.querySelector(".tf-btn[data-period].active");
+      const entry = PERIOD_TF[(btn && btn.dataset.period) || "1Y"] || PERIOD_TF["1Y"];
+      return entry[_modalRes] || entry.d;
+    }
     function _renderModalChart(ticker, tf) {
       _modalTicker = ticker;
       const weekly     = _modalRes === 'w';
@@ -2902,10 +2924,10 @@
       const noData     = document.getElementById("candleNoData");
       if (weekly && !weeklyData) {
         canvas.style.display = "none"; noData.style.display = "flex";
-        if (weeklyLoadFailed) { noData.textContent = "Multi-year data unavailable right now"; return; }
-        // First 2Y/5Y open: pull the ~5Y weekly file, then re-render if still on this view.
+        if (weeklyLoadFailed) { noData.textContent = "Weekly data unavailable right now"; return; }
+        // First Weekly-resolution open: pull the ~5Y weekly file, then re-render if still on this view.
         loadWeekly().then(() => { if (_modalTicker === ticker && _modalRes === 'w') _renderModalChart(ticker, tf); });
-        noData.textContent = "Loading multi-year data…";
+        noData.textContent = "Loading weekly data…";
         return;
       }
       const src        = weekly ? weeklyData : candleData;
@@ -2987,21 +3009,29 @@
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
         noData.textContent = weekly
-          ? "Multi-year data not available for this ticker yet"
+          ? "Weekly data not available for this ticker yet"
           : "No chart data available yet";
       }
     }
 
     document.getElementById("candleTimeframes").addEventListener("click", e => {
-      const btn = e.target.closest(".tf-btn");
-      if (!btn || !_modalTicker) return;
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
+      if (!_modalTicker) return;
+      const resBtn = e.target.closest(".res-btn");
+      if (resBtn) {
+        document.querySelectorAll(".res-btn").forEach(b => b.classList.remove("active"));
+        resBtn.classList.add("active");
+        _modalRes = resBtn.dataset.res === 'w' ? 'w' : 'd';
+        _renderModalChart(_modalTicker, _currentTf());
+        return;
+      }
+      const btn = e.target.closest(".tf-btn[data-period]");
+      if (!btn) return;
+      document.querySelectorAll(".tf-btn[data-period]").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById("tfDrawerToggle").textContent = btn.textContent + " ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
-      _modalRes = btn.dataset.res === 'w' ? 'w' : 'd';
-      _renderModalChart(_modalTicker, parseInt(btn.dataset.tf));
+      _renderModalChart(_modalTicker, _currentTf());
     });
 
     document.getElementById("smaChipsContainer").addEventListener("click", e => {
@@ -3030,8 +3060,7 @@
       chip.textContent = "BB (" + p + "," + m + ")";
       chip.classList.add("active");
       _saveSmaPrefsNow();
-      const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+      _renderModalChart(_modalTicker, _currentTf());
     });
     document.getElementById("bbPeriodInput").addEventListener("keydown", e => {
       if (e.key === "Enter") { e.preventDefault(); document.getElementById("bbApply").click(); }
@@ -3050,8 +3079,7 @@
       chip.textContent = "MACD (" + f + "," + s + "," + sig + ")";
       chip.classList.add("active");
       _saveSmaPrefsNow();
-      const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+      _renderModalChart(_modalTicker, _currentTf());
     });
     ["macdFastInput", "macdSlowInput", "macdSignalInput"].forEach(id => {
       document.getElementById(id).addEventListener("keydown", e => {
@@ -3067,8 +3095,7 @@
       chip.textContent = "RSI (" + p + ")";
       chip.classList.add("active");
       _saveSmaPrefsNow();
-      const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+      _renderModalChart(_modalTicker, _currentTf());
     });
     document.getElementById("rsiPeriodInput").addEventListener("keydown", e => {
       if (e.key === "Enter") { e.preventDefault(); document.getElementById("rsiApply").click(); }
@@ -3102,8 +3129,7 @@
       if (!btn || !_modalTicker) return;
       btn.classList.toggle("active");
       _saveSmaPrefsNow();
-      const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+      _renderModalChart(_modalTicker, _currentTf());
     });
 
     document.getElementById("macdToggles").addEventListener("click", e => {
@@ -3111,8 +3137,7 @@
       if (!btn || !_modalTicker) return;
       btn.classList.toggle("active");
       _saveSmaPrefsNow();
-      const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+      _renderModalChart(_modalTicker, _currentTf());
     });
 
     document.getElementById("rsiToggles").addEventListener("click", e => {
@@ -3120,8 +3145,7 @@
       if (!btn || !_modalTicker) return;
       btn.classList.toggle("active");
       _saveSmaPrefsNow();
-      const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+      _renderModalChart(_modalTicker, _currentTf());
     });
 
     document.getElementById("vpToggles").addEventListener("click", e => {
@@ -3129,8 +3153,7 @@
       if (!btn || !_modalTicker) return;
       btn.classList.toggle("active");
       _saveSmaPrefsNow();
-      const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+      _renderModalChart(_modalTicker, _currentTf());
     });
 
     document.getElementById("baizToggles").addEventListener("click", e => {
@@ -3143,8 +3166,7 @@
       if (_baizKey) btn.classList.add("active");
       document.getElementById("baizDrawerToggle").textContent = (BAIZ_LABELS[_baizKey] || "Baizora") + " ▾";
       _saveSmaPrefsNow();
-      const activeTf = document.querySelector(".tf-btn.active");
-      _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+      _renderModalChart(_modalTicker, _currentTf());
     });
 
     function closeTickerModal() {
@@ -3450,8 +3472,7 @@
           el.textContent = (d.chgPct >= 0 ? '+' : '') + d.chgPct.toFixed(2) + '%';
           el.style.color = d.chgPct >= 0 ? '#22c55e' : '#ef4444';
         }
-        const activeTf = document.querySelector('.tf-btn.active');
-        _renderModalChart(_modalTicker, activeTf ? parseInt(activeTf.dataset.tf) : 252);
+        _renderModalChart(_modalTicker, _currentTf());
       }
       // First successful EOD enrichment: re-render table so volume/MA21 columns update
       if (_isTodayIex && !_liveRenderDone) { _liveRenderDone = true; render(); }
@@ -3484,13 +3505,17 @@
       <div class="overlay-drawer-wrap">
         <button type="button" class="overlay-drawer-toggle" id="tfDrawerToggle">1Y &#9662;</button>
         <div class="overlay-drawer-panel" id="candleTimeframes" style="width:auto;">
-          <button class="tf-btn" data-tf="5">1W</button>
-          <button class="tf-btn" data-tf="21">1M</button>
-          <button class="tf-btn" data-tf="63">3M</button>
-          <button class="tf-btn" data-tf="126">6M</button>
-          <button class="tf-btn active" data-tf="252">1Y</button>
-          <button class="tf-btn" data-tf="104" data-res="w">2Y</button>
-          <button class="tf-btn" data-tf="260" data-res="w">5Y</button>
+          <div style="flex-basis:100%;display:flex;gap:6px;">
+            <button type="button" class="res-btn active" data-res="d" title="Daily bars">Daily</button>
+            <button type="button" class="res-btn" data-res="w" title="Weekly bars (lazy-loads on first use)">Weekly</button>
+          </div>
+          <button class="tf-btn" data-period="1W">1W</button>
+          <button class="tf-btn" data-period="1M">1M</button>
+          <button class="tf-btn" data-period="3M">3M</button>
+          <button class="tf-btn" data-period="6M">6M</button>
+          <button class="tf-btn active" data-period="1Y">1Y</button>
+          <button class="tf-btn" data-period="2Y">2Y</button>
+          <button class="tf-btn" data-period="5Y">5Y</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">
