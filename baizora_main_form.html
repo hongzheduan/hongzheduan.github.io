@@ -784,7 +784,8 @@
     #candleCanvas { width: 100%; height: 330px; display: block; border-radius: 8px; }
     .chart-crosshair-v { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed rgba(148,163,184,0.55); pointer-events: none; display: none; }
     .chart-crosshair-h { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed rgba(148,163,184,0.55); pointer-events: none; display: none; }
-    .chart-tooltip { position: absolute; pointer-events: none; display: none; background: rgba(15,23,42,0.94); color: #e2e8f0; font-family: 'DM Mono',monospace; font-size: 11px; line-height: 1.6; padding: 6px 9px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.14); white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 5; }
+    .chart-tooltip { position: absolute; top: 4px; left: 62px; pointer-events: none; display: none; background: rgba(15,23,42,0.88); color: #e2e8f0; font-family: 'DM Mono',monospace; font-size: 11px; line-height: 1.5; padding: 4px 9px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.14); white-space: nowrap; z-index: 5; }
+    .chart-price-label { position: absolute; left: 2px; transform: translateY(-50%); pointer-events: none; display: none; background: #1e293b; color: #e2e8f0; font-family: 'DM Mono',monospace; font-size: 10px; padding: 2px 5px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.18); white-space: nowrap; z-index: 6; }
     #candleNoData {
       width: 100%; height: 330px; display: none;
       align-items: center; justify-content: center;
@@ -2328,6 +2329,23 @@
     // Shared with the hover-crosshair mousemove handler below so the candle-index
     // math there stays exactly in sync with what this function actually draws.
     const CHART_PAD = { top: 20, right: 16, bottom: 28, left: 58 };
+    const PANEL_H = { vol: 56, score: 70, macd: 84, rsi: 70, gap: 6 };
+    // Recomputes the same top-to-bottom panel stack renderCandleChart lays out
+    // (Price / Volume / Score / MACD / RSI), so the hover handler can tell which
+    // panel a given mouse Y falls into without duplicating renderCandleChart itself.
+    function _chartLayout(H, hasVol, hasScore, hasMacd, hasRsi) {
+      const volH = hasVol ? PANEL_H.vol : 0, gap = hasVol ? PANEL_H.gap : 0;
+      const scoreH = hasScore ? PANEL_H.score : 0, gap3 = hasScore ? PANEL_H.gap : 0;
+      const macdH = hasMacd ? PANEL_H.macd : 0, gap2 = hasMacd ? PANEL_H.gap : 0;
+      const rsiH = hasRsi ? PANEL_H.rsi : 0, gap4 = hasRsi ? PANEL_H.gap : 0;
+      const priceH = H - CHART_PAD.top - CHART_PAD.bottom - volH - gap - scoreH - gap3 - macdH - gap2 - rsiH - gap4;
+      const priceTop = CHART_PAD.top, priceBottom = priceTop + priceH;
+      const volTop = priceBottom + gap, volBottom = volTop + volH;
+      const scoreTop = volBottom + gap3, scoreBottom = scoreTop + scoreH;
+      const macdTop = scoreBottom + gap2, macdBottom = macdTop + macdH;
+      const rsiTop = macdBottom + gap4, rsiBottom = rsiTop + rsiH;
+      return { priceTop, priceBottom, hasVol, volTop, volBottom, hasScore, scoreTop, scoreBottom, hasMacd, macdTop, macdBottom, hasRsi, rsiTop, rsiBottom };
+    }
     function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile, rsi) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
@@ -2350,17 +2368,17 @@
       // it. Previously these were % of H, so turning on a second/third oscillator
       // shrank the price chart further with every addition.
       const hasVol  = candles.some(c => c && c[4] > 0);
-      const volH    = hasVol ? 56 : 0;
-      const gap     = hasVol ? 6 : 0;
+      const volH    = hasVol ? PANEL_H.vol : 0;
+      const gap     = hasVol ? PANEL_H.gap : 0;
       const hasScore = !!(scoreData && scoreData.values && scoreData.values.some(v => v != null));
-      const scoreH   = hasScore ? 70 : 0;
-      const gap3     = hasScore ? 6 : 0;
+      const scoreH   = hasScore ? PANEL_H.score : 0;
+      const gap3     = hasScore ? PANEL_H.gap : 0;
       const hasMacd = !!(macd && (macd.macd || macd.signal || macd.hist));
-      const macdH   = hasMacd ? 84 : 0;
-      const gap2    = hasMacd ? 6 : 0;
+      const macdH   = hasMacd ? PANEL_H.macd : 0;
+      const gap2    = hasMacd ? PANEL_H.gap : 0;
       const hasRsi = !!(rsi && rsi.values && rsi.values.some(v => v != null));
-      const rsiH   = hasRsi ? 70 : 0;
-      const gap4   = hasRsi ? 6 : 0;
+      const rsiH   = hasRsi ? PANEL_H.rsi : 0;
+      const gap4   = hasRsi ? PANEL_H.gap : 0;
       const pad    = CHART_PAD;
       const priceH = H - pad.top - pad.bottom - volH - gap - scoreH - gap3 - macdH - gap2 - rsiH - gap4;
       const n      = candles.length;
@@ -2652,6 +2670,10 @@
         });
         ctx.stroke();
       }
+      // Exposes the exact price-axis range this draw used (candle highs/lows plus
+      // any active SMA extension and the 5% buffer) so the hover crosshair can
+      // convert a mouse Y in the price panel back to a real price.
+      return { lo, hi };
     }
 
     /* ── TICKER MODAL ── */
@@ -2904,14 +2926,16 @@
 
     let _modalTicker = null;
     let _modalRes = 'd';   // 'd' = daily (candles.json); 'w' = weekly (candles_weekly.json) — independently selectable per timeframe, not tied to a specific period button
-    // Snapshot of the currently-rendered candles/dates, kept in sync so the hover
-    // crosshair (mousemove handler below) can map a mouse X back to a candle index
-    // without re-running any of the chart's indicator math.
-    let _lastChartCandles = null, _lastChartDates = null;
+    // Snapshot of the currently-rendered candles/dates/indicator data, kept in sync
+    // so the hover crosshair (mousemove handler below) can map a mouse position
+    // back to the right candle AND the right panel's own value, without re-running
+    // any of the chart's indicator math.
+    let _lastChartCandles = null, _lastChartDates = null, _lastChartExtras = null;
     function _hideChartHover() {
       document.getElementById("chartCrosshairV").style.display = "none";
       document.getElementById("chartCrosshairH").style.display = "none";
       document.getElementById("chartTooltip").style.display = "none";
+      document.getElementById("chartPriceLabel").style.display = "none";
     }
     // Each period button carries a data-period key; the actual bar count depends on
     // which resolution is active (weekly bars cover the same calendar span in ~1/5
@@ -3022,9 +3046,10 @@
         canvas.style.height = (330 + (macdData ? 90 : 0) + (scoreData ? 76 : 0) + (rsiData ? 76 : 0)) + "px";
 
         const vpActive = document.getElementById("vpChip").classList.contains("active");
-        renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData);
+        const priceRange = renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData);
         _lastChartCandles = filled.candles;
         _lastChartDates = filled.dates;
+        _lastChartExtras = { scoreData, macdData, rsiData, priceLo: priceRange.lo, priceHi: priceRange.hi };
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
         noData.textContent = weekly
@@ -3032,14 +3057,19 @@
           : "No chart data available yet";
         _lastChartCandles = null;
         _lastChartDates = null;
+        _lastChartExtras = null;
       }
     }
 
     // Hover crosshair: vertical line snaps to the nearest candle (so it's easy to
     // read the same date's bar across every stacked sub-panel — Volume, Score,
     // MACD, RSI); horizontal line just follows the raw cursor Y so it works as a
-    // ruler in whichever panel the mouse is over. Pure CSS-positioned overlay
-    // elements, not a canvas redraw — cheap enough to update on every mousemove.
+    // ruler. The tooltip is panel-aware: it shows OHLC only while over the price
+    // panel, and the hovered sub-panel's own value (Volume/Score/MACD/RSI)
+    // otherwise — showing price data while pointing at, say, the MACD panel was
+    // confusing since those numbers have nothing to do with that panel. Pure
+    // CSS-positioned overlay elements, not a canvas redraw — cheap enough to
+    // update on every mousemove.
     document.getElementById("candleCanvas").addEventListener("mousemove", e => {
       if (!_lastChartCandles || !_lastChartDates) return;
       const canvas = document.getElementById("candleCanvas");
@@ -3052,30 +3082,60 @@
       idx = Math.max(0, Math.min(n - 1, idx));
       const c = _lastChartCandles[idx];
       if (!c) { _hideChartHover(); return; }
-      const [o, h, l, cl, v] = c;
+      const extras = _lastChartExtras || {};
+      const hasScoreVals = !!(extras.scoreData && extras.scoreData.values && extras.scoreData.values.some(v => v != null));
+      const hasMacdVals = !!(extras.macdData && (extras.macdData.macd || extras.macdData.signal || extras.macdData.hist));
+      const hasRsiVals = !!(extras.rsiData && extras.rsiData.values && extras.rsiData.values.some(v => v != null));
+      const layout = _chartLayout(rect.height, _lastChartCandles.some(cc => cc && cc[4] > 0), hasScoreVals, hasMacdVals, hasRsiVals);
+      const inPricePanel = my <= layout.priceBottom;
+      let body = "";
+      if (inPricePanel) {
+        const [o, h, l, cl] = c;
+        const clr = cl >= o ? "#4ade80" : "#f87171";
+        body = `O <b>${o.toFixed(2)}</b> H <b>${h.toFixed(2)}</b> L <b>${l.toFixed(2)}</b> C <b style="color:${clr};">${cl.toFixed(2)}</b>`;
+      } else if (layout.hasVol && my <= layout.volBottom) {
+        body = c[4] ? `VOL <b>${(c[4] / 1e6).toFixed(2)}M</b>` : "";
+      } else if (layout.hasScore && my <= layout.scoreBottom) {
+        const sv = extras.scoreData.values[idx];
+        body = sv != null ? `${extras.scoreData.label} <b>${sv.toFixed(1)}</b>` : "";
+      } else if (layout.hasMacd && my <= layout.macdBottom) {
+        const m = extras.macdData;
+        const parts = [];
+        if (m.macd && m.macd[idx] != null) parts.push(`MACD <b>${m.macd[idx].toFixed(2)}</b>`);
+        if (m.signal && m.signal[idx] != null) parts.push(`SIG <b>${m.signal[idx].toFixed(2)}</b>`);
+        if (m.hist && m.hist[idx] != null) parts.push(`HIST <b>${m.hist[idx].toFixed(2)}</b>`);
+        body = parts.join(" ");
+      } else if (layout.hasRsi && my <= layout.rsiBottom) {
+        const rv = extras.rsiData.values[idx];
+        body = rv != null ? `RSI <b>${rv.toFixed(1)}</b>` : "";
+      }
+      if (!body) { _hideChartHover(); return; }
       const cx = CHART_PAD.left + idx * slotW + slotW / 2;
       const crossV = document.getElementById("chartCrosshairV");
       const crossH = document.getElementById("chartCrosshairH");
       const tip = document.getElementById("chartTooltip");
+      const priceLabel = document.getElementById("chartPriceLabel");
       crossV.style.left = cx + "px";
       crossV.style.display = "block";
       crossH.style.top = my + "px";
       crossH.style.display = "block";
       const dt = new Date(_lastChartDates[idx] + "T12:00:00");
       const dateLbl = dt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-      const green = cl >= o;
-      const clr = green ? "#4ade80" : "#f87171";
-      tip.innerHTML =
-        `<div style="color:#94a3b8;">${dateLbl}</div>` +
-        `<div>O <b>${o.toFixed(2)}</b> H <b>${h.toFixed(2)}</b> L <b>${l.toFixed(2)}</b> C <b style="color:${clr};">${cl.toFixed(2)}</b></div>` +
-        (v ? `<div style="color:#94a3b8;">VOL ${(v / 1e6).toFixed(2)}M</div>` : "");
+      // Fixed at the top of the chart rather than following the cursor — a
+      // tooltip pinned to the mouse ended up covering the candles/bars right
+      // where the user was trying to look.
+      tip.innerHTML = `<span style="color:#94a3b8;margin-right:10px;">${dateLbl}</span>${body}`;
       tip.style.display = "block";
-      let left = mx + 14, top = my + 14;
-      const tipW = tip.offsetWidth, tipH = tip.offsetHeight;
-      if (left + tipW > rect.width) left = mx - tipW - 14;
-      if (top + tipH > rect.height) top = my - tipH - 14;
-      tip.style.left = Math.max(0, left) + "px";
-      tip.style.top = Math.max(0, top) + "px";
+      // Price-at-cursor label on the Y axis, price-panel only (that's the only
+      // panel with a meaningful "price" axis to read a value off of).
+      if (inPricePanel && extras.priceLo != null && extras.priceHi != null) {
+        const price = extras.priceHi - (my - layout.priceTop) / (layout.priceBottom - layout.priceTop) * (extras.priceHi - extras.priceLo);
+        priceLabel.textContent = price.toFixed(2);
+        priceLabel.style.top = my + "px";
+        priceLabel.style.display = "block";
+      } else {
+        priceLabel.style.display = "none";
+      }
     });
     document.getElementById("candleCanvas").addEventListener("mouseleave", _hideChartHover);
 
@@ -3641,6 +3701,7 @@
         <div class="chart-crosshair-v" id="chartCrosshairV"></div>
         <div class="chart-crosshair-h" id="chartCrosshairH"></div>
         <div class="chart-tooltip" id="chartTooltip"></div>
+        <div class="chart-price-label" id="chartPriceLabel"></div>
       </div>
       <div id="candleNoData">No chart data available yet</div>
       <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:6px;margin-top:12px;"></div>
