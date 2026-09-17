@@ -2322,8 +2322,12 @@
       const [m3v, m3c] = fmtChg(r["3MPriceChange"]);
       const [y1v, y1c] = fmtChg(r["1YPriceChange"]);
       const stats = [
-        ["P/E",     r.PE     != null ? r.PE.toFixed(1)                              : "—"],
-        ["EPS",     r.EPS    != null ? r.EPS.toFixed(2)                             : "—"],
+        ...(r.InETF
+          ? [["Expense Ratio", r.ExpenseRatio != null ? r.ExpenseRatio.toFixed(2)+"%" : "—"]]
+          : [
+              ["P/E", r.PE  != null ? r.PE.toFixed(1)  : "—"],
+              ["EPS", r.EPS != null ? r.EPS.toFixed(2) : "—"],
+            ]),
         ["Volume",  r.VolumeM != null ? r.VolumeM.toFixed(1)+"M"                   : "—"],
         ["Beta",    r.Beta   != null ? r.Beta.toFixed(2)                            : "—"],
         ["Vol 30D", r.Volatility30D != null ? (r.Volatility30D*100).toFixed(1)+"%" : "—"],

@@ -2311,8 +2311,12 @@
       const [m3v, m3c] = fmtChg(r["3MPriceChange"]);
       const [y1v, y1c] = fmtChg(r["1YPriceChange"]);
       const stats = [
-        ["市盈率",     r.PE     != null ? r.PE.toFixed(1)                              : "—"],
-        ["每股收益",   r.EPS    != null ? r.EPS.toFixed(2)                             : "—"],
+        ...(r.InETF
+          ? [["费用比率", r.ExpenseRatio != null ? r.ExpenseRatio.toFixed(2)+"%" : "—"]]
+          : [
+              ["市盈率",   r.PE  != null ? r.PE.toFixed(1)  : "—"],
+              ["每股收益", r.EPS != null ? r.EPS.toFixed(2) : "—"],
+            ]),
         ["成交量",     r.VolumeM != null ? r.VolumeM.toFixed(1)+"M"                   : "—"],
         ["贝塔",       r.Beta   != null ? r.Beta.toFixed(2)                            : "—"],
         ["30日波动率", r.Volatility30D != null ? (r.Volatility30D*100).toFixed(1)+"%" : "—"],

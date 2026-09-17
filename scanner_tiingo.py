@@ -832,6 +832,22 @@ ETF_NAMES = {
     "GLD":  "SPDR Gold Shares",
     "SLV":  "iShares Silver Trust",
 }
+# Annual expense ratio (%), hardcoded like ETF_NAMES above — issuers rarely change
+# these, but they aren't in Tiingo/EDGAR data so there's no live source to pull from.
+# Checked 2026-09-17; USO's fluctuates with T-bill income offsets (0.60%-0.86% seen
+# across sources) so its own fact sheet's stated gross ratio is used as the anchor.
+ETF_EXPENSE_RATIO = {
+    "VOO":  0.03,
+    "SPY":  0.0945,
+    "IVV":  0.03,
+    "SPLG": 0.02,
+    "QQQ":  0.18,
+    "QQQM": 0.15,
+    "FBTC": 0.25,
+    "USO":  0.70,
+    "GLD":  0.40,
+    "SLV":  0.50,
+}
 
 
 def get_sp500():
@@ -2681,6 +2697,7 @@ def scan():
                 "Beta":          beta,
                 "Volatility30D": vol_30d,
                 "CompanyName":   fund["CompanyName"],
+                "ExpenseRatio":  ETF_EXPENSE_RATIO.get(ticker),
                 "Spark6M":       None,
                 "Spark1Y":       spark_1y,
 
