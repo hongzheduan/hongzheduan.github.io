@@ -792,7 +792,7 @@
     #candleCanvas { width: 100%; height: 330px; display: block; border-radius: 8px; }
     .chart-crosshair-v { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed rgba(148,163,184,0.55); pointer-events: none; display: none; }
     .chart-crosshair-h { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed rgba(148,163,184,0.55); pointer-events: none; display: none; }
-    .chart-tooltip { position: absolute; top: 4px; left: 62px; pointer-events: none; display: none; background: rgba(15,23,42,0.88); color: #e2e8f0; font-family: 'DM Mono',monospace; font-size: 11px; line-height: 1.5; padding: 4px 9px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.14); white-space: nowrap; z-index: 5; }
+    .chart-tooltip { position: absolute; top: 4px; left: 62px; pointer-events: none; display: none; color: #1e293b; font-family: 'DM Mono',monospace; font-size: 11px; line-height: 1.5; padding: 4px 9px; white-space: nowrap; z-index: 5; }
     .chart-price-label { position: absolute; left: 2px; transform: translateY(-50%); pointer-events: none; display: none; background: #1e293b; color: #e2e8f0; font-family: 'DM Mono',monospace; font-size: 10px; padding: 2px 5px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.18); white-space: nowrap; z-index: 6; }
     #candleNoData {
       width: 100%; height: 330px; display: none;
@@ -1047,6 +1047,7 @@
             <tr><th>列名</th><th>说明</th></tr>
             <tr><td>偏离SMA20 / 偏离SMA200</td><td>当前价格与20日/200日均线之间的绝对距离（百分比，均线由服务端基于最多730天历史数据计算）。绿色 = 价格高于均线；红色 = 价格低于均线。股价接近（或略低于）SMA200常被视为潜在买入观察点，因为该均线常起到长期支撑作用——并非保证，只是一种常见的技术面判断</td></tr>
             <tr><td>MACD</td><td>MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）；红色 = 低于信号线（偏空）。两线交叉时颜色会翻转</td></tr>
+            <tr><td>RSI</td><td>相对强弱指数（14周期），0-100——该股票自身的动能震荡指标。绿色（&lt;30）= 超卖，红色（&gt;70）= 超买，其余为中性。与SCORES标签页中的"RS"列不同，RS是与其他500多只股票比较价格表现的排名，而这里的RSI只反映该股票自身的动能</td></tr>
             <tr><td>偏离POC</td><td>当前价格与成交量分布控制点（过去约1年内成交量最大的价格水平——此处固定为1年；3M至5Y标签页上的同名列会改用各自的周期）之间的绝对距离，以百分比表示。绿色 = 价格在该水平上方；红色 = 下方。控制点常作为支撑/阻力位或价格的磁吸位。算法与图表的成交量分布叠加图一致</td></tr>
           </table>
         </div>
@@ -1521,6 +1522,22 @@
       r.MacdAbove = diff >= 0;
     }
 
+    /* ── RSI（14周期，Wilder平滑）——与图表弹窗RSI抽屉使用的同一个_computeRsi函数，
+       固定标准周期，独立于该抽屉可编辑的设置。与Dist SMA/MACD不同，RSI本身已经是
+       一个有界的0-100震荡指标，因此直接显示原始数值，并用三段式颜色区分：
+       绿色 <30（超卖），红色 >70（超买），中间为中性——这是RSI的经典读法，
+       而不是其他TECH列那种"高于/低于参考线"的二分法。 ── */
+    function computeRsiCol(r) {
+      const raw = candleData && candleData.data && candleData.data[r.Ticker];
+      if (!raw || raw.length < 15) { r.RsiVal = r.RsiZone = null; return; }
+      const rsi = _computeRsi(raw, 14);
+      let i = rsi.length - 1;
+      while (i >= 0 && rsi[i] == null) i--;
+      if (i < 0) { r.RsiVal = r.RsiZone = null; return; }
+      r.RsiVal = rsi[i];
+      r.RsiZone = r.RsiVal < 30 ? "positive" : (r.RsiVal > 70 ? "negative" : "neutral");
+    }
+
     /* ── 量排名：今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）——
        与computeSmaDist/computeMacdHist读取同一份candles.json原始每日成交量数据。
        交易日数与scanner_tiingo.py的TIMEFRAMES完全一致。 ── */
@@ -1624,7 +1641,7 @@
     }
 
     function buildTable(arr, w) {
-      if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); computePocDist(r); });
+      if (w === "TECH") arr.forEach(r => { computeSmaDist(r); computeMacdHist(r); computeRsiCol(r); computePocDist(r); });
       if (VOL_RANK_WINDOW_DAYS[w]) arr.forEach(r => computeVolRank(r, w));
       if (POC_DAYS_BY_W[w])  arr.forEach(r => computePocDist(r, { days: POC_DAYS_BY_W[w] }));
       if (POC_WEEKS_BY_W[w]) arr.forEach(r => computePocDist(r, { days: POC_WEEKS_BY_W[w], weekly: true }));
@@ -1731,10 +1748,10 @@
         const head = `<thead><tr>
           ${thSort("Ticker",  "代码")}
           ${thStatic("Spark1Y","年趋势线")}
-          ${thSort("Price",   "价格")}
           ${thSort("Dist20",   "偏离SMA20")}
           ${thSort("Dist200",  "偏离SMA200")}
           ${thSort("MacdPct",  "MACD")}
+          ${thSort("RsiVal",   "RSI")}
           ${thSort("PocDist",  "偏离POC")}
         </tr></thead>`;
         const rows = arr.slice(0, 600).map(r => {
@@ -1743,18 +1760,18 @@
             r["1YMaxVolumeChangeDay"], r["1YPriceChangeAtMaxVolume"],
             r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
           );
-          const price   = r._livePrice ?? r.Price;
           const cls20   = r.Above20  == null ? "neutral" : (r.Above20  ? "positive" : "negative");
           const cls200  = r.Above200 == null ? "neutral" : (r.Above200 ? "positive" : "negative");
           const clsMacd = r.MacdAbove == null ? "neutral" : (r.MacdAbove ? "positive" : "negative");
+          const clsRsi  = r.RsiZone || "neutral";
           const clsPoc  = r.AbovePoc  == null ? "neutral" : (r.AbovePoc  ? "positive" : "negative");
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
             <td class="spark-cell">${sparkSVG}</td>
-            <td class="neutral">${price != null ? price.toFixed(2) : "—"}</td>
             <td class="${cls20}">${r.Dist20  != null ? r.Dist20.toFixed(1)  + "%" : "—"}</td>
             <td class="${cls200}">${r.Dist200 != null ? r.Dist200.toFixed(1) + "%" : "—"}</td>
             <td class="${clsMacd}">${r.MacdPct != null ? r.MacdPct.toFixed(2) + "%" : "—"}</td>
+            <td class="${clsRsi}">${r.RsiVal != null ? r.RsiVal.toFixed(1) : "—"}</td>
             <td class="${clsPoc}">${r.PocDist != null ? r.PocDist.toFixed(1) + "%" : "—"}</td>
           </tr>`;
         }).join("");
@@ -2036,6 +2053,7 @@
       "Dist20":          { label: "偏离SMA20",   desc: "价格与20日均线之间的绝对距离（百分比）。绿色 = 价格高于均线，红色 = 价格低于均线。" },
       "Dist200":         { label: "偏离SMA200",  desc: "价格与200日均线之间的绝对距离（百分比）。绿色 = 价格高于均线，红色 = 价格低于均线。股价接近（或略低于）SMA200常被视为潜在买入观察点，因为该均线常起到长期支撑作用——并非保证。" },
       "MacdPct":         { label: "MACD",        desc: "MACD线与信号线之间的绝对距离（标准12/26/9参数），以价格百分比表示。绿色 = MACD线高于信号线（偏多）。红色 = 低于信号线（偏空）。两线交叉时颜色会翻转。" },
+      "RsiVal":          { label: "RSI",         desc: "相对强弱指数（14周期），0-100——衡量该股票自身近期价格变动的速度与幅度。绿色（<30）= 超卖。红色（>70）= 超买。与SCORES标签页中的\"RS\"列不同，RS是与其他500多只股票比较价格表现的排名，而这里的RSI只反映该股票自身的动能。" },
       "PocDist":         { label: "偏离POC",      desc: "当前价格与成交量分布控制点（所选周期内成交量最大的价格水平；TECH 标签页固定为约1年）之间的绝对百分比距离。绿色 = 价格在该水平上方，红色 = 下方。控制点常作为价格的磁吸位或支撑/阻力位，距离越小说明价格正处于历史成交最密集的水平。算法与图表的成交量分布叠加图一致。3M 至 5Y 及 TECH 标签页均显示此列。" },
       "VolRank":         { label: "量排名",      desc: "今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）。仅在3月至1年周期显示。" },
     };
@@ -3078,22 +3096,22 @@
       if (inPricePanel) {
         const [o, h, l, cl] = c;
         const clr = cl >= o ? "#4ade80" : "#f87171";
-        body = `开 <b>${o.toFixed(2)}</b> 高 <b>${h.toFixed(2)}</b> 低 <b>${l.toFixed(2)}</b> 收 <b style="color:${clr};">${cl.toFixed(2)}</b>`;
+        body = `开 ${o.toFixed(2)} 高 ${h.toFixed(2)} 低 ${l.toFixed(2)} 收 <span style="color:${clr};">${cl.toFixed(2)}</span>`;
       } else if (layout.hasVol && my <= layout.volBottom) {
-        body = c[4] ? `量 <b>${(c[4] / 1e6).toFixed(2)}M</b>` : "";
+        body = c[4] ? `量 ${(c[4] / 1e6).toFixed(2)}M` : "";
       } else if (layout.hasScore && my <= layout.scoreBottom) {
         const sv = extras.scoreData.values[idx];
-        body = sv != null ? `${extras.scoreData.label} <b>${sv.toFixed(1)}</b>` : "";
+        body = sv != null ? `${extras.scoreData.label} ${sv.toFixed(1)}` : "";
       } else if (layout.hasMacd && my <= layout.macdBottom) {
         const m = extras.macdData;
         const parts = [];
-        if (m.macd && m.macd[idx] != null) parts.push(`MACD <b>${m.macd[idx].toFixed(2)}</b>`);
-        if (m.signal && m.signal[idx] != null) parts.push(`信号 <b>${m.signal[idx].toFixed(2)}</b>`);
-        if (m.hist && m.hist[idx] != null) parts.push(`柱 <b>${m.hist[idx].toFixed(2)}</b>`);
+        if (m.macd && m.macd[idx] != null) parts.push(`MACD ${m.macd[idx].toFixed(2)}`);
+        if (m.signal && m.signal[idx] != null) parts.push(`信号 ${m.signal[idx].toFixed(2)}`);
+        if (m.hist && m.hist[idx] != null) parts.push(`柱 ${m.hist[idx].toFixed(2)}`);
         body = parts.join(" ");
       } else if (layout.hasRsi && my <= layout.rsiBottom) {
         const rv = extras.rsiData.values[idx];
-        body = rv != null ? `RSI <b>${rv.toFixed(1)}</b>` : "";
+        body = rv != null ? `RSI ${rv.toFixed(1)}` : "";
       }
       if (!body) { _hideChartHover(); return; }
       const cx = CHART_PAD.left + idx * slotW + slotW / 2;
@@ -3108,7 +3126,7 @@
       const dt = new Date(_lastChartDates[idx] + "T12:00:00");
       const dateLbl = dt.toLocaleDateString("zh-CN", { year: "numeric", month: "short", day: "numeric" });
       // 固定显示在图表顶部而非跟随鼠标——跟随鼠标的提示框会挡住正想查看的K线/柱状条。
-      tip.innerHTML = `<span style="color:#94a3b8;margin-right:10px;">${dateLbl}</span>${body}`;
+      tip.innerHTML = `<span style="color:#334155;margin-right:10px;">${dateLbl}</span>${body}`;
       tip.style.display = "block";
       // 光标处的价格标签，显示在Y轴上，仅在价格面板内有意义。
       if (inPricePanel && extras.priceLo != null && extras.priceHi != null) {
