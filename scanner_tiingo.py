@@ -819,12 +819,14 @@ def _fetch_market_headlines(n=5, lang="en"):
 # set rather than merged into sp_set/nd_set — get_fundamentals() short-circuits
 # EDGAR lookups for them (see ETF_TICKERS check there) since ETFs don't file the
 # XBRL company-facts data those lookups expect.
-ETF_TICKERS = ["VOO", "SPY", "IVV", "SPLG", "QQQ", "QQQM", "FBTC", "USO", "GLD", "SLV"]
+ETF_TICKERS = ["VOO", "SPY", "IVV", "SPYM", "QQQ", "QQQM", "FBTC", "USO", "GLD", "SLV"]
+# SPLG was renamed to SPYM effective 2025-10-31 (State Street rebrand; same fund/
+# index/CUSIP, 0.02% fee unchanged) — confirmed via MIAX's corporate action alert.
 ETF_NAMES = {
     "VOO":  "Vanguard S&P 500 ETF",
     "SPY":  "SPDR S&P 500 ETF Trust",
     "IVV":  "iShares Core S&P 500 ETF",
-    "SPLG": "SPDR Portfolio S&P 500 ETF",
+    "SPYM": "State Street SPDR Portfolio S&P 500 ETF",
     "QQQ":  "Invesco QQQ Trust",
     "QQQM": "Invesco NASDAQ 100 ETF",
     "FBTC": "Fidelity Wise Origin Bitcoin Fund",
@@ -834,17 +836,18 @@ ETF_NAMES = {
 }
 # Annual expense ratio (%), hardcoded like ETF_NAMES above — issuers rarely change
 # these, but they aren't in Tiingo/EDGAR data so there's no live source to pull from.
-# Checked 2026-09-17; USO's fluctuates with T-bill income offsets (0.60%-0.86% seen
-# across sources) so its own fact sheet's stated gross ratio is used as the anchor.
+# Checked 2026-09-17 (USO updated same day per its 2026-04-24 prospectus: Total
+# Annual Fund Operating Expenses 0.86% = 0.45% management fee + 0.41% other
+# expenses, confirmed via SEC filing + Yahoo Finance, up from the prior 0.70%).
 ETF_EXPENSE_RATIO = {
     "VOO":  0.03,
     "SPY":  0.0945,
     "IVV":  0.03,
-    "SPLG": 0.02,
+    "SPYM": 0.02,
     "QQQ":  0.18,
     "QQQM": 0.15,
     "FBTC": 0.25,
-    "USO":  0.70,
+    "USO":  0.86,
     "GLD":  0.40,
     "SLV":  0.50,
 }

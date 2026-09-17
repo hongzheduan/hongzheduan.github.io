@@ -25,7 +25,7 @@ FEATURED_TICKERS = [
 # generate_page() which index each one tracks, for the badge/summary text, since
 # there's no other field to derive it from.
 ETF_TRACKS = {
-    "VOO": "S&P 500", "SPY": "S&P 500", "IVV": "S&P 500", "SPLG": "S&P 500",
+    "VOO": "S&P 500", "SPY": "S&P 500", "IVV": "S&P 500", "SPYM": "S&P 500",
     "QQQ": "Nasdaq-100", "QQQM": "Nasdaq-100",
 }
 
