@@ -819,20 +819,18 @@ def _fetch_market_headlines(n=5, lang="en"):
 # set rather than merged into sp_set/nd_set — get_fundamentals() short-circuits
 # EDGAR lookups for them (see ETF_TICKERS check there) since ETFs don't file the
 # XBRL company-facts data those lookups expect.
-ETF_TICKERS = ["VOO", "SPY", "IVV", "SPYM", "QQQ", "QQQM", "FBTC", "USO", "GLD", "SLV"]
-# SPLG was renamed to SPYM effective 2025-10-31 (State Street rebrand; same fund/
-# index/CUSIP, 0.02% fee unchanged) — confirmed via MIAX's corporate action alert.
+ETF_TICKERS = ["VOO", "SPY", "IVV", "QQQ", "QQQM", "FBTC", "USO", "GLD", "SLV", "SGOV"]
 ETF_NAMES = {
     "VOO":  "Vanguard S&P 500 ETF",
     "SPY":  "SPDR S&P 500 ETF Trust",
     "IVV":  "iShares Core S&P 500 ETF",
-    "SPYM": "State Street SPDR Portfolio S&P 500 ETF",
     "QQQ":  "Invesco QQQ Trust",
     "QQQM": "Invesco NASDAQ 100 ETF",
     "FBTC": "Fidelity Wise Origin Bitcoin Fund",
     "USO":  "United States Oil Fund",
     "GLD":  "SPDR Gold Shares",
     "SLV":  "iShares Silver Trust",
+    "SGOV": "iShares 0-3 Month Treasury Bond ETF",
 }
 # Annual expense ratio (%), hardcoded like ETF_NAMES above — issuers rarely change
 # these, but they aren't in Tiingo/EDGAR data so there's no live source to pull from.
@@ -843,13 +841,13 @@ ETF_EXPENSE_RATIO = {
     "VOO":  0.03,
     "SPY":  0.0945,
     "IVV":  0.03,
-    "SPYM": 0.02,
     "QQQ":  0.18,
     "QQQM": 0.15,
     "FBTC": 0.25,
     "USO":  0.86,
     "GLD":  0.40,
     "SLV":  0.50,
+    "SGOV": 0.09,
 }
 
 
