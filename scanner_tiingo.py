@@ -819,7 +819,7 @@ def _fetch_market_headlines(n=5, lang="en"):
 # set rather than merged into sp_set/nd_set — get_fundamentals() short-circuits
 # EDGAR lookups for them (see ETF_TICKERS check there) since ETFs don't file the
 # XBRL company-facts data those lookups expect.
-ETF_TICKERS = ["VOO", "SPY", "IVV", "SPLG", "QQQ", "QQQM"]
+ETF_TICKERS = ["VOO", "SPY", "IVV", "SPLG", "QQQ", "QQQM", "FBTC", "USO", "GLD", "SLV"]
 ETF_NAMES = {
     "VOO":  "Vanguard S&P 500 ETF",
     "SPY":  "SPDR S&P 500 ETF Trust",
@@ -827,6 +827,10 @@ ETF_NAMES = {
     "SPLG": "SPDR Portfolio S&P 500 ETF",
     "QQQ":  "Invesco QQQ Trust",
     "QQQM": "Invesco NASDAQ 100 ETF",
+    "FBTC": "Fidelity Wise Origin Bitcoin Fund",
+    "USO":  "United States Oil Fund",
+    "GLD":  "SPDR Gold Shares",
+    "SLV":  "iShares Silver Trust",
 }
 
 
