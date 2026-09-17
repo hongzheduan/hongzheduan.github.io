@@ -1,5 +1,5 @@
 {
-  "fetched": "2026-09-16",
+  "fetched": "2026-09-17",
   "tickers": {
     "A": {
       "SharesOutstanding": 281928854,
@@ -418,7 +418,7 @@
     "ASML": {
       "SharesOutstanding": 385417665,
       "SharesFiledDate": "2026-02-25",
-      "EPS": 28.5078,
+      "EPS": 28.3697,
       "Sector": "Technology",
       "SicDescription": "Special Industry Machinery, NEC",
       "CompanyName": "ASML HOLDING NV",
@@ -760,7 +760,7 @@
     "CCEP": {
       "SharesOutstanding": 449086551,
       "SharesFiledDate": "2026-03-13",
-      "EPS": 4.9147,
+      "EPS": 4.8909,
       "Sector": "Consumer Defensive",
       "SicDescription": "Bottled & Canned Soft Drinks & Carbonated Waters",
       "CompanyName": "COCA-COLA EUROPACIFIC PARTNERS plc",
@@ -1604,9 +1604,9 @@
       "TiingoMarketCap": null
     },
     "EXE": {
-      "SharesOutstanding": 239228849,
-      "SharesFiledDate": "2026-04-28",
-      "EPS": 13.44,
+      "SharesOutstanding": 231503789,
+      "SharesFiledDate": "2026-07-28",
+      "EPS": 11.58,
       "Sector": "Energy",
       "SicDescription": "Crude Petroleum & Natural Gas",
       "CompanyName": "EXPAND ENERGY Corp",
@@ -1666,6 +1666,15 @@
       "CompanyName": "FASTENAL CO",
       "TiingoMarketCap": null
     },
+    "FBTC": {
+      "SharesOutstanding": null,
+      "SharesFiledDate": null,
+      "EPS": null,
+      "Sector": "",
+      "SicDescription": "",
+      "CompanyName": "Fidelity Wise Origin Bitcoin Fund",
+      "TiingoMarketCap": null
+    },
     "FCX": {
       "SharesOutstanding": 1436017523,
       "SharesFiledDate": "2026-08-06",
@@ -1714,7 +1723,7 @@
     "FER": {
       "SharesOutstanding": 720626181,
       "SharesFiledDate": "2026-02-25",
-      "EPS": 1.4306,
+      "EPS": 1.4237,
       "Sector": "Industrials",
       "SicDescription": "Heavy Construction Other Than Bldg Const - Contractors",
       "CompanyName": "Ferrovial N.V.",
@@ -1925,6 +1934,15 @@
       "Sector": "Financial Services",
       "SicDescription": "Life Insurance",
       "CompanyName": "GLOBE LIFE INC.",
+      "TiingoMarketCap": null
+    },
+    "GLD": {
+      "SharesOutstanding": null,
+      "SharesFiledDate": null,
+      "EPS": null,
+      "Sector": "",
+      "SicDescription": "",
+      "CompanyName": "SPDR Gold Shares",
       "TiingoMarketCap": null
     },
     "GLW": {
@@ -3754,6 +3772,15 @@
       "CompanyName": "SCHWAB CHARLES CORP",
       "TiingoMarketCap": null
     },
+    "SGOV": {
+      "SharesOutstanding": null,
+      "SharesFiledDate": null,
+      "EPS": null,
+      "Sector": "",
+      "SicDescription": "",
+      "CompanyName": "iShares 0-3 Month Treasury Bond ETF",
+      "TiingoMarketCap": null
+    },
     "SHOP": {
       "SharesOutstanding": 1286643931,
       "SharesFiledDate": "2026-08-05",
@@ -3788,6 +3815,15 @@
       "Sector": "Energy",
       "SicDescription": "Oil & Gas Field Services, NEC",
       "CompanyName": "SLB LIMITED/NV",
+      "TiingoMarketCap": null
+    },
+    "SLV": {
+      "SharesOutstanding": null,
+      "SharesFiledDate": null,
+      "EPS": null,
+      "Sector": "",
+      "SicDescription": "",
+      "CompanyName": "iShares Silver Trust",
       "TiingoMarketCap": null
     },
     "SMCI": {
@@ -3869,15 +3905,6 @@
       "Sector": "Financial Services",
       "SicDescription": "Services-Consumer Credit Reporting, Collection Agencies",
       "CompanyName": "S&P Global Inc.",
-      "TiingoMarketCap": null
-    },
-    "SPLG": {
-      "SharesOutstanding": null,
-      "SharesFiledDate": null,
-      "EPS": null,
-      "Sector": "",
-      "SicDescription": "",
-      "CompanyName": "SPDR Portfolio S&P 500 ETF",
       "TiingoMarketCap": null
     },
     "SPY": {
@@ -4346,6 +4373,15 @@
       "Sector": "Financial Services",
       "SicDescription": "National Commercial Banks",
       "CompanyName": "US BANCORP \\DE\\",
+      "TiingoMarketCap": null
+    },
+    "USO": {
+      "SharesOutstanding": null,
+      "SharesFiledDate": null,
+      "EPS": null,
+      "Sector": "",
+      "SicDescription": "",
+      "CompanyName": "United States Oil Fund",
       "TiingoMarketCap": null
     },
     "V": {
