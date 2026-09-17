@@ -593,6 +593,15 @@
   ],
   "ADI": [
     {
+      "date": "2026-09-17",
+      "items": "1.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/6281/000119312526394361/d175690d8k.htm"
+    },
+    {
       "date": "2026-08-19",
       "eps": 2.74,
       "items": "2.02,9.01",
@@ -12470,6 +12479,15 @@
   ],
   "EXE": [
     {
+      "date": "2026-09-17",
+      "items": "1.01,2.03,8.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/895126/000110465926108570/tm2625334d5_8k.htm"
+    },
+    {
       "date": "2026-09-16",
       "items": "5.02,8.01",
       "label": "Leadership Change",
@@ -12489,11 +12507,11 @@
     },
     {
       "date": "2026-07-28",
-      "eps": null,
+      "eps": 2.19,
       "items": "2.02,7.01,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-06-30",
+      "revenue": 2960000000,
       "type": [
         "earnings"
       ],
@@ -25482,6 +25500,15 @@
   ],
   "PEP": [
     {
+      "date": "2026-09-17",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/77476/000007747626000042/pep-20260917.htm"
+    },
+    {
       "date": "2026-07-09",
       "eps": 2.18,
       "items": "2.02,9.01",
@@ -28127,6 +28154,15 @@
   ],
   "ROST": [
     {
+      "date": "2026-09-17",
+      "items": "5.02,7.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/745732/000074573226000043/rost-20260911.htm"
+    },
+    {
       "date": "2026-08-20",
       "eps": 2.66,
       "items": "2.02,9.01",
@@ -28772,6 +28808,17 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/87347/000119312525241946/d83993d8k.htm"
+    }
+  ],
+  "SLV": [
+    {
+      "date": "2026-03-31",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1330568/000143774926010478/slv20260328_8k.htm"
     }
   ],
   "SMCI": [
@@ -30916,6 +30963,15 @@
     }
   ],
   "TJX": [
+    {
+      "date": "2026-09-17",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/109198/000010919826000051/tjx-20260916.htm"
+    },
     {
       "date": "2026-08-19",
       "eps": 1.36,
