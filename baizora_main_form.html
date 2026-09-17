@@ -591,7 +591,12 @@
     }
 
     /* Cards hidden on desktop; table hidden on mobile */
-    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards { display: none; }
+    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards { display: none; }
+    .newmembers-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
+    .newmembers-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
+    .new-member-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
+    .new-member-badge.confirmed { background: rgba(59,130,246,0.15); color: var(--electric-bright); border: 1px solid rgba(59,130,246,0.3); }
+    .new-member-badge.rumored { background: rgba(245,158,11,0.15); color: var(--gold-light); border: 1px solid rgba(245,158,11,0.3); }
 
     @media (max-width: 768px) {
       .toolbar { flex-wrap: wrap; height: auto; }
@@ -618,8 +623,8 @@
       tr:hover td.ticker-cell { background: #081229; }
       .mobile-search-bar { display: block; }
       .mobile-rotate-hint { display: block; }
-      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable { display: none !important; }
-      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards { display: block !important; }
+      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable { display: none !important; }
+      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards { display: block !important; }
     }
     @media (max-width: 960px) and (orientation: landscape) {
       header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
@@ -850,6 +855,7 @@
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="sp500">S&P 500</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="nasdaq">Nasdaq 100</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="etf">ETF</button>
+            <button type="button" role="menuitem" class="idx-dd-item" data-idx="newmembers">New Members</button>
           </div>
         </div>
         <button class="tab-btn" data-tab="watchlist" onclick="show('watchlist', this)">★ Watchlist</button>
@@ -885,6 +891,7 @@
     <button onclick="selectIndex('sp500'); toggleMenu();">S&P 500</button>
     <button onclick="selectIndex('nasdaq'); toggleMenu();">Nasdaq 100</button>
     <button onclick="selectIndex('etf'); toggleMenu();">ETF</button>
+    <button onclick="selectIndex('newmembers'); toggleMenu();">New Members</button>
     <button onclick="show('watchlist'); toggleMenu();">★ Watchlist</button>
     <button onclick="show('readme'); toggleMenu();">README</button>
     <button onclick="show('membership'); toggleMenu();">MEMBERSHIP CHANGE</button>
@@ -955,6 +962,13 @@
     <div id="etf" class="section">
       <table id="etfTable"></table>
       <div id="etfCards"></div>
+    </div>
+
+    <div id="newmembers" class="section">
+      <p class="newmembers-blurb">Stocks recently added to, or reported/rumored to be joining, the S&amp;P 500 or Nasdaq-100 within the last or next 30 days. Sourced from news coverage — treat unconfirmed entries as speculative.</p>
+      <table id="newmembersTable"></table>
+      <div id="newmembersCards"></div>
+      <p class="newmembers-empty" id="newmembersEmpty" style="display:none;">No recent or rumored index additions right now.</p>
     </div>
 
     <div id="watchlist" class="section">
@@ -1082,7 +1096,9 @@
     const CHART_BTN = `<button class="chart-btn" title="View Chart" aria-label="View chart"><svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><line x1="2.5" y1="1" x2="2.5" y2="10" stroke="currentColor" stroke-width="0.9"/><rect x="1" y="3.5" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.5"/><line x1="7" y1="0.5" x2="7" y2="10.5" stroke="currentColor" stroke-width="0.9"/><rect x="5.5" y="2" width="3" height="6" rx="0.4" fill="currentColor"/><line x1="11.5" y1="1" x2="11.5" y2="9.5" stroke="currentColor" stroke-width="0.9"/><rect x="10" y="3" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.7"/></svg></button>`;
 
     /* ── STATE ── */
-    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [];
+    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [];
+    let recentJoinMap = {};   // ticker -> {index, date}, official adds within NEW_MEMBER_WINDOW_DAYS
+    const NEW_MEMBER_WINDOW_DAYS = 30;
     let activeTab     = "all";
     let sortKey       = "PriceChange1D";
     let sortAsc       = false;
@@ -1241,11 +1257,94 @@
     function loadIndexChanges() {
       fetch("data/index_changes.json")
         .then(r => r.json())
-        .then(data => renderIndexChanges(data.entries || [], data.trackedSince || "", data.lastChecked || ""))
+        .then(data => {
+          renderIndexChanges(data.entries || [], data.trackedSince || "", data.lastChecked || "");
+          computeNewMembers(data.entries || []);
+          render();
+        })
         .catch(() => {
           const panel = document.getElementById("indexChangesPanel");
           if (panel) panel.innerHTML = '<span class="no-changes-msg">Change history not yet available.</span>';
         });
+    }
+
+    /* ── NEW MEMBERS (recent + rumored index adds) ── */
+    // Recent = officially added within NEW_MEMBER_WINDOW_DAYS (data/index_changes.json).
+    // Pending/rumored = mined from news, carried per-row as PendingIndex in latest.json
+    // (see scanner_tiingo.py's update_pending_index_members()).
+    function computeNewMembers(entries) {
+      const cutoff = Date.now() - NEW_MEMBER_WINDOW_DAYS * 86400000;
+      recentJoinMap = {};
+      (entries || []).forEach(e => {
+        const t = Date.parse(e.date + "T00:00:00Z");
+        if (isNaN(t) || t < cutoff) return;
+        ["sp500", "nasdaq100"].forEach(idx => {
+          ((e[idx] || {}).added || []).forEach(tk => {
+            if (!recentJoinMap[tk] || recentJoinMap[tk].date < e.date) {
+              recentJoinMap[tk] = { index: idx, date: e.date };
+            }
+          });
+        });
+      });
+      newMemberRows = allRows.filter(r => {
+        if (recentJoinMap[r.Ticker]) return true;   // already cutoff-filtered above
+        const p = r.PendingIndex;
+        if (!p) return false;
+        // Once we know the actual/expected join date and it's more than
+        // NEW_MEMBER_WINDOW_DAYS in the past, drop it — even if data/index_changes.json
+        // hasn't (yet) confirmed the official add. A pure rumor with no effective date
+        // is capped by firstSeen instead so it doesn't linger indefinitely.
+        const anchor = p.effectiveDate || p.firstSeen;
+        if (!anchor) return true;
+        const t = Date.parse(anchor + "T00:00:00Z");
+        return isNaN(t) || t >= cutoff;
+      });
+    }
+
+    function joinInfoFor(ticker) {
+      const row = newMemberRows.find(r => r.Ticker === ticker);
+      if (!row) return null;
+      const p = row.PendingIndex;
+      if (p) {
+        const idxLabel = p.index === "nasdaq100" ? "Nasdaq-100" : "S&P 500";
+        if (p.status === "rumored") {
+          return { date: p.firstSeen, label: `Rumored: ${idxLabel} add`, rumored: true, status: "rumored", index: p.index, effectiveDate: p.effectiveDate };
+        }
+        const date = p.effectiveDate || p.firstSeen;
+        const label = p.effectiveDate ? `Joins ${idxLabel} ${p.effectiveDate}` : `Reported: ${idxLabel} add`;
+        return { date, label, rumored: false, status: "confirmed", index: p.index, effectiveDate: p.effectiveDate };
+      }
+      const rj = recentJoinMap[ticker];
+      if (rj) {
+        const idxLabel = rj.index === "nasdaq100" ? "Nasdaq-100" : "S&P 500";
+        return { date: rj.date, label: `Joined ${idxLabel} ${rj.date}`, rumored: false, status: "confirmed", index: rj.index, effectiveDate: rj.date };
+      }
+      return null;
+    }
+
+    function _newMemberBadge(info) {
+      const badge = document.createElement("span");
+      badge.className = "new-member-badge " + (info.rumored ? "rumored" : "confirmed");
+      badge.textContent = info.rumored ? "RUMORED" : (info.effectiveDate && info.effectiveDate > loadedDate ? "JOINING " + info.effectiveDate : "NEW");
+      badge.title = info.label;
+      return badge;
+    }
+
+    function decorateNewMemberBadges() {
+      document.querySelectorAll('#newmembersTable .ticker-cell[data-ticker]').forEach(cell => {
+        if (cell.querySelector(".new-member-badge")) return;
+        const info = joinInfoFor(cell.dataset.ticker);
+        if (!info) return;
+        cell.insertBefore(_newMemberBadge(info), cell.querySelector(".chart-btn"));
+      });
+      document.querySelectorAll('#newmembersCards .stock-card[data-ticker]').forEach(card => {
+        const header = card.querySelector(".card-header");
+        if (!header || header.querySelector(".new-member-badge")) return;
+        const info = joinInfoFor(card.dataset.ticker);
+        if (!info) return;
+        const tickerEl = header.querySelector(".card-ticker");
+        header.insertBefore(_newMemberBadge(info), tickerEl ? tickerEl.nextSibling : header.firstChild);
+      });
     }
 
     /* ── LOAD ── */
@@ -1300,10 +1399,11 @@
 
     /* ── STATUS ── */
     const IDX_META = {
-      all:    { rows: () => combinedRows.length, label: "All" },
-      sp500:  { rows: () => spRows.length,       label: "S&P 500" },
-      nasdaq: { rows: () => ndRows.length,       label: "Nasdaq 100" },
-      etf:    { rows: () => etfRows.length,      label: "ETF" },
+      all:         { rows: () => combinedRows.length,  label: "All" },
+      sp500:       { rows: () => spRows.length,        label: "S&P 500" },
+      nasdaq:      { rows: () => ndRows.length,        label: "Nasdaq 100" },
+      etf:         { rows: () => etfRows.length,       label: "ETF" },
+      newmembers:  { rows: () => newMemberRows.length, label: "New Members" },
     };
     function updateStatus() {
       statusText.textContent = loadedDate;
@@ -1992,6 +2092,7 @@
       const nd = ndRows.filter(filter);
       const etf = etfRows.filter(filter);
       const wl = allRows.filter(r => watchlist.has(r.Ticker) && filter(r));
+      const nm = newMemberRows.filter(filter);
       document.getElementById("allTable").innerHTML        = buildTable(combined, w);
       document.getElementById("allCards").innerHTML        = buildCards(combined, w);
       document.getElementById("etfTable").innerHTML        = buildTable(etf, w);
@@ -2003,6 +2104,10 @@
       document.getElementById("watchlistTable").innerHTML = buildTable(wl, w);
       document.getElementById("watchlistCards").innerHTML = buildCards(wl, w);
       document.getElementById("watchlistEmpty").style.display = wl.length === 0 ? "block" : "none";
+      document.getElementById("newmembersTable").innerHTML = buildTable(nm, w);
+      document.getElementById("newmembersCards").innerHTML = buildCards(nm, w);
+      document.getElementById("newmembersEmpty").style.display = nm.length === 0 ? "block" : "none";
+      decorateNewMemberBadges();
       updateStatus();
     }
 
@@ -2366,7 +2471,7 @@
       const rsiTop = macdBottom + gap4, rsiBottom = rsiTop + rsiH;
       return { priceTop, priceBottom, hasVol, volTop, volBottom, hasScore, scoreTop, scoreBottom, hasMacd, macdTop, macdBottom, hasRsi, rsiTop, rsiBottom };
     }
-    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile, rsi) {
+    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile, rsi, joinInfo) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
@@ -2574,6 +2679,34 @@
         });
         ctx.stroke();
       });
+      // Index-join marker — vertical dashed line at the (rumored/announced/actual) join
+      // date. A future effective date beyond the visible window is pinned to the last
+      // candle rather than skipped, so an upcoming add still shows on the chart.
+      if (joinInfo && joinInfo.date) {
+        let jIdx = dates.indexOf(joinInfo.date);
+        if (jIdx < 0) {
+          if (joinInfo.date > dates[dates.length - 1]) jIdx = dates.length - 1;
+          else if (joinInfo.date >= dates[0]) {
+            for (let i = dates.length - 1; i >= 0; i--) { if (dates[i] <= joinInfo.date) { jIdx = i; break; } }
+          }
+        }
+        if (jIdx >= 0) {
+          const jx = toX(jIdx) + cndW / 2;
+          const jColor = joinInfo.rumored ? "#d97706" : "#2563eb";
+          ctx.save();
+          ctx.strokeStyle = joinInfo.rumored ? "rgba(217,119,6,0.6)" : "rgba(37,99,235,0.6)";
+          ctx.lineWidth = 1.3;
+          ctx.setLineDash([4, 3]);
+          ctx.beginPath(); ctx.moveTo(jx, pad.top); ctx.lineTo(jx, pad.top + priceH); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = jColor;
+          ctx.font = `9px 'DM Mono', monospace`;
+          const nearRight = jx > W - pad.right - 90;
+          ctx.textAlign = nearRight ? "right" : "left";
+          ctx.fillText(joinInfo.label, jx + (nearRight ? -4 : 4), pad.top + 10);
+          ctx.restore();
+        }
+      }
       if (hasVol) {
         const volTop = pad.top + priceH + gap;
         const maxVol = Math.max(...candles.map(c => c ? c[4] || 0 : 0));
@@ -3095,7 +3228,8 @@
         canvas.style.height = (330 + (macdData ? 90 : 0) + (scoreData ? 76 : 0) + (rsiData ? 76 : 0)) + "px";
 
         const vpActive = document.getElementById("vpChip").classList.contains("active");
-        const priceRange = renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData);
+        const joinInfo = joinInfoFor(ticker);
+        const priceRange = renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData, joinInfo);
         _lastChartCandles = filled.candles;
         _lastChartDates = filled.dates;
         _lastChartExtras = { scoreData, macdData, rsiData, priceLo: priceRange.lo, priceHi: priceRange.hi };

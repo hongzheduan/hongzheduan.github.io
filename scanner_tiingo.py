@@ -863,15 +863,34 @@ def get_nasdaq100():
         return [t.strip().replace(".", "-") for t in f.read().splitlines() if t.strip()]
 
 
+def get_pending_candidates():
+    """Rumored/announced-but-not-yet-official index adds — see update_pending_index_members()."""
+    path = os.path.join(DATA_DIR, "pending_index_members.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f).get("candidates", [])
+    except (FileNotFoundError, ValueError):
+        return []
+
+
 def get_tickers():
     sp500     = get_sp500()
     nasdaq100 = get_nasdaq100()
-    clean   = [t.replace(".", "-") for t in sp500 + nasdaq100 + ETF_TICKERS if isinstance(t, str)]
-    tickers = sorted(set(clean))
     sp_set  = {t.replace(".", "-") for t in sp500     if isinstance(t, str)}
     nd_set  = {t.replace(".", "-") for t in nasdaq100 if isinstance(t, str)}
     etf_set = {t.replace(".", "-") for t in ETF_TICKERS if isinstance(t, str)}
-    return tickers, sp_set, nd_set, etf_set
+    # pending_meta tags EVERY pending candidate's row (even one already tracked under the
+    # *other* index, e.g. a Nasdaq-100 member rumored for S&P 500) — only the scan list
+    # below needs to skip tickers that are already tracked one way or another.
+    pending_meta = {
+        c["ticker"].replace(".", "-"): c for c in get_pending_candidates() if c.get("ticker")
+    }
+    already_tracked = sp_set | nd_set | etf_set
+    extra_tickers   = [t for t in pending_meta if t not in already_tracked]
+    clean   = [t.replace(".", "-") for t in sp500 + nasdaq100 + ETF_TICKERS if isinstance(t, str)]
+    clean  += extra_tickers
+    tickers = sorted(set(clean))
+    return tickers, sp_set, nd_set, etf_set, pending_meta
 
 
 # =========================
@@ -2455,7 +2474,7 @@ def _build_weekly_series(df, max_weeks=265):
 
 
 def scan():
-    tickers, sp_set, nd_set, etf_set = get_tickers()
+    tickers, sp_set, nd_set, etf_set, pending_meta = get_tickers()
     universe_set        = set(tickers)
     results             = []
     candles_out         = {}
@@ -2581,6 +2600,7 @@ def scan():
             in_sp500     = ticker in sp_set
             in_nasdaq100 = ticker in nd_set
             in_etf       = ticker in etf_set
+            pending_info = pending_meta.get(ticker)
 
             try:
                 close_series = df["Close"].dropna()
@@ -2679,6 +2699,14 @@ def scan():
                 "InSP500":     in_sp500,
                 "InNASDAQ100": in_nasdaq100,
                 "InETF":       in_etf,
+                "PendingIndex": ({
+                    "index":         pending_info.get("index"),
+                    "status":        pending_info.get("status"),
+                    "effectiveDate": pending_info.get("effectiveDate"),
+                    "firstSeen":     pending_info.get("firstSeen"),
+                    "headline":      pending_info.get("headline"),
+                    "link":          pending_info.get("link"),
+                } if pending_info else None),
 
                 "Price":   round(float(latest["Close"]), 2),
                 "VolumeM": latest_volume_m,
@@ -3391,6 +3419,182 @@ def fetch_and_save_index_news(lookback_days=7, max_age_days=2):
     print(f"  [news] {len(added)} new item(s); {len(merged)} total after merge -> {path}")
 
 
+# =========================
+# PENDING INDEX MEMBERS
+# Rumored/announced-but-not-yet-official S&P 500 / Nasdaq-100 additions, mined from
+# the headlines in data/index_news.json above. Feeds get_tickers() (so these names get
+# scanned before Slickcharts reflects the change) and the dashboard's "New Members" tab.
+# Confirmed-and-already-official adds are read straight from data/index_changes.json by
+# the frontend, not tracked here.
+# =========================
+
+_PENDING_TICKER_BLACKLIST = {
+    "AI", "US", "UK", "EU", "CEO", "CFO", "IPO", "ETF", "SEC", "GDP", "USD",
+    "Q1", "Q2", "Q3", "Q4", "NYSE", "TV",
+}
+_PENDING_TICKER_EXCH_RE  = re.compile(r'\((?:NYSE|NASDAQ)\s*:\s*([A-Z]{1,5})\)')
+_PENDING_TICKER_PAREN_RE = re.compile(r'\(([A-Z]{2,5})\)')
+_PENDING_TICKER_LEAD_RE  = re.compile(r'^([A-Z]{2,5})\s+Stock\b')
+_PENDING_RUMOR_WORDS = (
+    "rumor", "rumour", "speculat", "buzz", "hopes", "could join", "opinions on",
+    "eyes ", "may join", "might join",
+)
+_PENDING_MONTHS = {
+    "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
+    "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "jun": 6, "jul": 7, "aug": 8,
+    "sep": 9, "sept": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+_PENDING_DATE_RE = re.compile(r'\b(?:on|effective|set for|starting)\s+([A-Za-z]+)\.?\s+(\d{1,2})\b', re.IGNORECASE)
+
+
+def _pending_extract_ticker(title):
+    for rx in (_PENDING_TICKER_EXCH_RE, _PENDING_TICKER_PAREN_RE):
+        m = rx.search(title)
+        if m and m.group(1) not in _PENDING_TICKER_BLACKLIST:
+            return m.group(1)
+    m = _PENDING_TICKER_LEAD_RE.match(title)
+    if m and m.group(1) not in _PENDING_TICKER_BLACKLIST:
+        return m.group(1)
+    return None
+
+
+def _pending_extract_company_hint(title, ticker):
+    m = re.search(r'^(.*?)\s*\((?:NYSE:|NASDAQ:)?' + re.escape(ticker) + r'\)', title)
+    if not m or not m.group(1).strip():
+        return None
+    name = m.group(1).strip().rstrip(",")
+    return re.sub(r'\s+[Ss]tock$', '', name).strip() or None
+
+
+def _pending_match_company_hint(title, hints):
+    tl = title.lower()
+    for ticker, name in hints.items():
+        if name and name.lower() in tl:
+            return ticker
+    return None
+
+
+def _pending_is_rumor(title):
+    t = title.lower()
+    return any(w in t for w in _PENDING_RUMOR_WORDS)
+
+
+def _pending_parse_effective_date(title, article_date):
+    m = _PENDING_DATE_RE.search(title)
+    if not m:
+        return None
+    month = _PENDING_MONTHS.get(m.group(1).lower())
+    if not month:
+        return None
+    day = int(m.group(2))
+    if not (1 <= day <= 31):
+        return None
+    try:
+        art = datetime.strptime(article_date, "%Y-%m-%d").date()
+        year = art.year
+    except (ValueError, TypeError):
+        art, year = None, datetime.now().year
+    try:
+        d = date(year, month, day)
+    except ValueError:
+        return None
+    # A parsed date well before the article date is next year's occurrence, not this one
+    # (e.g. an article from December mentioning "effective January 5").
+    if art and (art - d).days > 120:
+        try:
+            d = d.replace(year=d.year + 1)
+        except ValueError:
+            return None
+    return d.isoformat()
+
+
+def update_pending_index_members():
+    news_path = os.path.join(DATA_DIR, "index_news.json")
+    try:
+        with open(news_path, encoding="utf-8") as f:
+            news_items = json.load(f).get("items", [])
+    except (FileNotFoundError, ValueError):
+        news_items = []
+
+    changes_path = os.path.join(DATA_DIR, "index_changes.json")
+    official_added = set()
+    try:
+        with open(changes_path, encoding="utf-8") as f:
+            for e in json.load(f).get("entries", []):
+                for idx in ("sp500", "nasdaq100"):
+                    for t in e.get(idx, {}).get("added", []):
+                        official_added.add((t, idx))
+    except (FileNotFoundError, ValueError):
+        pass
+
+    out_path = os.path.join(DATA_DIR, "pending_index_members.json")
+    try:
+        with open(out_path, encoding="utf-8") as f:
+            existing = {(c["ticker"], c["index"]): c for c in json.load(f).get("candidates", [])}
+    except (FileNotFoundError, ValueError):
+        existing = {}
+
+    company_hints = {t: c["company"] for (t, _), c in existing.items() if c.get("company")}
+
+    for it in news_items:
+        cat = it.get("category", "")
+        if "addition" not in cat:
+            continue
+        index = "sp500" if cat.startswith("S&P") else "nasdaq100"
+        title = it.get("title", "")
+        ticker = _pending_extract_ticker(title) or _pending_match_company_hint(title, company_hints)
+        if not ticker:
+            continue
+        hint = _pending_extract_company_hint(title, ticker)
+        if hint:
+            company_hints[ticker] = hint
+        key = (ticker, index)
+        if key in official_added:
+            existing.pop(key, None)
+            continue
+        status = "rumored" if _pending_is_rumor(title) else "confirmed"
+        eff = _pending_parse_effective_date(title, it.get("date", ""))
+        cur = existing.get(key)
+        if cur:
+            cur["lastSeen"] = max(cur.get("lastSeen", ""), it.get("date", ""))
+            if status == "confirmed":
+                cur["status"] = "confirmed"
+            if company_hints.get(ticker) and not cur.get("company"):
+                cur["company"] = company_hints[ticker]
+            if eff and not cur.get("effectiveDate"):
+                cur["effectiveDate"] = eff
+                cur["headline"], cur["link"] = title, it.get("link", "")
+        else:
+            existing[key] = {
+                "ticker": ticker, "company": company_hints.get(ticker, ""),
+                "index": index, "status": status, "effectiveDate": eff,
+                "firstSeen": it.get("date", ""), "lastSeen": it.get("date", ""),
+                "headline": title, "link": it.get("link", ""),
+            }
+
+    today = datetime.now().date()
+    rumor_cutoff     = (today - timedelta(days=60)).isoformat()
+    stale_eff_cutoff = (today - timedelta(days=14)).isoformat()
+
+    def _still_relevant(v):
+        # A "confirmed" candidate whose effective date passed >14d ago and never showed up
+        # in index_changes.json is presumably a deal that fell through (or a missed scrape)
+        # rather than a real pending add — drop it instead of tagging it forever.
+        eff = v.get("effectiveDate")
+        if v.get("status") == "confirmed":
+            return not (eff and eff < stale_eff_cutoff)
+        return v.get("firstSeen", "") >= rumor_cutoff
+
+    kept = {k: v for k, v in existing.items() if k not in official_added and _still_relevant(v)}
+    candidates = sorted(kept.values(), key=lambda c: c.get("firstSeen", ""), reverse=True)
+
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump({"lastChecked": today.isoformat(), "candidates": candidates}, f, ensure_ascii=False, indent=2)
+    print(f"[pending_index] {len(candidates)} candidate(s) -> {out_path}")
+    return candidates
+
+
 
 
 # =========================
@@ -3619,7 +3823,7 @@ if __name__ == "__main__":
     # Tiingo-free (and key-optional) in yfinance mode — company names fall back to EDGAR.
     if EDGAR_ONLY:
         print("EDGAR_ONLY — refreshing fundamentals cache from SEC EDGAR …")
-        tickers, _, _, _ = get_tickers()
+        tickers, _, _, _, _ = get_tickers()
         _fund_cache.clear()  # force full re-fetch so new filings are picked up
         tiingo_meta = {} if (USE_YFINANCE or not TIINGO_API_KEY) else prefetch_tiingo_meta(tickers)
         prefetch_fundamentals(tickers, tiingo_meta)
@@ -3745,6 +3949,10 @@ if __name__ == "__main__":
 
     # 2. Write index_changes.json
     load_update_index_changes(changes_entry)
+
+    # 2b. Refresh rumored/announced-but-not-yet-official index-add candidates (mined from
+    # yesterday's index_news.json run) so today's scan() below picks them up via get_tickers().
+    update_pending_index_members()
 
     # 3. (archive cleanup disabled — all daily CSVs kept in git permanently)
 
