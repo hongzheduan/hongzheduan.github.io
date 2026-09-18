@@ -88,6 +88,18 @@ env:
   # last CN news video frozen in data/, no fresh renders. EN news is unaffected.
   NEWS_VIDEO_CN: "off"
 
+  # Weekday/weekend category Shorts (near_sma200/1y_vol_peak/6m_breakout/
+  # index_spotlight/worst_performer/best_performer): EN always runs; CN is gated
+  # on this flag, separate from NEWS_VIDEO_CN above. Set to "on" to resume CN
+  # category-video generation + upload (no other change needed anywhere — the
+  # "Select daily video types" step strips every "*_cn" entry out of VIDEO_TYPES
+  # while this is "off", so EN generation/upload is untouched). "off" leaves the
+  # last CN category video frozen in data/latest_video_cn.mp4 and
+  # latest_video_meta.json's cn entry — index_cn.html's footer link keeps pointing
+  # at that frozen video, same as NEWS_VIDEO_CN's freeze behavior, no HTML change
+  # needed either way.
+  CATEGORY_VIDEO_CN: "off"
+
 jobs:
   run-scanner:
     runs-on: ubuntu-latest
@@ -504,6 +516,14 @@ jobs:
             7) VIDEO_TYPES="best_performer best_performer_cn" ;;
             *) VIDEO_TYPES="" ;;
           esac
+
+          # CN category video production temporarily suspended (see CATEGORY_VIDEO_CN
+          # above) — drop every "*_cn" entry before the dedup guard below, EN entries
+          # pass through untouched. Set CATEGORY_VIDEO_CN=on to resume, nothing else
+          # to change.
+          if [ "${CATEGORY_VIDEO_CN:-off}" != "on" ]; then
+            VIDEO_TYPES=$(echo "$VIDEO_TYPES" | tr ' ' '\n' | grep -v '_cn$' | tr '\n' ' ' | sed 's/[[:space:]]*$//')
+          fi
 
           # Dedup guard — scheduled weekday runs only. If a language's category video
           # for the current data date + this exact category is already recorded in
