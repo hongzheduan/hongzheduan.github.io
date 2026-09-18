@@ -2268,6 +2268,15 @@
   ],
   "AMT": [
     {
+      "date": "2026-09-18",
+      "items": "5.02,8.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1053507/000105350726000145/amt-20260917.htm"
+    },
+    {
       "date": "2026-09-14",
       "items": "1.01,2.03,9.01",
       "label": "Material Agreement",
@@ -19663,11 +19672,11 @@
   "KR": [
     {
       "date": "2026-09-11",
-      "eps": null,
+      "eps": 1.05,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-08-15",
+      "revenue": 34621000000,
       "type": [
         "earnings"
       ],
@@ -20134,6 +20143,15 @@
     }
   ],
   "LII": [
+    {
+      "date": "2026-09-18",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1069202/000106920226000091/lii-20260916.htm"
+    },
     {
       "date": "2026-07-29",
       "eps": null,
@@ -26391,6 +26409,15 @@
   ],
   "PNR": [
     {
+      "date": "2026-09-18",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/77360/000007736026000047/pnr-20260917.htm"
+    },
+    {
       "date": "2026-07-28",
       "eps": null,
       "items": "2.02,9.01",
@@ -29958,6 +29985,15 @@
   ],
   "STZ": [
     {
+      "date": "2026-09-18",
+      "items": "1.01,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/16918/000119312526395558/d104366d8k.htm"
+    },
+    {
       "date": "2026-07-24",
       "items": "5.02,5.07,9.01",
       "label": "Leadership Change",
@@ -33376,6 +33412,15 @@
     }
   ],
   "VLO": [
+    {
+      "date": "2026-09-18",
+      "items": "5.02,7.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1035002/000162828026062625/vlo-20260917.htm"
+    },
     {
       "date": "2026-07-30",
       "eps": 12.62,
