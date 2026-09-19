@@ -1495,6 +1495,11 @@
       activeTab = id;
       toolbar.style.display = (id === "readme" || id === "membership") ? "none" : "flex";
       document.getElementById("mobileSearchBar").style.display = (id === "readme" || id === "membership") ? "none" : "";
+      if (id === "positions" && currentWindow !== "1D") {
+        // My Positions always opens on the 1D view (today's move on what you hold).
+        const dayBtn = Array.from(document.querySelectorAll(".window-btn")).find(b => (b.getAttribute("onclick") || "").indexOf("'1D'") !== -1);
+        if (dayBtn) setWindow("1D", dayBtn);
+      }
       updateStatus();
     };
 
