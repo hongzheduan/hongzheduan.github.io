@@ -130,22 +130,6 @@ _IMG_BG_STYLES = {
     "bull": _BULL_IMG, "highest": _HIGHEST_IMG, "bounceback": _BOUNCEBACK_IMG,
     "memberchange": _MEMBERCHANGE_IMG,
 }
-_LOGO_IMG = SCRIPT_DIR.parent / "assets" / "baize_favicon_v2.png"
-
-
-def _load_logo_cutout(path, black_thresh=12, ramp=30):
-    """baize_favicon_v2.png is a flat black rectangle (opaque, not transparent) with
-    the Baizora icon on it — this derives an alpha mask from brightness so it
-    composites onto the navy background like a real cutout instead of pasting a
-    visible black box."""
-    im = Image.open(str(path)).convert("RGBA")
-    arr = np.array(im).astype(np.float32)
-    lum = arr[..., :3].max(axis=-1)
-    alpha_mask = np.clip((lum - black_thresh) / ramp, 0, 1) * 255
-    arr[..., 3] = np.minimum(arr[..., 3], alpha_mask)
-    return Image.fromarray(arr.astype("uint8"), "RGBA")
-
-
 def _paste_cover(img, source_path, region, valign="center"):
     """Scales+crops an image to fully cover a region (like CSS object-fit: cover),
     cropping evenly from whichever axis overflows rather than letterboxing.
@@ -775,11 +759,8 @@ def _draw_share_footer(img, draw, date, lang, caption, theme="dark"):
     # afterthought; a solid pill with bold text pops at a glance even at small
     # gallery-thumbnail size. Colors invert per theme so the pill always contrasts
     # against its own card: white pill + dark text on the dark card, dark pill +
-    # white text on the light card. Dropped the small logo icon here specifically:
-    # _load_logo_cutout's alpha comes from source brightness (bright pixels =
-    # opaque), so it's a light-on-dark icon that disappears on a light pill and
-    # would need its own dark-on-light asset for the inverse case — bold text
-    # alone reads better here regardless of theme. "Baizora" stays Latin-script
+    # white text on the light card. No logo icon here: bold text alone reads
+    # better regardless of theme. "Baizora" stays Latin-script
     # even on CN cards (brand name, not translated) — matches how the CN cards'
     # own ad-reel CTA says "baizora点com", not a translated domain. Says
     # "downloadable at baizora.com" (not just the bare domain) so the badge
@@ -863,20 +844,10 @@ def scene_ad_short(scan_date, lang="en"):
     img, draw = new_frame_s()
     dot_grid_s(draw)
 
-    # Real Baizora icon (not a procedural chart texture) above the wordmark, so
-    # every weekday's Short ends on the same recognizable brand mark. The favicon
-    # is icon-only (no baked-in "BAIZORA" text), cut out from its flat black
-    # background so it floats on the navy dot-grid like everything else.
-    y = 180
-    if _LOGO_IMG.exists():
-        logo = _load_logo_cutout(_LOGO_IMG)
-        lw, lh = logo.size
-        target_w = 260
-        scale = target_w / lw
-        nw, nh = round(lw * scale), round(lh * scale)
-        logo = logo.resize((nw, nh), Image.LANCZOS)
-        img.paste(logo, ((SW - nw) // 2, y), logo)
-        y += nh + 30
+    # Wordmark only: the creature icon that used to sit above it was removed
+    # (2026-09-18, same call as the site headers). y=499 is where the wordmark
+    # sat under the old icon, so the rest of the card doesn't shift.
+    y = 499
 
     f_big = load_font(120, serif=True)
     baiz_w = tw(draw, "Baiz", f_big)
