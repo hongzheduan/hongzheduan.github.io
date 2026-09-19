@@ -2950,7 +2950,6 @@
       document.getElementById("tfDrawerToggle").textContent = "1Y ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
-      _updatePeriodAvailability();
       _smaList = (smaPrefs.smaList && smaPrefs.smaList.length ? smaPrefs.smaList.slice(0, 5) : [20, 50, 200]);
       _renderSmaChips();
       _bbPeriod = smaPrefs.bbPeriod || 20;
@@ -3174,26 +3173,17 @@
       const entry = PERIOD_TF[(btn && btn.dataset.period) || "1Y"] || PERIOD_TF["1Y"];
       return entry[_modalRes] || entry.d;
     }
-    // Daily bars only go back ~1Y (candles.json's export window), so 2Y/5Y under
-    // Daily would silently clamp to the same 1Y of data — grey those two period
-    // buttons out instead of letting the user pick a period that's a no-op. If
-    // the currently active period is one of them when Daily becomes active, fall
-    // back to 1Y so there's never a disabled button left showing as selected.
-    function _updatePeriodAvailability() {
-      const longBtns = document.querySelectorAll('.tf-btn[data-period="2Y"], .tf-btn[data-period="5Y"]');
-      const disable = _modalRes === 'd';
-      longBtns.forEach(b => {
-        b.disabled = disable;
-        b.title = disable ? "Daily bars only go back ~1Y — switch to Weekly to view this range" : "";
-      });
-      if (disable) {
-        const active = document.querySelector(".tf-btn[data-period].active");
-        if (active && (active.dataset.period === "2Y" || active.dataset.period === "5Y")) {
-          document.querySelectorAll(".tf-btn[data-period]").forEach(b => b.classList.remove("active"));
-          document.querySelector('.tf-btn[data-period="1Y"]').classList.add("active");
-          document.getElementById("tfDrawerToggle").textContent = "1Y ▾";
-        }
-      }
+    // Daily bars only go back ~1Y (candles.json's export window), so 2Y/5Y need the
+    // weekly file. Instead of greying those period buttons out under Daily, picking
+    // one flips the resolution to Weekly automatically (see the period-button click
+    // handler); the user can still switch back to Daily by hand.
+    function _setModalRes(res) {
+      _modalRes = res === 'w' ? 'w' : 'd';
+      document.querySelectorAll(".res-btn").forEach(b => b.classList.toggle("active", b.dataset.res === _modalRes));
+      const activeRes = document.querySelector(".res-btn.active");
+      if (activeRes) document.getElementById("resDrawerToggle").textContent = activeRes.textContent + " ▾";
+      document.getElementById("resToggles").classList.remove("open");
+      document.getElementById("resDrawerToggle").classList.remove("open");
     }
     function _renderModalChart(ticker, tf) {
       _modalTicker = ticker;
@@ -3386,19 +3376,15 @@
       document.getElementById("tfDrawerToggle").textContent = btn.textContent + " ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
+      // 2Y/5Y only exist as weekly bars, so switch to Weekly automatically if Daily is active.
+      if ((btn.dataset.period === "2Y" || btn.dataset.period === "5Y") && _modalRes === 'd') _setModalRes('w');
       _renderModalChart(_modalTicker, _currentTf());
     });
 
     document.getElementById("resToggles").addEventListener("click", e => {
       const btn = e.target.closest(".res-btn");
       if (!btn || !_modalTicker) return;
-      document.querySelectorAll(".res-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById("resDrawerToggle").textContent = btn.textContent + " ▾";
-      document.getElementById("resToggles").classList.remove("open");
-      document.getElementById("resDrawerToggle").classList.remove("open");
-      _modalRes = btn.dataset.res === 'w' ? 'w' : 'd';
-      _updatePeriodAvailability();
+      _setModalRes(btn.dataset.res);
       _renderModalChart(_modalTicker, _currentTf());
     });
 
