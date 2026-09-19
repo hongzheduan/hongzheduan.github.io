@@ -988,7 +988,7 @@
     </div>
 
     <div id="smarsi" class="section">
-      <p class="smarsi-blurb">Stocks and ETFs trading within 5% of their 200-day moving average (above or below it) with RSI(14) under 35. Universe: S&amp;P 500, Nasdaq-100 and the ETF tab. Shown in the TECH view. A technical screen only, not investment advice.</p>
+      <p class="smarsi-blurb">Stocks and ETFs trading within 5% of their 200-day moving average (above or below it) with RSI(14) under 35. Universe: S&amp;P 500, Nasdaq-100 and the ETF tab. Opens in the FUND view. A technical screen only, not investment advice.</p>
       <table id="smarsiTable"></table>
       <div id="smarsiCards"></div>
       <p class="smarsi-empty" id="smarsiEmpty" style="display:none;"></p>
@@ -1511,10 +1511,10 @@
       toggle.setAttribute("aria-expanded", "false");
       activeTab = idx;
       toolbar.style.display = "flex";
-      if (idx === "smarsi" && currentWindow !== "TECH") {
-        // Screen is defined by Dist SMA200 + RSI, both TECH columns, so land on that view.
-        const techBtn = Array.from(document.querySelectorAll(".window-btn")).find(b => (b.getAttribute("onclick") || "").indexOf("'TECH'") !== -1);
-        if (techBtn) setWindow("TECH", techBtn);
+      if (idx === "smarsi" && currentWindow !== "FUND") {
+        // The screen criteria (Dist SMA200 + RSI) are the TECH columns, so open on FUND to show the fundamentals of those tickers.
+        const fundBtn = Array.from(document.querySelectorAll(".window-btn")).find(b => (b.getAttribute("onclick") || "").indexOf("'FUND'") !== -1);
+        if (fundBtn) setWindow("FUND", fundBtn);
       }
       document.getElementById("mobileSearchBar").style.display = "";
       updateStatus();
