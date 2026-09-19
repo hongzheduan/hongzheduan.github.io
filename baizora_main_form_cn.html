@@ -853,6 +853,13 @@
     }
     .pos-btn svg { display: inline-block; vertical-align: middle; }
     .pos-btn:hover, .pos-btn.held { color: #60a5fa; }
+    .pos-entry {
+      width: 74px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18);
+      color: #ffffff; font-family: 'DM Mono', monospace; font-size: 11px;
+      padding: 2px 6px; border-radius: 4px; text-align: right;
+    }
+    .pos-entry::placeholder { color: #94a3b8; }
+    .pos-entry:focus { outline: none; border-color: #3b82f6; }
     .pos-btn.held svg rect { fill: currentColor; fill-opacity: 0.3; }
   </style>
 </head>
@@ -1169,6 +1176,25 @@
           .catch(e => console.warn("Positions cloud save failed:", e));
       }
     }
+    // Entry price per held ticker ({TICKER: price}); percentage P/L only, no share counts.
+    // Cloud writes touch just the one ticker's key (nested-map merge), so devices can't clobber each other.
+    let positionEntries = {};
+    try { positionEntries = JSON.parse(localStorage.getItem("baizora_position_entries") || "{}") || {}; } catch (e) { positionEntries = {}; }
+    function setPositionEntry(ticker, price) {
+      if (price == null) delete positionEntries[ticker]; else positionEntries[ticker] = price;
+      localStorage.setItem("baizora_position_entries", JSON.stringify(positionEntries));
+      if (currentUser) {
+        setDoc(doc(db, "users", currentUser.uid), { positionEntries: { [ticker]: price } }, { merge: true })
+          .catch(e => console.warn("Position entry cloud save failed:", e));
+      }
+    }
+    function fmtPnl(v) { return (v > 0 ? "+" : "") + v.toFixed(2) + "%"; }
+    function pnlClass(v) { return v == null ? "neutral" : (v > 0 ? "positive" : (v < 0 ? "negative" : "neutral")); }
+    function computePnl(r) {
+      const entry = positionEntries[r.Ticker];
+      const price = r._livePrice ?? r.Price;
+      r.PnlPct = (entry > 0 && price != null) ? (price / entry - 1) * 100 : null;
+    }
     const POS_ICON = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>';
     function posBtn(t) {
       const held = positions.has(t);
@@ -1243,6 +1269,18 @@
           // No positions in Firestore yet, so seed them from this device's localStorage.
           setDoc(doc(db, "users", uid), { positions: arrayUnion(...positions) }, { merge: true })
             .catch(e => console.warn("Positions initial cloud seed failed:", e));
+        }
+        if (data && data.positionEntries && typeof data.positionEntries === "object") {
+          const clean = {};
+          Object.keys(data.positionEntries).forEach(k => {
+            const v = data.positionEntries[k];
+            if (typeof v === "number" && isFinite(v) && v > 0) clean[k] = v;
+          });
+          positionEntries = clean;
+          localStorage.setItem("baizora_position_entries", JSON.stringify(positionEntries));
+        } else if (Object.keys(positionEntries).length > 0) {
+          setDoc(doc(db, "users", uid), { positionEntries }, { merge: true })
+            .catch(e => console.warn("Position entries initial cloud seed failed:", e));
         }
       } catch (e) {
         console.warn("Watchlist cloud load failed, using local:", e);
@@ -2163,6 +2201,41 @@
       return `<div class="card-grid">${cards}</div>`;
     }
 
+    /* ── MY POSITIONS: Entry + P/L % columns, injected right after the ticker column so they
+       show on every window view (1D, TECH, FUND, ...) without touching each view's builder. ── */
+    function decoratePositions() {
+      const byTicker = new Map(allRows.map(r => [r.Ticker, r]));
+      const entryInput = t => {
+        const e = positionEntries[t];
+        return `<input class="pos-entry" type="text" inputmode="decimal" data-entry="${t}" value="${e != null ? e : ""}" placeholder="0.00" aria-label="成本价 ${t}">`;
+      };
+      const pnlText = v => v == null ? "—" : fmtPnl(v);
+      const table = document.getElementById("positionsTable");
+      const headRow = table.querySelector("thead tr:last-child");
+      if (headRow && headRow.firstElementChild) {
+        headRow.firstElementChild.insertAdjacentHTML("afterend", thStatic("PosEntry", "成本价") + thSort("PnlPct", "盈亏%"));
+      }
+      table.querySelectorAll("tbody tr").forEach(tr => {
+        const cell = tr.querySelector("td.ticker-cell[data-ticker]");
+        if (!cell) return;
+        const t = cell.dataset.ticker;
+        const r = byTicker.get(t);
+        const v = r ? r.PnlPct : null;
+        cell.insertAdjacentHTML("afterend",
+          `<td class="pos-entry-cell">${entryInput(t)}</td><td class="pnl-cell ${pnlClass(v)}" data-ticker="${t}">${pnlText(v)}</td>`);
+      });
+      document.querySelectorAll("#positionsCards .stock-card[data-ticker]").forEach(card => {
+        const stats = card.querySelector(".card-stats");
+        if (!stats) return;
+        const t = card.dataset.ticker;
+        const r = byTicker.get(t);
+        const v = r ? r.PnlPct : null;
+        stats.insertAdjacentHTML("afterbegin",
+          `<div class="card-row"><span class="card-label">成本价</span><span class="card-val">${entryInput(t)}</span></div>` +
+          `<div class="card-row"><span class="card-label">盈亏%</span><span class="card-val pnl-cell ${pnlClass(v)}" data-ticker="${t}">${pnlText(v)}</span></div>`);
+      });
+    }
+
     /* ── RENDER ── */
     function render() {
       const w = currentWindow;
@@ -2178,6 +2251,7 @@
       const etf = etfRows.filter(filter);
       const wl = allRows.filter(r => watchlist.has(r.Ticker) && filter(r));
       const pos = allRows.filter(r => positions.has(r.Ticker) && filter(r));
+      pos.forEach(computePnl);
       const nm = newMemberRows.filter(filter);
       smaRsiRows = computeSmaRsiRows();
       const sr = smaRsiRows.filter(filter);
@@ -2204,6 +2278,7 @@
       srEmpty.textContent = candleData ? "目前没有同时满足两个条件的标的。" : "技术面数据加载中…";
       srEmpty.style.display = sr.length === 0 ? "block" : "none";
       decorateNewMemberBadges();
+      decoratePositions();
       updateStatus();
     }
 
@@ -2241,6 +2316,8 @@
     ══════════════════════════════════════════ */
 
     const COL_DESCS = {
+      "PosEntry":        { label: "成本价", desc: "你在这个持仓上的买入价。输入后按回车即可保存，并会同步到你账户下的所有设备。" },
+      "PnlPct":          { label: "盈亏%", desc: "当前价格相对于你买入价的涨跌百分比。绿色 = 高于成本价（盈利），红色 = 低于成本价（亏损）。有实时价格时使用实时价，否则使用扫描器最近收盘价。仅为价格变化，未考虑拆股、分红和费用。" },
       "Ticker":          { label: "代码",    desc: "股票代码。点击可查看1年K线图，以及市盈率、每股收益、贝塔、波动率和行业信息。" },
       "Spark1Y":         { label: "年趋势线",  desc: "一年标准化价格走势图。▲ 三角形 = 成交量最高日（绿色=价格上涨，红色=价格下跌）。● 圆圈 = 价格变动最大日（绿色=成交量上升，红色=成交量下降）。" },
       "Price":           { label: "价格",     desc: "最新收盘价（美元）。" },
@@ -3544,7 +3621,21 @@
       if (e.target === document.getElementById("tickerModal")) closeTickerModal();
     });
     document.addEventListener("keydown", e => { if (e.key === "Escape") closeTickerModal(); });
+    // Entry-price inputs (My Positions): commit on change/Enter, revert silently on junk input.
+    document.getElementById("tableArea").addEventListener("change", e => {
+      const inp = e.target.closest(".pos-entry");
+      if (!inp) return;
+      const raw = inp.value.trim().replace(/[$,]/g, "");
+      if (raw === "") { setPositionEntry(inp.dataset.entry, null); render(); return; }
+      const v = parseFloat(raw);
+      if (isFinite(v) && v > 0) setPositionEntry(inp.dataset.entry, v);
+      render();
+    });
+    document.getElementById("tableArea").addEventListener("keydown", e => {
+      if (e.key === "Enter" && e.target.closest && e.target.closest(".pos-entry")) e.target.blur();
+    });
     document.getElementById("tableArea").addEventListener("click", e => {
+      if (e.target.closest(".pos-entry")) return;
       const posEl = e.target.closest(".pos-btn");
       if (posEl) {
         const ticker = posEl.dataset.pos;
@@ -3765,6 +3856,17 @@
         if (!pc) return;
         pc.textContent = d.last.toFixed(2);
         pc.style.color = dirs[t] === 'up' ? '#22c55e' : dirs[t] === 'dn' ? '#ef4444' : '';
+      });
+
+      // Surgical P/L % update for My Positions (entry price vs live price)
+      document.querySelectorAll('.pnl-cell[data-ticker]').forEach(el => {
+        const t = el.dataset.ticker;
+        const d = q[t];
+        const entry = positionEntries[t];
+        if (!d?.last || !(entry > 0)) return;
+        const v = (d.last / entry - 1) * 100;
+        el.textContent = fmtPnl(v);
+        el.className = el.className.replace(/\b(positive|negative|neutral)\b/, pnlClass(v));
       });
 
       // Surgical 1D P CHG% update (table)
