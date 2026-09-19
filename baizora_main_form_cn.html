@@ -605,7 +605,7 @@
     }
 
     /* Cards hidden on desktop; table hidden on mobile */
-    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards { display: none; }
+    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #positionsCards { display: none; }
     .newmembers-blurb, .smarsi-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
     .newmembers-empty, .smarsi-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
     .new-member-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
@@ -634,8 +634,8 @@
       tr:hover td.ticker-cell { background: #081229; }
       .mobile-search-bar { display: block; }
       .mobile-rotate-hint { display: block; }
-      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable { display: none !important; }
-      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards { display: block !important; }
+      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable, #positionsTable { display: none !important; }
+      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #positionsCards { display: block !important; }
     }
     @media (max-width: 960px) and (orientation: landscape) {
       header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
@@ -846,6 +846,14 @@
       line-height: 1; transition: color 0.15s; vertical-align: middle;
     }
     .star-btn:hover, .star-btn.starred { color: #f59e0b; }
+    .pos-btn {
+      background: none; border: none; cursor: pointer;
+      color: #64748b; padding: 0 0 0 6px;
+      line-height: 1; transition: color 0.15s; vertical-align: middle;
+    }
+    .pos-btn svg { display: inline-block; vertical-align: middle; }
+    .pos-btn:hover, .pos-btn.held { color: #60a5fa; }
+    .pos-btn.held svg rect { fill: currentColor; fill-opacity: 0.3; }
   </style>
 </head>
 
@@ -871,6 +879,7 @@
           </div>
         </div>
         <button class="tab-btn" data-tab="watchlist" onclick="show('watchlist', this)">★ 自选股</button>
+        <button class="tab-btn" data-tab="positions" onclick="show('positions', this)">我的持仓</button>
         <button class="tab-btn" data-tab="readme" onclick="show('readme', this)">说明</button>
         <button class="tab-btn" data-tab="membership" onclick="show('membership', this)">成分股变动</button>
       </nav>
@@ -906,6 +915,7 @@
     <button onclick="selectIndex('newmembers'); toggleMenu();">新成分股</button>
     <button onclick="selectIndex('smarsi'); toggleMenu();">SMA200超卖</button>
     <button onclick="show('watchlist'); toggleMenu();">★ 自选股</button>
+    <button onclick="show('positions'); toggleMenu();">我的持仓</button>
     <button onclick="show('readme'); toggleMenu();">说明</button>
     <button onclick="show('membership'); toggleMenu();">成分股变动</button>
     <a href="dashboard_cn.html">个人主页</a>
@@ -996,6 +1006,14 @@
       <div id="watchlistCards"></div>
       <div id="watchlistEmpty" style="padding:60px 20px;text-align:center;color:#64748b;font-size:14px;">
         暂无自选股 — 点击任意行的 ☆ 即可添加。
+      </div>
+    </div>
+
+    <div id="positions" class="section">
+      <table id="positionsTable"></table>
+      <div id="positionsCards"></div>
+      <div id="positionsEmpty" style="padding:60px 20px;text-align:center;color:#64748b;font-size:14px;">
+        暂无持仓记录。点击任意行的公文包图标，即可标记你当前持有的股票。
       </div>
     </div>
 
@@ -1108,7 +1126,7 @@
     import { auth, db } from "./firebase.js";
     import { signOut, onAuthStateChanged }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { doc, getDoc, setDoc }
+    import { doc, getDoc, setDoc, arrayUnion, arrayRemove }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     /* ── CHART ICON ── */
@@ -1137,6 +1155,24 @@
         setDoc(doc(db, "users", currentUser.uid), { watchlist: tickers }, { merge: true })
           .catch(e => console.warn("Watchlist cloud save failed:", e));
       }
+    }
+
+    /* ── MY POSITIONS (tickers the user currently holds; localStorage + users/{uid}.positions, synced across devices) ──
+       Cloud writes use arrayUnion/arrayRemove for the one ticker toggled instead of rewriting the whole list,
+       so a device with a stale copy can't wipe positions another device added. */
+    let positions = new Set(JSON.parse(localStorage.getItem("baizora_positions") || "[]"));
+    function setPosition(ticker, held) {
+      if (held) positions.add(ticker); else positions.delete(ticker);
+      localStorage.setItem("baizora_positions", JSON.stringify([...positions]));
+      if (currentUser) {
+        setDoc(doc(db, "users", currentUser.uid), { positions: held ? arrayUnion(ticker) : arrayRemove(ticker) }, { merge: true })
+          .catch(e => console.warn("Positions cloud save failed:", e));
+      }
+    }
+    const POS_ICON = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>';
+    function posBtn(t) {
+      const held = positions.has(t);
+      return `<button class="pos-btn${held ? " held" : ""}" data-pos="${t}" title="${held ? "从我的持仓中移除" : "标记为当前持仓"}">${POS_ICON}</button>`;
     }
 
     /* ── SMA PREFERENCES (which overlays + custom period are on, synced like the watchlist) ── */
@@ -1199,6 +1235,14 @@
           // Same document, same round trip — seed SMA prefs from localStorage too.
           setDoc(doc(db, "users", uid), { smaPrefs }, { merge: true })
             .catch(e => console.warn("SMA prefs initial cloud seed failed:", e));
+        }
+        if (data && Array.isArray(data.positions)) {
+          positions = new Set(data.positions);
+          localStorage.setItem("baizora_positions", JSON.stringify([...positions]));
+        } else if (positions.size > 0) {
+          // No positions in Firestore yet, so seed them from this device's localStorage.
+          setDoc(doc(db, "users", uid), { positions: arrayUnion(...positions) }, { merge: true })
+            .catch(e => console.warn("Positions initial cloud seed failed:", e));
         }
       } catch (e) {
         console.warn("Watchlist cloud load failed, using local:", e);
@@ -1432,6 +1476,8 @@
       statusText.textContent = loadedDate;
       if (activeTab === "watchlist") {
         rowCount.textContent = `${watchlist.size} 已保存`;
+      } else if (activeTab === "positions") {
+        rowCount.textContent = `${positions.size} 个持仓`;
       } else if (IDX_META[activeTab]) {
         const m = IDX_META[activeTab];
         rowCount.textContent = `${m.rows()} 支股票 · ${m.label}`;
@@ -1810,7 +1856,7 @@
             r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
           );
           return `<tr>
-            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
             <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
@@ -1839,7 +1885,7 @@
             r["1YMaxPriceChangeDay"],  r["1YVolumeChangeAtMaxPrice"]
           );
           return `<tr>
-            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="col-baiz ${scoreClass(r.BaizScore, 50)}">${r.BaizScore ?? "—"}</td>
             <td class="col-mom ${scoreClass(r.BaizMomentum, 50)}">${r.BaizMomentum ?? "—"}</td>
@@ -1872,7 +1918,7 @@
           );
           const peVs = r.PE_vs_Sector;
           return `<tr>
-            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
             <td class="${colorClass(0)}">${r.PE != null ? r.PE.toFixed(1) : "—"}</td>
@@ -1910,7 +1956,7 @@
           const clsRsi  = r.RsiZone || "neutral";
           const clsPoc  = r.AbovePoc  == null ? "neutral" : (r.AbovePoc  ? "positive" : "negative");
           return `<tr>
-            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+            <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
             <td class="spark-cell">${sparkSVG}</td>
             <td class="${cls20}">${r.Dist20  != null ? r.Dist20.toFixed(1)  + "%" : "—"}</td>
             <td class="${cls200}">${r.Dist200 != null ? r.Dist200.toFixed(1) + "%" : "—"}</td>
@@ -2013,7 +2059,7 @@
           <td class="${colorClass(vma - 1)}">${vma}</td>` : "";
 
         return `<tr>
-          <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button></td>
+          <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
           <td class="spark-cell">${sparkSVG}</td>
           <td class="price-cell" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price)?.toFixed(2) ?? "—"}</td>
           <td class="neutral">${r.VolumeM ?? "—"}</td>
@@ -2099,7 +2145,7 @@
           <div class="card-header">
             <span class="card-ticker">${r.Ticker}</span>
             ${spark}
-            <button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>
+            <button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}
           </div>
           <div class="card-price-row">
             <span class="card-price" data-ticker="${r.Ticker}" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price) != null ? '$' + (r._livePrice ?? r.Price).toFixed(2) : '—'}</span>
@@ -2126,6 +2172,7 @@
       const nd = ndRows.filter(filter);
       const etf = etfRows.filter(filter);
       const wl = allRows.filter(r => watchlist.has(r.Ticker) && filter(r));
+      const pos = allRows.filter(r => positions.has(r.Ticker) && filter(r));
       const nm = newMemberRows.filter(filter);
       smaRsiRows = computeSmaRsiRows();
       const sr = smaRsiRows.filter(filter);
@@ -2140,6 +2187,9 @@
       document.getElementById("watchlistTable").innerHTML = buildTable(wl, w);
       document.getElementById("watchlistCards").innerHTML = buildCards(wl, w);
       document.getElementById("watchlistEmpty").style.display = wl.length === 0 ? "block" : "none";
+      document.getElementById("positionsTable").innerHTML = buildTable(pos, w);
+      document.getElementById("positionsCards").innerHTML = buildCards(pos, w);
+      document.getElementById("positionsEmpty").style.display = pos.length === 0 ? "block" : "none";
       document.getElementById("newmembersTable").innerHTML = buildTable(nm, w);
       document.getElementById("newmembersCards").innerHTML = buildCards(nm, w);
       document.getElementById("newmembersEmpty").style.display = nm.length === 0 ? "block" : "none";
@@ -3490,6 +3540,13 @@
     });
     document.addEventListener("keydown", e => { if (e.key === "Escape") closeTickerModal(); });
     document.getElementById("tableArea").addEventListener("click", e => {
+      const posEl = e.target.closest(".pos-btn");
+      if (posEl) {
+        const ticker = posEl.dataset.pos;
+        setPosition(ticker, !positions.has(ticker));
+        render();
+        return;
+      }
       const starBtn = e.target.closest(".star-btn");
       if (starBtn) {
         const ticker = starBtn.dataset.watch;
