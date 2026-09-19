@@ -595,9 +595,9 @@
     }
 
     /* Cards hidden on desktop; table hidden on mobile */
-    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards { display: none; }
-    .newmembers-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
-    .newmembers-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
+    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards { display: none; }
+    .newmembers-blurb, .smarsi-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
+    .newmembers-empty, .smarsi-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
     .new-member-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
     .new-member-badge.confirmed { background: rgba(59,130,246,0.15); color: var(--electric-bright); border: 1px solid rgba(59,130,246,0.3); }
     .new-member-badge.rumored { background: rgba(245,158,11,0.15); color: var(--gold-light); border: 1px solid rgba(245,158,11,0.3); }
@@ -627,8 +627,8 @@
       tr:hover td.ticker-cell { background: #081229; }
       .mobile-search-bar { display: block; }
       .mobile-rotate-hint { display: block; }
-      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable { display: none !important; }
-      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards { display: block !important; }
+      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable { display: none !important; }
+      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards { display: block !important; }
     }
     @media (max-width: 960px) and (orientation: landscape) {
       header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
@@ -860,6 +860,7 @@
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="nasdaq">Nasdaq 100</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="etf">ETF</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="newmembers">New Members</button>
+            <button type="button" role="menuitem" class="idx-dd-item" data-idx="smarsi">SMA200 Oversold</button>
           </div>
         </div>
         <button class="tab-btn" data-tab="watchlist" onclick="show('watchlist', this)">★ Watchlist</button>
@@ -896,6 +897,7 @@
     <button onclick="selectIndex('nasdaq'); toggleMenu();">Nasdaq 100</button>
     <button onclick="selectIndex('etf'); toggleMenu();">ETF</button>
     <button onclick="selectIndex('newmembers'); toggleMenu();">New Members</button>
+    <button onclick="selectIndex('smarsi'); toggleMenu();">SMA200 Oversold</button>
     <button onclick="show('watchlist'); toggleMenu();">★ Watchlist</button>
     <button onclick="show('readme'); toggleMenu();">README</button>
     <button onclick="show('membership'); toggleMenu();">MEMBERSHIP CHANGE</button>
@@ -973,6 +975,13 @@
       <table id="newmembersTable"></table>
       <div id="newmembersCards"></div>
       <p class="newmembers-empty" id="newmembersEmpty" style="display:none;">No recent or rumored index additions right now.</p>
+    </div>
+
+    <div id="smarsi" class="section">
+      <p class="smarsi-blurb">Stocks and ETFs trading within 5% of their 200-day moving average (above or below it) with RSI(14) under 35. Universe: S&amp;P 500, Nasdaq-100 and the ETF tab. Shown in the TECH view. A technical screen only, not investment advice.</p>
+      <table id="smarsiTable"></table>
+      <div id="smarsiCards"></div>
+      <p class="smarsi-empty" id="smarsiEmpty" style="display:none;"></p>
     </div>
 
     <div id="watchlist" class="section">
@@ -1100,9 +1109,12 @@
     const CHART_BTN = `<button class="chart-btn" title="View Chart" aria-label="View chart"><svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><line x1="2.5" y1="1" x2="2.5" y2="10" stroke="currentColor" stroke-width="0.9"/><rect x="1" y="3.5" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.5"/><line x1="7" y1="0.5" x2="7" y2="10.5" stroke="currentColor" stroke-width="0.9"/><rect x="5.5" y="2" width="3" height="6" rx="0.4" fill="currentColor"/><line x1="11.5" y1="1" x2="11.5" y2="9.5" stroke="currentColor" stroke-width="0.9"/><rect x="10" y="3" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.7"/></svg></button>`;
 
     /* ── STATE ── */
-    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [];
+    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [], smaRsiRows = [];
     let recentJoinMap = {};   // ticker -> {index, date}, official adds within NEW_MEMBER_WINDOW_DAYS
     const NEW_MEMBER_WINDOW_DAYS = 30;
+    // SMA200 Oversold screen: within this % of the 200-day SMA (either side) AND RSI(14) below the cutoff.
+    const SMARSI_MAX_DIST_PCT = 5;
+    const SMARSI_RSI_BELOW = 35;
     let activeTab     = "all";
     let sortKey       = "PriceChange1D";
     let sortAsc       = false;
@@ -1413,6 +1425,7 @@
       nasdaq:      { rows: () => ndRows.length,        label: "Nasdaq 100" },
       etf:         { rows: () => etfRows.length,       label: "ETF" },
       newmembers:  { rows: () => newMemberRows.length, label: "New Members" },
+      smarsi:      { rows: () => smaRsiRows.length,   label: "SMA200 Oversold" },
     };
     function updateStatus() {
       statusText.textContent = loadedDate;
@@ -1452,6 +1465,11 @@
       toggle.setAttribute("aria-expanded", "false");
       activeTab = idx;
       toolbar.style.display = "flex";
+      if (idx === "smarsi" && currentWindow !== "TECH") {
+        // Screen is defined by Dist SMA200 + RSI, both TECH columns, so land on that view.
+        const techBtn = Array.from(document.querySelectorAll(".window-btn")).find(b => (b.getAttribute("onclick") || "").indexOf("'TECH'") !== -1);
+        if (techBtn) setWindow("TECH", techBtn);
+      }
       document.getElementById("mobileSearchBar").style.display = "";
       updateStatus();
     };
@@ -1645,6 +1663,23 @@
       if (i < 0) { r.RsiVal = r.RsiZone = null; return; }
       r.RsiVal = rsi[i];
       r.RsiZone = r.RsiVal < 30 ? "positive" : (r.RsiVal > 70 ? "negative" : "neutral");
+    }
+
+    /* ── SMA200 OVERSOLD screen: S&P 500 + Nasdaq-100 + ETF tickers whose price is within
+       SMARSI_MAX_DIST_PCT of the 200-day SMA (abs distance, either side) AND RSI(14) is below
+       SMARSI_RSI_BELOW. Reuses computeSmaDist/computeRsiCol (the TECH tab's own math) so the
+       tab's numbers always match the TECH columns. Needs candles.json, so it is empty until
+       that fetch lands. ── */
+    function computeSmaRsiRows() {
+      if (!candleData) return [];
+      const out = [];
+      allRows.forEach(r => {
+        if (!(r.InSP500 || r.InNASDAQ100 || r.InETF)) return;
+        computeSmaDist(r);
+        computeRsiCol(r);
+        if (r.Dist200 != null && r.RsiVal != null && r.Dist200 <= SMARSI_MAX_DIST_PCT && r.RsiVal < SMARSI_RSI_BELOW) out.push(r);
+      });
+      return out;
     }
 
     /* ── VOL RANK: where today's volume ranks among all days in the selected window
@@ -2042,6 +2077,11 @@
             <div class="card-row"><span class="card-label" style="color:#c084fc;">${reportLink("Momentum+")}</span><span class="card-val ${scoreClass(r.BaizMomentum, 50)}" style="font-weight:700;">${r.BaizMomentum ?? "—"}</span></div>
             <div class="card-row"><span class="card-label" style="color:#f472b6;">${reportLink("Persist")}</span><span class="card-val ${scoreClass(r.BaizPersist, 50)}" style="font-weight:700;">${r.BaizPersist ?? "—"}</span></div>
             <div class="card-row"><span class="card-label" style="color:#2dd4bf;">${reportLink("Conviction")}</span><span class="card-val ${scoreClass(r.BaizConviction, 50)}" style="font-weight:700;">${r.BaizConviction ?? "—"}</span></div>`;
+        } else if (w === "TECH") {
+          priceChgDisplay = `<span class="card-chg card-live-chg ${colorClass(pc1)}" data-ticker="${r.Ticker}">${fmtP(pc1)}</span>`;
+          statsHTML = `
+            <div class="card-row"><span class="card-label">vs SMA200</span><span class="card-val ${r.Above200 == null ? "neutral" : (r.Above200 ? "positive" : "negative")}">${r.Dist200 != null ? r.Dist200.toFixed(1) + "%" : "—"}</span></div>
+            <div class="card-row"><span class="card-label">RSI</span><span class="card-val ${r.RsiZone || "neutral"}">${r.RsiVal != null ? r.RsiVal.toFixed(1) : "—"}</span></div>`;
         } else if (w === "FUND") {
           const pe    = r.PE;
           const eps   = r.EPS;
@@ -2102,6 +2142,8 @@
       const etf = etfRows.filter(filter);
       const wl = allRows.filter(r => watchlist.has(r.Ticker) && filter(r));
       const nm = newMemberRows.filter(filter);
+      smaRsiRows = computeSmaRsiRows();
+      const sr = smaRsiRows.filter(filter);
       document.getElementById("allTable").innerHTML        = buildTable(combined, w);
       document.getElementById("allCards").innerHTML        = buildCards(combined, w);
       document.getElementById("etfTable").innerHTML        = buildTable(etf, w);
@@ -2116,6 +2158,11 @@
       document.getElementById("newmembersTable").innerHTML = buildTable(nm, w);
       document.getElementById("newmembersCards").innerHTML = buildCards(nm, w);
       document.getElementById("newmembersEmpty").style.display = nm.length === 0 ? "block" : "none";
+      document.getElementById("smarsiTable").innerHTML = buildTable(sr, w);
+      document.getElementById("smarsiCards").innerHTML = buildCards(sr, w);
+      const srEmpty = document.getElementById("smarsiEmpty");
+      srEmpty.textContent = candleData ? "No tickers currently meet both conditions." : "Loading technical data…";
+      srEmpty.style.display = sr.length === 0 ? "block" : "none";
       decorateNewMemberBadges();
       updateStatus();
     }
@@ -2312,7 +2359,7 @@
       .then(r => r.json())
       .then(d => {
         candleData = d;
-        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow]) render();
+        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow] || activeTab === "smarsi") render();
         if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
       })
       .catch(() => {});
