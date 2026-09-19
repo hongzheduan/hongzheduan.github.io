@@ -2644,7 +2644,7 @@
       const rsiTop = macdBottom + gap4, rsiBottom = rsiTop + rsiH;
       return { priceTop, priceBottom, hasVol, volTop, volBottom, hasScore, scoreTop, scoreBottom, hasMacd, macdTop, macdBottom, hasRsi, rsiTop, rsiBottom };
     }
-    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile, rsi, joinInfo) {
+    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile, rsi, joinInfo, entryPrice) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
@@ -2688,6 +2688,18 @@
       (smaLines || []).forEach(line => {
         (line.values || []).forEach(v => { if (v != null) { if (v>maxP) maxP=v; if (v<minP) minP=v; } });
       });
+      // My Positions entry price: pull it into the axis range when it is reasonably close to
+      // the visible candles (within half the range's span either way), otherwise it is drawn
+      // as an edge marker below so a far-away entry can't squash the candles.
+      let entryInRange = false;
+      if (entryPrice != null) {
+        const span = (maxP - minP) || 1;
+        if (entryPrice >= minP - span * 0.5 && entryPrice <= maxP + span * 0.5) {
+          entryInRange = true;
+          if (entryPrice > maxP) maxP = entryPrice;
+          if (entryPrice < minP) minP = entryPrice;
+        }
+      }
       const buf  = (maxP - minP) * 0.05 || 1;
       const lo   = minP - buf, hi = maxP + buf;
       const toY  = p => pad.top + priceH * (1 - (p - lo) / (hi - lo));
@@ -2837,6 +2849,31 @@
         });
         ctx.stroke();
       });
+      // Entry-price line (My Positions): dashed horizontal line labelled with the entry
+      // price and the last close's gain/loss versus it. Only drawn when an entry exists.
+      if (entryPrice != null) {
+        let lastClose = null;
+        for (let i = n - 1; i >= 0; i--) { if (candles[i] && candles[i][3] != null) { lastClose = candles[i][3]; break; } }
+        const pl = lastClose ? (lastClose / entryPrice - 1) * 100 : null;
+        const eTxt = `成本价 ${entryPrice.toFixed(2)}` + (pl != null ? `  ${pl > 0 ? "+" : ""}${pl.toFixed(1)}%` : "");
+        ctx.save();
+        ctx.font = `10px 'DM Mono', monospace`;
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#9333ea";
+        ctx.strokeStyle = "rgba(147,51,234,0.75)";
+        ctx.lineWidth = 1.3;
+        if (entryInRange) {
+          const ey = toY(entryPrice);
+          ctx.setLineDash([6, 4]);
+          ctx.beginPath(); ctx.moveTo(pad.left, ey); ctx.lineTo(W - pad.right, ey); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillText(eTxt, pad.left + 6, ey - 4 < pad.top + 10 ? ey + 12 : ey - 4);
+        } else {
+          const above = entryPrice > maxP;
+          ctx.fillText((above ? "\u25B2 " : "\u25BC ") + eTxt, pad.left + 6, above ? pad.top + 12 : pad.top + priceH - 6);
+        }
+        ctx.restore();
+      }
       // Index-join marker — vertical dashed line at the (rumored/announced/actual) join
       // date. A future effective date beyond the visible window is pinned to the last
       // candle rather than skipped, so an upcoming add still shows on the chart.
@@ -3367,7 +3404,9 @@
 
         const vpActive = document.getElementById("vpChip").classList.contains("active");
         const joinInfo = joinInfoFor(ticker);
-        const priceRange = renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData, joinInfo);
+        // Entry price only while the ticker is still marked as a position (entries are kept after un-marking).
+        const entryPrice = (positions.has(ticker) && positionEntries[ticker] > 0) ? positionEntries[ticker] : null;
+        const priceRange = renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData, joinInfo, entryPrice);
         _lastChartCandles = filled.candles;
         _lastChartDates = filled.dates;
         _lastChartExtras = { scoreData, macdData, rsiData, priceLo: priceRange.lo, priceHi: priceRange.hi };
