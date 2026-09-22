@@ -314,6 +314,31 @@
       text-underline-offset: 3px;
     }
     .ticker-cell:hover { color: var(--electric-bright); text-decoration-color: var(--electric-bright); text-decoration-style: solid; }
+    /* Company column. */
+    .co-name {
+      display: inline-block;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0;
+      line-height: 1.3;
+      color: #94a3b8;
+      text-decoration: none;
+    }
+    .card-name {
+      font-size: 10px;
+      line-height: 1.3;
+      color: #94a3b8;
+      margin-top: -2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     .price-cell { font-family: 'DM Mono', monospace; color: #94a3b8; font-weight: 400; }
 
@@ -1197,6 +1222,13 @@
       return `<button class="pos-btn${held ? " held" : ""}" data-pos="${t}" title="${held ? "Remove from My Positions" : "Mark as a current position"}">${POS_ICON}</button>`;
     }
 
+    function coNameText(r) {
+      const n = r.CompanyName || "";
+      return n.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+    function coCell(r)   { const n = coNameText(r); return `<td class="co-cell">${n ? `<span class="co-name" title="${n}">${n}</span>` : "—"}</td>`; }
+    function cardName(r) { const n = coNameText(r); return n ? `<div class="card-name" title="${n}">${n}</div>` : ""; }
+
     /* ── SMA PREFERENCES (which overlays + custom period are on, synced like the watchlist) ── */
     // Migrates the old fixed-3-preset-plus-one-custom-slot shape ({active:[...], custom:N})
     // into the current free-form list shape ({smaList:[...]}) so pre-existing localStorage/
@@ -1898,6 +1930,7 @@
       if (w === "SCORES") {
         const head = `<thead><tr>
           ${thSort("Ticker",          "Ticker")}
+          ${thSort("CompanyName", "Company")}
           ${thStatic("Spark1Y",       "1Y Trend")}
           ${thSort("RSScore",         "RS")}
           ${thSort("BreakoutScore",   "Breakout")}
@@ -1913,6 +1946,7 @@
           );
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
+            ${coCell(r)}
             <td class="spark-cell">${sparkSVG}</td>
             <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
             <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
@@ -1928,6 +1962,7 @@
       if (w === "BAIZ") {
         const head = `<thead><tr>
           ${thSort("Ticker",          "Ticker")}
+          ${thSort("CompanyName", "Company")}
           ${thStatic("Spark1Y",       "1Y Trend")}
           ${thSort("BaizScore",        reportLink("Baizora"), "col-baiz")}
           ${thSort("BaizMomentum",    reportLink("Momentum+"), "col-mom")}
@@ -1942,6 +1977,7 @@
           );
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
+            ${coCell(r)}
             <td class="spark-cell">${sparkSVG}</td>
             <td class="col-baiz ${scoreClass(r.BaizScore, 50)}">${r.BaizScore ?? "—"}</td>
             <td class="col-mom ${scoreClass(r.BaizMomentum, 50)}">${r.BaizMomentum ?? "—"}</td>
@@ -1956,6 +1992,7 @@
       if (w === "FUND") {
         const head = `<thead><tr>
           ${thSort("Ticker",        "Ticker")}
+          ${thSort("CompanyName", "Company")}
           ${thStatic("Spark1Y",     "1Y Trend")}
           ${thSort("MarketCap",     "Mkt Cap ($B)")}
           ${thSort("PE",            "P/E")}
@@ -1975,6 +2012,7 @@
           const peVs = r.PE_vs_Sector;
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
+            ${coCell(r)}
             <td class="spark-cell">${sparkSVG}</td>
             <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
             <td class="${colorClass(0)}">${r.PE != null ? r.PE.toFixed(1) : "—"}</td>
@@ -1993,6 +2031,7 @@
       if (w === "TECH") {
         const head = `<thead><tr>
           ${thSort("Ticker",  "Ticker")}
+          ${thSort("CompanyName", "Company")}
           ${thStatic("Spark1Y","1Y Trend")}
           ${thSort("Dist20",   "Dist SMA20")}
           ${thSort("Dist200",  "Dist SMA200")}
@@ -2013,6 +2052,7 @@
           const clsPoc  = r.AbovePoc  == null ? "neutral" : (r.AbovePoc  ? "positive" : "negative");
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
+            ${coCell(r)}
             <td class="spark-cell">${sparkSVG}</td>
             <td class="${cls20}">${r.Dist20  != null ? r.Dist20.toFixed(1)  + "%" : "—"}</td>
             <td class="${cls200}">${r.Dist200 != null ? r.Dist200.toFixed(1) + "%" : "—"}</td>
@@ -2049,7 +2089,6 @@
       const oneDayCols = is1D ? `
         ${thSort("PriceChange1D",   "1D P CHG%" + ((window.BAIZORA_LIVE_PRICES && isMarketOpen()) ? "<span class='live-tag'>live</span>" : ""),  "group-start")}
         ${thSort("PriceVsMA21_1D",  "PRICE/MA21", "group-start")}
-        ${thSort("VolumeChange1D",  "1D V CHG%")}
         ${thSort("VolumeVsMA21_1D", "VOL/MA21")}` : "";
 
       const sparkKey   = showPoc ? "SparkW" : "Spark1Y";
@@ -2057,9 +2096,10 @@
 
       const head = `<thead><tr>
         ${thSort("Ticker",          "Ticker")}
+        ${thSort("CompanyName", "Company")}
         ${thStatic(sparkKey,        sparkLabel)}
         ${thSort("Price",           "Price" + ((window.BAIZORA_LIVE_PRICES && isMarketOpen()) ? "<span class='live-tag'>live</span>" : ""))}
-        ${thSort("VolumeM",         "Vol (M)")}
+        ${is1D ? thSort("VolumeM", "Vol (M)") : ""}
         ${oneDayCols}
         ${windowHead}
       </tr></thead>`;
@@ -2113,14 +2153,14 @@
         const oneDayTds = is1D ? `
           <td class="${colorClass(pc1)} group-start chg1d-cell" data-ticker="${r.Ticker}">${pc1 != null ? pc1 + '%' : '—'}</td>
           <td class="${colorClass(pma - 1)} group-start">${pma}</td>
-          <td class="${colorClass(vc1)}">${vc1}%</td>
           <td class="${colorClass(vma - 1)}">${vma}</td>` : "";
 
         return `<tr>
           <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
+          ${coCell(r)}
           <td class="spark-cell">${sparkSVG}</td>
           <td class="price-cell" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price)?.toFixed(2) ?? "—"}</td>
-          <td class="neutral">${r.VolumeM ?? "—"}</td>
+          ${is1D ? `<td class="neutral">${r.VolumeM ?? "—"}</td>` : ""}
           ${oneDayTds}
           ${windowCells}
         </tr>`;
@@ -2205,6 +2245,7 @@
             ${spark}
             <button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}
           </div>
+          ${cardName(r)}
           <div class="card-price-row">
             <span class="card-price" data-ticker="${r.Ticker}" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price) != null ? '$' + (r._livePrice ?? r.Price).toFixed(2) : '—'}</span>
             ${priceChgDisplay}
@@ -2227,8 +2268,8 @@
       const pnlText = v => v == null ? "—" : fmtPnl(v);
       const table = document.getElementById("positionsTable");
       const headRow = table.querySelector("thead tr:last-child");
-      if (headRow && headRow.firstElementChild) {
-        headRow.firstElementChild.insertAdjacentHTML("afterend", thStatic("PosEntry", "Entry") + thSort("PnlPct", "P/L %"));
+      if (headRow && headRow.children[1]) {
+        headRow.children[1].insertAdjacentHTML("afterend", thStatic("PosEntry", "Entry") + thSort("PnlPct", "P/L %"));
       }
       table.querySelectorAll("tbody tr").forEach(tr => {
         const cell = tr.querySelector("td.ticker-cell[data-ticker]");
@@ -2236,7 +2277,7 @@
         const t = cell.dataset.ticker;
         const r = byTicker.get(t);
         const v = r ? r.PnlPct : null;
-        cell.insertAdjacentHTML("afterend",
+        (cell.nextElementSibling || cell).insertAdjacentHTML("afterend",
           `<td class="pos-entry-cell">${entryInput(t)}</td><td class="pnl-cell ${pnlClass(v)}" data-ticker="${t}">${pnlText(v)}</td>`);
       });
       document.querySelectorAll("#positionsCards .stock-card[data-ticker]").forEach(card => {
@@ -2333,6 +2374,7 @@
     const COL_DESCS = {
       "PosEntry":        { label: "Entry", desc: "Your entry price for this position. Type it in and press Enter. Saved to your account and synced across devices." },
       "PnlPct":          { label: "P/L %", desc: "Current price versus your entry price, as a percentage. Green = above your entry (gain), red = below (loss). Uses the live price when available, otherwise the last scanner close. Price change only: not adjusted for stock splits, dividends or fees." },
+      "CompanyName":     { label: "Company",    desc: "Company name." },
       "Ticker":          { label: "Ticker",    desc: "Stock symbol. Click to open 1-year candlestick chart with PE, EPS, Beta, volatility, and sector." },
       "Spark1Y":         { label: "1Y Trend",  desc: "1-year normalized price sparkline. ▲ Triangle = highest-volume day (green=price up, red=price down). ● Circle = highest-price-change day (green=volume up, red=volume down)." },
       "Price":           { label: "Price",     desc: "Latest closing price in USD." },

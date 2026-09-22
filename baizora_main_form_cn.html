@@ -324,6 +324,31 @@
       text-underline-offset: 3px;
     }
     .ticker-cell:hover { color: var(--electric-bright); text-decoration-color: var(--electric-bright); text-decoration-style: solid; }
+    /* Company column. */
+    .co-name {
+      display: inline-block;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0;
+      line-height: 1.3;
+      color: #94a3b8;
+      text-decoration: none;
+    }
+    .card-name {
+      font-size: 10px;
+      line-height: 1.3;
+      color: #94a3b8;
+      margin-top: -2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     .price-cell { font-family: 'DM Mono', monospace; color: #94a3b8; font-weight: 400; }
 
@@ -1201,6 +1226,13 @@
       return `<button class="pos-btn${held ? " held" : ""}" data-pos="${t}" title="${held ? "从我的持仓中移除" : "标记为当前持仓"}">${POS_ICON}</button>`;
     }
 
+    function coNameText(r) {
+      const n = r.CompanyName || "";
+      return n.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+    function coCell(r)   { const n = coNameText(r); return `<td class="co-cell">${n ? `<span class="co-name" title="${n}">${n}</span>` : "—"}</td>`; }
+    function cardName(r) { const n = coNameText(r); return n ? `<div class="card-name" title="${n}">${n}</div>` : ""; }
+
     /* ── SMA PREFERENCES (which overlays + custom period are on, synced like the watchlist) ── */
     // Migrates the old fixed-3-preset-plus-one-custom-slot shape ({active:[...], custom:N})
     // into the current free-form list shape ({smaList:[...]}) so pre-existing localStorage/
@@ -1885,6 +1917,7 @@
       if (w === "SCORES") {
         const head = `<thead><tr>
           ${thSort("Ticker",          "代码")}
+          ${thSort("CompanyName", "公司")}
           ${thStatic("Spark1Y",       "年趋势线")}
           ${thSort("RSScore",         "RS评分")}
           ${thSort("BreakoutScore",   "突破评分")}
@@ -1900,6 +1933,7 @@
           );
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
+            ${coCell(r)}
             <td class="spark-cell">${sparkSVG}</td>
             <td class="${scoreClass(r.RSScore, 50)}">${r.RSScore ?? "—"}</td>
             <td class="${scoreClass(r.BreakoutScore, 50)}">${r.BreakoutScore ?? "—"}</td>
@@ -1915,6 +1949,7 @@
       if (w === "BAIZ") {
         const head = `<thead><tr>
           ${thSort("Ticker",          "代码")}
+          ${thSort("CompanyName", "公司")}
           ${thStatic("Spark1Y",       "年趋势线")}
           ${thSort("BaizScore",        reportLink("贝佐拉评分"), "col-baiz")}
           ${thSort("BaizMomentum",    reportLink("动能+"),      "col-mom")}
@@ -1929,6 +1964,7 @@
           );
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
+            ${coCell(r)}
             <td class="spark-cell">${sparkSVG}</td>
             <td class="col-baiz ${scoreClass(r.BaizScore, 50)}">${r.BaizScore ?? "—"}</td>
             <td class="col-mom ${scoreClass(r.BaizMomentum, 50)}">${r.BaizMomentum ?? "—"}</td>
@@ -1943,6 +1979,7 @@
       if (w === "FUND") {
         const head = `<thead><tr>
           ${thSort("Ticker",        "代码")}
+          ${thSort("CompanyName", "公司")}
           ${thStatic("Spark1Y",     "年趋势线")}
           ${thSort("MarketCap",     "市值($B)")}
           ${thSort("PE",            "市盈率")}
@@ -1962,6 +1999,7 @@
           const peVs = r.PE_vs_Sector;
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
+            ${coCell(r)}
             <td class="spark-cell">${sparkSVG}</td>
             <td class="neutral">${r.MarketCap != null ? r.MarketCap.toFixed(1) : "—"}</td>
             <td class="${colorClass(0)}">${r.PE != null ? r.PE.toFixed(1) : "—"}</td>
@@ -1980,6 +2018,7 @@
       if (w === "TECH") {
         const head = `<thead><tr>
           ${thSort("Ticker",  "代码")}
+          ${thSort("CompanyName", "公司")}
           ${thStatic("Spark1Y","年趋势线")}
           ${thSort("Dist20",   "偏离SMA20")}
           ${thSort("Dist200",  "偏离SMA200")}
@@ -2000,6 +2039,7 @@
           const clsPoc  = r.AbovePoc  == null ? "neutral" : (r.AbovePoc  ? "positive" : "negative");
           return `<tr>
             <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
+            ${coCell(r)}
             <td class="spark-cell">${sparkSVG}</td>
             <td class="${cls20}">${r.Dist20  != null ? r.Dist20.toFixed(1)  + "%" : "—"}</td>
             <td class="${cls200}">${r.Dist200 != null ? r.Dist200.toFixed(1) + "%" : "—"}</td>
@@ -2036,7 +2076,6 @@
       const oneDayCols = is1D ? `
         ${thSort("PriceChange1D",   "日价格变化" + ((window.BAIZORA_LIVE_PRICES && isMarketOpen()) ? "<span class='live-tag'>实时</span>" : ""),  "group-start")}
         ${thSort("PriceVsMA21_1D",  "价格/MA21", "group-start")}
-        ${thSort("VolumeChange1D",  "日成交量变化")}
         ${thSort("VolumeVsMA21_1D", "成交量/MA21")}` : "";
 
       const sparkKey   = showPoc ? "SparkW" : "Spark1Y";
@@ -2044,9 +2083,10 @@
 
       const head = `<thead><tr>
         ${thSort("Ticker",          "代码")}
+        ${thSort("CompanyName", "公司")}
         ${thStatic(sparkKey,        sparkLabel)}
         ${thSort("Price",           "价格" + ((window.BAIZORA_LIVE_PRICES && isMarketOpen()) ? "<span class='live-tag'>实时</span>" : ""))}
-        ${thSort("VolumeM",         "成交量(M)")}
+        ${is1D ? thSort("VolumeM", "成交量(M)") : ""}
         ${oneDayCols}
         ${windowHead}
       </tr></thead>`;
@@ -2098,14 +2138,14 @@
         const oneDayTds = is1D ? `
           <td class="${colorClass(pc1)} group-start chg1d-cell" data-ticker="${r.Ticker}">${pc1 != null ? pc1 + '%' : '—'}</td>
           <td class="${colorClass(pma - 1)} group-start">${pma}</td>
-          <td class="${colorClass(vc1)}">${vc1}%</td>
           <td class="${colorClass(vma - 1)}">${vma}</td>` : "";
 
         return `<tr>
           <td class="ticker-cell" data-ticker="${r.Ticker}">${r.Ticker}${CHART_BTN}<button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}</td>
+          ${coCell(r)}
           <td class="spark-cell">${sparkSVG}</td>
           <td class="price-cell" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price)?.toFixed(2) ?? "—"}</td>
-          <td class="neutral">${r.VolumeM ?? "—"}</td>
+          ${is1D ? `<td class="neutral">${r.VolumeM ?? "—"}</td>` : ""}
           ${oneDayTds}
           ${windowCells}
         </tr>`;
@@ -2190,6 +2230,7 @@
             ${spark}
             <button class="star-btn${watchlist.has(r.Ticker) ? ' starred' : ''}" data-watch="${r.Ticker}">${watchlist.has(r.Ticker) ? '★' : '☆'}</button>${posBtn(r.Ticker)}
           </div>
+          ${cardName(r)}
           <div class="card-price-row">
             <span class="card-price" data-ticker="${r.Ticker}" style="${r._priceDir === 'up' ? 'color:#22c55e' : r._priceDir === 'dn' ? 'color:#ef4444' : ''}">${(r._livePrice ?? r.Price) != null ? '$' + (r._livePrice ?? r.Price).toFixed(2) : '—'}</span>
             ${priceChgDisplay}
@@ -2212,8 +2253,8 @@
       const pnlText = v => v == null ? "—" : fmtPnl(v);
       const table = document.getElementById("positionsTable");
       const headRow = table.querySelector("thead tr:last-child");
-      if (headRow && headRow.firstElementChild) {
-        headRow.firstElementChild.insertAdjacentHTML("afterend", thStatic("PosEntry", "成本价") + thSort("PnlPct", "盈亏%"));
+      if (headRow && headRow.children[1]) {
+        headRow.children[1].insertAdjacentHTML("afterend", thStatic("PosEntry", "成本价") + thSort("PnlPct", "盈亏%"));
       }
       table.querySelectorAll("tbody tr").forEach(tr => {
         const cell = tr.querySelector("td.ticker-cell[data-ticker]");
@@ -2221,7 +2262,7 @@
         const t = cell.dataset.ticker;
         const r = byTicker.get(t);
         const v = r ? r.PnlPct : null;
-        cell.insertAdjacentHTML("afterend",
+        (cell.nextElementSibling || cell).insertAdjacentHTML("afterend",
           `<td class="pos-entry-cell">${entryInput(t)}</td><td class="pnl-cell ${pnlClass(v)}" data-ticker="${t}">${pnlText(v)}</td>`);
       });
       document.querySelectorAll("#positionsCards .stock-card[data-ticker]").forEach(card => {
@@ -2318,6 +2359,7 @@
     const COL_DESCS = {
       "PosEntry":        { label: "成本价", desc: "你在这个持仓上的买入价。输入后按回车即可保存，并会同步到你账户下的所有设备。" },
       "PnlPct":          { label: "盈亏%", desc: "当前价格相对于你买入价的涨跌百分比。绿色 = 高于成本价（盈利），红色 = 低于成本价（亏损）。有实时价格时使用实时价，否则使用扫描器最近收盘价。仅为价格变化，未考虑拆股、分红和费用。" },
+      "CompanyName":     { label: "公司",    desc: "公司名称。" },
       "Ticker":          { label: "代码",    desc: "股票代码。点击可查看1年K线图，以及市盈率、每股收益、贝塔、波动率和行业信息。" },
       "Spark1Y":         { label: "年趋势线",  desc: "一年标准化价格走势图。▲ 三角形 = 成交量最高日（绿色=价格上涨，红色=价格下跌）。● 圆圈 = 价格变动最大日（绿色=成交量上升，红色=成交量下降）。" },
       "Price":           { label: "价格",     desc: "最新收盘价（美元）。" },
