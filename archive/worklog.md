@@ -473,3 +473,4 @@
 2026-09-23 19:00 UTC  11AM-midday
   no-news-video (Claude API failed or no qualifying stories): news_report
 2026-09-23 23:14 UTC  430PM-scan
+2026-09-23 23:31 UTC  500PM-scan
