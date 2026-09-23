@@ -5263,6 +5263,15 @@
   ],
   "BSX": [
     {
+      "date": "2026-09-23",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/885725/000088572526000061/bsx-20260921.htm"
+    },
+    {
       "date": "2026-07-29",
       "eps": 0.61,
       "items": "2.02,9.01",
@@ -8872,6 +8881,18 @@
     }
   ],
   "CTAS": [
+    {
+      "date": "2026-09-23",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/723254/000072325426000044/ctas-20260923.htm"
+    },
     {
       "date": "2026-08-27",
       "items": "5.02",
@@ -14813,6 +14834,18 @@
   ],
   "GIS": [
     {
+      "date": "2026-09-23",
+      "eps": 0.74,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": "2026-08-30",
+      "revenue": 4389500000,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/40704/000162828026063141/gis-20260923.htm"
+    },
+    {
       "date": "2026-07-01",
       "eps": -3.72,
       "items": "2.02,9.01",
@@ -17963,6 +17996,15 @@
     }
   ],
   "IQV": [
+    {
+      "date": "2026-09-23",
+      "items": "1.01,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1478242/000119312526399616/d128109d8k.htm"
+    },
     {
       "date": "2026-07-28",
       "eps": null,
@@ -25344,6 +25386,18 @@
     }
   ],
   "PAYX": [
+    {
+      "date": "2026-09-23",
+      "eps": null,
+      "items": "2.02",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/723531/000072353126000004/payx-20260923.htm"
+    },
     {
       "date": "2026-07-21",
       "items": "5.02,9.01",
@@ -34569,6 +34623,15 @@
     }
   ],
   "WFC": [
+    {
+      "date": "2026-09-23",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/72971/000007297126000308/wfc-20260923.htm"
+    },
     {
       "date": "2026-07-14",
       "eps": 2,
