@@ -1,22 +1,28 @@
 {
- "updated": "2026-09-25 23:12 ET",
+ "updated": "2026-09-25 23:24 ET",
  "window_start": "2026-09-25",
  "window_end": "2026-10-02",
  "min_deal_usd": 100000000,
  "ipos": [
   {
+   "deal_id": "1400871-119254",
    "ticker": "OURA",
    "company": "Oura Inc.",
    "exchange": "Nasdaq",
+   "sector": "Technology",
+   "industry": "Electronic Computers",
    "date": "2026-09-30",
    "price_range": "40.00-44.00",
    "shares": 50000000.0,
    "deal_usd": 2530000000.0
   },
   {
+   "deal_id": "1400711-119247",
    "ticker": "ACCV",
    "company": "Accelevation Holdings Corp.",
    "exchange": "Nasdaq",
+   "sector": "Industrials",
+   "industry": "Electrical Industrial Apparatus",
    "date": "2026-09-30",
    "price_range": "20.00-24.00",
    "shares": 30000000.0,
