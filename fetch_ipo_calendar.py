@@ -7,6 +7,16 @@ Fetch the US IPO calendar into data/ipo_calendar.json for ipo_calendar.html
   - filed: public filings from the last FILED_LOOKBACK_DAYS with no date yet,
            minus anything since scheduled, priced or withdrawn.
 
+Filed-list status checks (Nasdaq's feed lags: it kept ADRX as "Filed" a day
+after it started trading). Every run, each filed deal is re-checked against
+SEC EDGAR and a live quote, and dropped if any of:
+  - priced / trading: EDGAR shows EFFECT or a 424B1/424B4 final prospectus
+    after the filing date, or Nasdaq returns a live quote for the ticker
+  - withdrawn: EDGAR shows an RW (registration withdrawal request)
+  - stalled: no EDGAR filing of any kind for STALE_DAYS (e.g. ECR: S-1 on
+    Apr 10, nothing since)
+A failed lookup keeps the row rather than dropping it.
+
 Source: Nasdaq's public IPO calendar feed (api.nasdaq.com/api/ipo/calendar),
 which covers every major US exchange (Nasdaq, NYSE, NYSE American), not just
 Nasdaq listings. Unofficial / undocumented: needs a browser-like User-Agent.
@@ -50,6 +60,9 @@ HEADERS = {
     "Accept": "application/json",
 }
 FILED_LOOKBACK_DAYS = 180
+STALE_DAYS = 90
+QUOTE_URL = "https://api.nasdaq.com/api/quote/{sym}/info?assetclass=stocks"
+PRICED_FORMS = {"EFFECT", "424B1", "424B4"}
 MIN_DEAL_USD = 100_000_000
 
 ET = ZoneInfo("America/New_York")
@@ -145,22 +158,23 @@ def clean_industry(desc):
 
 
 def lookup_sector(deal_id):
-    """deal id -> (sector, industry, sic) via Nasdaq overview (CIK) + EDGAR. Never raises."""
+    """deal id -> (sector, industry, sic, cik) via Nasdaq overview (CIK) + EDGAR. Never raises."""
     try:
         r = requests.get(OVERVIEW_URL.format(deal=deal_id), headers=HEADERS, timeout=20)
         r.raise_for_status()
         cik = (((r.json().get("data") or {}).get("poOverview") or {}).get("SECCIK") or {}).get("value")
         if not cik or not str(cik).strip().isdigit():
-            return None, None, ""
+            return None, None, "", None
         r = requests.get(SEC_SUBMISSIONS_URL.format(cik=str(cik).strip().zfill(10)),
                          headers=SEC_HEADERS, timeout=20)
         r.raise_for_status()
         sub = r.json()
         sic = str(sub.get("sic") or "").strip()
-        return sic_to_sector(sic), clean_industry(sub.get("sicDescription")) or None, sic
+        cik = str(cik).strip().zfill(10)
+        return sic_to_sector(sic), clean_industry(sub.get("sicDescription")) or None, sic, cik
     except Exception as e:
         print(f"  sector lookup failed for {deal_id}: {e}")
-        return None, None, None   # None sic = lookup failed (vs "" = EDGAR has no SIC)
+        return None, None, None, None   # None sic = lookup failed (vs "" = EDGAR has no SIC)
 
 
 def is_spac_by_sic(ticker, sic):
@@ -170,6 +184,47 @@ def is_spac_by_sic(ticker, sic):
     if sic == "6770":
         return True
     return sic == "" and (ticker or "").endswith("U") and len(ticker) >= 4
+
+
+def is_trading(ticker, company):
+    """True if Nasdaq has a live quote for this ticker under a matching name.
+    The name check guards against a proposed ticker that collides with an
+    unrelated listed stock. Never raises; errors count as not trading."""
+    if not ticker:
+        return False
+    try:
+        r = requests.get(QUOTE_URL.format(sym=ticker), headers=HEADERS, timeout=20)
+        data = (r.json() or {}).get("data") or {}
+        price = ((data.get("primaryData") or {}).get("lastSalePrice") or "").strip()
+        first_word = norm_name((company or "").split()[0]) if company else ""
+        return bool(price) and bool(first_word) and first_word in norm_name(data.get("companyName"))
+    except Exception:
+        return False
+
+
+def filed_status(cik, filed_date, today):
+    """'priced' | 'withdrawn' | 'stalled' | None from EDGAR's filing history.
+    None also when the lookup fails, so a flaky SEC call never drops a row."""
+    if not cik:
+        return None
+    try:
+        r = requests.get(SEC_SUBMISSIONS_URL.format(cik=cik), headers=SEC_HEADERS, timeout=20)
+        r.raise_for_status()
+        recent = (r.json().get("filings") or {}).get("recent") or {}
+        forms = list(zip(recent.get("form") or [], recent.get("filingDate") or []))
+    except Exception as e:
+        print(f"  EDGAR status lookup failed for CIK {cik}: {e}")
+        return None
+    since = [(f, datetime.strptime(d, "%Y-%m-%d").date()) for f, d in forms if d]
+    since = [(f, d) for f, d in since if d >= filed_date]
+    if any(f in PRICED_FORMS for f, _ in since):
+        return "priced"
+    if any(f == "RW" for f, _ in since):
+        return "withdrawn"
+    last = max((d for _, d in since), default=filed_date)
+    if (today - last).days > STALE_DAYS:
+        return "stalled"
+    return None
 
 
 def short_exchange(ex):
@@ -213,14 +268,14 @@ def main():
     try:
         old = json.loads(OUT_JSON.read_text(encoding="utf-8"))
         for x in (old.get("ipos") or []) + (old.get("filed") or []):
-            if x.get("deal_id") and x.get("sic"):   # only cache successful lookups
-                cache[x["deal_id"]] = (x.get("sector"), x.get("industry"), x["sic"])
+            if x.get("deal_id") and x.get("sic") and x.get("cik"):   # only cache successful lookups
+                cache[x["deal_id"]] = (x.get("sector"), x.get("industry"), x["sic"], x["cik"])
     except Exception:
         pass
 
     def sector_for(deal_id):
         if not deal_id:
-            return None, None, None
+            return None, None, None, None
         if deal_id not in cache:
             cache[deal_id] = lookup_sector(deal_id)
             time.sleep(0.3)   # stay well under SEC's 10 req/s fair-access limit
@@ -235,7 +290,7 @@ def main():
     def base(row, deal):
         """Row dict with sector info, or None if EDGAR marks it as a SPAC."""
         ticker = row.get("proposedTickerSymbol") or ""
-        sector, industry, sic = sector_for(row.get("dealID"))
+        sector, industry, sic, cik = sector_for(row.get("dealID"))
         if is_spac_by_sic(ticker, sic):
             return None
         return {
@@ -245,6 +300,7 @@ def main():
             "sector": sector,
             "industry": industry,
             "sic": sic,
+            "cik": cik,
             "deal_usd": deal,
         }
 
@@ -293,6 +349,14 @@ def main():
         seen.add(name)
         x = base(row, deal)
         if x is None:
+            continue
+        # Nasdaq's feed status lags, so re-check every run (not cached)
+        status = filed_status(x["cik"], d, today)
+        time.sleep(0.3)
+        if status is None and is_trading(x["ticker"], x["company"]):
+            status = "trading"
+        if status:
+            print(f"  drop filed {x['ticker'] or x['company']}: {status}")
             continue
         x["filed_date"] = d.isoformat()
         filed.append(x)
