@@ -644,9 +644,11 @@
 
     /* ── INDEX TREND CHARTS (VOO / QQQ) ── */
     .ipo-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: #e2e8f0; letter-spacing: 0.04em; margin: -34px 0 26px; }
+    .ipo-info { max-width: 820px; font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.65; color: #cbd5e1; margin: 0 0 22px; }
+    .ipo-info b { color: #ffffff; font-weight: 600; }
     .ipo-card { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; padding: 8px 20px; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
     .ipo-table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #0f172a; }
-    .ipo-table th { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #475569; text-align: left; padding: 12px 10px; border-bottom: 1px solid rgba(15,23,42,0.08); }
+    .ipo-table th { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #475569; text-align: left; padding: 12px 10px; border-bottom: 1px solid rgba(15,23,42,0.08); word-break: keep-all; }
     .ipo-table td { padding: 14px 10px; border-bottom: 1px solid rgba(15,23,42,0.06); vertical-align: middle; }
     .ipo-table tr:last-child td { border-bottom: none; }
     .ipo-table .num { text-align: right; }
@@ -1721,6 +1723,7 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
 <section class="hm-section" id="ipoSection" style="padding-top:10px;">
   <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">IPO <em>Calendar</em></h2>
   <p class="ipo-sub">Next 7 days &nbsp;·&nbsp; US listings of $100M+ &nbsp;·&nbsp; SPACs excluded</p>
+  <p class="ipo-info">Companies expected to price their initial public offering over the next 7 days. <b>Expected</b> is the scheduled pricing date; shares usually start trading the next morning. <b>Price Range</b> is the proposed price per share, and the final price can land above or below it. <b>Deal Size</b> is the total amount raised at the top of the range, including the extra shares underwriters may sell. Newly listed stocks are not in the S&amp;P 500 or Nasdaq-100 and tend to swing sharply in their first weeks.</p>
   <div class="ipo-card">
     <table class="ipo-table">
       <thead><tr>
