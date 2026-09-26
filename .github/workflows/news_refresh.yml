@@ -44,6 +44,14 @@ jobs:
       - name: Refresh market news
         run: python news_refresh.py
 
+      - name: Refresh IPO calendar
+        # data/ipo_calendar.json (homepage "IPO Calendar" section, next 7 days). Lives in this
+        # daily job rather than scanner.yml so it also refreshes on weekends. continue-on-error:
+        # the Nasdaq feed is unofficial, and a failure must never block the news commit (the
+        # script itself keeps the old file on fetch failure).
+        continue-on-error: true
+        run: python fetch_ipo_calendar.py
+
       - name: Commit updated news
         run: |
           git config user.name "github-actions"
@@ -55,6 +63,7 @@ jobs:
           cp data/index_news.json       "$TMPBAK/" 2>/dev/null || true
           cp data/daily_briefing.txt    "$TMPBAK/" 2>/dev/null || true
           cp data/daily_briefing_cn.txt "$TMPBAK/" 2>/dev/null || true
+          cp data/ipo_calendar.json     "$TMPBAK/" 2>/dev/null || true
 
           git stash
           git fetch origin main
@@ -65,12 +74,14 @@ jobs:
           cp "$TMPBAK/index_news.json"       data/ 2>/dev/null || true
           cp "$TMPBAK/daily_briefing.txt"    data/ 2>/dev/null || true
           cp "$TMPBAK/daily_briefing_cn.txt" data/ 2>/dev/null || true
+          cp "$TMPBAK/ipo_calendar.json"     data/ 2>/dev/null || true
 
           git add -f data/market_news.json      2>/dev/null || true
           git add -f data/market_news_cn.json   2>/dev/null || true
           git add -f data/index_news.json       2>/dev/null || true
           git add -f data/daily_briefing.txt    2>/dev/null || true
           git add -f data/daily_briefing_cn.txt 2>/dev/null || true
+          git add    data/ipo_calendar.json     2>/dev/null || true
 
           if git diff --cached --quiet; then
             echo "No changes to commit, skipping push"

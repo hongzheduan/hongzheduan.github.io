@@ -677,6 +677,28 @@
     .hm-msg { text-align: center; padding: 60px 0; color: #cbd5e1; font-family: 'DM Mono', monospace; font-size: 12px; }
 
     /* ── INDEX TREND CHARTS (VOO / QQQ) ── */
+    .ipo-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: #e2e8f0; letter-spacing: 0.04em; margin: -34px 0 26px; }
+    .ipo-card { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; padding: 8px 20px; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+    .ipo-table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #0f172a; }
+    .ipo-table th { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #475569; text-align: left; padding: 12px 10px; border-bottom: 1px solid rgba(15,23,42,0.08); }
+    .ipo-table td { padding: 14px 10px; border-bottom: 1px solid rgba(15,23,42,0.06); vertical-align: middle; }
+    .ipo-table tr:last-child td { border-bottom: none; }
+    .ipo-table .num { text-align: right; }
+    .ipo-table td.num { white-space: nowrap; }
+    .ipo-date { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: #0f172a; white-space: nowrap; }
+    .ipo-tk { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 700; color: #0f172a; }
+    .ipo-co { font-size: 12px; color: #334155; margin-top: 2px; }
+    .ipo-ex { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #1d4ed8; background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.2); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+    .ipo-deal { font-weight: 600; }
+    .ipo-empty { text-align: center; padding: 34px 0; color: #334155; font-family: 'DM Mono', monospace; font-size: 12px; }
+    .ipo-foot { font-family: 'DM Mono', monospace; font-size: 11px; color: #cbd5e1; margin-top: 14px; }
+    @media (max-width: 640px) {
+      .ipo-card { padding: 4px 12px; }
+      .ipo-table th.ipo-hide-m, .ipo-table td.ipo-hide-m { display: none; }
+      .ipo-table td { padding: 12px 6px; font-size: 13px; }
+      .ipo-date { white-space: normal; }
+      .ipo-table th { padding: 10px 6px; }
+    }
     .idx-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .idx-card { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; padding: 20px; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
     .idx-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
@@ -1691,6 +1713,20 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <div class="idx-chart-box"><canvas id="idxChart-QQQ"></canvas></div>
     </div>
   </div>
+</section>
+
+<section class="hm-section" id="ipoSection" style="padding-top:10px;">
+  <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">IPO <em>日历</em></h2>
+  <p class="ipo-sub">未来7天 &nbsp;·&nbsp; 募资1亿美元以上的美股IPO &nbsp;·&nbsp; 不含SPAC</p>
+  <div class="ipo-card">
+    <table class="ipo-table">
+      <thead><tr>
+        <th>预计日期</th><th>公司</th><th class="ipo-hide-m">交易所</th><th class="num">价格区间</th><th class="num">募资规模</th>
+      </tr></thead>
+      <tbody id="ipoBody"><tr><td colspan="5" class="ipo-empty">加载中…</td></tr></tbody>
+    </table>
+  </div>
+  <div class="ipo-foot" id="ipoFoot">数据来源：Nasdaq IPO日历。预计日期可能变动。不构成投资建议。</div>
 </section>
 
 <section class="bottom-cta">
@@ -3234,5 +3270,40 @@ fetch('data/latest_social_cards_meta.json').then(r => r.json()).then(cards => {
   })();
   </script>
 
+<script>
+// IPO Calendar (next 7 days). data/ipo_calendar.json is written daily by
+// fetch_ipo_calendar.py in news_refresh.yml (SPACs and deals under $100M
+// already filtered out there). Rows dated before today (ET) are dropped here
+// too, in case the file is a day or two stale.
+(function() {
+  const body = document.getElementById('ipoBody');
+  if (!body) return;
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtDeal = v => v >= 1e9 ? '$' + (v / 1e9).toFixed(2) + 'B' : '$' + Math.round(v / 1e6) + 'M';
+  const fmtPx = s => s ? s.split('-').map(p => '$' + p.trim().replace(/\.00$/, '')).join(' - ') : '待定';
+  const todayET = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  fetch('data/ipo_calendar.json?t=' + Date.now()).then(r => r.json()).then(d => {
+    const rows = (d.ipos || []).filter(x => x.date >= todayET);
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="5" class="ipo-empty">未来7天暂无募资1亿美元以上的IPO。</td></tr>';
+    } else {
+      body.innerHTML = rows.map(x => {
+        const dt = new Date(x.date + 'T12:00:00');
+        const dlabel = dt.toLocaleDateString('zh-CN', { weekday: 'short', month: 'short', day: 'numeric' });
+        return '<tr>'
+          + '<td class="ipo-date">' + esc(dlabel) + '</td>'
+          + '<td><div class="ipo-tk">' + esc(x.ticker) + '</div><div class="ipo-co">' + esc(x.company) + '</div></td>'
+          + '<td class="ipo-hide-m"><span class="ipo-ex">' + esc(x.exchange) + '</span></td>'
+          + '<td class="num">' + esc(fmtPx(x.price_range)) + '</td>'
+          + '<td class="num ipo-deal">' + esc(fmtDeal(x.deal_usd)) + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+    if (d.updated) document.getElementById('ipoFoot').textContent = '数据来源：Nasdaq IPO日历。预计日期可能变动。不构成投资建议。' + ' · 更新于 ' + d.updated;
+  }).catch(() => {
+    body.innerHTML = '<tr><td colspan="5" class="ipo-empty">IPO日历加载失败。</td></tr>';
+  });
+})();
+</script>
 </body>
 </html>
