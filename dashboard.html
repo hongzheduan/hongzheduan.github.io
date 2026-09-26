@@ -498,6 +498,16 @@
         </div>
       </a>
 
+      <a href="ipo_calendar.html" class="tool-card">
+        <div class="tool-icon" style="background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.2);color:#7c3aed;">◷</div>
+        <div class="tool-name">IPO Calendar</div>
+        <div class="tool-desc">Upcoming US IPOs: scheduled deals with their expected date, plus companies that have filed and are awaiting one. Deals of $100M or more, SPACs excluded. Updated daily.</div>
+        <div class="tool-footer">
+          <div class="tool-tag" style="color:#7c3aed;background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.3);">● Live</div>
+          <span class="tool-date" id="ipoCount"></span>
+        </div>
+      </a>
+
     </div>
 
     <!-- ── ACCOUNT ── -->
@@ -619,6 +629,13 @@
     (function() {
       const mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const fmt = s => { const [y, m, d] = s.split('-'); return mn[+m - 1] + ' ' + d + ', ' + y; };
+
+      fetch('data/ipo_calendar.json?t=' + Date.now()).then(r => r.json()).then(d => {
+        const el = document.getElementById('ipoCount');
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+        const n = (d.ipos || []).filter(x => x.date >= today).length;
+        if (el) el.textContent = n + ' scheduled · ' + (d.filed || []).length + ' filed';
+      }).catch(() => {});
 
       fetch('data/latest.json').then(r => r.json()).then(d => {
         const el = document.getElementById('scannerDate');

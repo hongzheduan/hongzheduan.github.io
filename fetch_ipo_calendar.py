@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Fetch the next-7-days US IPO calendar into data/ipo_calendar.json for the
-homepage "IPO Calendar" section.
+Fetch the US IPO calendar into data/ipo_calendar.json for ipo_calendar.html
+(dashboard "IPO Calendar" card). Two lists:
+  - ipos:  scheduled deals with an expected pricing date (today or later).
+           Nasdaq only posts a date about a week ahead, so this list is short.
+  - filed: public filings from the last FILED_LOOKBACK_DAYS with no date yet,
+           minus anything since scheduled, priced or withdrawn.
 
 Source: Nasdaq's public IPO calendar feed (api.nasdaq.com/api/ipo/calendar),
 which covers every major US exchange (Nasdaq, NYSE, NYSE American), not just
@@ -9,7 +13,7 @@ Nasdaq listings. Unofficial / undocumented: needs a browser-like User-Agent.
 If it ever breaks or gets blocked, Finnhub's /calendar/ipo (free API key) is
 the fallback.
 
-Filters (homepage is large-cap focused):
+Filters (both lists; site is large-cap focused):
   - SPACs hidden (blank-check "... Acquisition Corp" shells, $10 unit deals)
   - Deal size >= MIN_DEAL_USD; deals with no disclosed size are dropped too
 
@@ -27,7 +31,7 @@ import json
 import re
 import sys
 import time
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -45,11 +49,11 @@ HEADERS = {
                   "(KHTML, like Gecko) Chrome/124.0 Safari/537.36",
     "Accept": "application/json",
 }
-WINDOW_DAYS = 7
+FILED_LOOKBACK_DAYS = 180
 MIN_DEAL_USD = 100_000_000
 
 ET = ZoneInfo("America/New_York")
-SPAC_NAME_RE = re.compile(r"\b(acquisition|blank check|spac)\b", re.I)
+SPAC_NAME_RE = re.compile(r"\b(acquisitions?|blank check|spac)\b", re.I)
 
 
 def fetch_month(ym):
@@ -58,8 +62,13 @@ def fetch_month(ym):
     data = r.json().get("data")
     if not isinstance(data, dict):
         raise ValueError(f"no 'data' object in feed for {ym}")
-    upcoming = (data.get("upcoming") or {}).get("upcomingTable") or {}
-    return upcoming.get("rows") or []
+    up = (data.get("upcoming") or {}).get("upcomingTable") or {}
+    return {
+        "upcoming": up.get("rows") or [],
+        "filed": (data.get("filed") or {}).get("rows") or [],
+        "priced": (data.get("priced") or {}).get("rows") or [],
+        "withdrawn": (data.get("withdrawn") or {}).get("rows") or [],
+    }
 
 
 def parse_usd(s):
@@ -136,21 +145,31 @@ def clean_industry(desc):
 
 
 def lookup_sector(deal_id):
-    """deal id -> (sector, industry) via Nasdaq overview (CIK) + EDGAR. Never raises."""
+    """deal id -> (sector, industry, sic) via Nasdaq overview (CIK) + EDGAR. Never raises."""
     try:
         r = requests.get(OVERVIEW_URL.format(deal=deal_id), headers=HEADERS, timeout=20)
         r.raise_for_status()
         cik = (((r.json().get("data") or {}).get("poOverview") or {}).get("SECCIK") or {}).get("value")
         if not cik or not str(cik).strip().isdigit():
-            return None, None
+            return None, None, ""
         r = requests.get(SEC_SUBMISSIONS_URL.format(cik=str(cik).strip().zfill(10)),
                          headers=SEC_HEADERS, timeout=20)
         r.raise_for_status()
         sub = r.json()
-        return sic_to_sector(sub.get("sic")), clean_industry(sub.get("sicDescription")) or None
+        sic = str(sub.get("sic") or "").strip()
+        return sic_to_sector(sic), clean_industry(sub.get("sicDescription")) or None, sic
     except Exception as e:
         print(f"  sector lookup failed for {deal_id}: {e}")
-        return None, None
+        return None, None, None   # None sic = lookup failed (vs "" = EDGAR has no SIC)
+
+
+def is_spac_by_sic(ticker, sic):
+    # SIC 6770 = "Blank Checks". Brand-new SPAC shells often have no SIC yet;
+    # a unit ticker (…U) with an empty SIC is the tell for those. Filed rows
+    # carry no share price, so is_spac()'s $10-unit rule can't catch them.
+    if sic == "6770":
+        return True
+    return sic == "" and (ticker or "").endswith("U") and len(ticker) >= 4
 
 
 def short_exchange(ex):
@@ -164,61 +183,131 @@ def short_exchange(ex):
     return ex.title() or "—"
 
 
+def norm_name(n):
+    return re.sub(r"[^a-z0-9]", "", (n or "").lower())
+
+
 def main():
     today = datetime.now(ET).date()
-    end = today + timedelta(days=WINDOW_DAYS)
-    months = sorted({today.strftime("%Y-%m"), end.strftime("%Y-%m")})
+    # Filed deals from the last FILED_LOOKBACK_DAYS, plus next month in case
+    # a scheduled date lands there. Nasdaq only posts an expected date ~1 week
+    # ahead, so "upcoming" never reaches far; the filed list is the pipeline.
+    first = (today - timedelta(days=FILED_LOOKBACK_DAYS)).replace(day=1)
+    months, m = [], first
+    while m <= (today.replace(day=1) + timedelta(days=32)).replace(day=1):
+        months.append(m.strftime("%Y-%m"))
+        m = (m + timedelta(days=32)).replace(day=1)
 
-    rows = []
+    tables = {"upcoming": [], "filed": [], "priced": [], "withdrawn": []}
     try:
         for ym in months:
-            rows.extend(fetch_month(ym))
+            for k, v in fetch_month(ym).items():
+                tables[k].extend(v)
+            time.sleep(0.3)
     except Exception as e:
         print(f"IPO feed fetch failed, keeping existing {OUT_JSON.name}: {e}")
         return 0
 
-    seen, out = set(), []
-    for row in rows:
-        try:
-            d = datetime.strptime(row.get("expectedPriceDate") or "", "%m/%d/%Y").date()
-        except ValueError:
-            continue
-        if not (today <= d <= end):
-            continue
+    # sector lookups are cached by deal id across runs (2 HTTP calls each otherwise)
+    cache = {}
+    try:
+        old = json.loads(OUT_JSON.read_text(encoding="utf-8"))
+        for x in (old.get("ipos") or []) + (old.get("filed") or []):
+            if x.get("deal_id") and x.get("sic"):   # only cache successful lookups
+                cache[x["deal_id"]] = (x.get("sector"), x.get("industry"), x["sic"])
+    except Exception:
+        pass
+
+    def sector_for(deal_id):
+        if not deal_id:
+            return None, None, None
+        if deal_id not in cache:
+            cache[deal_id] = lookup_sector(deal_id)
+            time.sleep(0.3)   # stay well under SEC's 10 req/s fair-access limit
+        return cache[deal_id]
+
+    def keep(row):
         if is_spac(row):
-            continue
+            return None
         deal = parse_usd(row.get("dollarValueOfSharesOffered"))
-        if deal is None or deal < MIN_DEAL_USD:
-            continue
-        key = row.get("dealID") or row.get("proposedTickerSymbol")
-        if key in seen:
-            continue
-        seen.add(key)
-        sector, industry = lookup_sector(row.get("dealID")) if row.get("dealID") else (None, None)
-        time.sleep(0.3)   # stay well under SEC's 10 req/s fair-access limit
-        out.append({
-            "deal_id": row.get("dealID") or "",   # -> nasdaq.com IPO profile link on the homepage
-            "ticker": row.get("proposedTickerSymbol") or "",
+        return deal if deal is not None and deal >= MIN_DEAL_USD else None
+
+    def base(row, deal):
+        """Row dict with sector info, or None if EDGAR marks it as a SPAC."""
+        ticker = row.get("proposedTickerSymbol") or ""
+        sector, industry, sic = sector_for(row.get("dealID"))
+        if is_spac_by_sic(ticker, sic):
+            return None
+        return {
+            "deal_id": row.get("dealID") or "",   # -> nasdaq.com IPO profile link
+            "ticker": ticker,
             "company": (row.get("companyName") or "").strip(),
-            "exchange": short_exchange(row.get("proposedExchange")),
             "sector": sector,
             "industry": industry,
+            "sic": sic,
+            "deal_usd": deal,
+        }
+
+    def pdate(s):
+        try:
+            return datetime.strptime(s or "", "%m/%d/%Y").date()
+        except ValueError:
+            return None
+
+    # ---- scheduled: has an expected pricing date, today or later
+    seen, sched = set(), []
+    for row in tables["upcoming"]:
+        d = pdate(row.get("expectedPriceDate"))
+        deal = keep(row)
+        key = row.get("dealID") or row.get("proposedTickerSymbol")
+        if not d or d < today or deal is None or key in seen:
+            continue
+        seen.add(key)
+        x = base(row, deal)
+        if x is None:
+            continue
+        x.update({
+            "exchange": short_exchange(row.get("proposedExchange")),
             "date": d.isoformat(),
             "price_range": (row.get("proposedSharePrice") or "").strip(),
             "shares": parse_usd(row.get("sharesOffered")),
-            "deal_usd": deal,
         })
+        sched.append(x)
+    sched.sort(key=lambda x: (x["date"], -x["deal_usd"]))
 
-    out.sort(key=lambda x: (x["date"], -x["deal_usd"]))
+    # ---- filed: public S-1/F-1 on file, no date yet; drop anything already
+    # scheduled, priced or withdrawn (matched by deal id OR company name,
+    # since a refiled deal can get a new id)
+    done_ids = {r.get("dealID") for k in ("upcoming", "priced", "withdrawn") for r in tables[k]}
+    done_names = {norm_name(r.get("companyName")) for k in ("upcoming", "priced", "withdrawn") for r in tables[k]}
+    cutoff = today - timedelta(days=FILED_LOOKBACK_DAYS)
+    filed, seen = [], set()
+    for row in tables["filed"]:
+        d = pdate(row.get("filedDate"))
+        deal = keep(row)
+        name = norm_name(row.get("companyName"))
+        if not d or d < cutoff or deal is None:
+            continue
+        if row.get("dealID") in done_ids or name in done_names or name in seen:
+            continue
+        seen.add(name)
+        x = base(row, deal)
+        if x is None:
+            continue
+        x["filed_date"] = d.isoformat()
+        filed.append(x)
+    filed.sort(key=lambda x: x["filed_date"], reverse=True)
+
     payload = {
         "updated": datetime.now(ET).strftime("%Y-%m-%d %H:%M ET"),
-        "window_start": today.isoformat(),
-        "window_end": end.isoformat(),
         "min_deal_usd": MIN_DEAL_USD,
-        "ipos": out,
+        "filed_lookback_days": FILED_LOOKBACK_DAYS,
+        "ipos": sched,
+        "filed": filed,
     }
     OUT_JSON.write_text(json.dumps(payload, indent=1) + "\n", encoding="utf-8")
-    print(f"Wrote {len(out)} IPOs ({today} .. {end}) from {len(rows)} upcoming rows")
+    print(f"Wrote {len(sched)} scheduled + {len(filed)} filed IPOs "
+          f"(months {months[0]}..{months[-1]})")
     return 0
 
 

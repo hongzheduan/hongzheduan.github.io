@@ -642,40 +642,6 @@
     .hm-tooltip .hmt-row { display: flex; justify-content: space-between; gap: 16px; font-family: 'DM Mono', monospace; font-size: 11px; color: #cbd5e1; }
     .hm-msg { text-align: center; padding: 60px 0; color: #cbd5e1; font-family: 'DM Mono', monospace; font-size: 12px; }
 
-    /* ── IPO CALENDAR ── */
-    .ipo-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: #e2e8f0; letter-spacing: 0.04em; margin: -34px 0 26px; }
-    .ipo-info { max-width: 820px; font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.65; color: #cbd5e1; margin: 0 0 22px; }
-    .ipo-info b { color: #ffffff; font-weight: 600; }
-    .ipo-card { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; padding: 8px 20px; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
-    .ipo-table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #0f172a; }
-    .ipo-table th { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #475569; text-align: left; padding: 12px 10px; border-bottom: 1px solid rgba(15,23,42,0.08); word-break: keep-all; }
-    .ipo-table td { padding: 14px 10px; border-bottom: 1px solid rgba(15,23,42,0.06); vertical-align: middle; }
-    .ipo-table tr:last-child td { border-bottom: none; }
-    .ipo-table .num { text-align: right; }
-    .ipo-table td.num { white-space: nowrap; }
-    .ipo-date { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: #0f172a; white-space: nowrap; }
-    .ipo-tk { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 700; color: #0f172a; }
-    .ipo-co { font-size: 12px; color: #334155; margin-top: 2px; }
-    .ipo-sec { display: inline-block; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: #0f172a; background: rgba(15,23,42,0.06); border: 1px solid rgba(15,23,42,0.1); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
-    .ipo-ind { font-size: 12px; color: #334155; margin-top: 4px; }
-    .ipo-sec-m { display: none; margin-top: 6px; }
-    .ipo-tk a, .ipo-co a { color: inherit; text-decoration: none; }
-    .ipo-tk a:hover, .ipo-co a:hover { color: #2563eb; text-decoration: underline; text-underline-offset: 3px; }
-    .ipo-arrow { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: #2563eb; }
-    .ipo-tk .ipo-ex { margin-left: 6px; vertical-align: 2px; }
-    .ipo-ex { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #1d4ed8; background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.2); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
-    .ipo-deal { font-weight: 600; }
-    .ipo-empty { text-align: center; padding: 34px 0; color: #334155; font-family: 'DM Mono', monospace; font-size: 12px; }
-    .ipo-foot { font-family: 'DM Mono', monospace; font-size: 11px; color: #cbd5e1; margin-top: 14px; }
-    @media (max-width: 640px) {
-      .ipo-card { padding: 4px 12px; }
-      .ipo-table th.ipo-hide-m, .ipo-table td.ipo-hide-m { display: none; }
-      .ipo-table td { padding: 12px 6px; font-size: 13px; }
-      .ipo-date { white-space: normal; }
-      .ipo-sec-m { display: block; }
-      .ipo-tk .ipo-ex { display: none; }
-      .ipo-table th { padding: 10px 6px; }
-    }
     /* ── INDEX TREND CHARTS (VOO / QQQ) ── */
     .idx-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .idx-card { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; padding: 20px; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
@@ -1728,21 +1694,6 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
       <div class="idx-chart-box"><canvas id="idxChart-QQQ"></canvas></div>
     </div>
   </div>
-</section>
-
-<section class="hm-section" id="ipoSection" style="padding-top:10px;">
-  <h2 class="section-title" style="font-size:clamp(24px,3vw,36px);">IPO <em>Calendar</em></h2>
-  <p class="ipo-sub">Next 7 days &nbsp;·&nbsp; US listings of $100M+ &nbsp;·&nbsp; SPACs excluded</p>
-  <p class="ipo-info">Companies expected to price their initial public offering over the next 7 days. <b>Expected</b> is the scheduled pricing date; shares usually start trading the next morning. Tap a ticker to open the company's IPO profile on Nasdaq. <b>Sector</b> is based on the industry code the company registered with the SEC. <b>Price Range</b> is the proposed price per share, and the final price can land above or below it. <b>Deal Size</b> is the total amount raised at the top of the range, including the extra shares underwriters may sell. Newly listed stocks are not in the S&amp;P 500 or Nasdaq-100 and tend to swing sharply in their first weeks.</p>
-  <div class="ipo-card">
-    <table class="ipo-table">
-      <thead><tr>
-        <th>Expected</th><th>Company</th><th class="ipo-hide-m">Sector</th><th class="num">Price Range</th><th class="num">Deal Size</th>
-      </tr></thead>
-      <tbody id="ipoBody"><tr><td colspan="5" class="ipo-empty">Loading…</td></tr></tbody>
-    </table>
-  </div>
-  <div class="ipo-foot" id="ipoFoot">Source: Nasdaq IPO calendar. Expected dates can shift. Not investment advice.</div>
 </section>
 
 <section class="bottom-cta">
@@ -3264,47 +3215,5 @@ fetch('data/latest_social_cards_meta.json').then(r => r.json()).then(cards => {
   })();
   </script>
 
-<script>
-// IPO Calendar (next 7 days). data/ipo_calendar.json is written daily by
-// fetch_ipo_calendar.py in news_refresh.yml (SPACs and deals under $100M
-// already filtered out there). Rows dated before today (ET) are dropped here
-// too, in case the file is a day or two stale.
-(function() {
-  const body = document.getElementById('ipoBody');
-  if (!body) return;
-  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const fmtDeal = v => v >= 1e9 ? '$' + (v / 1e9).toFixed(2) + 'B' : '$' + Math.round(v / 1e6) + 'M';
-  const fmtPx = s => s ? s.split('-').map(p => '$' + p.trim().replace(/\.00$/, '')).join(' - ') : 'TBD';
-const secLabel = s => s || '';
-  const todayET = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
-  fetch('data/ipo_calendar.json?t=' + Date.now()).then(r => r.json()).then(d => {
-    const rows = (d.ipos || []).filter(x => x.date >= todayET);
-    if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="5" class="ipo-empty">No IPOs of $100M+ expected in the next 7 days.</td></tr>';
-    } else {
-      body.innerHTML = rows.map(x => {
-        const sec = secLabel(x.sector);
-        // Nasdaq IPO profile: description, financials, underwriters, S-1. Exists before listing day.
-        const url = /^[0-9-]+$/.test(x.deal_id || '') ? 'https://www.nasdaq.com/market-activity/ipos/overview?dealId=' + x.deal_id : '';
-        const link = h => url ? '<a href="' + url + '" target="_blank" rel="noopener" title="' + 'Company profile on Nasdaq' + '">' + h + '</a>' : h;
-        const dt = new Date(x.date + 'T12:00:00');
-        const dlabel = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-        return '<tr>'
-          + '<td class="ipo-date">' + esc(dlabel) + '</td>'
-          + '<td><div class="ipo-tk">' + link(esc(x.ticker) + ' <span class="ipo-arrow">↗</span>') + '<span class="ipo-ex">' + esc(x.exchange) + '</span></div>'
-            + '<div class="ipo-co">' + link(esc(x.company)) + '</div>'
-            + (sec ? '<div class="ipo-sec-m"><span class="ipo-sec">' + esc(sec) + '</span></div>' : '') + '</td>'
-          + '<td class="ipo-hide-m">' + (sec ? '<span class="ipo-sec">' + esc(sec) + '</span>' : '') + (x.industry ? '<div class="ipo-ind">' + esc(x.industry) + '</div>' : '') + '</td>'
-          + '<td class="num">' + esc(fmtPx(x.price_range)) + '</td>'
-          + '<td class="num ipo-deal">' + esc(fmtDeal(x.deal_usd)) + '</td>'
-          + '</tr>';
-      }).join('');
-    }
-    if (d.updated) document.getElementById('ipoFoot').textContent = 'Source: Nasdaq IPO calendar. Expected dates can shift. Not investment advice.' + ' · Updated ' + d.updated;
-  }).catch(() => {
-    body.innerHTML = '<tr><td colspan="5" class="ipo-empty">Unable to load IPO calendar.</td></tr>';
-  });
-})();
-</script>
 </body>
 </html>

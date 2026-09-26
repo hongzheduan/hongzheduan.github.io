@@ -1,32 +1,225 @@
 {
- "updated": "2026-09-25 23:24 ET",
- "window_start": "2026-09-25",
- "window_end": "2026-10-02",
+ "updated": "2026-09-25 23:37 ET",
  "min_deal_usd": 100000000,
+ "filed_lookback_days": 180,
  "ipos": [
   {
    "deal_id": "1400871-119254",
    "ticker": "OURA",
    "company": "Oura Inc.",
-   "exchange": "Nasdaq",
    "sector": "Technology",
    "industry": "Electronic Computers",
+   "sic": "3571",
+   "deal_usd": 2530000000.0,
+   "exchange": "Nasdaq",
    "date": "2026-09-30",
    "price_range": "40.00-44.00",
-   "shares": 50000000.0,
-   "deal_usd": 2530000000.0
+   "shares": 50000000.0
   },
   {
    "deal_id": "1400711-119247",
    "ticker": "ACCV",
    "company": "Accelevation Holdings Corp.",
-   "exchange": "Nasdaq",
    "sector": "Industrials",
    "industry": "Electrical Industrial Apparatus",
+   "sic": "3620",
+   "deal_usd": 828000000.0,
+   "exchange": "Nasdaq",
    "date": "2026-09-30",
    "price_range": "20.00-24.00",
-   "shares": 30000000.0,
-   "deal_usd": 828000000.0
+   "shares": 30000000.0
+  }
+ ],
+ "filed": [
+  {
+   "deal_id": "1403574-119467",
+   "ticker": "CTY",
+   "company": "CITY THERAPEUTICS, INC.",
+   "sector": "Healthcare",
+   "industry": "Pharmaceutical Preparations",
+   "sic": "2834",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-09-24"
+  },
+  {
+   "deal_id": "1273626-119431",
+   "ticker": "IAM",
+   "company": "Iambic Therapeutics, Inc.",
+   "sector": "Healthcare",
+   "industry": "Biological Products",
+   "sic": "2836",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-09-21"
+  },
+  {
+   "deal_id": "1402904-119414",
+   "ticker": "TRXB",
+   "company": "TRex Bio, Inc.",
+   "sector": "Healthcare",
+   "industry": "Biological Products",
+   "sic": "2836",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-09-18"
+  },
+  {
+   "deal_id": "1402874-119401",
+   "ticker": "NSCL",
+   "company": "NSCALE Ltd",
+   "sector": "Technology",
+   "industry": "Prepackaged Software",
+   "sic": "7372",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-09-18"
+  },
+  {
+   "deal_id": "1108603-119284",
+   "ticker": "ADRX",
+   "company": "ADARx Pharmaceuticals, Inc.",
+   "sector": "Healthcare",
+   "industry": "Pharmaceutical Preparations",
+   "sic": "2834",
+   "deal_usd": 446250000.0,
+   "filed_date": "2026-09-04"
+  },
+  {
+   "deal_id": "1400437-119230",
+   "ticker": "SBE",
+   "company": "SB Energy, Inc.",
+   "sector": "Utilities",
+   "industry": "Electric Services",
+   "sic": "4911",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-09-01"
+  },
+  {
+   "deal_id": "1400403-119222",
+   "ticker": "WELA",
+   "company": "Wella Co",
+   "sector": "Consumer Staples",
+   "industry": "Perfumes, Cosmetics & Other Toilet Preparations",
+   "sic": "2844",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-08-31"
+  },
+  {
+   "deal_id": "1400257-119208",
+   "ticker": "BMB",
+   "company": "Bamboo Insurance Services, Inc.",
+   "sector": "Financials",
+   "industry": "Insurance Agents, Brokers & Service",
+   "sic": "6411",
+   "deal_usd": 805000000.0,
+   "filed_date": "2026-08-28"
+  },
+  {
+   "deal_id": "1399530-119147",
+   "ticker": "AGKO",
+   "company": "Aggreko Inc.",
+   "sector": "Utilities",
+   "industry": "Cogeneration Services & Small Power Producers",
+   "sic": "4991",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-08-24"
+  },
+  {
+   "deal_id": "1399396-119133",
+   "ticker": "KVLT",
+   "company": "CoVolt Power, Inc.",
+   "sector": "Utilities",
+   "industry": "Electric & Other Services Combined",
+   "sic": "4931",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-08-21"
+  },
+  {
+   "deal_id": "1394047-118682",
+   "ticker": "YLUZ",
+   "company": "YPF Energia Electrica S.A.",
+   "sector": "Utilities",
+   "industry": "Electric Services",
+   "sic": "4911",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-07-13"
+  },
+  {
+   "deal_id": "1393874-118671",
+   "ticker": "HNUC",
+   "company": "Holtec Nuclear Corp",
+   "sector": "Industrials",
+   "industry": "Construction - Special Trade Contractors",
+   "sic": "1700",
+   "deal_usd": 1035000000.0,
+   "filed_date": "2026-07-10"
+  },
+  {
+   "deal_id": "1393836-118659",
+   "ticker": "MW",
+   "company": "Tailored Brands, Inc. / DE",
+   "sector": "Consumer Discretionary",
+   "industry": "Apparel & Accessory Stores",
+   "sic": "5600",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-07-10"
+  },
+  {
+   "deal_id": "1035144-118620",
+   "ticker": "SYTN",
+   "company": "Syntiant Corp.",
+   "sector": "Technology",
+   "industry": "Semiconductors & Related Devices",
+   "sic": "3674",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-07-06"
+  },
+  {
+   "deal_id": "1392696-118584",
+   "ticker": "CMBY",
+   "company": "Cumberland Farms Ltd",
+   "sector": "Consumer Discretionary",
+   "industry": "Auto Dealers & Gasoline Stations",
+   "sic": "5500",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-07-02"
+  },
+  {
+   "deal_id": "1392649-118580",
+   "ticker": "GENN",
+   "company": "Genneia S.A.",
+   "sector": "Utilities",
+   "industry": "Electric Services",
+   "sic": "4911",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-07-02"
+  },
+  {
+   "deal_id": "1388566-118252",
+   "ticker": "CUX",
+   "company": "CopperTech Metals Inc.",
+   "sector": "Materials",
+   "industry": "Metal Mining",
+   "sic": "1000",
+   "deal_usd": 487058814.0,
+   "filed_date": "2026-06-02"
+  },
+  {
+   "deal_id": "1387845-118190",
+   "ticker": "ENT",
+   "company": "ENTRATA, INC.",
+   "sector": "Technology",
+   "industry": "Prepackaged Software",
+   "sic": "7372",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-05-28"
+  },
+  {
+   "deal_id": "1380954-117642",
+   "ticker": "ECR",
+   "company": "Encore Inc.",
+   "sector": "Consumer Discretionary",
+   "industry": "Amusement & Recreation Services",
+   "sic": "7900",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-04-10"
   }
  ]
 }

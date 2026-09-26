@@ -510,6 +510,16 @@
         </div>
       </a>
 
+      <a href="ipo_calendar_cn.html" class="tool-card">
+        <div class="tool-icon" style="background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.2);color:#7c3aed;">◷</div>
+        <div class="tool-name">IPO日历</div>
+        <div class="tool-desc">即将上市的美股IPO：已排期的交易及预计日期，以及已递交申请、尚待排期的公司。募资1亿美元以上，不含SPAC。每日更新。</div>
+        <div class="tool-footer">
+          <div class="tool-tag" style="color:#7c3aed;background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.3);">● 实时</div>
+          <span class="tool-date" id="ipoCount"></span>
+        </div>
+      </a>
+
     </div>
 
     <!-- ── ACCOUNT ── -->
@@ -630,6 +640,13 @@
   <script>
     (function() {
       const fmt = s => { const [y, m, d] = s.split('-'); return y + '年' + parseInt(m) + '月' + parseInt(d) + '日'; };
+
+      fetch('data/ipo_calendar.json?t=' + Date.now()).then(r => r.json()).then(d => {
+        const el = document.getElementById('ipoCount');
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+        const n = (d.ipos || []).filter(x => x.date >= today).length;
+        if (el) el.textContent = '已排期 ' + n + ' · 已递交 ' + (d.filed || []).length;
+      }).catch(() => {});
 
       fetch('data/latest.json').then(r => r.json()).then(d => {
         const el = document.getElementById('scannerDate');

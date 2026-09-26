@@ -45,7 +45,7 @@ jobs:
         run: python news_refresh.py
 
       - name: Refresh IPO calendar
-        # data/ipo_calendar.json (homepage "IPO Calendar" section, next 7 days). Lives in this
+        # data/ipo_calendar.json (ipo_calendar.html via the dashboard card: scheduled + filed). Lives in this
         # daily job rather than scanner.yml so it also refreshes on weekends. continue-on-error:
         # the Nasdaq feed is unofficial, and a failure must never block the news commit (the
         # script itself keeps the old file on fetch failure).
