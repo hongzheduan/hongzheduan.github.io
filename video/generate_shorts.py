@@ -8,7 +8,7 @@ Monday (Volume Spikes) first.
 Structure (target ~27s total):
   1. Hook   (3s)  — bold headline, matches the thumbnail's Anton/impact style
   2. Data   (17s) — condensed top-5 table, one screen, no scrolling
-  3. Ad     (5s)  — Baizora branding + CTA, reserved as the last 5 seconds per spec
+  3. Outro        — Baizora brand card + one spoken subscribe line (no ads)
 
 Usage:
     py generate_shorts.py --type near_sma200
@@ -862,19 +862,11 @@ def scene_ad_short(scan_date, lang="en"):
     y += 75
     hline_s(draw, y, x0=240, x1=SW - 240)
 
-    if FREE_ACCESS_MODE:
-        cta = "100% Free — Sign Up Now" if lang == "en" else "完全免费，立即注册"
-    else:
-        cta = "Start your free 7-day trial" if lang == "en" else "开始七天免费试用"
+    # Sign-up CTA and baizora.com removed 2026-09-26 (info-only videos, no
+    # website promo); the card now just names the channel.
     y += 50
-    centered_s(draw, y, cta, load_font(38, bold=True) if lang == "en" else load_font_cn(36, bold=True), GOLD_LIGHT)
-    y += 70
-    centered_s(draw, y, "baizora.com", load_font(42), ELECTRIC)
-
-    follow_y = y + 110
-    hline_s(draw, follow_y - 40, x0=240, x1=SW - 240)
-    follow = "New video every day — follow along" if lang == "en" else "每日更新 · 欢迎关注"
-    centered_s(draw, follow_y, follow, load_font(28, bold=True) if lang == "en" else load_font_cn(26, bold=True), WHITE)
+    follow = "Subscribe to the Baizora channel" if lang == "en" else "欢迎订阅贝佐拉频道"
+    centered_s(draw, y, follow, load_font(34, bold=True) if lang == "en" else load_font_cn(32, bold=True), WHITE)
 
     disclaimer = ("For informational purposes only. Not financial advice."
                    if lang == "en" else "仅供参考，不构成投资建议。")
@@ -985,6 +977,26 @@ _SUBSCRIBE_SAT_EN = "We report this every Saturday — subscribe so you don't mi
 _SUBSCRIBE_SAT_CN = "本频道每周六都会带来这个专题，敬请关注。"
 _SUBSCRIBE_SUN_EN = "We report this every Sunday — subscribe so you don't miss it."
 _SUBSCRIBE_SUN_CN = "本频道每周日都会带来这个专题，敬请关注。"
+
+
+# Info-only closing (user request, 2026-09-26: "remove all ad, only provide
+# info, and mention baizora at the end" / "welcome to subscribe to baizora
+# channel is ok" / "remove all website related ad"). Replaces every category's
+# old closing (website screenshots, ad reel, subscribe + tagline pair) with one
+# spoken line over the brand card. Measured at SHORTS_TTS_RATE in a fresh
+# subprocess each: EN 2.47s, CN 2.09s; hold keeps the ~2s cushion the old
+# tagline needed against cumulative drift (see _CLOSING_TAGLINE_DUR_EN note).
+_CLOSING_LINE_EN = "Subscribe to the Baizora channel for more."
+_CLOSING_LINE_CN = "欢迎订阅贝佐拉频道。"
+_CLOSING_LINE_DUR_EN = 4.4
+_CLOSING_LINE_DUR_CN = 4.1
+
+
+def _closing_frames(date, lang):
+    img = scene_ad_short(date, lang=lang)
+    if lang == "cn":
+        return [(img, _CLOSING_LINE_DUR_CN, None, _CLOSING_LINE_CN)]
+    return [(img, _CLOSING_LINE_DUR_EN, None, _CLOSING_LINE_EN)]
 
 
 def _short_ad_outro_frame(date, lang, subscribe_en=None, subscribe_cn=None):
@@ -1648,30 +1660,9 @@ def _build_volume_spike_fallback(data, output, lang, share_dir, date, date_obj):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "volume_spikes", i + 1,
                               criteria=criteria)
 
-    volma21_frame = _frame_dashboard_sort(lang, "vol_ma21.png")
-    ad_card = scene_ad_short(date, lang=lang)
-    if lang == "cn":
-        frames.append((volma21_frame, 4.8, None, _VOLMA21_VARIABLE_LINE_CN))  # measured 4.46s (您->用户 swap), +buffer
-        frames.append((volma21_frame, 4.0, None, _VOLMA21_VERIFY_LINE_CN))    # measured 3.74s, +buffer
-        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_MON_CN))
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
-    else:
-        # Tightened 2026-08-22 (user: noticeable dead air "before 'click ticker'"
-        # and again "before 'baizora makes things simple'") -- CN pacing was
-        # confirmed fine ("cn is ok otherwise"), EN-only fix. Two changes:
-        # (1) dropped the earlier +2s extra-viewing bonus on this beat -- with
-        # a SECOND spoken beat stacked on the same still right after it, that
-        # bonus read as the video going quiet mid-thought, not as "more time to
-        # look," so it's gone here specifically (other single-beat screenshots
-        # elsewhere keep their +2s, no complaint there). (2) subscribe beat
-        # given its own tight duration (real 3.12s + buffer) instead of the
-        # shared _SUBSCRIBE_DUR_EN=4.0 (sized for Tuesday+Thursday's longer
-        # combined line) -- that shared constant is unchanged for every other
-        # category, this call site just no longer inherits its slack.
-        frames.append((volma21_frame, 5.4, None, _VOLMA21_VARIABLE_LINE_EN))  # measured 5.06s, +buffer
-        frames.append((volma21_frame, 3.9, None, _VOLMA21_VERIFY_LINE_EN))    # measured 3.67s, +buffer
-        frames.append((ad_card, 3.4, None, _SUBSCRIBE_MON_EN))                # measured 3.12s, +buffer
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
+    # Info-only closing (2026-09-26): brand card + one spoken subscribe line,
+    # no website screenshots, ad reel, or sign-up pitch.
+    frames += _closing_frames(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("near_sma200" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1787,27 +1778,9 @@ def _render_near_sma200(data, output, lang, share_dir, rows, date, date_obj):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "near_sma200", i + 1,
                               criteria=share_criteria)
 
-    # Minimal closing (see docstring) — real DIST SMA200 screenshot, then a real
-    # chart showing the pattern, then straight to the closing-tagline brand card
-    # (with a category-specific subscribe ask spoken first). No ad reel, no
-    # _AD_PITCH/_SHORT_AD_LINE narration at all for this category.
-    website_frame = _frame_website_screenshot(lang)
-    sample_frame = _frame_sma200_sample(lang)
-    ad_card = scene_ad_short(date, lang=lang)
-    if lang == "cn":
-        # Order swapped 2026-08-22 (user request): name the variable (Dist
-        # SMA200) BEFORE explaining what the colors mean, not after.
-        frames.append((website_frame, 4.6, None, _SMA200_WEBSITE_LINE_CN))  # measured 4.30s (您->用户 swap), +buffer
-        frames.append((website_frame, 3.4, None, _SMA200_COLOR_LINE_CN))    # measured 3.12s, +buffer
-        frames.append((sample_frame, 5.9, None, _SMA200_SAMPLE_LINE_CN))    # measured 5.62s, +buffer
-        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_MONWED_CN))
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
-    else:
-        frames.append((website_frame, 4.3, None, _SMA200_WEBSITE_LINE_EN))  # measured 4.08s, +buffer
-        frames.append((website_frame, 3.3, None, _SMA200_COLOR_LINE_EN))    # measured 3.02s, +buffer
-        frames.append((sample_frame, 7.7, None, _SMA200_SAMPLE_LINE_EN))    # measured 7.44s, +buffer
-        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_MONWED_EN))
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
+    # Info-only closing (2026-09-26): brand card + one spoken subscribe line,
+    # no website screenshots, ad reel, or sign-up pitch.
+    frames += _closing_frames(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("near_sma200" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -1955,26 +1928,9 @@ def build_best_performer_short(data, output, lang="en", share_dir=None):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "best_performer", i + 1,
                               criteria=share_criteria)
 
-    # Custom minimal closing (user request, 2026-08-22, "same structure" as
-    # Monday's near_sma200 category -- see _frame_website_screenshot /
-    # project_monday_near_sma200_category memory): a real dashboard screenshot
-    # naming the variable that drives this category, then the subscribe line,
-    # then the closing tagline. Replaces the old short-ad treatment
-    # (_short_ad_outro_frame's "chart is free to download" line) for Sunday
-    # specifically -- Tuesday/Thursday (1y_vol_peak) still use that helper.
-    best_frame = _frame_dashboard_sort(lang, "best.png")
-    ad_card = scene_ad_short(date, lang=lang)
-    if lang == "cn":
-        frames.append((best_frame, 5.4, None, _PCHG_VARIABLE_LINE_CN))  # measured 5.09s (您->用户 swap), +buffer
-        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_SUN_CN))
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
-    else:
-        # +2s beyond the narration's own buffer (user request, 2026-08-22) --
-        # extra silent viewing time on the screenshot itself so it doesn't
-        # feel rushed, not a narration-timing fix (real speech is 4.56s).
-        frames.append((best_frame, 6.8, None, _PCHG_VARIABLE_LINE_EN))
-        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_SUN_EN))
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
+    # Info-only closing (2026-09-26): brand card + one spoken subscribe line,
+    # no website screenshots, ad reel, or sign-up pitch.
+    frames += _closing_frames(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("best_performer" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -2040,23 +1996,9 @@ def build_worst_performer_short(data, output, lang="en", share_dir=None):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "worst_performer", i + 1,
                               criteria=share_criteria)
 
-    # Custom minimal closing (user request, 2026-08-22, "same for saturday's,
-    # using worst.png" -- mirrors Sunday's best_performer closing exactly, see
-    # build_best_performer_short / project_regular_cadence_subscribe_line
-    # memory): a real dashboard screenshot naming the P Chg% variable, then the
-    # subscribe line, then the closing tagline. Replaces the old 3-part ad
-    # reel entirely for this category.
-    worst_frame = _frame_dashboard_sort(lang, "worst.png")
-    ad_card = scene_ad_short(date, lang=lang)
-    if lang == "cn":
-        frames.append((worst_frame, 5.4, None, _PCHG_VARIABLE_LINE_CN))  # measured 5.09s (您->用户 swap), +buffer
-        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_SAT_CN))
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
-    else:
-        # +2s extra silent viewing time, same as Sunday's (user request).
-        frames.append((worst_frame, 6.8, None, _PCHG_VARIABLE_LINE_EN))
-        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_SAT_EN))
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
+    # Info-only closing (2026-09-26): brand card + one spoken subscribe line,
+    # no website screenshots, ad reel, or sign-up pitch.
+    frames += _closing_frames(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("worst_performer" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -2181,8 +2123,9 @@ def build_avg_volume_short(data, output, lang="en", share_dir=None):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, share_caption, share_dir, "avg_volume", i + 1,
                               criteria=share_criteria)
 
-    # Shortened ad treatment (user request, 2026-08-01) -- see _short_ad_outro_frame.
-    frames += _short_ad_outro_frame(date, lang)
+    # Info-only closing (2026-09-26): brand card + one spoken subscribe line,
+    # no website screenshots, ad reel, or sign-up pitch.
+    frames += _closing_frames(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("avg_volume" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -2246,17 +2189,9 @@ def _build_price_jump_fallback(data, output, lang, share_dir, date, date_obj):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, caption, share_dir, "price_jump", i + 1,
                               criteria=criteria)
 
-    ad_entries = build_ad_reel(lang=lang)
-    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
-    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
-    first = ad_entries[0]
-    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
-    last = ad_entries[-1]
-    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
-    frames += ad_entries
-    frames.append((scene_ad_short(date, lang=lang),
-                   _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
-                   _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
+    # Info-only closing (2026-09-26): brand card + one spoken subscribe line,
+    # no website screenshots, ad reel, or sign-up pitch.
+    frames += _closing_frames(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("near_sma200" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -2383,24 +2318,9 @@ def _build_breakout_fallback(data, output, lang, share_dir, date, date_obj):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, row_share_caption, share_dir, "6m_breakout", i + 1,
                               criteria=row_share_criteria)
 
-    # Ad reel, same as Monday/Tuesday: real footage with the platform pitch, then a
-    # short second beat with the CTA, then the unchanged silent outro card.
-    ad_entries = build_ad_reel(lang=lang)
-    ad_pitch = _AD_PITCH_CN if lang == "cn" else _AD_PITCH_EN
-    ad_pitch2 = _AD_PITCH2_CN if lang == "cn" else _AD_PITCH2_EN
-    first = ad_entries[0]
-    ad_entries[0] = (first[0], first[1], first[2], ad_pitch)
-    last = ad_entries[-1]
-    ad_entries[-1] = (last[0], last[1], last[2], ad_pitch2)
-    frames += ad_entries
-    # Wednesday-specific subscribe line, added 2026-08-22 (see _SUBSCRIBE_WED_EN/CN)
-    # -- extra beat over the same closing brand card, before the closing tagline.
-    ad_card = scene_ad_short(date, lang=lang)
-    frames.append((ad_card, _SUBSCRIBE_DUR_CN if lang == "cn" else _SUBSCRIBE_DUR_EN, None,
-                   _SUBSCRIBE_WED_CN if lang == "cn" else _SUBSCRIBE_WED_EN))
-    frames.append((ad_card,
-                   _CLOSING_TAGLINE_DUR_CN if lang == "cn" else _CLOSING_TAGLINE_DUR_EN, None,
-                   _CLOSING_TAGLINE_CN if lang == "cn" else _CLOSING_TAGLINE_EN))
+    # Info-only closing (2026-09-26): brand card + one spoken subscribe line,
+    # no website screenshots, ad reel, or sign-up pitch.
+    frames += _closing_frames(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("6m_breakout" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -2554,26 +2474,9 @@ def build_1y_vol_peak_short(data, output, lang="en", share_dir=None):
             _save_share_card(light_card, row.get("Ticker", ""), date, lang, row_share_caption, share_dir, "1y_vol_peak", i + 1,
                               criteria=share_criteria)
 
-    # Custom minimal closing (user request, 2026-08-22, "use peakvolume.png for
-    # these two days" -- same bespoke dashboard-screenshot closing as Sunday/
-    # Saturday, see build_best_performer_short / project_regular_cadence_
-    # subscribe_line memory): a real screenshot naming the VOL RANK variable,
-    # then the subscribe line, then the closing tagline. Replaces the old
-    # short-ad treatment entirely for this category. This category runs both
-    # Tuesday and Thursday (see the 2026-08-15 rework commit "Rework Tuesday/
-    # Sunday category video rotation"), so the subscribe line names both days
-    # rather than picking one (see _SUBSCRIBE_TUETHU_EN/CN).
-    peakvol_frame = _frame_dashboard_sort(lang, "peakvolume.png")
-    ad_card = scene_ad_short(date, lang=lang)
-    if lang == "cn":
-        frames.append((peakvol_frame, 5.4, None, _VOLRANK_VARIABLE_LINE_CN))  # measured 5.11s (您->用户 swap), +buffer
-        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_TUETHU_CN))
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
-    else:
-        # +2s extra silent viewing time, same as Sunday/Saturday's (user request).
-        frames.append((peakvol_frame, 6.5, None, _VOLRANK_VARIABLE_LINE_EN))
-        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_TUETHU_EN))
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
+    # Info-only closing (2026-09-26): brand card + one spoken subscribe line,
+    # no website screenshots, ad reel, or sign-up pitch.
+    frames += _closing_frames(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("1y_vol_peak" + ("_cn" if lang == "cn" else ""), date_obj)
@@ -2714,30 +2617,9 @@ def build_index_spotlight_short(data, output, lang="en", share_dir=None):
         (spotlight_img, spot2_dur, None, spot2_line),
     ]
 
-    # Custom minimal closing (user request, 2026-08-22, "use EN_memberchange1.png
-    # and EN_memberchange2 for these two days" -- same bespoke dashboard-
-    # screenshot closing as every other category now uses, see
-    # build_best_performer_short / project_regular_cadence_subscribe_line
-    # memory): two real screenshots, each correctly describing its own actual
-    # cadence (see _FRI_NEWS_LINE/_FRI_CHANGES_LINE comment above -- these are
-    # two different data sources with two different real refresh rates, not
-    # the same thing twice), then the subscribe line, then the closing
-    # tagline. Replaces the 3-part ad reel entirely for this category.
-    news_frame = _frame_dashboard_sort(lang, "EN_memberchange1.png")
-    changes_frame = _frame_dashboard_sort(lang, "EN_memberchange2.png")
-    ad_card = scene_ad_short(date, lang=lang)
-    if lang == "cn":
-        frames.append((news_frame, 4.7, None, _FRI_NEWS_LINE_CN))       # measured 4.44s, +buffer
-        frames.append((changes_frame, 4.1, None, _FRI_CHANGES_LINE_CN)) # measured 3.79s, +buffer
-        frames.append((ad_card, _SUBSCRIBE_DUR_CN, None, _SUBSCRIBE_FRI_CN))
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_CN, None, _CLOSING_TAGLINE_CN))
-    else:
-        # +2s extra silent viewing time per screenshot, same as every other
-        # bespoke closing this session (user request).
-        frames.append((news_frame, 6.2, None, _FRI_NEWS_LINE_EN))       # measured 3.91s, +buffer, +2s
-        frames.append((changes_frame, 5.9, None, _FRI_CHANGES_LINE_EN)) # measured 3.65s, +buffer, +2s
-        frames.append((ad_card, _SUBSCRIBE_DUR_EN, None, _SUBSCRIBE_FRI_EN))
-        frames.append((ad_card, _CLOSING_TAGLINE_DUR_EN, None, _CLOSING_TAGLINE_EN))
+    # Info-only closing (2026-09-26): brand card + one spoken subscribe line,
+    # no website screenshots, ad reel, or sign-up pitch.
+    frames += _closing_frames(date, lang)
     encode(frames, output, xfade_frames=3, tts_rate=SHORTS_TTS_RATE, tts_voice=tts_voice)
 
     cover = cover_path_for("index_spotlight" + ("_cn" if lang == "cn" else ""), date_obj)

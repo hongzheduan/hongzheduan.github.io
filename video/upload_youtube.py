@@ -191,25 +191,22 @@ def upload(file_path, title, description, privacy, category_id="22", thumbnail_p
 
 # ── Per-type metadata ──────────────────────────────────────────────────────────
 
+# Website mentions (baizora.com data line, free-access/trial pitch, platform
+# promo video link) removed 2026-09-26: the channel now runs info-only, kept
+# alive to build subscribers. FREE_ACCESS_MODE is no longer read here.
 DISCLAIMER_EN = (
     "For informational purposes only. Not financial advice. "
-    "Past performance does not guarantee future results.\n\n"
-    + ("Data: baizora.com | Free for every signed-in user."
-       if FREE_ACCESS_MODE else
-       "Data: baizora.com | Free 7-day trial available.")
+    "Past performance does not guarantee future results."
 )
 DISCLAIMER_CN = (
-    "仅供参考，不构成投资建议。过往表现不代表未来结果。\n\n"
-    + ("数据来源：baizora.com | 登录即可免费使用。"
-       if FREE_ACCESS_MODE else
-       "数据来源：baizora.com | 提供七天免费试用。")
+    "仅供参考，不构成投资建议。过往表现不代表未来结果。"
 )
 
-PLATFORM_LINK_EN = (
-    "For platform details, see: https://www.youtube.com/watch?v=eZlmxP_wV5g"
+SUBSCRIBE_LINE_EN = (
+    "Subscribe to the Baizora channel for regular S&P 500 and Nasdaq-100 price and volume data."
 )
-PLATFORM_LINK_CN = (
-    "了解平台详情，请观看：https://www.youtube.com/watch?v=XwqEO9RJ0HE"
+SUBSCRIBE_LINE_CN = (
+    "欢迎订阅贝佐拉频道，定期更新标普500和纳斯达克100价格与成交量数据。"
 )
 
 def make_meta(video_type, date):
@@ -222,7 +219,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"Today's biggest price and volume movers in the S&P 500, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Today's biggest price and volume movers in the S&P 500, as of {date}.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "nasdaq_movers":
         title = random.choice([
@@ -233,7 +230,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"Today's biggest price and volume movers in the Nasdaq-100, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Today's biggest price and volume movers in the Nasdaq-100, as of {date}.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "near_sma200":
         title = random.choice([
@@ -245,7 +242,7 @@ def make_meta(video_type, date):
         return (
             title,
             f"Large-cap stocks that have held above their 200-day moving average for the past month and are "
-            f"now within 0-2% of it, ranked by market cap, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"now within 0-2% of it, ranked by market cap, as of {date}.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "best_performer":
         tf    = _tuesday_tf(date)
@@ -263,7 +260,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"Top large-cap stocks by trailing {window} price appreciation, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Top large-cap stocks by trailing {window} price appreciation, as of {date}.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "worst_performer":
         tf    = _tuesday_tf(date)
@@ -280,7 +277,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"Large-cap stocks with the biggest trailing {window} price declines, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Large-cap stocks with the biggest trailing {window} price declines, as of {date}.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "avg_volume":
         tf    = _tuesday_tf(date)
@@ -296,7 +293,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"Large-cap stocks with the highest average daily trading volume over the past {window}, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Large-cap stocks with the highest average daily trading volume over the past {window}, as of {date}.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "avg_volume_cn":
         tf       = _tuesday_tf(date)
@@ -310,7 +307,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"截至{date}，S&P 500和纳斯达克100中过去{window_cn}日均成交量最高的大盘股。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"截至{date}，S&P 500和纳斯达克100中过去{window_cn}日均成交量最高的大盘股。\n\n{SUBSCRIBE_LINE_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "near_sma200_cn":
         title = random.choice([
@@ -321,7 +318,7 @@ def make_meta(video_type, date):
         return (
             title,
             f"截至{date}，过去一个月始终站稳200日均线上方、目前距离均线在0-2%以内的大盘股，按市值排序。"
-            f"\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"\n\n{SUBSCRIBE_LINE_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "best_performer_cn":
         tf       = _tuesday_tf(date)
@@ -336,7 +333,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"截至{date}，S&P 500和纳斯达克100中过去{window_cn}涨幅最大的大盘股。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"截至{date}，S&P 500和纳斯达克100中过去{window_cn}涨幅最大的大盘股。\n\n{SUBSCRIBE_LINE_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "worst_performer_cn":
         tf       = _tuesday_tf(date)
@@ -351,7 +348,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"截至{date}，S&P 500和纳斯达克100中过去{window_cn}跌幅最大的大盘股。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"截至{date}，S&P 500和纳斯达克100中过去{window_cn}跌幅最大的大盘股。\n\n{SUBSCRIBE_LINE_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "6m_breakout":
         wtf   = _wednesday_tf(date)
@@ -364,7 +361,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"Large-cap stocks from S&P 500 and Nasdaq-100 that crossed their {label.lower()} high for the first time in the past 2 weeks, after a {wtf['min_drawdown']}%+ real pullback, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Large-cap stocks from S&P 500 and Nasdaq-100 that crossed their {label.lower()} high for the first time in the past 2 weeks, after a {wtf['min_drawdown']}%+ real pullback, as of {date}.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "6m_breakout_cn":
         wtf      = _wednesday_tf(date)
@@ -377,7 +374,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"S&P 500和纳斯达克100中，在经历{wtf['min_drawdown']}%以上真实回调后，过去两周内首次突破{label_cn}高点的大盘股（{date}）。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"S&P 500和纳斯达克100中，在经历{wtf['min_drawdown']}%以上真实回调后，过去两周内首次突破{label_cn}高点的大盘股（{date}）。\n\n{SUBSCRIBE_LINE_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "1y_vol_peak":
         ttf   = _thursday_tf(date)
@@ -394,7 +391,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"Large-cap stocks from S&P 500 and Nasdaq-100 hitting their highest trading volume of the past {window}, within the last 3 trading days ({date}).\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Large-cap stocks from S&P 500 and Nasdaq-100 hitting their highest trading volume of the past {window}, within the last 3 trading days ({date}).\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "1y_vol_peak_cn":
         ttf      = _thursday_tf(date)
@@ -409,7 +406,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"S&P 500和纳斯达克100中，近3个交易日内创下过去{window_cn}最大单日成交量的大盘股（{date}）。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"S&P 500和纳斯达克100中，近3个交易日内创下过去{window_cn}最大单日成交量的大盘股（{date}）。\n\n{SUBSCRIBE_LINE_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "index_spotlight":
         title = random.choice([
@@ -421,7 +418,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"A look at how a recent S&P 500 or Nasdaq-100 addition has performed since joining the index, as of {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"A look at how a recent S&P 500 or Nasdaq-100 addition has performed since joining the index, as of {date}.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "index_spotlight_cn":
         title = random.choice([
@@ -433,7 +430,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"追踪一只近期加入标普500或纳斯达克100的成分股，截至{date}的完整表现。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"追踪一只近期加入标普500或纳斯达克100的成分股，截至{date}的完整表现。\n\n{SUBSCRIBE_LINE_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "news_report":
         title = random.choice([
@@ -444,7 +441,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"Today's top market news headlines, summarized — {date}.\n\n{PLATFORM_LINK_EN}\n\n{DISCLAIMER_EN}",
+            f"Today's top market news headlines, summarized — {date}.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
         )
     if video_type == "news_report_cn":
         title = random.choice([
@@ -455,7 +452,7 @@ def make_meta(video_type, date):
         ])
         return (
             title,
-            f"今日市场重要新闻要点汇总 — {date}。\n\n{PLATFORM_LINK_CN}\n\n{DISCLAIMER_CN}",
+            f"今日市场重要新闻要点汇总 — {date}。\n\n{SUBSCRIBE_LINE_CN}\n\n{DISCLAIMER_CN}",
         )
     raise ValueError(f"Unknown video type: {video_type}")
 

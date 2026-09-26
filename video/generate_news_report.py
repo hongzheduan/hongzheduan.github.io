@@ -381,8 +381,9 @@ def build_news_report(date_str, lang="en"):
         frames.append((clip, dur, None, narration))
 
     outro_text = (
-        "Get the full daily briefing, every headline, free at baizora dot com." if lang == "en"
-        else "获取完整每日简报和全部要闻，前往baizora点com。"
+        # No website mention (2026-09-26): info-only channel, subscribe ask only.
+        "Subscribe to the Baizora channel for more." if lang == "en"
+        else "欢迎订阅贝佐拉频道。"
     )
     outro_dur = measure_tts_seconds(outro_text, tts_voice, tts_rate)
     frames.append((scene_ad_short(date_str, lang=lang), outro_dur, None, outro_text))
