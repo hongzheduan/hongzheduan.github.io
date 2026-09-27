@@ -1515,6 +1515,12 @@
           render();
           updateStatus();
           loadIndexChanges();
+          // Deep link: ?chart=TICKER opens the candlestick modal (used by homepage announcement bar).
+          const _deep = (new URLSearchParams(location.search).get("chart") || "").toUpperCase();
+          if (_deep) {
+            history.replaceState(null, "", location.pathname + location.hash);
+            openTickerModal(_deep);
+          }
           const _todayET = new Date().toLocaleDateString('en-CA', {timeZone:'America/New_York'});
           if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
           setInterval(() => { if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices(); }, 10_000);
