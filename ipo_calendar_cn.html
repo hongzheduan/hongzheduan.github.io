@@ -232,9 +232,9 @@
 
     <div class="page-eyebrow">◈ &nbsp; IPO日历</div>
     <h1 class="page-title">IPO日历</h1>
-    <p class="page-sub">已排期与已递交的美股IPO &nbsp;·&nbsp; 募资1亿美元以上 &nbsp;·&nbsp; 不含SPAC</p>
+    <p class="page-sub">已排期的美股IPO &nbsp;·&nbsp; 募资1亿美元以上 &nbsp;·&nbsp; 不含SPAC</p>
 
-    <p class="ipo-info">即将上市的美股IPO，分为两部分。<b>已排期</b>的交易已有预计定价日，股票通常在次日上午开始交易。Nasdaq一般只提前约一周公布日期，因此该列表较短。<b>已递交</b>的公司已向SEC公开递交上市申请，但尚未确定日期。多数会在几个月内定价，也有部分推迟或撤回。公司一旦定价、开始交易或撤回申请，或连续90天未向SEC提交新文件，即从列表中移除。<b>价格区间</b>为拟定的每股发行价。<b>募资规模</b>为按区间上限计算的募资总额，包含承销商可额外出售的股份。已递交交易的募资规模仅为初步数字，在条款确定前常以1亿美元等整数占位。<b>板块</b>依据公司在SEC登记的行业代码归类。点击股票代码可查看该公司在Nasdaq上的IPO概况。新上市股票不属于标普500或纳斯达克100成分股，上市初期股价波动通常较大。</p>
+    <p class="ipo-info">已确定日期、即将上市的美股IPO。<b>预计日期</b>为交易定价日，股票通常在次日上午开始交易。Nasdaq一般只提前约一周公布日期，因此该列表较短。<b>价格区间</b>为拟定的每股发行价。<b>募资规模</b>为按区间上限计算的募资总额，包含承销商可额外出售的股份。<b>板块</b>依据公司在SEC登记的行业代码归类。点击股票代码可查看该公司在Nasdaq上的IPO概况。新上市股票不属于标普500或纳斯达克100成分股，上市初期股价波动通常较大。</p>
 
     <h2 class="ipo-h2">已排期 <span class="ipo-n" id="ipoSchedN"></span></h2>
     <div class="ipo-card">
@@ -244,13 +244,6 @@
       </table>
     </div>
 
-    <h2 class="ipo-h2">已递交，待排期 <span class="ipo-n" id="ipoFiledN"></span></h2>
-    <div class="ipo-card">
-      <table class="ipo-table">
-        <thead><tr><th>递交日期</th><th>公司</th><th class="ipo-hide-m">板块</th><th class="num">募资规模</th></tr></thead>
-        <tbody id="ipoFiledBody"><tr><td colspan="4" class="ipo-empty">加载中…</td></tr></tbody>
-      </table>
-    </div>
     <div class="ipo-foot" id="ipoFoot">数据来源：Nasdaq IPO日历及SEC EDGAR。预计日期可能变动。不构成投资建议。</div>
 
   </div>
@@ -275,12 +268,12 @@
 <script>
 // IPO Calendar. data/ipo_calendar.json is written daily by fetch_ipo_calendar.py
 // in news_refresh.yml: "ipos" = scheduled deals (expected date), "filed" =
-// public filings with no date yet. SPACs and deals under $100M are already
+// public filings with no date yet (not shown on this page since 2026-09-27;
+// only scheduled deals are listed). SPACs and deals under $100M are already
 // filtered out there. Scheduled rows dated before today (ET) are dropped here
 // too, in case the file is a day or two stale.
 (function() {
   const body = document.getElementById('ipoBody');
-  const fbody = document.getElementById('ipoFiledBody');
   if (!body) return;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmtDeal = v => v >= 1e9 ? '$' + (v / 1e9).toFixed(2) + 'B' : '$' + Math.round(v / 1e6) + 'M';
@@ -308,22 +301,15 @@
   };
   fetch('data/ipo_calendar.json?t=' + Date.now()).then(r => r.json()).then(d => {
     const rows = (d.ipos || []).filter(x => x.date >= todayET);
-    const filed = d.filed || [];
     document.getElementById('ipoSchedN').textContent = rows.length;
-    document.getElementById('ipoFiledN').textContent = filed.length;
     body.innerHTML = !rows.length ? empty(5, '目前暂无募资1亿美元以上的已排期IPO。') : rows.map(x =>
       '<tr><td class="ipo-date">' + esc(fmtDate(x.date, true)) + '</td>'
       + companyCell(x, true) + sectorCell(x)
       + '<td class="num">' + esc(fmtPx(x.price_range)) + '</td>'
       + '<td class="num ipo-deal">' + esc(fmtDeal(x.deal_usd)) + '</td></tr>').join('');
-    fbody.innerHTML = !filed.length ? empty(4, '暂无募资1亿美元以上的待排期申请。') : filed.map(x =>
-      '<tr><td class="ipo-date">' + esc(fmtDate(x.filed_date, false)) + '</td>'
-      + companyCell(x, false) + sectorCell(x)
-      + '<td class="num ipo-deal">' + esc(fmtDeal(x.deal_usd)) + '</td></tr>').join('');
     if (d.updated) document.getElementById('ipoFoot').textContent = '数据来源：Nasdaq IPO日历及SEC EDGAR。预计日期可能变动。不构成投资建议。' + ' · 更新于 ' + d.updated;
   }).catch(() => {
     body.innerHTML = empty(5, 'IPO日历加载失败。');
-    fbody.innerHTML = empty(4, 'IPO日历加载失败。');
   });
 })();
 </script>
