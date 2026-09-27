@@ -1338,7 +1338,10 @@
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       if (user) await loadCloudWatchlist(user.uid);
-      if (!user) { window.location.href = "login_cn.html"; return; }
+      // Embedded chart overlay (?embed=1): tell the parent page instead of redirecting.
+      const _embedNoAccess = () => window.parent !== window && document.documentElement.classList.contains("bz-embed")
+        && (parent.postMessage({ type: "bz-chart-auth" }, location.origin), true);
+      if (!user) { if (!_embedNoAccess()) window.location.href = "login_cn.html"; return; }
       const emailEl = document.getElementById("navUserEmail");
       if (emailEl) { emailEl.textContent = user.email[0].toUpperCase(); emailEl.title = user.email; emailEl.style.display = 'inline-flex'; }
       if (window.FREE_ACCESS_MODE) {
@@ -1348,7 +1351,7 @@
         .then(r => r.json())
         .then(d => {
           const status = d.subscriptionStatus || "inactive";
-          if (status !== "active" && status !== "trialing") window.location.href = "billing_cn.html";
+          if (status !== "active" && status !== "trialing") { if (!_embedNoAccess()) window.location.href = "billing_cn.html"; }
           else loadDashboard();
         })
         .catch(() => loadDashboard())

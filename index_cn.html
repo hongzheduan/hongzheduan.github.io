@@ -1984,72 +1984,7 @@ Promise.all([
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="assets/candlestick-chart.js?v=6"></script>
-<script>
-/* Homepage: every ticker opens the main dashboard's standard candlestick chart in an
-   overlay, without leaving the page. The dashboard is iframed once in chart-only
-   mode (baizora_main_form_cn.html?embed=1) and reused; tickers are posted to it. Links keep their
-   baizora_main_form_cn.html?chart=T href so ctrl/cmd-click still opens the full dashboard. */
-(function(){
-  const PAGE='baizora_main_form_cn.html';
-  let wrap=null, frame=null, ready=false, pending=null, timer=null;
-  function build(){
-    wrap=document.createElement('div');
-    wrap.id='bzMainChart';
-    wrap.style.cssText='display:none;position:fixed;inset:0;z-index:10000;';
-    wrap.innerHTML='<div id="bzMainChartMsg" style="position:absolute;inset:0;background:rgba(6,13,31,0.88);display:flex;align-items:center;justify-content:center;gap:14px;font-family:&quot;DM Mono&quot;,monospace;font-size:13px;color:#cbd5e1;"><span id="bzMainChartTxt">图表加载中…</span><button type="button" id="bzMainChartX" style="background:none;border:none;color:#cbd5e1;font-size:18px;cursor:pointer;">✕</button></div>';
-    frame=document.createElement('iframe');
-    frame.title='Chart';
-    frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;color-scheme:normal;';
-    frame.setAttribute('allowtransparency','true');
-    frame.src=PAGE+'?embed=1';
-    wrap.appendChild(frame);
-    document.body.appendChild(wrap);
-    document.getElementById('bzMainChartX').onclick=hide;
-  }
-  function msg(show,txt){
-    const m=document.getElementById('bzMainChartMsg');
-    m.style.display=show?'flex':'none';
-    frame.style.visibility=show?'hidden':'visible';
-    if(txt) document.getElementById('bzMainChartTxt').textContent=txt;
-  }
-  function hide(){
-    if(!wrap) return;
-    clearTimeout(timer);
-    wrap.style.display='none';
-    document.body.style.overflow='';
-  }
-  function send(t){ msg(false); frame.contentWindow.postMessage({type:'bz-chart-open',ticker:t},location.origin); frame.focus(); }
-  function open(t){
-    t=String(t||'').toUpperCase(); if(!t) return;
-    if(!wrap) build();
-    wrap.style.display='block';
-    document.body.style.overflow='hidden';
-    if(ready){ send(t); return; }
-    pending=t; msg(true,'图表加载中…');
-    clearTimeout(timer);
-    timer=setTimeout(()=>{ if(!ready) msg(true,"图表加载失败。"); },30000);
-  }
-  window.addEventListener('message',e=>{
-    if(e.origin!==location.origin||!frame||e.source!==frame.contentWindow||!e.data) return;
-    if(e.data.type==='bz-chart-ready'){ ready=true; clearTimeout(timer); if(pending&&wrap.style.display!=='none') send(pending); pending=null; }
-    else if(e.data.type==='bz-chart-close'||e.data.type==='bz-chart-missing') hide();
-  });
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&wrap&&wrap.style.display!=='none') hide(); });
-  document.addEventListener('click',e=>{
-    if(e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey) return;
-    const a=e.target.closest&&e.target.closest('a[href^="'+PAGE+'?chart="]');
-    if(!a) return;
-    e.preventDefault(); e.stopPropagation();
-    open(new URL(a.href).searchParams.get('chart'));
-  },true);
-  if(window.BaizoraChart){
-    const url=t=>PAGE+'?chart='+encodeURIComponent(t);
-    BaizoraChart.open=t=>open(t);
-    BaizoraChart.hasDedicatedPage=()=>false;
-    BaizoraChart.tickerLinkHtml=(t,cls)=>'<a href="'+url(t)+'" class="'+cls+'">'+t+'</a>';
-  }
-})();
-</script>
+<script src="assets/main-chart-overlay.js?v=1"></script>
 <script>
   firebase.initializeApp({
     apiKey: "AIzaSyDVX4hPWgY_JK3VyXDjZapeki6Mm-tvw80",
