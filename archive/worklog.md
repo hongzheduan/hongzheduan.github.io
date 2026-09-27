@@ -494,3 +494,4 @@
 2026-09-26 09:44 UTC  EDGAR-only
   no-news-video (Claude API failed or no qualifying stories): news_report
 2026-09-27 10:23 UTC  EDGAR-only
+  no-news-video (Claude API failed or no qualifying stories): news_report
