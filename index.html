@@ -1404,7 +1404,7 @@
 <div class="site-top">
 <div class="announcement">
   <span class="dot"></span>
-  <span id="ann-promo"></span><span id="ann-status">All data updated: <span id="ann-date">…</span></span>
+  <span id="ann-promo"></span><span id="ann-status">All data updated: <span id="ann-date">…</span></span><span id="ann-index"></span>
 </div>
 <script>
 fetch('data/latest.json').then(r=>r.json()).then(d=>{
@@ -1427,6 +1427,51 @@ fetch('data/latest.json').then(r=>r.json()).then(d=>{
     el.textContent='All data updated: '+fmt(d.date);
   }
 }).catch(()=>{});
+</script>
+<script>
+/* Index membership news: joins to S&P 500 / Nasdaq-100 dated within the last
+   3 calendar days (ET, today included) from index_changes.json, plus rumored /
+   announced adds from pending_index_members.json seen in that same window. */
+Promise.all([
+  fetch('data/index_changes.json').then(r=>r.json()).catch(()=>null),
+  fetch('data/pending_index_members.json').then(r=>r.json()).catch(()=>null)
+]).then(([chg,pend])=>{
+  const span=document.getElementById('ann-index');
+  if(!span) return;
+  const I={sp500:'S&P 500',nasdaq100:'Nasdaq-100'}, mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], fmt=s=>{const[,m,day]=s.split('-');return mn[+m-1]+' '+(+day);};
+  const et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));
+  const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const todayStr=ymd(et);
+  const c=new Date(et); c.setDate(c.getDate()-2); const cutoff=ymd(c);
+  const inWin=s=>!!s&&s>=cutoff&&s<=todayStr;
+  const parts=[], joinedSet=new Set();
+  ((chg&&chg.entries)||[]).filter(e=>inWin(e.date)).forEach(e=>{
+    ['sp500','nasdaq100'].forEach(k=>{
+      const add=(e[k]&&e[k].added)||[];
+      if(!add.length) return;
+      add.forEach(t=>joinedSet.add(k+':'+t));
+      const dt=e.date, list=add.join(', ');
+      parts.push('New in '+I[k]+' ('+fmt(dt)+'): '+list);
+    });
+  });
+  const groups={};
+  ((pend&&pend.candidates)||[]).forEach(p=>{
+    if(!I[p.index]||joinedSet.has(p.index+':'+p.ticker)) return;
+    if(!inWin(p.lastSeen)&&!inWin(p.firstSeen)) return;
+    const kind=p.status==='confirmed'?'joining':'rumored';
+    const key=kind+'|'+p.index+'|'+(kind==='joining'?(p.effectiveDate||''):'');
+    (groups[key]=groups[key]||[]).push(p.ticker);
+  });
+  Object.keys(groups).sort().forEach(key=>{
+    const [kind,k,dt]=key.split('|'), list=groups[key].join(', ');
+    parts.push(kind==='joining'?'Joining '+I[k]+(dt?' ('+fmt(dt)+')':'')+': '+list:'Rumored for '+I[k]+': '+list);
+  });
+  if(!parts.length) return;
+  span.innerHTML='<span class="ann-sep"> · </span><br class="ann-br">';
+  const txt=document.createElement('span');
+  txt.textContent=parts.join(' · ');
+  span.appendChild(txt);
+});
 </script>
 
 <header>
