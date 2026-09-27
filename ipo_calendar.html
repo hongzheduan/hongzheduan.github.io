@@ -242,7 +242,7 @@
       </table>
     </div>
 
-    <div class="ipo-foot" id="ipoFoot">Source: Nasdaq IPO calendar and SEC EDGAR. Expected dates can shift. Not investment advice.</div>
+    <div class="ipo-foot" id="ipoFoot">Expected dates can shift. Not investment advice.</div>
 
   </div>
 
@@ -304,7 +304,7 @@
       + companyCell(x, true) + sectorCell(x)
       + '<td class="num">' + esc(fmtPx(x.price_range)) + '</td>'
       + '<td class="num ipo-deal">' + esc(fmtDeal(x.deal_usd)) + '</td></tr>').join('');
-    if (d.updated) document.getElementById('ipoFoot').textContent = 'Source: Nasdaq IPO calendar and SEC EDGAR. Expected dates can shift. Not investment advice.' + ' · Updated ' + d.updated;
+    if (d.updated) document.getElementById('ipoFoot').textContent = 'Expected dates can shift. Not investment advice.' + ' · Updated ' + d.updated;
   }).catch(() => {
     body.innerHTML = empty(5, 'Unable to load IPO calendar.');
   });
