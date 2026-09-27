@@ -887,6 +887,12 @@
     .pos-entry:focus { outline: none; border-color: #3b82f6; }
     .pos-btn.held svg rect { fill: currentColor; fill-opacity: 0.3; }
   </style>
+<script>if(new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('bz-embed');</script>
+<style>
+  /* Embed mode (?embed=1): homepage iframes this page to show only the candlestick modal. */
+  html.bz-embed, html.bz-embed body { background: transparent !important; }
+  html.bz-embed body > *:not(#tickerModal) { display: none !important; }
+</style>
 </head>
 
 <body>
@@ -1515,9 +1521,19 @@
           render();
           updateStatus();
           loadIndexChanges();
-          // Deep link: ?chart=TICKER opens the candlestick modal (used by homepage announcement bar).
-          const _deep = (new URLSearchParams(location.search).get("chart") || "").toUpperCase();
-          if (_deep) {
+          // Deep link: ?chart=TICKER opens the candlestick modal.
+          const _qs = new URLSearchParams(location.search);
+          const _deep = (_qs.get("chart") || "").toUpperCase();
+          if (_qs.get("embed") === "1" && window.parent !== window) {
+            // Chart-only embed for the homepage overlay: parent posts tickers to open.
+            window.addEventListener("message", e => {
+              if (e.origin !== location.origin || !e.data || e.data.type !== "bz-chart-open") return;
+              const t = String(e.data.ticker || "").toUpperCase();
+              if (allRows.some(x => x.Ticker === t)) { openTickerModal(t); window.focus(); }
+              else parent.postMessage({ type: "bz-chart-missing", ticker: t }, location.origin);
+            });
+            parent.postMessage({ type: "bz-chart-ready" }, location.origin);
+          } else if (_deep) {
             history.replaceState(null, "", location.pathname + location.hash);
             openTickerModal(_deep);
           }
@@ -3701,6 +3717,8 @@
     function closeTickerModal() {
       document.getElementById("tickerModal").style.display = "none";
       document.body.style.overflow = "";
+      if (window.parent !== window && document.documentElement.classList.contains("bz-embed"))
+        parent.postMessage({ type: "bz-chart-close" }, location.origin);
     }
 
     document.getElementById("modalClose").addEventListener("click", closeTickerModal);
