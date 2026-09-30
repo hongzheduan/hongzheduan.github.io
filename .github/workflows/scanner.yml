@@ -19,11 +19,13 @@ on:
                                # this snapshot with the real close later the same day. Frontend:
                                # latest.json's "midday" flag lets the announcement bar tell this
                                # apart from a finalized session (see index.html/_cn.html).
-    - cron: "0 17 * * *"      # 1:00 PM ET every day — news report video only, decoupled from the
+    # Both news-only crons below commented out 2026-09-30 (news video stopped, see
+    # NEWS_VIDEO flag in env). To resume: uncomment both AND set NEWS_VIDEO: "on".
+    # - cron: "0 17 * * *"      # 1:00 PM ET every day — news report video only, decoupled from the
                                # scan/category-video timing (doesn't need market data, and its own
                                # generation step alone takes ~30 min — see worklog delay pattern
                                # below, actual fire is typically ~70-90 min late, landing ~2:15-2:30 PM ET)
-    - cron: "30 19 * * *"     # 3:30 PM ET every day — news video retry, in case the 1:00 PM ET run's
+    # - cron: "30 19 * * *"     # 3:30 PM ET every day — news video retry, in case the 1:00 PM ET run's
                                # job never got picked up by a GitHub-hosted runner (happened
                                # 2026-08-06 — "not acquired by Runner ... after multiple attempts",
                                # a GitHub infra flake, not a code bug; there's no other retry for the
@@ -90,10 +92,11 @@ env:
 
   # Master switch for the whole Market Pulse news video (EN + CN). "off" (2026-09-30)
   # forces IS_NEWS_RUN=False on every run, so generate/upload/commit/worklog news
-  # steps all skip. The 1:00 PM / 3:30 PM ET news crons still fire but do nothing.
+  # steps all skip. The 1:00 PM / 3:30 PM ET news crons are also commented out
+  # (see the schedule list at top); uncomment them too when resuming.
   # video/generate_news_report.py and all news steps are left intact: set to "on"
   # to resume (NEWS_VIDEO_CN above still separately gates the CN side). "off" leaves
-  # the last EN news video frozen in data/latest_video_news_en.mp4 (homepage footer).
+  # the last EN news video frozen in data/latest_video_news_en.mp4 (homepage footer row hidden too).
   NEWS_VIDEO: "off"
 
   # Weekday/weekend category Shorts (near_sma200/1y_vol_peak/6m_breakout/
