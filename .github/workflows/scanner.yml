@@ -88,6 +88,14 @@ env:
   # last CN news video frozen in data/, no fresh renders. EN news is unaffected.
   NEWS_VIDEO_CN: "off"
 
+  # Master switch for the whole Market Pulse news video (EN + CN). "off" (2026-09-30)
+  # forces IS_NEWS_RUN=False on every run, so generate/upload/commit/worklog news
+  # steps all skip. The 1:00 PM / 3:30 PM ET news crons still fire but do nothing.
+  # video/generate_news_report.py and all news steps are left intact: set to "on"
+  # to resume (NEWS_VIDEO_CN above still separately gates the CN side). "off" leaves
+  # the last EN news video frozen in data/latest_video_news_en.mp4 (homepage footer).
+  NEWS_VIDEO: "off"
+
   # Weekday/weekend category Shorts (near_sma200/1y_vol_peak/6m_breakout/
   # index_spotlight/worst_performer/best_performer): EN always runs; CN is gated
   # on this flag, separate from NEWS_VIDEO_CN above. Set to "on" to resume CN
@@ -258,6 +266,12 @@ jobs:
             echo "IS_VIDEO_RUN=False" >> $GITHUB_ENV
             echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
             echo "PROBE_RETRIES=1" >> $GITHUB_ENV   # 5:30 PM and 6:30 PM: probe once and exit, always run in full
+          fi
+
+          # NEWS_VIDEO master switch (see env block at top): overrides every branch above.
+          if [ "${{ env.NEWS_VIDEO }}" != "on" ]; then
+            echo "News video disabled (NEWS_VIDEO != 'on'): forcing IS_NEWS_RUN=False"
+            echo "IS_NEWS_RUN=False" >> $GITHUB_ENV
           fi
 
           # In yfinance mode (OHLCV_SOURCE_SWITCH) the price scan runs for: the 11:00 AM
