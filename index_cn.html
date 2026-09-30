@@ -1949,7 +1949,9 @@ Promise.all([
            plus a label). Title attr flags it's English-only content so CN visitors aren't
            surprised when the channel loads. Restore the full watch/download shape (see git
            history before this edit, or index.html's EN equivalent) if CN video generation resumes. -->
-      <div class="footer-social">
+      <!-- News video stopped 2026-09-30 (scanner.yml NEWS_VIDEO="off"): row hidden, not removed.
+           Drop the display:none to restore if the news video resumes. -->
+      <div class="footer-social" style="display:none;">
         <a href="https://www.youtube.com/@baizora-en3" target="_blank" rel="noopener" class="footer-social-icon" title="新闻频道（英文）" aria-label="新闻频道（英文）">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#dc2626"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
         </a>
