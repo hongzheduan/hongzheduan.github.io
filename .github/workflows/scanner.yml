@@ -281,11 +281,22 @@ jobs:
           # weekday midday-snapshot cron, the 4:30 PM weekday cron (primary), the
           # ~midnight ET cron (0 4 * * 2-6, safety-net — see its branch above;
           # SKIP_IF_COMPLETE makes it a no-op unless the 4:30 PM run was dropped by
-          # GitHub's scheduler), the two weekend crons, and manual runs. The 5:00/5:30/
-          # 6:30 PM weekday retry crons stay excluded — they only ever existed for
-          # Tiingo's per-ticker publish delay, which yfinance doesn't have.
+          # GitHub's scheduler), the two weekend crons, and manual runs.
+          # The 5:00/5:30/6:30 PM weekday retry crons also scan, but only behind
+          # SKIP_IF_COMPLETE (added 2026-09-30): Yahoo intermittently omits the newest
+          # daily bar for a window around 00:00 UTC (8 PM ET), so a 4:30 PM run that
+          # GitHub delays into that window confirms the PREVIOUS session (happened
+          # 09-17, 09-28, 09-30). The retries give it another same-evening chance and
+          # are a fast no-op once latest.json holds today's complete, non-midday row.
+          # (Tiingo mode is unchanged: 5:30/6:30 stay unconditional, set in their branch above.)
           # One trailing exclusion (not per-branch) so a new cron can't silently forget it.
           if [ "${{ env.OHLCV_SOURCE_SWITCH }}" = "yfinance" ] \
+             && { [ "$SCHEDULE" = "0 21 * * 1-5" ] \
+                  || [ "$SCHEDULE" = "30 21 * * 1-5" ] \
+                  || [ "$SCHEDULE" = "30 22 * * 1-5" ]; }; then
+            echo "SKIP_IF_COMPLETE=1" >> $GITHUB_ENV
+            echo "RUN_PRICE_SCAN=1" >> $GITHUB_ENV
+          elif [ "${{ env.OHLCV_SOURCE_SWITCH }}" = "yfinance" ] \
              && [ "$SCHEDULE" != "0 15 * * 1-5" ] \
              && [ "$SCHEDULE" != "30 20 * * 1-5" ] \
              && [ "$SCHEDULE" != "0 4 * * 2-6" ] \

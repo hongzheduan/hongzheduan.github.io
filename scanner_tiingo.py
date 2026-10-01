@@ -1201,6 +1201,40 @@ YF_MAX_RETRIES = 3
 YF_RETRY_WAITS = [5, 15, 45]
 YF_CHUNK_DELAY = 2
 
+# Yahoo intermittently omits the newest daily bar for a window around 00:00 UTC
+# (8 PM ET). A 4:30 PM ET run that GitHub delays into that window used to confirm the
+# PREVIOUS session and overwrite a newer latest.json (09-17, 09-28, 09-30). Before the
+# full scan, probe SPY and wait for the bar; see _yf_wait_for_session().
+YF_BAR_PROBE_RETRIES = 3
+YF_BAR_PROBE_WAIT    = 10 * 60
+
+
+def _yf_spy_last_date():
+    """Last daily bar date yfinance has for SPY (cheap 5-day call), or None on error."""
+    try:
+        h = yf.download("SPY", period="5d", auto_adjust=True, progress=False, threads=False)
+        if h is None or h.empty:
+            return None
+        h = h.dropna(subset=[c for c in h.columns if (c[0] if isinstance(c, tuple) else c) == "Close"])
+        return h.index[-1].strftime("%Y-%m-%d") if len(h) else None
+    except Exception as e:
+        print(f"yfinance SPY probe failed: {e}")
+        return None
+
+
+def _yf_wait_for_session(target_date):
+    """Retry the SPY probe until yfinance has a bar for target_date (or give up)."""
+    for attempt in range(1, YF_BAR_PROBE_RETRIES + 1):
+        last = _yf_spy_last_date()
+        if last and last >= target_date:
+            print(f"yfinance SPY probe: latest bar {last} (need {target_date}) — proceeding.")
+            return True
+        print(f"yfinance SPY probe {attempt}/{YF_BAR_PROBE_RETRIES}: latest bar {last}, need {target_date}.")
+        if attempt < YF_BAR_PROBE_RETRIES:
+            print(f"  waiting {YF_BAR_PROBE_WAIT // 60} min …")
+            time.sleep(YF_BAR_PROBE_WAIT)
+    return False
+
 
 def fetch_yfinance_bulk(tickers, period="2y"):
     """
@@ -3850,7 +3884,8 @@ if __name__ == "__main__":
 
     if USE_YFINANCE:
         # yfinance's EOD data is available promptly after close (no incremental per-ticker
-        # publish delay the way Tiingo has), so there's nothing to probe/wait for here.
+        # publish delay the way Tiingo has), so there's no Tiingo-style probe here, only
+        # the short SPY wait below for Yahoo's ~00:00 UTC missing-bar window.
         # _TIINGO_LAST_DATE is provisional — refined below from the actual scan results
         # (majority vote across df["Date"]) before the stale-ticker exclusion runs, same
         # mechanism the Tiingo path uses, just confirmed after the fetch instead of before.
@@ -3866,25 +3901,35 @@ if __name__ == "__main__":
         # midnight, the most recent completed session is the prior trading day. On a normal
         # untouched day latest.json still holds yesterday's date here, so the scan proceeds.
         # (In Tiingo mode the equivalent check lives further down, in the probe path.)
+        _expected = None
+        _existing = {}
+        try:
+            _now_et = datetime.now(pytz.timezone("America/New_York"))
+            _end = _now_et.date()
+            if (_now_et.hour, _now_et.minute) < (16, 5):
+                _end = _end - timedelta(days=1)
+            _recent = get_trading_days((_end - timedelta(days=10)).strftime("%Y-%m-%d"),
+                                       _end.strftime("%Y-%m-%d"))
+            _expected = _recent[-1] if _recent else None
+            with open(OUTPUT_JSON) as f:
+                _existing = json.load(f)
+        except Exception as e:
+            print(f"Could not read expected session / existing latest.json ({e}).")
         if os.environ.get("SKIP_IF_COMPLETE", "").lower() in ("1", "true", "yes"):
-            try:
-                _now_et = datetime.now(pytz.timezone("America/New_York"))
-                _end = _now_et.date()
-                if (_now_et.hour, _now_et.minute) < (16, 5):
-                    _end = _end - timedelta(days=1)
-                _recent = get_trading_days((_end - timedelta(days=10)).strftime("%Y-%m-%d"),
-                                           _end.strftime("%Y-%m-%d"))
-                _expected = _recent[-1] if _recent else None
-                with open(OUTPUT_JSON) as f:
-                    _existing = json.load(f)
-                if (_expected and _existing.get("date") == _expected
-                        and not _existing.get("partialUpdate", False)
-                        and not _existing.get("midday", False)):
-                    print(f"{_expected} already fully updated — skipping redundant scan.")
-                    sys.exit(0)
-                print(f"Data stale (have {_existing.get('date')}, expected {_expected}) — scanning.")
-            except Exception as e:
-                print(f"SKIP_IF_COMPLETE check failed ({e}) — proceeding with scan.")
+            if (_expected and _existing.get("date") == _expected
+                    and not _existing.get("partialUpdate", False)
+                    and not _existing.get("midday", False)):
+                print(f"{_expected} already fully updated — skipping redundant scan.")
+                sys.exit(0)
+            print(f"Data stale (have {_existing.get('date')}, expected {_expected}) — scanning.")
+
+        # Wait for Yahoo to publish the newest completed session (or at least whatever
+        # latest.json already holds) before the full fetch — see YF_BAR_PROBE_RETRIES.
+        # Not fatal if it never shows up: the post-scan guard below still refuses to
+        # export a date older than latest.json.
+        _need = max([d for d in (_expected, _existing.get("date")) if d], default=None)
+        if _need:
+            _yf_wait_for_session(_need)
     elif FORCE_RUN:
         print("FORCE_RUN=1 — skipping market probe, using latest available Tiingo data.")
         data_confirmed = True
@@ -3971,6 +4016,21 @@ if __name__ == "__main__":
     if USE_YFINANCE and not df.empty and "Date" in df.columns:
         _TIINGO_LAST_DATE = df["Date"].value_counts().idxmax()
         print(f"yfinance: confirmed scan date = {_TIINGO_LAST_DATE} ({(df['Date'] == _TIINGO_LAST_DATE).sum()}/{len(df)} tickers)")
+
+    # 4a-guard. Never export a session older than the one latest.json already holds
+    # (2026-09-30: Yahoo dropped the 9/30 bar near 00:00 UTC, the delayed 4:30 PM run
+    # confirmed 9/29 and overwrote the 9/30 midday row). Exit before export() so
+    # latest.json / latest_d1.json / candles stay as they were; a later retry cron or
+    # the ~midnight safety-net rescans once the bar is back.
+    try:
+        with open(OUTPUT_JSON) as f:
+            _have_date = json.load(f).get("date", "")
+    except Exception:
+        _have_date = ""
+    if _have_date and _TIINGO_LAST_DATE and _TIINGO_LAST_DATE < _have_date:
+        print(f"REGRESSION GUARD: scan resolved {_TIINGO_LAST_DATE} but latest.json already "
+              f"has {_have_date} — not exporting older data. Exiting.")
+        sys.exit(0)
 
     # 4b. Exclude tickers Tiingo hasn't published for _TIINGO_LAST_DATE yet.
     # Tiingo sometimes publishes EOD data incrementally across tickers rather than all at
