@@ -267,8 +267,8 @@
   const HM_NEG_FULL = [185, 28, 28];
   const HM_CHANGE_CLAMP = 4;   // % 1D move at which tile color reaches full saturation
   const HM_VALUE_CLAMP = 100;  // % PE-vs-sector deviation at which tile color reaches full saturation
-  const HM_PE_MID = 20;        // P/E that maps to neutral (roughly the large-cap median)
-  const HM_PE_RATIO = 3;       // P/E at MID/3 (~7) or MID*3 (60) reaches full saturation (log scale)
+  let hmPEMid = 20;            // P/E that maps to neutral; recomputed each render as the median P/E of the shown index
+  const HM_PE_RATIO = 3;       // P/E at median/3 or median*3 reaches full saturation (log scale)
 
   function hmBlend(t, positive) {
     const target = positive ? HM_POS_FULL : HM_NEG_FULL;
@@ -297,7 +297,7 @@
 
   function hmColorForPE(pe) {
     if (pe == null || !(pe > 0)) return hmNeutralColor();
-    const t = Math.log(pe / HM_PE_MID) / Math.log(HM_PE_RATIO);
+    const t = Math.log(pe / hmPEMid) / Math.log(HM_PE_RATIO);
     const clamped = Math.max(-1, Math.min(1, t));
     return hmBlend(Math.abs(clamped), clamped <= 0);
   }
@@ -406,6 +406,11 @@
     const wrap = document.getElementById('hmWrap');
     if (!wrap) return;
     const rows = hmBuildRows(mode);
+    const pes = rows.map(r => r.PE).filter(p => p > 0).sort((a, b) => a - b);
+    if (pes.length) {
+      const m = pes.length >> 1;
+      hmPEMid = pes.length % 2 ? pes[m] : (pes[m - 1] + pes[m]) / 2;
+    }
     if (!rows.length) { wrap.innerHTML = '<div class="hm-msg">暂无数据</div>'; return; }
 
     const w = wrap.clientWidth || (wrap.parentElement && wrap.parentElement.clientWidth) || 300;
