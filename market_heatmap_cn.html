@@ -227,6 +227,7 @@
       <div class="hm-color-toggle">
         <button class="hm-mode-btn active" id="hmModeChange" onclick="hmSetColorMode('change')">颜色：日涨跌幅</button>
         <button class="hm-mode-btn" id="hmModeScore" onclick="hmSetColorMode('score')">颜色：贝佐拉评分</button>
+        <button class="hm-mode-btn" id="hmModePE" onclick="hmSetColorMode('pe')">颜色：市盈率</button>
         <button class="hm-mode-btn" id="hmModeValue" onclick="hmSetColorMode('value')">颜色：市盈率/行业</button>
       </div>
       <div class="hm-legend">
@@ -266,6 +267,8 @@
   const HM_NEG_FULL = [185, 28, 28];
   const HM_CHANGE_CLAMP = 4;   // % 1D move at which tile color reaches full saturation
   const HM_VALUE_CLAMP = 100;  // % PE-vs-sector deviation at which tile color reaches full saturation
+  const HM_PE_MID = 20;        // P/E that maps to neutral (roughly the large-cap median)
+  const HM_PE_RATIO = 3;       // P/E at MID/3 (~7) or MID*3 (60) reaches full saturation (log scale)
 
   function hmBlend(t, positive) {
     const target = positive ? HM_POS_FULL : HM_NEG_FULL;
@@ -290,6 +293,17 @@
     if (peVsSector == null) return hmNeutralColor();
     const clamped = Math.max(-HM_VALUE_CLAMP, Math.min(HM_VALUE_CLAMP, peVsSector));
     return hmBlend(Math.abs(clamped) / HM_VALUE_CLAMP, clamped <= 0);
+  }
+
+  function hmColorForPE(pe) {
+    if (pe == null || !(pe > 0)) return hmNeutralColor();
+    const t = Math.log(pe / HM_PE_MID) / Math.log(HM_PE_RATIO);
+    const clamped = Math.max(-1, Math.min(1, t));
+    return hmBlend(Math.abs(clamped), clamped <= 0);
+  }
+  function hmFmtPE(pe) {
+    if (pe == null || !(pe > 0)) return '—';
+    return pe >= 100 ? Math.round(pe).toString() : pe.toFixed(1);
   }
 
   function hmWorst(row, side) {
@@ -361,6 +375,7 @@
 
   function hmTileColor(d) {
     if (hmColorMode === 'score') return hmColorForScore(d.BaizScore);
+    if (hmColorMode === 'pe') return hmColorForPE(d.PE);
     if (hmColorMode === 'value') return hmColorForValue(d.PE_vs_Sector);
     return hmColorForChange(d.PriceChange1D);
   }
@@ -369,6 +384,7 @@
     if (hmColorMode === 'score') {
       return d.BaizScore == null ? '—' : Math.round(d.BaizScore).toString();
     }
+    if (hmColorMode === 'pe') return hmFmtPE(d.PE);
     if (hmColorMode === 'value') {
       return d.PE_vs_Sector == null ? '—' : (d.PE_vs_Sector >= 0 ? '+' : '') + Math.round(d.PE_vs_Sector) + '%';
     }
@@ -423,7 +439,7 @@
         const showPct = showTicker && tr.w >= 22 && tr.h >= (tickerFont + pctFont) * 1.5;
         const hasPage = window.BaizoraChart && window.BaizoraChart.hasDedicatedPage(d.Ticker);
         html += `<a class="hm-tile${hasPage ? '' : ' bz-chart-link'}" ${hasPage ? `href="stocks/${d.Ticker}.html"` : `href="javascript:void(0)"`} style="left:${tr.x}px;top:${HEADER + tr.y}px;width:${tr.w}px;height:${tr.h}px;background:${hmTileColor(d)};" `
-          + `data-ticker="${d.Ticker}" data-name="${(d.CompanyName || '').replace(/"/g, '&quot;')}" data-price="${d.Price || 0}" data-chg="${pc}" data-cap="${d.MarketCap}" data-score="${d.BaizScore == null ? '' : d.BaizScore}" data-pe="${d.PE_vs_Sector == null ? '' : d.PE_vs_Sector}">`;
+          + `data-ticker="${d.Ticker}" data-name="${(d.CompanyName || '').replace(/"/g, '&quot;')}" data-price="${d.Price || 0}" data-chg="${pc}" data-cap="${d.MarketCap}" data-score="${d.BaizScore == null ? '' : d.BaizScore}" data-pe="${d.PE_vs_Sector == null ? '' : d.PE_vs_Sector}" data-peabs="${d.PE == null ? '' : d.PE}">`;
         if (showTicker) {
           html += `<div class="hm-tile-ticker" style="font-size:${tickerFont.toFixed(1)}px;font-weight:500;">${d.Ticker}</div>`;
           if (showPct) html += `<div class="hm-tile-chg" style="font-size:${pctFont.toFixed(1)}px;">${hmTileLabel(d)}</div>`;
@@ -440,6 +456,7 @@
   const HM_COLOR_MODE_META = {
     change: { label: '当日涨跌幅', lo: '下跌', hi: '上涨' },
     score:  { label: '贝佐拉评分（0–100 动能综合分）', lo: '偏弱', hi: '偏强' },
+    pe:     { label: '市盈率（TTM）', lo: '更贵', hi: '更便宜' },
     value:  { label: '市盈率相对行业均值', lo: '更贵', hi: '更便宜' },
   };
 
@@ -447,9 +464,11 @@
     hmColorMode = mode;
     const btnChange = document.getElementById('hmModeChange');
     const btnScore = document.getElementById('hmModeScore');
+    const btnPE = document.getElementById('hmModePE');
     const btnValue = document.getElementById('hmModeValue');
     if (btnChange) btnChange.classList.toggle('active', mode === 'change');
     if (btnScore) btnScore.classList.toggle('active', mode === 'score');
+    if (btnPE) btnPE.classList.toggle('active', mode === 'pe');
     if (btnValue) btnValue.classList.toggle('active', mode === 'value');
     const meta = HM_COLOR_MODE_META[mode];
     const colorLabel = document.getElementById('hmColorLabel');
@@ -527,10 +546,12 @@
       const cap = parseFloat(t.dataset.cap);
       const score = t.dataset.score === '' ? null : parseFloat(t.dataset.score);
       const pe = t.dataset.pe === '' ? null : parseFloat(t.dataset.pe);
+      const peAbs = t.dataset.peabs === '' ? null : parseFloat(t.dataset.peabs);
       hmTip.innerHTML = `<div class="hmt-ticker">${t.dataset.ticker}</div><div class="hmt-name">${t.dataset.name}</div>`
         + `<div class="hmt-row"><span>价格</span><span>$${parseFloat(t.dataset.price).toFixed(2)}</span></div>`
         + `<div class="hmt-row"><span>当日涨跌</span><span style="color:${pc >= 0 ? '#22c55e' : '#ef4444'}">${pc >= 0 ? '+' : ''}${pc.toFixed(2)}%</span></div>`
         + `<div class="hmt-row"><span>贝佐拉评分</span><span style="color:${score == null ? '#64748b' : (score >= 50 ? '#22c55e' : '#ef4444')}">${score == null ? '—' : Math.round(score)}</span></div>`
+        + `<div class="hmt-row"><span>市盈率</span><span>${hmFmtPE(peAbs)}</span></div>`
         + `<div class="hmt-row"><span>市盈率/行业</span><span style="color:${pe == null ? '#64748b' : (pe <= 0 ? '#22c55e' : '#ef4444')}">${pe == null ? '—' : (pe >= 0 ? '+' : '') + Math.round(pe) + '%'}</span></div>`
         + `<div class="hmt-row"><span>市值</span><span>${hmCapLabel(cap)}</span></div>`;
       hmTip.style.display = 'block';
