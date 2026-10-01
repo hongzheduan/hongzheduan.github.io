@@ -211,12 +211,11 @@
 
     <div class="page-eyebrow">◈ &nbsp; 市场热力图</div>
     <h1 class="page-title">市场热力图</h1>
-    <p class="page-sub">方块大小 = <span id="hmSizeLabel">√市值</span> &nbsp;·&nbsp; 颜色 = <span id="hmColorLabel">当日涨跌幅</span> &nbsp;·&nbsp; <span id="hmGroupLabel">按行业分组</span> &nbsp;·&nbsp; <span id="hmDataDate">数据截至 …</span></p>
+    <p class="page-sub">方块大小 = √市值 &nbsp;·&nbsp; 颜色 = <span id="hmColorLabel">当日涨跌幅</span> &nbsp;·&nbsp; 按行业分组 &nbsp;·&nbsp; <span id="hmDataDate">数据截至 …</span></p>
 
     <div class="hm-toggle">
       <button class="hm-toggle-btn active" id="hmBtnSP" onclick="hmSwitch('sp500')">标普500</button>
       <button class="hm-toggle-btn" id="hmBtnNQ" onclick="hmSwitch('nasdaq')">纳斯达克100</button>
-      <button class="hm-toggle-btn" id="hmBtnETF" onclick="hmSwitch('etf')">ETF</button>
       <div class="hm-search-wrap">
         <input type="text" id="hmSearchInput" class="hm-search-input" placeholder="查找代码…" maxlength="6" autocomplete="off" spellcheck="false">
         <button class="hm-search-btn" id="hmSearchBtn" title="查找" aria-label="查找代码">🔍</button>
@@ -369,7 +368,6 @@
   }
 
   function hmSize(cap) { return Math.sqrt(Math.max(cap, 0)); }
-  function hmRowSize(r) { return hmMode === 'etf' ? 1 : hmSize(r.MarketCap); }
 
   let hmData = null;
   let hmMode = 'sp500';
@@ -394,22 +392,8 @@
     return (pc >= 0 ? '+' : '') + pc.toFixed(1) + '%';
   }
 
-  // ETFs carry no sector or market cap in latest.json: group by asset class, equal-size tiles
-  const HM_ETF_GROUPS = {
-    SPY: 'eq', IVV: 'eq', VOO: 'eq', QQQ: 'eq', QQQM: 'eq', DIA: 'eq', TOPT: 'eq',
-    XLF: 'sec', XLE: 'sec',
-    GLD: 'cmd', SLV: 'cmd', USO: 'cmd',
-    FBTC: 'cry', SGOV: 'bond',
-  };
-  const HM_ETF_GROUP_NAMES = { eq: '股票指数', sec: '行业', cmd: '大宗商品', cry: '加密货币', bond: '国债', other: '其他' };
-
   function hmBuildRows(mode) {
     if (!hmData) return [];
-    if (mode === 'etf') {
-      return hmData.filter(r => r.InETF).map(r => Object.assign({}, r, {
-        Sector: HM_ETF_GROUP_NAMES[HM_ETF_GROUPS[r.Ticker] || 'other'],
-      }));
-    }
     const key = mode === 'sp500' ? 'InSP500' : 'InNASDAQ100';
     return hmData.filter(r => r[key] && r.MarketCap > 0 && r.Sector && r.Sector !== 'Unknown');
   }
@@ -419,14 +403,6 @@
     const btnSP = document.getElementById('hmBtnSP'), btnNQ = document.getElementById('hmBtnNQ');
     if (btnSP) btnSP.classList.toggle('active', mode === 'sp500');
     if (btnNQ) btnNQ.classList.toggle('active', mode === 'nasdaq');
-    const btnETF = document.getElementById('hmBtnETF');
-    if (btnETF) btnETF.classList.toggle('active', mode === 'etf');
-    const isETF = mode === 'etf';
-    ['hmModePE', 'hmModeValue'].forEach(id => { const b = document.getElementById(id); if (b) b.style.display = isETF ? 'none' : ''; });
-    if (isETF && (hmColorMode === 'pe' || hmColorMode === 'value')) hmApplyColorModeUI('change');
-    const sizeLbl = document.getElementById('hmSizeLabel'), groupLbl = document.getElementById('hmGroupLabel');
-    if (sizeLbl) sizeLbl.textContent = isETF ? '相同' : '√市值';
-    if (groupLbl) groupLbl.textContent = isETF ? '按资产类别分组' : '按行业分组';
     const wrap = document.getElementById('hmWrap');
     if (!wrap) return;
     const rows = hmBuildRows(mode);
@@ -446,7 +422,7 @@
     rows.forEach(r => { (bySector[r.Sector] = bySector[r.Sector] || []).push(r); });
     const sectorItems = Object.keys(bySector).map(s => ({
       name: s,
-      value: bySector[s].reduce((sum, r) => sum + hmRowSize(r), 0),
+      value: bySector[s].reduce((sum, r) => sum + hmSize(r.MarketCap), 0),
       rows: bySector[s],
     }));
     const sectorRects = hmTreemap(sectorItems, 0, 0, w, h);
@@ -456,7 +432,7 @@
       const HEADER = sr.h > 40 ? 18 : 0;
       html += `<div class="hm-sector" style="left:${sr.x}px;top:${sr.y}px;width:${sr.w}px;height:${sr.h}px;">`;
       if (HEADER) html += `<div class="hm-sector-label">${sr.data.name}</div>`;
-      const tickerItems = sr.data.rows.map(r => Object.assign({}, r, { value: hmRowSize(r) }));
+      const tickerItems = sr.data.rows.map(r => Object.assign({}, r, { value: hmSize(r.MarketCap) }));
       const innerRects = hmTreemap(tickerItems, 0, 0, sr.w, Math.max(sr.h - HEADER, 1));
       innerRects.forEach(tr => {
         const d = tr.data;
@@ -468,7 +444,7 @@
         const showPct = showTicker && tr.w >= 22 && tr.h >= (tickerFont + pctFont) * 1.5;
         const hasPage = window.BaizoraChart && window.BaizoraChart.hasDedicatedPage(d.Ticker);
         html += `<a class="hm-tile${hasPage ? '' : ' bz-chart-link'}" ${hasPage ? `href="stocks/${d.Ticker}.html"` : `href="javascript:void(0)"`} style="left:${tr.x}px;top:${HEADER + tr.y}px;width:${tr.w}px;height:${tr.h}px;background:${hmTileColor(d)};" `
-          + `data-ticker="${d.Ticker}" data-name="${(d.CompanyName || '').replace(/"/g, '&quot;')}" data-price="${d.Price || 0}" data-chg="${pc}" data-cap="${d.MarketCap}" data-score="${d.BaizScore == null ? '' : d.BaizScore}" data-pe="${d.PE_vs_Sector == null ? '' : d.PE_vs_Sector}" data-peabs="${d.PE == null ? '' : d.PE}" data-er="${d.ExpenseRatio == null ? '' : d.ExpenseRatio}">`;
+          + `data-ticker="${d.Ticker}" data-name="${(d.CompanyName || '').replace(/"/g, '&quot;')}" data-price="${d.Price || 0}" data-chg="${pc}" data-cap="${d.MarketCap}" data-score="${d.BaizScore == null ? '' : d.BaizScore}" data-pe="${d.PE_vs_Sector == null ? '' : d.PE_vs_Sector}" data-peabs="${d.PE == null ? '' : d.PE}">`;
         if (showTicker) {
           html += `<div class="hm-tile-ticker" style="font-size:${tickerFont.toFixed(1)}px;font-weight:500;">${d.Ticker}</div>`;
           if (showPct) html += `<div class="hm-tile-chg" style="font-size:${pctFont.toFixed(1)}px;">${hmTileLabel(d)}</div>`;
@@ -489,7 +465,7 @@
     value:  { label: '市盈率相对行业均值', lo: '更贵', hi: '更便宜' },
   };
 
-  function hmApplyColorModeUI(mode) {
+  window.hmSetColorMode = function(mode) {
     hmColorMode = mode;
     const btnChange = document.getElementById('hmModeChange');
     const btnScore = document.getElementById('hmModeScore');
@@ -506,10 +482,6 @@
     if (colorLabel && meta) colorLabel.textContent = meta.label;
     if (lo && meta) lo.textContent = meta.lo;
     if (hi && meta) hi.textContent = meta.hi;
-  }
-
-  window.hmSetColorMode = function(mode) {
-    hmApplyColorModeUI(mode);
     hmRender(hmMode);
   };
 
@@ -536,15 +508,17 @@
     if (!q) return;
     if (!hmData) { msg.textContent = '数据加载中，请稍后重试'; return; }
     const row = hmData.find(r => r.Ticker === q);
-    const views = [];
-    if (row && row.MarketCap > 0 && row.Sector && row.Sector !== 'Unknown') {
-      if (row.InSP500) views.push('sp500');
-      if (row.InNASDAQ100) views.push('nasdaq');
+    if (!row || !row.MarketCap || row.MarketCap <= 0 || !row.Sector || row.Sector === 'Unknown') {
+      msg.textContent = `未找到 "${q}"`;
+      return;
     }
-    if (row && row.InETF) views.push('etf');
-    if (!row) { msg.textContent = `未找到 "${q}"`; return; }
-    if (!views.length) { msg.textContent = `"${q}" 不在标普500、纳斯达克100或ETF列表中`; return; }
-    if (views.indexOf(hmMode) < 0) hmRender(views[0]);
+    const inCurrent = hmMode === 'sp500' ? row.InSP500 : row.InNASDAQ100;
+    const inOther = hmMode === 'sp500' ? row.InNASDAQ100 : row.InSP500;
+    if (!inCurrent && !inOther) {
+      msg.textContent = `"${q}" 不在标普500或纳斯达克100成分股中`;
+      return;
+    }
+    if (!inCurrent && inOther) hmRender(hmMode === 'sp500' ? 'nasdaq' : 'sp500');
     hmFlashTile(q);
   }
   window.hmSearch = hmSearch;
@@ -582,12 +556,9 @@
         + `<div class="hmt-row"><span>价格</span><span>$${parseFloat(t.dataset.price).toFixed(2)}</span></div>`
         + `<div class="hmt-row"><span>当日涨跌</span><span style="color:${pc >= 0 ? '#22c55e' : '#ef4444'}">${pc >= 0 ? '+' : ''}${pc.toFixed(2)}%</span></div>`
         + `<div class="hmt-row"><span>贝佐拉评分</span><span style="color:${score == null ? '#64748b' : (score >= 50 ? '#22c55e' : '#ef4444')}">${score == null ? '—' : Math.round(score)}</span></div>`
-        + (hmMode === 'etf'
-          ? `<div class="hmt-row"><span>费率</span><span>${t.dataset.er === '' ? '—' : +parseFloat(t.dataset.er).toFixed(4) + '%'}</span></div>`
-          : ``
-          + `<div class="hmt-row"><span>市盈率</span><span>${hmFmtPE(peAbs)}</span></div>`
-          + `<div class="hmt-row"><span>市盈率/行业</span><span style="color:${pe == null ? '#64748b' : (pe <= 0 ? '#22c55e' : '#ef4444')}">${pe == null ? '—' : (pe >= 0 ? '+' : '') + Math.round(pe) + '%'}</span></div>`
-          + `<div class="hmt-row"><span>市值</span><span>${hmCapLabel(cap)}</span></div>`);
+        + `<div class="hmt-row"><span>市盈率</span><span>${hmFmtPE(peAbs)}</span></div>`
+        + `<div class="hmt-row"><span>市盈率/行业</span><span style="color:${pe == null ? '#64748b' : (pe <= 0 ? '#22c55e' : '#ef4444')}">${pe == null ? '—' : (pe >= 0 ? '+' : '') + Math.round(pe) + '%'}</span></div>`
+        + `<div class="hmt-row"><span>市值</span><span>${hmCapLabel(cap)}</span></div>`;
       hmTip.style.display = 'block';
     });
     document.addEventListener('mousemove', function(e) {
