@@ -434,6 +434,18 @@
   ],
   "ACN": [
     {
+      "date": "2026-10-01",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1467373/000146737326000037/acn-20261001.htm"
+    },
+    {
       "date": "2026-06-18",
       "eps": 3.8,
       "items": "2.02,9.01",
@@ -7304,6 +7316,15 @@
     }
   ],
   "CNP": [
+    {
+      "date": "2026-10-01",
+      "items": "2.01,7.01,9.01",
+      "label": "Acquisition / Disposition Completed",
+      "type": [
+        "acquisition"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1130310/000110465926112565/tm2626684d1_8k.htm"
+    },
     {
       "date": "2026-09-09",
       "items": "1.01,1.02,2.03,8.01,9.01",
