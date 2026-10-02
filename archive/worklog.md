@@ -523,3 +523,4 @@
 2026-10-02 01:49 UTC  630PM-scan
 2026-10-02 01:59 UTC  manual
 2026-10-02 10:23 UTC  11PM-full
+2026-10-02 16:08 UTC  manual-midday-test
