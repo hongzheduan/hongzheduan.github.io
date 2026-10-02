@@ -2,7 +2,11 @@
 
 on:
   schedule:
-    - cron: "0 15 * * 1-5"    # 11:00 AM ET weekdays (10 AM ET under EST/winter — fixed-UTC DST
+    # Midday cron disabled 2026-10-01: GH Actions delays landed it after 4 PM ET
+    # (10/1 fired 4:11 PM), stamping a post-close scan "midday" with no working close
+    # run after it. Midday is now manual only: Actions → Baizora Scanner → Run workflow
+    # → check "midday_test". To restore automatic: uncomment the cron line below.
+    # - cron: "0 15 * * 1-5"  # 11:00 AM ET weekdays (10 AM ET under EST/winter — fixed-UTC DST
                                # drift, same as the other crons below — plus the usual ~40-90 min
                                # GH Actions delay, so actual fire typically lands ~11:40 AM-12:30 PM ET;
                                # moved 1hr earlier from "0 16 * * 1-5" (nominal noon) 2026-09-17 since
@@ -65,7 +69,7 @@ on:
         type: boolean
         default: false
       midday_test:
-        description: "Replicate the 11:00 AM ET midday-snapshot cron (test the MIDDAY_SNAPSHOT path on demand instead of waiting for the next weekday firing)"
+        description: "Run the midday snapshot (MIDDAY_SNAPSHOT path). The automatic 11:00 AM ET cron is disabled, so this is now the only way midday runs"
         type: boolean
         default: false
 
