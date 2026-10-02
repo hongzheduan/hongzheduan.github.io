@@ -75,18 +75,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1090872/000109087225000070/a-20251124.htm"
-    },
-    {
-      "date": "2025-08-27",
-      "eps": 1.18,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-07-31",
-      "revenue": 1738000000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1090872/000109087225000034/a-20250827.htm"
     }
   ],
   "AAPL": [
@@ -7672,18 +7660,6 @@
         "leadership"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/711404/000162828025055405/coo-20251204.htm"
-    },
-    {
-      "date": "2025-08-27",
-      "eps": 0.49,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-07-31",
-      "revenue": 1060300000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/711404/000071140425000046/coo-20250827.htm"
     }
   ],
   "COP": [
@@ -8487,18 +8463,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1535527/000153552725000030/crwd-20251202.htm"
-    },
-    {
-      "date": "2025-08-27",
-      "eps": -0.31,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-07-31",
-      "revenue": null,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1535527/000153552725000023/crwd-20250827.htm"
     }
   ],
   "CRWV": [
@@ -16553,18 +16517,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/47217/000004721725000068/hpq-20251125.htm"
-    },
-    {
-      "date": "2025-08-27",
-      "eps": 0.8,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-07-31",
-      "revenue": 13932000000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/47217/000004721725000060/hpq-20250827.htm"
     }
   ],
   "HRL": [
@@ -17179,6 +17131,15 @@
     }
   ],
   "IBM": [
+    {
+      "date": "2026-10-01",
+      "items": "5.02,5.03,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/51143/000005114326000086/ibm-20261001.htm"
+    },
     {
       "date": "2026-07-22",
       "eps": 2.27,
@@ -19283,6 +19244,15 @@
   ],
   "KMB": [
     {
+      "date": "2026-10-01",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/55785/000110465926112571/tm2626685d1_8k.htm"
+    },
+    {
       "date": "2026-08-04",
       "eps": 1.04,
       "items": "2.02,9.01",
@@ -19658,6 +19628,15 @@
     }
   ],
   "LDOS": [
+    {
+      "date": "2026-10-01",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1336920/000133692026000265/ldos-20261001.htm"
+    },
     {
       "date": "2026-08-04",
       "eps": 2.81,
@@ -21686,6 +21665,18 @@
   ],
   "MKC": [
     {
+      "date": "2026-10-01",
+      "eps": 0.36,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": "2026-08-31",
+      "revenue": 2024800000,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/63754/000006375426000326/mkc-20261001.htm"
+    },
+    {
       "date": "2026-08-28",
       "items": "5.02",
       "label": "Leadership Change",
@@ -23569,6 +23560,18 @@
   ],
   "NKE": [
     {
+      "date": "2026-10-01",
+      "eps": null,
+      "items": "2.02,2.05,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/320187/000032018726000184/nke-20261001.htm"
+    },
+    {
       "date": "2026-09-16",
       "items": "5.02,7.01,9.01",
       "label": "Leadership Change",
@@ -23978,18 +23981,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1002047/000119312525297164/ntap-20251125.htm"
-    },
-    {
-      "date": "2025-08-27",
-      "eps": 1.15,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-07-25",
-      "revenue": 1559000000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1002047/000095017025111700/ntap-20250827.htm"
     }
   ],
   "NTRS": [
@@ -24185,18 +24176,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000228/nvda-20251119.htm"
-    },
-    {
-      "date": "2025-08-27",
-      "eps": 1.08,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-07-27",
-      "revenue": 46743000000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000207/nvda-20250827.htm"
     }
   ],
   "NVR": [
@@ -24652,6 +24631,15 @@
     }
   ],
   "ON": [
+    {
+      "date": "2026-10-01",
+      "items": "1.01,8.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1097864/000114036126038294/ef20083030_8k.htm"
+    },
     {
       "date": "2026-08-03",
       "eps": 0.56,
@@ -25121,18 +25109,6 @@
         "leadership"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1474432/000162828025049165/pstg-20251104.htm"
-    },
-    {
-      "date": "2025-08-27",
-      "eps": 0.14,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-08-03",
-      "revenue": 861002000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1474432/000147443225000038/pstg-20250827.htm"
     }
   ],
   "PANW": [
@@ -26827,6 +26803,15 @@
   ],
   "PSKY": [
     {
+      "date": "2026-10-01",
+      "items": "5.02,7.01,8.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/2041610/000110465926112829/tm2626659d2_8k.htm"
+    },
+    {
       "date": "2026-09-25",
       "items": "3.01,7.01,9.01",
       "label": "Delisting Notice",
@@ -28048,6 +28033,15 @@
   ],
   "ROP": [
     {
+      "date": "2026-10-01",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/882835/000088283526000039/rop-20260929.htm"
+    },
+    {
       "date": "2026-07-23",
       "eps": 11.62,
       "items": "2.02,9.01",
@@ -28687,18 +28681,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/91419/000009141925000104/sjm-20251125.htm"
-    },
-    {
-      "date": "2025-08-27",
-      "eps": -0.41,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-07-31",
-      "revenue": null,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/91419/000009141925000069/sjm-20250827.htm"
     }
   ],
   "SLB": [
@@ -32971,18 +32953,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1393052/000139305225000074/veev-20251120.htm"
-    },
-    {
-      "date": "2025-08-27",
-      "eps": 1.19,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-07-31",
-      "revenue": 789081000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1393052/000139305225000063/veev-20250827.htm"
     }
   ],
   "VICI": [
@@ -34122,6 +34092,15 @@
   ],
   "WDAY": [
     {
+      "date": "2026-10-01",
+      "items": "1.01,1.02,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1327811/000110465926112898/tm2626731d2_8k.htm"
+    },
+    {
       "date": "2026-09-29",
       "eps": 2.57,
       "items": "2.02,2.05",
@@ -34802,18 +34781,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/719955/000071995525000043/wsm-20251119.htm"
-    },
-    {
-      "date": "2025-08-27",
-      "eps": 2,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-08-03",
-      "revenue": 1836760000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/719955/000071995525000006/wsm-20250827.htm"
     }
   ],
   "WST": [
