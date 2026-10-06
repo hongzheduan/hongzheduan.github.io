@@ -1,9 +1,46 @@
 {
- "updated": "2026-10-05 18:21 ET",
+ "updated": "2026-10-06 16:49 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
- "ipos": [],
+ "ipos": [
+  {
+   "deal_id": "1402904-119414",
+   "ticker": "TRXB",
+   "company": "TRex Bio, Inc.",
+   "sector": "Healthcare",
+   "industry": "Biological Products",
+   "sic": "2836",
+   "cik": "0002139097",
+   "deal_usd": 153333344.0,
+   "exchange": "Nasdaq",
+   "date": "2026-10-09",
+   "price_range": "14.00-16.00",
+   "shares": 8333334.0
+  }
+ ],
  "filed": [
+  {
+   "deal_id": "1112626-119575",
+   "ticker": "LYCA",
+   "company": "Lycia Therapeutics, Inc.",
+   "sector": "Healthcare",
+   "industry": "Biological Products",
+   "sic": "2836",
+   "cik": "0001806540",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-10-05"
+  },
+  {
+   "deal_id": "1404860-119573",
+   "ticker": "DODC",
+   "company": "DayOne Data Centers Ltd",
+   "sector": "Technology",
+   "industry": "Computer Programming, Data Processing",
+   "sic": "7370",
+   "cik": "0002118192",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-10-05"
+  },
   {
    "deal_id": "1403703-119478",
    "ticker": "TFP",
@@ -36,17 +73,6 @@
    "cik": "0001997038",
    "deal_usd": 100000000.0,
    "filed_date": "2026-09-21"
-  },
-  {
-   "deal_id": "1402904-119414",
-   "ticker": "TRXB",
-   "company": "TRex Bio, Inc.",
-   "sector": "Healthcare",
-   "industry": "Biological Products",
-   "sic": "2836",
-   "cik": "0002139097",
-   "deal_usd": 100000000.0,
-   "filed_date": "2026-09-18"
   },
   {
    "deal_id": "1402874-119401",
