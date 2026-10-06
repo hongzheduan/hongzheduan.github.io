@@ -630,11 +630,14 @@
     }
 
     /* Cards hidden on desktop; table hidden on mobile */
-    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #positionsCards { display: none; }
-    .newmembers-blurb, .smarsi-blurb, .breakout-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
-    .newmembers-empty, .smarsi-empty, .breakout-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
+    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #positionsCards { display: none; }
+    .newmembers-blurb, .smarsi-blurb, .breakout-blurb, .greenstreak-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
+    .newmembers-empty, .smarsi-empty, .breakout-empty, .greenstreak-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
     .new-member-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
     .new-member-badge.confirmed { background: rgba(59,130,246,0.15); color: var(--electric-bright); border: 1px solid rgba(59,130,246,0.3); }
+    .gs-controls { font-size: 12px; color: var(--muted); margin: 0 0 14px; }
+    .gs-controls select { background: var(--navy-light); color: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; font-family: 'DM Mono', monospace; font-size: 12px; margin-left: 6px; }
+    .greenstreak-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
     .breakout-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
     .new-member-badge.rumored { background: rgba(245,158,11,0.15); color: var(--gold-light); border: 1px solid rgba(245,158,11,0.3); }
 
@@ -660,8 +663,8 @@
       tr:hover td.ticker-cell { background: #081229; }
       .mobile-search-bar { display: block; }
       .mobile-rotate-hint { display: block; }
-      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable, #breakoutTable, #positionsTable { display: none !important; }
-      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #positionsCards { display: block !important; }
+      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable, #breakoutTable, #greenstreakTable, #positionsTable { display: none !important; }
+      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #positionsCards { display: block !important; }
     }
     @media (max-width: 960px) and (orientation: landscape) {
       header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
@@ -916,6 +919,7 @@
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="newmembers">新成分股</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="smarsi">SMA200超卖</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="breakout">突破</button>
+            <button type="button" role="menuitem" class="idx-dd-item" data-idx="greenstreak">连续阳线</button>
           </div>
         </div>
         <button class="tab-btn" data-tab="watchlist" onclick="show('watchlist', this)">★ 自选股</button>
@@ -955,6 +959,7 @@
     <button onclick="selectIndex('newmembers'); toggleMenu();">新成分股</button>
     <button onclick="selectIndex('smarsi'); toggleMenu();">SMA200超卖</button>
     <button onclick="selectIndex('breakout'); toggleMenu();">突破</button>
+    <button onclick="selectIndex('greenstreak'); toggleMenu();">连续阳线</button>
     <button onclick="show('watchlist'); toggleMenu();">★ 自选股</button>
     <button onclick="show('positions'); toggleMenu();">我的持仓</button>
     <button onclick="show('readme'); toggleMenu();">说明</button>
@@ -1046,6 +1051,13 @@
       <table id="breakoutTable"></table>
       <div id="breakoutCards"></div>
       <p class="breakout-empty" id="breakoutEmpty" style="display:none;"></p>
+    </div>
+    <div id="greenstreak" class="section">
+      <p class="greenstreak-blurb">从最近一个交易日往回数，连续收盘价高于开盘价达到所选天数的股票和ETF。阳线指当日收盘高于当日开盘，而非高于前一日收盘，因此股票可能低开高走收阳，但在连阳期间整体仍下跌。标记显示连阳天数，悬停可查看连阳期间的涨跌幅。仅为技术筛选，不构成投资建议。</p>
+      <div class="gs-controls"><label>最少连阳：<select id="gsMinSel" onchange="setGreenStreakMin(this.value)"><option value="2">2天</option><option value="3" selected>3天</option><option value="4">4天</option><option value="5">5天</option><option value="7">7天</option><option value="10">10天</option></select></label></div>
+      <table id="greenstreakTable"></table>
+      <div id="greenstreakCards"></div>
+      <p class="greenstreak-empty" id="greenstreakEmpty" style="display:none;"></p>
     </div>
 
     <div id="watchlist" class="section">
@@ -1180,7 +1192,7 @@
     const CHART_BTN = `<button class="chart-btn" title="查看K线图" aria-label="查看K线图"><svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><line x1="2.5" y1="1" x2="2.5" y2="10" stroke="currentColor" stroke-width="0.9"/><rect x="1" y="3.5" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.5"/><line x1="7" y1="0.5" x2="7" y2="10.5" stroke="currentColor" stroke-width="0.9"/><rect x="5.5" y="2" width="3" height="6" rx="0.4" fill="currentColor"/><line x1="11.5" y1="1" x2="11.5" y2="9.5" stroke="currentColor" stroke-width="0.9"/><rect x="10" y="3" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.7"/></svg></button>`;
 
     /* ── STATE ── */
-    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [], smaRsiRows = [], breakoutRows = [];
+    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [], smaRsiRows = [], breakoutRows = [], greenStreakRows = [];
     let recentJoinMap = {};   // ticker -> {index, date}, official adds within NEW_MEMBER_WINDOW_DAYS
     const NEW_MEMBER_WINDOW_DAYS = 30;
     // SMA200 Oversold screen: within this % of the 200-day SMA (either side) AND RSI(14) below the cutoff.
@@ -1195,6 +1207,7 @@
     const FLAG_MAX_RANGE_PCT = 10; // flag: pause high/low spread cap
     const FLAG_POLE_PCT = 25;      // flag: run-up into the pause (vs 21-bar low)
     const FLAG_VOL_MULT = 1.5;     // flag: breakout-day volume vs 21-day average
+    let gsMinDays = 3;             // Green Streak: min consecutive close > open sessions (dropdown in the section)
     let activeTab     = "all";
     let sortKey       = "PriceChange1D";
     let sortAsc       = false;
@@ -1585,6 +1598,7 @@
       newmembers:  { rows: () => newMemberRows.length, label: "新成分股" },
       smarsi:      { rows: () => smaRsiRows.length,   label: "SMA200超卖" },
       breakout:    { rows: () => breakoutRows.length, label: "突破" },
+      greenstreak: { rows: () => greenStreakRows.length, label: "连续阳线" },
     };
     function updateStatus() {
       statusText.textContent = loadedDate;
@@ -1631,7 +1645,7 @@
       toggle.setAttribute("aria-expanded", "false");
       activeTab = idx;
       toolbar.style.display = "flex";
-      if (idx === "breakout" && currentWindow !== "1D") {
+      if ((idx === "breakout" || idx === "greenstreak") && currentWindow !== "1D") {
         // Breakouts opens on 1D: today's move and VOL/MA21 are the context for a fresh breakout.
         const dayBtn = Array.from(document.querySelectorAll(".window-btn")).find(b => (b.getAttribute("onclick") || "").indexOf("'1D'") !== -1);
         if (dayBtn) setWindow("1D", dayBtn);
@@ -1917,6 +1931,53 @@
       badge.title = r.BrkPattern === "flag" ? `此前上涨${r.BrkPole.toFixed(0)}%，8日整理后以${r.BrkVol.toFixed(1)}倍均量收于整理高点 $${r.BrkLevel.toFixed(2)} 之上` : `以${r.BrkVol.toFixed(1)}倍均量收于60日区间上沿 $${r.BrkLevel.toFixed(2)} 之上`;
       return badge;
     }
+    /* ── GREEN STREAK screen: S&P 500 + Nasdaq-100 + ETF tickers whose daily candle closed
+       above its open for >= gsMinDays consecutive sessions ending at the latest bar.
+       GsChg = % change from the close before the streak to the latest close (can be
+       negative: green candles that gap down). ── */
+    function computeGreenStreakRows() {
+      if (!candleData) return [];
+      const out = [];
+      allRows.forEach(r => {
+        r.GsDays = r.GsChg = null;
+        if (!(r.InSP500 || r.InNASDAQ100 || r.InETF)) return;
+        const raw = candleData.data && candleData.data[r.Ticker];
+        if (!raw || raw.length < 2) return;
+        let k = 0;
+        for (let i = raw.length - 1; i >= 0 && raw[i][3] > raw[i][0]; i--) k++;
+        if (k < gsMinDays) return;
+        const base = raw[raw.length - 1 - k];
+        r.GsDays = k;
+        r.GsChg = base ? (raw[raw.length - 1][3] / base[3] - 1) * 100 : 0;
+        out.push(r);
+      });
+      return out;
+    }
+    window.setGreenStreakMin = function(v) { gsMinDays = parseInt(v, 10) || 3; render(); };
+    function decorateGreenStreakBadges() {
+      const byT = {};
+      greenStreakRows.forEach(r => { byT[r.Ticker] = r; });
+      const mk = r => {
+        const b = document.createElement("span");
+        b.className = "greenstreak-badge";
+        b.textContent = `连阳${r.GsDays}天`;
+        b.title = `连续${r.GsDays}个交易日收盘高于开盘，期间涨跌幅 ${r.GsChg >= 0 ? "+" : ""}${r.GsChg.toFixed(2)}%`;
+        return b;
+      };
+      document.querySelectorAll('#greenstreakTable .ticker-cell[data-ticker]').forEach(cell => {
+        const r = byT[cell.dataset.ticker];
+        if (!r || cell.querySelector(".greenstreak-badge")) return;
+        cell.insertBefore(mk(r), cell.querySelector(".chart-btn"));
+      });
+      document.querySelectorAll('#greenstreakCards .stock-card[data-ticker]').forEach(card => {
+        const r = byT[card.dataset.ticker];
+        const header = card.querySelector(".card-header");
+        if (!r || !header || header.querySelector(".greenstreak-badge")) return;
+        const tickerEl = header.querySelector(".card-ticker");
+        header.insertBefore(mk(r), tickerEl ? tickerEl.nextSibling : header.firstChild);
+      });
+    }
+
     function decorateBreakoutBadges() {
       const byT = {};
       breakoutRows.forEach(r => { byT[r.Ticker] = r; });
@@ -2429,6 +2490,8 @@
       const sr = smaRsiRows.filter(filter);
       breakoutRows = computeBreakoutRows();
       const br = breakoutRows.filter(filter);
+      greenStreakRows = computeGreenStreakRows();
+      const gs = greenStreakRows.filter(filter);
       document.getElementById("allTable").innerHTML        = buildTable(combined, w);
       document.getElementById("allCards").innerHTML        = buildCards(combined, w);
       document.getElementById("etfTable").innerHTML        = buildTable(etf, w);
@@ -2456,8 +2519,14 @@
       const brEmpty = document.getElementById("breakoutEmpty");
       brEmpty.textContent = candleData ? "目前没有符合全部条件的标的。" : "技术数据加载中…";
       brEmpty.style.display = br.length === 0 ? "block" : "none";
+      document.getElementById("greenstreakTable").innerHTML = buildTable(gs, w);
+      document.getElementById("greenstreakCards").innerHTML = buildCards(gs, w);
+      const gsEmpty = document.getElementById("greenstreakEmpty");
+      gsEmpty.textContent = candleData ? "目前没有达到该连阳天数的标的。" : "技术数据加载中…";
+      gsEmpty.style.display = gs.length === 0 ? "block" : "none";
       decorateNewMemberBadges();
       decorateBreakoutBadges();
+      decorateGreenStreakBadges();
       decoratePositions();
       updateStatus();
     }
@@ -2657,7 +2726,7 @@
       .then(r => r.json())
       .then(d => {
         candleData = d;
-        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow] || activeTab === "smarsi" || activeTab === "breakout") render();
+        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow] || activeTab === "smarsi" || activeTab === "breakout" || activeTab === "greenstreak") render();
         if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
       })
       .catch(() => {});

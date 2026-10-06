@@ -620,11 +620,14 @@
     }
 
     /* Cards hidden on desktop; table hidden on mobile */
-    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #positionsCards { display: none; }
-    .newmembers-blurb, .smarsi-blurb, .breakout-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
-    .newmembers-empty, .smarsi-empty, .breakout-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
+    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #positionsCards { display: none; }
+    .newmembers-blurb, .smarsi-blurb, .breakout-blurb, .greenstreak-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
+    .newmembers-empty, .smarsi-empty, .breakout-empty, .greenstreak-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
     .new-member-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
     .new-member-badge.confirmed { background: rgba(59,130,246,0.15); color: var(--electric-bright); border: 1px solid rgba(59,130,246,0.3); }
+    .gs-controls { font-size: 12px; color: var(--muted); margin: 0 0 14px; }
+    .gs-controls select { background: var(--navy-light); color: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; font-family: 'DM Mono', monospace; font-size: 12px; margin-left: 6px; }
+    .greenstreak-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
     .breakout-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
     .new-member-badge.rumored { background: rgba(245,158,11,0.15); color: var(--gold-light); border: 1px solid rgba(245,158,11,0.3); }
 
@@ -653,8 +656,8 @@
       tr:hover td.ticker-cell { background: #081229; }
       .mobile-search-bar { display: block; }
       .mobile-rotate-hint { display: block; }
-      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable, #breakoutTable, #positionsTable { display: none !important; }
-      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #positionsCards { display: block !important; }
+      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable, #breakoutTable, #greenstreakTable, #positionsTable { display: none !important; }
+      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #positionsCards { display: block !important; }
     }
     @media (max-width: 960px) and (orientation: landscape) {
       header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
@@ -909,6 +912,7 @@
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="newmembers">New Members</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="smarsi">SMA200 Oversold</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="breakout">Breakouts</button>
+            <button type="button" role="menuitem" class="idx-dd-item" data-idx="greenstreak">Green Streak</button>
           </div>
         </div>
         <button class="tab-btn" data-tab="watchlist" onclick="show('watchlist', this)">★ Watchlist</button>
@@ -948,6 +952,7 @@
     <button onclick="selectIndex('newmembers'); toggleMenu();">New Members</button>
     <button onclick="selectIndex('smarsi'); toggleMenu();">SMA200 Oversold</button>
     <button onclick="selectIndex('breakout'); toggleMenu();">Breakouts</button>
+    <button onclick="selectIndex('greenstreak'); toggleMenu();">Green Streak</button>
     <button onclick="show('watchlist'); toggleMenu();">★ Watchlist</button>
     <button onclick="show('positions'); toggleMenu();">My Positions</button>
     <button onclick="show('readme'); toggleMenu();">README</button>
@@ -1039,6 +1044,13 @@
       <table id="breakoutTable"></table>
       <div id="breakoutCards"></div>
       <p class="breakout-empty" id="breakoutEmpty" style="display:none;"></p>
+    </div>
+    <div id="greenstreak" class="section">
+      <p class="greenstreak-blurb">Stocks and ETFs that closed above their opening price for at least the chosen number of sessions in a row, counted back from the latest session. A green candle means the close beat that day's open, not the prior day's close, so a stock can gap down, finish green, and still be lower over the streak. The badge shows the streak length; hover it for the price change over the streak. A technical screen only, not investment advice.</p>
+      <div class="gs-controls"><label>Minimum streak:<select id="gsMinSel" onchange="setGreenStreakMin(this.value)"><option value="2">2 days</option><option value="3" selected>3 days</option><option value="4">4 days</option><option value="5">5 days</option><option value="7">7 days</option><option value="10">10 days</option></select></label></div>
+      <table id="greenstreakTable"></table>
+      <div id="greenstreakCards"></div>
+      <p class="greenstreak-empty" id="greenstreakEmpty" style="display:none;"></p>
     </div>
 
     <div id="watchlist" class="section">
@@ -1174,7 +1186,7 @@
     const CHART_BTN = `<button class="chart-btn" title="View Chart" aria-label="View chart"><svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><line x1="2.5" y1="1" x2="2.5" y2="10" stroke="currentColor" stroke-width="0.9"/><rect x="1" y="3.5" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.5"/><line x1="7" y1="0.5" x2="7" y2="10.5" stroke="currentColor" stroke-width="0.9"/><rect x="5.5" y="2" width="3" height="6" rx="0.4" fill="currentColor"/><line x1="11.5" y1="1" x2="11.5" y2="9.5" stroke="currentColor" stroke-width="0.9"/><rect x="10" y="3" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.7"/></svg></button>`;
 
     /* ── STATE ── */
-    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [], smaRsiRows = [], breakoutRows = [];
+    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [], smaRsiRows = [], breakoutRows = [], greenStreakRows = [];
     let recentJoinMap = {};   // ticker -> {index, date}, official adds within NEW_MEMBER_WINDOW_DAYS
     const NEW_MEMBER_WINDOW_DAYS = 30;
     // SMA200 Oversold screen: within this % of the 200-day SMA (either side) AND RSI(14) below the cutoff.
@@ -1189,6 +1201,7 @@
     const FLAG_MAX_RANGE_PCT = 10; // flag: pause high/low spread cap
     const FLAG_POLE_PCT = 25;      // flag: run-up into the pause (vs 21-bar low)
     const FLAG_VOL_MULT = 1.5;     // flag: breakout-day volume vs 21-day average
+    let gsMinDays = 3;             // Green Streak: min consecutive close > open sessions (dropdown in the section)
     let activeTab     = "all";
     let sortKey       = "PriceChange1D";
     let sortAsc       = false;
@@ -1584,6 +1597,7 @@
       newmembers:  { rows: () => newMemberRows.length, label: "New Members" },
       smarsi:      { rows: () => smaRsiRows.length,   label: "SMA200 Oversold" },
       breakout:    { rows: () => breakoutRows.length, label: "Breakouts" },
+      greenstreak: { rows: () => greenStreakRows.length, label: "Green Streak" },
     };
     function updateStatus() {
       statusText.textContent = loadedDate;
@@ -1630,7 +1644,7 @@
       toggle.setAttribute("aria-expanded", "false");
       activeTab = idx;
       toolbar.style.display = "flex";
-      if (idx === "breakout" && currentWindow !== "1D") {
+      if ((idx === "breakout" || idx === "greenstreak") && currentWindow !== "1D") {
         // Breakouts opens on 1D: today's move and VOL/MA21 are the context for a fresh breakout.
         const dayBtn = Array.from(document.querySelectorAll(".window-btn")).find(b => (b.getAttribute("onclick") || "").indexOf("'1D'") !== -1);
         if (dayBtn) setWindow("1D", dayBtn);
@@ -1917,6 +1931,53 @@
       badge.title = r.BrkPattern === "flag" ? `Up ${r.BrkPole.toFixed(0)}% before an 8-day pause, closed above its high $${r.BrkLevel.toFixed(2)} on ${r.BrkVol.toFixed(1)}x average volume` : `Closed above 60-day range high $${r.BrkLevel.toFixed(2)} on ${r.BrkVol.toFixed(1)}x average volume`;
       return badge;
     }
+    /* ── GREEN STREAK screen: S&P 500 + Nasdaq-100 + ETF tickers whose daily candle closed
+       above its open for >= gsMinDays consecutive sessions ending at the latest bar.
+       GsChg = % change from the close before the streak to the latest close (can be
+       negative: green candles that gap down). ── */
+    function computeGreenStreakRows() {
+      if (!candleData) return [];
+      const out = [];
+      allRows.forEach(r => {
+        r.GsDays = r.GsChg = null;
+        if (!(r.InSP500 || r.InNASDAQ100 || r.InETF)) return;
+        const raw = candleData.data && candleData.data[r.Ticker];
+        if (!raw || raw.length < 2) return;
+        let k = 0;
+        for (let i = raw.length - 1; i >= 0 && raw[i][3] > raw[i][0]; i--) k++;
+        if (k < gsMinDays) return;
+        const base = raw[raw.length - 1 - k];
+        r.GsDays = k;
+        r.GsChg = base ? (raw[raw.length - 1][3] / base[3] - 1) * 100 : 0;
+        out.push(r);
+      });
+      return out;
+    }
+    window.setGreenStreakMin = function(v) { gsMinDays = parseInt(v, 10) || 3; render(); };
+    function decorateGreenStreakBadges() {
+      const byT = {};
+      greenStreakRows.forEach(r => { byT[r.Ticker] = r; });
+      const mk = r => {
+        const b = document.createElement("span");
+        b.className = "greenstreak-badge";
+        b.textContent = `GREEN ${r.GsDays}D`;
+        b.title = `Closed above its open ${r.GsDays} sessions in a row, ${r.GsChg >= 0 ? "+" : ""}${r.GsChg.toFixed(2)}% over the streak`;
+        return b;
+      };
+      document.querySelectorAll('#greenstreakTable .ticker-cell[data-ticker]').forEach(cell => {
+        const r = byT[cell.dataset.ticker];
+        if (!r || cell.querySelector(".greenstreak-badge")) return;
+        cell.insertBefore(mk(r), cell.querySelector(".chart-btn"));
+      });
+      document.querySelectorAll('#greenstreakCards .stock-card[data-ticker]').forEach(card => {
+        const r = byT[card.dataset.ticker];
+        const header = card.querySelector(".card-header");
+        if (!r || !header || header.querySelector(".greenstreak-badge")) return;
+        const tickerEl = header.querySelector(".card-ticker");
+        header.insertBefore(mk(r), tickerEl ? tickerEl.nextSibling : header.firstChild);
+      });
+    }
+
     function decorateBreakoutBadges() {
       const byT = {};
       breakoutRows.forEach(r => { byT[r.Ticker] = r; });
@@ -2444,6 +2505,8 @@
       const sr = smaRsiRows.filter(filter);
       breakoutRows = computeBreakoutRows();
       const br = breakoutRows.filter(filter);
+      greenStreakRows = computeGreenStreakRows();
+      const gs = greenStreakRows.filter(filter);
       document.getElementById("allTable").innerHTML        = buildTable(combined, w);
       document.getElementById("allCards").innerHTML        = buildCards(combined, w);
       document.getElementById("etfTable").innerHTML        = buildTable(etf, w);
@@ -2471,8 +2534,14 @@
       const brEmpty = document.getElementById("breakoutEmpty");
       brEmpty.textContent = candleData ? "No tickers currently meet all conditions." : "Loading technical data…";
       brEmpty.style.display = br.length === 0 ? "block" : "none";
+      document.getElementById("greenstreakTable").innerHTML = buildTable(gs, w);
+      document.getElementById("greenstreakCards").innerHTML = buildCards(gs, w);
+      const gsEmpty = document.getElementById("greenstreakEmpty");
+      gsEmpty.textContent = candleData ? "No tickers currently meet this streak length." : "Loading technical data…";
+      gsEmpty.style.display = gs.length === 0 ? "block" : "none";
       decorateNewMemberBadges();
       decorateBreakoutBadges();
+      decorateGreenStreakBadges();
       decoratePositions();
       updateStatus();
     }
@@ -2672,7 +2741,7 @@
       .then(r => r.json())
       .then(d => {
         candleData = d;
-        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow] || activeTab === "smarsi" || activeTab === "breakout") render();
+        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow] || activeTab === "smarsi" || activeTab === "breakout" || activeTab === "greenstreak") render();
         if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
       })
       .catch(() => {});
