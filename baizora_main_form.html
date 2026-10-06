@@ -1035,7 +1035,7 @@
       <p class="smarsi-empty" id="smarsiEmpty" style="display:none;"></p>
     </div>
     <div id="breakout" class="section">
-      <p class="breakout-blurb">Stocks and ETFs that closed above their 60-day trading range in the last 5 sessions, where the 60-day range was within 15% from low to high, volume on the breakout day was at least 2x its 21-day average, price was above the 200-day average and the 50-day average was above the 200-day. Only setups still closing above the breakout level are listed. In our 2022 to 2026 backtest on these indexes, setups like these performed about in line with the market on average, and roughly 4 in 10 fell back below the breakout level within two weeks. A technical screen to find charts worth a look, not a signal and not investment advice.</p>
+      <p class="breakout-blurb">Stocks and ETFs that broke out of a trading range in the last 5 sessions and are still closing above the breakout level. Two patterns, both requiring price above the 200-day average and the 50-day average above the 200-day. BASE: closed above a 60-day range that was within 15% from low to high, on at least 2x the 21-day average volume. FLAG: after a run of 25% or more within about a month, the last 8 closes stayed within 10%, then price closed above that pause on at least 1.5x average volume. In our 2022 to 2026 backtest on these indexes, BASE setups performed about in line with the market, while FLAG setups beat the market median by about 8 points over 3 months and 10 points over 6 months. The FLAG sample was small (about 125 signals) and sensitive to the exact settings, and about half of both patterns fell back below the breakout level within two weeks. A technical screen to find charts worth a look, not a signal and not investment advice.</p>
       <table id="breakoutTable"></table>
       <div id="breakoutCards"></div>
       <p class="breakout-empty" id="breakoutEmpty" style="display:none;"></p>
@@ -1185,6 +1185,10 @@
     const BRK_MAX_RANGE_PCT = 15;  // range high/low spread cap
     const BRK_VOL_MULT = 2;        // breakout-day volume vs 21-day average
     const BRK_RECENT_DAYS = 5;     // how many sessions back a breakout still lists
+    const FLAG_DAYS = 8;           // flag: length of the tight pause
+    const FLAG_MAX_RANGE_PCT = 10; // flag: pause high/low spread cap
+    const FLAG_POLE_PCT = 25;      // flag: run-up into the pause (vs 21-bar low)
+    const FLAG_VOL_MULT = 1.5;     // flag: breakout-day volume vs 21-day average
     let activeTab     = "all";
     let sortKey       = "PriceChange1D";
     let sortAsc       = false;
@@ -1848,36 +1852,57 @@
       return out;
     }
 
-    /* ── BREAKOUTS screen: S&P 500 + Nasdaq-100 + ETF tickers that, within the last
-       BRK_RECENT_DAYS sessions, closed above the highest close of the prior BRK_BASE_DAYS
-       sessions, where that range's high/low spread was <= BRK_MAX_RANGE_PCT, on volume
-       >= BRK_VOL_MULT x the 21-day average (incl. that day, same as VOL/MA21), with
-       close > SMA200 and SMA50 > SMA200. Most recent qualifying day wins, and the ticker
-       must still close above that breakout level today. Backtest (2022-2026) showed no
-       edge vs the market, so the blurb frames it as a chart-finding screen only. ── */
+    /* ── BREAKOUTS screen: S&P 500 + Nasdaq-100 + ETF tickers that broke out within the last
+       BRK_RECENT_DAYS sessions and still close above the breakout level today. Both patterns
+       need close > SMA200 and SMA50 > SMA200; volume multiple is vs the 21-day average incl.
+       that day (same as VOL/MA21). Most recent qualifying day wins; FLAG checked first.
+       BASE: close > highest close of prior BRK_BASE_DAYS, range spread <= BRK_MAX_RANGE_PCT,
+             vol >= BRK_VOL_MULT. Backtest: no edge vs market (backtests/pattern_breakout_backtest.py).
+       FLAG: close at the bar before the pause >= (1 + FLAG_POLE_PCT) x min close of the 21 bars
+             ending there; prior FLAG_DAYS closes within FLAG_MAX_RANGE_PCT; close > their high;
+             vol >= FLAG_VOL_MULT. Backtest: beat market, small fragile sample
+             (backtests/flag_breakout_backtest.py). Blurb discloses both. ── */
     function computeBreakoutRows() {
       if (!candleData) return [];
       const out = [];
+      const rangeOf = (raw, from, to) => {
+        let hi = -Infinity, lo = Infinity;
+        for (let j = from; j < to; j++) { const c = raw[j][3]; if (c > hi) hi = c; if (c < lo) lo = c; }
+        return { hi, lo, pct: lo > 0 ? (hi / lo - 1) * 100 : Infinity };
+      };
+      const volMultAt = (raw, i) => {
+        let vs = 0;
+        for (let j = i - 20; j <= i; j++) vs += raw[j][4] || 0;
+        return vs > 0 ? raw[i][4] / (vs / 21) : 0;
+      };
       allRows.forEach(r => {
-        r.BrkDaysAgo = r.BrkLevel = r.BrkVol = null;
+        r.BrkDaysAgo = r.BrkLevel = r.BrkVol = r.BrkPattern = r.BrkPole = null;
         if (!(r.InSP500 || r.InNASDAQ100 || r.InETF)) return;
         const raw = candleData.data && candleData.data[r.Ticker];
         const sma = candleData.sma && candleData.sma[r.Ticker];
         if (!raw || !sma || !sma.sma50 || !sma.sma200) return;
         const n = raw.length;
         if (sma.sma50.length !== n || sma.sma200.length !== n) return;
+        const last = raw[n - 1][3];
         for (let i = n - 1; i >= n - BRK_RECENT_DAYS && i >= BRK_BASE_DAYS + 20; i--) {
           const c = raw[i][3], s50 = sma.sma50[i], s200 = sma.sma200[i];
           if (c == null || s50 == null || s200 == null || !(c > s200 && s50 > s200)) continue;
-          let hi = -Infinity, lo = Infinity;
-          for (let j = i - BRK_BASE_DAYS; j < i; j++) { const cj = raw[j][3]; if (cj > hi) hi = cj; if (cj < lo) lo = cj; }
-          if (!(lo > 0) || (hi / lo - 1) * 100 > BRK_MAX_RANGE_PCT || !(c > hi)) continue;
-          let vs = 0;
-          for (let j = i - 20; j <= i; j++) vs += raw[j][4] || 0;
-          const volMult = vs > 0 ? raw[i][4] / (vs / 21) : 0;
-          if (volMult < BRK_VOL_MULT) continue;
-          if (!(raw[n - 1][3] > hi)) break;  // fell back below its most recent breakout level
-          r.BrkDaysAgo = n - 1 - i; r.BrkLevel = hi; r.BrkVol = volMult;
+          const vm = volMultAt(raw, i);
+          let hit = null;
+          const fr = rangeOf(raw, i - FLAG_DAYS, i);
+          if (fr.pct <= FLAG_MAX_RANGE_PCT && c > fr.hi && vm >= FLAG_VOL_MULT) {
+            const pe = i - FLAG_DAYS - 1;
+            const pr = rangeOf(raw, pe - 20, pe + 1);
+            const pole = pr.lo > 0 ? (raw[pe][3] / pr.lo - 1) * 100 : 0;
+            if (pole >= FLAG_POLE_PCT) hit = { pattern: "flag", level: fr.hi, pole };
+          }
+          if (!hit) {
+            const br = rangeOf(raw, i - BRK_BASE_DAYS, i);
+            if (br.pct <= BRK_MAX_RANGE_PCT && c > br.hi && vm >= BRK_VOL_MULT) hit = { pattern: "base", level: br.hi, pole: null };
+          }
+          if (!hit) continue;
+          if (!(last > hit.level)) break;  // fell back below its most recent breakout level
+          r.BrkDaysAgo = n - 1 - i; r.BrkLevel = hit.level; r.BrkVol = vm; r.BrkPattern = hit.pattern; r.BrkPole = hit.pole;
           out.push(r);
           break;
         }
@@ -1888,8 +1913,8 @@
     function _breakoutBadge(r) {
       const badge = document.createElement("span");
       badge.className = "breakout-badge";
-      badge.textContent = r.BrkDaysAgo === 0 ? "BREAKOUT TODAY" : `BREAKOUT ${r.BrkDaysAgo}D AGO`;
-      badge.title = `Closed above 60-day range high $${r.BrkLevel.toFixed(2)} on ${r.BrkVol.toFixed(1)}x average volume`;
+      badge.textContent = (r.BrkPattern === "flag" ? "FLAG" : "BASE") + " · " + (r.BrkDaysAgo === 0 ? "BREAKOUT TODAY" : `BREAKOUT ${r.BrkDaysAgo}D AGO`);
+      badge.title = r.BrkPattern === "flag" ? `Up ${r.BrkPole.toFixed(0)}% before an 8-day pause, closed above its high $${r.BrkLevel.toFixed(2)} on ${r.BrkVol.toFixed(1)}x average volume` : `Closed above 60-day range high $${r.BrkLevel.toFixed(2)} on ${r.BrkVol.toFixed(1)}x average volume`;
       return badge;
     }
     function decorateBreakoutBadges() {
