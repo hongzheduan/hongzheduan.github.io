@@ -138,6 +138,18 @@
   ],
   "ABBV": [
     {
+      "date": "2026-10-05",
+      "eps": 2.03,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": "2026-06-30",
+      "revenue": 16990000000,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1551152/000155115226000030/abbv-20261005.htm"
+    },
+    {
       "date": "2026-07-31",
       "eps": 2.03,
       "items": "2.02,9.01",
@@ -2812,6 +2824,18 @@
   ],
   "APO": [
     {
+      "date": "2026-10-05",
+      "eps": 2.15,
+      "items": "2.02,7.01",
+      "label": "Earnings Report",
+      "period_end": "2026-06-30",
+      "revenue": 11153000000,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1858681/000185868126000054/apo-20261005.htm"
+    },
+    {
       "date": "2026-08-04",
       "eps": 2.15,
       "items": "2.02,9.01",
@@ -2932,15 +2956,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1751008/000175100826000042/app-20260506.htm"
-    },
-    {
-      "date": "2026-04-07",
-      "items": "5.02,7.01,9.01",
-      "label": "Leadership Change",
-      "type": [
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1751008/000175100826000014/app-20260402.htm"
     },
     {
       "date": "2026-02-11",
@@ -3376,6 +3391,15 @@
     }
   ],
   "AVY": [
+    {
+      "date": "2026-10-05",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/8818/000000881826000154/avy-20260930.htm"
+    },
     {
       "date": "2026-07-30",
       "eps": 2.67,
@@ -4358,6 +4382,15 @@
   ],
   "BG": [
     {
+      "date": "2026-10-05",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1996862/000162828026064933/bg-20261005.htm"
+    },
+    {
       "date": "2026-09-03",
       "items": "5.02,9.01",
       "label": "Leadership Change",
@@ -4565,15 +4598,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1075531/000107553126000024/bkng-20260428.htm"
-    },
-    {
-      "date": "2026-04-06",
-      "items": "",
-      "label": "Stock Split (25-for-1)",
-      "type": [
-        "split"
-      ],
-      "url": ""
     },
     {
       "date": "2026-02-18",
@@ -6388,6 +6412,15 @@
   ],
   "CHRW": [
     {
+      "date": "2026-10-05",
+      "items": "1.01,7.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1043277/000119312526413203/d115124d8k.htm"
+    },
+    {
       "date": "2026-07-29",
       "eps": 1.56,
       "items": "2.02,9.01",
@@ -7377,15 +7410,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/927628/000092762826000039/cof-20260421.htm"
-    },
-    {
-      "date": "2026-04-07",
-      "items": "3.02,5.02",
-      "label": "Leadership Change",
-      "type": [
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/927628/000119312526145764/d85207d8k.htm"
     },
     {
       "date": "2026-01-22",
@@ -8577,15 +8601,6 @@
       "url": "https://www.sec.gov/Archives/edgar/data/858877/000085887726000057/csco-20260427.htm"
     },
     {
-      "date": "2026-04-06",
-      "items": "5.02",
-      "label": "Leadership Change",
-      "type": [
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/858877/000085887726000048/csco-20260331.htm"
-    },
-    {
       "date": "2026-02-11",
       "eps": 0.8,
       "items": "2.02,9.01",
@@ -8878,6 +8893,16 @@
   ],
   "CTVA": [
     {
+      "date": "2026-10-05",
+      "items": "1.01,2.01,9.01",
+      "label": "Acquisition / Disposition Completed + Material Agreement",
+      "type": [
+        "acquisition",
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1755672/000119312526414490/ck0001755672-20260929.htm"
+    },
+    {
       "date": "2026-08-20",
       "items": "1.01,3.03,9.01",
       "label": "Material Agreement",
@@ -9112,6 +9137,15 @@
   ],
   "CVX": [
     {
+      "date": "2026-10-05",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/93410/000009341026000188/cvx-20260930.htm"
+    },
+    {
       "date": "2026-07-31",
       "eps": 6.11,
       "items": "2.02,9.01",
@@ -9214,15 +9248,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/715957/000119312526199099/d-20260501.htm"
-    },
-    {
-      "date": "2026-04-08",
-      "items": "1.01,8.01,9.01",
-      "label": "Material Agreement",
-      "type": [
-        "agreement"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/715957/000119312526147495/d64207d8k.htm"
     },
     {
       "date": "2026-02-23",
@@ -10213,15 +10238,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/29905/000002990526000014/dov-20260423.htm"
-    },
-    {
-      "date": "2026-04-08",
-      "items": "1.01,1.02,2.03,9.01",
-      "label": "Material Agreement",
-      "type": [
-        "agreement"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/29905/000119312526147940/d111508d8k.htm"
     },
     {
       "date": "2026-01-29",
@@ -11996,6 +12012,15 @@
   ],
   "ETN": [
     {
+      "date": "2026-10-05",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1551182/000114036126038523/ef20083229_8k.htm"
+    },
+    {
       "date": "2026-07-31",
       "eps": 2.11,
       "items": "2.02,9.01",
@@ -12376,15 +12401,6 @@
         "leadership"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/895126/000089512626000021/exe-20260406.htm"
-    },
-    {
-      "date": "2026-04-06",
-      "items": "5.02,7.01,9.01",
-      "label": "Leadership Change",
-      "type": [
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/895126/000089512626000016/exe-20260406.htm"
     },
     {
       "date": "2026-02-17",
@@ -12990,15 +13006,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1013237/000162828026046338/fds-20260701.htm"
-    },
-    {
-      "date": "2026-04-08",
-      "items": "5.02,9.01",
-      "label": "Leadership Change",
-      "type": [
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1013237/000095010326005447/dp244995_8k.htm"
     },
     {
       "date": "2026-03-31",
@@ -13754,6 +13761,15 @@
     }
   ],
   "FLEX": [
+    {
+      "date": "2026-10-05",
+      "items": "1.01,2.03,3.02,8.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/866374/000119312526413173/d123485d8k.htm"
+    },
     {
       "date": "2026-10-02",
       "items": "1.01,2.03,9.01",
@@ -17015,15 +17031,6 @@
       "url": "https://www.sec.gov/Archives/edgar/data/4281/000110465926056645/tm2613779d1_8k.htm"
     },
     {
-      "date": "2026-04-06",
-      "items": "2.01",
-      "label": "Acquisition / Disposition Completed",
-      "type": [
-        "acquisition"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/4281/000110465926039791/tm2611168d1_8k.htm"
-    },
-    {
       "date": "2026-02-12",
       "eps": 0.92,
       "items": "2.02,9.01",
@@ -19597,6 +19604,15 @@
   ],
   "LDOS": [
     {
+      "date": "2026-10-05",
+      "items": "1.01,7.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1336920/000119312526413208/d157380d8k.htm"
+    },
+    {
       "date": "2026-10-01",
       "items": "5.02,9.01",
       "label": "Leadership Change",
@@ -21169,15 +21185,6 @@
       "url": "https://www.sec.gov/Archives/edgar/data/927653/000092765326000053/mck-20260428.htm"
     },
     {
-      "date": "2026-04-06",
-      "items": "1.01,2.03,9.01",
-      "label": "Material Agreement",
-      "type": [
-        "agreement"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/927653/000092765326000045/mck-20260401.htm"
-    },
-    {
       "date": "2026-02-04",
       "eps": 9.59,
       "items": "2.02,9.01",
@@ -21592,15 +21599,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/789570/000078957026000034/mgm-20260429.htm"
-    },
-    {
-      "date": "2026-04-07",
-      "items": "1.01,9.01",
-      "label": "Material Agreement",
-      "type": [
-        "agreement"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/789570/000078957026000029/mgm-20260403.htm"
     },
     {
       "date": "2026-02-05",
@@ -23806,15 +23804,6 @@
       "url": "https://www.sec.gov/Archives/edgar/data/1013871/000110465926050486/tm2612875d4_8k.htm"
     },
     {
-      "date": "2026-04-07",
-      "items": "5.02",
-      "label": "Leadership Change",
-      "type": [
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1013871/000110465926040368/tm2611308d1_8k.htm"
-    },
-    {
       "date": "2026-02-24",
       "eps": 0.29,
       "items": "2.02,9.01",
@@ -24714,15 +24703,6 @@
         "leadership"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526219708/d76569d8k.htm"
-    },
-    {
-      "date": "2026-04-06",
-      "items": "5.02,7.01,9.01",
-      "label": "Leadership Change",
-      "type": [
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526142939/d132760d8k.htm"
     },
     {
       "date": "2026-03-10",
@@ -26733,15 +26713,6 @@
       "url": "https://www.sec.gov/Archives/edgar/data/1393311/000162828026027484/psa-20260427.htm"
     },
     {
-      "date": "2026-04-06",
-      "items": "1.01,2.03,9.01",
-      "label": "Material Agreement",
-      "type": [
-        "agreement"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1393311/000119312526143776/d120881d8k.htm"
-    },
-    {
       "date": "2026-02-12",
       "eps": 2.59,
       "items": "2.02,9.01",
@@ -26846,6 +26817,15 @@
   ],
   "PSX": [
     {
+      "date": "2026-10-05",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1534701/000119312526413219/d76010d8k.htm"
+    },
+    {
       "date": "2026-08-21",
       "items": "1.01,2.03,9.01",
       "label": "Material Agreement",
@@ -26916,6 +26896,15 @@
     }
   ],
   "PTC": [
+    {
+      "date": "2026-10-05",
+      "items": "1.01,7.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/857005/000119312526413124/d174191d8k.htm"
+    },
     {
       "date": "2026-07-29",
       "eps": 1.03,
@@ -29406,15 +29395,6 @@
       "url": "https://www.sec.gov/Archives/edgar/data/1757898/000119312526212159/d27562d8k.htm"
     },
     {
-      "date": "2026-04-06",
-      "items": "5.02",
-      "label": "Leadership Change",
-      "type": [
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1757898/000119312526143973/d115941d8k.htm"
-    },
-    {
       "date": "2026-02-04",
       "eps": 1.96,
       "items": "2.02,9.01",
@@ -29833,6 +29813,16 @@
     }
   ],
   "SWKS": [
+    {
+      "date": "2026-10-05",
+      "items": "2.01,5.02,8.01,9.01",
+      "label": "Acquisition / Disposition Completed + Leadership Change",
+      "type": [
+        "acquisition",
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/4127/000110465926113538/tm2626934d1_8k.htm"
+    },
     {
       "date": "2026-08-10",
       "items": "1.01,2.03,8.01,9.01",
@@ -31091,15 +31081,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1116132/000114036126019428/ef20072115_8k.htm"
-    },
-    {
-      "date": "2026-04-06",
-      "items": "5.02,9.01",
-      "label": "Leadership Change",
-      "type": [
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1116132/000114036126013349/ef20069891_8k.htm"
     },
     {
       "date": "2026-02-05",
@@ -33563,6 +33544,15 @@
   ],
   "VST": [
     {
+      "date": "2026-10-05",
+      "items": "1.01,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1692819/000114036126038468/ef20083016_8k.htm"
+    },
+    {
       "date": "2026-09-24",
       "items": "1.01,8.01,9.01",
       "label": "Material Agreement",
@@ -33799,6 +33789,18 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1792044/000179204425000042/vtrs-20251106.htm"
+    }
+  ],
+  "VYLR": [
+    {
+      "date": "2026-10-05",
+      "items": "1.01,3.03,5.01,5.03,5.05,8.01,9.01",
+      "label": "Change in Control + Material Agreement",
+      "type": [
+        "agreement",
+        "control"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/2128626/000119312526414335/d92652d8k.htm"
     }
   ],
   "VZ": [
