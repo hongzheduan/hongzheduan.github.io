@@ -630,11 +630,12 @@
     }
 
     /* Cards hidden on desktop; table hidden on mobile */
-    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #positionsCards { display: none; }
-    .newmembers-blurb, .smarsi-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
-    .newmembers-empty, .smarsi-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
+    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #positionsCards { display: none; }
+    .newmembers-blurb, .smarsi-blurb, .breakout-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
+    .newmembers-empty, .smarsi-empty, .breakout-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
     .new-member-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
     .new-member-badge.confirmed { background: rgba(59,130,246,0.15); color: var(--electric-bright); border: 1px solid rgba(59,130,246,0.3); }
+    .breakout-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
     .new-member-badge.rumored { background: rgba(245,158,11,0.15); color: var(--gold-light); border: 1px solid rgba(245,158,11,0.3); }
 
     @media (max-width: 768px) {
@@ -659,8 +660,8 @@
       tr:hover td.ticker-cell { background: #081229; }
       .mobile-search-bar { display: block; }
       .mobile-rotate-hint { display: block; }
-      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable, #positionsTable { display: none !important; }
-      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #positionsCards { display: block !important; }
+      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable, #breakoutTable, #positionsTable { display: none !important; }
+      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #positionsCards { display: block !important; }
     }
     @media (max-width: 960px) and (orientation: landscape) {
       header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
@@ -914,6 +915,7 @@
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="etf">ETF</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="newmembers">新成分股</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="smarsi">SMA200超卖</button>
+            <button type="button" role="menuitem" class="idx-dd-item" data-idx="breakout">突破</button>
           </div>
         </div>
         <button class="tab-btn" data-tab="watchlist" onclick="show('watchlist', this)">★ 自选股</button>
@@ -952,6 +954,7 @@
     <button onclick="selectIndex('etf'); toggleMenu();">ETF</button>
     <button onclick="selectIndex('newmembers'); toggleMenu();">新成分股</button>
     <button onclick="selectIndex('smarsi'); toggleMenu();">SMA200超卖</button>
+    <button onclick="selectIndex('breakout'); toggleMenu();">突破</button>
     <button onclick="show('watchlist'); toggleMenu();">★ 自选股</button>
     <button onclick="show('positions'); toggleMenu();">我的持仓</button>
     <button onclick="show('readme'); toggleMenu();">说明</button>
@@ -1037,6 +1040,12 @@
       <table id="smarsiTable"></table>
       <div id="smarsiCards"></div>
       <p class="smarsi-empty" id="smarsiEmpty" style="display:none;"></p>
+    </div>
+    <div id="breakout" class="section">
+      <p class="breakout-blurb">最近5个交易日内收盘价突破60日交易区间上沿的股票和ETF。条件：60日区间从低点到高点不超过15%，突破当日成交量至少为21日均量的2倍，价格高于200日均线，且50日均线高于200日均线。仅列出目前收盘价仍在突破位之上的标的。在我们对这些指数2022至2026年数据的回测中，此类形态的平均表现与大盘基本持平，约四成在两周内回落至突破位以下。仅为技术筛选，用于发现值得一看的图表，不是买卖信号，不构成投资建议。</p>
+      <table id="breakoutTable"></table>
+      <div id="breakoutCards"></div>
+      <p class="breakout-empty" id="breakoutEmpty" style="display:none;"></p>
     </div>
 
     <div id="watchlist" class="section">
@@ -1171,12 +1180,17 @@
     const CHART_BTN = `<button class="chart-btn" title="查看K线图" aria-label="查看K线图"><svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><line x1="2.5" y1="1" x2="2.5" y2="10" stroke="currentColor" stroke-width="0.9"/><rect x="1" y="3.5" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.5"/><line x1="7" y1="0.5" x2="7" y2="10.5" stroke="currentColor" stroke-width="0.9"/><rect x="5.5" y="2" width="3" height="6" rx="0.4" fill="currentColor"/><line x1="11.5" y1="1" x2="11.5" y2="9.5" stroke="currentColor" stroke-width="0.9"/><rect x="10" y="3" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.7"/></svg></button>`;
 
     /* ── STATE ── */
-    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [], smaRsiRows = [];
+    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [], smaRsiRows = [], breakoutRows = [];
     let recentJoinMap = {};   // ticker -> {index, date}, official adds within NEW_MEMBER_WINDOW_DAYS
     const NEW_MEMBER_WINDOW_DAYS = 30;
     // SMA200 Oversold screen: within this % of the 200-day SMA (either side) AND RSI(14) below the cutoff.
     const SMARSI_MAX_DIST_PCT = 5;
     const SMARSI_RSI_BELOW = 35;
+    // Breakouts screen (see computeBreakoutRows; tested in backtests/pattern_breakout_backtest.py).
+    const BRK_BASE_DAYS = 60;      // length of the prior trading range
+    const BRK_MAX_RANGE_PCT = 15;  // range high/low spread cap
+    const BRK_VOL_MULT = 2;        // breakout-day volume vs 21-day average
+    const BRK_RECENT_DAYS = 5;     // how many sessions back a breakout still lists
     let activeTab     = "all";
     let sortKey       = "PriceChange1D";
     let sortAsc       = false;
@@ -1566,6 +1580,7 @@
       etf:         { rows: () => etfRows.length,       label: "ETF" },
       newmembers:  { rows: () => newMemberRows.length, label: "新成分股" },
       smarsi:      { rows: () => smaRsiRows.length,   label: "SMA200超卖" },
+      breakout:    { rows: () => breakoutRows.length, label: "突破" },
     };
     function updateStatus() {
       statusText.textContent = loadedDate;
@@ -1612,6 +1627,11 @@
       toggle.setAttribute("aria-expanded", "false");
       activeTab = idx;
       toolbar.style.display = "flex";
+      if (idx === "breakout" && currentWindow !== "1D") {
+        // Breakouts opens on 1D: today's move and VOL/MA21 are the context for a fresh breakout.
+        const dayBtn = Array.from(document.querySelectorAll(".window-btn")).find(b => (b.getAttribute("onclick") || "").indexOf("'1D'") !== -1);
+        if (dayBtn) setWindow("1D", dayBtn);
+      }
       if (idx === "smarsi" && currentWindow !== "FUND") {
         // The screen criteria (Dist SMA200 + RSI) are the TECH columns, so open on FUND to show the fundamentals of those tickers.
         const fundBtn = Array.from(document.querySelectorAll(".window-btn")).find(b => (b.getAttribute("onclick") || "").indexOf("'FUND'") !== -1);
@@ -1826,6 +1846,67 @@
         if (r.Dist200 != null && r.RsiVal != null && r.Dist200 <= SMARSI_MAX_DIST_PCT && r.RsiVal < SMARSI_RSI_BELOW) out.push(r);
       });
       return out;
+    }
+
+    /* ── BREAKOUTS screen: S&P 500 + Nasdaq-100 + ETF tickers that, within the last
+       BRK_RECENT_DAYS sessions, closed above the highest close of the prior BRK_BASE_DAYS
+       sessions, where that range's high/low spread was <= BRK_MAX_RANGE_PCT, on volume
+       >= BRK_VOL_MULT x the 21-day average (incl. that day, same as VOL/MA21), with
+       close > SMA200 and SMA50 > SMA200. Most recent qualifying day wins, and the ticker
+       must still close above that breakout level today. Backtest (2022-2026) showed no
+       edge vs the market, so the blurb frames it as a chart-finding screen only. ── */
+    function computeBreakoutRows() {
+      if (!candleData) return [];
+      const out = [];
+      allRows.forEach(r => {
+        r.BrkDaysAgo = r.BrkLevel = r.BrkVol = null;
+        if (!(r.InSP500 || r.InNASDAQ100 || r.InETF)) return;
+        const raw = candleData.data && candleData.data[r.Ticker];
+        const sma = candleData.sma && candleData.sma[r.Ticker];
+        if (!raw || !sma || !sma.sma50 || !sma.sma200) return;
+        const n = raw.length;
+        if (sma.sma50.length !== n || sma.sma200.length !== n) return;
+        for (let i = n - 1; i >= n - BRK_RECENT_DAYS && i >= BRK_BASE_DAYS + 20; i--) {
+          const c = raw[i][3], s50 = sma.sma50[i], s200 = sma.sma200[i];
+          if (c == null || s50 == null || s200 == null || !(c > s200 && s50 > s200)) continue;
+          let hi = -Infinity, lo = Infinity;
+          for (let j = i - BRK_BASE_DAYS; j < i; j++) { const cj = raw[j][3]; if (cj > hi) hi = cj; if (cj < lo) lo = cj; }
+          if (!(lo > 0) || (hi / lo - 1) * 100 > BRK_MAX_RANGE_PCT || !(c > hi)) continue;
+          let vs = 0;
+          for (let j = i - 20; j <= i; j++) vs += raw[j][4] || 0;
+          const volMult = vs > 0 ? raw[i][4] / (vs / 21) : 0;
+          if (volMult < BRK_VOL_MULT) continue;
+          if (!(raw[n - 1][3] > hi)) break;  // fell back below its most recent breakout level
+          r.BrkDaysAgo = n - 1 - i; r.BrkLevel = hi; r.BrkVol = volMult;
+          out.push(r);
+          break;
+        }
+      });
+      return out;
+    }
+
+    function _breakoutBadge(r) {
+      const badge = document.createElement("span");
+      badge.className = "breakout-badge";
+      badge.textContent = r.BrkDaysAgo === 0 ? "今日突破" : `${r.BrkDaysAgo}天前突破`;
+      badge.title = `以${r.BrkVol.toFixed(1)}倍均量收于60日区间上沿 $${r.BrkLevel.toFixed(2)} 之上`;
+      return badge;
+    }
+    function decorateBreakoutBadges() {
+      const byT = {};
+      breakoutRows.forEach(r => { byT[r.Ticker] = r; });
+      document.querySelectorAll('#breakoutTable .ticker-cell[data-ticker]').forEach(cell => {
+        const r = byT[cell.dataset.ticker];
+        if (!r || cell.querySelector(".breakout-badge")) return;
+        cell.insertBefore(_breakoutBadge(r), cell.querySelector(".chart-btn"));
+      });
+      document.querySelectorAll('#breakoutCards .stock-card[data-ticker]').forEach(card => {
+        const r = byT[card.dataset.ticker];
+        const header = card.querySelector(".card-header");
+        if (!r || !header || header.querySelector(".breakout-badge")) return;
+        const tickerEl = header.querySelector(".card-ticker");
+        header.insertBefore(_breakoutBadge(r), tickerEl ? tickerEl.nextSibling : header.firstChild);
+      });
     }
 
     /* ── 量排名：今日成交量在所选周期内所有交易日中的排名（1 = 该周期内成交量最高的一天）——
@@ -2321,6 +2402,8 @@
       const nm = newMemberRows.filter(filter);
       smaRsiRows = computeSmaRsiRows();
       const sr = smaRsiRows.filter(filter);
+      breakoutRows = computeBreakoutRows();
+      const br = breakoutRows.filter(filter);
       document.getElementById("allTable").innerHTML        = buildTable(combined, w);
       document.getElementById("allCards").innerHTML        = buildCards(combined, w);
       document.getElementById("etfTable").innerHTML        = buildTable(etf, w);
@@ -2343,7 +2426,13 @@
       const srEmpty = document.getElementById("smarsiEmpty");
       srEmpty.textContent = candleData ? "目前没有同时满足两个条件的标的。" : "技术面数据加载中…";
       srEmpty.style.display = sr.length === 0 ? "block" : "none";
+      document.getElementById("breakoutTable").innerHTML = buildTable(br, w);
+      document.getElementById("breakoutCards").innerHTML = buildCards(br, w);
+      const brEmpty = document.getElementById("breakoutEmpty");
+      brEmpty.textContent = candleData ? "目前没有符合全部条件的标的。" : "技术数据加载中…";
+      brEmpty.style.display = br.length === 0 ? "block" : "none";
       decorateNewMemberBadges();
+      decorateBreakoutBadges();
       decoratePositions();
       updateStatus();
     }
@@ -2543,7 +2632,7 @@
       .then(r => r.json())
       .then(d => {
         candleData = d;
-        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow] || activeTab === "smarsi") render();
+        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow] || activeTab === "smarsi" || activeTab === "breakout") render();
         if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
       })
       .catch(() => {});
