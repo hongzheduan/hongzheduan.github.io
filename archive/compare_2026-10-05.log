@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-10-05
 Threshold: >10% for all metrics
-136 flagged diffs above threshold
+137 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -152,7 +152,7 @@ PE  -- 51 flagged (>10%)
     MDLZ     ours=28.960  yf=21.504  diff=34.7% ***
     BG       ours=28.390  yf=21.378  diff=32.8% ***
     C        ours=18.390  yf=13.882  diff=32.5% ***
-    FER      ours=37.240  yf=28.484  diff=30.7% ***
+    FER      ours=37.310  yf=28.484  diff=31.0% ***
     LEN      ours=10.050  yf=14.511  diff=30.7% ***
   TOP 10 LARGEST DIFF:
     TPL      ours=351.700  yf=43.963  diff=700.0% ***
@@ -167,8 +167,8 @@ PE  -- 51 flagged (>10%)
     APH      ours=21.870  yf=43.635  diff=49.9% ***
 
 ------------------------------------------------------------
-EPS  -- 59 flagged (>10%)
-  FLAGGED (top 20 of 59):
+EPS  -- 60 flagged (>10%)
+  FLAGGED (top 20 of 60):
     PSKY     ours=-0.300  yf=-0.020  diff=1400.0% ***
     NFLX     ours=-9.240  yf=3.180  diff=390.6% ***
     CRWD     ours=0.220  yf=0.060  diff=266.7% ***
