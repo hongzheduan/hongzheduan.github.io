@@ -1,7 +1,25 @@
 {
   "trackedSince": "2026-01-20",
-  "lastChecked": "2026-10-06",
+  "lastChecked": "2026-10-07",
   "entries": [
+    {
+      "date": "2026-10-07",
+      "sp500": {
+        "added": [
+          "TWLO"
+        ],
+        "removed": [
+          "CTVA",
+          "WBD"
+        ]
+      },
+      "nasdaq100": {
+        "added": [],
+        "removed": [
+          "WBD"
+        ]
+      }
+    },
     {
       "date": "2026-10-05",
       "sp500": {
