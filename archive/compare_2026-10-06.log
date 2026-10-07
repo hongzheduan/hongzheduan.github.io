@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-10-06
 Threshold: >10% for all metrics
-101 flagged diffs above threshold
+100 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -118,8 +118,8 @@ MKTCAP  -- 11 flagged (>10%)
     UDR      ours=$11.02B  yf=$12.46B  diff=11.5% ***
 
 ------------------------------------------------------------
-PE  -- 42 flagged (>10%)
-  FLAGGED (top 20 of 42):
+PE  -- 41 flagged (>10%)
+  FLAGGED (top 20 of 41):
     TPL      ours=362.410  yf=45.301  diff=700.0% ***
     DD       ours=156.800  yf=35.828  diff=337.6% ***
     BKNG     ours=29.750  yf=17.476  diff=70.2% ***
@@ -130,14 +130,14 @@ PE  -- 42 flagged (>10%)
     APH      ours=22.210  yf=43.655  diff=49.1% ***
     OXY      ours=9.030  yf=16.571  diff=45.5% ***
     DLR      ours=48.980  yf=87.512  diff=44.0% ***
-    TXT      ours=8.570  yf=14.224  diff=39.8% ***
+    TXT      ours=8.570  yf=14.278  diff=40.0% ***
     BIIB     ours=23.970  yf=39.590  diff=39.5% ***
     JCI      ours=28.710  yf=44.346  diff=35.3% ***
     MDLZ     ours=29.510  yf=21.919  diff=34.6% ***
     BG       ours=28.390  yf=21.380  diff=32.8% ***
     C        ours=18.390  yf=13.879  diff=32.5% ***
     LEN      ours=10.450  yf=15.090  diff=30.7% ***
-    BDX      ours=54.310  yf=41.930  diff=29.5% ***
+    BDX      ours=54.310  yf=42.028  diff=29.2% ***
     JBL      ours=38.650  yf=30.857  diff=25.3% ***
     CCI      ours=34.660  yf=27.756  diff=24.9% ***
   TOP 10 LARGEST DIFF:
@@ -166,7 +166,7 @@ EPS  -- 47 flagged (>10%)
     OXY      ours=6.460  yf=3.520  diff=83.5% ***
     DLR      ours=3.770  yf=2.110  diff=78.7% ***
     DD       ours=0.850  yf=3.720  diff=77.2% ***
-    TXT      ours=8.810  yf=5.310  diff=65.9% ***
+    TXT      ours=8.810  yf=5.290  diff=66.5% ***
     BIIB     ours=9.300  yf=5.630  diff=65.2% ***
     JCI      ours=5.530  yf=3.580  diff=54.5% ***
     LEN      ours=7.410  yf=5.130  diff=44.4% ***
