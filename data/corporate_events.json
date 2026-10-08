@@ -14277,6 +14277,15 @@
   ],
   "GD": [
     {
+      "date": "2026-10-08",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/40533/000119312526417188/d122892d8k.htm"
+    },
+    {
       "date": "2026-08-07",
       "items": "5.02,9.01",
       "label": "Leadership Change",
@@ -16621,6 +16630,15 @@
     }
   ],
   "HSIC": [
+    {
+      "date": "2026-10-08",
+      "items": "5.02,7.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1000228/000119312526417409/d159348d8k.htm"
+    },
     {
       "date": "2026-09-22",
       "items": "1.01,2.03,9.01",
@@ -25376,6 +25394,18 @@
     }
   ],
   "PEP": [
+    {
+      "date": "2026-10-08",
+      "eps": 2.23,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": "2026-09-05",
+      "revenue": 25274000000,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/77476/000007747626000050/pep-20261008.htm"
+    },
     {
       "date": "2026-09-17",
       "items": "5.02",
