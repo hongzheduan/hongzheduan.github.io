@@ -620,14 +620,14 @@
     }
 
     /* Cards hidden on desktop; table hidden on mobile */
-    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #positionsCards { display: none; }
-    .newmembers-blurb, .smarsi-blurb, .breakout-blurb, .greenstreak-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
-    .newmembers-empty, .smarsi-empty, .breakout-empty, .greenstreak-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
+    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #longgreenCards, #positionsCards { display: none; }
+    .newmembers-blurb, .smarsi-blurb, .breakout-blurb, .greenstreak-blurb, .longgreen-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
+    .newmembers-empty, .smarsi-empty, .breakout-empty, .greenstreak-empty, .longgreen-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
     .new-member-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
     .new-member-badge.confirmed { background: rgba(59,130,246,0.15); color: var(--electric-bright); border: 1px solid rgba(59,130,246,0.3); }
-    .gs-controls { font-size: 12px; color: var(--muted); margin: 0 0 14px; }
-    .gs-controls select { background: var(--navy-light); color: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; font-family: 'DM Mono', monospace; font-size: 12px; margin-left: 6px; }
-    .greenstreak-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+    .gs-controls, .lg-controls { font-size: 12px; color: var(--muted); margin: 0 0 14px; }
+    .gs-controls select, .lg-controls select { background: var(--navy-light); color: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; font-family: 'DM Mono', monospace; font-size: 12px; margin-left: 6px; }
+    .greenstreak-badge, .longgreen-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
     .breakout-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
     .new-member-badge.rumored { background: rgba(245,158,11,0.15); color: var(--gold-light); border: 1px solid rgba(245,158,11,0.3); }
 
@@ -656,8 +656,8 @@
       tr:hover td.ticker-cell { background: #081229; }
       .mobile-search-bar { display: block; }
       .mobile-rotate-hint { display: block; }
-      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable, #breakoutTable, #greenstreakTable, #positionsTable { display: none !important; }
-      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #positionsCards { display: block !important; }
+      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable, #breakoutTable, #greenstreakTable, #longgreenTable, #positionsTable { display: none !important; }
+      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #longgreenCards, #positionsCards { display: block !important; }
     }
     @media (max-width: 960px) and (orientation: landscape) {
       header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
@@ -913,6 +913,7 @@
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="smarsi">SMA200 Oversold</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="breakout">Breakouts</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="greenstreak">Green Streak</button>
+            <button type="button" role="menuitem" class="idx-dd-item" data-idx="longgreen">Long Green Bar</button>
           </div>
         </div>
         <button class="tab-btn" data-tab="watchlist" onclick="show('watchlist', this)">★ Watchlist</button>
@@ -953,6 +954,7 @@
     <button onclick="selectIndex('smarsi'); toggleMenu();">SMA200 Oversold</button>
     <button onclick="selectIndex('breakout'); toggleMenu();">Breakouts</button>
     <button onclick="selectIndex('greenstreak'); toggleMenu();">Green Streak</button>
+    <button onclick="selectIndex('longgreen'); toggleMenu();">Long Green Bar</button>
     <button onclick="show('watchlist'); toggleMenu();">★ Watchlist</button>
     <button onclick="show('positions'); toggleMenu();">My Positions</button>
     <button onclick="show('readme'); toggleMenu();">README</button>
@@ -1051,6 +1053,13 @@
       <table id="greenstreakTable"></table>
       <div id="greenstreakCards"></div>
       <p class="greenstreak-empty" id="greenstreakEmpty" style="display:none;"></p>
+    </div>
+    <div id="longgreen" class="section">
+      <p class="longgreen-blurb">Stocks and ETFs whose latest daily candle is a long green bar: the close sits at least the chosen percentage above the open, and the body (open to close) fills at least 60% of the day's high to low range, so the session closed near its high. During market hours the latest bar is still forming. The badge shows the body size; hover it for how it compares with the ticker's 20-day average body and volume. A technical screen only, not investment advice.</p>
+      <div class="lg-controls"><label>Minimum body:<select id="lgMinSel" onchange="setLongGreenMin(this.value)"><option value="2">2%</option><option value="3" selected>3%</option><option value="4">4%</option><option value="5">5%</option><option value="7">7%</option><option value="10">10%</option></select></label></div>
+      <table id="longgreenTable"></table>
+      <div id="longgreenCards"></div>
+      <p class="longgreen-empty" id="longgreenEmpty" style="display:none;"></p>
     </div>
 
     <div id="watchlist" class="section">
@@ -1186,7 +1195,7 @@
     const CHART_BTN = `<button class="chart-btn" title="View Chart" aria-label="View chart"><svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><line x1="2.5" y1="1" x2="2.5" y2="10" stroke="currentColor" stroke-width="0.9"/><rect x="1" y="3.5" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.5"/><line x1="7" y1="0.5" x2="7" y2="10.5" stroke="currentColor" stroke-width="0.9"/><rect x="5.5" y="2" width="3" height="6" rx="0.4" fill="currentColor"/><line x1="11.5" y1="1" x2="11.5" y2="9.5" stroke="currentColor" stroke-width="0.9"/><rect x="10" y="3" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.7"/></svg></button>`;
 
     /* ── STATE ── */
-    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [], smaRsiRows = [], breakoutRows = [], greenStreakRows = [];
+    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [], smaRsiRows = [], breakoutRows = [], greenStreakRows = [], longGreenRows = [];
     let recentJoinMap = {};   // ticker -> {index, date}, official adds within NEW_MEMBER_WINDOW_DAYS
     const NEW_MEMBER_WINDOW_DAYS = 30;
     // SMA200 Oversold screen: within this % of the 200-day SMA (either side) AND RSI(14) below the cutoff.
@@ -1201,6 +1210,8 @@
     const FLAG_MAX_RANGE_PCT = 10; // flag: pause high/low spread cap
     const FLAG_POLE_PCT = 25;      // flag: run-up into the pause (vs 21-bar low)
     const FLAG_VOL_MULT = 1.5;     // flag: breakout-day volume vs 21-day average
+    let lgMinBody = 3;             // Long Green Bar: min (close - open) / open %, latest bar (dropdown in the section)
+    const LG_MIN_FILL = 60;        // Long Green Bar: body must fill >= this % of the day's high-low range
     let gsMinDays = 3;             // Green Streak: min consecutive close > open sessions (dropdown in the section)
     let activeTab     = "all";
     let sortKey       = "PriceChange1D";
@@ -1598,6 +1609,7 @@
       smarsi:      { rows: () => smaRsiRows.length,   label: "SMA200 Oversold" },
       breakout:    { rows: () => breakoutRows.length, label: "Breakouts" },
       greenstreak: { rows: () => greenStreakRows.length, label: "Green Streak" },
+      longgreen:   { rows: () => longGreenRows.length, label: "Long Green Bar" },
     };
     function updateStatus() {
       statusText.textContent = loadedDate;
@@ -1644,7 +1656,7 @@
       toggle.setAttribute("aria-expanded", "false");
       activeTab = idx;
       toolbar.style.display = "flex";
-      if ((idx === "breakout" || idx === "greenstreak") && currentWindow !== "1D") {
+      if ((idx === "breakout" || idx === "greenstreak" || idx === "longgreen") && currentWindow !== "1D") {
         // Breakouts opens on 1D: today's move and VOL/MA21 are the context for a fresh breakout.
         const dayBtn = Array.from(document.querySelectorAll(".window-btn")).find(b => (b.getAttribute("onclick") || "").indexOf("'1D'") !== -1);
         if (dayBtn) setWindow("1D", dayBtn);
@@ -1973,6 +1985,56 @@
         const r = byT[card.dataset.ticker];
         const header = card.querySelector(".card-header");
         if (!r || !header || header.querySelector(".greenstreak-badge")) return;
+        const tickerEl = header.querySelector(".card-ticker");
+        header.insertBefore(mk(r), tickerEl ? tickerEl.nextSibling : header.firstChild);
+      });
+    }
+
+    /* ── LONG GREEN BAR screen: S&P 500 + Nasdaq-100 + ETF tickers whose latest daily candle
+       closed >= lgMinBody % above its open with the body filling >= LG_MIN_FILL % of the
+       high-low range. LgRel / LgVol compare against the prior 20 sessions. ── */
+    function computeLongGreenRows() {
+      if (!candleData) return [];
+      const out = [];
+      allRows.forEach(r => {
+        r.LgBody = r.LgFill = r.LgRel = r.LgVol = null;
+        if (!(r.InSP500 || r.InNASDAQ100 || r.InETF)) return;
+        const raw = candleData.data && candleData.data[r.Ticker];
+        if (!raw || raw.length < 2) return;
+        const [o, h, l, c, v] = raw[raw.length - 1];
+        if (!(o > 0 && c > o && h > l)) return;
+        const body = (c / o - 1) * 100, fill = (c - o) / (h - l) * 100;
+        if (body < lgMinBody || fill < LG_MIN_FILL) return;
+        const prev = raw.slice(-21, -1);
+        const avgB = prev.reduce((s, b) => s + Math.abs(b[3] / b[0] - 1) * 100, 0) / (prev.length || 1);
+        const avgV = prev.reduce((s, b) => s + b[4], 0) / (prev.length || 1);
+        r.LgBody = body; r.LgFill = fill;
+        r.LgRel = avgB > 0 ? body / avgB : 0;
+        r.LgVol = avgV > 0 ? v / avgV : 0;
+        out.push(r);
+      });
+      return out;
+    }
+    window.setLongGreenMin = function(v) { lgMinBody = parseFloat(v) || 3; render(); };
+    function decorateLongGreenBadges() {
+      const byT = {};
+      longGreenRows.forEach(r => { byT[r.Ticker] = r; });
+      const mk = r => {
+        const b = document.createElement("span");
+        b.className = "longgreen-badge";
+        b.textContent = `+${r.LgBody.toFixed(1)}% BODY`;
+        b.title = `Closed ${r.LgBody.toFixed(2)}% above its open, body ${r.LgFill.toFixed(0)}% of the day's range, ${r.LgRel.toFixed(1)}x its 20-day average body, volume ${r.LgVol.toFixed(1)}x its 20-day average`;
+        return b;
+      };
+      document.querySelectorAll('#longgreenTable .ticker-cell[data-ticker]').forEach(cell => {
+        const r = byT[cell.dataset.ticker];
+        if (!r || cell.querySelector(".longgreen-badge")) return;
+        cell.insertBefore(mk(r), cell.querySelector(".chart-btn"));
+      });
+      document.querySelectorAll('#longgreenCards .stock-card[data-ticker]').forEach(card => {
+        const r = byT[card.dataset.ticker];
+        const header = card.querySelector(".card-header");
+        if (!r || !header || header.querySelector(".longgreen-badge")) return;
         const tickerEl = header.querySelector(".card-ticker");
         header.insertBefore(mk(r), tickerEl ? tickerEl.nextSibling : header.firstChild);
       });
@@ -2507,6 +2569,8 @@
       const br = breakoutRows.filter(filter);
       greenStreakRows = computeGreenStreakRows();
       const gs = greenStreakRows.filter(filter);
+      longGreenRows = computeLongGreenRows();
+      const lg = longGreenRows.filter(filter);
       document.getElementById("allTable").innerHTML        = buildTable(combined, w);
       document.getElementById("allCards").innerHTML        = buildCards(combined, w);
       document.getElementById("etfTable").innerHTML        = buildTable(etf, w);
@@ -2539,9 +2603,15 @@
       const gsEmpty = document.getElementById("greenstreakEmpty");
       gsEmpty.textContent = candleData ? "No tickers currently meet this streak length." : "Loading technical data…";
       gsEmpty.style.display = gs.length === 0 ? "block" : "none";
+      document.getElementById("longgreenTable").innerHTML = buildTable(lg, w);
+      document.getElementById("longgreenCards").innerHTML = buildCards(lg, w);
+      const lgEmpty = document.getElementById("longgreenEmpty");
+      lgEmpty.textContent = candleData ? "No tickers currently meet this body size." : "Loading technical data…";
+      lgEmpty.style.display = lg.length === 0 ? "block" : "none";
       decorateNewMemberBadges();
       decorateBreakoutBadges();
       decorateGreenStreakBadges();
+      decorateLongGreenBadges();
       decoratePositions();
       updateStatus();
     }
@@ -2741,7 +2811,7 @@
       .then(r => r.json())
       .then(d => {
         candleData = d;
-        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow] || activeTab === "smarsi" || activeTab === "breakout" || activeTab === "greenstreak") render();
+        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow] || activeTab === "smarsi" || activeTab === "breakout" || activeTab === "greenstreak" || activeTab === "longgreen") render();
         if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
       })
       .catch(() => {});
