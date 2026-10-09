@@ -636,6 +636,10 @@
     .new-member-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
     .new-member-badge.confirmed { background: rgba(59,130,246,0.15); color: var(--electric-bright); border: 1px solid rgba(59,130,246,0.3); }
     .gs-controls, .lg-controls { font-size: 12px; color: var(--muted); margin: 0 0 14px; }
+    .lg-ctl-label { margin-right: 8px; }
+    .lg-pill { background: var(--navy-light); color: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; margin: 0 4px 4px 0; font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; }
+    .lg-pill:hover { color: var(--white); border-color: var(--electric); }
+    .lg-pill.active { background: rgba(59,130,246,0.2); color: var(--white); border-color: var(--electric-bright); }
     .gs-controls select, .lg-controls select { background: var(--navy-light); color: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; font-family: 'DM Mono', monospace; font-size: 12px; margin-left: 6px; }
     .greenstreak-badge, .longgreen-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
     .breakout-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
@@ -1064,7 +1068,7 @@
     </div>
     <div id="longgreen" class="section">
       <p class="longgreen-blurb">最近一个交易日收出长阳线的股票和ETF：收盘价比开盘价高出至少所选百分比，且实体（开盘到收盘）占当日最高到最低振幅的60%以上，即收盘接近当日高点。交易时段内最新K线仍在形成中。标记显示实体涨幅，悬停可查看与该股20日平均实体及成交量的对比。仅为技术筛选，不构成投资建议。</p>
-      <div class="lg-controls"><label>最小实体：<select id="lgMinSel" onchange="setLongGreenMin(this.value)"><option value="2">2%</option><option value="3" selected>3%</option><option value="4">4%</option><option value="5">5%</option><option value="7">7%</option><option value="10">10%</option></select></label></div>
+      <div class="lg-controls"><span class="lg-ctl-label">最小实体：</span><button type="button" class="lg-pill" data-v="2" onclick="setLongGreenMin(this.dataset.v)">2%</button><button type="button" class="lg-pill active" data-v="3" onclick="setLongGreenMin(this.dataset.v)">3%</button><button type="button" class="lg-pill" data-v="4" onclick="setLongGreenMin(this.dataset.v)">4%</button><button type="button" class="lg-pill" data-v="5" onclick="setLongGreenMin(this.dataset.v)">5%</button><button type="button" class="lg-pill" data-v="7" onclick="setLongGreenMin(this.dataset.v)">7%</button><button type="button" class="lg-pill" data-v="10" onclick="setLongGreenMin(this.dataset.v)">10%</button></div>
       <table id="longgreenTable"></table>
       <div id="longgreenCards"></div>
       <p class="longgreen-empty" id="longgreenEmpty" style="display:none;"></p>
@@ -2016,7 +2020,11 @@
       });
       return out;
     }
-    window.setLongGreenMin = function(v) { lgMinBody = parseFloat(v) || 3; render(); };
+    window.setLongGreenMin = function(v) {
+      lgMinBody = parseFloat(v) || 3;
+      document.querySelectorAll(".lg-pill").forEach(b => b.classList.toggle("active", parseFloat(b.dataset.v) === lgMinBody));
+      render();
+    };
     function decorateLongGreenBadges() {
       const byT = {};
       longGreenRows.forEach(r => { byT[r.Ticker] = r; });
