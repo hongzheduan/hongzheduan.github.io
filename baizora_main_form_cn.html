@@ -3787,6 +3787,12 @@
         const rv = extras.rsiData.values[idx];
         body = rv != null ? `RSI ${rv.toFixed(1)}` : "";
       }
+      // RSI on: append that bar's RSI wherever the cursor is, so it reads alongside
+      // the price/volume/MACD values without moving down to the RSI panel.
+      if (body && layout.hasRsi && my < layout.rsiTop) {
+        const rv = extras.rsiData.values[idx];
+        if (rv != null) body += ` <span style="margin-left:8px;color:${rv > 70 ? "#dc2626" : (rv < 30 ? "#16a34a" : "#7c3aed")};">RSI ${rv.toFixed(1)}</span>`;
+      }
       if (!body) { _hideChartHover(); return; }
       const cx = CHART_PAD.left + idx * slotW + slotW / 2;
       const crossV = document.getElementById("chartCrosshairV");
