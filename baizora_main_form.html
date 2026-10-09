@@ -1060,7 +1060,7 @@
       <p class="greenstreak-empty" id="greenstreakEmpty" style="display:none;"></p>
     </div>
     <div id="longgreen" class="section">
-      <p class="longgreen-blurb">Stocks and ETFs whose latest daily candle is a long green bar: the close sits at least the chosen percentage above the open, and the body (open to close) fills at least 60% of the day's high to low range, so the session closed near its high. During market hours the latest bar is still forming. The badge shows the body size; hover it for how it compares with the ticker's 20-day average body and volume. A technical screen only, not investment advice.</p>
+      <p class="longgreen-blurb">Stocks and ETFs that printed a long green bar in any of the last 5 sessions: the close sat at least the chosen percentage above the open, and the body (open to close) filled at least 60% of that day's high to low range, so the session closed near its high. If more than one bar qualifies, the biggest one is shown. During market hours today's bar is still forming. The badge shows the body size and how many sessions ago it printed; hover it for how it compared with the ticker's 20-day average body and volume. A technical screen only, not investment advice.</p>
       <div class="lg-controls"><span class="lg-ctl-label">Minimum body:</span><button type="button" class="lg-pill" data-v="2" onclick="setLongGreenMin(this.dataset.v)">2%</button><button type="button" class="lg-pill" data-v="3" onclick="setLongGreenMin(this.dataset.v)">3%</button><button type="button" class="lg-pill" data-v="4" onclick="setLongGreenMin(this.dataset.v)">4%</button><button type="button" class="lg-pill active" data-v="5" onclick="setLongGreenMin(this.dataset.v)">5%</button><button type="button" class="lg-pill" data-v="7" onclick="setLongGreenMin(this.dataset.v)">7%</button><button type="button" class="lg-pill" data-v="10" onclick="setLongGreenMin(this.dataset.v)">10%</button></div>
       <table id="longgreenTable"></table>
       <div id="longgreenCards"></div>
@@ -1216,6 +1216,7 @@
     const FLAG_POLE_PCT = 25;      // flag: run-up into the pause (vs 21-bar low)
     const FLAG_VOL_MULT = 1.5;     // flag: breakout-day volume vs 21-day average
     let lgMinBody = 5;             // Long Green Bar: min (close - open) / open %, latest bar (dropdown in the section)
+    const LG_RECENT_DAYS = 5;      // Long Green Bar: look back this many sessions (incl. latest)
     const LG_MIN_FILL = 60;        // Long Green Bar: body must fill >= this % of the day's high-low range
     let gsMinDays = 3;             // Green Streak: min consecutive close > open sessions (dropdown in the section)
     let activeTab     = "all";
@@ -1995,27 +1996,34 @@
       });
     }
 
-    /* ── LONG GREEN BAR screen: S&P 500 + Nasdaq-100 + ETF tickers whose latest daily candle
-       closed >= lgMinBody % above its open with the body filling >= LG_MIN_FILL % of the
-       high-low range. LgRel / LgVol compare against the prior 20 sessions. ── */
+    /* ── LONG GREEN BAR screen: S&P 500 + Nasdaq-100 + ETF tickers with a daily candle in the
+       last LG_RECENT_DAYS sessions that closed >= lgMinBody % above its open with the body
+       filling >= LG_MIN_FILL % of the high-low range. If several qualify, the biggest body
+       wins. LgRel / LgVol compare that bar against the 20 sessions before it. ── */
     function computeLongGreenRows() {
       if (!candleData) return [];
       const out = [];
       allRows.forEach(r => {
-        r.LgBody = r.LgFill = r.LgRel = r.LgVol = null;
+        r.LgBody = r.LgFill = r.LgRel = r.LgVol = r.LgDaysAgo = null;
         if (!(r.InSP500 || r.InNASDAQ100 || r.InETF)) return;
         const raw = candleData.data && candleData.data[r.Ticker];
         if (!raw || raw.length < 2) return;
-        const [o, h, l, c, v] = raw[raw.length - 1];
-        if (!(o > 0 && c > o && h > l)) return;
-        const body = (c / o - 1) * 100, fill = (c - o) / (h - l) * 100;
-        if (body < lgMinBody || fill < LG_MIN_FILL) return;
-        const prev = raw.slice(-21, -1);
+        const n = raw.length;
+        let best = -1, bestBody = 0, bestFill = 0;
+        for (let i = n - 1; i >= 1 && i >= n - LG_RECENT_DAYS; i--) {
+          const [o, h, l, c] = raw[i];
+          if (!(o > 0 && c > o && h > l)) continue;
+          const body = (c / o - 1) * 100, fill = (c - o) / (h - l) * 100;
+          if (body < lgMinBody || fill < LG_MIN_FILL || body <= bestBody) continue;
+          best = i; bestBody = body; bestFill = fill;
+        }
+        if (best < 0) return;
+        const prev = raw.slice(Math.max(0, best - 20), best);
         const avgB = prev.reduce((s, b) => s + Math.abs(b[3] / b[0] - 1) * 100, 0) / (prev.length || 1);
         const avgV = prev.reduce((s, b) => s + b[4], 0) / (prev.length || 1);
-        r.LgBody = body; r.LgFill = fill;
-        r.LgRel = avgB > 0 ? body / avgB : 0;
-        r.LgVol = avgV > 0 ? v / avgV : 0;
+        r.LgBody = bestBody; r.LgFill = bestFill; r.LgDaysAgo = n - 1 - best;
+        r.LgRel = avgB > 0 ? bestBody / avgB : 0;
+        r.LgVol = avgV > 0 ? raw[best][4] / avgV : 0;
         out.push(r);
       });
       return out;
@@ -2031,8 +2039,8 @@
       const mk = r => {
         const b = document.createElement("span");
         b.className = "longgreen-badge";
-        b.textContent = `+${r.LgBody.toFixed(1)}% BODY`;
-        b.title = `Closed ${r.LgBody.toFixed(2)}% above its open, body ${r.LgFill.toFixed(0)}% of the day's range, ${r.LgRel.toFixed(1)}x its 20-day average body, volume ${r.LgVol.toFixed(1)}x its 20-day average`;
+        b.textContent = `+${r.LgBody.toFixed(1)}% ${r.LgDaysAgo === 0 ? "TODAY" : r.LgDaysAgo + "D AGO"}`;
+        b.title = `${r.LgDaysAgo === 0 ? "Today" : r.LgDaysAgo + (r.LgDaysAgo === 1 ? " session ago" : " sessions ago")}: closed ${r.LgBody.toFixed(2)}% above its open, body ${r.LgFill.toFixed(0)}% of the day's range, ${r.LgRel.toFixed(1)}x its 20-day average body, volume ${r.LgVol.toFixed(1)}x its 20-day average`;
         return b;
       };
       document.querySelectorAll('#longgreenTable .ticker-cell[data-ticker]').forEach(cell => {
