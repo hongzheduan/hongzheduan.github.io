@@ -832,6 +832,7 @@
     .chart-crosshair-h { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed rgba(148,163,184,0.55); pointer-events: none; display: none; }
     .chart-tooltip { position: absolute; top: 4px; left: 62px; pointer-events: none; display: none; color: #1e293b; font-family: 'DM Mono',monospace; font-size: 11px; line-height: 1.5; padding: 4px 9px; white-space: nowrap; z-index: 5; }
     .chart-price-label { position: absolute; left: 2px; transform: translateY(-50%); pointer-events: none; display: none; background: #1e293b; color: #e2e8f0; font-family: 'DM Mono',monospace; font-size: 10px; padding: 2px 5px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.18); white-space: nowrap; z-index: 6; }
+    .chart-rsi-label { position: absolute; pointer-events: none; display: none; font-family: 'DM Mono',monospace; font-size: 10px; font-weight: 500; white-space: nowrap; z-index: 5; }
     #candleNoData {
       width: 100%; height: 330px; display: none;
       align-items: center; justify-content: center;
@@ -3609,6 +3610,7 @@
       document.getElementById("chartCrosshairH").style.display = "none";
       document.getElementById("chartTooltip").style.display = "none";
       document.getElementById("chartPriceLabel").style.display = "none";
+      document.getElementById("chartRsiLabel").style.display = "none";
     }
     // 每个周期按钮携带 data-period 键；实际取的K线数量取决于当前选中的频率
     // （周线覆盖同样的日历跨度所需的K线数约为日线的1/5）。日线数据最多回溯约1年
@@ -3787,12 +3789,6 @@
         const rv = extras.rsiData.values[idx];
         body = rv != null ? `RSI ${rv.toFixed(1)}` : "";
       }
-      // RSI on: append that bar's RSI wherever the cursor is, so it reads alongside
-      // the price/volume/MACD values without moving down to the RSI panel.
-      if (body && layout.hasRsi && my < layout.rsiTop) {
-        const rv = extras.rsiData.values[idx];
-        if (rv != null) body += ` <span style="margin-left:8px;color:${rv > 70 ? "#dc2626" : (rv < 30 ? "#16a34a" : "#7c3aed")};">RSI ${rv.toFixed(1)}</span>`;
-      }
       if (!body) { _hideChartHover(); return; }
       const cx = CHART_PAD.left + idx * slotW + slotW / 2;
       const crossV = document.getElementById("chartCrosshairV");
@@ -3803,6 +3799,19 @@
       crossV.style.display = "block";
       crossH.style.top = my + "px";
       crossH.style.display = "block";
+      // RSI on: the hovered bar's RSI, pinned to the top-left of the RSI panel
+      // wherever the cursor is, so it can be read while looking at the candles.
+      const rsiLabel = document.getElementById("chartRsiLabel");
+      const rsiV = layout.hasRsi ? extras.rsiData.values[idx] : null;
+      if (rsiV != null) {
+        rsiLabel.textContent = "RSI " + rsiV.toFixed(1);
+        rsiLabel.style.color = rsiV > 70 ? "#dc2626" : (rsiV < 30 ? "#16a34a" : "#7c3aed");
+        rsiLabel.style.left = (CHART_PAD.left + 6) + "px";
+        rsiLabel.style.top = (layout.rsiTop + 2) + "px";
+        rsiLabel.style.display = "block";
+      } else {
+        rsiLabel.style.display = "none";
+      }
       const dt = new Date(_lastChartDates[idx] + "T12:00:00");
       const dateLbl = dt.toLocaleDateString("zh-CN", { year: "numeric", month: "short", day: "numeric" });
       // 固定显示在图表顶部而非跟随鼠标——跟随鼠标的提示框会挡住正想查看的K线/柱状条。
@@ -4413,6 +4422,7 @@
         <div class="chart-crosshair-h" id="chartCrosshairH"></div>
         <div class="chart-tooltip" id="chartTooltip"></div>
         <div class="chart-price-label" id="chartPriceLabel"></div>
+        <div class="chart-rsi-label" id="chartRsiLabel"></div>
       </div>
       <div id="candleNoData">暂无图表数据</div>
       <div id="modalStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:6px;margin-top:12px;"></div>
