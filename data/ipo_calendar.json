@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-08 17:03 ET",
+ "updated": "2026-10-09 16:34 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
  "ipos": [
@@ -16,6 +16,20 @@
    "date": "2026-10-09",
    "price_range": "14.00-16.00",
    "shares": 8333334.0
+  },
+  {
+   "deal_id": "1273626-119431",
+   "ticker": "IAM",
+   "company": "Iambic Therapeutics, Inc.",
+   "sector": "Healthcare",
+   "industry": "Biological Products",
+   "sic": "2836",
+   "cik": "0001997038",
+   "deal_usd": 183281250.0,
+   "exchange": "Nasdaq",
+   "date": "2026-10-15",
+   "price_range": "15.00-17.00",
+   "shares": 9375000.0
   }
  ],
  "filed": [
@@ -73,17 +87,6 @@
    "cik": "0002143850",
    "deal_usd": 100000000.0,
    "filed_date": "2026-09-24"
-  },
-  {
-   "deal_id": "1273626-119431",
-   "ticker": "IAM",
-   "company": "Iambic Therapeutics, Inc.",
-   "sector": "Healthcare",
-   "industry": "Biological Products",
-   "sic": "2836",
-   "cik": "0001997038",
-   "deal_usd": 100000000.0,
-   "filed_date": "2026-09-21"
   },
   {
    "deal_id": "1402874-119401",
