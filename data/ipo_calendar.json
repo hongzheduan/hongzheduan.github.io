@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-11 15:57 ET",
+ "updated": "2026-10-12 18:45 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
  "ipos": [
@@ -16,9 +16,56 @@
    "date": "2026-10-15",
    "price_range": "15.00-17.00",
    "shares": 9375000.0
+  },
+  {
+   "deal_id": "1403574-119467",
+   "ticker": "CTY",
+   "company": "CITY THERAPEUTICS, INC.",
+   "sector": "Healthcare",
+   "industry": "Pharmaceutical Preparations",
+   "sic": "2834",
+   "cik": "0002143850",
+   "deal_usd": 212430545.0,
+   "exchange": "Nasdaq",
+   "date": "2026-10-16",
+   "price_range": "17.00-19.00",
+   "shares": 9722222.0
   }
  ],
  "filed": [
+  {
+   "deal_id": "1320589-119617",
+   "ticker": "BBTX",
+   "company": "Bambusa Therapeutics, Inc.",
+   "sector": "Healthcare",
+   "industry": "Biological Products",
+   "sic": "2836",
+   "cik": "0002044950",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-10-09"
+  },
+  {
+   "deal_id": "1405733-119610",
+   "ticker": "ASPE",
+   "company": "Aspen Neuroscience, Inc.",
+   "sector": "Healthcare",
+   "industry": "Pharmaceutical Preparations",
+   "sic": "2834",
+   "cik": "0002124080",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-10-09"
+  },
+  {
+   "deal_id": "1235548-119602",
+   "ticker": "VVVV",
+   "company": "vVARDIS Holding AG",
+   "sector": "Healthcare",
+   "industry": "Surgical & Medical Instruments & Apparatus",
+   "sic": "3841",
+   "cik": "0001907709",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-10-09"
+  },
   {
    "deal_id": "1405308-119590",
    "ticker": "CNTL",
@@ -62,17 +109,6 @@
    "cik": "0002128185",
    "deal_usd": 100000000.0,
    "filed_date": "2026-09-25"
-  },
-  {
-   "deal_id": "1403574-119467",
-   "ticker": "CTY",
-   "company": "CITY THERAPEUTICS, INC.",
-   "sector": "Healthcare",
-   "industry": "Pharmaceutical Preparations",
-   "sic": "2834",
-   "cik": "0002143850",
-   "deal_usd": 100000000.0,
-   "filed_date": "2026-09-24"
   },
   {
    "deal_id": "1402874-119401",
