@@ -2367,6 +2367,17 @@ def generate_narration(scene_scripts, total_sec, output_wav, ffmpeg_path,
             clip = _make_clip(text, tmp, i) if text else None
             clips.append((pref_start, clip))
 
+        # Abort rather than ship a (partly) mute video. 2026-10-12: Microsoft's
+        # speech endpoint 403'd every edge-tts call, pyttsx3 isn't installed on the
+        # Linux runner, every scene was skipped, and two music-only Shorts got
+        # uploaded. Raising here means no mp4 is written, so the upload step's
+        # `[ -f video/${type}.mp4 ]` check skips YouTube for this type.
+        failed = [i for i, ((_, text), (_, clip)) in enumerate(zip(scene_scripts, clips))
+                  if text and clip is None]
+        if failed:
+            raise RuntimeError(f"TTS failed for scene(s) {failed}; refusing to "
+                               f"build a video with missing narration")
+
         # Phase 2 — place clips sequentially; never overlap
         earliest_next = 0.0
         for i, (pref_start, clip) in enumerate(clips):

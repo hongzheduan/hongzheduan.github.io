@@ -76,6 +76,17 @@ on:
 permissions:
   contents: write
 
+# One scanner run at a time — a later run queues until the current one finishes,
+# then checks out fresh main, so SKIP_IF_COMPLETE and the video dedup guard see
+# what the earlier run committed. 2026-10-12: a ~5.5h-delayed 4:30 PM cron fired
+# 4 min after a manual dispatch, both ran in parallel and both uploaded a Short.
+# Note GitHub keeps at most ONE pending run per group: if a third run arrives while
+# one is running and one is pending, the older pending run is cancelled (fine here,
+# the retry crons are interchangeable).
+concurrency:
+  group: baizora-scanner
+  cancel-in-progress: false
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   # Cost-cutting switch (no paying customers yet, 2026-08): "yfinance" sources daily
@@ -629,7 +640,13 @@ jobs:
               BASE_TYPE="$type"
               LANG="en"
             fi
-            python video/generate_shorts.py --type "$BASE_TYPE" --lang "$LANG" --output "video/${type}.mp4" --share-dir data/social_cards "${DATE_ARGS[@]}"
+            # A failed build (e.g. TTS down — generate_narration raises instead of
+            # producing a mute video) must not abort the loop or leave a stray mp4:
+            # no file → the upload step skips this type and the skip-log records it.
+            if ! python video/generate_shorts.py --type "$BASE_TYPE" --lang "$LANG" --output "video/${type}.mp4" --share-dir data/social_cards "${DATE_ARGS[@]}"; then
+              echo "::warning::Video build failed for ${type} (see log above, e.g. TTS outage). Not uploading."
+              rm -f "video/${type}.mp4"
+            fi
           done
           # Copy generated videos to fixed paths and write name metadata
           EN_NAME="" CN_NAME="" EN_TYPE="" CN_TYPE=""
