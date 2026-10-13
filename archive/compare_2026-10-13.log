@@ -1,0 +1,199 @@
+Tiingo vs yfinance comparison — 2026-10-13
+Threshold: >10% for all metrics
+135 flagged diffs above threshold
+
+============================================================
+KNOWN EXPECTED DIFFERENCES (not bugs)
+============================================================
+
+EPS / PE — hardcoded adjustments (our side intentional):
+  BRK-B   EDGAR EPS ÷ 1500  (Class A→B conversion)
+  BKNG    EDGAR EPS ÷ 25    (25-for-1 split Apr 2026; auto-disables after Q2 2026 10-Q)
+  CVNA    EDGAR EPS ÷ 5     (5-for-1 split May 2026; auto-disables after Q2 2026 10-Q)
+  KLAC    EDGAR EPS ÷ 10    (10-for-1 split Jun 2026; auto-disables after Q2 2026 10-Q)
+  DD      EDGAR EPS × 3     (1-for-3 reverse split Jun 2026; pre-split EPS ~-0.07; auto-disables when EDGAR EPS abs > 0.20 after Q2 2026 10-Q)
+  HON     EDGAR EPS × 2     (1-for-2 reverse split Jun 29 2026; pre-split EPS ~$3.21; auto-disables when EDGAR EPS abs > 4.0 after Q2/Q3 2026 10-Q)
+
+EPS / PE — inline XBRL fallback (company_facts has no data; we parse filing HTML):
+  V ERIE KKR STZ HSY BRK-B   US 10-Q/10-K  USD   TTM = quarters since last 10-K
+                                                  + Q4 derived (annual − 9M YTD).
+                                                  Fixed 2026-06-30 (commit 973b985):
+                                                  naive 4-quarter sum used to run
+                                                  before the Q4-derivation path and
+                                                  silently skipped the real Q4 (never
+                                                  filed as its own 10-Q), substituting
+                                                  a stale year-ago quarter instead.
+                                                  KKR 1.56→2.93, BRK-B 26.83→33.59,
+                                                  V 11.18→11.47, ERIE 12.37→10.93,
+                                                  STZ 11.82→9.61, HSY 4.90→5.37 — all
+                                                  now match yfinance.
+  ARM ASML CCEP FER PDD      20-F          —      annual only (no 10-Q filed; not
+                                                  affected by the bug above). ASML/
+                                                  CCEP/FER convert EUR→USD via daily
+                                                  ECB rate; PDD uses
+                                                  EarningsPerShareBasicAndDiluted.
+  NBIS                       6-K           USD    annual only (foreign private issuer,
+                                                  furnishes 6-K instead of 10-Q).
+  Diffs vs YF expected: foreign EPS is annual-only (no TTM); FX rate differs by fetch time.
+
+EPS / PE — null (still unavailable):
+  ARES TRI    Filed Form 25-NSE May 2026 — being removed from exchange listing.
+              Will drop out of S&P 500 / Nasdaq-100 universe on next rebalance.
+  FDXF        FedEx Freight spinoff (2026-06); only 8-K/Form 4 filed so far, no
+              10-Q/10-K yet — EPS unavailable until first quarterly filing.
+
+EPS / PE — TTM window vs YF annual anchor:
+  Large diffs (e.g. CI 23.61 vs YF 113.71) often mean YF is anchored to an older
+  annual 10-K that included a one-time gain/charge now outside our rolling TTM.
+  Our TTM = sum of 4 most recent quarters from EDGAR 10-Q/10-K filings.
+  YF trailingEps sources from data vendors and may reflect a different period.
+
+MKTCAP — shares outstanding overrides (SHARES_OUTSTANDING_OVERRIDE, our side intentional):
+  IBKR   1,697,000,000  (Class A 445M + IBG LLC membership units; EDGAR under-reports)
+  BX     1,222,000,000  (Class A 742M + Blackstone Holdings LP units)
+  DVN    1,153,000,000  (Coterra merger May 2026 doubled shares; EDGAR XBRL lags until Q2 2026 10-Q ~Aug 2026)
+  CVNA   shares × 5    (5-for-1 split May 2026; EDGAR pre-split ~219M Class A; heals after Q2 2026 10-Q ~Aug 2026)
+  KLAC   shares × 10   (10-for-1 split Jun 2026; EDGAR pre-split ~130.6M; heals after Q2 2026 10-Q ~Aug 2026)
+  DD     shares ÷ 3    (1-for-3 reverse split Jun 2026; EDGAR pre-split ~410M; heals after Q2 2026 10-Q ~Aug 2026)
+
+VOLUME — systematic offset:
+  Tiingo EOD volume includes extended-hours (pre/after market).
+  YF typically reports regular-session only. Expect ours ~1.5-2x YF across the board.
+============================================================
+
+------------------------------------------------------------
+PRICE  -- 0 flagged (>10%)
+  TOP 10 LARGEST DIFF:
+    COO      ours=55.55  yf=55.55  diff=0.0%
+    SBUX     ours=92.29  yf=92.28  diff=0.0%
+    ADI      ours=406.25  yf=406.25  diff=0.0%
+    A        ours=171.33  yf=171.33  diff=0.0%
+    AAPL     ours=340.97  yf=340.97  diff=0.0%
+    ABBV     ours=281.12  yf=281.12  diff=0.0%
+    ABNB     ours=163.50  yf=163.50  diff=0.0%
+    ABT      ours=101.82  yf=101.82  diff=0.0%
+    ACGL     ours=97.16  yf=97.16  diff=0.0%
+    ACN      ours=214.87  yf=214.87  diff=0.0%
+
+------------------------------------------------------------
+VOLUME  -- 10 flagged (>10%)
+  FLAGGED (top 10 of 10):
+    FOX      ours=0.84  yf=0.64  diff=31.6% ***
+    FER      ours=1.98  yf=1.52  diff=30.3% ***
+    GD       ours=2.09  yf=1.65  diff=26.9% ***
+    CMI      ours=1.23  yf=0.98  diff=25.9% ***
+    MRK      ours=8.02  yf=6.62  diff=21.1% ***
+    SLV      ours=8.30  yf=6.87  diff=20.9% ***
+    VYLR     ours=3.58  yf=3.07  diff=16.5% ***
+    VMC      ours=0.68  yf=0.61  diff=11.7% ***
+    GILD     ours=5.79  yf=5.23  diff=10.7% ***
+    ICE      ours=3.01  yf=2.73  diff=10.3% ***
+  TOP 10 LARGEST DIFF:
+    FOX      ours=0.84  yf=0.64  diff=31.6% ***
+    FER      ours=1.98  yf=1.52  diff=30.3% ***
+    GD       ours=2.09  yf=1.65  diff=26.9% ***
+    CMI      ours=1.23  yf=0.98  diff=25.9% ***
+    MRK      ours=8.02  yf=6.62  diff=21.1% ***
+    SLV      ours=8.30  yf=6.87  diff=20.9% ***
+    VYLR     ours=3.58  yf=3.07  diff=16.5% ***
+    VMC      ours=0.68  yf=0.61  diff=11.7% ***
+    GILD     ours=5.79  yf=5.23  diff=10.7% ***
+    ICE      ours=3.01  yf=2.73  diff=10.3% ***
+
+------------------------------------------------------------
+MKTCAP  -- 13 flagged (>10%)
+  FLAGGED (top 13 of 13):
+    SKYD     ours=$9.82B  yf=$46.19B  diff=78.7% ***
+    VMRK     ours=$22.97B  yf=$47.39B  diff=51.5% ***
+    MNST     ours=$42.86B  yf=$85.73B  diff=50.0% ***
+    APH      ours=$106.27B  yf=$212.54B  diff=50.0% ***
+    SWKS     ours=$11.24B  yf=$17.57B  diff=36.0% ***
+    MLM      ours=$28.66B  yf=$33.89B  diff=15.4% ***
+    SPG      ours=$65.17B  yf=$76.46B  diff=14.8% ***
+    CPT      ours=$9.81B  yf=$11.30B  diff=13.2% ***
+    BXP      ours=$9.51B  yf=$10.77B  diff=11.7% ***
+    ERIE     ours=$10.40B  yf=$11.77B  diff=11.6% ***
+    UDR      ours=$11.05B  yf=$12.50B  diff=11.6% ***
+    PCG      ours=$35.27B  yf=$39.51B  diff=10.7% ***
+    WDAY     ours=$50.20B  yf=$45.37B  diff=10.7% ***
+  TOP 10 LARGEST DIFF:
+    SKYD     ours=$9.82B  yf=$46.19B  diff=78.7% ***
+    VMRK     ours=$22.97B  yf=$47.39B  diff=51.5% ***
+    MNST     ours=$42.86B  yf=$85.73B  diff=50.0% ***
+    APH      ours=$106.27B  yf=$212.54B  diff=50.0% ***
+    SWKS     ours=$11.24B  yf=$17.57B  diff=36.0% ***
+    MLM      ours=$28.66B  yf=$33.89B  diff=15.4% ***
+    SPG      ours=$65.17B  yf=$76.46B  diff=14.8% ***
+    CPT      ours=$9.81B  yf=$11.30B  diff=13.2% ***
+    BXP      ours=$9.51B  yf=$10.77B  diff=11.7% ***
+    ERIE     ours=$10.40B  yf=$11.77B  diff=11.6% ***
+
+------------------------------------------------------------
+PE  -- 51 flagged (>10%)
+  FLAGGED (top 20 of 51):
+    TPL      ours=372.780  yf=47.138  diff=690.8% ***
+    DD       ours=152.200  yf=34.591  diff=340.0% ***
+    NBIS     ours=636.550  yf=164.109  diff=287.9% ***
+    CRWD     ours=1195.500  yf=5260.200  diff=77.3% ***
+    BKNG     ours=29.900  yf=17.564  diff=70.2% ***
+    MLM      ours=11.720  yf=30.946  diff=62.1% ***
+    ALNY     ours=58.510  yf=38.283  diff=52.8% ***
+    MNST     ours=20.260  yf=40.519  diff=50.0% ***
+    APH      ours=21.600  yf=43.095  diff=49.9% ***
+    OXY      ours=9.460  yf=17.366  diff=45.5% ***
+    DLR      ours=47.790  yf=87.456  diff=45.4% ***
+    BIIB     ours=24.670  yf=41.410  diff=40.4% ***
+    TXT      ours=8.600  yf=14.271  diff=39.7% ***
+    JCI      ours=28.100  yf=43.901  diff=36.0% ***
+    MDLZ     ours=30.590  yf=22.717  diff=34.7% ***
+    BG       ours=27.570  yf=20.761  diff=32.8% ***
+    C        ours=18.870  yf=14.246  diff=32.5% ***
+    FER      ours=36.310  yf=27.659  diff=31.3% ***
+    BDX      ours=56.890  yf=43.928  diff=29.5% ***
+    LEN      ours=10.070  yf=13.773  diff=26.9% ***
+  TOP 10 LARGEST DIFF:
+    TPL      ours=372.780  yf=47.138  diff=690.8% ***
+    DD       ours=152.200  yf=34.591  diff=340.0% ***
+    NBIS     ours=636.550  yf=164.109  diff=287.9% ***
+    CRWD     ours=1195.500  yf=5260.200  diff=77.3% ***
+    BKNG     ours=29.900  yf=17.564  diff=70.2% ***
+    MLM      ours=11.720  yf=30.946  diff=62.1% ***
+    ALNY     ours=58.510  yf=38.283  diff=52.8% ***
+    MNST     ours=20.260  yf=40.519  diff=50.0% ***
+    APH      ours=21.600  yf=43.095  diff=49.9% ***
+    OXY      ours=9.460  yf=17.366  diff=45.5% ***
+
+------------------------------------------------------------
+EPS  -- 61 flagged (>10%)
+  FLAGGED (top 20 of 61):
+    SKYD     ours=-0.300  yf=-0.020  diff=1400.0% ***
+    NFLX     ours=-9.240  yf=3.180  diff=390.6% ***
+    CRWD     ours=0.220  yf=0.050  diff=340.0% ***
+    GPN      ours=-2.970  yf=2.130  diff=239.4% ***
+    NOW      ours=-1.620  yf=1.610  diff=200.6% ***
+    OMC      ours=-0.370  yf=0.380  diff=197.4% ***
+    MLM      ours=40.700  yf=15.420  diff=163.9% ***
+    DOW      ours=-4.000  yf=-1.860  diff=115.1% ***
+    BE       ours=-0.040  yf=0.810  diff=104.9% ***
+    MNST     ours=2.160  yf=1.080  diff=100.0% ***
+    APH      ours=3.990  yf=2.000  diff=99.5% ***
+    TPL      ours=0.980  yf=7.750  diff=87.4% ***
+    OXY      ours=6.460  yf=3.520  diff=83.5% ***
+    DLR      ours=3.770  yf=2.060  diff=83.0% ***
+    DD       ours=0.850  yf=3.740  diff=77.3% ***
+    NBIS     ours=0.330  yf=1.280  diff=74.2% ***
+    BIIB     ours=9.300  yf=5.540  diff=67.9% ***
+    TXT      ours=8.810  yf=5.310  diff=65.9% ***
+    JCI      ours=5.530  yf=3.540  diff=56.2% ***
+    BKNG     ours=5.299  yf=9.020  diff=41.3% ***
+  TOP 10 LARGEST DIFF:
+    SKYD     ours=-0.300  yf=-0.020  diff=1400.0% ***
+    NFLX     ours=-9.240  yf=3.180  diff=390.6% ***
+    CRWD     ours=0.220  yf=0.050  diff=340.0% ***
+    GPN      ours=-2.970  yf=2.130  diff=239.4% ***
+    NOW      ours=-1.620  yf=1.610  diff=200.6% ***
+    OMC      ours=-0.370  yf=0.380  diff=197.4% ***
+    MLM      ours=40.700  yf=15.420  diff=163.9% ***
+    DOW      ours=-4.000  yf=-1.860  diff=115.1% ***
+    BE       ours=-0.040  yf=0.810  diff=104.9% ***
+    MNST     ours=2.160  yf=1.080  diff=100.0% ***
