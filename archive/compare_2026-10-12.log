@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-10-12
 Threshold: >10% for all metrics
-132 flagged diffs above threshold
+131 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -101,8 +101,8 @@ VOLUME  -- 10 flagged (>10%)
     ICE      ours=3.01  yf=2.73  diff=10.3% ***
 
 ------------------------------------------------------------
-MKTCAP  -- 13 flagged (>10%)
-  FLAGGED (top 13 of 13):
+MKTCAP  -- 12 flagged (>10%)
+  FLAGGED (top 12 of 12):
     SKYD     ours=$9.82B  yf=$46.19B  diff=78.7% ***
     VMRK     ours=$22.97B  yf=$47.39B  diff=51.5% ***
     MNST     ours=$42.86B  yf=$85.73B  diff=50.0% ***
@@ -110,10 +110,9 @@ MKTCAP  -- 13 flagged (>10%)
     SWKS     ours=$11.24B  yf=$17.57B  diff=36.0% ***
     MLM      ours=$28.66B  yf=$33.89B  diff=15.4% ***
     SPG      ours=$65.17B  yf=$76.46B  diff=14.8% ***
-    CPT      ours=$9.81B  yf=$11.30B  diff=13.2% ***
+    UDR      ours=$11.05B  yf=$12.60B  diff=12.3% ***
     BXP      ours=$9.51B  yf=$10.77B  diff=11.7% ***
     ERIE     ours=$10.40B  yf=$11.77B  diff=11.6% ***
-    UDR      ours=$11.05B  yf=$12.50B  diff=11.6% ***
     PCG      ours=$35.27B  yf=$39.51B  diff=10.7% ***
     WDAY     ours=$50.20B  yf=$45.37B  diff=10.7% ***
   TOP 10 LARGEST DIFF:
@@ -124,7 +123,7 @@ MKTCAP  -- 13 flagged (>10%)
     SWKS     ours=$11.24B  yf=$17.57B  diff=36.0% ***
     MLM      ours=$28.66B  yf=$33.89B  diff=15.4% ***
     SPG      ours=$65.17B  yf=$76.46B  diff=14.8% ***
-    CPT      ours=$9.81B  yf=$11.30B  diff=13.2% ***
+    UDR      ours=$11.05B  yf=$12.60B  diff=12.3% ***
     BXP      ours=$9.51B  yf=$10.77B  diff=11.7% ***
     ERIE     ours=$10.40B  yf=$11.77B  diff=11.6% ***
 
