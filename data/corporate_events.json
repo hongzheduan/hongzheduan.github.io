@@ -3821,6 +3821,18 @@
   ],
   "BAC": [
     {
+      "date": "2026-10-14",
+      "eps": null,
+      "items": "2.02,7.01,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/70858/000007085826000481/bac-20261014.htm"
+    },
+    {
       "date": "2026-07-14",
       "eps": 1.21,
       "items": "2.02,7.01,9.01",
@@ -4771,6 +4783,18 @@
     }
   ],
   "BLK": [
+    {
+      "date": "2026-10-14",
+      "eps": null,
+      "items": "2.02,7.01,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/2012383/000119312526420979/blk-20261014.htm"
+    },
     {
       "date": "2026-07-15",
       "eps": 12.19,
@@ -12860,6 +12884,18 @@
   ],
   "FAST": [
     {
+      "date": "2026-10-14",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/815556/000081555626000046/fast-20261014.htm"
+    },
+    {
       "date": "2026-07-14",
       "eps": 0.33,
       "items": "2.02,9.01",
@@ -13794,6 +13830,16 @@
     }
   ],
   "FLEX": [
+    {
+      "date": "2026-10-14",
+      "items": "1.01,2.01,2.03,8.01,9.01",
+      "label": "Acquisition / Disposition Completed + Material Agreement",
+      "type": [
+        "acquisition",
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/866374/000119312526421058/d147467d8k.htm"
+    },
     {
       "date": "2026-10-05",
       "items": "1.01,2.03,3.02,8.01,9.01",
@@ -22605,6 +22651,18 @@
   ],
   "MS": [
     {
+      "date": "2026-10-14",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/895421/000089542126000288/ms-20261014.htm"
+    },
+    {
       "date": "2026-07-15",
       "eps": 3.46,
       "items": "2.02,9.01",
@@ -25679,6 +25737,18 @@
     }
   ],
   "PGR": [
+    {
+      "date": "2026-10-14",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/80661/000008066126000367/pgr-20261014.htm"
+    },
     {
       "date": "2026-07-15",
       "eps": 5.67,
@@ -29686,6 +29756,19 @@
     }
   ],
   "STT": [
+    {
+      "date": "2026-10-14",
+      "eps": null,
+      "items": "2.02,5.02,7.01,9.01",
+      "label": "Earnings Report + Leadership Change",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings",
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000592/stt-20261009.htm"
+    },
     {
       "date": "2026-09-14",
       "items": "5.02,9.01",
