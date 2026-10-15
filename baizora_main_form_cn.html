@@ -1292,7 +1292,7 @@
     // into the current free-form list shape ({smaList:[...]}) so pre-existing localStorage/
     // Firestore prefs from before the dynamic add/delete rework don't get silently discarded.
     function _migrateSmaPrefs(p) {
-      const dflt = { smaList: [20, 50, 200], bbActive: false, bbPeriod: 20, bbMult: 2, macdActive: false, macdFast: 12, macdSlow: 26, macdSignal: 9, vpActive: false, rsiActive: false, rsiPeriod: 14 };
+      const dflt = { smaList: [20, 50, 200], bbActive: false, bbPeriod: 20, bbMult: 2, macdActive: false, macdFast: 12, macdSlow: 26, macdSignal: 9, vpActive: false, rsiActive: false, rsiPeriod: 14, sarActive: false, sarStep: 0.02, sarMax: 0.2 };
       if (!p) return dflt;
       let smaList;
       if (Array.isArray(p.smaList)) {
@@ -1315,7 +1315,9 @@
         bbPeriod: p.bbPeriod || 20, bbMult: p.bbMult || 2,
         macdFast: p.macdFast || 12, macdSlow: p.macdSlow || 26, macdSignal: p.macdSignal || 9,
         rsiActive: "rsiActive" in p ? !!p.rsiActive : false,
-        rsiPeriod: p.rsiPeriod || 14
+        rsiPeriod: p.rsiPeriod || 14,
+        sarActive: "sarActive" in p ? !!p.sarActive : false,
+        sarStep: p.sarStep || 0.02, sarMax: p.sarMax || 0.2
       };
     }
     let smaPrefs = _migrateSmaPrefs(JSON.parse(localStorage.getItem("baizora_sma_prefs") || "null"));
@@ -3173,6 +3175,19 @@
         ctx.fillRect(x, bTop, cndW, bH); ctx.strokeRect(x, bTop, cndW, bH);
       });
       (smaLines || []).forEach(line => {
+        // Dot series (Parabolic SAR): one small dot per bar instead of a connected line.
+        if (line.dots) {
+          ctx.fillStyle = line.color;
+          const r = Math.max(1.2, Math.min(2.5, cndW * 0.3));
+          candles.forEach((c, i) => {
+            const v = line.values ? line.values[i] : null;
+            if (v == null) return;
+            ctx.beginPath();
+            ctx.arc(toX(i) + cndW / 2, toY(v), r, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          return;
+        }
         ctx.strokeStyle = line.color;
         ctx.lineWidth = 1.5;
         ctx.beginPath();
@@ -3438,6 +3453,14 @@
       document.getElementById("smaDrawerToggle").classList.remove("open");
       document.getElementById("bbToggles").classList.remove("open");
       document.getElementById("bbDrawerToggle").classList.remove("open");
+      _sarStep = smaPrefs.sarStep || 0.02;
+      _sarMax = smaPrefs.sarMax || 0.2;
+      document.getElementById("sarChip").textContent = "抛物线SAR (" + _sarStep + "," + _sarMax + ")";
+      document.getElementById("sarChip").classList.toggle("active", !!smaPrefs.sarActive);
+      document.getElementById("sarStepInput").value = _sarStep;
+      document.getElementById("sarMaxInput").value = _sarMax;
+      document.getElementById("sarToggles").classList.remove("open");
+      document.getElementById("sarDrawerToggle").classList.remove("open");
       _macdFast = smaPrefs.macdFast || 12;
       _macdSlow = smaPrefs.macdSlow || 26;
       _macdSignal = smaPrefs.macdSignal || 9;
@@ -3468,7 +3491,7 @@
       });
     }
 
-    const _SMA_COLORS = { bb: "#db2777" };
+    const _SMA_COLORS = { bb: "#db2777", sar: "#475569" };
     // Rotating fixed palette for the free-form SMA list — index = position in
     // _smaList, so cap SMA_MAX at the palette length rather than cycling past it.
     const SMA_PALETTE = ["#d97706", "#2563eb", "#7c3aed", "#0d9488", "#e11d48"];
@@ -3477,6 +3500,7 @@
     let _bbPeriod = 20, _bbMult = 2;
     let _macdFast = 12, _macdSlow = 26, _macdSignal = 9;
     let _rsiPeriod = 14;
+    let _sarStep = 0.02, _sarMax = 0.2;
     let _baizKey = null;
     const BAIZ_LABELS = { BaizScore: "贝佐拉", BaizMomentum: "动能+", BaizPersist: "持续度", BaizConviction: "信心指数" };
     const BAIZ_COLORS = { BaizScore: "#f59e0b", BaizMomentum: "#c084fc", BaizPersist: "#f472b6", BaizConviction: "#2dd4bf" };
@@ -3504,6 +3528,8 @@
         vpActive: document.getElementById("vpChip").classList.contains("active"),
         rsiActive: document.getElementById("rsiChip").classList.contains("active"),
         rsiPeriod: _rsiPeriod,
+        sarActive: document.getElementById("sarChip").classList.contains("active"),
+        sarStep: _sarStep, sarMax: _sarMax,
         baizKey: _baizKey
       };
       saveSmaPrefs();
@@ -3534,6 +3560,38 @@
       _renderSmaChips();
       _saveSmaPrefsNow();
       _rerenderChart();
+    }
+    // Wilder's Parabolic SAR. Seeds the trend from the first two real bars, then
+    // trails the stop toward the extreme point by an acceleration factor that grows
+    // by `step` on each new extreme (capped at `maxAf`), flipping when price crosses it.
+    // Null bars are skipped so the series stays continuous across gaps.
+    function _computeSar(candles, step, maxAf) {
+      const out = new Array(candles.length).fill(null);
+      const idx = [];
+      candles.forEach((c, i) => { if (c && c[1] != null && c[2] != null) idx.push(i); });
+      if (idx.length < 2) return out;
+      const a = candles[idx[0]], b = candles[idx[1]];
+      let up = b[3] >= a[3];
+      let sar = up ? Math.min(a[2], b[2]) : Math.max(a[1], b[1]);
+      let ep = up ? Math.max(a[1], b[1]) : Math.min(a[2], b[2]);
+      let af = step;
+      out[idx[1]] = sar;
+      for (let k = 2; k < idx.length; k++) {
+        const c = candles[idx[k]], p1 = candles[idx[k - 1]], p2 = candles[idx[k - 2]];
+        let next = sar + af * (ep - sar);
+        if (up) {
+          next = Math.min(next, p1[2], p2[2]);
+          if (c[2] < next) { up = false; next = ep; ep = c[2]; af = step; }
+          else if (c[1] > ep) { ep = c[1]; af = Math.min(af + step, maxAf); }
+        } else {
+          next = Math.max(next, p1[1], p2[1]);
+          if (c[1] > next) { up = true; next = ep; ep = c[1]; af = step; }
+          else if (c[2] < ep) { ep = c[2]; af = Math.min(af + step, maxAf); }
+        }
+        sar = next;
+        out[idx[k]] = sar;
+      }
+      return out;
     }
     function _computeBollinger(candles, period, mult) {
       const closes = candles.map(c => c ? c[3] : null);
@@ -3727,6 +3785,10 @@
           }
           if (key === "macd") { macdActive = true; return; }
           if (key === "rsi") { rsiActive = true; return; }
+          if (key === "sar") {
+            smaLines.push({ color: _SMA_COLORS.sar, values: alignToDates(_computeSar(candles, _sarStep, _sarMax)), dots: true });
+            return;
+          }
         });
 
         let macdData = null;
@@ -3899,6 +3961,7 @@
     }
     _setupDrawer("smaDrawerToggle", "smaToggles");
     _setupDrawer("bbDrawerToggle", "bbToggles");
+    _setupDrawer("sarDrawerToggle", "sarToggles");
     _setupDrawer("macdDrawerToggle", "macdToggles");
     _setupDrawer("rsiDrawerToggle", "rsiToggles");
     _setupDrawer("vpDrawerToggle", "vpToggles");
@@ -3906,6 +3969,29 @@
     _setupDrawer("tfDrawerToggle", "candleTimeframes");
     _setupDrawer("resDrawerToggle", "resToggles");
 
+    document.getElementById("sarToggles").addEventListener("click", e => {
+      const btn = e.target.closest(".sma-btn");
+      if (!btn || !_modalTicker) return;
+      btn.classList.toggle("active");
+      _saveSmaPrefsNow();
+      _renderModalChart(_modalTicker, _currentTf());
+    });
+    document.getElementById("sarApply").addEventListener("click", () => {
+      const st = parseFloat(document.getElementById("sarStepInput").value);
+      const mx = parseFloat(document.getElementById("sarMaxInput").value);
+      if (!st || st < 0.001 || st > 0.5 || !mx || mx < st || mx > 1 || !_modalTicker) return;
+      _sarStep = st; _sarMax = mx;
+      const chip = document.getElementById("sarChip");
+      chip.textContent = "抛物线SAR (" + st + "," + mx + ")";
+      chip.classList.add("active");
+      _saveSmaPrefsNow();
+      _renderModalChart(_modalTicker, _currentTf());
+    });
+    ["sarStepInput", "sarMaxInput"].forEach(id => {
+      document.getElementById(id).addEventListener("keydown", e => {
+        if (e.key === "Enter") { e.preventDefault(); document.getElementById("sarApply").click(); }
+      });
+    });
     document.getElementById("bbToggles").addEventListener("click", e => {
       const btn = e.target.closest(".sma-btn");
       if (!btn || !_modalTicker) return;
@@ -4397,6 +4483,15 @@
           <input type="number" id="bbPeriodInput" min="2" max="250" value="20" title="布林带周期 (默认20)">
           <input type="number" id="bbMultInput" min="0.5" max="5" step="0.1" value="2" title="标准差倍数 (默认2)">
           <button type="button" class="sma-add-btn" id="bbApply">设置</button>
+        </div>
+      </div>
+      <div class="overlay-drawer-wrap">
+        <button type="button" class="overlay-drawer-toggle" id="sarDrawerToggle">抛物线SAR &#9662;</button>
+        <div class="overlay-drawer-panel" id="sarToggles">
+          <button class="sma-btn" id="sarChip" data-sma="sar" title="抛物线转向指标 (Wilder)。点在价格下方表示上升趋势，在上方表示下降趋势。">抛物线SAR (0.02,0.2)</button>
+          <input type="number" id="sarStepInput" min="0.001" max="0.5" step="0.01" value="0.02" title="加速因子步长 (默认0.02)">
+          <input type="number" id="sarMaxInput" min="0.01" max="1" step="0.01" value="0.2" title="加速因子上限 (默认0.2)">
+          <button type="button" class="sma-add-btn" id="sarApply">设置</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">
