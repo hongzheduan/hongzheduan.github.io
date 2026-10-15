@@ -3207,11 +3207,12 @@
       (smaLines || []).forEach(line => {
         // Dot series (Parabolic SAR): one small dot per bar instead of a connected line.
         if (line.dots) {
-          ctx.fillStyle = line.color;
           const r = Math.max(1.2, Math.min(2.5, cndW * 0.3));
           candles.forEach((c, i) => {
             const v = line.values ? line.values[i] : null;
             if (v == null) return;
+            // green below the close (uptrend), red above (downtrend)
+            ctx.fillStyle = (c && c[3] != null) ? (v < c[3] ? "#16a34a" : "#dc2626") : line.color;
             ctx.beginPath();
             ctx.arc(toX(i) + cndW / 2, toY(v), r, 0, Math.PI * 2);
             ctx.fill();
