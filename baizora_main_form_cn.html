@@ -1292,7 +1292,7 @@
     // into the current free-form list shape ({smaList:[...]}) so pre-existing localStorage/
     // Firestore prefs from before the dynamic add/delete rework don't get silently discarded.
     function _migrateSmaPrefs(p) {
-      const dflt = { smaList: [20, 50, 200], bbActive: false, bbPeriod: 20, bbMult: 2, macdActive: false, macdFast: 12, macdSlow: 26, macdSignal: 9, vpActive: false, rsiActive: false, rsiPeriod: 14, sarActive: false, sarStep: 0.02, sarMax: 0.2 };
+      const dflt = { smaList: [20, 50, 200], bbActive: false, bbPeriod: 20, bbMult: 2, macdActive: false, macdFast: 12, macdSlow: 26, macdSignal: 9, vpActive: false, rsiActive: false, rsiPeriod: 14, sarActive: false, sarStep: 0.02, sarMax: 0.2, gapActive: false, gapMinPct: 1 };
       if (!p) return dflt;
       let smaList;
       if (Array.isArray(p.smaList)) {
@@ -1317,7 +1317,9 @@
         rsiActive: "rsiActive" in p ? !!p.rsiActive : false,
         rsiPeriod: p.rsiPeriod || 14,
         sarActive: "sarActive" in p ? !!p.sarActive : false,
-        sarStep: p.sarStep || 0.02, sarMax: p.sarMax || 0.2
+        sarStep: p.sarStep || 0.02, sarMax: p.sarMax || 0.2,
+        gapActive: "gapActive" in p ? !!p.gapActive : false,
+        gapMinPct: p.gapMinPct || 1
       };
     }
     let smaPrefs = _migrateSmaPrefs(JSON.parse(localStorage.getItem("baizora_sma_prefs") || "null"));
@@ -2983,7 +2985,7 @@
       const rsiTop = macdBottom + gap4, rsiBottom = rsiTop + rsiH;
       return { priceTop, priceBottom, hasVol, volTop, volBottom, hasScore, scoreTop, scoreBottom, hasMacd, macdTop, macdBottom, hasRsi, rsiTop, rsiBottom };
     }
-    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile, rsi, joinInfo, entryPrice) {
+    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile, rsi, joinInfo, entryPrice, gapMinPct) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
@@ -3107,6 +3109,39 @@
           ctx.fill();
         }
       });
+      // Price gaps: a bar whose low is above the previous real bar's high (gap up, green)
+      // or whose high is below its low (gap down, red), at least gapMinPct% wide. The
+      // zone is shaded from the gap bar rightward until a later bar trades through to
+      // the far side (gap filled), or to the right edge if it is still open. Drawn
+      // behind the candles. Gaps opened before the visible window are not shown.
+      if (gapMinPct != null) {
+        let prev = null;
+        candles.forEach((c, i) => {
+          if (!c || c[1] == null || c[2] == null) return;
+          if (prev) {
+            const up = c[2] > prev[1], dn = c[1] < prev[2];
+            const top = up ? c[2] : prev[2], bot = up ? prev[1] : c[1];
+            if ((up || dn) && (top - bot) / prev[3] * 100 >= gapMinPct) {
+              let end = n;
+              for (let j = i + 1; j < n; j++) {
+                const d = candles[j];
+                if (d && (up ? d[2] <= bot : d[1] >= top)) { end = j + 1; break; }
+              }
+              const x0 = toX(i), x1 = end >= n ? W - pad.right : toX(end - 1) + cndW;
+              const yT = toY(top), yB = toY(bot);
+              ctx.fillStyle = up ? "rgba(22,163,74,0.16)" : "rgba(220,38,38,0.16)";
+              ctx.fillRect(x0, yT, x1 - x0, Math.max(1, yB - yT));
+              ctx.strokeStyle = up ? "rgba(22,163,74,0.45)" : "rgba(220,38,38,0.45)";
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(x0, yT); ctx.lineTo(x1, yT);
+              ctx.moveTo(x0, yB); ctx.lineTo(x1, yB);
+              ctx.stroke();
+            }
+          }
+          prev = c;
+        });
+      }
       // Volume-by-price histogram ("volume profile") — horizontal bars along the
       // left edge of the price panel showing how much volume traded in each price
       // bucket over the visible window. Each day's volume is spread across the
@@ -3462,6 +3497,12 @@
       document.getElementById("sarMaxInput").value = _sarMax;
       document.getElementById("sarToggles").classList.remove("open");
       document.getElementById("sarDrawerToggle").classList.remove("open");
+      _gapMinPct = smaPrefs.gapMinPct || 1;
+      document.getElementById("gapChip").textContent = "跳空 (≥" + _gapMinPct + "%)";
+      document.getElementById("gapChip").classList.toggle("active", !!smaPrefs.gapActive);
+      document.getElementById("gapMinInput").value = _gapMinPct;
+      document.getElementById("gapToggles").classList.remove("open");
+      document.getElementById("gapDrawerToggle").classList.remove("open");
       _macdFast = smaPrefs.macdFast || 12;
       _macdSlow = smaPrefs.macdSlow || 26;
       _macdSignal = smaPrefs.macdSignal || 9;
@@ -3502,6 +3543,7 @@
     let _macdFast = 12, _macdSlow = 26, _macdSignal = 9;
     let _rsiPeriod = 14;
     let _sarStep = 0.02, _sarMax = 0.2;
+    let _gapMinPct = 1;
     let _baizKey = null;
     const BAIZ_LABELS = { BaizScore: "贝佐拉", BaizMomentum: "动能+", BaizPersist: "持续度", BaizConviction: "信心指数" };
     const BAIZ_COLORS = { BaizScore: "#f59e0b", BaizMomentum: "#c084fc", BaizPersist: "#f472b6", BaizConviction: "#2dd4bf" };
@@ -3531,6 +3573,8 @@
         rsiPeriod: _rsiPeriod,
         sarActive: document.getElementById("sarChip").classList.contains("active"),
         sarStep: _sarStep, sarMax: _sarMax,
+        gapActive: document.getElementById("gapChip").classList.contains("active"),
+        gapMinPct: _gapMinPct,
         baizKey: _baizKey
       };
       saveSmaPrefs();
@@ -3807,7 +3851,8 @@
         const joinInfo = joinInfoFor(ticker);
         // Entry price only while the ticker is still marked as a position (entries are kept after un-marking).
         const entryPrice = (positions.has(ticker) && positionEntries[ticker] > 0) ? positionEntries[ticker] : null;
-        const priceRange = renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData, joinInfo, entryPrice);
+        const gapMin = document.getElementById("gapChip").classList.contains("active") ? _gapMinPct : null;
+        const priceRange = renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData, joinInfo, entryPrice, gapMin);
         _lastChartCandles = filled.candles;
         _lastChartDates = filled.dates;
         _lastChartExtras = { scoreData, macdData, rsiData, priceLo: priceRange.lo, priceHi: priceRange.hi };
@@ -3963,6 +4008,7 @@
     _setupDrawer("smaDrawerToggle", "smaToggles");
     _setupDrawer("bbDrawerToggle", "bbToggles");
     _setupDrawer("sarDrawerToggle", "sarToggles");
+    _setupDrawer("gapDrawerToggle", "gapToggles");
     _setupDrawer("macdDrawerToggle", "macdToggles");
     _setupDrawer("rsiDrawerToggle", "rsiToggles");
     _setupDrawer("vpDrawerToggle", "vpToggles");
@@ -3970,6 +4016,26 @@
     _setupDrawer("tfDrawerToggle", "candleTimeframes");
     _setupDrawer("resDrawerToggle", "resToggles");
 
+    document.getElementById("gapToggles").addEventListener("click", e => {
+      const btn = e.target.closest(".sma-btn");
+      if (!btn || !_modalTicker) return;
+      btn.classList.toggle("active");
+      _saveSmaPrefsNow();
+      _renderModalChart(_modalTicker, _currentTf());
+    });
+    document.getElementById("gapApply").addEventListener("click", () => {
+      const m = parseFloat(document.getElementById("gapMinInput").value);
+      if (isNaN(m) || m < 0 || m > 20 || !_modalTicker) return;
+      _gapMinPct = m;
+      const chip = document.getElementById("gapChip");
+      chip.textContent = "跳空 (≥" + m + "%)";
+      chip.classList.add("active");
+      _saveSmaPrefsNow();
+      _renderModalChart(_modalTicker, _currentTf());
+    });
+    document.getElementById("gapMinInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") { e.preventDefault(); document.getElementById("gapApply").click(); }
+    });
     document.getElementById("sarToggles").addEventListener("click", e => {
       const btn = e.target.closest(".sma-btn");
       if (!btn || !_modalTicker) return;
@@ -4493,6 +4559,14 @@
           <input type="number" id="sarStepInput" min="0.001" max="0.5" step="0.01" value="0.02" title="加速因子步长 (默认0.02)">
           <input type="number" id="sarMaxInput" min="0.01" max="1" step="0.01" value="0.2" title="加速因子上限 (默认0.2)">
           <button type="button" class="sma-add-btn" id="sarApply">设置</button>
+        </div>
+      </div>
+      <div class="overlay-drawer-wrap">
+        <button type="button" class="overlay-drawer-toggle" id="gapDrawerToggle">跳空 &#9662;</button>
+        <div class="overlay-drawer-panel" id="gapToggles">
+          <button class="sma-btn" id="gapChip" data-sma="gap" title="价格跳空：当日最低价高于前一日最高价 (向上跳空，绿色) 或当日最高价低于前一日最低价 (向下跳空，红色)。阴影延伸至缺口被回补为止。">跳空 (≥1%)</button>
+          <input type="number" id="gapMinInput" min="0" max="20" step="0.5" value="1" title="最小跳空幅度 % (默认1)">
+          <button type="button" class="sma-add-btn" id="gapApply">设置</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">
