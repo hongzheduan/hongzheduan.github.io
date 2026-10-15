@@ -3459,14 +3459,14 @@
       document.getElementById("tickerModal").style.display = "flex";
       document.body.style.overflow = "hidden";
 
-      // reset timeframe to 1Y daily; restore the user's saved SMA selection on each open
+      // reset timeframe to 6M daily; restore the user's saved SMA selection on each open
       _modalRes = 'd';
       document.querySelectorAll(".res-btn").forEach(b => b.classList.toggle("active", b.dataset.res === "d"));
       document.getElementById("resDrawerToggle").textContent = "日线 ▾";
       document.getElementById("resToggles").classList.remove("open");
       document.getElementById("resDrawerToggle").classList.remove("open");
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.period === "1Y"));
-      document.getElementById("tfDrawerToggle").textContent = "1年 ▾";
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.period === "6M"));
+      document.getElementById("tfDrawerToggle").textContent = "6月 ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
       _smaList = (smaPrefs.smaList && smaPrefs.smaList.length ? smaPrefs.smaList.slice(0, 5) : [20, 50, 200]);
@@ -4539,13 +4539,13 @@
         </div>
       </div>
       <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="tfDrawerToggle">1年 &#9662;</button>
+        <button type="button" class="overlay-drawer-toggle" id="tfDrawerToggle">6月 &#9662;</button>
         <div class="overlay-drawer-panel" id="candleTimeframes" style="width:auto;">
           <button class="tf-btn" data-period="1W">1周</button>
           <button class="tf-btn" data-period="1M">1月</button>
           <button class="tf-btn" data-period="3M">3月</button>
-          <button class="tf-btn" data-period="6M">6月</button>
-          <button class="tf-btn active" data-period="1Y">1年</button>
+          <button class="tf-btn active" data-period="6M">6月</button>
+          <button class="tf-btn" data-period="1Y">1年</button>
           <button class="tf-btn" data-period="2Y">2年</button>
           <button class="tf-btn" data-period="5Y">5年</button>
         </div>
