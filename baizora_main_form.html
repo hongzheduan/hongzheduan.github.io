@@ -1288,7 +1288,7 @@
     // into the current free-form list shape ({smaList:[...]}) so pre-existing localStorage/
     // Firestore prefs from before the dynamic add/delete rework don't get silently discarded.
     function _migrateSmaPrefs(p) {
-      const dflt = { smaList: [20, 50, 200], bbActive: false, bbPeriod: 20, bbMult: 2, macdActive: false, macdFast: 12, macdSlow: 26, macdSignal: 9, vpActive: false, rsiActive: false, rsiPeriod: 14, sarActive: false, sarStep: 0.02, sarMax: 0.2, gapActive: false, gapMinPct: 1 };
+      const dflt = { smaList: [20, 50, 200], bbActive: false, bbPeriod: 20, bbMult: 2, macdActive: false, macdFast: 12, macdSlow: 26, macdSignal: 9, vpActive: false, rsiActive: false, rsiPeriod: 14, sarActive: false, sarStep: 0.02, sarMax: 0.2, gapActive: false, gapMinPct: 0 };
       if (!p) return dflt;
       let smaList;
       if (Array.isArray(p.smaList)) {
@@ -1318,7 +1318,7 @@
         sarActive: "sarActive" in p ? !!p.sarActive : false,
         sarStep: p.sarStep || 0.02, sarMax: p.sarMax || 0.2,
         gapActive: "gapActive" in p ? !!p.gapActive : false,
-        gapMinPct: p.gapMinPct || 1
+        gapMinPct: p.gapMinPct != null ? +p.gapMinPct : 0
       };
     }
     let smaPrefs = _migrateSmaPrefs(JSON.parse(localStorage.getItem("baizora_sma_prefs") || "null"));
@@ -3527,8 +3527,8 @@
       document.getElementById("sarMaxInput").value = _sarMax;
       document.getElementById("sarToggles").classList.remove("open");
       document.getElementById("sarDrawerToggle").classList.remove("open");
-      _gapMinPct = smaPrefs.gapMinPct || 1;
-      document.getElementById("gapChip").textContent = "Gaps (≥" + _gapMinPct + "%)";
+      _gapMinPct = smaPrefs.gapMinPct != null ? smaPrefs.gapMinPct : 0;
+      document.getElementById("gapChip").textContent = _gapMinPct > 0 ? "Gaps (≥" + _gapMinPct + "%)" : "Gaps";
       document.getElementById("gapChip").classList.toggle("active", !!smaPrefs.gapActive);
       document.getElementById("gapMinInput").value = _gapMinPct;
       document.getElementById("gapToggles").classList.remove("open");
@@ -3573,7 +3573,7 @@
     let _macdFast = 12, _macdSlow = 26, _macdSignal = 9;
     let _rsiPeriod = 14;
     let _sarStep = 0.02, _sarMax = 0.2;
-    let _gapMinPct = 1;
+    let _gapMinPct = 0;
     let _baizKey = null;
     const BAIZ_LABELS = { BaizScore: "Baizora", BaizMomentum: "Momentum+", BaizPersist: "Persist", BaizConviction: "Conviction" };
     const BAIZ_COLORS = { BaizScore: "#f59e0b", BaizMomentum: "#c084fc", BaizPersist: "#f472b6", BaizConviction: "#2dd4bf" };
@@ -4123,7 +4123,7 @@
       if (isNaN(m) || m < 0 || m > 20 || !_modalTicker) return;
       _gapMinPct = m;
       const chip = document.getElementById("gapChip");
-      chip.textContent = "Gaps (≥" + m + "%)";
+      chip.textContent = m > 0 ? "Gaps (≥" + m + "%)" : "Gaps";
       chip.classList.add("active");
       _saveSmaPrefsNow();
       _renderModalChart(_modalTicker, _currentTf());
@@ -4617,8 +4617,8 @@
       <div class="overlay-drawer-wrap">
         <button type="button" class="overlay-drawer-toggle" id="gapDrawerToggle">Gaps &#9662;</button>
         <div class="overlay-drawer-panel" id="gapToggles">
-          <button class="sma-btn" id="gapChip" data-sma="gap" title="Price gaps: a bar whose low is above the prior bar's high (gap up, green) or whose high is below the prior bar's low (gap down, red). Shading runs until the gap is filled.">Gaps (≥1%)</button>
-          <input type="number" id="gapMinInput" min="0" max="20" step="0.5" value="1" title="Minimum gap size in % (default 1)">
+          <button class="sma-btn" id="gapChip" data-sma="gap" title="Price gaps: a bar whose low is above the prior bar's high (gap up, green) or whose high is below the prior bar's low (gap down, red). Shading runs until the gap is filled.">Gaps</button>
+          <input type="number" id="gapMinInput" min="0" max="20" step="0.5" value="0" title="Minimum gap size in % (default 0 = every gap)">
           <button type="button" class="sma-add-btn" id="gapApply">Set</button>
         </div>
       </div>
