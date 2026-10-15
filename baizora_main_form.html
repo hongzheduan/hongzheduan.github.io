@@ -3000,7 +3000,7 @@
       const rsiTop = macdBottom + gap4, rsiBottom = rsiTop + rsiH;
       return { priceTop, priceBottom, hasVol, volTop, volBottom, hasScore, scoreTop, scoreBottom, hasMacd, macdTop, macdBottom, hasRsi, rsiTop, rsiBottom };
     }
-    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile, rsi, joinInfo, entryPrice, gapMinPct) {
+    function renderCandleChart(canvas, candles, dates, smaLines, bands, macd, scoreData, volProfile, rsi, joinInfo, entryPrice, openGaps) {
       const dpr  = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
@@ -3131,38 +3131,30 @@
           ctx.fill();
         }
       });
-      // Price gaps: a bar whose low is above the previous real bar's high (gap up, green)
-      // or whose high is below its low (gap down, red), at least gapMinPct% wide. The
-      // zone is shaded from the gap bar rightward until a later bar trades through to
-      // the far side (gap filled), or to the right edge if it is still open. Drawn
-      // behind the candles. Gaps opened before the visible window are not shown.
-      if (gapMinPct != null) {
-        let prev = null;
-        candles.forEach((c, i) => {
-          if (!c || c[1] == null || c[2] == null) return;
-          if (prev) {
-            const up = c[2] > prev[1], dn = c[1] < prev[2];
-            const top = up ? c[2] : prev[2], bot = up ? prev[1] : c[1];
-            if ((up || dn) && (top - bot) / prev[3] * 100 >= gapMinPct) {
-              let end = n;
-              for (let j = i + 1; j < n; j++) {
-                const d = candles[j];
-                if (d && (up ? d[2] <= bot : d[1] >= top)) { end = j + 1; break; }
-              }
-              const x0 = toX(i), x1 = end >= n ? W - pad.right : toX(end - 1) + cndW;
-              const yT = toY(top), yB = toY(bot);
-              ctx.fillStyle = up ? "rgba(22,163,74,0.16)" : "rgba(220,38,38,0.16)";
-              ctx.fillRect(x0, yT, x1 - x0, Math.max(1, yB - yT));
-              ctx.strokeStyle = up ? "rgba(22,163,74,0.45)" : "rgba(220,38,38,0.45)";
-              ctx.lineWidth = 1;
-              ctx.beginPath();
-              ctx.moveTo(x0, yT); ctx.lineTo(x1, yT);
-              ctx.moveTo(x0, yB); ctx.lineTo(x1, yB);
-              ctx.stroke();
-            }
-          }
-          prev = c;
+      // Unfilled price gaps (from _computeOpenGaps over the full candle history): shaded
+      // green (gap up) / red (gap down) from the gap bar to the right edge, covering only
+      // the part not yet traded back into. A gap that opened before the visible window
+      // starts at the left edge. Clipped to the price panel (the axis is not stretched
+      // for far-away gaps). Drawn behind the candles.
+      if (openGaps && openGaps.length) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(pad.left, pad.top, W - pad.left - pad.right, priceH);
+        ctx.clip();
+        openGaps.forEach(g => {
+          const gi = dates.indexOf(g.date);
+          const x0 = gi >= 0 ? toX(gi) : pad.left, x1 = W - pad.right;
+          const yT = toY(g.top), yB = toY(g.bot);
+          ctx.fillStyle = g.up ? "rgba(22,163,74,0.16)" : "rgba(220,38,38,0.16)";
+          ctx.fillRect(x0, yT, x1 - x0, Math.max(1, yB - yT));
+          ctx.strokeStyle = g.up ? "rgba(22,163,74,0.45)" : "rgba(220,38,38,0.45)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x0, yT); ctx.lineTo(x1, yT);
+          ctx.moveTo(x0, yB); ctx.lineTo(x1, yB);
+          ctx.stroke();
         });
+        ctx.restore();
       }
       // Volume-by-price histogram ("volume profile") — horizontal bars along the
       // left edge of the price panel showing how much volume traded in each price
@@ -3640,6 +3632,32 @@
     // trails the stop toward the extreme point by an acceleration factor that grows
     // by `step` on each new extreme (capped at `maxAf`), flipping when price crosses it.
     // Null bars are skipped so the series stays continuous across gaps.
+    // Price gaps still open as of the last bar: gap up = low above the previous real
+    // bar's high, gap down = high below its low, at least minPct% of the prior close.
+    // Later bars trading into the gap shrink it to the untouched part; once price
+    // reaches the far side it is filled and dropped. Returns [{date, up, top, bot}].
+    function _computeOpenGaps(candles, dates, minPct) {
+      const out = [];
+      let prev = null;
+      candles.forEach((c, i) => {
+        if (!c || c[1] == null || c[2] == null) return;
+        // shrink / fill the gaps already open with this bar's range
+        for (let k = out.length - 1; k >= 0; k--) {
+          const g = out[k];
+          if (g.up) g.top = Math.min(g.top, c[2]); else g.bot = Math.max(g.bot, c[1]);
+          if (g.top <= g.bot) out.splice(k, 1);
+        }
+        if (prev) {
+          const up = c[2] > prev[1], dn = c[1] < prev[2];
+          if ((up || dn) && ((up ? c[2] - prev[1] : prev[2] - c[1]) / prev[3] * 100 >= minPct)) {
+            out.push(up ? { date: dates[i], up: true, top: c[2], bot: prev[1] }
+                        : { date: dates[i], up: false, top: prev[2], bot: c[1] });
+          }
+        }
+        prev = c;
+      });
+      return out;
+    }
     function _computeSar(candles, step, maxAf) {
       const out = new Array(candles.length).fill(null);
       const idx = [];
@@ -3891,8 +3909,8 @@
         const joinInfo = joinInfoFor(ticker);
         // Entry price only while the ticker is still marked as a position (entries are kept after un-marking).
         const entryPrice = (positions.has(ticker) && positionEntries[ticker] > 0) ? positionEntries[ticker] : null;
-        const gapMin = document.getElementById("gapChip").classList.contains("active") ? _gapMinPct : null;
-        const priceRange = renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData, joinInfo, entryPrice, gapMin);
+        const openGaps = document.getElementById("gapChip").classList.contains("active") ? _computeOpenGaps(candles, dates, _gapMinPct) : null;
+        const priceRange = renderCandleChart(canvas, filled.candles, filled.dates, smaLines, bbBand ? [bbBand] : [], macdData, scoreData, vpActive, rsiData, joinInfo, entryPrice, openGaps);
         _lastChartCandles = filled.candles;
         _lastChartDates = filled.dates;
         _lastChartExtras = { scoreData, macdData, rsiData, priceLo: priceRange.lo, priceHi: priceRange.hi };
@@ -4617,7 +4635,7 @@
       <div class="overlay-drawer-wrap">
         <button type="button" class="overlay-drawer-toggle" id="gapDrawerToggle">Gaps &#9662;</button>
         <div class="overlay-drawer-panel" id="gapToggles">
-          <button class="sma-btn" id="gapChip" data-sma="gap" title="Price gaps: a bar whose low is above the prior bar's high (gap up, green) or whose high is below the prior bar's low (gap down, red). Shading runs until the gap is filled.">Gaps</button>
+          <button class="sma-btn" id="gapChip" data-sma="gap" title="Price gaps: a bar whose low is above the prior bar's high (gap up, green) or whose high is below the prior bar's low (gap down, red). Only gaps not yet filled are shown, shaded over the part price has not traded back into.">Gaps</button>
           <input type="number" id="gapMinInput" min="0" max="20" step="0.5" value="0" title="Minimum gap size in % (default 0 = every gap)">
           <button type="button" class="sma-add-btn" id="gapApply">Set</button>
         </div>
