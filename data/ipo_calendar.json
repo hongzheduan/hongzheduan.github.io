@@ -1,22 +1,8 @@
 {
- "updated": "2026-10-15 15:45 ET",
+ "updated": "2026-10-16 15:19 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
  "ipos": [
-  {
-   "deal_id": "1273626-119431",
-   "ticker": "IAM",
-   "company": "Iambic Therapeutics, Inc.",
-   "sector": "Healthcare",
-   "industry": "Biological Products",
-   "sic": "2836",
-   "cik": "0001997038",
-   "deal_usd": 150000000.0,
-   "exchange": "Nasdaq",
-   "date": "2026-10-15",
-   "price_range": "16.00",
-   "shares": 9375000.0
-  },
   {
    "deal_id": "1403574-119467",
    "ticker": "CTY",
@@ -25,11 +11,11 @@
    "industry": "Pharmaceutical Preparations",
    "sic": "2834",
    "cik": "0002143850",
-   "deal_usd": 212430545.0,
+   "deal_usd": 199999998.0,
    "exchange": "Nasdaq",
    "date": "2026-10-16",
-   "price_range": "17.00-19.00",
-   "shares": 9722222.0
+   "price_range": "18.00",
+   "shares": 11111111.0
   }
  ],
  "filed": [
@@ -217,17 +203,6 @@
    "industry": "Auto Dealers & Gasoline Stations",
    "sic": "5500",
    "cik": "0002123232",
-   "deal_usd": 100000000.0,
-   "filed_date": "2026-07-02"
-  },
-  {
-   "deal_id": "1392649-118580",
-   "ticker": "GENN",
-   "company": "Genneia S.A.",
-   "sector": "Utilities",
-   "industry": "Electric Services",
-   "sic": "4911",
-   "cik": "0001745621",
    "deal_usd": 100000000.0,
    "filed_date": "2026-07-02"
   },
