@@ -602,3 +602,4 @@
 2026-10-17 09:01 UTC  EDGAR-only
 2026-10-18 09:19 UTC  EDGAR-only
 2026-10-19 18:22 UTC  manual-midday-test
+2026-10-19 20:47 UTC  manual
