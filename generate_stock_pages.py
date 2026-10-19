@@ -427,11 +427,11 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
   <meta property="og:url" content="https://baizora.com/stocks/{ticker}.html">
   <meta property="og:title" content="{ticker} — {name} Price &amp; Volume Analysis | Baizora">
   <meta property="og:description" content="{desc}">
-  <meta property="og:image" content="https://baizora.com/assets/baize_favicon_v2.png">
+  <meta property="og:image" content="https://baizora.com/assets/baizora_logo_arrow_512.png">
   <script type="application/ld+json">
   {{"@context":"https://schema.org","@type":"WebPage","name":"{ticker} {"ETF" if is_etf else "Stock"} Analysis — {name}","description":"{summary[:160].replace(chr(34), chr(39))}","url":"https://baizora.com/stocks/{ticker}.html","isPartOf":{{"@type":"WebSite","name":"Baizora","url":"https://baizora.com"}}}}
   </script>
-  <link rel="icon" href="../assets/baize_favicon_v2.png">
+  <link rel="icon" href="../assets/baizora_logo_arrow.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -520,6 +520,7 @@ def generate_page(row, scan_date, peer_rows=None, candle_dates=None, candle_ohlc
 <nav>
   <a href="../" class="logo-wrap">
     <span class="logo-text">Baiz<span style="color:#3b82f6;">ora</span></span>
+    <img src="../assets/baizora_logo_arrow.png" alt="" class="logo-mark" style="height:26px;width:26px;">
   </a>
   <div class="nav-links">
     <a href="../baizora_main_form_freetier.html" class="nav-btn">Free Tier</a>

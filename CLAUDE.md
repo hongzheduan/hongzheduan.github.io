@@ -94,7 +94,10 @@ The `baize_favicon_v2.png` creature illustration was **retired from all headers*
 ```
 - Two-tone: "Baiz" white (`#f8fafc`), "ora" electric-bright (`#60a5fa`)
 - DM Serif Display, ~20px (some pages 22px), letter-spacing `-0.02em`
-- No `<img>` in the header. `.logo-wrap img { height:36px }` rules are now dead — harmless, left in place.
+- 2026-10-19: blue arrow mark added to the RIGHT of the wordmark (EN + CN), all headers:
+  `<img src="assets/baizora_logo_arrow.png" alt="" class="logo-mark" style="height:26px;width:26px;">` (`../assets/` from subdirs).
+  Inline size overrides the old `.logo-wrap img { height:36px }` rules. Source art: `video/Logo_Arrow.png`.
+  Favicons / og:image / twitter:image / PWA icons (`icon-192/512.png`) / `apple-touch-icon.png` all use the arrow now.
 
 ### CN logo (贝佐拉 — ALWAYS use this in all CN pages)
 ```html

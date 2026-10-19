@@ -1,11 +1,12 @@
-const CACHE = 'baizora-v4';
+const CACHE = 'baizora-v5';
 
 const APP_SHELL = [
   '/',
   '/index.html',
   '/index_cn.html',
   '/firebase.js',
-  '/assets/baize_favicon_v2.png',
+  '/assets/baizora_logo_arrow.png',
+  '/assets/apple-touch-icon.png',
   '/assets/baize_logo_v2.png',
   '/assets/icon-192.png',
   '/assets/icon-512.png'
