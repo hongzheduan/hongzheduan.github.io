@@ -1,0 +1,144 @@
+name: Market Wrap Video
+
+# General stock-market Short (video/generate_market_wrap.py), every Wednesday and
+# Friday after the close, uploaded to the main Baizora channel (@baizorastock,
+# YOUTUBE_REFRESH_TOKEN). Added 2026-10-21. EN only, info-only (no website mention).
+#
+# Its own workflow (not a scanner.yml branch) on purpose: scanner.yml's concurrency
+# group keeps at most one pending run, so an evening news-style run queued behind
+# a delayed 6:30 PM retry could get silently cancelled.
+#
+# Needs that day's finished scan in data/latest.json. If it isn't there yet (late
+# scan, Yahoo's UTC-midnight bar gap) the generator writes nothing and a later cron
+# retries. On a market holiday latest.json never gets that date, so all three runs
+# skip and no video is made. data/latest_video_wrap_meta.json records the last
+# uploaded date, so once one run uploads the later retries no-op.
+#
+# To stop: set MARKET_WRAP_VIDEO to "off" below (or disable the workflow in the
+# Actions tab). Nothing else depends on it.
+
+on:
+  schedule:
+    # Fixed UTC, so the ET time shifts an hour with DST, plus GitHub's usual
+    # ~40-90 min dispatch delay. UTC day is Thu/Sat for the Wed/Fri ET session.
+    - cron: "15 0 * * 4,6"   # Wed/Fri 8:15 PM EDT (7:15 PM EST), after the 6:30 PM final scan
+    - cron: "15 2 * * 4,6"   # 10:15 PM EDT retry
+    - cron: "0 7 * * 4,6"    # 3:00 AM EDT retry, after the ~midnight scanner safety-net run
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Session date YYYY-MM-DD (default: today's ET session; any weekday allowed)"
+        required: false
+        default: ""
+      force:
+        description: "Upload even if this date already has a Market Wrap"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-wrap
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  MARKET_WRAP_VIDEO: "on"
+
+jobs:
+  market-wrap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Decide whether to run
+        run: |
+          # Session date in ET. "-12 hours" maps every cron above (8:15 PM through
+          # 3 AM ET) back onto the Wed/Fri session it belongs to.
+          WRAP_DATE="${{ github.event.inputs.date }}"
+          if [ -z "$WRAP_DATE" ]; then
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              WRAP_DATE=$(TZ='America/New_York' date +%Y-%m-%d)
+            else
+              WRAP_DATE=$(TZ='America/New_York' date -d '-12 hours' +%Y-%m-%d)
+            fi
+          fi
+          echo "WRAP_DATE=$WRAP_DATE" >> $GITHUB_ENV
+
+          GO=1
+          DOW=$(date -d "$WRAP_DATE" +%u)
+          if [ "${{ env.MARKET_WRAP_VIDEO }}" != "on" ]; then
+            echo "MARKET_WRAP_VIDEO is off"; GO=0
+          elif [ "${{ github.event_name }}" = "schedule" ] && [ "$DOW" != "3" ] && [ "$DOW" != "5" ]; then
+            echo "$WRAP_DATE is not a Wednesday or Friday"; GO=0
+          elif [ "${{ github.event.inputs.force }}" != "true" ] && \
+               [ "$(python3 -c "import json; print(json.load(open('data/latest_video_wrap_meta.json')).get('date',''))" 2>/dev/null)" = "$WRAP_DATE" ]; then
+            echo "Market Wrap for $WRAP_DATE already uploaded"; GO=0
+          else
+            READY=$(WRAP_DATE="$WRAP_DATE" python3 -c "
+          import json, os
+          d = json.load(open('data/latest.json'))
+          print('1' if d.get('date') == os.environ['WRAP_DATE'] and not d.get('midday') else '0')
+          ")
+            if [ "$READY" != "1" ]; then
+              echo "data/latest.json doesn't hold the finished $WRAP_DATE session yet (or market holiday)"; GO=0
+            fi
+          fi
+          echo "GO=$GO" >> $GITHUB_ENV
+
+      - name: Set up Python
+        if: env.GO == '1'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        if: env.GO == '1'
+        run: |
+          pip install -r requirements.txt
+          pip install -r video/requirements.txt
+          sudo apt-get install -y fonts-noto-cjk
+
+      - name: Generate Market Wrap video
+        if: env.GO == '1'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python video/generate_market_wrap.py --date "$WRAP_DATE" --output video/market_wrap.mp4
+
+      - name: Upload to YouTube
+        if: env.GO == '1' && hashFiles('video/market_wrap.mp4') != ''
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          OUT=$(python video/upload_youtube.py --file video/market_wrap.mp4 --type market_wrap --date "$WRAP_DATE")
+          echo "$OUT"
+          YT_URL=$(echo "$OUT" | grep '^YOUTUBE_URL=' | cut -d= -f2-)
+          if [ -z "$YT_URL" ]; then
+            echo "Upload failed; a later cron will retry"
+            exit 1
+          fi
+          echo "YT_URL=$YT_URL" >> $GITHUB_ENV
+
+      - name: Record uploaded date
+        if: env.GO == '1' && env.YT_URL != ''
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            python3 -c "import json,os; json.dump({'date': os.environ['WRAP_DATE'], 'url': os.environ['YT_URL']}, open('data/latest_video_wrap_meta.json','w'))"
+            git add data/latest_video_wrap_meta.json
+            git commit -m "auto update market wrap video $WRAP_DATE"
+            if git push origin HEAD:main; then exit 0; fi
+            sleep $((i * 10))
+          done
+          exit 1

@@ -454,6 +454,20 @@ def make_meta(video_type, date):
             title,
             f"今日市场重要新闻要点汇总 — {date}。\n\n{SUBSCRIBE_LINE_CN}\n\n{DISCLAIMER_CN}",
         )
+    if video_type == "market_wrap":
+        weekday = datetime.date.fromisoformat(date).strftime("%A")
+        title = random.choice([
+            f"Stock Market Wrap: {date}",
+            f"Stock Market Today: S&P 500 and Nasdaq Recap, {date}",
+            f"What Moved the Stock Market Today ({date})",
+            f"{weekday} Market Wrap: {date}",
+        ])
+        return (
+            title,
+            f"A recap of the US stock market on {date}: S&P 500 and Nasdaq-100 moves, "
+            f"market breadth, the biggest large-cap gainers and decliners, and the day's "
+            f"top headlines. New every Wednesday and Friday.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
+        )
     raise ValueError(f"Unknown video type: {video_type}")
 
 
