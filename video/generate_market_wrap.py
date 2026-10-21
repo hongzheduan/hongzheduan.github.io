@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Market Wrap: general stock-market Short, every Wednesday and Friday (2026-10-21).
+Stock Market Recap (internally "market wrap"): general stock-market Short, every Wednesday and Friday (2026-10-21).
 
 Vertical (1080x1920) recap of the day's session, EN only:
-  1. Hook        "MARKET WRAP", weekday eyebrow, date
+  1. Hook        "STOCK MARKET RECAP", weekday eyebrow, date
   2. Indexes     S&P 500 (via SPY) + Nasdaq-100 (via QQQ) day change, S&P 500 breadth
   3. Gainers     top 5 S&P 500 / Nasdaq-100 stocks by 1-day price change
   4. Decliners   bottom 5, same universe
@@ -59,7 +59,7 @@ _MONTHS = ["January", "February", "March", "April", "May", "June", "July",
            "August", "September", "October", "November", "December"]
 _WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
-_SUBSCRIBE_EN = "We wrap up the market every Wednesday and Friday. Subscribe to the Baizora channel for more."
+_SUBSCRIBE_EN = "We recap the stock market every Wednesday and Friday. Subscribe to the Baizora channel for more."
 
 
 _TRIM_DIR = Path(tempfile.mkdtemp(prefix="market_wrap_bg_"))
@@ -136,13 +136,13 @@ def market_snapshot(data):
 def scene_hook(date_obj, date_str):
     img, draw = new_frame_s()
     _draw_full_bleed_bg(img, draw, _trimmed_bg(news_bg_path_for_day(date_obj)), fade_h=1100)
-    _eyebrow(draw, f"{_WEEKDAYS[date_obj.weekday()].upper()} MARKET WRAP", 300)
-    f_head = load_headline_font(170)
+    _eyebrow(draw, f"{_WEEKDAYS[date_obj.weekday()].upper()} EDITION", 300)
+    f_head = load_headline_font(150)  # "STOCK MARKET" = 826px at 150, 937px at 170
     y = 470
-    centered_shadow(draw, y, "MARKET", f_head, WHITE)
-    y += draw.textbbox((0, 0), "MARKET", font=f_head)[3] + 20
-    centered_shadow(draw, y, "WRAP", f_head, GOLD_LIGHT)
-    y += draw.textbbox((0, 0), "WRAP", font=f_head)[3] + 60
+    centered_shadow(draw, y, "STOCK MARKET", f_head, WHITE)
+    y += draw.textbbox((0, 0), "STOCK MARKET", font=f_head)[3] + 20
+    centered_shadow(draw, y, "RECAP", f_head, GOLD_LIGHT)
+    y += draw.textbbox((0, 0), "RECAP", font=f_head)[3] + 60
     f_sub = load_font(44)
     centered_shadow(draw, y, "S&P 500  ·  Nasdaq-100", f_sub, WHITE)
     y += th(draw, "S&P 500", f_sub) + 30
@@ -245,7 +245,7 @@ def build_market_wrap(date_str):
         return (img, measure_tts_seconds(text, voice, rate), None, text)
 
     frames = []
-    hook_text = f"Market Wrap for {_WEEKDAYS[date_obj.weekday()]}, {_MONTHS[date_obj.month - 1]} {date_obj.day}."
+    hook_text = f"Stock Market Recap for {_WEEKDAYS[date_obj.weekday()]}, {_MONTHS[date_obj.month - 1]} {date_obj.day}."
     frames.append(beat(scene_hook(date_obj, date_str), hook_text))
 
     idx_text = (f"The S&P 500 {_move_words(snap['spy'])}, and the Nasdaq-100 "
@@ -279,7 +279,7 @@ def build_market_wrap(date_str):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Market Wrap: Wednesday/Friday stock-market Short")
+    ap = argparse.ArgumentParser(description="Stock Market Recap: Wednesday/Friday stock-market Short")
     ap.add_argument("--date", default=None, help="Session date (YYYY-MM-DD); defaults to today")
     ap.add_argument("--output", default="market_wrap.mp4")
     args = ap.parse_args()
