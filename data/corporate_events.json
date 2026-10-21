@@ -3803,6 +3803,15 @@
   ],
   "BAC": [
     {
+      "date": "2026-10-21",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/70858/000007085826000494/bac-20261021.htm"
+    },
+    {
       "date": "2026-10-14",
       "eps": null,
       "items": "2.02,7.01,9.01",
@@ -9718,6 +9727,15 @@
   ],
   "DELL": [
     {
+      "date": "2026-10-21",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1571996/000119312526427920/d163575d8k.htm"
+    },
+    {
       "date": "2026-09-15",
       "items": "1.01,2.03,9.01",
       "label": "Material Agreement",
@@ -15033,6 +15051,18 @@
   ],
   "GL": [
     {
+      "date": "2026-10-21",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/320335/000032033526000224/gl-20261021.htm"
+    },
+    {
       "date": "2026-08-07",
       "items": "5.02",
       "label": "Leadership Change",
@@ -18299,11 +18329,11 @@
   "ISRG": [
     {
       "date": "2026-10-20",
-      "eps": null,
+      "eps": 1.49,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 3048700000,
       "type": [
         "earnings"
       ],
@@ -32333,6 +32363,18 @@
     }
   ],
   "TSLA": [
+    {
+      "date": "2026-10-21",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026066738/tsla-20261021.htm"
+    },
     {
       "date": "2026-10-02",
       "eps": 0.32,
