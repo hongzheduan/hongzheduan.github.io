@@ -209,7 +209,7 @@ SUBSCRIBE_LINE_CN = (
     "欢迎订阅贝佐拉频道，定期更新标普500和纳斯达克100价格与成交量数据。"
 )
 
-def make_meta(video_type, date):
+def make_meta(video_type, date, subject=None):
     if video_type == "sp500_movers":
         title = random.choice([
             f"S&P 500 Top Movers — {date}",
@@ -463,6 +463,15 @@ def make_meta(video_type, date):
             f"market breadth, the biggest large-cap gainers and decliners, and the day's "
             f"top headlines. New every Wednesday and Friday.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
         )
+    if video_type == "stock_profile":
+        # subject = "TICKER|Company Name" (from generate_stock_profile.py's sidecar json)
+        ticker, _, name = (subject or "|").partition("|")
+        return (
+            f"Stock Profile: {name} ({ticker})",
+            f"A quick profile of {name} ({ticker}): what the company does, its key numbers, "
+            f"and its 1-year price chart. Data as of the {date} close. A different S&P 500 or "
+            f"Nasdaq-100 company every day.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
+        )
     raise ValueError(f"Unknown video type: {video_type}")
 
 
@@ -473,13 +482,14 @@ def main():
     ap.add_argument("--date",    required=True, help="Scan date (YYYY-MM-DD)")
     ap.add_argument("--privacy", default="public",
                     choices=["public", "unlisted", "private"])
+    ap.add_argument("--subject", default=None, help='stock_profile only: "TICKER|Company Name"')
     args = ap.parse_args()
 
     if not Path(args.file).exists():
         print(f"File not found: {args.file}")
         sys.exit(1)
 
-    title, description = make_meta(args.type, args.date)
+    title, description = make_meta(args.type, args.date, args.subject)
     # All 10 video types are Shorts now (vertical, <60s) — #Shorts reinforces the
     # Shorts-shelf placement signal YouTube already infers from aspect ratio/duration.
     description = f"{description}\n\n#Shorts"
