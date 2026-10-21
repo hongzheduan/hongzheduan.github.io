@@ -1,8 +1,23 @@
 {
- "updated": "2026-10-20 15:52 ET",
+ "updated": "2026-10-21 15:57 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
- "ipos": [],
+ "ipos": [
+  {
+   "deal_id": "1112626-119575",
+   "ticker": "LYCA",
+   "company": "Lycia Therapeutics, Inc.",
+   "sector": "Healthcare",
+   "industry": "Biological Products",
+   "sic": "2836",
+   "cik": "0001806540",
+   "deal_usd": 304290000.0,
+   "exchange": "Nasdaq",
+   "date": "2026-10-23",
+   "price_range": "16.00-18.00",
+   "shares": 14700000.0
+  }
+ ],
  "filed": [
   {
    "deal_id": "1320589-119617",
@@ -47,17 +62,6 @@
    "cik": "0002132065",
    "deal_usd": 100000000.0,
    "filed_date": "2026-10-07"
-  },
-  {
-   "deal_id": "1112626-119575",
-   "ticker": "LYCA",
-   "company": "Lycia Therapeutics, Inc.",
-   "sector": "Healthcare",
-   "industry": "Biological Products",
-   "sic": "2836",
-   "cik": "0001806540",
-   "deal_usd": 100000000.0,
-   "filed_date": "2026-10-05"
   },
   {
    "deal_id": "1404860-119573",
