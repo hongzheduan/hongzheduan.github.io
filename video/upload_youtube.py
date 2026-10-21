@@ -455,7 +455,8 @@ def make_meta(video_type, date):
             f"今日市场重要新闻要点汇总 — {date}。\n\n{SUBSCRIBE_LINE_CN}\n\n{DISCLAIMER_CN}",
         )
     if video_type == "market_wrap":
-        title = f"Stock Market Recap: {date}"
+        d = datetime.date.fromisoformat(date)
+        title = f"Stock Market Recap: {d.strftime('%A, %B')} {d.day}, {d.year}"
         return (
             title,
             f"A recap of the US stock market on {date}: S&P 500 and Nasdaq-100 moves, "
