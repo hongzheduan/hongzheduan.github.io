@@ -90,8 +90,25 @@ def add(out, data, backfilled=False):
     return True
 
 
+def _corrected_scores():
+    """BaizPersist/BaizConviction as published before 2026-10-21 were computed from a
+    frozen August window (see backtests/rebuild_score_history_from_git.py). The rebuilt
+    data/baiz_score_trend.json holds the correct per-session values, keyed by __dates__."""
+    trend = json.loads((ROOT / "data" / "baiz_score_trend.json").read_text(encoding="utf-8"))
+    dates = trend.get("__dates__", [])
+
+    def lookup(ticker, col, date):
+        arr = (trend.get(ticker) or {}).get(col) or []
+        if date not in dates:
+            return None
+        k = dates.index(date) - len(dates) + len(arr)
+        return arr[k] if 0 <= k < len(arr) else None
+    return lookup
+
+
 def backfill(out, sessions):
     """Replay the last committed, finished latest.json of each past session."""
+    lookup = _corrected_scores()
     log = subprocess.run(["git", "log", "--format=%H", "--", "data/latest.json"],
                          cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
     seen = set()
@@ -107,6 +124,9 @@ def backfill(out, sessions):
         if not d or d in seen or data.get("midday"):
             continue
         seen.add(d)
+        for r in data.get("data", []):
+            for col in ("BaizPersist", "BaizConviction"):
+                r[col] = lookup(r.get("Ticker"), col, d)
         if add(out, data, backfilled=True):
             print("backfilled", d)
 

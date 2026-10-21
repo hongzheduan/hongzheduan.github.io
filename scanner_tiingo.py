@@ -2334,6 +2334,13 @@ def prefetch_fundamentals(tickers, tiingo_names, sleep_edgar=0.15):
 # MULTI-PERIOD METRICS
 # =========================
 
+def _session_date(df):
+    """The trading session this scan scored (majority of per-ticker dates)."""
+    if "Date" not in df.columns or not len(df):
+        return None
+    return str(df["Date"].astype(str).value_counts().idxmax())[:10]
+
+
 def _compute_baiz_persist_and_conviction(df):
     """
     BaizPersist / BaizConviction — validated 2026-08, see assets/baizscore_backtest.html.
@@ -2354,9 +2361,17 @@ def _compute_baiz_persist_and_conviction(df):
         except Exception:
             history = {}
 
-    persist_vals, conviction_vals, updated_history = [], [], {}
+    # One entry per trading session, not per run: the 4:30 PM scan, its retries and
+    # the midday snapshot all score the same session, so a re-run for the session
+    # already recorded (__session__) replaces that ticker's last entry (2026-10-21).
+    session = _session_date(df)
+    rerun = session is not None and history.get("__session__") == session
+
+    persist_vals, conviction_vals, updated_history = [], [], {"__session__": session}
     for score, ticker in zip(df["BaizScore"], df["Ticker"]):
         prior = history.get(ticker, [])
+        if rerun and prior:
+            prior = prior[:-1]
         combined = prior + [float(score)] if score is not None and pd.notna(score) else prior
         combined = combined[-BAIZ_PERSIST_WINDOW:]
         updated_history[ticker] = combined
@@ -2398,8 +2413,15 @@ def _update_score_trends(df):
         except Exception:
             history = {}
 
+    # Same one-entry-per-session rule as _compute_baiz_persist_and_conviction.
+    # __dates__ lists the session date of each position (newest last).
+    session = _session_date(df)
+    rerun = session is not None and history.get("__session__") == session
+    dates = list(history.get("__dates__", []))
+    if not rerun:
+        dates.append(session)
     spark_cols = {c: [] for c in SCORE_TREND_COLS}
-    updated_history = {}
+    updated_history = {"__session__": session, "__dates__": dates[-BAIZ_TREND_WINDOW:]}
 
     for _, row in df.iterrows():
         ticker = row["Ticker"]
@@ -2408,7 +2430,10 @@ def _update_score_trends(df):
         for c in SCORE_TREND_COLS:
             val = row.get(c)
             val_clean = int(val) if val is not None and pd.notna(val) else None
-            combined = (entry.get(c, []) + [val_clean])[-BAIZ_TREND_WINDOW:]
+            prior = entry.get(c, [])
+            if rerun and prior:
+                prior = prior[:-1]
+            combined = (prior + [val_clean])[-BAIZ_TREND_WINDOW:]
             new_entry[c] = combined
             spark_cols[c].append(combined)
         updated_history[ticker] = new_entry
