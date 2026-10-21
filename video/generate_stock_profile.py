@@ -129,7 +129,7 @@ def index_label(r):
 def scene_hook(r, name, date_str):
     img, draw = new_frame_s()
     dot_grid_s(draw)
-    _eyebrow(draw, "STOCK PROFILE", 380)
+    _eyebrow(draw, "STOCK MARKET", 380)
     f_tkr = load_headline_font(220)
     y = 520
     centered_s(draw, y, r["Ticker"], f_tkr, GOLD_LIGHT)
