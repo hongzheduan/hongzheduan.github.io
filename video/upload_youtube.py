@@ -467,7 +467,7 @@ def make_meta(video_type, date, subject=None):
         # subject = "TICKER|Company Name" (from generate_stock_profile.py's sidecar json)
         ticker, _, name = (subject or "|").partition("|")
         return (
-            f"Stock Market: {name} ({ticker})",
+            f"Stock Profile: {name} ({ticker})",
             f"A quick profile of {name} ({ticker}): what the company does, its key numbers, "
             f"and its 1-year price chart. Data as of the {date} close. A different S&P 500 or "
             f"Nasdaq-100 company every day.\n\n{SUBSCRIBE_LINE_EN}\n\n{DISCLAIMER_EN}",
