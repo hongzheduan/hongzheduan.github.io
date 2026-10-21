@@ -209,6 +209,16 @@ SUBSCRIBE_LINE_CN = (
     "欢迎订阅贝佐拉频道，定期更新标普500和纳斯达克100价格与成交量数据。"
 )
 
+def long_date(date, cn=False):
+    """'2026-10-21' -> 'Wednesday, October 21, 2026' (CN: '2026年10月21日').
+    main() swaps this into every title in place of the numeric date (user
+    request 2026-10-21); descriptions keep the numeric form."""
+    d = datetime.date.fromisoformat(date)
+    if cn:
+        return f"{d.year}年{d.month}月{d.day}日"
+    return f"{d.strftime('%A, %B')} {d.day}, {d.year}"
+
+
 def make_meta(video_type, date, subject=None):
     if video_type == "sp500_movers":
         title = random.choice([
@@ -490,6 +500,7 @@ def main():
         sys.exit(1)
 
     title, description = make_meta(args.type, args.date, args.subject)
+    title = title.replace(args.date, long_date(args.date, cn=args.type.endswith("_cn")))
     # All 10 video types are Shorts now (vertical, <60s) — #Shorts reinforces the
     # Shorts-shelf placement signal YouTube already infers from aspect ratio/duration.
     description = f"{description}\n\n#Shorts"
