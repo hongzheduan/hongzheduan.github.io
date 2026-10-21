@@ -1,0 +1,48 @@
+name: Baizora Tracker
+
+# Records each finished session's top-10 BaizConviction list into
+# data/baizora_tracker.json (baizora_tracker.py), shown on baizora_tracker.html.
+# Added 2026-10-21. Runs after the scanner's evening scans; the script is idempotent
+# (skips midday snapshots and dates already logged), so the later crons are just
+# retries for a late or dropped scan.
+
+on:
+  schedule:
+    # Fixed UTC (ET shifts an hour with DST) plus GitHub's ~40-90 min dispatch delay.
+    - cron: "45 23 * * 1-5"   # 7:45 PM EDT, after the 6:30 PM final scan
+    - cron: "15 2 * * 2-6"    # 10:15 PM EDT retry
+    - cron: "30 6 * * 2-6"    # 2:30 AM EDT retry, after the ~midnight scanner safety-net run
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: baizora-tracker
+  cancel-in-progress: false
+
+jobs:
+  record-list:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Record today's list
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            python3 baizora_tracker.py
+            git add data/baizora_tracker.json
+            if git diff --cached --quiet; then echo "No new list"; exit 0; fi
+            git commit -m "auto update baizora tracker $(python3 -c "import json; print(json.load(open('data/latest.json'))['date'])")"
+            if git push origin HEAD:main; then exit 0; fi
+            sleep $((i * 10))
+          done
+          exit 1
