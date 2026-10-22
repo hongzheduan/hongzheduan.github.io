@@ -805,6 +805,11 @@
     .overlay-drawer-toggle:hover, .overlay-drawer-toggle.open { color: #cbd5e1; border-color: rgba(255,255,255,0.25); }
     .overlay-drawer-panel { display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; background: #0d1e3d; border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 10px; box-shadow: 0 12px 28px rgba(0,0,0,0.45); flex-wrap: wrap; align-items: center; gap: 6px; width: 210px; }
     .overlay-drawer-panel.open { display: flex; }
+    /* Tools drawer: SMA..Baizora drawers nested inside, each expands inline */
+    .tools-panel { width: 280px; flex-direction: column; flex-wrap: nowrap; align-items: stretch; max-height: 70vh; overflow-y: auto; }
+    .tools-panel .overlay-drawer-wrap { display: block; margin: 0; }
+    .tools-panel .overlay-drawer-toggle { width: 100%; text-align: left; }
+    .tools-panel .overlay-drawer-panel { position: static; width: auto; margin-top: 6px; box-shadow: none; background: rgba(255,255,255,0.03); }
     .sma-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .sma-btn::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; opacity: .5; }
     .sma-btn:hover { color: #cbd5e1; }
@@ -3520,6 +3525,8 @@
       document.getElementById("baizDrawerToggle").textContent = (BAIZ_LABELS[_baizKey] || "贝佐拉") + " ▾";
       document.getElementById("baizToggles").classList.remove("open");
       document.getElementById("baizDrawerToggle").classList.remove("open");
+      document.getElementById("toolsPanel").classList.remove("open");
+      document.getElementById("toolsDrawerToggle").classList.remove("open");
 
       requestAnimationFrame(() => {
         _renderModalChart(ticker, _currentTf());
@@ -4018,7 +4025,7 @@
         toggle.classList.toggle("open");
       });
       document.addEventListener("click", e => {
-        if (panel.classList.contains("open") && !panel.contains(e.target) && e.target !== toggle) {
+        if (panel.classList.contains("open") && e.target.isConnected && !panel.contains(e.target) && e.target !== toggle) {
           panel.classList.remove("open");
           toggle.classList.remove("open");
         }
@@ -4034,6 +4041,7 @@
     _setupDrawer("baizDrawerToggle", "baizToggles");
     _setupDrawer("tfDrawerToggle", "candleTimeframes");
     _setupDrawer("resDrawerToggle", "resToggles");
+    _setupDrawer("toolsDrawerToggle", "toolsPanel");
 
     document.getElementById("gapToggles").addEventListener("click", e => {
       const btn = e.target.closest(".sma-btn");
@@ -4552,73 +4560,78 @@
         </div>
       </div>
       <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="smaDrawerToggle">均线 &#9662;</button>
-        <div class="overlay-drawer-panel" id="smaToggles">
-          <div id="smaChipsContainer" style="display:flex;flex-wrap:wrap;gap:6px;width:100%;"></div>
-          <button type="button" class="sma-add-btn" data-preset="20">+20</button>
-          <button type="button" class="sma-add-btn" data-preset="50">+50</button>
-          <button type="button" class="sma-add-btn" data-preset="200">+200</button>
-          <input type="number" id="customSmaInput" min="2" max="250" placeholder="#" title="自定义均线周期 (2-250)">
-          <button type="button" class="sma-add-btn" id="customSmaAdd">+均线</button>
+        <button type="button" class="overlay-drawer-toggle" id="toolsDrawerToggle">工具 &#9662;</button>
+        <div class="overlay-drawer-panel tools-panel" id="toolsPanel">
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="smaDrawerToggle">均线 &#9662;</button>
+          <div class="overlay-drawer-panel" id="smaToggles">
+            <div id="smaChipsContainer" style="display:flex;flex-wrap:wrap;gap:6px;width:100%;"></div>
+            <button type="button" class="sma-add-btn" data-preset="20">+20</button>
+            <button type="button" class="sma-add-btn" data-preset="50">+50</button>
+            <button type="button" class="sma-add-btn" data-preset="200">+200</button>
+            <input type="number" id="customSmaInput" min="2" max="250" placeholder="#" title="自定义均线周期 (2-250)">
+            <button type="button" class="sma-add-btn" id="customSmaAdd">+均线</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="bbDrawerToggle">布林带 &#9662;</button>
-        <div class="overlay-drawer-panel" id="bbToggles">
-          <button class="sma-btn" id="bbChip" data-sma="bb">布林带 (20,2)</button>
-          <input type="number" id="bbPeriodInput" min="2" max="250" value="20" title="布林带周期 (默认20)">
-          <input type="number" id="bbMultInput" min="0.5" max="5" step="0.1" value="2" title="标准差倍数 (默认2)">
-          <button type="button" class="sma-add-btn" id="bbApply">设置</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="bbDrawerToggle">布林带 &#9662;</button>
+          <div class="overlay-drawer-panel" id="bbToggles">
+            <button class="sma-btn" id="bbChip" data-sma="bb">布林带 (20,2)</button>
+            <input type="number" id="bbPeriodInput" min="2" max="250" value="20" title="布林带周期 (默认20)">
+            <input type="number" id="bbMultInput" min="0.5" max="5" step="0.1" value="2" title="标准差倍数 (默认2)">
+            <button type="button" class="sma-add-btn" id="bbApply">设置</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="sarDrawerToggle">抛物线SAR &#9662;</button>
-        <div class="overlay-drawer-panel" id="sarToggles">
-          <button class="sma-btn" id="sarChip" data-sma="sar" title="抛物线转向指标 (Wilder)。点在价格下方表示上升趋势，在上方表示下降趋势。">抛物线SAR (0.02,0.2)</button>
-          <input type="number" id="sarStepInput" min="0.001" max="0.5" step="0.01" value="0.02" title="加速因子步长 (默认0.02)">
-          <input type="number" id="sarMaxInput" min="0.01" max="1" step="0.01" value="0.2" title="加速因子上限 (默认0.2)">
-          <button type="button" class="sma-add-btn" id="sarApply">设置</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="sarDrawerToggle">抛物线SAR &#9662;</button>
+          <div class="overlay-drawer-panel" id="sarToggles">
+            <button class="sma-btn" id="sarChip" data-sma="sar" title="抛物线转向指标 (Wilder)。点在价格下方表示上升趋势，在上方表示下降趋势。">抛物线SAR (0.02,0.2)</button>
+            <input type="number" id="sarStepInput" min="0.001" max="0.5" step="0.01" value="0.02" title="加速因子步长 (默认0.02)">
+            <input type="number" id="sarMaxInput" min="0.01" max="1" step="0.01" value="0.2" title="加速因子上限 (默认0.2)">
+            <button type="button" class="sma-add-btn" id="sarApply">设置</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="gapDrawerToggle">跳空 &#9662;</button>
-        <div class="overlay-drawer-panel" id="gapToggles">
-          <button class="sma-btn" id="gapChip" data-sma="gap" title="价格跳空：当日最低价高于前一日最高价 (向上跳空，绿色) 或当日最高价低于前一日最低价 (向下跳空，红色)。仅显示尚未回补的缺口，阴影覆盖价格尚未回到的部分。">跳空</button>
-          <input type="number" id="gapMinInput" min="0" max="20" step="0.5" value="0" title="最小跳空幅度 % (默认0，显示全部)">
-          <button type="button" class="sma-add-btn" id="gapApply">设置</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="gapDrawerToggle">跳空 &#9662;</button>
+          <div class="overlay-drawer-panel" id="gapToggles">
+            <button class="sma-btn" id="gapChip" data-sma="gap" title="价格跳空：当日最低价高于前一日最高价 (向上跳空，绿色) 或当日最高价低于前一日最低价 (向下跳空，红色)。仅显示尚未回补的缺口，阴影覆盖价格尚未回到的部分。">跳空</button>
+            <input type="number" id="gapMinInput" min="0" max="20" step="0.5" value="0" title="最小跳空幅度 % (默认0，显示全部)">
+            <button type="button" class="sma-add-btn" id="gapApply">设置</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="macdDrawerToggle">MACD &#9662;</button>
-        <div class="overlay-drawer-panel" id="macdToggles">
-          <button class="sma-btn" id="macdChip" data-sma="macd">MACD (12,26,9)</button>
-          <input type="number" id="macdFastInput" min="2" max="100" value="12" title="快线EMA周期 (默认12)">
-          <input type="number" id="macdSlowInput" min="2" max="200" value="26" title="慢线EMA周期 (默认26)">
-          <input type="number" id="macdSignalInput" min="2" max="100" value="9" title="信号线EMA周期 (默认9)">
-          <button type="button" class="sma-add-btn" id="macdApply">设置</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="macdDrawerToggle">MACD &#9662;</button>
+          <div class="overlay-drawer-panel" id="macdToggles">
+            <button class="sma-btn" id="macdChip" data-sma="macd">MACD (12,26,9)</button>
+            <input type="number" id="macdFastInput" min="2" max="100" value="12" title="快线EMA周期 (默认12)">
+            <input type="number" id="macdSlowInput" min="2" max="200" value="26" title="慢线EMA周期 (默认26)">
+            <input type="number" id="macdSignalInput" min="2" max="100" value="9" title="信号线EMA周期 (默认9)">
+            <button type="button" class="sma-add-btn" id="macdApply">设置</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="rsiDrawerToggle">RSI &#9662;</button>
-        <div class="overlay-drawer-panel" id="rsiToggles">
-          <button class="sma-btn" id="rsiChip" data-sma="rsi" title="相对强弱指标（Wilder平滑法）。0-100的动量震荡指标；通常70以上为超买，30以下为超卖。">RSI (14)</button>
-          <input type="number" id="rsiPeriodInput" min="2" max="100" value="14" title="RSI周期 (默认14)">
-          <button type="button" class="sma-add-btn" id="rsiApply">设置</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="rsiDrawerToggle">RSI &#9662;</button>
+          <div class="overlay-drawer-panel" id="rsiToggles">
+            <button class="sma-btn" id="rsiChip" data-sma="rsi" title="相对强弱指标（Wilder平滑法）。0-100的动量震荡指标；通常70以上为超买，30以下为超卖。">RSI (14)</button>
+            <input type="number" id="rsiPeriodInput" min="2" max="100" value="14" title="RSI周期 (默认14)">
+            <button type="button" class="sma-add-btn" id="rsiApply">设置</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="vpDrawerToggle">成交量分布 &#9662;</button>
-        <div class="overlay-drawer-panel" id="vpToggles">
-          <button class="sma-btn" id="vpChip" data-vp="1" title="可见时间窗内每个价格水平的成交量。绿色 = 上涨日成交量（收盘 ≥ 开盘）；红色 = 下跌日成交量（收盘 &lt; 开盘），叠放在绿色右侧。柱状图从图表左侧边缘延伸。金色虚线标记成交量最大的价格水平（控制点）。这并非买入/卖出量——日线数据无法区分。">按价格成交量</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="vpDrawerToggle">成交量分布 &#9662;</button>
+          <div class="overlay-drawer-panel" id="vpToggles">
+            <button class="sma-btn" id="vpChip" data-vp="1" title="可见时间窗内每个价格水平的成交量。绿色 = 上涨日成交量（收盘 ≥ 开盘）；红色 = 下跌日成交量（收盘 &lt; 开盘），叠放在绿色右侧。柱状图从图表左侧边缘延伸。金色虚线标记成交量最大的价格水平（控制点）。这并非买入/卖出量——日线数据无法区分。">按价格成交量</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="baizDrawerToggle">贝佐拉 &#9662;</button>
-        <div class="overlay-drawer-panel" id="baizToggles">
-          <button class="sma-btn" data-baiz="BaizScore">贝佐拉</button>
-          <button class="sma-btn" data-baiz="BaizMomentum">动能+</button>
-          <button class="sma-btn" data-baiz="BaizPersist">持续度</button>
-          <button class="sma-btn" data-baiz="BaizConviction">信心指数</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="baizDrawerToggle">贝佐拉 &#9662;</button>
+          <div class="overlay-drawer-panel" id="baizToggles">
+            <button class="sma-btn" data-baiz="BaizScore">贝佐拉</button>
+            <button class="sma-btn" data-baiz="BaizMomentum">动能+</button>
+            <button class="sma-btn" data-baiz="BaizPersist">持续度</button>
+            <button class="sma-btn" data-baiz="BaizConviction">信心指数</button>
+          </div>
+        </div>
         </div>
       </div>
       <div id="candleChartWrap">

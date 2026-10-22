@@ -798,6 +798,11 @@
     .overlay-drawer-toggle:hover, .overlay-drawer-toggle.open { color: #cbd5e1; border-color: rgba(255,255,255,0.25); }
     .overlay-drawer-panel { display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; background: #0d1e3d; border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 10px; box-shadow: 0 12px 28px rgba(0,0,0,0.45); flex-wrap: wrap; align-items: center; gap: 6px; width: 210px; }
     .overlay-drawer-panel.open { display: flex; }
+    /* Tools drawer: SMA..Baizora drawers nested inside, each expands inline */
+    .tools-panel { width: 280px; flex-direction: column; flex-wrap: nowrap; align-items: stretch; max-height: 70vh; overflow-y: auto; }
+    .tools-panel .overlay-drawer-wrap { display: block; margin: 0; }
+    .tools-panel .overlay-drawer-toggle { width: 100%; text-align: left; }
+    .tools-panel .overlay-drawer-panel { position: static; width: auto; margin-top: 6px; box-shadow: none; background: rgba(255,255,255,0.03); }
     .sma-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all .15s; }
     .sma-btn::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; opacity: .5; }
     .sma-btn:hover { color: #cbd5e1; }
@@ -3539,6 +3544,8 @@
       document.getElementById("baizDrawerToggle").textContent = (BAIZ_LABELS[_baizKey] || "Baizora") + " ▾";
       document.getElementById("baizToggles").classList.remove("open");
       document.getElementById("baizDrawerToggle").classList.remove("open");
+      document.getElementById("toolsPanel").classList.remove("open");
+      document.getElementById("toolsDrawerToggle").classList.remove("open");
 
       requestAnimationFrame(() => {
         _renderModalChart(ticker, _currentTf());
@@ -4102,7 +4109,7 @@
         toggle.classList.toggle("open");
       });
       document.addEventListener("click", e => {
-        if (panel.classList.contains("open") && !panel.contains(e.target) && e.target !== toggle) {
+        if (panel.classList.contains("open") && e.target.isConnected && !panel.contains(e.target) && e.target !== toggle) {
           panel.classList.remove("open");
           toggle.classList.remove("open");
         }
@@ -4118,6 +4125,7 @@
     _setupDrawer("baizDrawerToggle", "baizToggles");
     _setupDrawer("tfDrawerToggle", "candleTimeframes");
     _setupDrawer("resDrawerToggle", "resToggles");
+    _setupDrawer("toolsDrawerToggle", "toolsPanel");
 
     document.getElementById("gapToggles").addEventListener("click", e => {
       const btn = e.target.closest(".sma-btn");
@@ -4594,73 +4602,78 @@
         </div>
       </div>
       <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="smaDrawerToggle">SMA &#9662;</button>
-        <div class="overlay-drawer-panel" id="smaToggles">
-          <div id="smaChipsContainer" style="display:flex;flex-wrap:wrap;gap:6px;width:100%;"></div>
-          <button type="button" class="sma-add-btn" data-preset="20">+20</button>
-          <button type="button" class="sma-add-btn" data-preset="50">+50</button>
-          <button type="button" class="sma-add-btn" data-preset="200">+200</button>
-          <input type="number" id="customSmaInput" min="2" max="250" placeholder="#" title="Custom SMA period (2-250)">
-          <button type="button" class="sma-add-btn" id="customSmaAdd">+ SMA</button>
+        <button type="button" class="overlay-drawer-toggle" id="toolsDrawerToggle">Tools &#9662;</button>
+        <div class="overlay-drawer-panel tools-panel" id="toolsPanel">
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="smaDrawerToggle">SMA &#9662;</button>
+          <div class="overlay-drawer-panel" id="smaToggles">
+            <div id="smaChipsContainer" style="display:flex;flex-wrap:wrap;gap:6px;width:100%;"></div>
+            <button type="button" class="sma-add-btn" data-preset="20">+20</button>
+            <button type="button" class="sma-add-btn" data-preset="50">+50</button>
+            <button type="button" class="sma-add-btn" data-preset="200">+200</button>
+            <input type="number" id="customSmaInput" min="2" max="250" placeholder="#" title="Custom SMA period (2-250)">
+            <button type="button" class="sma-add-btn" id="customSmaAdd">+ SMA</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="bbDrawerToggle">Bollinger Band &#9662;</button>
-        <div class="overlay-drawer-panel" id="bbToggles">
-          <button class="sma-btn" id="bbChip" data-sma="bb">BB (20,2)</button>
-          <input type="number" id="bbPeriodInput" min="2" max="250" value="20" title="Bollinger period (default 20)">
-          <input type="number" id="bbMultInput" min="0.5" max="5" step="0.1" value="2" title="Bollinger std-dev multiplier (default 2)">
-          <button type="button" class="sma-add-btn" id="bbApply">Set</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="bbDrawerToggle">Bollinger Band &#9662;</button>
+          <div class="overlay-drawer-panel" id="bbToggles">
+            <button class="sma-btn" id="bbChip" data-sma="bb">BB (20,2)</button>
+            <input type="number" id="bbPeriodInput" min="2" max="250" value="20" title="Bollinger period (default 20)">
+            <input type="number" id="bbMultInput" min="0.5" max="5" step="0.1" value="2" title="Bollinger std-dev multiplier (default 2)">
+            <button type="button" class="sma-add-btn" id="bbApply">Set</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="sarDrawerToggle">SAR &#9662;</button>
-        <div class="overlay-drawer-panel" id="sarToggles">
-          <button class="sma-btn" id="sarChip" data-sma="sar" title="Parabolic SAR (Wilder). Dots below price mark an uptrend, dots above mark a downtrend. A flip to the other side marks a trend reversal.">SAR (0.02,0.2)</button>
-          <input type="number" id="sarStepInput" min="0.001" max="0.5" step="0.01" value="0.02" title="Acceleration step (default 0.02)">
-          <input type="number" id="sarMaxInput" min="0.01" max="1" step="0.01" value="0.2" title="Acceleration max (default 0.2)">
-          <button type="button" class="sma-add-btn" id="sarApply">Set</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="sarDrawerToggle">SAR &#9662;</button>
+          <div class="overlay-drawer-panel" id="sarToggles">
+            <button class="sma-btn" id="sarChip" data-sma="sar" title="Parabolic SAR (Wilder). Dots below price mark an uptrend, dots above mark a downtrend. A flip to the other side marks a trend reversal.">SAR (0.02,0.2)</button>
+            <input type="number" id="sarStepInput" min="0.001" max="0.5" step="0.01" value="0.02" title="Acceleration step (default 0.02)">
+            <input type="number" id="sarMaxInput" min="0.01" max="1" step="0.01" value="0.2" title="Acceleration max (default 0.2)">
+            <button type="button" class="sma-add-btn" id="sarApply">Set</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="gapDrawerToggle">Gaps &#9662;</button>
-        <div class="overlay-drawer-panel" id="gapToggles">
-          <button class="sma-btn" id="gapChip" data-sma="gap" title="Price gaps: a bar whose low is above the prior bar's high (gap up, green) or whose high is below the prior bar's low (gap down, red). Only gaps not yet filled are shown, shaded over the part price has not traded back into.">Gaps</button>
-          <input type="number" id="gapMinInput" min="0" max="20" step="0.5" value="0" title="Minimum gap size in % (default 0 = every gap)">
-          <button type="button" class="sma-add-btn" id="gapApply">Set</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="gapDrawerToggle">Gaps &#9662;</button>
+          <div class="overlay-drawer-panel" id="gapToggles">
+            <button class="sma-btn" id="gapChip" data-sma="gap" title="Price gaps: a bar whose low is above the prior bar's high (gap up, green) or whose high is below the prior bar's low (gap down, red). Only gaps not yet filled are shown, shaded over the part price has not traded back into.">Gaps</button>
+            <input type="number" id="gapMinInput" min="0" max="20" step="0.5" value="0" title="Minimum gap size in % (default 0 = every gap)">
+            <button type="button" class="sma-add-btn" id="gapApply">Set</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="macdDrawerToggle">MACD &#9662;</button>
-        <div class="overlay-drawer-panel" id="macdToggles">
-          <button class="sma-btn" id="macdChip" data-sma="macd">MACD (12,26,9)</button>
-          <input type="number" id="macdFastInput" min="2" max="100" value="12" title="Fast EMA period (default 12)">
-          <input type="number" id="macdSlowInput" min="2" max="200" value="26" title="Slow EMA period (default 26)">
-          <input type="number" id="macdSignalInput" min="2" max="100" value="9" title="Signal EMA period (default 9)">
-          <button type="button" class="sma-add-btn" id="macdApply">Set</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="macdDrawerToggle">MACD &#9662;</button>
+          <div class="overlay-drawer-panel" id="macdToggles">
+            <button class="sma-btn" id="macdChip" data-sma="macd">MACD (12,26,9)</button>
+            <input type="number" id="macdFastInput" min="2" max="100" value="12" title="Fast EMA period (default 12)">
+            <input type="number" id="macdSlowInput" min="2" max="200" value="26" title="Slow EMA period (default 26)">
+            <input type="number" id="macdSignalInput" min="2" max="100" value="9" title="Signal EMA period (default 9)">
+            <button type="button" class="sma-add-btn" id="macdApply">Set</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="rsiDrawerToggle">RSI &#9662;</button>
-        <div class="overlay-drawer-panel" id="rsiToggles">
-          <button class="sma-btn" id="rsiChip" data-sma="rsi" title="Relative Strength Index (Wilder's smoothing). Momentum oscillator from 0-100; conventionally overbought above 70, oversold below 30.">RSI (14)</button>
-          <input type="number" id="rsiPeriodInput" min="2" max="100" value="14" title="RSI period (default 14)">
-          <button type="button" class="sma-add-btn" id="rsiApply">Set</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="rsiDrawerToggle">RSI &#9662;</button>
+          <div class="overlay-drawer-panel" id="rsiToggles">
+            <button class="sma-btn" id="rsiChip" data-sma="rsi" title="Relative Strength Index (Wilder's smoothing). Momentum oscillator from 0-100; conventionally overbought above 70, oversold below 30.">RSI (14)</button>
+            <input type="number" id="rsiPeriodInput" min="2" max="100" value="14" title="RSI period (default 14)">
+            <button type="button" class="sma-add-btn" id="rsiApply">Set</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="vpDrawerToggle">Vol Profile &#9662;</button>
-        <div class="overlay-drawer-panel" id="vpToggles">
-          <button class="sma-btn" id="vpChip" data-vp="1" title="Volume traded at each price level over the visible window. Green = volume on up days (close ≥ open); red = volume on down days (close &lt; open), stacked to the right of the green. Bars run from the left edge of the chart. The gold dashed line marks the price level with the most volume (point of control). Not buy vs sell volume — daily data can't show that.">Volume by Price</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="vpDrawerToggle">Vol Profile &#9662;</button>
+          <div class="overlay-drawer-panel" id="vpToggles">
+            <button class="sma-btn" id="vpChip" data-vp="1" title="Volume traded at each price level over the visible window. Green = volume on up days (close ≥ open); red = volume on down days (close &lt; open), stacked to the right of the green. Bars run from the left edge of the chart. The gold dashed line marks the price level with the most volume (point of control). Not buy vs sell volume — daily data can't show that.">Volume by Price</button>
+          </div>
         </div>
-      </div>
-      <div class="overlay-drawer-wrap">
-        <button type="button" class="overlay-drawer-toggle" id="baizDrawerToggle">Baizora &#9662;</button>
-        <div class="overlay-drawer-panel" id="baizToggles">
-          <button class="sma-btn" data-baiz="BaizScore">Baizora</button>
-          <button class="sma-btn" data-baiz="BaizMomentum">Momentum+</button>
-          <button class="sma-btn" data-baiz="BaizPersist">Persist</button>
-          <button class="sma-btn" data-baiz="BaizConviction">Conviction</button>
+        <div class="overlay-drawer-wrap">
+          <button type="button" class="overlay-drawer-toggle" id="baizDrawerToggle">Baizora &#9662;</button>
+          <div class="overlay-drawer-panel" id="baizToggles">
+            <button class="sma-btn" data-baiz="BaizScore">Baizora</button>
+            <button class="sma-btn" data-baiz="BaizMomentum">Momentum+</button>
+            <button class="sma-btn" data-baiz="BaizPersist">Persist</button>
+            <button class="sma-btn" data-baiz="BaizConviction">Conviction</button>
+          </div>
+        </div>
         </div>
       </div>
       <div id="candleChartWrap">
