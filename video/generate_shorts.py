@@ -36,6 +36,9 @@ from generate_thumbnail import load_headline_font, _bg_volume_bars, _bg_candlest
 SCRIPT_DIR = Path(__file__).parent
 SW, SH = 1080, 1920  # YouTube Shorts: vertical 9:16
 
+# Filtered out of data["data"] in main(), so no category builder can pick them.
+CATEGORY_EXCLUDE_TICKERS = {"SGOV"}
+
 # ── Video cover ("封面") selection ──────────────────────────────────────────────────
 # Pre-made portrait cover images live in video/covering/<Weekday>_<1-4>.png, one set of
 # 4 per weekday video type, rotated by calendar day. Right now only Monday's 4 are real
@@ -2660,6 +2663,9 @@ def main():
     data_path = Path(args.data) if args.data else DATA_FILE
     with open(data_path) as f:
         data = json.load(f)
+    # Tickers never featured in category videos (SGOV is a T-bill ETF: its
+    # price/volume moves are noise, not market news).
+    data["data"] = [r for r in data["data"] if r.get("Ticker") not in CATEGORY_EXCLUDE_TICKERS]
     if args.date_override:
         data["date"] = args.date_override
 
