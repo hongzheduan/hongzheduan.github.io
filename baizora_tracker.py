@@ -15,9 +15,9 @@ then take the TOP_N of those with the highest 1-year volatility (ties: rank scor
 candles.json (the copy committed with that day's data when re-ranking from git).
 History of the rule: BaizConviction alone (10-21) → + 3-month momentum 50/50 → 25/75 →
 + 50% high volatility (10-22/23) → volatile 20% by BaizScore → volatile 20% by 25/75 →
-this 25/75 top 100, most volatile. Backtest (239 sessions, 13-session forward): +4.31% mean
-/ +3.57% median, stdev 12.4, vs +5.00% / +5.48% for the volatile-20%-by-25/75 rule and
-+0.81% SPY. All lists were re-ranked with each rule change
+25/75 top 100, most volatile → this BaizConviction top 100, most volatile (weights 1/0).
+Backtest (239 sessions, 13-session forward): +3.97% mean / +3.48% median, stdev 13.3, vs
++4.31% / +3.57% for the 25/75 shortlist and +0.81% SPY. All lists were re-ranked with each rule change
 (--rerank), so lists before the rule existed are in-sample.
 
 Rule-based ranking only, no discretion.
@@ -40,7 +40,7 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
-CONV_WEIGHT, MOM_WEIGHT = 0.25, 0.75  # rank score over all eligible stocks
+CONV_WEIGHT, MOM_WEIGHT = 1.0, 0.0  # rank score over all eligible stocks (BaizConviction only since 2026-10-23)
 SHORTLIST_N = 100  # keep this many by rank score, then pick the most volatile
 HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
 

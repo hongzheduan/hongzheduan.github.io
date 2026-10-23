@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 25/75 rank score on all stocks, keep the top 100, then the 10 most volatile (1-year):
-the Baizora Tracker rule since 2026-10-23, vs other shortlist/volatility combinations.
+tried as the Baizora Tracker rule on 2026-10-23, then the BaizConviction top 100 version
+(cv100vol, shipped), vs other shortlist/volatility combinations.
 13-session forward returns, 239 sessions, current members only, in-sample.
 Run from the repo root: python backtests/shortlist_volatility_backtest.py
 """
@@ -17,7 +18,7 @@ def col(name):
 conv, score = col("BaizConviction"), col("BaizScore")
 ret = np.full_like(C, np.nan); ret[:, 1:] = C[:, 1:] / C[:, :-1] - 1
 pr = lambda x: np.nan_to_num(x, nan=-np.inf).argsort().argsort() / (len(x) - 1)
-names = ["c2575", "v20_2575", "t100vol", "t50vol", "t100conv"]
+names = ["c2575", "v20_2575", "t100vol", "t50vol", "t100conv", "cv100vol"]
 res = {k: [] for k in names + ["spy", "univ"]}
 pool = []   # (score, fwd) for every high-vol stock-day, for the hit-rate table
 for ci in range(n_c - HORIZON):
@@ -34,6 +35,7 @@ for ci in range(n_c - HORIZON):
     top = {
         "c2575": np.argsort(-(0.25 * pr(cv) + 0.75 * pr(m3)), kind="stable")[:TOP_N],
         "t100vol": (lambda sc_: (lambda keep: keep[np.argsort(-v1y[keep], kind="stable")[:TOP_N]])(np.argsort(-sc_, kind="stable")[:100]))(0.25 * pr(cv) + 0.75 * pr(m3)),
+        "cv100vol": (lambda keep: keep[np.argsort(-v1y[keep], kind="stable")[:TOP_N]])(np.argsort(-cv, kind="stable")[:100]),
         "t50vol": (lambda sc_: (lambda keep: keep[np.argsort(-v1y[keep], kind="stable")[:TOP_N]])(np.argsort(-sc_, kind="stable")[:50]))(0.25 * pr(cv) + 0.75 * pr(m3)),
         "t100conv": (lambda sc_: (lambda keep: keep[np.argsort(-cv[keep], kind="stable")[:TOP_N]])(np.argsort(-sc_, kind="stable")[:100]))(0.25 * pr(cv) + 0.75 * pr(m3)), "v33": top_by(pv >= 2 / 3),
         "v20_2575": (lambda m: np.where(m)[0][np.argsort(-(0.25 * pr(cv[m]) + 0.75 * pr(m3[m])), kind="stable")[:TOP_N]])(pv >= 0.8),
@@ -45,7 +47,7 @@ for ci in range(n_c - HORIZON):
     pool += list(zip(sc[hv], fwd[hv]))
 a = {k: np.array(v) for k, v in res.items()}
 lab = {"c2575": "25/75, all stocks", "v20_2575": "Vol 20% then 25/75 (now)",
-       "t100vol": "25/75 top 100, most volatile", "t50vol": "25/75 top 50, most volatile", "t100conv": "25/75 top 100, by conviction", "univ": "All stocks eq-wt", "spy": "SPY"}
+       "t100vol": "25/75 top 100, most volatile", "t50vol": "25/75 top 50, most volatile", "t100conv": "25/75 top 100, by conviction", "cv100vol": "Conviction top 100, most volatile", "univ": "All stocks eq-wt", "spy": "SPY"}
 print(f"sessions={len(a['c2575'])}")
 print(f"{'':28}{'mean':>7}{'median':>8}{'>SPY':>6}{'worst':>7}{'stdev':>7}{'mean/sd':>8}")
 for k in names + ["univ", "spy"]:
