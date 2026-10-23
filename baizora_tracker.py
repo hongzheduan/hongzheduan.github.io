@@ -2,25 +2,24 @@
 """
 Baizora Tracker: daily top-ranked list from the price & volume scanner (2026-10-21).
 
-Each finished trading session, records TOP_N S&P 500 / Nasdaq-100 stocks into
+Each finished trading session, records the TOP_N S&P 500 / Nasdaq-100 stocks with
+the highest rank score (ties: BaizScore, then market cap) into
 data/baizora_tracker.json, along with each stock's close that day and SPY's close.
 baizora_tracker.html shows today's list and every past list's return HORIZON trading
 days after it was recorded, next to SPY over the same span, so hits and misses both
 stay visible. Once a list reaches its HORIZON-th session, that session's closes are
 stored on the entry as "exit" {date, spy, prices}, so the result is fixed from then on.
 
-Rule (user, 2026-10-23): rank every eligible stock by CONV_WEIGHT x BaizConviction
-percentile + MOM_WEIGHT x 3-month price change percentile, keep the SHORTLIST_N highest,
-then take the TOP_N of those with the highest 1-year volatility (ties: rank score). 1-year volatility = annualized std of the last 252 daily returns from
-candles.json (the copy committed with that day's data when re-ranking from git).
-History of the rule: BaizConviction alone (10-21) → + 3-month momentum 50/50 → 25/75 →
-+ 50% high volatility (10-22/23) → volatile 20% by BaizScore → volatile 20% by 25/75 →
-25/75 top 100, most volatile → this BaizConviction top 100, most volatile (weights 1/0).
-Backtest (239 sessions, 13-session forward): +3.97% mean / +3.48% median, stdev 13.3, vs
-+4.31% / +3.57% for the 25/75 shortlist and +0.81% SPY. All lists were re-ranked with each rule change
-(--rerank), so lists before the rule existed are in-sample.
+Rank score: CONV_WEIGHT x BaizConviction percentile + MOM_WEIGHT x 3-month price change
+percentile, within that day's eligible stocks. User asked to add plain momentum (50/50),
+then set 25/75 (2026-10-22). backtests/momentum_blend_backtest.py, 25/75: +1.10pp mean /
++0.56pp median per 13 sessions vs BaizConviction alone over 239 sessions, not significant. On 2026-10-22 every
+existing list was re-ranked with it from git history (--rerank); the formula was
+picked on that same period, so those lists are in-sample.
 
-Rule-based ranking only, no discretion.
+Rule-based ranking only, no discretion. BaizConviction is the one Baizora score
+whose backtest (assets/baizscore_backtest.html) showed a clean edge over BaizScore
+at matched sample size, at 3 to 12 month horizons; it was never tested day-to-day.
 
 Idempotent: skips if latest.json is a midday snapshot or its date is already logged.
 Exits are filled from latest.json on the exit date, or from git history when missed.
@@ -40,8 +39,7 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
-CONV_WEIGHT, MOM_WEIGHT = 1.0, 0.0  # rank score over all eligible stocks (BaizConviction only since 2026-10-23)
-SHORTLIST_N = 100  # keep this many by rank score, then pick the most volatile
+CONV_WEIGHT, MOM_WEIGHT = 0.25, 0.75  # rank score weights (user, 2026-10-22; was 50/50)
 HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
 
 
@@ -54,23 +52,18 @@ def build_entry(data):
             and r.get("Price")]
     if len(rows) < TOP_N:
         return None
-    def pct(col):  # over all eligible stocks; average rank for ties; missing = neutral 0.5
-        vs = sorted(r[col] for r in rows if r.get(col) is not None)
-        m = len(vs)
-        return {r["Ticker"]: (None if r.get(col) is None or m < 2 else
-                              (bisect_left(vs, r[col]) + bisect_right(vs, r[col]) - 1) / 2 / (m - 1))
+    def pct(col):
+        vals = sorted(r[col] for r in rows if r.get(col) is not None)
+        n = len(vals)
+        # average rank for ties; missing momentum = neutral 0.5
+        return {r["Ticker"]: (0.5 if r.get(col) is None or n < 2 else
+                              (bisect_left(vals, r[col]) + bisect_right(vals, r[col]) - 1) / 2 / (n - 1))
                 for r in rows}
-    pc, pm, pv = pct("BaizConviction"), pct("3MPriceChange"), pct("Volatility1Y")
+    pc, pm = pct("BaizConviction"), pct("3MPriceChange")
     for r in rows:
-        t = r["Ticker"]
-        r["_rank"] = CONV_WEIGHT * pc[t] + MOM_WEIGHT * (0.5 if pm[t] is None else pm[t])
-        r["_volPct"] = pv[t]
+        r["_rank"] = CONV_WEIGHT * pc[r["Ticker"]] + MOM_WEIGHT * pm[r["Ticker"]]
     rows.sort(key=lambda r: (-r["_rank"], -(r.get("BaizScore") or 0),
                              -(r.get("MarketCap") or 0), r["Ticker"]))
-    rows = [r for r in rows[:SHORTLIST_N] if r.get("Volatility1Y") is not None]
-    if len(rows) < TOP_N:
-        return None
-    rows.sort(key=lambda r: (-r["Volatility1Y"], -r["_rank"], r["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
 
     def rnd(v, n=2):
@@ -90,8 +83,6 @@ def build_entry(data):
             "chg1d": rnd(r.get("PriceChange1D")),
             "chg1y": rnd(r.get("1YPriceChange")),
             "chg3m": rnd(r.get("3MPriceChange")),
-            "vol1y": rnd(r.get("Volatility1Y"), 3),  # annualized, 0.287 = 28.7%
-            "volPct": rnd(r["_volPct"] * 100, 1),  # 1-year volatility percentile, 100 = most volatile
             "rankScore": rnd(r["_rank"] * 100, 1),
             "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
             "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
@@ -111,33 +102,11 @@ def save_out(out):
     OUT.write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
 
 
-VOL_WINDOW = 252  # daily returns in the 1-year volatility
-
-
-def volatility_1y(candles, date):
-    """{ticker: annualized std of the last VOL_WINDOW daily returns up to date} from a
-    candles.json dict (arrays are end-aligned to candles["dates"]). Needs >= 200 returns."""
-    dates = candles.get("dates") or []
-    end = bisect_right(dates, date)  # bars dated <= date
-    out = {}
-    for t, bars in (candles.get("data") or {}).items():
-        lo = len(dates) - len(bars)       # first date index this ticker has
-        closes = [b[3] for b in bars[max(0, end - VOL_WINDOW - 1 - lo):max(0, end - lo)] if b and b[3]]
-        rets = [closes[k] / closes[k - 1] - 1 for k in range(1, len(closes))]
-        if len(rets) >= 200:
-            m = sum(rets) / len(rets)
-            out[t] = (sum((x - m) ** 2 for x in rets) / (len(rets) - 1)) ** 0.5 * 252 ** 0.5
-    return out
-
-
-def add(out, data, backfilled=False, candles=None):
+def add(out, data, backfilled=False):
     if data.get("midday"):
         return False
     if any(e["date"] == data.get("date") for e in out["entries"]):
         return False
-    vol = volatility_1y(candles, data["date"]) if candles else {}
-    for r in data.get("data", []):
-        r["Volatility1Y"] = vol.get(r.get("Ticker"))
     entry = build_entry(data)
     if entry is None:
         return False
@@ -257,12 +226,7 @@ def backfill(out, sessions):
         for r in data.get("data", []):
             for col in ("BaizPersist", "BaizConviction"):
                 r[col] = lookup(r.get("Ticker"), col, d)
-        try:  # the candles.json committed alongside, so volatility only uses data known then
-            candles = json.loads(subprocess.run(["git", "show", f"{sha}:data/candles.json"], cwd=ROOT,
-                                                capture_output=True, text=True, check=True).stdout)
-        except (subprocess.CalledProcessError, json.JSONDecodeError):
-            candles = None
-        if add(out, data, backfilled=True, candles=candles):
+        if add(out, data, backfilled=True):
             print("backfilled", d)
 
 
@@ -280,11 +244,7 @@ def main():
     if args.backfill:
         backfill(out, args.backfill)
     data = json.loads(LATEST.read_text(encoding="utf-8"))
-    try:
-        candles = json.loads(CANDLES.read_text(encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError):
-        candles = None
-    if add(out, data, candles=candles):
+    if add(out, data):
         print("added", data["date"])
     else:
         print(f"no new list (latest.json {data.get('date')}, midday={data.get('midday')})")

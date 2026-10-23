@@ -235,19 +235,21 @@
     <h1 class="page-title">Baizora Tracker</h1>
     <p class="page-sub">S&amp;P 500 &nbsp;·&nbsp; Nasdaq-100 &nbsp;·&nbsp; Updated each trading day</p>
 
-    <p class="bt-info">Each trading day, the scanner ranks every S&amp;P 500 and Nasdaq-100 stock by
-      <b>BaizConviction</b>, keeps the 100 highest, and lists the ten of those with the highest <b>1-year
-      volatility</b>. BaizConviction combines today's Baizora Score with how consistently the stock has scored over
-      the last 21 sessions. The list is a fixed rule applied to scanner data, with no
-      human selection.</p>
-    <p class="bt-info">In a one-year test (October 2025 to October 2026), a higher Baizora Score made little
-      difference to how often these volatile stocks rose over the next 13 trading days: 48% to 57% rose in every
-      score range. Volatile stocks swing sharply in both directions. Past results do not guarantee future results.</p>
+    <p class="bt-info">Each trading day, the ten S&amp;P 500 and Nasdaq-100 stocks with the highest
+      <b>rank score</b>: 25% <b>BaizConviction</b> and 75% <b>3-month price change</b>, each measured as a
+      percentile among all eligible stocks that day. BaizConviction blends today's BaizScore (trend, relative
+      strength, momentum, breakout and volume pressure) with how consistently the stock has scored over the last
+      21 sessions. The list is a fixed rule applied to scanner data, with no human selection.</p>
+    <p class="bt-info">In our 2023 to 2026 backtest, high BaizConviction was historically associated with a higher
+      median return than the average stock over 3 to 12 months. It was not tested over days or weeks, and past
+      results do not guarantee future results. <a href="assets/baizscore_backtest.html">Read the backtest</a>.
+      Adding 3-month price change was associated with a slightly higher 13-day return than BaizConviction alone in a
+      one-year test, a difference too small to be statistically reliable.</p>
 
     <div class="bt-label">Today's top-ranked <span id="btTodayDate"></span></div>
     <div class="bt-card">
       <table class="bt-table">
-        <thead><tr><th>#</th><th>Ticker</th><th class="bt-hide-m">Sector</th><th class="bt-num">Close</th><th class="bt-num">1D</th><th class="bt-num">1Y vol</th><th class="bt-hide-m">Scanner data</th></tr></thead>
+        <thead><tr><th>#</th><th>Ticker</th><th class="bt-hide-m">Sector</th><th class="bt-num">Close</th><th class="bt-num">1D</th><th class="bt-num">Rank</th><th class="bt-hide-m">Scanner data</th></tr></thead>
         <tbody id="btToday"><tr><td colspan="7" class="bt-empty">Loading…</td></tr></tbody>
       </table>
     </div>
@@ -331,8 +333,9 @@
         + '<td class="bt-sec bt-hide-m">' + esc(p.sector) + '</td>'
         + '<td class="bt-num">$' + p.price.toFixed(2) + '</td>'
         + '<td class="bt-num">' + pct(p.chg1d, 2) + '</td>'
-        + '<td class="bt-num"><div class="bt-conv">' + (p.vol1y != null ? Math.round(p.vol1y * 100) + '%' : '–') + '</div><div class="bt-sub">Rank ' + Math.round(p.rankScore)
-          + ' · Conv ' + Math.round(p.conviction) + ' · 3M ' + (p.chg3m >= 0 ? '+' : '') + Math.round(p.chg3m) + '%</div></td>'
+        + (p.rankScore != null
+          ? '<td class="bt-num"><div class="bt-conv">' + Math.round(p.rankScore) + '</div><div class="bt-sub">Conviction ' + Math.round(p.conviction) + ' · 3M ' + (p.chg3m >= 0 ? '+' : '') + Math.round(p.chg3m) + '%</div></td>'
+          : '<td class="bt-num"><div class="bt-conv">' + Math.round(p.conviction) + '</div><div class="bt-sub">Conviction · Score ' + esc(p.score) + '</div></td>')
         + '<td class="bt-hide-m"><div class="bt-why">' + chips.map(c => '<span class="bt-chip">' + esc(c) + '</span>').join('') + '</div></td></tr>';
     }).join('');
 
