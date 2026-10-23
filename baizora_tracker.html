@@ -257,14 +257,14 @@
     </div>
     <div class="bt-card" style="margin-top:12px;">
       <table class="bt-table">
-        <thead><tr><th>List date</th><th class="bt-hide-m">Return since, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
+        <thead><tr><th>List date</th><th class="bt-hide-m">Return since, per stock</th><th class="bt-num">List median</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
         <tbody id="btHist"><tr><td colspan="5" class="bt-empty">Loading…</td></tr></tbody>
       </table>
       <button type="button" class="bt-more" id="btMore" style="display:none;">Show all</button>
     </div>
 
     <div class="bt-foot">Returns are price only, from the list date's close to the latest scanner close, adjusted for
-      splits, before dividends, taxes and trading costs. "List mean" is the average of the ten stocks' returns; SPY is
+      splits, before dividends, taxes and trading costs. "List median" is the median of the ten stocks' returns; SPY is
       the S&amp;P 500 ETF over the same span. Lists marked † were reconstructed from that day's published scanner data
       when this tracker launched (October 21, 2026); later lists are recorded each evening. Rankings are mechanical and
       change daily. For informational purposes only. Not investment advice.</div>
@@ -297,7 +297,7 @@
   const fmtDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const pct = (v, d = 1) => v == null || isNaN(v) ? '–' : '<span class="' + (v >= 0 ? 'up' : 'dn') + '">' + (v >= 0 ? '+' : '') + v.toFixed(d) + '%</span>';
   const title = s => s.toLowerCase().replace(/\b([a-z])/g, c => c.toUpperCase());
-  const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+  const median = a => { const b = a.slice().sort((x, y) => x - y), m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
   const empty = (id, n, msg) => { document.getElementById(id).innerHTML = '<tr><td colspan="' + n + '" class="bt-empty">' + msg + '</td></tr>'; };
   const get = f => fetch('data/' + f + '?t=' + Date.now()).then(r => r.json());
 
@@ -333,17 +333,17 @@
     const rows = entries.filter(e => e.date < latest.date).map(e => {
       const rs = e.picks.map(p => ({ t: p.ticker, r: ret(p.ticker, e.date, p.price) }));
       const vals = rs.map(x => x.r).filter(v => v != null);
-      const avg = vals.length ? mean(vals) : null;
+      const med = vals.length ? median(vals) : null;
       const spy = now.SPY && e.spy ? (now.SPY / e.spy - 1) * 100 : null;
-      return { e, rs, avg, spy, diff: avg != null && spy != null ? avg - spy : null };
+      return { e, rs, med, spy, diff: med != null && spy != null ? med - spy : null };
     });
     const scored = rows.filter(r => r.diff != null);
     if (scored.length) {
       const beat = scored.filter(r => r.diff > 0).length;
       document.getElementById('btSum').innerHTML =
         '<div><b>' + beat + ' of ' + scored.length + '</b><small>Lists ahead of SPY</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same spans</small></div>';
+        + '<div><b>' + pct(median(scored.map(r => r.med))) + '</b><small>Median list return</small></div>'
+        + '<div><b>' + pct(median(scored.map(r => r.spy))) + '</b><small>Median SPY, same spans</small></div>';
     } else {
       document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets a return after the next trading day.</div>';
     }
@@ -355,7 +355,7 @@
       document.getElementById('btHist').innerHTML = (all ? rows : rows.slice(0, SHOW)).map(r =>
         '<tr><td class="bt-date">' + esc(fmtDate(r.e.date)) + (r.e.backfilled ? ' †' : '') + '</td>'
         + '<td class="bt-hide-m"><div class="bt-picks">' + r.rs.map(x => '<span class="bt-pick">' + esc(x.t) + '<i>' + pct(x.r, 0) + '</i></span>').join('') + '</div></td>'
-        + '<td class="bt-num">' + pct(r.avg) + '</td><td class="bt-num">' + pct(r.spy) + '</td><td class="bt-num">' + pct(r.diff) + '</td></tr>'
+        + '<td class="bt-num">' + pct(r.med) + '</td><td class="bt-num">' + pct(r.spy) + '</td><td class="bt-num">' + pct(r.diff) + '</td></tr>'
       ).join('');
       const more = document.getElementById('btMore');
       more.style.display = rows.length > SHOW && !all ? 'block' : 'none';
