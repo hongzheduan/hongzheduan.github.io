@@ -9,16 +9,15 @@ days after it was recorded, next to SPY over the same span, so hits and misses b
 stay visible. Once a list reaches its HORIZON-th session, that session's closes are
 stored on the entry as "exit" {date, spy, prices}, so the result is fixed from then on.
 
-Rule (user, 2026-10-23): keep only the most volatile VOL_TOP_SHARE of eligible stocks
-by 1-year volatility, then rank those by CONV_WEIGHT x BaizConviction percentile +
-MOM_WEIGHT x 3-month price change percentile (percentiles within the volatile group;
-ties: BaizScore, then market cap) and take the TOP_N. 1-year volatility = annualized std of the last 252 daily returns from
+Rule (user, 2026-10-23): rank every eligible stock by CONV_WEIGHT x BaizConviction
+percentile + MOM_WEIGHT x 3-month price change percentile, keep the SHORTLIST_N highest,
+then take the TOP_N of those with the highest 1-year volatility (ties: rank score). 1-year volatility = annualized std of the last 252 daily returns from
 candles.json (the copy committed with that day's data when re-ranking from git).
 History of the rule: BaizConviction alone (10-21) → + 3-month momentum 50/50 → 25/75 →
-+ 50% high volatility (10-22/23) → volatile 20% by BaizScore → this volatile 20% by 25/75.
-Backtest (239 sessions, 13-session forward): +5.00% mean / +5.48% median vs +3.99% /
-+3.67% ranking the same group by BaizScore and +0.81% SPY; among volatile stocks BaizScore
-barely moved the share that rose (48..57% in every score band). All lists were re-ranked with each rule change
++ 50% high volatility (10-22/23) → volatile 20% by BaizScore → volatile 20% by 25/75 →
+this 25/75 top 100, most volatile. Backtest (239 sessions, 13-session forward): +4.31% mean
+/ +3.57% median, stdev 12.4, vs +5.00% / +5.48% for the volatile-20%-by-25/75 rule and
++0.81% SPY. All lists were re-ranked with each rule change
 (--rerank), so lists before the rule existed are in-sample.
 
 Rule-based ranking only, no discretion.
@@ -41,8 +40,8 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
-VOL_TOP_SHARE = 0.20  # keep the most volatile 20% (1-year), then rank by the weights below
-CONV_WEIGHT, MOM_WEIGHT = 0.25, 0.75
+CONV_WEIGHT, MOM_WEIGHT = 0.25, 0.75  # rank score over all eligible stocks
+SHORTLIST_N = 100  # keep this many by rank score, then pick the most volatile
 HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
 
 
@@ -55,28 +54,23 @@ def build_entry(data):
             and r.get("Price")]
     if len(rows) < TOP_N:
         return None
-    # volatility percentile among stocks that have a 1-year figure (average rank for ties)
-    vals = sorted(r["Volatility1Y"] for r in rows if r.get("Volatility1Y") is not None)
-    n = len(vals)
-    for r in rows:
-        v = r.get("Volatility1Y")
-        r["_volPct"] = (None if v is None or n < 2 else
-                        (bisect_left(vals, v) + bisect_right(vals, v) - 1) / 2 / (n - 1))
-    rows = [r for r in rows if r["_volPct"] is not None and r["_volPct"] >= 1 - VOL_TOP_SHARE]
-    if len(rows) < TOP_N:
-        return None
-
-    def pct(col):  # within the volatile group; average rank for ties; missing = neutral 0.5
+    def pct(col):  # over all eligible stocks; average rank for ties; missing = neutral 0.5
         vs = sorted(r[col] for r in rows if r.get(col) is not None)
         m = len(vs)
-        return {r["Ticker"]: (0.5 if r.get(col) is None or m < 2 else
+        return {r["Ticker"]: (None if r.get(col) is None or m < 2 else
                               (bisect_left(vs, r[col]) + bisect_right(vs, r[col]) - 1) / 2 / (m - 1))
                 for r in rows}
-    pc, pm = pct("BaizConviction"), pct("3MPriceChange")
+    pc, pm, pv = pct("BaizConviction"), pct("3MPriceChange"), pct("Volatility1Y")
     for r in rows:
-        r["_rank"] = CONV_WEIGHT * pc[r["Ticker"]] + MOM_WEIGHT * pm[r["Ticker"]]
+        t = r["Ticker"]
+        r["_rank"] = CONV_WEIGHT * pc[t] + MOM_WEIGHT * (0.5 if pm[t] is None else pm[t])
+        r["_volPct"] = pv[t]
     rows.sort(key=lambda r: (-r["_rank"], -(r.get("BaizScore") or 0),
                              -(r.get("MarketCap") or 0), r["Ticker"]))
+    rows = [r for r in rows[:SHORTLIST_N] if r.get("Volatility1Y") is not None]
+    if len(rows) < TOP_N:
+        return None
+    rows.sort(key=lambda r: (-r["Volatility1Y"], -r["_rank"], r["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
 
     def rnd(v, n=2):
