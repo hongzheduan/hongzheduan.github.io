@@ -1,7 +1,8 @@
 name: Baizora Tracker
 
 # Records each finished session's top-10 BaizConviction list into
-# data/baizora_tracker.json (baizora_tracker.py), shown on baizora_tracker.html.
+# data/baizora_tracker.json (baizora_tracker.py), shown on baizora_tracker.html, and the
+# SPG Tracker list into data/spg_tracker.json (spg_tracker.py, added 2026-10-23).
 # Added 2026-10-21. Runs after the scanner's evening scans; the script is idempotent
 # (skips midday snapshots and dates already logged), so the later crons are just
 # retries for a late or dropped scan.
@@ -39,9 +40,10 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             python3 baizora_tracker.py
-            git add data/baizora_tracker.json
+            python3 spg_tracker.py
+            git add data/baizora_tracker.json data/spg_tracker.json
             if git diff --cached --quiet; then echo "No new list"; exit 0; fi
-            git commit -m "auto update baizora tracker $(python3 -c "import json; print(json.load(open('data/latest.json'))['date'])")"
+            git commit -m "auto update trackers $(python3 -c "import json; print(json.load(open('data/latest.json'))['date'])")"
             if git push origin HEAD:main; then exit 0; fi
             sleep $((i * 10))
           done
