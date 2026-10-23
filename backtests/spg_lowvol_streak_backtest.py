@@ -3,13 +3,16 @@
 SPG Tracker rule (user, 2026-10-23): stocks whose close rose on each of the last 5 sessions,
 then the 10 with the LOWEST 1-year volatility. Compared with the 30-day-volatility version,
 the most volatile risers, all risers, the Baizora Tracker 25/75 rule and SPY.
-13-session forward returns, current members only (survivorship), in-sample, no costs.
-Run from the repo root: python backtests/spg_lowvol_streak_backtest.py
+13-session forward returns by default; pass a number for another horizon (the SPG Tracker uses 2
+since 2026-10-23). Current members only (survivorship), in-sample, no costs.
+Run from the repo root: python backtests/spg_lowvol_streak_backtest.py [horizon]
 """
 import sys, json
 sys.path.insert(0, "backtests")
 import numpy as np
 from gainer_pattern_backtest import load_prices, ROOT, TOP_N, HORIZON
+if len(sys.argv) > 1:
+    HORIZON = int(sys.argv[1])
 tickers, dates, off, H, C, spy = load_prices()
 trend = json.loads((ROOT / "data/baiz_score_trend.json").read_text(encoding="utf-8"))
 n_c = len(trend["__dates__"])
