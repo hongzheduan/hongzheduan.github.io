@@ -10,10 +10,10 @@ days after it was recorded, next to SPY over the same span, so hits and misses b
 stay visible. Once a list reaches its HORIZON-th session, that session's closes are
 stored on the entry as "exit" {date, spy, prices}, so the result is fixed from then on.
 
-Rank score: 50% BaizConviction percentile + 50% 3-month price change percentile,
-within that day's eligible stocks. User asked to add plain momentum;
-backtests/momentum_blend_backtest.py: +0.70pp mean / +0.60pp median per 13 sessions
-vs BaizConviction alone over 239 sessions, not significant. On 2026-10-22 every
+Rank score: CONV_WEIGHT x BaizConviction percentile + MOM_WEIGHT x 3-month price change
+percentile, within that day's eligible stocks. User asked to add plain momentum (50/50),
+then set 25/75 (2026-10-22). backtests/momentum_blend_backtest.py, 25/75: +1.10pp mean /
++0.56pp median per 13 sessions vs BaizConviction alone over 239 sessions, not significant. On 2026-10-22 every
 existing list was re-ranked with it from git history (--rerank); the formula was
 picked on that same period, so those lists are in-sample.
 
@@ -39,6 +39,7 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
+CONV_WEIGHT, MOM_WEIGHT = 0.25, 0.75  # rank score weights (user, 2026-10-22; was 50/50)
 HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
 
 
@@ -60,7 +61,7 @@ def build_entry(data):
                 for r in rows}
     pc, pm = pct("BaizConviction"), pct("3MPriceChange")
     for r in rows:
-        r["_rank"] = 0.5 * pc[r["Ticker"]] + 0.5 * pm[r["Ticker"]]
+        r["_rank"] = CONV_WEIGHT * pc[r["Ticker"]] + MOM_WEIGHT * pm[r["Ticker"]]
     rows.sort(key=lambda r: (-r["_rank"], -(r.get("BaizScore") or 0),
                              -(r.get("MarketCap") or 0), r["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)

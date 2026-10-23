@@ -6,8 +6,9 @@ The user asked whether BaizConviction is the best ranking, then to add plain
 momentum to it (tracker ranking only; the BaizConviction score is unchanged).
 13-trading-session forward returns, 239 sessions 2025-10-22..2026-10-05, current
 S&P 500 + Nasdaq-100 members only (survivorship bias), in-sample, no costs.
-Result: conviction + 3M momentum 50/50 (shipped) +0.70pp mean / +0.60pp median vs
-conviction alone, risk-adjusted 0.48 vs 0.37; not statistically significant.
+Result: conviction + 3M momentum 50/50 +0.70pp mean / +0.60pp median vs conviction
+alone, risk-adjusted 0.48 vs 0.37; 25/75 (shipped, user's weights) +1.10pp / +0.56pp,
+risk-adjusted 0.52. Not statistically significant.
 
 Run from the repo root: python backtests/momentum_blend_backtest.py
 """
@@ -23,7 +24,7 @@ def col(name):
 conv, score = col("BaizConviction"), col("BaizScore")
 ret = np.full_like(C, np.nan); ret[:, 1:] = C[:, 1:] / C[:, :-1] - 1
 rng = np.random.default_rng(0)
-names = ["conv", "mom63", "mom12_1", "conv_m3", "conv_m12", "random"]
+names = ["conv", "mom63", "mom12_1", "conv_m3", "conv_m12", "conv_2575", "random"]
 res = {k: [] for k in names + ["spy", "univ"]}
 for ci in range(n_c - HORIZON):
     i = off + ci
@@ -40,6 +41,7 @@ for ci in range(n_c - HORIZON):
     pr = lambda x: np.nan_to_num(x, nan=-np.inf).argsort().argsort() / (len(x) - 1)
     sig["conv_m3"] = 0.5 * pr(sig["conv"]) + 0.5 * pr(sig["mom63"])
     sig["conv_m12"] = 0.5 * pr(sig["conv"]) + 0.5 * pr(sig["mom12_1"])
+    sig["conv_2575"] = 0.25 * pr(sig["conv"]) + 0.75 * pr(sig["mom63"])
     sig = {k: v for k, v in sig.items() if k in names}
     for k, s in sig.items():
         res[k].append(fwd[np.argsort(-np.nan_to_num(s, nan=-np.inf), kind="stable")[:TOP_N]].mean())
@@ -49,10 +51,10 @@ a = {k: np.array(v) for k, v in res.items()}
 print(f"sessions={len(a['conv'])}")
 print(f"{'':22}{'mean':>7}{'median':>8}{'>SPY':>6}{'worst':>7}{'stdev':>7}{'mean/sd':>8}")
 lab = {"conv": "BaizConviction", "score": "BaizScore", "mom63": "3M momentum", "mom126": "6M momentum",
-       "mom12_1": "12-1M momentum", "conv_m3": "Conv + 3M mom 50/50", "conv_m12": "Conv + 12-1M 50/50", "lowvol": "Lowest volatility", "random": "Random 10 (avg)", "univ": "All stocks eq-wt", "spy": "SPY"}
+       "mom12_1": "12-1M momentum", "conv_m3": "Conv + 3M mom 50/50", "conv_m12": "Conv + 12-1M 50/50", "conv_2575": "Conv 25 + 3M 75", "lowvol": "Lowest volatility", "random": "Random 10 (avg)", "univ": "All stocks eq-wt", "spy": "SPY"}
 for k in names + ["univ", "spy"]:
     x = a[k]; print(f"{lab[k]:22}{x.mean():7.2f}{np.median(x):8.2f}{(x > a['spy']).mean()*100:5.0f}%{x.min():7.1f}{x.std():7.2f}{x.mean()/x.std():8.2f}")
-for k in ["conv_m3", "conv_m12"]:
+for k in ["conv_m3", "conv_m12", "conv_2575"]:
     d = a[k] - a["conv"]
     ts = [d[o::HORIZON].mean() / (d[o::HORIZON].std(ddof=1) / np.sqrt(len(d[o::HORIZON]))) for o in range(HORIZON)]
     print(f"{lab[k]} minus Conviction: {d.mean():+.2f}pp mean, {np.median(d):+.2f}pp median, t {min(ts):+.2f}..{max(ts):+.2f}")
