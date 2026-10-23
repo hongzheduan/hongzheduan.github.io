@@ -9,9 +9,9 @@ on many days; a day with none is still logged, with an empty list.
 
 Storage, track record and exits work exactly like the Baizora Tracker: this script reuses
 baizora_tracker.py (add / backfill / fill_exits) with its own output file and entry builder.
-Each list's return is measured HORIZON = 2 trading sessions later (user, 2026-10-23; was 13).
-backtests/spg_lowvol_streak_backtest.py 2, 250 sessions: -0.13% mean / -0.07% median per
-2 sessions vs SPY +0.12% / +0.21%, ahead of SPY in 50% of lists. Shipped as the user's rule.
+Each list's return is measured HORIZON = 1 trading session later (user, 2026-10-23; was 13, then 2).
+backtests/spg_lowvol_streak_backtest.py 1, 251 sessions: -0.06% mean / -0.02% median per
+session vs SPY +0.06% / +0.06%, ahead of SPY in 47% of lists. Shipped as the user's rule.
 
 Usage:
     python spg_tracker.py                # append today's list if new
@@ -28,7 +28,7 @@ OUT = ROOT / "data" / "spg_tracker.json"
 TOP_N = 10
 STREAK = 5          # consecutive sessions with a higher close (user, 2026-10-23)
 VOL_WINDOW = 252    # daily returns in the 1-year volatility
-HORIZON = 2         # trading sessions after the list date (user, 2026-10-23; Baizora Tracker uses 13)
+HORIZON = 1         # trading sessions after the list date (user, 2026-10-23; was 2; Baizora Tracker uses 13)
 _candles = None
 
 
