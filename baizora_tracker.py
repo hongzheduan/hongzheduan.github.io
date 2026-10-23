@@ -10,14 +10,15 @@ stay visible. Once a list reaches its HORIZON-th session, that session's closes 
 stored on the entry as "exit" {date, spy, prices}, so the result is fixed from then on.
 
 Rule (user, 2026-10-23): keep only the most volatile VOL_TOP_SHARE of eligible stocks
-by 1-year volatility, then take the TOP_N with the highest BaizScore (ties: BaizConviction,
-then market cap). 1-year volatility = annualized std of the last 252 daily returns from
+by 1-year volatility, then rank those by CONV_WEIGHT x BaizConviction percentile +
+MOM_WEIGHT x 3-month price change percentile (percentiles within the volatile group;
+ties: BaizScore, then market cap) and take the TOP_N. 1-year volatility = annualized std of the last 252 daily returns from
 candles.json (the copy committed with that day's data when re-ranking from git).
 History of the rule: BaizConviction alone (10-21) → + 3-month momentum 50/50 → 25/75 →
-+ 50% high volatility (10-22/23) → this filter-then-BaizScore rule. Backtest (239 sessions,
-13-session forward): +3.99% mean / +3.67% median vs +5.02% / +5.70% for the previous
-mix and +0.81% SPY; among volatile stocks BaizScore barely moved the share that rose
-(48..57% in every score band). All lists were re-ranked with each rule change
++ 50% high volatility (10-22/23) → volatile 20% by BaizScore → this volatile 20% by 25/75.
+Backtest (239 sessions, 13-session forward): +5.00% mean / +5.48% median vs +3.99% /
++3.67% ranking the same group by BaizScore and +0.81% SPY; among volatile stocks BaizScore
+barely moved the share that rose (48..57% in every score band). All lists were re-ranked with each rule change
 (--rerank), so lists before the rule existed are in-sample.
 
 Rule-based ranking only, no discretion.
@@ -40,7 +41,8 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
-VOL_TOP_SHARE = 0.20  # keep the most volatile 20% (1-year), then rank by BaizScore
+VOL_TOP_SHARE = 0.20  # keep the most volatile 20% (1-year), then rank by the weights below
+CONV_WEIGHT, MOM_WEIGHT = 0.25, 0.75
 HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
 
 
@@ -63,7 +65,17 @@ def build_entry(data):
     rows = [r for r in rows if r["_volPct"] is not None and r["_volPct"] >= 1 - VOL_TOP_SHARE]
     if len(rows) < TOP_N:
         return None
-    rows.sort(key=lambda r: (-(r.get("BaizScore") or 0), -r["BaizConviction"],
+
+    def pct(col):  # within the volatile group; average rank for ties; missing = neutral 0.5
+        vs = sorted(r[col] for r in rows if r.get(col) is not None)
+        m = len(vs)
+        return {r["Ticker"]: (0.5 if r.get(col) is None or m < 2 else
+                              (bisect_left(vs, r[col]) + bisect_right(vs, r[col]) - 1) / 2 / (m - 1))
+                for r in rows}
+    pc, pm = pct("BaizConviction"), pct("3MPriceChange")
+    for r in rows:
+        r["_rank"] = CONV_WEIGHT * pc[r["Ticker"]] + MOM_WEIGHT * pm[r["Ticker"]]
+    rows.sort(key=lambda r: (-r["_rank"], -(r.get("BaizScore") or 0),
                              -(r.get("MarketCap") or 0), r["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
 
@@ -86,6 +98,7 @@ def build_entry(data):
             "chg3m": rnd(r.get("3MPriceChange")),
             "vol1y": rnd(r.get("Volatility1Y"), 3),  # annualized, 0.287 = 28.7%
             "volPct": rnd(r["_volPct"] * 100, 1),  # 1-year volatility percentile, 100 = most volatile
+            "rankScore": rnd(r["_rank"] * 100, 1),
             "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
             "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
         })
