@@ -31,7 +31,7 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
-HORIZON = 13  # trading sessions after the list date (user, 2026-10-23)
+HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
 
 
 def build_entry(data):

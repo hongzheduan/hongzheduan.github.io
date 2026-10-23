@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Point-in-time revenue history from SEC EDGAR companyfacts (2026-10-23).
+Point-in-time revenue history from SEC EDGAR companyfacts (2026-10-22).
 
 For the Baizora Tracker revenue test ("quarter revenue vs previous quarter" and
 "yearly revenue vs previous year"). For every current S&P 500 / Nasdaq-100 stock:

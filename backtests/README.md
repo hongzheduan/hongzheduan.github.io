@@ -114,7 +114,7 @@ ticker correctly. Already run once (2026-08-17, 512/512 tickers with a full
 21-session window). Only re-run if `data/baizscore_trailing.json` is ever lost/
 corrupted — the live scanner maintains it incrementally on its own otherwise.
 
-## `pagerank_backtest.py` (2026-10-23, research only, not in the report)
+## `pagerank_backtest.py` (2026-10-22, research only, not in the report)
 
 Personalized PageRank variant of the Baizora Tracker top-10 list: stocks link to
 their K most correlated peers (trailing 63-session daily returns), the random
@@ -125,7 +125,7 @@ setting beat the Conviction list (best, `--d 0.5 --restart 100`, tied it:
 -0.05pp mean, +0.19pp median; default d=0.85 lost 3.2pp). Not adopted. Not part
 of the annual re-run.
 
-## `revenue_history.py` + `revenue_tracker_backtest.py` (2026-10-23, research only)
+## `revenue_history.py` + `revenue_tracker_backtest.py` (2026-10-22, research only)
 
 `revenue_history.py` pulls EDGAR companyfacts for current S&P 500 / Nasdaq-100
 members and writes point-in-time quarterly (Q4 = FY minus Q1..Q3) and fiscal-year

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Revenue growth in the Baizora Tracker list, backtested (2026-10-23).
+Revenue growth in the Baizora Tracker list, backtested (2026-10-22).
 
 Asked: take into account "quarter revenue vs previous quarter revenue" (QoQ, sequential)
 and "yearly revenue vs previous year revenue" (latest fiscal year vs the one before).

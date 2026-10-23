@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Personalized-PageRank variant of the Baizora Tracker list, backtested (2026-10-23).
+Personalized-PageRank variant of the Baizora Tracker list, backtested (2026-10-22).
 
 Asked: "use the pagerank formula" for the tracker's top-10 list. Chosen design
 (user picked it over pure-correlation and lead-lag networks):
