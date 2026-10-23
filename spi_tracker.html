@@ -12,7 +12,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baizora | SPI Tracker</title>
-  <meta name="description" content="Baizora SPI Tracker.">
+  <meta name="description" content="SPI Tracker: the S&amp;P 500 and Nasdaq-100 stocks ranked highest by BaizConviction each trading day, with the track record of every past list.">
+  <meta name="robots" content="noindex, follow">
   <link rel="icon" href="assets/baizora_logo_arrow.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -166,8 +167,45 @@
     }
     .page { max-width: 1000px; }
     .page-sub { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 400; color: #e2e8f0; letter-spacing: 0.04em; margin-bottom: 18px; }
-    /* ── SPI TRACKER ── */
-    .spi-card { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; padding: 40px 24px; box-shadow: 0 16px 40px rgba(0,0,0,0.35); text-align: center; font-family: 'DM Mono', monospace; font-size: 12px; color: #334155; }
+    /* ── BAIZORA TRACKER ── (card/table styling follows se_tracker.html) */
+    .bt-info { max-width: 820px; font-size: 14px; line-height: 1.65; color: #cbd5e1; margin: 0 0 10px; }
+    .bt-info a { color: #93c5fd; }
+    .bt-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--electric-bright); margin: 34px 0 10px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+    .bt-label span { color: #e2e8f0; letter-spacing: 0.04em; text-transform: none; }
+    .bt-card { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; padding: 8px 20px; box-shadow: 0 16px 40px rgba(0,0,0,0.35); overflow-x: auto; }
+    .bt-table { width: 100%; border-collapse: collapse; font-size: 14px; color: #0f172a; }
+    .bt-table th { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #475569; text-align: left; padding: 12px 10px; border-bottom: 1px solid rgba(15,23,42,0.08); white-space: nowrap; }
+    .bt-table td { padding: 12px 10px; border-bottom: 1px solid rgba(15,23,42,0.06); vertical-align: middle; }
+    .bt-table tr:last-child td { border-bottom: none; }
+    .bt-num { font-family: 'DM Mono', monospace; font-size: 13px; white-space: nowrap; text-align: right; }
+    th.bt-num { text-align: right; }
+    .bt-rank { font-family: 'DM Mono', monospace; font-size: 12px; color: #475569; }
+    .bt-tk { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 700; color: #0f172a; }
+    .bt-co { font-size: 12px; color: #334155; margin-top: 2px; }
+    .bt-sec { font-size: 13px; color: #334155; }
+    .bt-conv { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 700; color: #0f766e; }
+    .bt-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: #475569; margin-top: 2px; white-space: nowrap; }
+    .bt-why { display: flex; flex-wrap: wrap; gap: 5px; }
+    .bt-chip { font-family: 'DM Mono', monospace; font-size: 11px; color: #334155; background: #f1f5f9; border: 1px solid rgba(15,23,42,0.08); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+    .up { color: #15803d; } .dn { color: #b91c1c; }
+    .bt-sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 14px 0; }
+    .bt-sum div { text-align: center; }
+    .bt-sum b { display: block; font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; color: #0f172a; }
+    .bt-sum small { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; }
+    .bt-picks { display: flex; flex-wrap: wrap; gap: 4px; }
+    .bt-pick { font-family: 'DM Mono', monospace; font-size: 11px; border-radius: 6px; padding: 2px 6px; white-space: nowrap; background: #f8fafc; border: 1px solid rgba(15,23,42,0.08); color: #0f172a; }
+    .bt-pick i { font-style: normal; margin-left: 4px; }
+    .bt-date { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; white-space: nowrap; }
+    .bt-more { display: block; margin: 12px auto 4px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #1d4ed8; background: none; border: 1px solid rgba(29,78,216,0.3); border-radius: 999px; padding: 6px 16px; cursor: pointer; }
+    .bt-empty { text-align: center; padding: 34px 0; color: #334155; font-family: 'DM Mono', monospace; font-size: 12px; }
+    .bt-foot { font-family: 'DM Mono', monospace; font-size: 11px; color: #cbd5e1; margin-top: 18px; line-height: 1.7; }
+    @media (max-width: 640px) {
+      .bt-card { padding: 4px 12px; }
+      .bt-hide-m { display: none; }
+      .bt-table td { padding: 10px 6px; font-size: 13px; }
+      .bt-table th { padding: 10px 6px; }
+      .bt-sum b { font-size: 22px; }
+    }
     @media (max-width: 640px) {
       header { padding: 0 16px; }
       .page { padding: 28px 16px 60px; }
@@ -195,8 +233,49 @@
 
     <div class="page-eyebrow">◈ &nbsp; Trackers</div>
     <h1 class="page-title">SPI Tracker</h1>
+    <p class="page-sub">S&amp;P 500 &nbsp;·&nbsp; Nasdaq-100 &nbsp;·&nbsp; Updated each trading day</p>
 
-    <div class="spi-card">Coming soon.</div>
+    <p class="bt-info">Each trading day, the ten S&amp;P 500 and Nasdaq-100 stocks with the highest
+      <b>rank score</b>: 25% <b>BaizConviction</b> and 75% <b>3-month price change</b>, each measured as a
+      percentile among all eligible stocks that day. BaizConviction blends today's BaizScore (trend, relative
+      strength, momentum, breakout and volume pressure) with how consistently the stock has scored over the last
+      21 sessions. The list is a fixed rule applied to scanner data, with no human selection.</p>
+    <p class="bt-info">In our 2023 to 2026 backtest, high BaizConviction was historically associated with a higher
+      median return than the average stock over 3 to 12 months. It was not tested over days or weeks, and past
+      results do not guarantee future results. <a href="assets/baizscore_backtest.html">Read the backtest</a>.
+      Adding 3-month price change was associated with a slightly higher 13-day return than BaizConviction alone in a
+      one-year test, a difference too small to be statistically reliable.</p>
+
+    <div class="bt-label">Today's top-ranked <span id="btTodayDate"></span></div>
+    <div class="bt-card">
+      <table class="bt-table">
+        <thead><tr><th>#</th><th>Ticker</th><th class="bt-hide-m">Sector</th><th class="bt-num">Close</th><th class="bt-num">1D</th><th class="bt-num">Rank</th><th class="bt-hide-m">Scanner data</th></tr></thead>
+        <tbody id="btToday"><tr><td colspan="7" class="bt-empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="bt-label">Track record <span id="btPriceDate"></span></div>
+    <div class="bt-card">
+      <div class="bt-sum" id="btSum"></div>
+    </div>
+    <div class="bt-foot" style="margin-top:10px;">Lists marked † are a backtest, not a live record: they were re-ranked
+      on October 22, 2026 with the current rank score, which was chosen using data from the same period. Ranked by
+      BaizConviction alone, the 19 lists finished as of October 22, 2026 were 9 ahead of SPY, averaging &minus;0.6%
+      vs SPY +0.7%.</div>
+    <div class="bt-card" style="margin-top:12px;">
+      <table class="bt-table">
+        <thead><tr><th>List date</th><th class="bt-hide-m">Return after 13 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
+        <tbody id="btHist"><tr><td colspan="5" class="bt-empty">Loading…</td></tr></tbody>
+      </table>
+      <button type="button" class="bt-more" id="btMore" style="display:none;">Show all</button>
+    </div>
+
+    <div class="bt-foot">Returns are price only, from the list date's close to the close 13 trading days later, adjusted for
+      splits, before dividends, taxes and trading costs. Lists younger than 13 trading days show their return so far,
+      marked "day N of 13", and are left out of the summary until they finish. "List mean" is the average of the ten
+      stocks' returns; SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 22, 2026 from that day's published
+      scanner data using the current rank score; lists from October 23, 2026 on are recorded each evening. Rankings are mechanical and
+      change daily. For informational purposes only. Not investment advice.</div>
 
   </div>
 
@@ -216,6 +295,94 @@
       window.location.href = "login.html";
     };
   </script>
+
+<script>
+// Baizora Tracker. data/baizora_tracker.json is written each evening by baizora_tracker.py
+// (top 10 by BaizConviction + each close + SPY close); current prices come from
+// data/latest.json, splits from data/splits.json.
+(function() {
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const pct = (v, d = 1) => v == null || isNaN(v) ? '–' : '<span class="' + (v >= 0 ? 'up' : 'dn') + '">' + (v >= 0 ? '+' : '') + v.toFixed(d) + '%</span>';
+  const title = s => s.toLowerCase().replace(/\b([a-z])/g, c => c.toUpperCase());
+  const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+  const empty = (id, n, msg) => { document.getElementById(id).innerHTML = '<tr><td colspan="' + n + '" class="bt-empty">' + msg + '</td></tr>'; };
+  const get = f => fetch('data/' + f + '?t=' + Date.now()).then(r => r.json());
+
+  Promise.all([get('baizora_tracker.json'), get('latest.json'), get('splits.json').catch(() => ({}))]).then(([tr, latest, splits]) => {
+    const entries = tr.entries || [];
+    if (!entries.length) { empty('btToday', 7, 'No list recorded yet.'); empty('btHist', 5, 'No lists yet.'); return; }
+    const now = {};
+    (latest.data || []).forEach(r => { now[r.Ticker] = r.Price; });
+
+    // Entry price in today's share terms: divide by any split ratio dated after the list date.
+    // Exit prices are in the exit date's share terms, so only splits between the two dates count.
+    const adj = (t, date, px, until) => { const s = splits[t]; return s && s.date > date && (!until || s.date <= until) ? px / s.ratio : px; };
+    const ret = (t, date, px, exitPx, until) => exitPx && px ? (exitPx / adj(t, date, px, until) - 1) * 100 : null;
+
+    // Today's list
+    const t0 = entries[0];
+    document.getElementById('btTodayDate').textContent = 'List from the ' + fmtDate(t0.date) + ' close';
+    document.getElementById('btToday').innerHTML = t0.picks.map(p => {
+      const chips = [];
+      if (p.pxVsMa21 != null) { const v = (p.pxVsMa21 - 1) * 100; chips.push('Price ' + Math.abs(v).toFixed(1) + '% ' + (v >= 0 ? 'above' : 'below') + ' 21-day avg'); }
+      if (p.volVsMa21 != null) chips.push('Volume ' + p.volVsMa21.toFixed(1) + '× 21-day avg');
+      if (p.chg1y != null) chips.push('1Y ' + (p.chg1y >= 0 ? '+' : '') + p.chg1y.toFixed(0) + '%');
+      return '<tr><td class="bt-rank">' + String(p.rank).padStart(2, '0') + '</td>'
+        + '<td><div class="bt-tk">' + esc(p.ticker) + '</div><div class="bt-co">' + esc(title(p.name)) + '</div></td>'
+        + '<td class="bt-sec bt-hide-m">' + esc(p.sector) + '</td>'
+        + '<td class="bt-num">$' + p.price.toFixed(2) + '</td>'
+        + '<td class="bt-num">' + pct(p.chg1d, 2) + '</td>'
+        + (p.rankScore != null
+          ? '<td class="bt-num"><div class="bt-conv">' + Math.round(p.rankScore) + '</div><div class="bt-sub">Conviction ' + Math.round(p.conviction) + ' · 3M ' + (p.chg3m >= 0 ? '+' : '') + Math.round(p.chg3m) + '%</div></td>'
+          : '<td class="bt-num"><div class="bt-conv">' + Math.round(p.conviction) + '</div><div class="bt-sub">Conviction · Score ' + esc(p.score) + '</div></td>')
+        + '<td class="bt-hide-m"><div class="bt-why">' + chips.map(c => '<span class="bt-chip">' + esc(c) + '</span>').join('') + '</div></td></tr>';
+    }).join('');
+
+    // Track record: each list's return HORIZON trading days later. baizora_tracker.py stores that
+    // session's closes on the entry as e.exit; younger lists use the current prices and are marked
+    // "day N of 13" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
+    const HORIZON = 13;
+    document.getElementById('btPriceDate').textContent = 'Prices as of ' + fmtDate(latest.date) + (latest.midday ? ' (midday)' : ' close');
+    const rows = entries.filter(e => e.date < latest.date).map(e => {
+      const x = e.exit, until = x ? x.date : null;
+      const rs = e.picks.map(p => ({ t: p.ticker, r: ret(p.ticker, e.date, p.price, x ? x.prices[p.ticker] : now[p.ticker], until) }));
+      const vals = rs.map(v => v.r).filter(v => v != null);
+      const avg = vals.length ? mean(vals) : null;
+      const spyNow = x ? x.spy : now.SPY;
+      const spy = spyNow && e.spy ? (spyNow / e.spy - 1) * 100 : null;
+      const day = x ? HORIZON : Math.min(HORIZON - 1, entries.filter(o => o.date > e.date && o.date <= latest.date).length);
+      return { e, rs, avg, spy, done: !!x, day, diff: avg != null && spy != null ? avg - spy : null };
+    });
+    const scored = rows.filter(r => r.done && r.diff != null);
+    if (scored.length) {
+      const beat = scored.filter(r => r.diff > 0).length;
+      document.getElementById('btSum').innerHTML =
+        '<div><b>' + beat + ' of ' + scored.length + '</b><small>Lists ahead of SPY</small></div>'
+        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return, 13 days</small></div>'
+        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same 13 days</small></div>';
+    } else {
+      document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets its 13-day return 13 trading days after it is recorded.</div>';
+    }
+
+    const SHOW = 15;
+    let all = false;
+    const draw = () => {
+      if (!rows.length) { empty('btHist', 5, 'The first list gets a return after the next trading day.'); return; }
+      document.getElementById('btHist').innerHTML = (all ? rows : rows.slice(0, SHOW)).map(r =>
+        '<tr><td class="bt-date">' + esc(fmtDate(r.e.date)) + (r.e.backfilled ? ' †' : '')
+          + (r.done ? '' : '<div class="bt-sub">day ' + r.day + ' of ' + HORIZON + '</div>') + '</td>'
+        + '<td class="bt-hide-m"><div class="bt-picks">' + r.rs.map(x => '<span class="bt-pick">' + esc(x.t) + '<i>' + pct(x.r, 0) + '</i></span>').join('') + '</div></td>'
+        + '<td class="bt-num">' + pct(r.avg) + '</td><td class="bt-num">' + pct(r.spy) + '</td><td class="bt-num">' + pct(r.diff) + '</td></tr>'
+      ).join('');
+      const more = document.getElementById('btMore');
+      more.style.display = rows.length > SHOW && !all ? 'block' : 'none';
+      more.onclick = () => { all = true; draw(); };
+    };
+    draw();
+  }).catch(() => { empty('btToday', 7, 'Tracker data not yet available.'); empty('btHist', 5, 'Tracker data not yet available.'); });
+})();
+</script>
 
 </body>
 </html>
