@@ -24,7 +24,6 @@ import argparse
 import datetime
 import json
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -54,25 +53,6 @@ _SUBSCRIBE_EN = "We profile a different S&P 500 or Nasdaq-100 company every day.
 def _load(name):
     with open(DATA_DIR / name, encoding="utf-8") as f:
         return json.load(f)
-
-
-def _last_finished_session(max_commits=20):
-    """Most recent committed data/latest.json without the midday flag (needs the
-    workflow's fetch-depth: 0 checkout)."""
-    repo = DATA_DIR.parent
-    try:
-        shas = subprocess.run(
-            ["git", "log", f"-{max_commits}", "--format=%H", "--", "data/latest.json"],
-            cwd=repo, capture_output=True, text=True, check=True).stdout.split()
-        for sha in shas:
-            blob = subprocess.run(["git", "show", f"{sha}:data/latest.json"],
-                                  cwd=repo, capture_output=True, check=True).stdout
-            d = json.loads(blob.decode("utf-8"))
-            if not d.get("midday"):
-                return d
-    except (subprocess.CalledProcessError, ValueError) as e:
-        print(f"git fallback failed: {e}")
-    return None
 
 
 _NAME_STOP = {"inc", "corp", "corporation", "company", "co", "the", "group", "holdings", "ltd",
@@ -221,15 +201,8 @@ def scene_chart(r, chg, range_ext):
 def build_stock_profile(date_str):
     data = _load("latest.json")
     if data.get("midday"):
-        # A manual midday scan leaves a partial-day latest.json in place until the
-        # evening scan, and GitHub can delay this workflow's crons by hours into that
-        # window (both 2026-10-22 runs skipped this way). Profile the last finished
-        # session from git history instead.
-        data = _last_finished_session()
-        if data is None:
-            print("latest.json is a midday snapshot and no finished session was found in git; skipping.")
-            return None
-        print(f"latest.json is a midday snapshot; using the finished {data.get('date')} session from git.")
+        print("latest.json is a midday snapshot; skipping.")
+        return None
     descriptions = _load("company_descriptions.json")
     try:
         overrides = _load("company_description_overrides.json")
