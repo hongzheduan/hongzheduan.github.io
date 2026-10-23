@@ -125,6 +125,17 @@ setting beat the Conviction list (best, `--d 0.5 --restart 100`, tied it:
 -0.05pp mean, +0.19pp median; default d=0.85 lost 3.2pp). Not adopted. Not part
 of the annual re-run.
 
+## `revenue_history.py` + `revenue_tracker_backtest.py` (2026-10-23, research only)
+
+`revenue_history.py` pulls EDGAR companyfacts for current S&P 500 / Nasdaq-100
+members and writes point-in-time quarterly (Q4 = FY minus Q1..Q3) and fiscal-year
+revenue with first-filed dates to `revenue_history.json` (515/518 covered; TFC,
+SYF, VYLR have no revenue tag, ~16 more have stale tags). The backtest compares
+the live BaizConviction top 10 with a QoQ>0 & FY>0 filter, a 50/25/25 blend and
+revenue-only, 13-session forward returns, 239 sessions. Filter +0.24pp and blend
++0.59pp mean vs Conviction, medians flat, not significant; revenue alone has no
+edge (~ universe).
+
 ## Suggested order for a full annual re-run
 
 1. `baizscore_backtest.py` with `SCORE_THRESHOLD = 70`, then `80`, then `90` — Section 03 upside.
