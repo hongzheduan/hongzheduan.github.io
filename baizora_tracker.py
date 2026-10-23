@@ -12,8 +12,10 @@ stored on the entry as "exit" {date, spy, prices}, so the result is fixed from t
 
 Rank score: CONV_WEIGHT x BaizConviction percentile + MOM_WEIGHT x 3-month price change
 percentile, within that day's eligible stocks. User asked to add plain momentum (50/50),
-then set 25/75 (2026-10-22). backtests/momentum_blend_backtest.py, 25/75: +1.10pp mean /
-+0.56pp median per 13 sessions vs BaizConviction alone over 239 sessions, not significant. On 2026-10-22 every
+then set 25/75 (2026-10-22), then 0/100 (2026-10-23): the list is now simply the top 10 by
+3-month price change. backtests/momentum_blend_backtest.py, 3M momentum alone: +1.10pp
+mean / +1.60pp median per 13 sessions vs BaizConviction alone over 239 sessions, not
+significant. On 2026-10-22 every
 existing list was re-ranked with it from git history (--rerank); the formula was
 picked on that same period, so those lists are in-sample.
 
@@ -39,7 +41,7 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
-CONV_WEIGHT, MOM_WEIGHT = 0.25, 0.75  # rank score weights (user, 2026-10-22; was 50/50)
+CONV_WEIGHT, MOM_WEIGHT = 0.0, 1.0  # rank score weights (user, 2026-10-23; was 50/50, then 25/75)
 HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
 
 

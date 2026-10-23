@@ -150,9 +150,10 @@ BaizConviction vs plain momentum (3M, 12-1M), lowest volatility, random, and
 50/50 percentile blends, tracker top 10, 13-session forward returns, 239
 sessions. Plain momentum beat conviction (~+1.1..1.5pp, not significant);
 conviction + 3M momentum 50/50 +0.70pp mean / +0.60pp median, risk-adjusted
-0.48 vs 0.37; 25/75 +1.10pp / +0.56pp, 0.52. Shipped as the tracker's rank score
-at 25/75 (`baizora_tracker.py` CONV_WEIGHT / MOM_WEIGHT), all lists re-ranked;
-BaizConviction itself unchanged.
+0.48 vs 0.37; 25/75 +1.10pp / +0.56pp, 0.52; 3M alone +1.10pp / +1.60pp, 0.53.
+Shipped as the tracker's rank score, now 0/100 = 3M momentum only (user, 10-23;
+`baizora_tracker.py` CONV_WEIGHT / MOM_WEIGHT), all lists re-ranked; BaizConviction
+itself unchanged.
 
 ## Suggested order for a full annual re-run
 
