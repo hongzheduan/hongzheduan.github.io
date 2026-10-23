@@ -236,7 +236,7 @@
     <p class="page-sub">S&amp;P 500 &nbsp;·&nbsp; Nasdaq-100 &nbsp;·&nbsp; Updated each trading day</p>
 
     <p class="bt-info">Each trading day, the ten S&amp;P 500 and Nasdaq-100 stocks with the highest
-      <b>rank score</b>: 50% <b>volatility</b> (30-day, more volatile scores higher), 37.5%
+      <b>rank score</b>: 50% <b>1-year volatility</b> (more volatile scores higher), 37.5%
       <b>3-month price change</b> and 12.5% <b>BaizConviction</b>, each measured as a percentile among all
       eligible stocks that day. BaizConviction blends today's BaizScore (trend, relative
       strength, momentum, breakout and volume pressure) with how consistently the stock has scored over the last
@@ -336,7 +336,7 @@
         + '<td class="bt-num">$' + p.price.toFixed(2) + '</td>'
         + '<td class="bt-num">' + pct(p.chg1d, 2) + '</td>'
         + (p.rankScore != null
-          ? '<td class="bt-num"><div class="bt-conv">' + Math.round(p.rankScore) + '</div><div class="bt-sub">Conv ' + Math.round(p.conviction) + ' · 3M ' + (p.chg3m >= 0 ? '+' : '') + Math.round(p.chg3m) + '%' + (p.vol30 != null ? ' · Vol ' + Math.round(p.vol30 * 100) + '%' : '') + '</div></td>'
+          ? '<td class="bt-num"><div class="bt-conv">' + Math.round(p.rankScore) + '</div><div class="bt-sub">Conv ' + Math.round(p.conviction) + ' · 3M ' + (p.chg3m >= 0 ? '+' : '') + Math.round(p.chg3m) + '%' + (p.vol1y != null ? ' · 1Y vol ' + Math.round(p.vol1y * 100) + '%' : '') + '</div></td>'
           : '<td class="bt-num"><div class="bt-conv">' + Math.round(p.conviction) + '</div><div class="bt-sub">Conviction · Score ' + esc(p.score) + '</div></td>')
         + '<td class="bt-hide-m"><div class="bt-why">' + chips.map(c => '<span class="bt-chip">' + esc(c) + '</span>').join('') + '</div></td></tr>';
     }).join('');

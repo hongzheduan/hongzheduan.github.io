@@ -11,10 +11,13 @@ stay visible. Once a list reaches its HORIZON-th session, that session's closes 
 stored on the entry as "exit" {date, spy, prices}, so the result is fixed from then on.
 
 Rank score: CONV_WEIGHT x BaizConviction percentile + MOM_WEIGHT x 3-month price change
-percentile + VOL_WEIGHT x 30-day volatility percentile (higher = more volatile = higher
-score), within that day's eligible stocks. User asked to add plain momentum (50/50),
+percentile + VOL_WEIGHT x 1-year volatility percentile (higher = more volatile = higher
+score), within that day's eligible stocks. 1-year volatility = annualized std of the last
+252 daily returns from candles.json (the copy committed with that day's data when
+re-ranking from git), user 2026-10-23; it was the scanner's 30-day figure at first. User asked to add plain momentum (50/50),
 then set 25/75 (2026-10-22), then added volatility at 50% favoring HIGH volatility with
-the rest kept 25:75 (2026-10-23; backtest: +4.97% mean vs +4.94% for 25/75, more swing). backtests/momentum_blend_backtest.py, 25/75: +1.10pp mean /
+the rest kept 25:75 (2026-10-23; backtest with 1-year volatility: +4.98% mean vs +4.94% for
+25/75, more swing, worse in Jun..Oct 2026). backtests/momentum_blend_backtest.py, 25/75: +1.10pp mean /
 +0.56pp median per 13 sessions vs BaizConviction alone over 239 sessions, not significant. On 2026-10-22 every
 existing list was re-ranked with it from git history (--rerank); the formula was
 picked on that same period, so those lists are in-sample.
@@ -62,7 +65,7 @@ def build_entry(data):
         return {r["Ticker"]: (0.5 if r.get(col) is None or n < 2 else
                               (bisect_left(vals, r[col]) + bisect_right(vals, r[col]) - 1) / 2 / (n - 1))
                 for r in rows}
-    pc, pm, pv = pct("BaizConviction"), pct("3MPriceChange"), pct("Volatility30D")
+    pc, pm, pv = pct("BaizConviction"), pct("3MPriceChange"), pct("Volatility1Y")
     for r in rows:
         t = r["Ticker"]
         r["_rank"] = CONV_WEIGHT * pc[t] + MOM_WEIGHT * pm[t] + VOL_WEIGHT * pv[t]
@@ -87,7 +90,7 @@ def build_entry(data):
             "chg1d": rnd(r.get("PriceChange1D")),
             "chg1y": rnd(r.get("1YPriceChange")),
             "chg3m": rnd(r.get("3MPriceChange")),
-            "vol30": rnd(r.get("Volatility30D"), 3),  # annualized, 0.287 = 28.7%
+            "vol1y": rnd(r.get("Volatility1Y"), 3),  # annualized, 0.287 = 28.7%
             "rankScore": rnd(r["_rank"] * 100, 1),
             "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
             "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
@@ -107,11 +110,33 @@ def save_out(out):
     OUT.write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
 
 
-def add(out, data, backfilled=False):
+VOL_WINDOW = 252  # daily returns in the 1-year volatility
+
+
+def volatility_1y(candles, date):
+    """{ticker: annualized std of the last VOL_WINDOW daily returns up to date} from a
+    candles.json dict (arrays are end-aligned to candles["dates"]). Needs >= 200 returns."""
+    dates = candles.get("dates") or []
+    end = bisect_right(dates, date)  # bars dated <= date
+    out = {}
+    for t, bars in (candles.get("data") or {}).items():
+        lo = len(dates) - len(bars)       # first date index this ticker has
+        closes = [b[3] for b in bars[max(0, end - VOL_WINDOW - 1 - lo):max(0, end - lo)] if b and b[3]]
+        rets = [closes[k] / closes[k - 1] - 1 for k in range(1, len(closes))]
+        if len(rets) >= 200:
+            m = sum(rets) / len(rets)
+            out[t] = (sum((x - m) ** 2 for x in rets) / (len(rets) - 1)) ** 0.5 * 252 ** 0.5
+    return out
+
+
+def add(out, data, backfilled=False, candles=None):
     if data.get("midday"):
         return False
     if any(e["date"] == data.get("date") for e in out["entries"]):
         return False
+    vol = volatility_1y(candles, data["date"]) if candles else {}
+    for r in data.get("data", []):
+        r["Volatility1Y"] = vol.get(r.get("Ticker"))
     entry = build_entry(data)
     if entry is None:
         return False
@@ -231,7 +256,12 @@ def backfill(out, sessions):
         for r in data.get("data", []):
             for col in ("BaizPersist", "BaizConviction"):
                 r[col] = lookup(r.get("Ticker"), col, d)
-        if add(out, data, backfilled=True):
+        try:  # the candles.json committed alongside, so volatility only uses data known then
+            candles = json.loads(subprocess.run(["git", "show", f"{sha}:data/candles.json"], cwd=ROOT,
+                                                capture_output=True, text=True, check=True).stdout)
+        except (subprocess.CalledProcessError, json.JSONDecodeError):
+            candles = None
+        if add(out, data, backfilled=True, candles=candles):
             print("backfilled", d)
 
 
@@ -249,7 +279,11 @@ def main():
     if args.backfill:
         backfill(out, args.backfill)
     data = json.loads(LATEST.read_text(encoding="utf-8"))
-    if add(out, data):
+    try:
+        candles = json.loads(CANDLES.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        candles = None
+    if add(out, data, candles=candles):
         print("added", data["date"])
     else:
         print(f"no new list (latest.json {data.get('date')}, midday={data.get('midday')})")
