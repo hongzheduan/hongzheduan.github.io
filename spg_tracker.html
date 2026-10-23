@@ -12,7 +12,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baizora | SPG Tracker</title>
-  <meta name="description" content="SPG Tracker: S&amp;P 500 and Nasdaq-100 stocks that closed higher five sessions in a row, lowest volatility first, with the track record of every past list.">
+  <meta name="description" content="SPG Tracker: S&amp;P 500 and Nasdaq-100 stocks that closed higher two sessions in a row, lowest volatility first, with the track record of every past list.">
   <meta name="robots" content="noindex, follow">
   <link rel="icon" href="assets/baizora_logo_arrow.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -236,13 +236,14 @@
     <p class="page-sub">S&amp;P 500 &nbsp;·&nbsp; Nasdaq-100 &nbsp;·&nbsp; Updated each trading day</p>
 
     <p class="bt-info">Each trading day, two steps. First, every S&amp;P 500 and Nasdaq-100 stock whose
-      <b>close rose on each of the last 5 trading days</b>. Then those stocks are sorted by <b>1-year volatility</b>
+      <b>close rose on each of the last 2 trading days</b>. Then those stocks are sorted by <b>1-year volatility</b>
       (the annualized standard deviation of daily returns), lowest first, and up to ten are listed. On some days
       fewer than ten stocks qualify, so the list is shorter. The list is a fixed rule applied to scanner data,
       with no human selection.</p>
     <p class="bt-info">In a one-year backtest (October 2025 to October 2026, current index members, 2-day returns),
-      this rule averaged &minus;0.1% per list (median &minus;0.1%) vs SPY +0.1% (median +0.2%), and was ahead of SPY in 50% of
-      lists. Past results do not guarantee future results.</p>
+      this rule averaged +0.06% per list (median +0.10%) vs SPY +0.11% (median +0.18%), and was ahead of SPY in 48% of
+      lists. Of streak lengths from 0 to 8 days, 2 did best, though 0 to 3 days were within a few hundredths of a
+      percent of each other and none beat SPY. Past results do not guarantee future results.</p>
 
     <div class="bt-label">Today's list <span id="btTodayDate"></span></div>
     <div class="bt-card">
@@ -294,7 +295,7 @@
 
 <script>
 // SPG Tracker. data/spg_tracker.json is written each evening by spg_tracker.py
-// (5 straight up closes, lowest 1-year volatility first, up to 10 + each close + SPY close); current prices come from
+// (2 straight up closes, lowest 1-year volatility first, up to 10 + each close + SPY close); current prices come from
 // data/latest.json, splits from data/splits.json.
 (function() {
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -319,9 +320,9 @@
     // Today's list
     const t0 = entries[0];
     document.getElementById('btTodayDate').textContent = 'List from the ' + fmtDate(t0.date) + ' close'
-      + (t0.qualified != null ? ' · ' + t0.qualified + ' stock' + (t0.qualified === 1 ? '' : 's') + ' up 5 days in a row' : '');
+      + (t0.qualified != null ? ' · ' + t0.qualified + ' stock' + (t0.qualified === 1 ? '' : 's') + ' up ' + (t0.streak || 5) + ' days in a row' : '');
     document.getElementById('btToday').innerHTML = !t0.picks.length
-      ? '<tr><td colspan="7" class="bt-empty">No stock closed higher five days in a row.</td></tr>'
+      ? '<tr><td colspan="7" class="bt-empty">No stock closed higher two days in a row.</td></tr>'
       : t0.picks.map(p => {
       const chips = [];
       if (p.pxVsMa21 != null) { const v = (p.pxVsMa21 - 1) * 100; chips.push('Price ' + Math.abs(v).toFixed(1) + '% ' + (v >= 0 ? 'above' : 'below') + ' 21-day avg'); }
@@ -332,7 +333,7 @@
         + '<td class="bt-sec bt-hide-m">' + esc(p.sector) + '</td>'
         + '<td class="bt-num">$' + p.price.toFixed(2) + '</td>'
         + '<td class="bt-num">' + pct(p.chg1d, 2) + '</td>'
-        + '<td class="bt-num"><div class="bt-conv">' + p.vol1y.toFixed(1) + '%</div><div class="bt-sub">5 days ' + (p.chg5d >= 0 ? '+' : '') + p.chg5d.toFixed(1) + '%</div></td>'
+        + '<td class="bt-num"><div class="bt-conv">' + p.vol1y.toFixed(1) + '%</div><div class="bt-sub">' + (t0.streak || 5) + ' days ' + (p.chgStreak >= 0 ? '+' : '') + p.chgStreak.toFixed(1) + '%</div></td>'
         + '<td class="bt-hide-m"><div class="bt-why">' + chips.map(c => '<span class="bt-chip">' + esc(c) + '</span>').join('') + '</div></td></tr>';
     }).join('');
 
