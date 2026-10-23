@@ -10,9 +10,8 @@ on many days; a day with none is still logged, with an empty list.
 Storage, track record and exits work exactly like the Baizora Tracker: this script reuses
 baizora_tracker.py (add / backfill / fill_exits) with its own output file and entry builder.
 Each list's return is measured HORIZON = 2 trading sessions later (user, 2026-10-23; was 13).
-STREAK = 2 since 2026-10-23 (was 5): backtests/spg_streak_sweep.py, 250 sessions, 2-day returns:
-N=2 +0.06% mean / +0.10% median vs SPY +0.11% / +0.18%, ahead of SPY in 48% (N=5 was -0.13%).
-N=0..3 were within noise of each other; 6+ were clearly worse. Shipped as the user's rule.
+backtests/spg_lowvol_streak_backtest.py 2, 250 sessions: -0.13% mean / -0.07% median per
+2 sessions vs SPY +0.12% / +0.21%, ahead of SPY in 50% of lists. Shipped as the user's rule.
 
 Usage:
     python spg_tracker.py                # append today's list if new
@@ -27,7 +26,7 @@ import baizora_tracker as bt
 ROOT = Path(__file__).parent
 OUT = ROOT / "data" / "spg_tracker.json"
 TOP_N = 10
-STREAK = 2          # consecutive sessions with a higher close (user, 2026-10-23; was 5)
+STREAK = 5          # consecutive sessions with a higher close (user, 2026-10-23)
 VOL_WINDOW = 252    # daily returns in the 1-year volatility
 HORIZON = 2         # trading sessions after the list date (user, 2026-10-23; Baizora Tracker uses 13)
 _candles = None
@@ -73,7 +72,7 @@ def build_entry(data):
     def rnd(v, n=2):
         return None if v is None else round(v, n)
 
-    return {"date": data["date"], "spy": spy.get("Price") if spy else None, "streak": STREAK, "qualified": len(picks),
+    return {"date": data["date"], "spy": spy.get("Price") if spy else None, "qualified": len(picks),
             "picks": [{
                 "rank": i + 1,
                 "ticker": r["Ticker"],
@@ -81,7 +80,7 @@ def build_entry(data):
                 "sector": r.get("Sector") or "",
                 "price": r["Price"],
                 "chg1d": rnd(r.get("PriceChange1D")),
-                "chgStreak": rnd(gain),  # % change over the STREAK sessions
+                "chg5d": rnd(gain),
                 "vol1y": rnd(vol, 1),
                 "chg1y": rnd(r.get("1YPriceChange")),
                 "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
