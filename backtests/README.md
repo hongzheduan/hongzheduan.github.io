@@ -136,6 +136,14 @@ revenue-only, 13-session forward returns, 239 sessions. Filter +0.24pp and blend
 +0.59pp mean vs Conviction, medians flat, not significant; revenue alone has no
 edge (~ universe).
 
+## `gainer_pattern_backtest.py` (2026-10-22, research only)
+
+"Top-gainer pattern" (top-fifth 20-day volatility, above SMA200, 15-50% below the
+200-day high) applied to the tracker list, vs the live BaizConviction top 10,
+13-session forward returns, 239 sessions. Pattern-only -1.57pp mean, conviction
+within the pattern -1.58pp, 50/50 blend -1.07pp vs Conviction, all with higher
+volatility; only the last third (Jun..Oct 2026) favored the pattern. Not adopted.
+
 ## Suggested order for a full annual re-run
 
 1. `baizscore_backtest.py` with `SCORE_THRESHOLD = 70`, then `80`, then `90` — Section 03 upside.
