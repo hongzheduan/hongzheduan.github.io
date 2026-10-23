@@ -342,7 +342,7 @@
       const beat = scored.filter(r => r.diff > 0).length;
       document.getElementById('btSum').innerHTML =
         '<div><b>' + beat + ' of ' + scored.length + '</b><small>Lists ahead of SPY</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return</small></div>'
+        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>List mean return</small></div>'
         + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same spans</small></div>';
     } else {
       document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets a return after the next trading day.</div>';
