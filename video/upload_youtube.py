@@ -44,6 +44,10 @@ _WEEKDAY_BY_TYPE = {
 }
 
 
+# Regular landscape videos, not Shorts: no #Shorts tag in the description.
+LONG_FORM_TYPES = {"market_wrap"}
+
+
 def cover_path_for(video_type, date_obj):
     """Picks one of the 4 pre-made cover images for this video type's weekday,
     rotating by calendar day (not upload count) so re-running for the same date
@@ -493,6 +497,7 @@ def main():
     ap.add_argument("--privacy", default="public",
                     choices=["public", "unlisted", "private"])
     ap.add_argument("--subject", default=None, help='stock_profile only: "TICKER|Company Name"')
+    ap.add_argument("--thumbnail", default=None, help="PNG thumbnail (overrides the weekday cover)")
     args = ap.parse_args()
 
     if not Path(args.file).exists():
@@ -501,11 +506,13 @@ def main():
 
     title, description = make_meta(args.type, args.date, args.subject)
     title = title.replace(args.date, long_date(args.date, cn=args.type.endswith("_cn")))
-    # All 10 video types are Shorts now (vertical, <60s) — #Shorts reinforces the
+    # Every type but market_wrap is a vertical Short — #Shorts reinforces the
     # Shorts-shelf placement signal YouTube already infers from aspect ratio/duration.
-    description = f"{description}\n\n#Shorts"
+    # market_wrap is a ~2-minute landscape video for the Videos tab (2026-10-22).
+    if args.type not in LONG_FORM_TYPES:
+        description = f"{description}\n\n#Shorts"
     date_obj = datetime.date.fromisoformat(args.date)
-    thumbnail_path = cover_path_for(args.type, date_obj)
+    thumbnail_path = Path(args.thumbnail) if args.thumbnail else cover_path_for(args.type, date_obj)
     video_id = upload(args.file, title, description, args.privacy, thumbnail_path=thumbnail_path)
     if video_id:
         print(f"YOUTUBE_URL=https://youtu.be/{video_id}")
