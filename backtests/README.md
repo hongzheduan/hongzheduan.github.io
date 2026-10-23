@@ -144,6 +144,15 @@ edge (~ universe).
 within the pattern -1.58pp, 50/50 blend -1.07pp vs Conviction, all with higher
 volatility; only the last third (Jun..Oct 2026) favored the pattern. Not adopted.
 
+## `momentum_blend_backtest.py` (2026-10-22) — ADOPTED for the tracker
+
+BaizConviction vs plain momentum (3M, 12-1M), lowest volatility, random, and
+50/50 percentile blends, tracker top 10, 13-session forward returns, 239
+sessions. Plain momentum beat conviction (~+1.1..1.5pp, not significant);
+conviction + 3M momentum 50/50 +0.70pp mean / +0.60pp median, risk-adjusted
+0.48 vs 0.37. Shipped as the tracker's rank score from the 2026-10-23 list
+(`baizora_tracker.py` MOMENTUM_FROM); BaizConviction itself unchanged.
+
 ## Suggested order for a full annual re-run
 
 1. `baizscore_backtest.py` with `SCORE_THRESHOLD = 70`, then `80`, then `90` — Section 03 upside.

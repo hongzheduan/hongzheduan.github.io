@@ -3,12 +3,18 @@
 Baizora Tracker: daily top-ranked list from the price & volume scanner (2026-10-21).
 
 Each finished trading session, records the TOP_N S&P 500 / Nasdaq-100 stocks with
-the highest BaizConviction (ties: BaizScore, then market cap) into
+the highest rank score (ties: BaizScore, then market cap) into
 data/baizora_tracker.json, along with each stock's close that day and SPY's close.
 baizora_tracker.html shows today's list and every past list's return HORIZON trading
 days after it was recorded, next to SPY over the same span, so hits and misses both
 stay visible. Once a list reaches its HORIZON-th session, that session's closes are
 stored on the entry as "exit" {date, spy, prices}, so the result is fixed from then on.
+
+Rank score (since the 2026-10-23 list): 50% BaizConviction percentile + 50% 3-month
+price change percentile, within that day's eligible stocks. User asked to add plain
+momentum; backtests/momentum_blend_backtest.py: +0.70pp mean / +0.60pp median per 13
+sessions vs BaizConviction alone over 239 sessions, not significant. Earlier lists
+were ranked by BaizConviction alone and keep their picks.
 
 Rule-based ranking only, no discretion. BaizConviction is the one Baizora score
 whose backtest (assets/baizscore_backtest.html) showed a clean edge over BaizScore
@@ -23,6 +29,7 @@ Usage:
 """
 import argparse
 import json
+from bisect import bisect_left, bisect_right
 import subprocess
 from pathlib import Path
 
@@ -31,6 +38,7 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
+MOMENTUM_FROM = "2026-10-23"  # first list ranked by the conviction + 3M momentum blend
 HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
 
 
@@ -43,7 +51,22 @@ def build_entry(data):
             and r.get("Price")]
     if len(rows) < TOP_N:
         return None
-    rows.sort(key=lambda r: (-r["BaizConviction"], -(r.get("BaizScore") or 0),
+    blend = data["date"] >= MOMENTUM_FROM
+    if blend:
+        def pct(col):
+            vals = sorted(r[col] for r in rows if r.get(col) is not None)
+            n = len(vals)
+            # average rank for ties; missing momentum = neutral 0.5
+            return {r["Ticker"]: (0.5 if r.get(col) is None or n < 2 else
+                                  (bisect_left(vals, r[col]) + bisect_right(vals, r[col]) - 1) / 2 / (n - 1))
+                    for r in rows}
+        pc, pm = pct("BaizConviction"), pct("3MPriceChange")
+        for r in rows:
+            r["_rank"] = 0.5 * pc[r["Ticker"]] + 0.5 * pm[r["Ticker"]]
+    else:
+        for r in rows:
+            r["_rank"] = r["BaizConviction"]
+    rows.sort(key=lambda r: (-r["_rank"], -(r.get("BaizScore") or 0),
                              -(r.get("MarketCap") or 0), r["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
 
@@ -63,10 +86,15 @@ def build_entry(data):
             "persist": r.get("BaizPersist"),
             "chg1d": rnd(r.get("PriceChange1D")),
             "chg1y": rnd(r.get("1YPriceChange")),
+            "chg3m": rnd(r.get("3MPriceChange")),
+            "rankScore": rnd(r["_rank"] * 100, 1) if blend else None,
             "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
             "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
         })
-    return {"date": data["date"], "spy": spy.get("Price") if spy else None, "picks": picks}
+    entry = {"date": data["date"], "spy": spy.get("Price") if spy else None, "picks": picks}
+    if blend:
+        entry["method"] = "conv_mom3m"
+    return entry
 
 
 def load_out():
