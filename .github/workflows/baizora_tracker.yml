@@ -3,7 +3,8 @@ name: Baizora Tracker
 # Records each finished session's top-10 BaizConviction list into
 # data/baizora_tracker.json (baizora_tracker.py), shown on baizora_tracker.html, and the
 # SPG Tracker list into data/spg_tracker.json (spg_tracker.py, added 2026-10-23), and the SB Tracker
-# copy with 6-day exits into data/sb_tracker.json (sb_tracker.py, added 2026-10-23).
+# product-launch list with 6-day exits into data/sb_tracker.json (sb_tracker.py, added 2026-10-23;
+# headlines from fetch_product_news.py -> data/product_news.json, fetched once, restored after each reset).
 # Added 2026-10-21. Runs after the scanner's evening scans; the script is idempotent
 # (skips midday snapshots and dates already logged), so the later crons are just
 # retries for a late or dropped scan.
@@ -33,6 +34,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Fetch product-launch headlines (SB Tracker)
+        run: |
+          python3 fetch_product_news.py || echo "product news fetch failed; SB uses the headlines on file"
+          cp data/product_news.json "$RUNNER_TEMP/product_news.json"
+
       - name: Record today's list
         run: |
           git config user.name "github-actions"
@@ -40,10 +46,11 @@ jobs:
           for i in 1 2 3 4 5; do
             git fetch origin main
             git reset --hard origin/main
+            cp "$RUNNER_TEMP/product_news.json" data/product_news.json
             python3 baizora_tracker.py
             python3 spg_tracker.py
             python3 sb_tracker.py
-            git add data/baizora_tracker.json data/spg_tracker.json data/sb_tracker.json
+            git add data/baizora_tracker.json data/spg_tracker.json data/sb_tracker.json data/product_news.json
             if git diff --cached --quiet; then echo "No new list"; exit 0; fi
             git commit -m "auto update trackers $(python3 -c "import json; print(json.load(open('data/latest.json'))['date'])")"
             if git push origin HEAD:main; then exit 0; fi

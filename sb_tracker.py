@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """
-SB Tracker: stocks with big company news (user rule, 2026-10-23).
+SB Tracker: stocks with a new product on the news (user rule, 2026-10-23).
 
-"Big news" = an SEC 8-K filing in data/corporate_events.json (earnings, leadership change,
-material agreement, acquisition, ...) on one of the last WINDOW sessions, AND a volume spike
-since that filing: some session's volume >= SPIKE x its prior 21-session average (from
-candles.json). Ranked by the size of that spike, biggest first, up to TOP_N. A day with no
-qualifying stock is still logged, with an empty list.
+A stock qualifies when data/product_news.json (fetch_product_news.py: Google News headlines
+that start with the company's name followed by a launch verb, e.g. "Apple unveils ...") has a
+headline dated within the last WINDOW sessions. Ranked by how many outlets carried the launch
+news in that window, then today's volume vs its 21-day average, up to TOP_N. A day with no
+qualifying stock is still logged, with an empty list. (Replaced the 8-K filing + volume
+spike rule of fb612460 the same day.)
 
 Each list's return is measured HORIZON = 6 trading sessions later (user, 2026-10-23).
 Storage and exits reuse baizora_tracker.py with this file's builder and output file.
-backtests/news_volume_backtest.py, 246 sessions, 6-session returns: +0.07% mean / +0.02%
-median vs SPY +0.33% / +0.23%, ahead of SPY in 47%, avg 6.1 stocks a day, 18 days with
-none. Shipped as the user's rule.
+backtests/product_news_backtest.py: only 53 sessions of headline history (Aug..Oct 2026,
+sparse early on): -0.31% mean per 6 days vs SPY -0.00%, ahead in 47%; far too little data to
+judge. Lists before 2026-10-23 were rebuilt from the headlines the feed still returned that day.
 
 Usage:
     python sb_tracker.py                # append today's list if new
@@ -27,61 +28,56 @@ import baizora_tracker as bt
 
 ROOT = Path(__file__).parent
 OUT = ROOT / "data" / "sb_tracker.json"
-EVENTS = ROOT / "data" / "corporate_events.json"
+NEWS = ROOT / "data" / "product_news.json"
 TOP_N = 10
 HORIZON = 6     # trading sessions after the list date (user, 2026-10-23; Baizora Tracker uses 13)
-WINDOW = 3      # filing on one of the last 3 sessions (an after-close filing trades the next day)
-SPIKE = 2.0     # volume >= 2x its prior 21-session average
+WINDOW = 3      # headline dated within the last 3 sessions (weekend news counts toward Monday)
 _cache = {}
 
 
 def _load():
     if not _cache:
         _cache["candles"] = json.loads(bt.CANDLES.read_text(encoding="utf-8"))
-        _cache["events"] = json.loads(EVENTS.read_text(encoding="utf-8"))
-    return _cache["candles"], _cache["events"]
+        try:
+            _cache["news"] = json.loads(NEWS.read_text(encoding="utf-8")).get("items", [])
+        except (FileNotFoundError, json.JSONDecodeError):
+            _cache["news"] = []
+    return _cache["candles"], _cache["news"]
 
 
 def build_entry(data):
-    candles, events = _load()
+    candles, news = _load()
     dates = candles.get("dates") or []
     if data["date"] not in dates:
         return None   # candles.json not updated for this date yet; a later run retries
     d = dates.index(data["date"])
+    lo, hi = dates[d - WINDOW], dates[d]
+    by_t = {}
+    for it in news:
+        if lo < it["date"] <= hi:
+            by_t.setdefault(it["ticker"], []).append(it)
     stale = set(data.get("staleTickers") or [])
     found = []
     for r in data.get("data", []):
         t = r.get("Ticker")
-        if not (r.get("InSP500") or r.get("InNASDAQ100")) or t in stale or not r.get("Price"):
+        if t not in by_t or not (r.get("InSP500") or r.get("InNASDAQ100")) or t in stale or not r.get("Price"):
             continue
+        items = sorted(by_t[t], key=lambda i: i["date"])
+        outlets = len({i["source"] or i["title"] for i in items})
         bars = (candles.get("data") or {}).get(t) or []
-        lo = len(dates) - len(bars)   # arrays are end-aligned to dates
-        def bar(j):
-            return bars[j - lo] if 0 <= j - lo < len(bars) and bars[j - lo] else None
-        best = None
-        for e in events.get(t) or []:
-            f = bisect.bisect_left(dates, e["date"])   # first session on/after the filing date
-            if not d - WINDOW < f <= d:
-                continue
-            for j in range(f, d + 1):
-                prev = [b[4] for b in (bar(k) for k in range(j - 21, j)) if b and b[4]]
-                b = bar(j)
-                if len(prev) < 15 or not b or not b[4]:
-                    continue
-                spike = b[4] / (sum(prev) / len(prev))
-                if spike >= SPIKE and (best is None or spike > best[0]):
-                    before = bar(f - 1)
-                    best = (spike, e, before[3] if before else None)
-        if best:
-            found.append((best, r))
-    found.sort(key=lambda x: (-x[0][0], -(x[1].get("MarketCap") or 0), x[1]["Ticker"]))
+        lo_i = len(dates) - len(bars)   # arrays are end-aligned to dates
+        f = bisect.bisect_left(dates, items[0]["date"])   # first session on/after the first headline
+        before = bars[f - 1 - lo_i] if 0 <= f - 1 - lo_i < len(bars) and bars[f - 1 - lo_i] else None
+        found.append((outlets, items, before[3] if before else None, r))
+    found.sort(key=lambda x: (-x[0], -(x[3].get("VolumeVsMA21_1D") or 0), -(x[3].get("MarketCap") or 0), x[3]["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
 
     def rnd(v, n=2):
         return None if v is None else round(v, n)
 
     picks = []
-    for i, ((spike, e, before), r) in enumerate(found[:TOP_N]):
+    for i, (outlets, items, before, r) in enumerate(found[:TOP_N]):
+        top = items[-1]   # latest headline
         picks.append({
             "rank": i + 1,
             "ticker": r["Ticker"],
@@ -89,13 +85,13 @@ def build_entry(data):
             "sector": r.get("Sector") or "",
             "price": r["Price"],
             "chg1d": rnd(r.get("PriceChange1D")),
-            "news": e.get("label") or ", ".join(e.get("type") or []) or "8-K filing",
-            "newsDate": e["date"],
-            "newsUrl": e.get("url") or "",
-            "spike": rnd(spike, 1),
+            "news": top["title"],
+            "newsSource": top["source"],
+            "newsUrl": top["link"],
+            "newsDate": items[0]["date"],
+            "outlets": outlets,
             "chgSince": rnd((r["Price"] / before - 1) * 100 if before else None),
             "chg1y": rnd(r.get("1YPriceChange")),
-            "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
             "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
         })
     return {"date": data["date"], "spy": spy.get("Price") if spy else None, "qualified": len(found), "picks": picks}

@@ -235,20 +235,20 @@
     <h1 class="page-title">SB Tracker</h1>
     <p class="page-sub">S&amp;P 500 &nbsp;·&nbsp; Nasdaq-100 &nbsp;·&nbsp; Updated each trading day</p>
 
-    <p class="bt-info">Each trading day, S&amp;P 500 and Nasdaq-100 stocks with <b>big company news</b>: the company
-      filed an <b>SEC 8-K</b> (an earnings report, leadership change, major agreement, acquisition and similar) in the
-      last 3 trading days, <b>and</b> its trading volume on at least one day since then was <b>2&times; or more its
-      21-day average</b>, a sign the market treated the news as significant. Stocks are ranked by the size of that
-      volume spike, biggest first, up to ten. Some days fewer than ten qualify. The list is a fixed rule applied to
-      SEC filings and scanner data, with no human selection, and it does not judge whether the news is good or bad.</p>
-    <p class="bt-info">In a one-year backtest (August 2025 to October 2026, current index members, 6-day returns), this
-      rule averaged +0.07% per list (median +0.02%) vs SPY +0.33% (median +0.23%), and was ahead of SPY in 47% of
-      lists. Past results do not guarantee future results.</p>
+    <p class="bt-info">Each trading day, S&amp;P 500 and Nasdaq-100 stocks with <b>a new product on the news</b>: a news
+      headline from the last 3 trading days that starts with the company's name followed by a launch word, such as
+      "Apple unveils&hellip;", "Nvidia launches&hellip;" or "Walmart introduces&hellip;". Stocks are ranked by <b>how many
+      news outlets</b> carried the launch, then by trading volume compared with its 21-day average, up to ten. Headlines
+      come from Google News and are matched automatically, so some launches are missed and a few headlines that are
+      not product launches slip through. The list does not judge whether the product is any good.</p>
+    <p class="bt-info">There is too little history to backtest this properly: the headline archive starts in mid 2026.
+      Over 53 trading days (August to October 2026), the rule averaged &minus;0.3% per 6-day list vs SPY 0.0%, ahead of
+      SPY in 47% of lists, a sample far too small to judge. Past results do not guarantee future results.</p>
 
     <div class="bt-label">Today's list <span id="btTodayDate"></span></div>
     <div class="bt-card">
       <table class="bt-table">
-        <thead><tr><th>#</th><th>Ticker</th><th class="bt-hide-m">Sector</th><th class="bt-num">Close</th><th class="bt-num">1D</th><th class="bt-num">Volume spike</th><th class="bt-hide-m">News</th></tr></thead>
+        <thead><tr><th>#</th><th>Ticker</th><th class="bt-hide-m">Sector</th><th class="bt-num">Close</th><th class="bt-num">1D</th><th class="bt-num">Outlets</th><th class="bt-hide-m">Launch news</th></tr></thead>
         <tbody id="btToday"><tr><td colspan="7" class="bt-empty">Loading…</td></tr></tbody>
       </table>
     </div>
@@ -258,7 +258,8 @@
       <div class="bt-sum" id="btSum"></div>
     </div>
     <div class="bt-foot" style="margin-top:10px;">Lists marked † are a backtest, not a live record: they were rebuilt
-      on October 23, 2026 by applying this rule to each day's published scanner data and the SEC filings on record.</div>
+      on October 23, 2026 by applying this rule to each day's published scanner data and the launch headlines Google News
+      still returned that day, which cover older dates less completely.</div>
     <div class="bt-card" style="margin-top:12px;">
       <table class="bt-table">
         <thead><tr><th>List date</th><th class="bt-hide-m">Return after 6 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
@@ -271,7 +272,7 @@
       splits, before dividends, taxes and trading costs. Lists younger than 6 trading days show their return so far,
       marked "day N of 6", and are left out of the summary until they finish. "List mean" is the average of the listed
       stocks' returns (up to ten); SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 23, 2026;
-      lists from October 23, 2026 on are recorded each evening. News comes from SEC EDGAR 8-K filings; volume from daily scanner data. Rankings are mechanical and
+      lists from October 23, 2026 on are recorded each evening. Launch headlines come from Google News; prices and volume from daily scanner data. Rankings are mechanical and
       change daily. For informational purposes only. Not investment advice.</div>
 
   </div>
@@ -295,7 +296,7 @@
 
 <script>
 // SB Tracker. data/sb_tracker.json is written each evening by sb_tracker.py
-// (8-K filing in the last 3 sessions + volume >= 2x 21-day avg, biggest spike first, up to 10, 6-day exits); current prices come from
+// (product-launch headline in the last 3 sessions, most outlets first, up to 10, 6-day exits); current prices come from
 // data/latest.json, splits from data/splits.json.
 (function() {
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -320,19 +321,19 @@
     // Today's list
     const t0 = entries[0];
     document.getElementById('btTodayDate').textContent = 'List from the ' + fmtDate(t0.date) + ' close'
-      + (t0.qualified != null ? ' · ' + t0.qualified + ' stock' + (t0.qualified === 1 ? '' : 's') + ' with news and a volume spike' : '');
+      + (t0.qualified != null ? ' · ' + t0.qualified + ' stock' + (t0.qualified === 1 ? '' : 's') + ' with launch news' : '');
     document.getElementById('btToday').innerHTML = !t0.picks.length
-      ? '<tr><td colspan="7" class="bt-empty">No stock had an 8-K filing and a volume spike.</td></tr>'
+      ? '<tr><td colspan="7" class="bt-empty">No launch headline for any stock in the last 3 trading days.</td></tr>'
       : t0.picks.map(p => {
-      const chips = ['Filed ' + fmtDate(p.newsDate)];
-      if (p.chg1y != null) chips.push('1Y ' + (p.chg1y >= 0 ? '+' : '') + p.chg1y.toFixed(0) + '%');
+      const chips = [(p.newsSource ? p.newsSource + ' · ' : '') + 'First seen ' + fmtDate(p.newsDate)];
+      if (p.volVsMa21 != null) chips.push('Volume ' + p.volVsMa21.toFixed(1) + '× 21-day avg');
       const news = p.newsUrl ? '<a href="' + esc(p.newsUrl) + '" target="_blank" rel="noopener">' + esc(p.news) + '</a>' : esc(p.news);
       return '<tr><td class="bt-rank">' + String(p.rank).padStart(2, '0') + '</td>'
         + '<td><div class="bt-tk">' + esc(p.ticker) + '</div><div class="bt-co">' + esc(title(p.name)) + '</div></td>'
         + '<td class="bt-sec bt-hide-m">' + esc(p.sector) + '</td>'
         + '<td class="bt-num">$' + p.price.toFixed(2) + '</td>'
         + '<td class="bt-num">' + pct(p.chg1d, 2) + '</td>'
-        + '<td class="bt-num"><div class="bt-conv">' + p.spike.toFixed(1) + '×</div><div class="bt-sub">' + (p.chgSince != null ? 'Since news ' + (p.chgSince >= 0 ? '+' : '') + p.chgSince.toFixed(1) + '%' : '') + '</div></td>'
+        + '<td class="bt-num"><div class="bt-conv">' + p.outlets + '</div><div class="bt-sub">' + (p.chgSince != null ? 'Since news ' + (p.chgSince >= 0 ? '+' : '') + p.chgSince.toFixed(1) + '%' : '') + '</div></td>'
         + '<td class="bt-hide-m"><div class="bt-tk" style="font-size:13px;">' + news + '</div><div class="bt-why">' + chips.map(c => '<span class="bt-chip">' + esc(c) + '</span>').join('') + '</div></td></tr>';
     }).join('');
 
