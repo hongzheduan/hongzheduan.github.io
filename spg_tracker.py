@@ -3,16 +3,15 @@
 SPG Tracker: daily list of steady risers (user rule, 2026-10-23).
 
 Each finished trading session: take the S&P 500 / Nasdaq-100 stocks whose close rose on
-each of the last STREAK sessions, then list TOP_N of them with the LOWEST 1-year
-volatility (annualized std of daily returns, from candles.json). The list is always TOP_N
-(user, 2026-10-23): when fewer rose STREAK sessions running, it fills with the next-longest
-streaks (4 higher closes in a row, then 3, ...), lowest volatility first within each length.
+each of the last STREAK sessions, then list up to TOP_N of them with the LOWEST 1-year
+volatility (annualized std of daily returns, from candles.json). Fewer than TOP_N qualify
+on many days; a day with none is still logged, with an empty list.
 
 Storage, track record and exits work exactly like the Baizora Tracker: this script reuses
 baizora_tracker.py (add / backfill / fill_exits) with its own output file and entry builder.
 Each list's return is measured HORIZON = 2 trading sessions later (user, 2026-10-23; was 13).
-backtests/spg_lowvol_streak_backtest.py 2 (fill10), 250 sessions: -0.11% mean / -0.11% median
-per 2 sessions vs SPY +0.11% / +0.18%, ahead of SPY in 49% of lists. Shipped as the user's rule.
+backtests/spg_lowvol_streak_backtest.py 2, 250 sessions: -0.13% mean / -0.07% median per
+2 sessions vs SPY +0.12% / +0.21%, ahead of SPY in 50% of lists. Shipped as the user's rule.
 
 Usage:
     python spg_tracker.py                # append today's list if new
@@ -58,25 +57,22 @@ def build_entry(data):
             continue
         c = closes.get(t) or []
         last = c[-(STREAK + 1):]
-        if len(last) < STREAK + 1 or None in last:
+        if len(last) < STREAK + 1 or None in last or not all(last[k] > last[k - 1] for k in range(1, len(last))):
             continue
-        streak = 0   # consecutive higher closes ending at date, capped at STREAK
-        while streak < STREAK and last[-1 - streak] > last[-2 - streak]:
-            streak += 1
         hist = [x for x in c[-(VOL_WINDOW + 1):] if x]
         rets = [hist[k] / hist[k - 1] - 1 for k in range(1, len(hist))]
         if len(rets) < 200:
             continue
         m = sum(rets) / len(rets)
         vol = (sum((x - m) ** 2 for x in rets) / (len(rets) - 1)) ** 0.5 * 252 ** 0.5 * 100
-        picks.append((vol, r, (last[-1] / last[0] - 1) * 100, streak))
-    picks.sort(key=lambda p: (-p[3], p[0], -(p[1].get("MarketCap") or 0), p[1]["Ticker"]))
+        picks.append((vol, r, (last[-1] / last[0] - 1) * 100))
+    picks.sort(key=lambda p: (p[0], -(p[1].get("MarketCap") or 0), p[1]["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
 
     def rnd(v, n=2):
         return None if v is None else round(v, n)
 
-    return {"date": data["date"], "spy": spy.get("Price") if spy else None, "qualified": sum(p[3] == STREAK for p in picks),
+    return {"date": data["date"], "spy": spy.get("Price") if spy else None, "qualified": len(picks),
             "picks": [{
                 "rank": i + 1,
                 "ticker": r["Ticker"],
@@ -85,12 +81,11 @@ def build_entry(data):
                 "price": r["Price"],
                 "chg1d": rnd(r.get("PriceChange1D")),
                 "chg5d": rnd(gain),
-                "streak": streak,
                 "vol1y": rnd(vol, 1),
                 "chg1y": rnd(r.get("1YPriceChange")),
                 "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
                 "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
-            } for i, (vol, r, gain, streak) in enumerate(picks[:TOP_N])]}
+            } for i, (vol, r, gain) in enumerate(picks[:TOP_N])]}
 
 
 # Point the shared Baizora Tracker machinery at this tracker's file and rule.
