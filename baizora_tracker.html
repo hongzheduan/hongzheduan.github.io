@@ -236,15 +236,14 @@
     <p class="page-sub">S&amp;P 500 &nbsp;·&nbsp; Nasdaq-100 &nbsp;·&nbsp; Updated each trading day</p>
 
     <p class="bt-info">Each trading day, the ten S&amp;P 500 and Nasdaq-100 stocks with the highest
-      <b>rank score</b>: 25% <b>BaizConviction</b> and 75% <b>3-month price change</b>, each measured as a
-      percentile among all eligible stocks that day. BaizConviction blends today's BaizScore (trend, relative
-      strength, momentum, breakout and volume pressure) with how consistently the stock has scored over the last
-      21 sessions. The list is a fixed rule applied to scanner data, with no human selection.</p>
+      <b>BaizConviction</b>. BaizConviction blends today's BaizScore (trend, relative strength, momentum, breakout and
+      volume pressure) with how consistently the stock has scored over the last 21 sessions. The list is a fixed
+      rule applied to scanner data, with no human selection.</p>
     <p class="bt-info">In our 2023 to 2026 backtest, high BaizConviction was historically associated with a higher
       median return than the average stock over 3 to 12 months. It was not tested over days or weeks, and past
       results do not guarantee future results. <a href="assets/baizscore_backtest.html">Read the backtest</a>.
-      Adding 3-month price change was associated with a slightly higher 13-day return than BaizConviction alone in a
-      one-year test, a difference too small to be statistically reliable.</p>
+      In a one-year test of 13-day returns (October 2025 to October 2026), the top 10 by BaizConviction averaged +3.7%
+      per list (median +3.8%) vs SPY +0.8%, ahead of SPY in 66% of lists.</p>
 
     <div class="bt-label">Today's top-ranked <span id="btTodayDate"></span></div>
     <div class="bt-card">
@@ -258,10 +257,8 @@
     <div class="bt-card">
       <div class="bt-sum" id="btSum"></div>
     </div>
-    <div class="bt-foot" style="margin-top:10px;">Lists marked † are a backtest, not a live record: they were re-ranked
-      on October 22, 2026 with the current rank score, which was chosen using data from the same period. Ranked by
-      BaizConviction alone, the 19 lists finished as of October 22, 2026 were 9 ahead of SPY, averaging &minus;0.6%
-      vs SPY +0.7%.</div>
+    <div class="bt-foot" style="margin-top:10px;">Lists marked † are a backtest, not a live record: they were rebuilt
+      on October 23, 2026 by ranking each day's published scanner data by BaizConviction, using the corrected scores.</div>
     <div class="bt-card" style="margin-top:12px;">
       <table class="bt-table">
         <thead><tr><th>List date</th><th class="bt-hide-m">Return after 13 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
@@ -273,8 +270,8 @@
     <div class="bt-foot">Returns are price only, from the list date's close to the close 13 trading days later, adjusted for
       splits, before dividends, taxes and trading costs. Lists younger than 13 trading days show their return so far,
       marked "day N of 13", and are left out of the summary until they finish. "List mean" is the average of the ten
-      stocks' returns; SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 22, 2026 from that day's published
-      scanner data using the current rank score; lists from October 23, 2026 on are recorded each evening. Rankings are mechanical and
+      stocks' returns; SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 23, 2026 from that day's published
+      scanner data; lists from October 23, 2026 on are recorded each evening. Rankings are mechanical and
       change daily. For informational purposes only. Not investment advice.</div>
 
   </div>

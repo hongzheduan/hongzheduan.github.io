@@ -12,7 +12,9 @@ stored on the entry as "exit" {date, spy, prices}, so the result is fixed from t
 
 Rank score: CONV_WEIGHT x BaizConviction percentile + MOM_WEIGHT x 3-month price change
 percentile, within that day's eligible stocks. User asked to add plain momentum (50/50),
-then set 25/75 (2026-10-22). backtests/momentum_blend_backtest.py, 25/75: +1.10pp mean /
+then set 25/75 (2026-10-22), then removed momentum again (2026-10-23, 1.0/0.0, so the list is
+simply the top 10 by BaizConviction; momentum_blend_backtest.py: conviction alone +3.70% mean per
+13 sessions vs 25/75 +4.83%, SPY +0.79%). backtests/momentum_blend_backtest.py, 25/75: +1.10pp mean /
 +0.56pp median per 13 sessions vs BaizConviction alone over 239 sessions, not significant. On 2026-10-22 every
 existing list was re-ranked with it from git history (--rerank); the formula was
 picked on that same period, so those lists are in-sample.
@@ -39,7 +41,7 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
-CONV_WEIGHT, MOM_WEIGHT = 0.25, 0.75  # rank score weights (user, 2026-10-22; was 50/50)
+CONV_WEIGHT, MOM_WEIGHT = 1.0, 0.0  # rank score weights (user, 2026-10-23: BaizConviction only; was 25/75, before that 50/50)
 HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
 
 
@@ -83,7 +85,7 @@ def build_entry(data):
             "chg1d": rnd(r.get("PriceChange1D")),
             "chg1y": rnd(r.get("1YPriceChange")),
             "chg3m": rnd(r.get("3MPriceChange")),
-            "rankScore": rnd(r["_rank"] * 100, 1),
+            "rankScore": rnd(r["_rank"] * 100, 1) if MOM_WEIGHT else None,  # page shows Conviction alone when None
             "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
             "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
         })
