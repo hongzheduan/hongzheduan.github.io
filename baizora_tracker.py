@@ -11,8 +11,10 @@ stay visible. Once a list reaches its HORIZON-th session, that session's closes 
 stored on the entry as "exit" {date, spy, prices}, so the result is fixed from then on.
 
 Rank score: CONV_WEIGHT x BaizConviction percentile + MOM_WEIGHT x 3-month price change
-percentile, within that day's eligible stocks. User asked to add plain momentum (50/50),
-then set 25/75 (2026-10-22). backtests/momentum_blend_backtest.py, 25/75: +1.10pp mean /
+percentile + VOL_WEIGHT x 30-day volatility percentile (higher = more volatile = higher
+score), within that day's eligible stocks. User asked to add plain momentum (50/50),
+then set 25/75 (2026-10-22), then added volatility at 50% favoring HIGH volatility with
+the rest kept 25:75 (2026-10-23; backtest: +4.97% mean vs +4.94% for 25/75, more swing). backtests/momentum_blend_backtest.py, 25/75: +1.10pp mean /
 +0.56pp median per 13 sessions vs BaizConviction alone over 239 sessions, not significant. On 2026-10-22 every
 existing list was re-ranked with it from git history (--rerank); the formula was
 picked on that same period, so those lists are in-sample.
@@ -39,7 +41,8 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
-CONV_WEIGHT, MOM_WEIGHT = 0.25, 0.75  # rank score weights (user, 2026-10-22; was 50/50)
+# rank score weights (user: 50/50 → 25/75 on 2026-10-22; volatility added at 50% on 2026-10-23)
+CONV_WEIGHT, MOM_WEIGHT, VOL_WEIGHT = 0.125, 0.375, 0.5
 HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
 
 
@@ -59,9 +62,10 @@ def build_entry(data):
         return {r["Ticker"]: (0.5 if r.get(col) is None or n < 2 else
                               (bisect_left(vals, r[col]) + bisect_right(vals, r[col]) - 1) / 2 / (n - 1))
                 for r in rows}
-    pc, pm = pct("BaizConviction"), pct("3MPriceChange")
+    pc, pm, pv = pct("BaizConviction"), pct("3MPriceChange"), pct("Volatility30D")
     for r in rows:
-        r["_rank"] = CONV_WEIGHT * pc[r["Ticker"]] + MOM_WEIGHT * pm[r["Ticker"]]
+        t = r["Ticker"]
+        r["_rank"] = CONV_WEIGHT * pc[t] + MOM_WEIGHT * pm[t] + VOL_WEIGHT * pv[t]
     rows.sort(key=lambda r: (-r["_rank"], -(r.get("BaizScore") or 0),
                              -(r.get("MarketCap") or 0), r["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
@@ -83,6 +87,7 @@ def build_entry(data):
             "chg1d": rnd(r.get("PriceChange1D")),
             "chg1y": rnd(r.get("1YPriceChange")),
             "chg3m": rnd(r.get("3MPriceChange")),
+            "vol30": rnd(r.get("Volatility30D"), 3),  # annualized, 0.287 = 28.7%
             "rankScore": rnd(r["_rank"] * 100, 1),
             "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
             "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
