@@ -5,14 +5,17 @@ Baizora Tracker: daily top-ranked list from the price & volume scanner (2026-10-
 Each finished trading session, records the TOP_N S&P 500 / Nasdaq-100 stocks with
 the highest BaizConviction (ties: BaizScore, then market cap) into
 data/baizora_tracker.json, along with each stock's close that day and SPY's close.
-baizora_tracker.html shows today's list and every past list's return since it was
-recorded, next to SPY over the same span, so hits and misses both stay visible.
+baizora_tracker.html shows today's list and every past list's return HORIZON trading
+days after it was recorded, next to SPY over the same span, so hits and misses both
+stay visible. Once a list reaches its HORIZON-th session, that session's closes are
+stored on the entry as "exit" {date, spy, prices}, so the result is fixed from then on.
 
 Rule-based ranking only, no discretion. BaizConviction is the one Baizora score
 whose backtest (assets/baizscore_backtest.html) showed a clean edge over BaizScore
 at matched sample size, at 3 to 12 month horizons; it was never tested day-to-day.
 
 Idempotent: skips if latest.json is a midday snapshot or its date is already logged.
+Exits are filled from latest.json on the exit date, or from git history when missed.
 
 Usage:
     python baizora_tracker.py                # append today's list if new
@@ -26,7 +29,9 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
+CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
+HORIZON = 13  # trading sessions after the list date (user, 2026-10-23)
 
 
 def build_entry(data):
@@ -90,6 +95,79 @@ def add(out, data, backfilled=False):
     return True
 
 
+def _session_dates():
+    """Trading session dates from candles.json (about the last year)."""
+    try:
+        dates = set(json.loads(CANDLES.read_text(encoding="utf-8")).get("dates", []))
+    except (FileNotFoundError, json.JSONDecodeError):
+        dates = set()
+    return dates
+
+
+def _finished_latest_by_date(wanted):
+    """{date: latest.json} for the wanted dates, from the last finished commit of each."""
+    found = {}
+    log = subprocess.run(["git", "log", "-400", "--format=%H", "--", "data/latest.json"],
+                         cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
+    for sha in log:
+        if wanted <= set(found):
+            break
+        try:
+            data = json.loads(subprocess.run(["git", "show", f"{sha}:data/latest.json"], cwd=ROOT,
+                                             capture_output=True, text=True, check=True).stdout)
+        except (subprocess.CalledProcessError, json.JSONDecodeError):
+            continue
+        d = data.get("date")
+        if d in wanted and d not in found and not data.get("midday"):
+            found[d] = data
+    return found
+
+
+def fill_exits(out, latest):
+    """Store the HORIZON-th session's closes on every list that has reached it."""
+    sessions = _session_dates() | {e["date"] for e in out["entries"]}
+    if latest.get("date") and not latest.get("midday"):
+        sessions.add(latest["date"])
+    sessions = sorted(sessions)
+    last = latest["date"] if not latest.get("midday") else max(d for d in sessions if d < latest["date"])
+    need = {}
+    for e in out["entries"]:
+        if e.get("exit") or e["date"] not in sessions:
+            continue
+        k = sessions.index(e["date"]) + HORIZON
+        if k < len(sessions) and sessions[k] <= last:
+            need.setdefault(sessions[k], []).append(e)
+    if not need:
+        return
+    sources = {}
+    if latest.get("date") in need and not latest.get("midday"):
+        sources[latest["date"]] = latest
+    missing = set(need) - set(sources)
+    if missing:
+        sources.update(_finished_latest_by_date(missing))
+    candles = None
+    for d, entries in need.items():
+        data = sources.get(d)
+        if data is not None:
+            px = {r["Ticker"]: r.get("Price") for r in data.get("data", [])}
+        else:
+            # The workflow's checkout is shallow, so git history is usually not there. Fall
+            # back to candles.json closes (dividend-adjusted, so a fraction of a percent off).
+            if candles is None:
+                candles = json.loads(CANDLES.read_text(encoding="utf-8"))
+            if d not in candles["dates"]:
+                print("no close found for exit date", d)
+                continue
+            back = len(candles["dates"]) - candles["dates"].index(d)  # newer tickers have shorter, end-aligned arrays
+            px = {t: (bars[-back][3] if back <= len(bars) and bars[-back] else None)
+                  for t, bars in candles["data"].items()}
+            print("exit date", d, "priced from candles.json")
+        for e in entries:
+            e["exit"] = {"date": d, "spy": px.get("SPY"),
+                         "prices": {p["ticker"]: px.get(p["ticker"]) for p in e["picks"]}}
+            print("exit", e["date"], "->", d)
+
+
 def _corrected_scores():
     """BaizPersist/BaizConviction as published before 2026-10-21 were computed from a
     frozen August window (see backtests/rebuild_score_history_from_git.py). The rebuilt
@@ -144,6 +222,7 @@ def main():
         print("added", data["date"])
     else:
         print(f"no new list (latest.json {data.get('date')}, midday={data.get('midday')})")
+    fill_exits(out, data)
     save_out(out)
 
 

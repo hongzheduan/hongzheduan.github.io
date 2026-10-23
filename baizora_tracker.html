@@ -257,15 +257,16 @@
     </div>
     <div class="bt-card" style="margin-top:12px;">
       <table class="bt-table">
-        <thead><tr><th>List date</th><th class="bt-hide-m">Return since, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
+        <thead><tr><th>List date</th><th class="bt-hide-m">Return after 13 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
         <tbody id="btHist"><tr><td colspan="5" class="bt-empty">Loading…</td></tr></tbody>
       </table>
       <button type="button" class="bt-more" id="btMore" style="display:none;">Show all</button>
     </div>
 
-    <div class="bt-foot">Returns are price only, from the list date's close to the latest scanner close, adjusted for
-      splits, before dividends, taxes and trading costs. "List mean" is the average of the ten stocks' returns; SPY is
-      the S&amp;P 500 ETF over the same span. Lists marked † were reconstructed from that day's published scanner data
+    <div class="bt-foot">Returns are price only, from the list date's close to the close 13 trading days later, adjusted for
+      splits, before dividends, taxes and trading costs. Lists younger than 13 trading days show their return so far,
+      marked "day N of 13", and are left out of the summary until they finish. "List mean" is the average of the ten
+      stocks' returns; SPY is the S&amp;P 500 ETF over the same span. Lists marked † were reconstructed from that day's published scanner data
       when this tracker launched (October 21, 2026); later lists are recorded each evening. Rankings are mechanical and
       change daily. For informational purposes only. Not investment advice.</div>
 
@@ -308,8 +309,9 @@
     (latest.data || []).forEach(r => { now[r.Ticker] = r.Price; });
 
     // Entry price in today's share terms: divide by any split ratio dated after the list date.
-    const adj = (t, date, px) => { const s = splits[t]; return s && s.date > date ? px / s.ratio : px; };
-    const ret = (t, date, px) => now[t] && px ? (now[t] / adj(t, date, px) - 1) * 100 : null;
+    // Exit prices are in the exit date's share terms, so only splits between the two dates count.
+    const adj = (t, date, px, until) => { const s = splits[t]; return s && s.date > date && (!until || s.date <= until) ? px / s.ratio : px; };
+    const ret = (t, date, px, exitPx, until) => exitPx && px ? (exitPx / adj(t, date, px, until) - 1) * 100 : null;
 
     // Today's list
     const t0 = entries[0];
@@ -328,24 +330,30 @@
         + '<td class="bt-hide-m"><div class="bt-why">' + chips.map(c => '<span class="bt-chip">' + esc(c) + '</span>').join('') + '</div></td></tr>';
     }).join('');
 
-    // Track record: every list older than the current prices (a list recorded at the current close has no return yet)
+    // Track record: each list's return HORIZON trading days later. baizora_tracker.py stores that
+    // session's closes on the entry as e.exit; younger lists use the current prices and are marked
+    // "day N of 13" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
+    const HORIZON = 13;
     document.getElementById('btPriceDate').textContent = 'Prices as of ' + fmtDate(latest.date) + (latest.midday ? ' (midday)' : ' close');
     const rows = entries.filter(e => e.date < latest.date).map(e => {
-      const rs = e.picks.map(p => ({ t: p.ticker, r: ret(p.ticker, e.date, p.price) }));
-      const vals = rs.map(x => x.r).filter(v => v != null);
+      const x = e.exit, until = x ? x.date : null;
+      const rs = e.picks.map(p => ({ t: p.ticker, r: ret(p.ticker, e.date, p.price, x ? x.prices[p.ticker] : now[p.ticker], until) }));
+      const vals = rs.map(v => v.r).filter(v => v != null);
       const avg = vals.length ? mean(vals) : null;
-      const spy = now.SPY && e.spy ? (now.SPY / e.spy - 1) * 100 : null;
-      return { e, rs, avg, spy, diff: avg != null && spy != null ? avg - spy : null };
+      const spyNow = x ? x.spy : now.SPY;
+      const spy = spyNow && e.spy ? (spyNow / e.spy - 1) * 100 : null;
+      const day = x ? HORIZON : Math.min(HORIZON - 1, entries.filter(o => o.date > e.date && o.date <= latest.date).length);
+      return { e, rs, avg, spy, done: !!x, day, diff: avg != null && spy != null ? avg - spy : null };
     });
-    const scored = rows.filter(r => r.diff != null);
+    const scored = rows.filter(r => r.done && r.diff != null);
     if (scored.length) {
       const beat = scored.filter(r => r.diff > 0).length;
       document.getElementById('btSum').innerHTML =
         '<div><b>' + beat + ' of ' + scored.length + '</b><small>Lists ahead of SPY</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same spans</small></div>';
+        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return, 13 days</small></div>'
+        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same 13 days</small></div>';
     } else {
-      document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets a return after the next trading day.</div>';
+      document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets its 13-day return 13 trading days after it is recorded.</div>';
     }
 
     const SHOW = 15;
@@ -353,7 +361,8 @@
     const draw = () => {
       if (!rows.length) { empty('btHist', 5, 'The first list gets a return after the next trading day.'); return; }
       document.getElementById('btHist').innerHTML = (all ? rows : rows.slice(0, SHOW)).map(r =>
-        '<tr><td class="bt-date">' + esc(fmtDate(r.e.date)) + (r.e.backfilled ? ' †' : '') + '</td>'
+        '<tr><td class="bt-date">' + esc(fmtDate(r.e.date)) + (r.e.backfilled ? ' †' : '')
+          + (r.done ? '' : '<div class="bt-sub">day ' + r.day + ' of ' + HORIZON + '</div>') + '</td>'
         + '<td class="bt-hide-m"><div class="bt-picks">' + r.rs.map(x => '<span class="bt-pick">' + esc(x.t) + '<i>' + pct(x.r, 0) + '</i></span>').join('') + '</div></td>'
         + '<td class="bt-num">' + pct(r.avg) + '</td><td class="bt-num">' + pct(r.spy) + '</td><td class="bt-num">' + pct(r.diff) + '</td></tr>'
       ).join('');
