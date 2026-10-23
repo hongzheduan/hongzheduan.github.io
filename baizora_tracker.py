@@ -10,11 +10,12 @@ days after it was recorded, next to SPY over the same span, so hits and misses b
 stay visible. Once a list reaches its HORIZON-th session, that session's closes are
 stored on the entry as "exit" {date, spy, prices}, so the result is fixed from then on.
 
-Rank score (since the 2026-10-23 list): 50% BaizConviction percentile + 50% 3-month
-price change percentile, within that day's eligible stocks. User asked to add plain
-momentum; backtests/momentum_blend_backtest.py: +0.70pp mean / +0.60pp median per 13
-sessions vs BaizConviction alone over 239 sessions, not significant. Earlier lists
-were ranked by BaizConviction alone and keep their picks.
+Rank score: 50% BaizConviction percentile + 50% 3-month price change percentile,
+within that day's eligible stocks. User asked to add plain momentum;
+backtests/momentum_blend_backtest.py: +0.70pp mean / +0.60pp median per 13 sessions
+vs BaizConviction alone over 239 sessions, not significant. On 2026-10-22 every
+existing list was re-ranked with it from git history (--rerank); the formula was
+picked on that same period, so those lists are in-sample.
 
 Rule-based ranking only, no discretion. BaizConviction is the one Baizora score
 whose backtest (assets/baizscore_backtest.html) showed a clean edge over BaizScore
@@ -38,7 +39,6 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
-MOMENTUM_FROM = "2026-10-23"  # first list ranked by the conviction + 3M momentum blend
 HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
 
 
@@ -51,21 +51,16 @@ def build_entry(data):
             and r.get("Price")]
     if len(rows) < TOP_N:
         return None
-    blend = data["date"] >= MOMENTUM_FROM
-    if blend:
-        def pct(col):
-            vals = sorted(r[col] for r in rows if r.get(col) is not None)
-            n = len(vals)
-            # average rank for ties; missing momentum = neutral 0.5
-            return {r["Ticker"]: (0.5 if r.get(col) is None or n < 2 else
-                                  (bisect_left(vals, r[col]) + bisect_right(vals, r[col]) - 1) / 2 / (n - 1))
-                    for r in rows}
-        pc, pm = pct("BaizConviction"), pct("3MPriceChange")
-        for r in rows:
-            r["_rank"] = 0.5 * pc[r["Ticker"]] + 0.5 * pm[r["Ticker"]]
-    else:
-        for r in rows:
-            r["_rank"] = r["BaizConviction"]
+    def pct(col):
+        vals = sorted(r[col] for r in rows if r.get(col) is not None)
+        n = len(vals)
+        # average rank for ties; missing momentum = neutral 0.5
+        return {r["Ticker"]: (0.5 if r.get(col) is None or n < 2 else
+                              (bisect_left(vals, r[col]) + bisect_right(vals, r[col]) - 1) / 2 / (n - 1))
+                for r in rows}
+    pc, pm = pct("BaizConviction"), pct("3MPriceChange")
+    for r in rows:
+        r["_rank"] = 0.5 * pc[r["Ticker"]] + 0.5 * pm[r["Ticker"]]
     rows.sort(key=lambda r: (-r["_rank"], -(r.get("BaizScore") or 0),
                              -(r.get("MarketCap") or 0), r["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
@@ -87,14 +82,11 @@ def build_entry(data):
             "chg1d": rnd(r.get("PriceChange1D")),
             "chg1y": rnd(r.get("1YPriceChange")),
             "chg3m": rnd(r.get("3MPriceChange")),
-            "rankScore": rnd(r["_rank"] * 100, 1) if blend else None,
+            "rankScore": rnd(r["_rank"] * 100, 1),
             "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
             "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
         })
-    entry = {"date": data["date"], "spy": spy.get("Price") if spy else None, "picks": picks}
-    if blend:
-        entry["method"] = "conv_mom3m"
-    return entry
+    return {"date": data["date"], "spy": spy.get("Price") if spy else None, "picks": picks}
 
 
 def load_out():
@@ -240,9 +232,14 @@ def backfill(out, sessions):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--backfill", type=int, default=0, help="rebuild this many past sessions from git history")
+    ap.add_argument("--rerank", action="store_true",
+                    help="discard all lists and rebuild every logged session with the current rule")
     args = ap.parse_args()
 
     out = load_out()
+    if args.rerank:
+        args.backfill = max(args.backfill, len(out["entries"]))
+        out = {"entries": []}
     if args.backfill:
         backfill(out, args.backfill)
     data = json.loads(LATEST.read_text(encoding="utf-8"))
