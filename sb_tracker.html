@@ -243,8 +243,8 @@
     <p class="bt-info">In our 2023 to 2026 backtest, high BaizConviction was historically associated with a higher
       median return than the average stock over 3 to 12 months. It was not tested over days or weeks, and past
       results do not guarantee future results. <a href="assets/baizscore_backtest.html">Read the backtest</a>.
-      Adding 3-month price change was associated with a slightly higher 13-day return than BaizConviction alone in a
-      one-year test, a difference too small to be statistically reliable.</p>
+      Adding 3-month price change was associated with a higher 6-day return than BaizConviction alone in a one-year
+      test (+0.7 points per list on average), a difference that was not statistically reliable across all test start dates.</p>
 
     <div class="bt-label">Today's top-ranked <span id="btTodayDate"></span></div>
     <div class="bt-card">
@@ -260,19 +260,19 @@
     </div>
     <div class="bt-foot" style="margin-top:10px;">Lists marked † are a backtest, not a live record: they were re-ranked
       on October 22, 2026 with the current rank score, which was chosen using data from the same period. Ranked by
-      BaizConviction alone, the 19 lists finished as of October 22, 2026 were 9 ahead of SPY, averaging &minus;0.6%
-      vs SPY +0.7%.</div>
+      BaizConviction alone, the 26 lists finished as of October 22, 2026 were 16 ahead of SPY, averaging &minus;1.0%
+      vs SPY +0.3%.</div>
     <div class="bt-card" style="margin-top:12px;">
       <table class="bt-table">
-        <thead><tr><th>List date</th><th class="bt-hide-m">Return after 13 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
+        <thead><tr><th>List date</th><th class="bt-hide-m">Return after 6 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
         <tbody id="btHist"><tr><td colspan="5" class="bt-empty">Loading…</td></tr></tbody>
       </table>
       <button type="button" class="bt-more" id="btMore" style="display:none;">Show all</button>
     </div>
 
-    <div class="bt-foot">Returns are price only, from the list date's close to the close 13 trading days later, adjusted for
-      splits, before dividends, taxes and trading costs. Lists younger than 13 trading days show their return so far,
-      marked "day N of 13", and are left out of the summary until they finish. "List mean" is the average of the ten
+    <div class="bt-foot">Returns are price only, from the list date's close to the close 6 trading days later, adjusted for
+      splits, before dividends, taxes and trading costs. Lists younger than 6 trading days show their return so far,
+      marked "day N of 6", and are left out of the summary until they finish. "List mean" is the average of the ten
       stocks' returns; SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 22, 2026 from that day's published
       scanner data using the current rank score; lists from October 23, 2026 on are recorded each evening. Rankings are mechanical and
       change daily. For informational purposes only. Not investment advice.</div>
@@ -297,7 +297,7 @@
   </script>
 
 <script>
-// Baizora Tracker. data/baizora_tracker.json is written each evening by baizora_tracker.py
+// SB Tracker. data/sb_tracker.json is written each evening by sb_tracker.py (Baizora Tracker rule, 6-day exits)
 // (top 10 by BaizConviction + each close + SPY close); current prices come from
 // data/latest.json, splits from data/splits.json.
 (function() {
@@ -309,7 +309,7 @@
   const empty = (id, n, msg) => { document.getElementById(id).innerHTML = '<tr><td colspan="' + n + '" class="bt-empty">' + msg + '</td></tr>'; };
   const get = f => fetch('data/' + f + '?t=' + Date.now()).then(r => r.json());
 
-  Promise.all([get('baizora_tracker.json'), get('latest.json'), get('splits.json').catch(() => ({}))]).then(([tr, latest, splits]) => {
+  Promise.all([get('sb_tracker.json'), get('latest.json'), get('splits.json').catch(() => ({}))]).then(([tr, latest, splits]) => {
     const entries = tr.entries || [];
     if (!entries.length) { empty('btToday', 7, 'No list recorded yet.'); empty('btHist', 5, 'No lists yet.'); return; }
     const now = {};
@@ -341,8 +341,8 @@
 
     // Track record: each list's return HORIZON trading days later. baizora_tracker.py stores that
     // session's closes on the entry as e.exit; younger lists use the current prices and are marked
-    // "day N of 13" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
-    const HORIZON = 13;
+    // "day N of 6" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
+    const HORIZON = 6;  // SB uses 6 trading days (user, 2026-10-23); sb_tracker.py sets the same
     document.getElementById('btPriceDate').textContent = 'Prices as of ' + fmtDate(latest.date) + (latest.midday ? ' (midday)' : ' close');
     const rows = entries.filter(e => e.date < latest.date).map(e => {
       const x = e.exit, until = x ? x.date : null;
@@ -359,10 +359,10 @@
       const beat = scored.filter(r => r.diff > 0).length;
       document.getElementById('btSum').innerHTML =
         '<div><b>' + beat + ' of ' + scored.length + '</b><small>Lists ahead of SPY</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return, 13 days</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same 13 days</small></div>';
+        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return, 6 days</small></div>'
+        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same 6 days</small></div>';
     } else {
-      document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets its 13-day return 13 trading days after it is recorded.</div>';
+      document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets its 6-day return 6 trading days after it is recorded.</div>';
     }
 
     const SHOW = 15;
