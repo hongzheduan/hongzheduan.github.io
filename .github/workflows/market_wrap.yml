@@ -1,9 +1,8 @@
 name: Market Wrap Video
 
-# General stock-market video (video/generate_market_wrap.py), every Wednesday and
+# General stock-market Short (video/generate_market_wrap.py), every Wednesday and
 # Friday after the close, uploaded to the main Baizora channel (@baizorastock,
-# YOUTUBE_REFRESH_TOKEN). Added 2026-10-21 as a Short; since 2026-10-22 a ~2-minute
-# landscape video for the channel's Videos tab. EN only, info-only (no website mention).
+# YOUTUBE_REFRESH_TOKEN). Added 2026-10-21. EN only, info-only (no website mention).
 #
 # Its own workflow (not a scanner.yml branch) on purpose: scanner.yml's concurrency
 # group keeps at most one pending run, so an evening news-style run queued behind
@@ -119,7 +118,7 @@ jobs:
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
         run: |
-          OUT=$(python video/upload_youtube.py --file video/market_wrap.mp4 --type market_wrap --date "$WRAP_DATE" --thumbnail video/market_wrap.png)
+          OUT=$(python video/upload_youtube.py --file video/market_wrap.mp4 --type market_wrap --date "$WRAP_DATE")
           echo "$OUT"
           YT_URL=$(echo "$OUT" | grep '^YOUTUBE_URL=' | cut -d= -f2-)
           if [ -z "$YT_URL" ]; then
