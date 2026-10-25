@@ -190,6 +190,18 @@
     .se-add { color: #15803d; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); }
     .se-rem { color: #b91c1c; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.28); }
     .se-empty { text-align: center; padding: 34px 0; color: #334155; font-family: 'DM Mono', monospace; font-size: 12px; }
+    .se-h2 { font-family: 'DM Serif Display', serif; font-size: 24px; letter-spacing: -0.01em; color: #ffffff; margin: 40px 0 6px; }
+    .se-h2-sub { font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; color: #cbd5e1; margin: 0 0 14px; max-width: 820px; }
+    .se-px { font-family: 'DM Mono', monospace; font-size: 13px; color: #0f172a; white-space: nowrap; }
+    .se-px-d { display: block; font-size: 11px; color: #475569; margin-top: 2px; }
+    .se-pct { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; white-space: nowrap; }
+    .se-up { color: #15803d; }
+    .se-dn { color: #b91c1c; }
+    .se-na { font-size: 12px; color: #475569; }
+    .se-table th.se-r, .se-table td.se-r { text-align: right; }
+    .se-m, .se-chg-m { display: none; }
+    .se-chg-m { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.04em; margin-top: 2px; white-space: nowrap; }
+    .se-chg-m.se-add, .se-chg-m.se-rem { background: none; border: none; }
     .se-foot { font-family: 'DM Mono', monospace; font-size: 11px; color: #cbd5e1; margin-top: 14px; line-height: 1.6; }
     @media (max-width: 640px) {
       .se-card { padding: 4px 12px; }
@@ -197,6 +209,13 @@
       .se-table td { padding: 11px 6px; font-size: 13px; }
       .se-table th { padding: 10px 6px; }
       .se-co-m { display: block; }
+      .se-px-tbl td, .se-px-tbl th { padding-left: 4px; padding-right: 4px; }
+      .se-px-tbl td { font-size: 12px; }
+      .se-px-tbl .se-tk { font-size: 13px; }
+      .se-px-tbl .se-px, .se-px-tbl .se-pct, .se-px-tbl .se-date { font-size: 12px; }
+      .se-d { display: none; }
+      .se-idx { white-space: normal; }
+      .se-m, .se-chg-m { display: block; }
     }
     @media (max-width: 640px) {
       header { padding: 0 16px; }
@@ -244,7 +263,16 @@
       </table>
     </div>
 
-    <div class="se-foot">Data sourced from a third-party provider, checked each trading day after market close. If the source data contains a temporary error that self-corrects within 3 days, the affected record is automatically removed. Not investment advice.</div>
+    <h2 class="se-h2">1 Month Later</h2>
+    <p class="se-h2-sub">Closing price on the day of each change, and on the first trading day one month later. Changes less than a month old show the latest close so far.</p>
+    <div class="se-card">
+      <table class="se-table se-px-tbl">
+        <thead><tr><th>Date</th><th class="se-hide-m">Index</th><th class="se-hide-m">Change</th><th>Ticker</th><th class="se-r">Close that day</th><th class="se-r">1 month later</th><th class="se-r">% Chg</th></tr></thead>
+        <tbody id="sePxBody"><tr><td colspan="7" class="se-empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="se-foot">Data sourced from a third-party provider, checked each trading day after market close. If the source data contains a temporary error that self-corrects within 3 days, the affected record is automatically removed. Prices are daily closes; % change is split-adjusted. Stocks that were acquired or stopped trading show no 1-month price. Not investment advice.</div>
 
   </div>
 
@@ -277,6 +305,41 @@
   const IDX = [['sp500', 'S&P 500'], ['nasdaq100', 'Nasdaq-100']];
   const empty = msg => '<tr><td colspan="5" class="se-empty">' + msg + '</td></tr>';
   let rows = [], filter = 'all';
+  const pxBody = document.getElementById('sePxBody');
+  const emptyPx = msg => '<tr><td colspan="7" class="se-empty">' + msg + '</td></tr>';
+  const shortDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const money = v => '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const pctCell = v => '<span class="se-pct ' + (v >= 0 ? 'se-up">+' : 'se-dn">−') + Math.abs(v).toFixed(1) + '%</span>';
+  let pxRows = null;
+
+  function drawPx() {
+    if (!pxRows) return;
+    const vis = pxRows.filter(r => filter === 'all' || r.idx === filter);
+    if (!vis.length) { pxBody.innerHTML = emptyPx('No membership changes recorded.'); return; }
+    let last = null;
+    pxBody.innerHTML = vis.map(r => {
+      const first = r.date !== last; last = r.date;
+      let start = '<span class="se-na">n/a</span>', later, pct = '';
+      if (r.startClose != null) start = '<span class="se-px">' + money(r.startClose) + '</span>';
+      if (r.status === 'done') {
+        later = '<span class="se-px">' + money(r.endClose) + '<span class="se-px-d">' + esc(shortDate(r.endDate)) + '</span></span>';
+        pct = pctCell(r.pct);
+      } else if (r.status === 'pending') {
+        later = '<span class="se-px">Due ' + esc(shortDate(r.dueDate)) + '<span class="se-px-d">Now ' + money(r.lastClose) + '</span></span>';
+        pct = '<span class="se-px-d">so far</span>' + pctCell(r.pct);
+      } else {
+        later = '<span class="se-na">No longer trading</span>';
+      }
+      return '<tr' + (first ? ' class="se-first"' : '') + '>'
+        + '<td class="se-date">' + (first ? '<span class="se-d">' + esc(fmtDate(r.date)) + '</span><span class="se-m">' + esc(shortDate(r.date)) + '</span>' : '') + '</td>'
+        + '<td class="se-idx se-hide-m">' + esc(r.idx === 'sp500' ? 'S&P 500' : 'Nasdaq-100') + '</td>'
+        + '<td class="se-hide-m"><span class="se-chg ' + (r.added ? 'se-add">+ Added' : 'se-rem">− Removed') + '</span></td>'
+        + '<td><div class="se-tk">' + esc(r.ticker) + '</div><div class="se-chg-m ' + (r.added ? 'se-add">+ Added' : 'se-rem">− Removed') + '</div></td>'
+        + '<td class="se-r">' + start + '</td>'
+        + '<td class="se-r">' + later + '</td>'
+        + '<td class="se-r">' + pct + '</td></tr>';
+    }).join('');
+  }
 
   function draw() {
     const vis = rows.filter(r => filter === 'all' || r.idx === filter);
@@ -285,7 +348,7 @@
     body.innerHTML = vis.map(r => {
       const first = r.date !== last; last = r.date;
       return '<tr' + (first ? ' class="se-first"' : '') + '>'
-        + '<td class="se-date">' + (first ? esc(fmtDate(r.date)) : '') + '</td>'
+        + '<td class="se-date">' + (first ? '<span class="se-d">' + esc(fmtDate(r.date)) + '</span><span class="se-m">' + esc(shortDate(r.date)) + '</span>' : '') + '</td>'
         + '<td class="se-idx">' + esc(r.idxLabel) + '</td>'
         + '<td><span class="se-chg ' + (r.added ? 'se-add">+ Added' : 'se-rem">− Removed') + '</span></td>'
         + '<td><div class="se-tk">' + esc(r.ticker) + '</div>' + (r.name ? '<div class="se-co-m">' + esc(r.name) + '</div>' : '') + '</td>'
@@ -299,7 +362,12 @@
     filter = b.dataset.f;
     document.querySelectorAll('.se-pill').forEach(p => p.classList.toggle('active', p === b));
     draw();
+    drawPx();
   });
+
+  fetch('data/se_tracker_prices.json?t=' + Date.now()).then(r => r.json())
+    .then(d => { pxRows = d.rows || []; drawPx(); })
+    .catch(() => { pxBody.innerHTML = emptyPx('Price history not yet available.'); });
 
   const names = fetch('data/fundamentals_cache.json?t=' + Date.now()).then(r => r.json())
     .then(d => d.tickers || {}).catch(() => ({}));

@@ -5,6 +5,8 @@ name: Baizora Tracker
 # SPG Tracker list into data/spg_tracker.json (spg_tracker.py, added 2026-10-23), and the SB Tracker
 # product-launch list with 6-day exits into data/sb_tracker.json (sb_tracker.py, added 2026-10-23;
 # headlines from fetch_product_news.py -> data/product_news.json, fetched once, restored after each reset).
+# Also refreshes data/se_tracker_prices.json (se_tracker_prices.py, added 2026-10-24): SE Tracker's
+# close on each index-change day and one month later.
 # Added 2026-10-21. Runs after the scanner's evening scans; the script is idempotent
 # (skips midday snapshots and dates already logged), so the later crons are just
 # retries for a late or dropped scan.
@@ -50,7 +52,8 @@ jobs:
             python3 baizora_tracker.py
             python3 spg_tracker.py
             python3 sb_tracker.py
-            git add data/baizora_tracker.json data/spg_tracker.json data/sb_tracker.json data/product_news.json
+            python3 se_tracker_prices.py || echo "SE tracker prices failed; keeping the file on disk"
+            git add data/baizora_tracker.json data/spg_tracker.json data/sb_tracker.json data/product_news.json data/se_tracker_prices.json
             if git diff --cached --quiet; then echo "No new list"; exit 0; fi
             git commit -m "auto update trackers $(python3 -c "import json; print(json.load(open('data/latest.json'))['date'])")"
             if git push origin HEAD:main; then exit 0; fi
