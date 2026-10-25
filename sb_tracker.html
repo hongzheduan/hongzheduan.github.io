@@ -235,15 +235,17 @@
     <h1 class="page-title">SB Tracker</h1>
     <p class="page-sub">S&amp;P 500 &nbsp;·&nbsp; Nasdaq-100 &nbsp;·&nbsp; Updated each trading day</p>
 
-    <p class="bt-info">Each trading day, S&amp;P 500 and Nasdaq-100 stocks with <b>a new product on the news</b>: a news
+    <p class="bt-info">Each trading day, S&amp;P 500 and Nasdaq-100 <b>technology stocks</b> with <b>a new product on the news</b>: a news
       headline from the last 3 trading days that starts with the company's name followed by a launch word, such as
-      "Apple unveils&hellip;", "Nvidia launches&hellip;" or "Walmart introduces&hellip;". Stocks are ranked by <b>how many
-      news outlets</b> carried the launch, then by trading volume compared with its 21-day average, up to ten. Headlines
+      "Apple unveils&hellip;", "Nvidia launches&hellip;" or "Microsoft introduces&hellip;". Stocks are ranked by <b>how many
+      news outlets</b> carried the launch, then by trading volume compared with its 21-day average, up to ten. Only stocks in the scanner's
+      Technology sector are listed, so some days have fewer than ten. Headlines
       come from Google News and are matched automatically, so some launches are missed and a few headlines that are
       not product launches slip through. The list does not judge whether the product is any good.</p>
     <p class="bt-info">There is too little history to backtest this properly: the headline archive starts in mid 2026.
-      Over 52 trading days (August to October 2026), the rule averaged &minus;0.2% per 7-day list vs SPY 0.0%, ahead of
-      SPY in 48% of lists, a sample far too small to judge. Past results do not guarantee future results.</p>
+      Over 52 trading days (August to October 2026), the technology-only rule averaged +0.5% per 7-day list vs SPY 0.0%,
+      ahead of SPY in 54% of lists, with about seven stocks a list. The same rule across all sectors averaged &minus;0.2%.
+      That sample is far too small to judge. Past results do not guarantee future results.</p>
 
     <div class="bt-label">Today's list <span id="btTodayDate"></span></div>
     <div class="bt-card">
@@ -321,7 +323,7 @@
     // Today's list
     const t0 = entries[0];
     document.getElementById('btTodayDate').textContent = 'List from the ' + fmtDate(t0.date) + ' close'
-      + (t0.qualified != null ? ' · ' + t0.qualified + ' stock' + (t0.qualified === 1 ? '' : 's') + ' with launch news' : '');
+      + (t0.qualified != null ? ' · ' + t0.qualified + ' tech stock' + (t0.qualified === 1 ? '' : 's') + ' with launch news' : '');
     document.getElementById('btToday').innerHTML = !t0.picks.length
       ? '<tr><td colspan="7" class="bt-empty">No launch headline for any stock in the last 3 trading days.</td></tr>'
       : t0.picks.map(p => {

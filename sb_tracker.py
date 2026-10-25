@@ -4,7 +4,10 @@ SB Tracker: stocks with a new product on the news (user rule, 2026-10-23).
 
 A stock qualifies when data/product_news.json (fetch_product_news.py: Google News headlines
 that start with the company's name followed by a launch verb, e.g. "Apple unveils ...") has a
-headline dated within the last WINDOW sessions. Ranked by how many outlets carried the launch
+headline dated within the last WINDOW sessions and its scanner Sector is SECTOR ("Technology"
+only, user 2026-10-25; backtests/product_news_tech_backtest.py, 52 sessions: +0.52% mean per
+7 days vs all sectors -0.18%, SPY -0.00%, avg 6.7 stocks a list, ~8 independent periods,
+noise-level). Ranked by how many outlets carried the launch
 news in that window, then today's volume vs its 21-day average, up to TOP_N. A day with no
 qualifying stock is still logged, with an empty list. (Replaced the 8-K filing + volume
 spike rule of fb612460 the same day.)
@@ -33,6 +36,7 @@ OUT = ROOT / "data" / "sb_tracker.json"
 NEWS = ROOT / "data" / "product_news.json"
 TOP_N = 10
 HORIZON = 7     # trading sessions after the list date (user, 2026-10-24; was 6; Baizora Tracker uses 13)
+SECTOR = "Technology"  # only this scanner Sector qualifies (user, 2026-10-25)
 WINDOW = 3      # headline dated within the last 3 sessions (weekend news counts toward Monday)
 _cache = {}
 
@@ -62,7 +66,7 @@ def build_entry(data):
     found = []
     for r in data.get("data", []):
         t = r.get("Ticker")
-        if t not in by_t or not (r.get("InSP500") or r.get("InNASDAQ100")) or t in stale or not r.get("Price"):
+        if t not in by_t or r.get("Sector") != SECTOR or not (r.get("InSP500") or r.get("InNASDAQ100")) or t in stale or not r.get("Price"):
             continue
         items = sorted(by_t[t], key=lambda i: i["date"])
         outlets = len({i["source"] or i["title"] for i in items})
