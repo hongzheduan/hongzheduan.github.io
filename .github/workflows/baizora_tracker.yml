@@ -1,5 +1,6 @@
 name: Baizora Tracker
 
+# SPI Tracker: own 25/75 list in data/spi_tracker.json (spi_tracker.py, 2026-10-24).
 # Records each finished session's top-10 list (RS + Momentum conviction since 2026-10-24; its 21-session
 # RSMom history is kept in data/baizora_tracker_trail.json) into
 # data/baizora_tracker.json (baizora_tracker.py), shown on baizora_tracker.html, and the
@@ -52,9 +53,10 @@ jobs:
             cp "$RUNNER_TEMP/product_news.json" data/product_news.json
             python3 baizora_tracker.py
             python3 spg_tracker.py
+            python3 spi_tracker.py
             python3 sb_tracker.py
             python3 se_tracker_prices.py || echo "SE tracker prices failed; keeping the file on disk"
-            git add data/baizora_tracker.json data/baizora_tracker_trail.json data/spg_tracker.json data/sb_tracker.json data/product_news.json data/se_tracker_prices.json
+            git add data/baizora_tracker.json data/baizora_tracker_trail.json data/spi_tracker.json data/spg_tracker.json data/sb_tracker.json data/product_news.json data/se_tracker_prices.json
             if git diff --cached --quiet; then echo "No new list"; exit 0; fi
             git commit -m "auto update trackers $(python3 -c "import json; print(json.load(open('data/latest.json'))['date'])")"
             if git push origin HEAD:main; then exit 0; fi
