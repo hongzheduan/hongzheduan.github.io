@@ -209,10 +209,13 @@
       .se-table td { padding: 11px 6px; font-size: 13px; }
       .se-table th { padding: 10px 6px; }
       .se-co-m { display: block; }
-      .se-px-tbl td, .se-px-tbl th { padding-left: 4px; padding-right: 4px; }
+      .se-px-tbl td, .se-px-tbl th { padding-left: 3px; padding-right: 3px; }
+      .se-px-tbl th { font-size: 9px; letter-spacing: 0.06em; }
+      .se-card:has(.se-px-tbl) { padding: 4px 6px; }
       .se-px-tbl td { font-size: 12px; }
       .se-px-tbl .se-tk { font-size: 13px; }
-      .se-px-tbl .se-px, .se-px-tbl .se-pct, .se-px-tbl .se-date { font-size: 12px; }
+      .se-px-tbl .se-px, .se-px-tbl .se-date { font-size: 12px; }
+      .se-px-tbl .se-pct { font-size: 11px; }
       .se-d { display: none; }
       .se-idx { white-space: normal; }
       .se-m, .se-chg-m { display: block; }
@@ -264,11 +267,11 @@
     </div>
 
     <h2 class="se-h2">1 Month Later</h2>
-    <p class="se-h2-sub">Closing price on the day of each change, and on the first trading day one month later. Changes less than a month old show the latest close so far.</p>
+    <p class="se-h2-sub">Closing price on the day of each change, the highest price reached during the following month, and the close on the first trading day one month later. Changes less than a month old show the peak and latest close so far.</p>
     <div class="se-card">
       <table class="se-table se-px-tbl">
-        <thead><tr><th>Date</th><th class="se-hide-m">Index</th><th class="se-hide-m">Change</th><th>Ticker</th><th class="se-r">Close that day</th><th class="se-r">1 month later</th><th class="se-r">% Chg</th></tr></thead>
-        <tbody id="sePxBody"><tr><td colspan="7" class="se-empty">Loading…</td></tr></tbody>
+        <thead><tr><th>Date</th><th class="se-hide-m">Index</th><th class="se-hide-m">Change</th><th>Ticker</th><th class="se-r">Close that day</th><th class="se-r">Peak in month<span class="se-m" style="font-size:9px;letter-spacing:0.04em;">vs close</span></th><th class="se-r">1 month later<span class="se-m" style="font-size:9px;letter-spacing:0.04em;">% chg</span></th><th class="se-r se-hide-m">% Chg</th></tr></thead>
+        <tbody id="sePxBody"><tr><td colspan="8" class="se-empty">Loading…</td></tr></tbody>
       </table>
     </div>
 
@@ -306,7 +309,7 @@
   const empty = msg => '<tr><td colspan="5" class="se-empty">' + msg + '</td></tr>';
   let rows = [], filter = 'all';
   const pxBody = document.getElementById('sePxBody');
-  const emptyPx = msg => '<tr><td colspan="7" class="se-empty">' + msg + '</td></tr>';
+  const emptyPx = msg => '<tr><td colspan="8" class="se-empty">' + msg + '</td></tr>';
   const shortDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   const money = v => '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const pctCell = v => '<span class="se-pct ' + (v >= 0 ? 'se-up">+' : 'se-dn">−') + Math.abs(v).toFixed(1) + '%</span>';
@@ -319,13 +322,17 @@
     let last = null;
     pxBody.innerHTML = vis.map(r => {
       const first = r.date !== last; last = r.date;
-      let start = '<span class="se-na">n/a</span>', later, pct = '';
+      let start = '<span class="se-na">n/a</span>', later, pct = '', pk = '';
+      if (r.peakHigh != null) pk = '<span class="se-px">' + money(r.peakHigh) + '<span class="se-px-d">'
+        + '<span class="se-d">' + esc(shortDate(r.peakDate)) + ' · </span><b class="' + (r.peakPct >= 0 ? 'se-up">+' : 'se-dn">−') + Math.abs(r.peakPct).toFixed(1) + '%</b></span></span>';
       if (r.startClose != null) start = '<span class="se-px">' + money(r.startClose) + '</span>';
       if (r.status === 'done') {
-        later = '<span class="se-px">' + money(r.endClose) + '<span class="se-px-d">' + esc(shortDate(r.endDate)) + '</span></span>';
+        later = '<span class="se-px">' + money(r.endClose) + '<span class="se-px-d se-d">' + esc(shortDate(r.endDate)) + '</span></span>'
+          + '<span class="se-m">' + pctCell(r.pct) + '</span>';
         pct = pctCell(r.pct);
       } else if (r.status === 'pending') {
-        later = '<span class="se-px">Due ' + esc(shortDate(r.dueDate)) + '<span class="se-px-d">Now ' + money(r.lastClose) + '</span></span>';
+        later = '<span class="se-px">Due ' + esc(shortDate(r.dueDate)) + '<span class="se-px-d">Now ' + money(r.lastClose) + '</span></span>'
+          + '<span class="se-m">' + pctCell(r.pct) + '</span>';
         pct = '<span class="se-px-d">so far</span>' + pctCell(r.pct);
       } else {
         later = '<span class="se-na">No longer trading</span>';
@@ -336,8 +343,9 @@
         + '<td class="se-hide-m"><span class="se-chg ' + (r.added ? 'se-add">+ Added' : 'se-rem">− Removed') + '</span></td>'
         + '<td><div class="se-tk">' + esc(r.ticker) + '</div><div class="se-chg-m ' + (r.added ? 'se-add">+ Added' : 'se-rem">− Removed') + '</div></td>'
         + '<td class="se-r">' + start + '</td>'
+        + '<td class="se-r">' + pk + '</td>'
         + '<td class="se-r">' + later + '</td>'
-        + '<td class="se-r">' + pct + '</td></tr>';
+        + '<td class="se-r se-hide-m">' + pct + '</td></tr>';
     }).join('');
   }
 

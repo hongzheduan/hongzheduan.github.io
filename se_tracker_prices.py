@@ -10,6 +10,8 @@ public chart endpoint (stdlib only, the workflow has no pip step).
     day of the next month (e.g. 2026-09-22 -> 2026-10-22).
   - % change uses adjusted closes so a split inside the month doesn't distort it;
     the prices shown are the actual closes.
+  - Peak = highest intraday high from the change day through the 1-month day (or
+    through the latest bar while pending); its % is vs the starting close, split-adjusted.
   - No bar on or after the 1-month date yet -> "pending" (current close shown instead).
   - Ticker with no price history (acquired / delisted) -> "unavailable".
 Run: python se_tracker_prices.py
@@ -34,7 +36,7 @@ def plus_one_month(d):
 
 
 def fetch(ticker, start):
-    """[(date, close, adjclose)] from `start` to today, oldest first; [] on failure."""
+    """[(date, close, adjclose, high)] from `start` to today, oldest first; [] on failure."""
     p1 = int(datetime(start.year, start.month, start.day, tzinfo=timezone.utc).timestamp())
     p2 = int(time.time()) + 86400
     req = urllib.request.Request(URL.format(t=ticker.replace(".", "-"), p1=p1, p2=p2),
@@ -56,15 +58,23 @@ def fetch(ticker, start):
     # so the calendar date is the US trading date.
     off = res.get("meta", {}).get("gmtoffset", -14400)
     bars = []
-    for t, c, a in zip(ts, q["close"], adj):
+    for t, c, a, h in zip(ts, q["close"], adj, q["high"]):
         if c is None or a is None:
             continue
-        bars.append((datetime.fromtimestamp(t + off, tz=timezone.utc).date(), c, a))
+        bars.append((datetime.fromtimestamp(t + off, tz=timezone.utc).date(), c, a, h if h is not None else c))
     return bars
 
 
 def first_on_or_after(bars, d):
     return next((b for b in bars if b[0] >= d), None)
+
+
+def peak(bars, start, end):
+    """(date, high, pct vs start close) of the highest high in [start, end], split-adjusted."""
+    span = [b for b in bars if start[0] <= b[0] <= end[0]]
+    # high * adj/close puts every high on the same split basis as the adjusted closes.
+    best = max(span, key=lambda b: b[3] * b[2] / b[1])
+    return best[0].isoformat(), round(best[3], 2), round((best[3] * best[2] / best[1] / start[2] - 1) * 100, 2)
 
 
 def main():
@@ -99,12 +109,14 @@ def main():
             row["status"] = "done"
             row["endDate"], row["endClose"] = end[0].isoformat(), round(end[1], 2)
             row["pct"] = round((end[2] / start[2] - 1) * 100, 2)
+            row["peakDate"], row["peakHigh"], row["peakPct"] = peak(bars, start, end)
         else:
             last = bars[-1]
             # A ticker whose history stops well before the 1-month date was acquired / delisted.
             row["status"] = "pending" if (date.today() - last[0]).days <= 7 else "unavailable"
             row["lastDate"], row["lastClose"] = last[0].isoformat(), round(last[1], 2)
             row["pct"] = round((last[2] / start[2] - 1) * 100, 2)
+            row["peakDate"], row["peakHigh"], row["peakPct"] = peak(bars, start, last)
         rows.append(row)
 
     rows.sort(key=lambda r: r["date"], reverse=True)
