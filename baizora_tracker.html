@@ -12,7 +12,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baizora | Baizora Tracker</title>
-  <meta name="description" content="Baizora Tracker: the S&amp;P 500 and Nasdaq-100 stocks ranked highest by a relative strength and momentum conviction score each trading day, with the track record of every past list.">
+  <meta name="description" content="Baizora Tracker: the S&amp;P 500 and Nasdaq-100 stocks ranked highest by their average Baizora Score over the last 42 sessions each trading day, with the track record of every past list.">
   <meta name="robots" content="noindex, follow">
   <link rel="icon" href="assets/baizora_logo_arrow.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -236,15 +236,15 @@
     <p class="page-sub">S&amp;P 500 &nbsp;·&nbsp; Nasdaq-100 &nbsp;·&nbsp; Updated each trading day</p>
 
     <p class="bt-info">Each trading day, the ten S&amp;P 500 and Nasdaq-100 stocks with the highest
-      <b>RS + Momentum conviction</b>. It is the BaizConviction formula built from just two of BaizScore's five parts,
-      relative strength and momentum (half each), which compare each stock's 1 to 12 month price gains with every
-      stock the scanner covers. Today's value is combined with its average over the last 21 sessions, so the score
-      favors stocks that have stayed strong rather than one-day spikes. The list is a fixed rule applied to scanner
-      data, with no human selection.</p>
+      <b>average Baizora Score over the last 42 sessions</b> (about two months), today included. Every one of those
+      days counts the same, so the ranking favors stocks that have stayed strong for weeks rather than one-day spikes.
+      Baizora Score itself is unchanged: relative strength, momentum, breakout, trend and volume pressure, scored
+      0 to 100 each day. The list is a fixed rule applied to scanner data, with no human selection.</p>
     <p class="bt-info">In a one-year test of 13-day returns (October 2025 to October 2026), the top 10 by this score
-      averaged +6.4% per list (median +7.5%) vs SPY +0.8%, ahead of SPY in 70% of lists. BaizConviction with all five
-      parts averaged +4.1% in the same test. This rule was chosen after comparing about 30 variants on that same year,
-      so the test flatters it, and the difference is not statistically significant. Past results do not guarantee
+      averaged +6.8% per list (median +7.4%) vs SPY +0.8%, ahead of SPY in 74% of lists. The relative strength and
+      momentum rule this replaced averaged +6.2%, and BaizConviction +4.1%, in the same test. This rule was chosen after
+      comparing about 30 variants on that same year, so the test flatters it, and the difference is not statistically
+      significant. Past results do not guarantee
       future results.</p>
 
     <div class="bt-label">Today's top-ranked <span id="btTodayDate"></span></div>
@@ -260,7 +260,7 @@
       <div class="bt-sum" id="btSum"></div>
     </div>
     <div class="bt-foot" style="margin-top:10px;">Lists marked † are a backtest, not a live record: they were rebuilt
-      on October 24, 2026 by ranking each day's published scanner data by the RS + Momentum conviction score.</div>
+      on October 25, 2026 by ranking each day's published scanner data by the 42-session average Baizora Score.</div>
     <div class="bt-card" style="margin-top:12px;">
       <table class="bt-table">
         <thead><tr><th>List date</th><th class="bt-hide-m">Return after 13 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
@@ -272,8 +272,8 @@
     <div class="bt-foot">Returns are price only, from the list date's close to the close 13 trading days later, adjusted for
       splits, before dividends, taxes and trading costs. Lists younger than 13 trading days show their return so far,
       marked "day N of 13", and are left out of the summary until they finish. "List mean" is the average of the ten
-      stocks' returns; SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 23, 2026 from that day's published
-      scanner data; lists from October 23, 2026 on are recorded each evening. Rankings are mechanical and
+      stocks' returns; SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 25, 2026 from each day's published
+      scanner data; lists from October 26, 2026 on are recorded each evening. Rankings are mechanical and
       change daily. For informational purposes only. Not investment advice.</div>
 
   </div>
@@ -297,7 +297,7 @@
 
 <script>
 // Baizora Tracker. data/baizora_tracker.json is written each evening by baizora_tracker.py
-// (top 10 by RS + Momentum conviction + each close + SPY close); current prices come from
+// (top 10 by 42-session average BaizScore + each close + SPY close); current prices come from
 // data/latest.json, splits from data/splits.json.
 (function() {
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -333,7 +333,7 @@
         + '<td class="bt-num">$' + p.price.toFixed(2) + '</td>'
         + '<td class="bt-num">' + pct(p.chg1d, 2) + '</td>'
         + (p.rankScore != null
-          ? '<td class="bt-num"><div class="bt-conv">' + Math.round(p.rankScore) + '</div><div class="bt-sub">RS ' + esc(p.rs) + ' · Mom ' + esc(p.mom) + '</div></td>'
+          ? '<td class="bt-num"><div class="bt-conv">' + p.rankScore.toFixed(1) + '</div><div class="bt-sub">42d avg · today ' + esc(p.score) + '</div></td>'
           : '<td class="bt-num"><div class="bt-conv">' + Math.round(p.conviction) + '</div><div class="bt-sub">Conviction · Score ' + esc(p.score) + '</div></td>')
         + '<td class="bt-hide-m"><div class="bt-why">' + chips.map(c => '<span class="bt-chip">' + esc(c) + '</span>').join('') + '</div></td></tr>';
     }).join('');
