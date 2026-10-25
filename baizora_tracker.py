@@ -10,7 +10,18 @@ days after it was recorded, next to SPY over the same span, so hits and misses b
 stay visible. Once a list reaches its HORIZON-th session, that session's closes are
 stored on the entry as "exit" {date, spy, prices}, so the result is fixed from then on.
 
-Rank score: CONV_WEIGHT x BaizConviction percentile + MOM_WEIGHT x 3-month price change
+Rank score (2026-10-24, user): a conviction built from Relative Strength + Momentum only,
+    RSMom      = RS_WEIGHT x RS (RSScore rescaled 1-99 -> 0-100) + MOM_SCORE_WEIGHT x MomentumScore
+    rank score = sqrt(RSMom today x average RSMom over the last PERSIST_N sessions)
+i.e. BaizConviction's formula with Breakout / Trend / Volume Pressure weighted 0. Tracker
+only: the site-wide BaizScore / BaizConviction are unchanged. The per-session RSMom values
+live in data/baizora_tracker_trail.json (last PERSIST_N sessions), because the workflow's
+checkout is shallow; --rerank rebuilds it from git history.
+backtests/conviction_variants_backtest.py (239 sessions to 2026-10-06, in-sample): RS+Mom 50/50
++6.37% mean / +7.46% median per 13 sessions vs BaizConviction +4.05% / +3.62%, SPY +0.79%;
+t 1.32, not significant, best of ~30 variants tried.
+
+Before that: CONV_WEIGHT x BaizConviction percentile + MOM_WEIGHT x 3-month price change
 percentile, within that day's eligible stocks. User asked to add plain momentum (50/50),
 then set 25/75 (2026-10-22), then removed momentum again (2026-10-23, 1.0/0.0, so the list is
 simply the top 10 by BaizConviction; momentum_blend_backtest.py: conviction alone +3.70% mean per
@@ -32,7 +43,7 @@ Usage:
 """
 import argparse
 import json
-from bisect import bisect_left, bisect_right
+import math
 import subprocess
 from pathlib import Path
 
@@ -41,29 +52,55 @@ LATEST = ROOT / "data" / "latest.json"
 OUT = ROOT / "data" / "baizora_tracker.json"
 CANDLES = ROOT / "data" / "candles.json"
 TOP_N = 10
-CONV_WEIGHT, MOM_WEIGHT = 1.0, 0.0  # rank score weights (user, 2026-10-23: BaizConviction only; was 25/75, before that 50/50)
 HORIZON = 13  # trading sessions after the list date (user, 2026-10-22)
+TRAIL = ROOT / "data" / "baizora_tracker_trail.json"
+RS_WEIGHT, MOM_SCORE_WEIGHT = 0.5, 0.5  # RSMom parts (user, 2026-10-24: Relative Strength + Momentum only)
+PERSIST_N = 21  # sessions in the RSMom average, same window as BaizPersist
+_trail = {"sessions": {}}  # {date: {ticker: RSMom}}, last PERSIST_N finished sessions
+
+
+def rsmom(r):
+    rs, mom = r.get("RSScore"), r.get("MomentumScore")
+    if rs is None or mom is None:
+        return None
+    return max(0, min(100, round(RS_WEIGHT * (rs - 1) / 98 * 100 + MOM_SCORE_WEIGHT * mom)))
+
+
+def record_trail(data):
+    """Add this finished session's RSMom values; keep the newest PERSIST_N sessions."""
+    if data.get("midday") or not data.get("date"):
+        return
+    sess = _trail["sessions"]
+    sess[data["date"]] = {r["Ticker"]: v for r in data.get("data", []) if (v := rsmom(r)) is not None}
+    for d in sorted(sess)[:-PERSIST_N]:
+        del sess[d]
+
+
+def rank_scores(date):
+    """{ticker: sqrt(RSMom today x PERSIST_N-session mean)} for tickers with a full window."""
+    hist = [v for d, v in sorted(_trail["sessions"].items()) if d <= date][-PERSIST_N:]
+    if len(hist) < PERSIST_N or date not in _trail["sessions"]:
+        return {}
+    out = {}
+    for t, today in hist[-1].items():
+        vals = [h.get(t) for h in hist]
+        if None not in vals:
+            out[t] = round(math.sqrt(today * sum(vals) / PERSIST_N))
+    return out
 
 
 def build_entry(data):
     stale = set(data.get("staleTickers") or [])
+    rank = rank_scores(data.get("date"))
     rows = [r for r in data.get("data", [])
             if (r.get("InSP500") or r.get("InNASDAQ100"))
             and r.get("Ticker") not in stale
-            and r.get("BaizConviction") is not None
+            and r.get("Ticker") in rank
             and r.get("Price")]
     if len(rows) < TOP_N:
         return None
-    def pct(col):
-        vals = sorted(r[col] for r in rows if r.get(col) is not None)
-        n = len(vals)
-        # average rank for ties; missing momentum = neutral 0.5
-        return {r["Ticker"]: (0.5 if r.get(col) is None or n < 2 else
-                              (bisect_left(vals, r[col]) + bisect_right(vals, r[col]) - 1) / 2 / (n - 1))
-                for r in rows}
-    pc, pm = pct("BaizConviction"), pct("3MPriceChange")
     for r in rows:
-        r["_rank"] = CONV_WEIGHT * pc[r["Ticker"]] + MOM_WEIGHT * pm[r["Ticker"]]
+        r["_rank"] = rank[r["Ticker"]]
     rows.sort(key=lambda r: (-r["_rank"], -(r.get("BaizScore") or 0),
                              -(r.get("MarketCap") or 0), r["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
@@ -85,7 +122,9 @@ def build_entry(data):
             "chg1d": rnd(r.get("PriceChange1D")),
             "chg1y": rnd(r.get("1YPriceChange")),
             "chg3m": rnd(r.get("3MPriceChange")),
-            "rankScore": rnd(r["_rank"] * 100, 1) if MOM_WEIGHT else None,  # page shows Conviction alone when None
+            "rankScore": r["_rank"],
+            "rs": r.get("RSScore"),
+            "mom": r.get("MomentumScore"),
             "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
             "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
         })
@@ -208,13 +247,14 @@ def _corrected_scores():
 
 
 def backfill(out, sessions):
-    """Replay the last committed, finished latest.json of each past session."""
+    """Replay the last committed, finished latest.json of each past session, oldest first,
+    with PERSIST_N - 1 earlier sessions first so every list has a full RSMom window."""
     lookup = _corrected_scores()
     log = subprocess.run(["git", "log", "--format=%H", "--", "data/latest.json"],
                          cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
-    seen = set()
+    found = {}
     for sha in log:  # newest first, so the first finished version per date wins
-        if len(seen) >= sessions:
+        if len(found) >= sessions + PERSIST_N - 1:
             break
         try:
             data = json.loads(subprocess.run(["git", "show", f"{sha}:data/latest.json"], cwd=ROOT,
@@ -222,13 +262,18 @@ def backfill(out, sessions):
         except (subprocess.CalledProcessError, json.JSONDecodeError):
             continue
         d = data.get("date")
-        if not d or d in seen or data.get("midday"):
+        if not d or d in found or data.get("midday"):
             continue
-        seen.add(d)
+        found[d] = data
+    dates = sorted(found)
+    targets = set(dates[-sessions:])
+    for d in dates:
+        data = found[d]
         for r in data.get("data", []):
             for col in ("BaizPersist", "BaizConviction"):
                 r[col] = lookup(r.get("Ticker"), col, d)
-        if add(out, data, backfilled=True):
+        record_trail(data)
+        if d in targets and add(out, data, backfilled=True):
             print("backfilled", d)
 
 
@@ -240,18 +285,25 @@ def main():
     args = ap.parse_args()
 
     out = load_out()
+    try:
+        _trail.update(json.loads(TRAIL.read_text(encoding="utf-8")))
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
     if args.rerank:
+        _trail["sessions"] = {}
         args.backfill = max(args.backfill, len(out["entries"]))
         out = {"entries": []}
     if args.backfill:
         backfill(out, args.backfill)
     data = json.loads(LATEST.read_text(encoding="utf-8"))
+    record_trail(data)
     if add(out, data):
         print("added", data["date"])
     else:
         print(f"no new list (latest.json {data.get('date')}, midday={data.get('midday')})")
     fill_exits(out, data)
     save_out(out)
+    TRAIL.write_text(json.dumps(_trail, separators=(",", ":")), encoding="utf-8")
 
 
 if __name__ == "__main__":

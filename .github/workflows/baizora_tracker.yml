@@ -1,6 +1,7 @@
 name: Baizora Tracker
 
-# Records each finished session's top-10 BaizConviction list into
+# Records each finished session's top-10 list (RS + Momentum conviction since 2026-10-24; its 21-session
+# RSMom history is kept in data/baizora_tracker_trail.json) into
 # data/baizora_tracker.json (baizora_tracker.py), shown on baizora_tracker.html, and the
 # SPG Tracker list into data/spg_tracker.json (spg_tracker.py, added 2026-10-23), and the SB Tracker
 # product-launch list with 6-day exits into data/sb_tracker.json (sb_tracker.py, added 2026-10-23;
@@ -53,7 +54,7 @@ jobs:
             python3 spg_tracker.py
             python3 sb_tracker.py
             python3 se_tracker_prices.py || echo "SE tracker prices failed; keeping the file on disk"
-            git add data/baizora_tracker.json data/spg_tracker.json data/sb_tracker.json data/product_news.json data/se_tracker_prices.json
+            git add data/baizora_tracker.json data/baizora_tracker_trail.json data/spg_tracker.json data/sb_tracker.json data/product_news.json data/se_tracker_prices.json
             if git diff --cached --quiet; then echo "No new list"; exit 0; fi
             git commit -m "auto update trackers $(python3 -c "import json; print(json.load(open('data/latest.json'))['date'])")"
             if git push origin HEAD:main; then exit 0; fi
