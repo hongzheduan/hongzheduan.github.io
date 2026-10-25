@@ -14,7 +14,8 @@ filing + volume spike rule of fb612460 on 2026-10-23.)
 backtests/product_news_volatility_backtest.py, 53 sessions: most volatile first +0.12% mean
 per 6 days vs most outlets first -0.29%, SPY -0.01%; ~9 independent periods, noise-level.
 
-Each list's return is measured HORIZON = 6 trading sessions later (user, 2026-10-23).
+Each list's return is measured HORIZON = 7 trading sessions later (user, 2026-10-24; was 6).
+product_news_volatility_backtest.py 7: most volatile first +0.22% mean per 7 days vs SPY -0.00%.
 Storage and exits reuse baizora_tracker.py with this file's builder and output file.
 backtests/product_news_backtest.py: only 53 sessions of headline history (Aug..Oct 2026,
 sparse early on): -0.31% mean per 6 days vs SPY -0.00%, ahead in 47%; far too little data to
@@ -35,7 +36,7 @@ ROOT = Path(__file__).parent
 OUT = ROOT / "data" / "sb_tracker.json"
 NEWS = ROOT / "data" / "product_news.json"
 TOP_N = 10
-HORIZON = 6     # trading sessions after the list date (user, 2026-10-23; Baizora Tracker uses 13)
+HORIZON = 7     # trading sessions after the list date (user, 2026-10-24; was 6; Baizora Tracker uses 13)
 WINDOW = 3      # headline dated within the last 3 sessions (weekend news counts toward Monday)
 SHORTLIST = 100  # top stocks by outlets / volume kept before the volatility ranking (user, 2026-10-24)
 VOL_WINDOW = 252  # daily returns in the 1-year volatility (same as the SPG Tracker)
