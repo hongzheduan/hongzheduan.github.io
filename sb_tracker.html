@@ -243,8 +243,8 @@
       come from Google News and are matched automatically, so some launches are missed and a few headlines that are
       not product launches slip through. The list does not judge whether the product is any good.</p>
     <p class="bt-info">There is too little history to backtest this properly: the headline archive starts in mid 2026.
-      Over 52 trading days (August to October 2026), the technology-only rule averaged +0.5% per 7-day list vs SPY 0.0%,
-      ahead of SPY in 54% of lists, with about seven stocks a list. The same rule across all sectors averaged &minus;0.2%.
+      Over 57 trading days (August to October 2026), the technology-only rule averaged 0.0% per 2-day list vs SPY 0.0%,
+      ahead of SPY in 58% of lists, with about seven stocks a list. The same rule across all sectors averaged &minus;0.1%.
       That sample is far too small to judge. Past results do not guarantee future results.</p>
 
     <div class="bt-label">Today's list <span id="btTodayDate"></span></div>
@@ -264,15 +264,15 @@
       still returned that day, which cover older dates less completely.</div>
     <div class="bt-card" style="margin-top:12px;">
       <table class="bt-table">
-        <thead><tr><th>List date</th><th class="bt-hide-m">Return after 7 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
+        <thead><tr><th>List date</th><th class="bt-hide-m">Return after 2 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
         <tbody id="btHist"><tr><td colspan="5" class="bt-empty">Loading…</td></tr></tbody>
       </table>
       <button type="button" class="bt-more" id="btMore" style="display:none;">Show all</button>
     </div>
 
-    <div class="bt-foot">Returns are price only, from the list date's close to the close 7 trading days later, adjusted for
-      splits, before dividends, taxes and trading costs. Lists younger than 7 trading days show their return so far,
-      marked "day N of 7", and are left out of the summary until they finish. "List mean" is the average of the listed
+    <div class="bt-foot">Returns are price only, from the list date's close to the close 2 trading days later, adjusted for
+      splits, before dividends, taxes and trading costs. Lists younger than 2 trading days show their return so far,
+      marked "day 1 of 2", and are left out of the summary until they finish. "List mean" is the average of the listed
       stocks' returns (up to ten); SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 25, 2026
       with the current rule; lists from October 26, 2026 on are recorded each evening. Launch headlines come from Google News; prices and volume from daily scanner data. Rankings are mechanical and
       change daily. For informational purposes only. Not investment advice.</div>
@@ -298,7 +298,7 @@
 
 <script>
 // SB Tracker. data/sb_tracker.json is written each evening by sb_tracker.py
-// (product-launch headline in the last 3 sessions, most outlets first, up to 10, 7-day exits); current prices come from
+// (product-launch headline in the last 3 sessions, most outlets first, up to 10, 2-day exits); current prices come from
 // data/latest.json, splits from data/splits.json.
 (function() {
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -341,8 +341,8 @@
 
     // Track record: each list's return HORIZON trading days later. baizora_tracker.py stores that
     // session's closes on the entry as e.exit; younger lists use the current prices and are marked
-    // "day N of 7" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
-    const HORIZON = 7;  // SB uses 7 trading days (user, 2026-10-24; was 6); sb_tracker.py sets the same
+    // "day N of 2" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
+    const HORIZON = 2;  // SB uses 2 trading days (user, 2026-10-25; was 7, before that 6); sb_tracker.py sets the same
     document.getElementById('btPriceDate').textContent = 'Prices as of ' + fmtDate(latest.date) + (latest.midday ? ' (midday)' : ' close');
     const rows = entries.filter(e => e.date < latest.date).map(e => {
       const x = e.exit, until = x ? x.date : null;
@@ -359,10 +359,10 @@
       const beat = scored.filter(r => r.diff > 0).length;
       document.getElementById('btSum').innerHTML =
         '<div><b>' + beat + ' of ' + scored.length + '</b><small>Lists ahead of SPY</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return, 7 days</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same 7 days</small></div>';
+        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return, 2 days</small></div>'
+        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same 2 days</small></div>';
     } else {
-      document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets its 7-day return 7 trading days after it is recorded.</div>';
+      document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets its 2-day return 2 trading days after it is recorded.</div>';
     }
 
     const SHOW = 15;

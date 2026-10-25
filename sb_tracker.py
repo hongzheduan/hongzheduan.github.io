@@ -7,12 +7,12 @@ that start with the company's name followed by a launch verb, e.g. "Apple unveil
 headline dated within the last WINDOW sessions and its scanner Sector is SECTOR ("Technology"
 only, user 2026-10-25; backtests/product_news_tech_backtest.py, 52 sessions: +0.52% mean per
 7 days vs all sectors -0.18%, SPY -0.00%, avg 6.7 stocks a list, ~8 independent periods,
-noise-level). Ranked by how many outlets carried the launch
+noise-level; at 2 days, 57 sessions: -0.04% vs all sectors -0.11%, SPY +0.00%, no edge). Ranked by how many outlets carried the launch
 news in that window, then today's volume vs its 21-day average, up to TOP_N. A day with no
 qualifying stock is still logged, with an empty list. (Replaced the 8-K filing + volume
 spike rule of fb612460 the same day.)
 
-Each list's return is measured HORIZON = 7 trading sessions later (user, 2026-10-24; was 6).
+Each list's return is measured HORIZON = 2 trading sessions later (user, 2026-10-25; was 7, before that 6).
 product_news_volatility_backtest.py 7: most outlets first -0.18% mean per 7 days vs SPY -0.00%
 (most volatile first, 2026-10-24 to 10-25, was +0.22%; user went back to outlets first).
 Storage and exits reuse baizora_tracker.py with this file's builder and output file.
@@ -35,7 +35,7 @@ ROOT = Path(__file__).parent
 OUT = ROOT / "data" / "sb_tracker.json"
 NEWS = ROOT / "data" / "product_news.json"
 TOP_N = 10
-HORIZON = 7     # trading sessions after the list date (user, 2026-10-24; was 6; Baizora Tracker uses 13)
+HORIZON = 2     # trading sessions after the list date (user, 2026-10-25; was 7, before that 6; Baizora Tracker uses 13)
 SECTOR = "Technology"  # only this scanner Sector qualifies (user, 2026-10-25)
 WINDOW = 3      # headline dated within the last 3 sessions (weekend news counts toward Monday)
 _cache = {}
