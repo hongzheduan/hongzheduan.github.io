@@ -4,14 +4,18 @@ SB Tracker: stocks with a new product on the news (user rule, 2026-10-23).
 
 A stock qualifies when data/product_news.json (fetch_product_news.py: Google News headlines
 that start with the company's name followed by a launch verb, e.g. "Apple unveils ...") has a
-headline dated within the last WINDOW sessions. Ranked by how many outlets carried the launch
-news in that window, then today's volume vs its 21-day average, up to TOP_N. A day with no
-qualifying stock is still logged, with an empty list. (Replaced the 8-K filing + volume
-spike rule of fb612460 the same day.)
+headline dated within the last WINDOW sessions. Those are ranked by how many outlets carried
+the launch news in that window, then today's volume vs its 21-day average, and the top
+SHORTLIST kept; the shortlist is then re-ranked by 1-year volatility (annualized stdev of
+daily returns from candles.json, VOL_WINDOW sessions), MOST volatile first, up to TOP_N
+(user, 2026-10-24; 20-68 stocks qualified per day so far, so the shortlist rarely binds).
+A day with no qualifying stock is still logged, with an empty list. (Replaced the 8-K
+filing + volume spike rule of fb612460 on 2026-10-23.)
+backtests/product_news_volatility_backtest.py, 53 sessions: most volatile first +0.12% mean
+per 6 days vs most outlets first -0.29%, SPY -0.01%; ~9 independent periods, noise-level.
 
 Each list's return is measured HORIZON = 7 trading sessions later (user, 2026-10-24; was 6).
-product_news_volatility_backtest.py 7: most outlets first -0.18% mean per 7 days vs SPY -0.00%
-(most volatile first, 2026-10-24 to 10-25, was +0.22%; user went back to outlets first).
+product_news_volatility_backtest.py 7: most volatile first +0.22% mean per 7 days vs SPY -0.00%.
 Storage and exits reuse baizora_tracker.py with this file's builder and output file.
 backtests/product_news_backtest.py: only 53 sessions of headline history (Aug..Oct 2026,
 sparse early on): -0.31% mean per 6 days vs SPY -0.00%, ahead in 47%; far too little data to
@@ -34,6 +38,9 @@ NEWS = ROOT / "data" / "product_news.json"
 TOP_N = 10
 HORIZON = 7     # trading sessions after the list date (user, 2026-10-24; was 6; Baizora Tracker uses 13)
 WINDOW = 3      # headline dated within the last 3 sessions (weekend news counts toward Monday)
+SHORTLIST = 100  # top stocks by outlets / volume kept before the volatility ranking (user, 2026-10-24)
+VOL_WINDOW = 252  # daily returns in the 1-year volatility (same as the SPG Tracker)
+MIN_RETURNS = 60  # newer listings need about 3 months of history to get a volatility
 _cache = {}
 
 
@@ -70,15 +77,25 @@ def build_entry(data):
         lo_i = len(dates) - len(bars)   # arrays are end-aligned to dates
         f = bisect.bisect_left(dates, items[0]["date"])   # first session on/after the first headline
         before = bars[f - 1 - lo_i] if 0 <= f - 1 - lo_i < len(bars) and bars[f - 1 - lo_i] else None
-        found.append((outlets, items, before[3] if before else None, r))
+        # 1-year volatility from closes up to the list date (backfilled early lists have a bit
+        # less than a year, since candles.json holds about 252 sessions)
+        closes = [b[3] for b in bars[:d - lo_i + 1] if b][-(VOL_WINDOW + 1):]
+        rets = [closes[k] / closes[k - 1] - 1 for k in range(1, len(closes))]
+        if len(rets) < MIN_RETURNS:
+            continue
+        m = sum(rets) / len(rets)
+        vol = (sum((x - m) ** 2 for x in rets) / (len(rets) - 1)) ** 0.5 * 252 ** 0.5 * 100
+        found.append((outlets, items, before[3] if before else None, r, vol))
     found.sort(key=lambda x: (-x[0], -(x[3].get("VolumeVsMA21_1D") or 0), -(x[3].get("MarketCap") or 0), x[3]["Ticker"]))
+    found = found[:SHORTLIST]
+    found.sort(key=lambda x: (-x[4], -x[0], x[3]["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
 
     def rnd(v, n=2):
         return None if v is None else round(v, n)
 
     picks = []
-    for i, (outlets, items, before, r) in enumerate(found[:TOP_N]):
+    for i, (outlets, items, before, r, vol) in enumerate(found[:TOP_N]):
         top = items[-1]   # latest headline
         picks.append({
             "rank": i + 1,
@@ -92,6 +109,7 @@ def build_entry(data):
             "newsUrl": top["link"],
             "newsDate": items[0]["date"],
             "outlets": outlets,
+            "vol1y": rnd(vol, 1),
             "chgSince": rnd((r["Price"] / before - 1) * 100 if before else None),
             "chg1y": rnd(r.get("1YPriceChange")),
             "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
