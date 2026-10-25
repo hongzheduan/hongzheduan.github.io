@@ -13,6 +13,10 @@ ahead of SPY 54%, worst -10.9%, avg 6.7 stocks; all sectors -0.18%; all except T
 all Technology stocks equal-weight +0.06%; SPY -0.00%. Tech minus live +0.70pp, t -0.27..+1.69,
 8 non-overlapping periods: noise-level.
 
+2-session returns (user, 2026-10-25, `... 2`; 57 sessions): Technology only -0.04% mean / +0.24%
+median, ahead of SPY 58%, worst -6.3%, avg 7.0 stocks; all sectors -0.11%; all except Technology +0.02%;
+all Technology eq-wt +0.03%; SPY +0.00%. Tech minus live +0.07pp, t +0.12..+0.26, 29 periods: no edge.
+
 Run from the repo root: python backtests/product_news_tech_backtest.py [horizon] [start date]
 """
 import sys, json, bisect
