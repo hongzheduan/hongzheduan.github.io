@@ -859,7 +859,7 @@ ETF_EXPENSE_RATIO = {
     "XLE":  0.08,
     "TOPT": 0.20,
     "TQQQ": 0.78,
-    "FAS":  0.89,
+    "FAS":  0.88,
 }
 
 
