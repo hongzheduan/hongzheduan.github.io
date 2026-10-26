@@ -819,7 +819,7 @@ def _fetch_market_headlines(n=5, lang="en"):
 # set rather than merged into sp_set/nd_set — get_fundamentals() short-circuits
 # EDGAR lookups for them (see ETF_TICKERS check there) since ETFs don't file the
 # XBRL company-facts data those lookups expect.
-ETF_TICKERS = ["VOO", "SPY", "IVV", "QQQ", "QQQM", "FBTC", "USO", "GLD", "SLV", "SGOV", "DIA", "XLF", "XLE", "TOPT"]
+ETF_TICKERS = ["VOO", "SPY", "IVV", "QQQ", "QQQM", "FBTC", "USO", "GLD", "SLV", "SGOV", "DIA", "XLF", "XLE", "TOPT", "TQQQ"]
 ETF_NAMES = {
     "VOO":  "Vanguard S&P 500 ETF",
     "SPY":  "SPDR S&P 500 ETF Trust",
@@ -835,6 +835,7 @@ ETF_NAMES = {
     "XLF":  "Financial Select Sector SPDR Fund",
     "XLE":  "Energy Select Sector SPDR Fund",
     "TOPT": "iShares Top 20 U.S. Stocks ETF",
+    "TQQQ": "ProShares UltraPro QQQ",
 }
 # Annual expense ratio (%), hardcoded like ETF_NAMES above — issuers rarely change
 # these, but they aren't in Tiingo/EDGAR data so there's no live source to pull from.
@@ -856,6 +857,7 @@ ETF_EXPENSE_RATIO = {
     "XLF":  0.08,
     "XLE":  0.08,
     "TOPT": 0.20,
+    "TQQQ": 0.97,
 }
 
 
