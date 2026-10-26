@@ -1,9 +1,20 @@
 {
- "updated": "2026-10-25 14:46 ET",
+ "updated": "2026-10-26 16:55 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
  "ipos": [],
  "filed": [
+  {
+   "deal_id": "1407588-119709",
+   "ticker": "WWB",
+   "company": "WINDWARD BIO GROUP AG",
+   "sector": "Healthcare",
+   "industry": "Biological Products",
+   "sic": "2836",
+   "cik": "0002145089",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-10-23"
+  },
   {
    "deal_id": "1407089-119692",
    "ticker": "RZRA",
@@ -35,6 +46,17 @@
    "sic": "2834",
    "cik": "0002124080",
    "deal_usd": 100000000.0,
+   "filed_date": "2026-10-09"
+  },
+  {
+   "deal_id": "1405668-119603",
+   "ticker": "OPAY",
+   "company": "OPAY Ltd",
+   "sector": "Financials",
+   "industry": "Functions Related To Depository Banking, NEC",
+   "sic": "6099",
+   "cik": "0002103076",
+   "deal_usd": 386400000.0,
    "filed_date": "2026-10-09"
   },
   {
@@ -146,17 +168,6 @@
    "cik": "0002131613",
    "deal_usd": 100000000.0,
    "filed_date": "2026-08-21"
-  },
-  {
-   "deal_id": "1394047-118682",
-   "ticker": "YLUZ",
-   "company": "YPF Energia Electrica S.A.",
-   "sector": "Utilities",
-   "industry": "Electric Services",
-   "sic": "4911",
-   "cik": "0002133716",
-   "deal_usd": 100000000.0,
-   "filed_date": "2026-07-13"
   },
   {
    "deal_id": "1393836-118659",
