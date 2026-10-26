@@ -17,6 +17,11 @@ all Technology stocks equal-weight +0.06%; SPY -0.00%. Tech minus live +0.70pp, 
 median, ahead of SPY 58%, worst -6.3%, avg 7.0 stocks; all sectors -0.11%; all except Technology +0.02%;
 all Technology eq-wt +0.03%; SPY +0.00%. Tech minus live +0.07pp, t +0.12..+0.26, 29 periods: no edge.
 
+21-session (1 month) returns for the Custom Tracker (user, 2026-10-25, `... 21`; 38 sessions):
+Technology only +2.04% mean / +2.44% median, ahead of SPY 63%, worst -8.3%, avg 5.9 stocks; all sectors
+-0.84%; all except Technology -1.69%; all Technology eq-wt +0.99%; SPY +0.22%. Only ~2 non-overlapping
+periods (t -0.62..+3.28): far too little data to judge.
+
 Run from the repo root: python backtests/product_news_tech_backtest.py [horizon] [start date]
 """
 import sys, json, bisect
