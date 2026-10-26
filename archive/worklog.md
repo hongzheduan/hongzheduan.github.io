@@ -639,3 +639,4 @@
 2026-10-24 09:19 UTC  EDGAR-only
 2026-10-25 09:34 UTC  EDGAR-only
 2026-10-26 15:16 UTC  manual-midday-test
+2026-10-26 22:00 UTC  manual
