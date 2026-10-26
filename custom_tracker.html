@@ -195,6 +195,7 @@
     .bt-picks { display: flex; flex-wrap: wrap; gap: 4px; }
     .bt-pick { font-family: 'DM Mono', monospace; font-size: 11px; border-radius: 6px; padding: 2px 6px; white-space: nowrap; background: #f8fafc; border: 1px solid rgba(15,23,42,0.08); color: #0f172a; }
     .bt-pick i { font-style: normal; margin-left: 4px; }
+    .bt-pick u { text-decoration: none; margin-left: 6px; color: #334155; }
     .bt-date { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; white-space: nowrap; }
     .bt-more { display: block; margin: 12px auto 4px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #1d4ed8; background: none; border: 1px solid rgba(29,78,216,0.3); border-radius: 999px; padding: 6px 16px; cursor: pointer; }
     .bt-empty { text-align: center; padding: 34px 0; color: #334155; font-family: 'DM Mono', monospace; font-size: 12px; }
@@ -272,7 +273,7 @@
     </div>
 
     <div class="bt-foot">Returns are price only, from the list date's close to the close 21 trading days (about 1 month) later, adjusted for
-      splits, before dividends, taxes and trading costs. "Peak in month" is each stock's highest intraday price in the 21 trading days after the list date (so far, for younger lists), with its % above the list-date close. Lists younger than 21 trading days show their return so far,
+      splits, before dividends, taxes and trading costs. "Peak in month" is each stock's highest intraday price in the 21 trading days after the list date (so far, for younger lists), with its % above the list-date close and the date it happened (day N = Nth trading day after the list date). Lists younger than 21 trading days show their return so far,
       marked "day N of 21", and are left out of the summary until they finish. "List mean" is the average of the listed
       stocks' returns (up to ten); SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 25, 2026
       with the current rule; lists from October 26, 2026 on are recorded each evening. Launch headlines come from Google News; prices and volume from daily scanner data. Rankings are mechanical and
@@ -306,6 +307,7 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmtDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const pct = (v, d = 1) => v == null || isNaN(v) ? '–' : '<span class="' + (v >= 0 ? 'up' : 'dn') + '">' + (v >= 0 ? '+' : '') + v.toFixed(d) + '%</span>';
+  const shortDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   const title = s => s.toLowerCase().replace(/\b([a-z])/g, c => c.toUpperCase());
   const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
   const empty = (id, n, msg) => { document.getElementById(id).innerHTML = '<tr><td colspan="' + n + '" class="bt-empty">' + msg + '</td></tr>'; };
@@ -351,7 +353,8 @@
       const rs = e.picks.map(p => ({ t: p.ticker, r: ret(p.ticker, e.date, p.price, x ? x.prices[p.ticker] : now[p.ticker], until) }));
       // Peak: highest intraday high in the month after the list date (so far, for younger lists), stored by
       // custom_tracker.py as % above the list-date close; the price is shown in today's share terms.
-      const pk = e.picks.map(p => { const v = (e.peak || {})[p.ticker]; return { t: p.ticker, px: v ? adj(p.ticker, e.date, p.price) * (1 + v[0] / 100) : null, r: v ? v[0] : null }; });
+      const pk = e.picks.map(p => { const v = (e.peak || {})[p.ticker]; return { t: p.ticker, px: v ? adj(p.ticker, e.date, p.price) * (1 + v[0] / 100) : null, r: v ? v[0] : null,
+        on: v ? v[1] : null, n: v ? entries.filter(o => o.date > e.date && o.date <= v[1]).length : null }; });  // n = trading day of the month (one list per session)
       const vals = rs.map(v => v.r).filter(v => v != null);
       const avg = vals.length ? mean(vals) : null;
       const spyNow = x ? x.spy : now.SPY;
@@ -378,7 +381,7 @@
         '<tr><td class="bt-date">' + esc(fmtDate(r.e.date)) + (r.e.backfilled ? ' †' : '')
           + (r.done ? '' : '<div class="bt-sub">day ' + r.day + ' of ' + HORIZON + '</div>') + '</td>'
         + '<td class="bt-hide-m"><div class="bt-picks">' + r.rs.map(x => '<span class="bt-pick">' + esc(x.t) + '<i>' + pct(x.r, 0) + '</i></span>').join('') + '</div></td>'
-        + '<td class="bt-hide-m"><div class="bt-picks">' + r.pk.map(x => '<span class="bt-pick">' + esc(x.t) + (x.px != null ? ' $' + x.px.toFixed(2) + '<i>' + pct(x.r, 0) + '</i>' : '<i>–</i>') + '</span>').join('') + '</div></td>'
+        + '<td class="bt-hide-m"><div class="bt-picks">' + r.pk.map(x => '<span class="bt-pick">' + esc(x.t) + (x.px != null ? ' $' + x.px.toFixed(2) + '<i>' + pct(x.r, 0) + '</i><u>' + esc(shortDate(x.on)) + ', day ' + x.n + '</u>' : '<i>–</i>') + '</span>').join('') + '</div></td>'
         + '<td class="bt-num">' + pct(r.avg) + '</td><td class="bt-num">' + pct(r.spy) + '</td><td class="bt-num">' + pct(r.diff) + '</td></tr>'
       ).join('');
       const more = document.getElementById('btMore');
