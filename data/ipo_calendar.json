@@ -1,9 +1,63 @@
 {
- "updated": "2026-10-26 16:55 ET",
+ "updated": "2026-10-27 16:30 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
- "ipos": [],
+ "ipos": [
+  {
+   "deal_id": "1405668-119603",
+   "ticker": "OPAY",
+   "company": "OPAY Ltd",
+   "sector": "Financials",
+   "industry": "Functions Related To Depository Banking, NEC",
+   "sic": "6099",
+   "cik": "0002103076",
+   "deal_usd": 386400000.0,
+   "exchange": "NYSE",
+   "date": "2026-10-30",
+   "price_range": "19.00-21.00",
+   "shares": 16000000.0
+  },
+  {
+   "deal_id": "1405733-119610",
+   "ticker": "ASPE",
+   "company": "Aspen Neuroscience, Inc.",
+   "sector": "Healthcare",
+   "industry": "Pharmaceutical Preparations",
+   "sic": "2834",
+   "cik": "0002124080",
+   "deal_usd": 183281250.0,
+   "exchange": "Nasdaq",
+   "date": "2026-10-30",
+   "price_range": "15.00-17.00",
+   "shares": 9375000.0
+  },
+  {
+   "deal_id": "1320589-119617",
+   "ticker": "BBTX",
+   "company": "Bambusa Therapeutics, Inc.",
+   "sector": "Healthcare",
+   "industry": "Biological Products",
+   "sic": "2836",
+   "cik": "0002044950",
+   "deal_usd": 183281250.0,
+   "exchange": "Nasdaq",
+   "date": "2026-10-30",
+   "price_range": "15.00-17.00",
+   "shares": 9375000.0
+  }
+ ],
  "filed": [
+  {
+   "deal_id": "1407642-119728",
+   "ticker": "ANT",
+   "company": "Anthropic, PBC",
+   "sector": "Technology",
+   "industry": "Prepackaged Software",
+   "sic": "7372",
+   "cik": "0002130357",
+   "deal_usd": 1000000000.0,
+   "filed_date": "2026-10-26"
+  },
   {
    "deal_id": "1407588-119709",
    "ticker": "WWB",
@@ -25,39 +79,6 @@
    "cik": "0002141583",
    "deal_usd": 100000000.0,
    "filed_date": "2026-10-21"
-  },
-  {
-   "deal_id": "1320589-119617",
-   "ticker": "BBTX",
-   "company": "Bambusa Therapeutics, Inc.",
-   "sector": "Healthcare",
-   "industry": "Biological Products",
-   "sic": "2836",
-   "cik": "0002044950",
-   "deal_usd": 100000000.0,
-   "filed_date": "2026-10-09"
-  },
-  {
-   "deal_id": "1405733-119610",
-   "ticker": "ASPE",
-   "company": "Aspen Neuroscience, Inc.",
-   "sector": "Healthcare",
-   "industry": "Pharmaceutical Preparations",
-   "sic": "2834",
-   "cik": "0002124080",
-   "deal_usd": 100000000.0,
-   "filed_date": "2026-10-09"
-  },
-  {
-   "deal_id": "1405668-119603",
-   "ticker": "OPAY",
-   "company": "OPAY Ltd",
-   "sector": "Financials",
-   "industry": "Functions Related To Depository Banking, NEC",
-   "sic": "6099",
-   "cik": "0002103076",
-   "deal_usd": 386400000.0,
-   "filed_date": "2026-10-09"
   },
   {
    "deal_id": "1235548-119602",
