@@ -648,3 +648,4 @@
 2026-10-27 16:02 UTC  manual-midday-test
 2026-10-27 20:06 UTC  manual
 2026-10-27 23:54 UTC  430PM-scan
+2026-10-28 00:22 UTC  500PM-scan
