@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 """
-SB Tracker: stocks with a new product on the news (user rule, 2026-10-23).
+SB Tracker: the most volatile recent risers (user, 2026-10-28). Each finished session: every
+S&P 500 / Nasdaq-100 stock whose close rose on each of the last STREAK = 2 sessions, then up to TOP_N
+with the HIGHEST 1-year volatility (annualized std of daily returns, from candles.json). No news.
+backtests/sb_up2_highvol_backtest.py, 250 sessions, 2-session returns: +0.29% mean / +0.54% median vs
+SPY +0.11% / +0.18%, ahead of SPY in 55% of lists, worst -12.6%, t +0.60: noise-level edge.
+Shipped as the user's rule. (At 7 sessions it was +0.89% vs SPY +0.39%, negative in the 2nd half.)
+
+Until 2026-10-28 SB used the product-news rule below, still defined here as build_news_entry because
+custom_tracker.py runs it:
 
 A stock qualifies when data/product_news.json (fetch_product_news.py: Google News headlines
 that start with the company's name followed by a launch verb, e.g. "Apple unveils ...") has a
@@ -36,6 +44,8 @@ OUT = ROOT / "data" / "sb_tracker.json"
 NEWS = ROOT / "data" / "product_news.json"
 TOP_N = 10
 HORIZON = 2     # trading sessions after the list date (user, 2026-10-25; was 7, before that 6; Baizora Tracker uses 13)
+STREAK = 2      # consecutive sessions with a higher close (user, 2026-10-28)
+VOL_WINDOW = 252  # daily returns in the 1-year volatility
 SECTOR = "Technology"  # only this scanner Sector qualifies (user, 2026-10-25)
 WINDOW = 3      # headline dated within the last 3 sessions (weekend news counts toward Monday)
 _cache = {}
@@ -51,7 +61,8 @@ def _load():
     return _cache["candles"], _cache["news"]
 
 
-def build_entry(data):
+def build_news_entry(data):
+    """The product-news rule SB used until 2026-10-28; custom_tracker.py still uses it."""
     candles, news = _load()
     dates = candles.get("dates") or []
     if data["date"] not in dates:
@@ -101,6 +112,53 @@ def build_entry(data):
             "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
         })
     return {"date": data["date"], "spy": spy.get("Price") if spy else None, "qualified": len(found), "picks": picks}
+
+
+def build_entry(data):
+    """2 straight higher closes, highest 1-year volatility first, up to TOP_N (user, 2026-10-28)."""
+    candles, _ = _load()
+    dates = candles.get("dates") or []
+    if data["date"] not in dates:
+        return None   # candles.json not updated for this date yet; a later run retries
+    back = len(dates) - dates.index(data["date"]) - 1   # bars after the date; arrays are end-aligned
+    stale = set(data.get("staleTickers") or [])
+    picks = []
+    for r in data.get("data", []):
+        t = r.get("Ticker")
+        if not (r.get("InSP500") or r.get("InNASDAQ100")) or t in stale or not r.get("Price"):
+            continue
+        bars = (candles.get("data") or {}).get(t) or []
+        c = [b[3] if b else None for b in (bars[:len(bars) - back] if back else bars)]
+        last = c[-(STREAK + 1):]
+        if len(last) < STREAK + 1 or None in last or not all(last[k] > last[k - 1] for k in range(1, len(last))):
+            continue
+        hist = [x for x in c[-(VOL_WINDOW + 1):] if x]
+        rets = [hist[k] / hist[k - 1] - 1 for k in range(1, len(hist))]
+        if len(rets) < 200:
+            continue
+        m = sum(rets) / len(rets)
+        vol = (sum((x - m) ** 2 for x in rets) / (len(rets) - 1)) ** 0.5 * 252 ** 0.5 * 100
+        picks.append((vol, r, (last[-1] / last[0] - 1) * 100))
+    picks.sort(key=lambda p: (-p[0], -(p[1].get("MarketCap") or 0), p[1]["Ticker"]))
+    spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
+
+    def rnd(v, n=2):
+        return None if v is None else round(v, n)
+
+    return {"date": data["date"], "spy": spy.get("Price") if spy else None, "qualified": len(picks),
+            "picks": [{
+                "rank": i + 1,
+                "ticker": r["Ticker"],
+                "name": r.get("CompanyName") or "",
+                "sector": r.get("Sector") or "",
+                "price": r["Price"],
+                "chg1d": rnd(r.get("PriceChange1D")),
+                "chg2d": rnd(gain),
+                "vol1y": rnd(vol, 1),
+                "chg1y": rnd(r.get("1YPriceChange")),
+                "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
+                "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
+            } for i, (vol, r, gain) in enumerate(picks[:TOP_N])]}
 
 
 # Point the shared Baizora Tracker machinery at this tracker's file, rule and horizon.

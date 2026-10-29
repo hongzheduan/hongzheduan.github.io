@@ -12,7 +12,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baizora | SB Tracker</title>
-  <meta name="description" content="SB Tracker: the S&amp;P 500 and Nasdaq-100 stocks ranked highest by BaizConviction each trading day, with the track record of every past list.">
+  <meta name="description" content="SB Tracker: S&amp;P 500 and Nasdaq-100 stocks that closed higher two sessions in a row, most volatile first, with the track record of every past list.">
   <meta name="robots" content="noindex, follow">
   <link rel="icon" href="assets/baizora_logo_arrow.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -235,22 +235,19 @@
     <h1 class="page-title">SB Tracker</h1>
     <p class="page-sub">S&amp;P 500 &nbsp;·&nbsp; Nasdaq-100 &nbsp;·&nbsp; Updated each trading day</p>
 
-    <p class="bt-info">Each trading day, S&amp;P 500 and Nasdaq-100 <b>technology stocks</b> with <b>a new product on the news</b>: a news
-      headline from the last 3 trading days that starts with the company's name followed by a launch word, such as
-      "Apple unveils&hellip;", "Nvidia launches&hellip;" or "Microsoft introduces&hellip;". Stocks are ranked by <b>how many
-      news outlets</b> carried the launch, then by trading volume compared with its 21-day average, up to ten. Only stocks in the scanner's
-      Technology sector are listed, so some days have fewer than ten. Headlines
-      come from Google News and are matched automatically, so some launches are missed and a few headlines that are
-      not product launches slip through. The list does not judge whether the product is any good.</p>
-    <p class="bt-info">There is too little history to backtest this properly: the headline archive starts in mid 2026.
-      Over 57 trading days (August to October 2026), the technology-only rule averaged 0.0% per 2-day list vs SPY 0.0%,
-      ahead of SPY in 58% of lists, with about seven stocks a list. The same rule across all sectors averaged &minus;0.1%.
-      That sample is far too small to judge. Past results do not guarantee future results.</p>
+    <p class="bt-info">Each trading day, two steps. First, every S&amp;P 500 and Nasdaq-100 stock whose
+      <b>close rose on each of the last 2 trading days</b>. Then those stocks are sorted by <b>1-year volatility</b>
+      (the annualized standard deviation of daily returns), highest first, and the top ten are listed. The list is
+      a fixed rule applied to scanner data, with no human selection.</p>
+    <p class="bt-info">In a one-year backtest (October 2025 to October 2026, current index members, 2-day returns),
+      this rule averaged +0.3% per list (median +0.5%) vs SPY +0.1% (median +0.2%), was ahead of SPY in 55% of
+      lists, and its worst list lost 12.6%. That edge is small enough to be chance. Past results do not guarantee
+      future results.</p>
 
     <div class="bt-label">Today's list <span id="btTodayDate"></span></div>
     <div class="bt-card">
       <table class="bt-table">
-        <thead><tr><th>#</th><th>Ticker</th><th class="bt-hide-m">Sector</th><th class="bt-num">Close</th><th class="bt-num">1D</th><th class="bt-num">Outlets</th><th class="bt-hide-m">Launch news</th></tr></thead>
+        <thead><tr><th>#</th><th>Ticker</th><th class="bt-hide-m">Sector</th><th class="bt-num">Close</th><th class="bt-num">1D</th><th class="bt-num">1Y vol</th><th class="bt-hide-m">Scanner data</th></tr></thead>
         <tbody id="btToday"><tr><td colspan="7" class="bt-empty">Loading…</td></tr></tbody>
       </table>
     </div>
@@ -260,8 +257,7 @@
       <div class="bt-sum" id="btSum"></div>
     </div>
     <div class="bt-foot" style="margin-top:10px;">Lists marked † are a backtest, not a live record: they were rebuilt
-      on October 25, 2026 by applying this rule to each day's published scanner data and the launch headlines Google News
-      still returned that day, which cover older dates less completely.</div>
+      on October 28, 2026 by applying this rule to each day's published scanner data.</div>
     <div class="bt-card" style="margin-top:12px;">
       <table class="bt-table">
         <thead><tr><th>List date</th><th class="bt-hide-m">Return after 2 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
@@ -273,8 +269,9 @@
     <div class="bt-foot">Returns are price only, from the list date's close to the close 2 trading days later, adjusted for
       splits, before dividends, taxes and trading costs. Lists younger than 2 trading days show their return so far,
       marked "day 1 of 2", and are left out of the summary until they finish. "List mean" is the average of the listed
-      stocks' returns (up to ten); SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 25, 2026
-      with the current rule; lists from October 26, 2026 on are recorded each evening. Launch headlines come from Google News; prices and volume from daily scanner data. Rankings are mechanical and
+      stocks' returns (up to ten); SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 28, 2026 from each day's published
+      scanner data; lists after October 28, 2026 are recorded each evening. Until October 28, 2026 this tracker listed
+      Technology stocks with product-launch news; that rule continues on the Custom Tracker. Volatility uses daily closes adjusted for dividends. Rankings are mechanical and
       change daily. For informational purposes only. Not investment advice.</div>
 
   </div>
@@ -297,8 +294,8 @@
   </script>
 
 <script>
-// SB Tracker. data/sb_tracker.json is written each evening by sb_tracker.py
-// (product-launch headline in the last 3 sessions, most outlets first, up to 10, 2-day exits); current prices come from
+// SB Tracker (user, 2026-10-28). data/sb_tracker.json is written each evening by sb_tracker.py
+// (2 straight up closes, highest 1-year volatility first, up to 10 + each close + SPY close); current prices come from
 // data/latest.json, splits from data/splits.json.
 (function() {
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -323,26 +320,27 @@
     // Today's list
     const t0 = entries[0];
     document.getElementById('btTodayDate').textContent = 'List from the ' + fmtDate(t0.date) + ' close'
-      + (t0.qualified != null ? ' · ' + t0.qualified + ' tech stock' + (t0.qualified === 1 ? '' : 's') + ' with launch news' : '');
+      + (t0.qualified != null ? ' · ' + t0.qualified + ' stock' + (t0.qualified === 1 ? '' : 's') + ' up 2 days in a row' : '');
     document.getElementById('btToday').innerHTML = !t0.picks.length
-      ? '<tr><td colspan="7" class="bt-empty">No launch headline for any stock in the last 3 trading days.</td></tr>'
+      ? '<tr><td colspan="7" class="bt-empty">No stock closed higher two days in a row.</td></tr>'
       : t0.picks.map(p => {
-      const chips = [(p.newsSource ? p.newsSource + ' · ' : '') + 'First seen ' + fmtDate(p.newsDate)];
+      const chips = [];
+      if (p.pxVsMa21 != null) { const v = (p.pxVsMa21 - 1) * 100; chips.push('Price ' + Math.abs(v).toFixed(1) + '% ' + (v >= 0 ? 'above' : 'below') + ' 21-day avg'); }
       if (p.volVsMa21 != null) chips.push('Volume ' + p.volVsMa21.toFixed(1) + '× 21-day avg');
-      const news = p.newsUrl ? '<a href="' + esc(p.newsUrl) + '" target="_blank" rel="noopener">' + esc(p.news) + '</a>' : esc(p.news);
+      if (p.chg1y != null) chips.push('1Y ' + (p.chg1y >= 0 ? '+' : '') + p.chg1y.toFixed(0) + '%');
       return '<tr><td class="bt-rank">' + String(p.rank).padStart(2, '0') + '</td>'
         + '<td><div class="bt-tk">' + esc(p.ticker) + '</div><div class="bt-co">' + esc(title(p.name)) + '</div></td>'
         + '<td class="bt-sec bt-hide-m">' + esc(p.sector) + '</td>'
         + '<td class="bt-num">$' + p.price.toFixed(2) + '</td>'
         + '<td class="bt-num">' + pct(p.chg1d, 2) + '</td>'
-        + '<td class="bt-num"><div class="bt-conv">' + p.outlets + '</div><div class="bt-sub">' + (p.chgSince != null ? 'Since news ' + (p.chgSince >= 0 ? '+' : '') + p.chgSince.toFixed(1) + '%' : '') + '</div></td>'
-        + '<td class="bt-hide-m"><div class="bt-tk" style="font-size:13px;">' + news + '</div><div class="bt-why">' + chips.map(c => '<span class="bt-chip">' + esc(c) + '</span>').join('') + '</div></td></tr>';
+        + '<td class="bt-num"><div class="bt-conv">' + p.vol1y.toFixed(1) + '%</div><div class="bt-sub">2 days ' + (p.chg2d >= 0 ? '+' : '') + p.chg2d.toFixed(1) + '%</div></td>'
+        + '<td class="bt-hide-m"><div class="bt-why">' + chips.map(c => '<span class="bt-chip">' + esc(c) + '</span>').join('') + '</div></td></tr>';
     }).join('');
 
     // Track record: each list's return HORIZON trading days later. baizora_tracker.py stores that
     // session's closes on the entry as e.exit; younger lists use the current prices and are marked
     // "day N of 2" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
-    const HORIZON = 2;  // SB uses 2 trading days (user, 2026-10-25; was 7, before that 6); sb_tracker.py sets the same
+    const HORIZON = 2;  // 2 trading days (user, 2026-10-25); sb_tracker.py sets the same
     document.getElementById('btPriceDate').textContent = 'Prices as of ' + fmtDate(latest.date) + (latest.midday ? ' (midday)' : ' close');
     const rows = entries.filter(e => e.date < latest.date).map(e => {
       const x = e.exit, until = x ? x.date : null;
