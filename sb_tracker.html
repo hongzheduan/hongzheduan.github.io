@@ -188,7 +188,7 @@
     .bt-why { display: flex; flex-wrap: wrap; gap: 5px; }
     .bt-chip { font-family: 'DM Mono', monospace; font-size: 11px; color: #334155; background: #f1f5f9; border: 1px solid rgba(15,23,42,0.08); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
     .up { color: #15803d; } .dn { color: #b91c1c; }
-    .bt-sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 14px 0; }
+    .bt-sum { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 14px 0; }
     .bt-sum div { text-align: center; }
     .bt-sum b { display: block; font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; color: #0f172a; }
     .bt-sum small { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; }
@@ -206,6 +206,7 @@
       .bt-table td { padding: 10px 6px; font-size: 13px; }
       .bt-table th { padding: 10px 6px; }
       .bt-sum b { font-size: 22px; }
+      .bt-sum { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 640px) {
       header { padding: 0 16px; }
@@ -362,12 +363,15 @@
       return { e, rs, pk, pkAvg, avg, spy, done: !!x, day, diff: avg != null && spy != null ? avg - spy : null };
     });
     const scored = rows.filter(r => r.done && r.diff != null);
+    // Average peak: each finished list's mean peak (sb_tracker.py freezes it as peakDone after 7 sessions), averaged over lists.
+    const peaked = scored.filter(r => r.e.peakDone && r.pk.some(x => x.r != null));
     if (scored.length) {
       const beat = scored.filter(r => r.diff > 0).length;
       document.getElementById('btSum').innerHTML =
         '<div><b>' + beat + ' of ' + scored.length + '</b><small>Lists ahead of SPY</small></div>'
         + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return, 7 days</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same 7 days</small></div>';
+        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same 7 days</small></div>'
+        + (peaked.length ? '<div><b>' + pct(mean(peaked.map(r => mean(r.pk.filter(x => x.r != null).map(x => x.r))))) + '</b><small>Average peak in 7 days</small></div>' : '');
     } else {
       document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets its 7-day return 7 trading days after it is recorded.</div>';
     }
