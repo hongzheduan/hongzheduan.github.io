@@ -239,9 +239,10 @@
       <b>close rose on each of the last 2 trading days</b>. Then those stocks are sorted by <b>1-year volatility</b>
       (the annualized standard deviation of daily returns), highest first, and the top ten are listed. The list is
       a fixed rule applied to scanner data, with no human selection.</p>
-    <p class="bt-info">In a one-year backtest (October 2025 to October 2026, current index members, 2-day returns),
-      this rule averaged +0.3% per list (median +0.5%) vs SPY +0.1% (median +0.2%), was ahead of SPY in 55% of
-      lists, and its worst list lost 12.6%. That edge is small enough to be chance. Past results do not guarantee
+    <p class="bt-info">In a one-year backtest (October 2025 to October 2026, current index members, 7-day returns),
+      this rule averaged +0.9% per list (median +0.6%) vs SPY +0.4% (median +0.2%), was ahead of SPY in 51% of
+      lists, and its worst list lost 20.3%. It trailed SPY in the second half of that year, and the edge is small
+      enough to be chance. Past results do not guarantee
       future results.</p>
 
     <div class="bt-label">Today's list <span id="btTodayDate"></span></div>
@@ -260,15 +261,15 @@
       on October 28, 2026 by applying this rule to each day's published scanner data.</div>
     <div class="bt-card" style="margin-top:12px;">
       <table class="bt-table">
-        <thead><tr><th>List date</th><th class="bt-hide-m">Return after 2 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
+        <thead><tr><th>List date</th><th class="bt-hide-m">Return after 7 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
         <tbody id="btHist"><tr><td colspan="5" class="bt-empty">Loading…</td></tr></tbody>
       </table>
       <button type="button" class="bt-more" id="btMore" style="display:none;">Show all</button>
     </div>
 
-    <div class="bt-foot">Returns are price only, from the list date's close to the close 2 trading days later, adjusted for
-      splits, before dividends, taxes and trading costs. Lists younger than 2 trading days show their return so far,
-      marked "day 1 of 2", and are left out of the summary until they finish. "List mean" is the average of the listed
+    <div class="bt-foot">Returns are price only, from the list date's close to the close 7 trading days later, adjusted for
+      splits, before dividends, taxes and trading costs. Lists younger than 7 trading days show their return so far,
+      marked "day 3 of 7", and are left out of the summary until they finish. "List mean" is the average of the listed
       stocks' returns (up to ten); SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 28, 2026 from each day's published
       scanner data; lists after October 28, 2026 are recorded each evening. Until October 28, 2026 this tracker listed
       Technology stocks with product-launch news; that rule continues on the Custom Tracker. Volatility uses daily closes adjusted for dividends. Rankings are mechanical and
@@ -339,8 +340,8 @@
 
     // Track record: each list's return HORIZON trading days later. baizora_tracker.py stores that
     // session's closes on the entry as e.exit; younger lists use the current prices and are marked
-    // "day N of 2" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
-    const HORIZON = 2;  // 2 trading days (user, 2026-10-25); sb_tracker.py sets the same
+    // "day N of 7" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
+    const HORIZON = 7;  // 7 trading days (user, 2026-10-28; was 2); sb_tracker.py sets the same
     document.getElementById('btPriceDate').textContent = 'Prices as of ' + fmtDate(latest.date) + (latest.midday ? ' (midday)' : ' close');
     const rows = entries.filter(e => e.date < latest.date).map(e => {
       const x = e.exit, until = x ? x.date : null;
@@ -357,10 +358,10 @@
       const beat = scored.filter(r => r.diff > 0).length;
       document.getElementById('btSum').innerHTML =
         '<div><b>' + beat + ' of ' + scored.length + '</b><small>Lists ahead of SPY</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return, 2 days</small></div>'
-        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same 2 days</small></div>';
+        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return, 7 days</small></div>'
+        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same 7 days</small></div>';
     } else {
-      document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets its 2-day return 2 trading days after it is recorded.</div>';
+      document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets its 7-day return 7 trading days after it is recorded.</div>';
     }
 
     const SHOW = 15;

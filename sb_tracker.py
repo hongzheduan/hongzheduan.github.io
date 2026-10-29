@@ -5,7 +5,8 @@ S&P 500 / Nasdaq-100 stock whose close rose on each of the last STREAK = 2 sessi
 with the HIGHEST 1-year volatility (annualized std of daily returns, from candles.json). No news.
 backtests/sb_up2_highvol_backtest.py, 250 sessions, 2-session returns: +0.29% mean / +0.54% median vs
 SPY +0.11% / +0.18%, ahead of SPY in 55% of lists, worst -12.6%, t +0.60: noise-level edge.
-Shipped as the user's rule. (At 7 sessions it was +0.89% vs SPY +0.39%, negative in the 2nd half.)
+Shipped as the user's rule. Returns measured after 7 sessions since 2026-10-28 (user): +0.89% mean /
++0.58% median vs SPY +0.39% / +0.24%, ahead of SPY in 51%, worst -20.3%, behind SPY in the 2nd half.
 
 Until 2026-10-28 SB used the product-news rule below, still defined here as build_news_entry because
 custom_tracker.py runs it:
@@ -43,7 +44,7 @@ ROOT = Path(__file__).parent
 OUT = ROOT / "data" / "sb_tracker.json"
 NEWS = ROOT / "data" / "product_news.json"
 TOP_N = 10
-HORIZON = 2     # trading sessions after the list date (user, 2026-10-25; was 7, before that 6; Baizora Tracker uses 13)
+HORIZON = 7     # trading sessions after the list date (user, 2026-10-28; was 2, before that 7, then 6; Baizora Tracker uses 13)
 STREAK = 2      # consecutive sessions with a higher close (user, 2026-10-28)
 VOL_WINDOW = 252  # daily returns in the 1-year volatility
 SECTOR = "Technology"  # only this scanner Sector qualifies (user, 2026-10-25)

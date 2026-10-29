@@ -346,7 +346,7 @@
     // Track record: each list's return HORIZON trading days later. baizora_tracker.py stores that
     // session's closes on the entry as e.exit; younger lists use the current prices and are marked
     // "day N of 21" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
-    const HORIZON = 21;  // 21 trading days, about 1 month (user, 2026-10-25; SB uses 2); custom_tracker.py sets the same
+    const HORIZON = 21;  // 21 trading days, about 1 month (user, 2026-10-25; SB uses 7); custom_tracker.py sets the same
     document.getElementById('btPriceDate').textContent = 'Prices as of ' + fmtDate(latest.date) + (latest.midday ? ' (midday)' : ' close');
     const rows = entries.filter(e => e.date < latest.date).map(e => {
       const x = e.exit, until = x ? x.date : null;
