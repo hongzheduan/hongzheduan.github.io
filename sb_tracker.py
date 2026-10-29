@@ -162,6 +162,33 @@ def build_entry(data):
             } for i, (vol, r, gain) in enumerate(picks[:TOP_N])]}
 
 
+# Peak column (SB: 7 sessions, user 2026-10-28; Custom: 21, user 2026-10-25). Moved here from custom_tracker.py.
+def add_peaks(out, horizon):
+    """Each pick's highest intraday high over the `horizon` sessions after the list date (or so far),
+    as % above the list-date close, from data/candles.json (split and dividend adjusted, so the
+    ratio is unaffected by splits). Stored on the entry as peak = {ticker: [pct, date]}; once the
+    full horizon is in, peakDone freezes it (candles.json only keeps ~252 sessions)."""
+    candles = json.loads(bt.CANDLES.read_text(encoding="utf-8"))
+    dates, data = candles.get("dates") or [], candles.get("data") or {}
+    for e in out["entries"]:
+        if e.get("peakDone") or e["date"] not in dates:
+            continue
+        d = dates.index(e["date"])
+        end = min(d + horizon, len(dates) - 1)
+        peak = {}
+        for p in e["picks"]:
+            bars = data.get(p["ticker"]) or []
+            lo = len(dates) - len(bars)   # arrays are end-aligned to dates
+            base = bars[d - lo] if 0 <= d - lo < len(bars) else None
+            span = [(dates[k], bars[k - lo]) for k in range(d + 1, end + 1) if 0 <= k - lo < len(bars) and bars[k - lo]]
+            if base and span:
+                day, bar = max(span, key=lambda x: x[1][1])
+                peak[p["ticker"]] = [round((bar[1] / base[3] - 1) * 100, 2), day]
+        e["peak"] = peak
+        if end == d + horizon:
+            e["peakDone"] = True
+
+
 # Point the shared Baizora Tracker machinery at this tracker's file, rule and horizon.
 bt.OUT = OUT
 bt.HORIZON = HORIZON
@@ -187,6 +214,7 @@ def main():
     else:
         print(f"no new list (latest.json {data.get('date')}, midday={data.get('midday')})")
     bt.fill_exits(out, data)
+    add_peaks(out, bt.HORIZON)   # bt.HORIZON: 7 for SB, 21 when run by custom_tracker.py
     bt.save_out(out)
 
 
