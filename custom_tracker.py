@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Custom Tracker: the SB Tracker's rule (Technology stocks with a product-launch headline in the last
+Custom Tracker: the SB Tracker's former rule (Technology stocks with a product-launch headline in the last
 3 sessions, most outlets first, up to 10; see sb_tracker.py) with returns measured HORIZON = 21
 trading sessions (about 1 month) later instead of 2 (user, 2026-10-25). Writes its own
 data/custom_tracker.json so SB keeps its 2-day exits.
@@ -15,7 +15,10 @@ Usage:
 import json
 
 import baizora_tracker as bt
-import sb_tracker as sb   # sets bt.build_entry to the SB rule
+import sb_tracker as sb
+
+# The product-news rule (SB's rule until 2026-10-28, when SB switched to 3-month change).
+bt.build_entry = sb.build_news_entry
 
 OUT = sb.ROOT / "data" / "custom_tracker.json"
 HORIZON = 21    # trading sessions after the list date, about 1 month (user, 2026-10-25)

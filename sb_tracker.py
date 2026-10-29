@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 """
-SB Tracker: stocks with a new product on the news (user rule, 2026-10-23).
+SB Tracker: top 10 S&P 500 / Nasdaq-100 stocks by 3-month price change, returns after 7 sessions
+(user, 2026-10-28). No news involved: the rule is spg_tracker.py's build_entry (close vs the close
+63 sessions earlier, from candles.json); SB differs from SPG only in its 7-session horizon.
+backtests/spg_formula_search.py 7 (105 rules, 245 sessions): +2.42% mean / +2.60% median per 7 sessions
+vs SPY +0.39% / +0.24%, ahead of SPY in 62% of lists, worst list -15.5%, ahead in both halves.
+The news rule tried first (backtests/sb_formula_search.py, 55 sessions) was set aside by the user.
+
+Until 2026-10-28 SB used the product-news rule below, still defined here as build_news_entry because
+custom_tracker.py runs it:
 
 A stock qualifies when data/product_news.json (fetch_product_news.py: Google News headlines
 that start with the company's name followed by a launch verb, e.g. "Apple unveils ...") has a
@@ -30,12 +38,13 @@ import json
 from pathlib import Path
 
 import baizora_tracker as bt
+from spg_tracker import build_entry   # top 10 by 3-month change (user, 2026-10-28)
 
 ROOT = Path(__file__).parent
 OUT = ROOT / "data" / "sb_tracker.json"
 NEWS = ROOT / "data" / "product_news.json"
 TOP_N = 10
-HORIZON = 2     # trading sessions after the list date (user, 2026-10-25; was 7, before that 6; Baizora Tracker uses 13)
+HORIZON = 7     # trading sessions after the list date (user, 2026-10-28; was 2, before that 7, then 6)
 SECTOR = "Technology"  # only this scanner Sector qualifies (user, 2026-10-25)
 WINDOW = 3      # headline dated within the last 3 sessions (weekend news counts toward Monday)
 _cache = {}
@@ -51,7 +60,8 @@ def _load():
     return _cache["candles"], _cache["news"]
 
 
-def build_entry(data):
+def build_news_entry(data):
+    """The product-news rule SB used until 2026-10-28; custom_tracker.py still uses it."""
     candles, news = _load()
     dates = candles.get("dates") or []
     if data["date"] not in dates:
@@ -104,6 +114,7 @@ def build_entry(data):
 
 
 # Point the shared Baizora Tracker machinery at this tracker's file, rule and horizon.
+# (Importing spg_tracker patches bt for SPG; the three lines below take it back.)
 bt.OUT = OUT
 bt.HORIZON = HORIZON
 bt.build_entry = build_entry
