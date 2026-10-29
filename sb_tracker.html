@@ -262,14 +262,14 @@
       on October 28, 2026 by applying this rule to each day's published scanner data.</div>
     <div class="bt-card" style="margin-top:12px;">
       <table class="bt-table">
-        <thead><tr><th>List date</th><th class="bt-hide-m">Return after 7 days, per stock</th><th class="bt-hide-m">Peak in 7 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
-        <tbody id="btHist"><tr><td colspan="6" class="bt-empty">Loading…</td></tr></tbody>
+        <thead><tr><th>List date</th><th class="bt-hide-m">Return after 7 days, per stock</th><th class="bt-hide-m">Peak in 7 days, per stock</th><th class="bt-num">Average peak</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
+        <tbody id="btHist"><tr><td colspan="7" class="bt-empty">Loading…</td></tr></tbody>
       </table>
       <button type="button" class="bt-more" id="btMore" style="display:none;">Show all</button>
     </div>
 
     <div class="bt-foot">Returns are price only, from the list date's close to the close 7 trading days later, adjusted for
-      splits, before dividends, taxes and trading costs. "Peak in 7 days" is each stock's highest intraday price in the 7 trading days after the list date (so far, for younger lists), with its % above the list-date close and the date it happened (day N = Nth trading day after the list date). Lists younger than 7 trading days show their return so far,
+      splits, before dividends, taxes and trading costs. "Peak in 7 days" is each stock's highest intraday price in the 7 trading days after the list date (so far, for younger lists), with its % above the list-date close and the date it happened (day N = Nth trading day after the list date). "Average peak" is the mean of the listed stocks' peaks. Lists younger than 7 trading days show their return so far,
       marked "day 3 of 7", and are left out of the summary until they finish. "List mean" is the average of the listed
       stocks' returns (up to ten); SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 28, 2026 from each day's published
       scanner data; lists after October 28, 2026 are recorded each evening. Until October 28, 2026 this tracker listed
@@ -311,7 +311,7 @@
 
   Promise.all([get('sb_tracker.json'), get('latest.json'), get('splits.json').catch(() => ({}))]).then(([tr, latest, splits]) => {
     const entries = tr.entries || [];
-    if (!entries.length) { empty('btToday', 7, 'No list recorded yet.'); empty('btHist', 6, 'No lists yet.'); return; }
+    if (!entries.length) { empty('btToday', 7, 'No list recorded yet.'); empty('btHist', 7, 'No lists yet.'); return; }
     const now = {};
     (latest.data || []).forEach(r => { now[r.Ticker] = r.Price; });
 
@@ -357,7 +357,9 @@
       const spyNow = x ? x.spy : now.SPY;
       const spy = spyNow && e.spy ? (spyNow / e.spy - 1) * 100 : null;
       const day = x ? HORIZON : Math.min(HORIZON - 1, entries.filter(o => o.date > e.date && o.date <= latest.date).length);
-      return { e, rs, pk, avg, spy, done: !!x, day, diff: avg != null && spy != null ? avg - spy : null };
+      const pkVals = pk.map(v => v.r).filter(v => v != null);
+      const pkAvg = pkVals.length ? mean(pkVals) : null;  // average of this list's peaks (so far, for younger lists)
+      return { e, rs, pk, pkAvg, avg, spy, done: !!x, day, diff: avg != null && spy != null ? avg - spy : null };
     });
     const scored = rows.filter(r => r.done && r.diff != null);
     if (scored.length) {
@@ -373,12 +375,13 @@
     const SHOW = 15;
     let all = false;
     const draw = () => {
-      if (!rows.length) { empty('btHist', 6, 'The first list gets a return after the next trading day.'); return; }
+      if (!rows.length) { empty('btHist', 7, 'The first list gets a return after the next trading day.'); return; }
       document.getElementById('btHist').innerHTML = (all ? rows : rows.slice(0, SHOW)).map(r =>
         '<tr><td class="bt-date">' + esc(fmtDate(r.e.date)) + (r.e.backfilled ? ' †' : '')
           + (r.done ? '' : '<div class="bt-sub">day ' + r.day + ' of ' + HORIZON + '</div>') + '</td>'
         + '<td class="bt-hide-m"><div class="bt-picks">' + r.rs.map(x => '<span class="bt-pick">' + esc(x.t) + '<i>' + pct(x.r, 0) + '</i></span>').join('') + '</div></td>'
         + '<td class="bt-hide-m"><div class="bt-picks">' + r.pk.map(x => '<span class="bt-pick">' + esc(x.t) + (x.px != null ? ' $' + x.px.toFixed(2) + '<i>' + pct(x.r, 0) + '</i><u>' + esc(shortDate(x.on)) + ', day ' + x.n + '</u>' : '<i>–</i>') + '</span>').join('') + '</div></td>'
+        + '<td class="bt-num">' + pct(r.pkAvg) + '</td>'
         + '<td class="bt-num">' + pct(r.avg) + '</td><td class="bt-num">' + pct(r.spy) + '</td><td class="bt-num">' + pct(r.diff) + '</td></tr>'
       ).join('');
       const more = document.getElementById('btMore');
@@ -386,7 +389,7 @@
       more.onclick = () => { all = true; draw(); };
     };
     draw();
-  }).catch(() => { empty('btToday', 7, 'Tracker data not yet available.'); empty('btHist', 6, 'Tracker data not yet available.'); });
+  }).catch(() => { empty('btToday', 7, 'Tracker data not yet available.'); empty('btHist', 7, 'Tracker data not yet available.'); });
 })();
 </script>
 
