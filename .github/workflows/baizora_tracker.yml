@@ -8,7 +8,6 @@ name: Baizora Tracker
 # product-launch list with 6-day exits into data/sb_tracker.json (sb_tracker.py, added 2026-10-23;
 # headlines from fetch_product_news.py -> data/product_news.json, fetched once, restored after each reset).
 # Custom Tracker: SB's rule with 21-day exits into data/custom_tracker.json (custom_tracker.py, 2026-10-25).
-# SPG switched to top 10 by 3-month change (2026-10-28); its old 5-up-days rule moved to sg_tracker.py -> data/sg_tracker.json.
 # Also refreshes data/se_tracker_prices.json (se_tracker_prices.py, added 2026-10-24): SE Tracker's
 # close on each index-change day and one month later.
 # Added 2026-10-21. Runs after the scanner's evening scans; the script is idempotent
@@ -55,12 +54,11 @@ jobs:
             cp "$RUNNER_TEMP/product_news.json" data/product_news.json
             python3 baizora_tracker.py
             python3 spg_tracker.py
-            python3 sg_tracker.py
             python3 spi_tracker.py
             python3 sb_tracker.py
             python3 custom_tracker.py
             python3 se_tracker_prices.py || echo "SE tracker prices failed; keeping the file on disk"
-            git add data/baizora_tracker.json data/baizora_tracker_trail.json data/spi_tracker.json data/spg_tracker.json data/sg_tracker.json data/sb_tracker.json data/custom_tracker.json data/product_news.json data/se_tracker_prices.json
+            git add data/baizora_tracker.json data/baizora_tracker_trail.json data/spi_tracker.json data/spg_tracker.json data/sb_tracker.json data/custom_tracker.json data/product_news.json data/se_tracker_prices.json
             if git diff --cached --quiet; then echo "No new list"; exit 0; fi
             git commit -m "auto update trackers $(python3 -c "import json; print(json.load(open('data/latest.json'))['date'])")"
             if git push origin HEAD:main; then exit 0; fi

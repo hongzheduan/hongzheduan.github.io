@@ -293,7 +293,7 @@
   </script>
 
 <script>
-// SG Tracker: the SPG Tracker's original rule, own data (user, 2026-10-28). data/sg_tracker.json is written each evening by sg_tracker.py
+// SG Tracker: copy of the SPG Tracker, same data (user, 2026-10-28). data/spg_tracker.json is written each evening by spg_tracker.py
 // (5 straight up closes, lowest 1-year volatility first, up to 10 + each close + SPY close); current prices come from
 // data/latest.json, splits from data/splits.json.
 (function() {
@@ -305,7 +305,7 @@
   const empty = (id, n, msg) => { document.getElementById(id).innerHTML = '<tr><td colspan="' + n + '" class="bt-empty">' + msg + '</td></tr>'; };
   const get = f => fetch('data/' + f + '?t=' + Date.now()).then(r => r.json());
 
-  Promise.all([get('sg_tracker.json'), get('latest.json'), get('splits.json').catch(() => ({}))]).then(([tr, latest, splits]) => {
+  Promise.all([get('spg_tracker.json'), get('latest.json'), get('splits.json').catch(() => ({}))]).then(([tr, latest, splits]) => {
     const entries = tr.entries || [];
     if (!entries.length) { empty('btToday', 7, 'No list recorded yet.'); empty('btHist', 5, 'No lists yet.'); return; }
     const now = {};
@@ -339,7 +339,7 @@
     // Track record: each list's return HORIZON trading days later. baizora_tracker.py stores that
     // session's closes on the entry as e.exit; younger lists use the current prices and are marked
     // "day N of 2" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
-    const HORIZON = 2;  // 2 trading days (user, 2026-10-23); sg_tracker.py sets the same
+    const HORIZON = 2;  // SPG uses 2 trading days (user, 2026-10-23); spg_tracker.py sets the same
     document.getElementById('btPriceDate').textContent = 'Prices as of ' + fmtDate(latest.date) + (latest.midday ? ' (midday)' : ' close');
     const rows = entries.filter(e => e.date < latest.date).map(e => {
       const x = e.exit, until = x ? x.date : null;
