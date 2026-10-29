@@ -620,9 +620,9 @@
     }
 
     /* Cards hidden on desktop; table hidden on mobile */
-    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #longgreenCards, #positionsCards { display: none; }
-    .newmembers-blurb, .smarsi-blurb, .breakout-blurb, .greenstreak-blurb, .longgreen-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
-    .newmembers-empty, .smarsi-empty, .breakout-empty, .greenstreak-empty, .longgreen-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
+    #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #longgreenCards, #sarbuyCards, #positionsCards { display: none; }
+    .newmembers-blurb, .smarsi-blurb, .breakout-blurb, .greenstreak-blurb, .longgreen-blurb, .sarbuy-blurb { font-size: 12px; color: var(--muted); max-width: 720px; margin: 0 0 14px; line-height: 1.5; }
+    .newmembers-empty, .smarsi-empty, .breakout-empty, .greenstreak-empty, .longgreen-empty, .sarbuy-empty { font-size: 12px; color: #64748b; padding: 24px 0; text-align: center; }
     .new-member-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
     .new-member-badge.confirmed { background: rgba(59,130,246,0.15); color: var(--electric-bright); border: 1px solid rgba(59,130,246,0.3); }
     .gs-controls, .lg-controls { font-size: 12px; color: var(--muted); margin: 0 0 14px; }
@@ -631,7 +631,7 @@
     .lg-pill:hover { color: var(--white); border-color: var(--electric); }
     .lg-pill.active { background: rgba(59,130,246,0.2); color: var(--white); border-color: var(--electric-bright); }
     .gs-controls select, .lg-controls select { background: var(--navy-light); color: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; font-family: 'DM Mono', monospace; font-size: 12px; margin-left: 6px; }
-    .greenstreak-badge, .longgreen-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+    .greenstreak-badge, .longgreen-badge, .sarbuy-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
     .breakout-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle; white-space: nowrap; background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
     .new-member-badge.rumored { background: rgba(245,158,11,0.15); color: var(--gold-light); border: 1px solid rgba(245,158,11,0.3); }
 
@@ -660,8 +660,8 @@
       tr:hover td.ticker-cell { background: #081229; }
       .mobile-search-bar { display: block; }
       .mobile-rotate-hint { display: block; }
-      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable, #breakoutTable, #greenstreakTable, #longgreenTable, #positionsTable { display: none !important; }
-      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #longgreenCards, #positionsCards { display: block !important; }
+      #allTable, #sp500Table, #nasdaqTable, #etfTable, #watchlistTable, #newmembersTable, #smarsiTable, #breakoutTable, #greenstreakTable, #longgreenTable, #sarbuyTable, #positionsTable { display: none !important; }
+      #allCards, #sp500Cards, #nasdaqCards, #etfCards, #watchlistCards, #newmembersCards, #smarsiCards, #breakoutCards, #greenstreakCards, #longgreenCards, #sarbuyCards, #positionsCards { display: block !important; }
     }
     @media (max-width: 960px) and (orientation: landscape) {
       header { padding: 0 16px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,13,31,0.98); }
@@ -925,6 +925,7 @@
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="breakout">Breakouts</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="greenstreak">Green Streak</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="longgreen">Long Green Bar</button>
+            <button type="button" role="menuitem" class="idx-dd-item" data-idx="sarbuy">SAR Buy Oversold</button>
           </div>
         </div>
         <button class="tab-btn" data-tab="watchlist" onclick="show('watchlist', this)">★ Watchlist</button>
@@ -965,6 +966,7 @@
     <button onclick="selectIndex('breakout'); toggleMenu();">Breakouts</button>
     <button onclick="selectIndex('greenstreak'); toggleMenu();">Green Streak</button>
     <button onclick="selectIndex('longgreen'); toggleMenu();">Long Green Bar</button>
+    <button onclick="selectIndex('sarbuy'); toggleMenu();">SAR Buy Oversold</button>
     <button onclick="show('watchlist'); toggleMenu();">★ Watchlist</button>
     <button onclick="show('positions'); toggleMenu();">My Positions</button>
     <button onclick="show('readme'); toggleMenu();">README</button>
@@ -1069,6 +1071,12 @@
       <table id="longgreenTable"></table>
       <div id="longgreenCards"></div>
       <p class="longgreen-empty" id="longgreenEmpty" style="display:none;"></p>
+    </div>
+    <div id="sarbuy" class="section">
+      <p class="sarbuy-blurb">Stocks and ETFs whose Parabolic SAR (0.02 step, 0.2 max) flipped from sell to buy in the last 5 sessions and is still on buy, with RSI(14) under 35 on the flip day or the session before it. RSI is checked at the flip rather than today because the bounce that flips SAR usually lifts RSI back above 35. During market hours today's bar is still forming, so a flip today can undo by the close. The badge shows when the flip happened; hover it for RSI at the flip and today. A technical screen only, not investment advice.</p>
+      <table id="sarbuyTable"></table>
+      <div id="sarbuyCards"></div>
+      <p class="sarbuy-empty" id="sarbuyEmpty" style="display:none;"></p>
     </div>
 
     <div id="watchlist" class="section">
@@ -1195,7 +1203,7 @@
     const CHART_BTN = `<button class="chart-btn" title="View Chart" aria-label="View chart"><svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true"><line x1="2.5" y1="1" x2="2.5" y2="10" stroke="currentColor" stroke-width="0.9"/><rect x="1" y="3.5" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.5"/><line x1="7" y1="0.5" x2="7" y2="10.5" stroke="currentColor" stroke-width="0.9"/><rect x="5.5" y="2" width="3" height="6" rx="0.4" fill="currentColor"/><line x1="11.5" y1="1" x2="11.5" y2="9.5" stroke="currentColor" stroke-width="0.9"/><rect x="10" y="3" width="3" height="4" rx="0.4" fill="currentColor" opacity="0.7"/></svg></button>`;
 
     /* ── STATE ── */
-    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [], smaRsiRows = [], breakoutRows = [], greenStreakRows = [], longGreenRows = [];
+    let spRows = [], ndRows = [], etfRows = [], allRows = [], combinedRows = [], newMemberRows = [], smaRsiRows = [], breakoutRows = [], greenStreakRows = [], longGreenRows = [], sarRsiRows = [];
     let recentJoinMap = {};   // ticker -> {index, date}, official adds within NEW_MEMBER_WINDOW_DAYS
     const NEW_MEMBER_WINDOW_DAYS = 30;
     // SMA200 Oversold screen: within this % of the 200-day SMA (either side) AND RSI(14) below the cutoff.
@@ -1212,6 +1220,8 @@
     const FLAG_VOL_MULT = 1.5;     // flag: breakout-day volume vs 21-day average
     let lgMinBody = 5;             // Long Green Bar: min (close - open) / open %, latest bar (dropdown in the section)
     const LG_RECENT_DAYS = 5;      // Long Green Bar: look back this many sessions (incl. latest)
+    const SR_RECENT_DAYS = 5;      // SAR Buy Oversold: flip to buy within this many sessions (incl. latest)
+    const SR_RSI_BELOW = 35;       // SAR Buy Oversold: RSI(14) on the flip day or the day before must be below this
     const LG_MIN_FILL = 60;        // Long Green Bar: body must fill >= this % of the day's high-low range
     let gsMinDays = 3;             // Green Streak: min consecutive close > open sessions (dropdown in the section)
     let activeTab     = "all";
@@ -1615,6 +1625,7 @@
       breakout:    { rows: () => breakoutRows.length, label: "Breakouts" },
       greenstreak: { rows: () => greenStreakRows.length, label: "Green Streak" },
       longgreen:   { rows: () => longGreenRows.length, label: "Long Green Bar" },
+      sarbuy:      { rows: () => sarRsiRows.length,   label: "SAR Buy Oversold" },
     };
     function updateStatus() {
       statusText.textContent = loadedDate;
@@ -1661,7 +1672,7 @@
       toggle.setAttribute("aria-expanded", "false");
       activeTab = idx;
       toolbar.style.display = "flex";
-      if ((idx === "breakout" || idx === "greenstreak" || idx === "longgreen") && currentWindow !== "1D") {
+      if ((idx === "breakout" || idx === "greenstreak" || idx === "longgreen" || idx === "sarbuy") && currentWindow !== "1D") {
         // Breakouts opens on 1D: today's move and VOL/MA21 are the context for a fresh breakout.
         const dayBtn = Array.from(document.querySelectorAll(".window-btn")).find(b => (b.getAttribute("onclick") || "").indexOf("'1D'") !== -1);
         if (dayBtn) setWindow("1D", dayBtn);
@@ -2051,6 +2062,61 @@
         const r = byT[card.dataset.ticker];
         const header = card.querySelector(".card-header");
         if (!r || !header || header.querySelector(".longgreen-badge")) return;
+        const tickerEl = header.querySelector(".card-ticker");
+        header.insertBefore(mk(r), tickerEl ? tickerEl.nextSibling : header.firstChild);
+      });
+    }
+
+    /* ── SAR BUY OVERSOLD screen: S&P 500 + Nasdaq-100 + ETF tickers whose Parabolic SAR
+       (0.02/0.2, the chart drawer's default) flipped from sell (dots above the close) to buy
+       (dots below the close) within the last SR_RECENT_DAYS sessions and is still on buy
+       today, with RSI(14) below SR_RSI_BELOW on the flip day or the session before it. RSI is
+       checked around the flip, not today, because the bounce that flips SAR usually lifts RSI
+       back above 35. ── */
+    function computeSarRsiRows() {
+      if (!candleData) return [];
+      const out = [];
+      allRows.forEach(r => {
+        r.SrDaysAgo = r.SrRsiFlip = r.SrRsiNow = null;
+        if (!(r.InSP500 || r.InNASDAQ100 || r.InETF)) return;
+        const raw = candleData.data && candleData.data[r.Ticker];
+        if (!raw || raw.length < 30) return;
+        const n = raw.length;
+        const sar = _computeSar(raw, 0.02, 0.2), rsi = _computeRsi(raw, 14);
+        const buy = i => sar[i] != null && sar[i] < raw[i][3];
+        if (!buy(n - 1)) return;
+        for (let i = n - 1; i >= 1 && i >= n - SR_RECENT_DAYS; i--) {
+          if (!buy(i)) break;
+          if (sar[i - 1] == null || buy(i - 1)) continue;
+          const lows = [rsi[i - 1], rsi[i]].filter(v => v != null);
+          const low = lows.length ? Math.min(...lows) : null;
+          if (low == null || low >= SR_RSI_BELOW) return;
+          r.SrDaysAgo = n - 1 - i; r.SrRsiFlip = low; r.SrRsiNow = rsi[n - 1];
+          out.push(r);
+          return;
+        }
+      });
+      return out;
+    }
+    function decorateSarRsiBadges() {
+      const byT = {};
+      sarRsiRows.forEach(r => { byT[r.Ticker] = r; });
+      const mk = r => {
+        const b = document.createElement("span");
+        b.className = "sarbuy-badge";
+        b.textContent = `SAR BUY ${r.SrDaysAgo === 0 ? "TODAY" : r.SrDaysAgo + "D AGO"} · RSI ${r.SrRsiFlip.toFixed(0)}`;
+        b.title = `SAR flipped from sell to buy ${r.SrDaysAgo === 0 ? "today" : r.SrDaysAgo + (r.SrDaysAgo === 1 ? " session ago" : " sessions ago")}. RSI(14) ${r.SrRsiFlip.toFixed(1)} at the flip, ${r.SrRsiNow != null ? r.SrRsiNow.toFixed(1) : "n/a"} now`;
+        return b;
+      };
+      document.querySelectorAll('#sarbuyTable .ticker-cell[data-ticker]').forEach(cell => {
+        const r = byT[cell.dataset.ticker];
+        if (!r || cell.querySelector(".sarbuy-badge")) return;
+        cell.insertBefore(mk(r), cell.querySelector(".chart-btn"));
+      });
+      document.querySelectorAll('#sarbuyCards .stock-card[data-ticker]').forEach(card => {
+        const r = byT[card.dataset.ticker];
+        const header = card.querySelector(".card-header");
+        if (!r || !header || header.querySelector(".sarbuy-badge")) return;
         const tickerEl = header.querySelector(".card-ticker");
         header.insertBefore(mk(r), tickerEl ? tickerEl.nextSibling : header.firstChild);
       });
@@ -2587,6 +2653,8 @@
       const gs = greenStreakRows.filter(filter);
       longGreenRows = computeLongGreenRows();
       const lg = longGreenRows.filter(filter);
+      sarRsiRows = computeSarRsiRows();
+      const sb = sarRsiRows.filter(filter);
       document.getElementById("allTable").innerHTML        = buildTable(combined, w);
       document.getElementById("allCards").innerHTML        = buildCards(combined, w);
       document.getElementById("etfTable").innerHTML        = buildTable(etf, w);
@@ -2624,10 +2692,16 @@
       const lgEmpty = document.getElementById("longgreenEmpty");
       lgEmpty.textContent = candleData ? "No tickers currently meet this body size." : "Loading technical data…";
       lgEmpty.style.display = lg.length === 0 ? "block" : "none";
+      document.getElementById("sarbuyTable").innerHTML = buildTable(sb, w);
+      document.getElementById("sarbuyCards").innerHTML = buildCards(sb, w);
+      const sbEmpty = document.getElementById("sarbuyEmpty");
+      sbEmpty.textContent = candleData ? "No tickers currently meet both conditions." : "Loading technical data…";
+      sbEmpty.style.display = sb.length === 0 ? "block" : "none";
       decorateNewMemberBadges();
       decorateBreakoutBadges();
       decorateGreenStreakBadges();
       decorateLongGreenBadges();
+      decorateSarRsiBadges();
       decoratePositions();
       updateStatus();
     }
@@ -2827,7 +2901,7 @@
       .then(r => r.json())
       .then(d => {
         candleData = d;
-        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow] || activeTab === "smarsi" || activeTab === "breakout" || activeTab === "greenstreak" || activeTab === "longgreen") render();
+        if (currentWindow === "TECH" || VOL_RANK_WINDOW_DAYS[currentWindow] || activeTab === "smarsi" || activeTab === "breakout" || activeTab === "greenstreak" || activeTab === "longgreen" || activeTab === "sarbuy") render();
         if (window.BAIZORA_LIVE_PRICES && isMarketOpen() && loadedDate !== _todayET) refreshDashPrices();
       })
       .catch(() => {});
