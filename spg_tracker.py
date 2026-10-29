@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 """
-SPG Tracker: daily list of the strongest 3-month gainers (user, 2026-10-28).
+SPG Tracker: daily list of steady risers (user rule, 2026-10-23).
 
-Each finished trading session: rank the S&P 500 / Nasdaq-100 stocks by their 3-month price change
-(close vs the close MOM_WINDOW = 63 sessions earlier, from candles.json) and list the TOP_N highest.
-Picked by backtests/spg_formula_search.py (105 top-10 rules, 2-session returns, 250 sessions):
-+0.76% mean / +0.67% median per 2 sessions vs SPY +0.11% / +0.18%, ahead of SPY in 60% of lists,
-worst list -15.8%; ahead of SPY in both halves of the year. In-sample, survivorship-biased.
-Until 2026-10-28 SPG used 5 straight higher closes + lowest 1-year volatility; that rule now
-lives on as sg_tracker.py.
+Each finished trading session: take the S&P 500 / Nasdaq-100 stocks whose close rose on
+each of the last STREAK sessions, then list up to TOP_N of them with the LOWEST 1-year
+volatility (annualized std of daily returns, from candles.json). Fewer than TOP_N qualify
+on many days; a day with none is still logged, with an empty list.
 
 Storage, track record and exits work exactly like the Baizora Tracker: this script reuses
 baizora_tracker.py (add / backfill / fill_exits) with its own output file and entry builder.
-Each list's return is measured HORIZON = 2 trading sessions later (user, 2026-10-23).
+Each list's return is measured HORIZON = 2 trading sessions later (user, 2026-10-23; was 13).
+backtests/spg_lowvol_streak_backtest.py 2, 250 sessions: -0.13% mean / -0.07% median per
+2 sessions vs SPY +0.12% / +0.21%, ahead of SPY in 50% of lists. Shipped as the user's rule.
 
 Usage:
     python spg_tracker.py                # append today's list if new
@@ -27,8 +26,8 @@ import baizora_tracker as bt
 ROOT = Path(__file__).parent
 OUT = ROOT / "data" / "spg_tracker.json"
 TOP_N = 10
-MOM_WINDOW = 63     # sessions in the 3-month price change (user, 2026-10-28)
-VOL_WINDOW = 252    # daily returns in the 1-year volatility (shown, not ranked)
+STREAK = 5          # consecutive sessions with a higher close (user, 2026-10-23)
+VOL_WINDOW = 252    # daily returns in the 1-year volatility
 HORIZON = 2         # trading sessions after the list date (user, 2026-10-23; Baizora Tracker uses 13)
 _candles = None
 
@@ -57,19 +56,17 @@ def build_entry(data):
         if not (r.get("InSP500") or r.get("InNASDAQ100")) or t in stale or not r.get("Price"):
             continue
         c = closes.get(t) or []
-        if len(c) < MOM_WINDOW + 1 or not c[-1] or not c[-(MOM_WINDOW + 1)]:
+        last = c[-(STREAK + 1):]
+        if len(last) < STREAK + 1 or None in last or not all(last[k] > last[k - 1] for k in range(1, len(last))):
             continue
-        mom = (c[-1] / c[-(MOM_WINDOW + 1)] - 1) * 100
-        last = c[-6:]
-        gain5 = (last[-1] / last[0] - 1) * 100 if None not in last else None
         hist = [x for x in c[-(VOL_WINDOW + 1):] if x]
         rets = [hist[k] / hist[k - 1] - 1 for k in range(1, len(hist))]
-        vol = None
-        if len(rets) >= 200:
-            m = sum(rets) / len(rets)
-            vol = (sum((x - m) ** 2 for x in rets) / (len(rets) - 1)) ** 0.5 * 252 ** 0.5 * 100
-        picks.append((mom, r, gain5, vol))
-    picks.sort(key=lambda p: (-p[0], -(p[1].get("MarketCap") or 0), p[1]["Ticker"]))
+        if len(rets) < 200:
+            continue
+        m = sum(rets) / len(rets)
+        vol = (sum((x - m) ** 2 for x in rets) / (len(rets) - 1)) ** 0.5 * 252 ** 0.5 * 100
+        picks.append((vol, r, (last[-1] / last[0] - 1) * 100))
+    picks.sort(key=lambda p: (p[0], -(p[1].get("MarketCap") or 0), p[1]["Ticker"]))
     spy = next((r for r in data["data"] if r.get("Ticker") == "SPY"), None)
 
     def rnd(v, n=2):
@@ -83,13 +80,12 @@ def build_entry(data):
                 "sector": r.get("Sector") or "",
                 "price": r["Price"],
                 "chg1d": rnd(r.get("PriceChange1D")),
-                "chg3m": rnd(mom, 1),
-                "chg5d": rnd(gain5),
+                "chg5d": rnd(gain),
                 "vol1y": rnd(vol, 1),
                 "chg1y": rnd(r.get("1YPriceChange")),
                 "pxVsMa21": rnd(r.get("PriceVsMA21_1D"), 3),
                 "volVsMa21": rnd(r.get("VolumeVsMA21_1D"), 3),
-            } for i, (mom, r, gain5, vol) in enumerate(picks[:TOP_N])]}
+            } for i, (vol, r, gain) in enumerate(picks[:TOP_N])]}
 
 
 # Point the shared Baizora Tracker machinery at this tracker's file and rule.
