@@ -566,6 +566,7 @@
       max-height: calc(100vh - 56px);
     }
     .mobile-drawer.open { display: flex; }
+    .mobile-drawer .drawer-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #94a3b8; padding: 8px 12px 2px; }
     .mobile-drawer a, .mobile-drawer button {
       display: block;
       width: 100%;
@@ -928,6 +929,11 @@
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="nasdaq">纳斯达克100</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="etf">ETF</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="newmembers">新成分股</button>
+          </div>
+        </div>
+        <div class="idx-dd" id="scrDd">
+          <button type="button" class="tab-btn idx-dd-toggle" id="scrDdToggle" aria-haspopup="true" aria-expanded="false"><b>技术筛选</b> &#9662;</button>
+          <div class="idx-dd-menu" id="scrDdMenu" role="menu">
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="smarsi">SMA200超卖</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="breakout">突破</button>
             <button type="button" role="menuitem" class="idx-dd-item" data-idx="greenstreak">连续阳线</button>
@@ -970,6 +976,7 @@
     <button onclick="selectIndex('nasdaq'); toggleMenu();">纳斯达克100</button>
     <button onclick="selectIndex('etf'); toggleMenu();">ETF</button>
     <button onclick="selectIndex('newmembers'); toggleMenu();">新成分股</button>
+    <div class="drawer-label">技术筛选</div>
     <button onclick="selectIndex('smarsi'); toggleMenu();">SMA200超卖</button>
     <button onclick="selectIndex('breakout'); toggleMenu();">突破</button>
     <button onclick="selectIndex('greenstreak'); toggleMenu();">连续阳线</button>
@@ -1627,6 +1634,12 @@
     }
 
     /* ── STATUS ── */
+    const SCREEN_IDS = ["smarsi", "breakout", "greenstreak", "longgreen", "sarbuy"];   // listed under the "技术筛选" dropdown, not the index one
+    const SCREEN_LABEL = "技术筛选";
+    function resetScreenToggle() {
+      const st = document.getElementById("scrDdToggle");
+      if (st) st.querySelector("b").textContent = SCREEN_LABEL;
+    }
     const IDX_META = {
       all:         { rows: () => combinedRows.length,  label: "全部" },
       sp500:       { rows: () => spRows.length,        label: "标普500" },
@@ -1660,6 +1673,7 @@
         ? btn : document.querySelector('.tab-btn[data-tab="' + id + '"]');
       if (tab) tab.classList.add("active");
       activeTab = id;
+      resetScreenToggle();
       toolbar.style.display = (id === "readme" || id === "membership") ? "none" : "flex";
       document.getElementById("mobileSearchBar").style.display = (id === "readme" || id === "membership") ? "none" : "";
       if (id === "positions" && currentWindow !== "1D") {
@@ -1676,12 +1690,14 @@
       document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
       document.getElementById(idx).classList.add("active");
-      const toggle = document.getElementById("idxDdToggle");
+      const isScreen = SCREEN_IDS.indexOf(idx) !== -1;
+      const toggle = document.getElementById(isScreen ? "scrDdToggle" : "idxDdToggle");
       toggle.classList.add("active");
       toggle.querySelector("b").textContent = IDX_META[idx].label;
+      if (!isScreen) resetScreenToggle();
       document.querySelectorAll(".idx-dd-item").forEach(it => it.classList.toggle("active", it.dataset.idx === idx));
-      document.getElementById("idxDdMenu").classList.remove("open");
-      toggle.setAttribute("aria-expanded", "false");
+      document.querySelectorAll(".idx-dd-menu").forEach(m => m.classList.remove("open"));
+      document.querySelectorAll(".idx-dd-toggle").forEach(t => t.setAttribute("aria-expanded", "false"));
       activeTab = idx;
       toolbar.style.display = "flex";
       if ((idx === "breakout" || idx === "greenstreak" || idx === "longgreen" || idx === "sarbuy") && currentWindow !== "1D") {
@@ -1698,23 +1714,34 @@
       updateStatus();
     };
     (function wireIndexDropdown() {
-      const toggle = document.getElementById("idxDdToggle");
-      const menu   = document.getElementById("idxDdMenu");
-      if (!toggle || !menu) return;
-      toggle.addEventListener("click", e => {
-        e.stopPropagation();
-        const open = menu.classList.toggle("open");
-        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      // Two dropdowns share this wiring: indexes (idxDd) and technical screens (scrDd).
+      const pairs = [["idxDdToggle", "idxDdMenu"], ["scrDdToggle", "scrDdMenu"]]
+        .map(([t, m]) => [document.getElementById(t), document.getElementById(m)])
+        .filter(([t, m]) => t && m);
+      const closeAll = except => pairs.forEach(([t, m]) => {
+        if (m === except) return;
+        m.classList.remove("open");
+        t.setAttribute("aria-expanded", "false");
       });
-      menu.addEventListener("click", e => {
-        const item = e.target.closest(".idx-dd-item");
-        if (item) selectIndex(item.dataset.idx);
+      pairs.forEach(([toggle, menu]) => {
+        toggle.addEventListener("click", e => {
+          e.stopPropagation();
+          closeAll(menu);
+          const open = menu.classList.toggle("open");
+          toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+        menu.addEventListener("click", e => {
+          const item = e.target.closest(".idx-dd-item");
+          if (item) selectIndex(item.dataset.idx);
+        });
       });
       document.addEventListener("click", e => {
-        if (menu.classList.contains("open") && !menu.contains(e.target) && e.target !== toggle) {
-          menu.classList.remove("open");
-          toggle.setAttribute("aria-expanded", "false");
-        }
+        pairs.forEach(([toggle, menu]) => {
+          if (menu.classList.contains("open") && !menu.contains(e.target) && !toggle.contains(e.target)) {
+            menu.classList.remove("open");
+            toggle.setAttribute("aria-expanded", "false");
+          }
+        });
       });
     })();
 
