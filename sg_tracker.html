@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DWEPM8KFM9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-DWEPM8KFM9');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baizora | SG Tracker</title>
+  <meta name="description" content="SG Tracker: S&amp;P 500 and Nasdaq-100 stocks that closed higher five sessions in a row, lowest volatility first, with the track record of every past list.">
+  <meta name="robots" content="noindex, follow">
+  <link rel="icon" href="assets/baizora_logo_arrow.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #012169;
+      --navy-mid: #0d1e3d;
+      --navy-light: #162847;
+      --electric: #3b82f6;
+      --electric-bright: #60a5fa;
+      --gold: #f59e0b;
+      --gold-light: #fcd34d;
+      --green: #64c487;
+      --red: #c46464;
+      --white: #ffffff;
+      --muted: #cbd5e1;
+      --border: rgba(255,255,255,0.09);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: rgba(1,33,105,0.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      gap: 12px;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .logo-wrap img { height: 36px; }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(20px, 5vw, 30px);
+      color: #f8fafc;
+      letter-spacing: -0.02em;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-email {
+      display: inline-flex;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: default;
+    }
+
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover { border-color: rgba(59,130,246,0.4); color: var(--white); background: rgba(59,130,246,0.08); }
+    .nav-btn-danger { border-color: rgba(239,68,68,0.2); color: #fca5a5; }
+    .nav-btn-danger:hover { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); }
+
+    /* ── PAGE ── */
+    .page {
+      position: relative;
+      z-index: 10;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .page-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--electric-bright);
+      margin-bottom: 8px;
+    }
+
+    .page-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(26px, 4vw, 36px);
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .page-sub {
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: 300;
+      margin-bottom: 24px;
+      line-height: 1.7;
+    }
+    .page { max-width: 1000px; }
+    .page-sub { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 400; color: #e2e8f0; letter-spacing: 0.04em; margin-bottom: 18px; }
+    /* ── BAIZORA TRACKER ── (card/table styling follows se_tracker.html) */
+    .bt-info { max-width: 820px; font-size: 14px; line-height: 1.65; color: #cbd5e1; margin: 0 0 10px; }
+    .bt-info a { color: #93c5fd; }
+    .bt-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--electric-bright); margin: 34px 0 10px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+    .bt-label span { color: #e2e8f0; letter-spacing: 0.04em; text-transform: none; }
+    .bt-card { background: #ffffff; border: 1px solid rgba(15,23,42,0.06); border-radius: 16px; padding: 8px 20px; box-shadow: 0 16px 40px rgba(0,0,0,0.35); overflow-x: auto; }
+    .bt-table { width: 100%; border-collapse: collapse; font-size: 14px; color: #0f172a; }
+    .bt-table th { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #475569; text-align: left; padding: 12px 10px; border-bottom: 1px solid rgba(15,23,42,0.08); white-space: nowrap; }
+    .bt-table td { padding: 12px 10px; border-bottom: 1px solid rgba(15,23,42,0.06); vertical-align: middle; }
+    .bt-table tr:last-child td { border-bottom: none; }
+    .bt-num { font-family: 'DM Mono', monospace; font-size: 13px; white-space: nowrap; text-align: right; }
+    th.bt-num { text-align: right; }
+    .bt-rank { font-family: 'DM Mono', monospace; font-size: 12px; color: #475569; }
+    .bt-tk { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 700; color: #0f172a; }
+    .bt-co { font-size: 12px; color: #334155; margin-top: 2px; }
+    .bt-sec { font-size: 13px; color: #334155; }
+    .bt-conv { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 700; color: #0f766e; }
+    .bt-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: #475569; margin-top: 2px; white-space: nowrap; }
+    .bt-why { display: flex; flex-wrap: wrap; gap: 5px; }
+    .bt-chip { font-family: 'DM Mono', monospace; font-size: 11px; color: #334155; background: #f1f5f9; border: 1px solid rgba(15,23,42,0.08); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+    .up { color: #15803d; } .dn { color: #b91c1c; }
+    .bt-sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 14px 0; }
+    .bt-sum div { text-align: center; }
+    .bt-sum b { display: block; font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; color: #0f172a; }
+    .bt-sum small { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; }
+    .bt-picks { display: flex; flex-wrap: wrap; gap: 4px; }
+    .bt-pick { font-family: 'DM Mono', monospace; font-size: 11px; border-radius: 6px; padding: 2px 6px; white-space: nowrap; background: #f8fafc; border: 1px solid rgba(15,23,42,0.08); color: #0f172a; }
+    .bt-pick i { font-style: normal; margin-left: 4px; }
+    .bt-date { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; white-space: nowrap; }
+    .bt-more { display: block; margin: 12px auto 4px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: #1d4ed8; background: none; border: 1px solid rgba(29,78,216,0.3); border-radius: 999px; padding: 6px 16px; cursor: pointer; }
+    .bt-empty { text-align: center; padding: 34px 0; color: #334155; font-family: 'DM Mono', monospace; font-size: 12px; }
+    .bt-foot { font-family: 'DM Mono', monospace; font-size: 11px; color: #cbd5e1; margin-top: 18px; line-height: 1.7; }
+    @media (max-width: 640px) {
+      .bt-card { padding: 4px 12px; }
+      .bt-hide-m { display: none; }
+      .bt-table td { padding: 10px 6px; font-size: 13px; }
+      .bt-table th { padding: 10px 6px; }
+      .bt-sum b { font-size: 22px; }
+    }
+    @media (max-width: 640px) {
+      header { padding: 0 16px; }
+      .page { padding: 28px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="./" class="logo-wrap">
+      <span class="logo-text">Baiz<span style="color:#60a5fa;">ora</span></span>
+      <img src="assets/baizora_logo_arrow.png" alt="" class="logo-mark" style="height:26px;width:26px;">
+    </a>
+    <div class="header-right">
+      <span class="user-email" id="headerEmail"></span>
+      <a href="dashboard.html" class="nav-btn">Dashboard</a>
+      <button class="nav-btn nav-btn-danger" onclick="doLogout()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign out
+      </button>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <div class="page-eyebrow">◈ &nbsp; Trackers</div>
+    <h1 class="page-title">SG Tracker</h1>
+    <p class="page-sub">S&amp;P 500 &nbsp;·&nbsp; Nasdaq-100 &nbsp;·&nbsp; Updated each trading day</p>
+
+    <p class="bt-info">Each trading day, two steps. First, every S&amp;P 500 and Nasdaq-100 stock whose
+      <b>close rose on each of the last 5 trading days</b>. Then those stocks are sorted by <b>1-year volatility</b>
+      (the annualized standard deviation of daily returns), lowest first, and up to ten are listed. On some days
+      fewer than ten stocks qualify, so the list is shorter. The list is a fixed rule applied to scanner data,
+      with no human selection.</p>
+    <p class="bt-info">In a one-year backtest (October 2025 to October 2026, current index members, 2-day returns),
+      this rule averaged &minus;0.1% per list (median &minus;0.1%) vs SPY +0.1% (median +0.2%), and was ahead of SPY in 50% of
+      lists. Past results do not guarantee future results.</p>
+
+    <div class="bt-label">Today's list <span id="btTodayDate"></span></div>
+    <div class="bt-card">
+      <table class="bt-table">
+        <thead><tr><th>#</th><th>Ticker</th><th class="bt-hide-m">Sector</th><th class="bt-num">Close</th><th class="bt-num">1D</th><th class="bt-num">1Y vol</th><th class="bt-hide-m">Scanner data</th></tr></thead>
+        <tbody id="btToday"><tr><td colspan="7" class="bt-empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="bt-label">Track record <span id="btPriceDate"></span></div>
+    <div class="bt-card">
+      <div class="bt-sum" id="btSum"></div>
+    </div>
+    <div class="bt-foot" style="margin-top:10px;">Lists marked † are a backtest, not a live record: they were rebuilt
+      on October 23, 2026 by applying this rule to each day's published scanner data.</div>
+    <div class="bt-card" style="margin-top:12px;">
+      <table class="bt-table">
+        <thead><tr><th>List date</th><th class="bt-hide-m">Return after 2 days, per stock</th><th class="bt-num">List mean</th><th class="bt-num">SPY</th><th class="bt-num">Difference</th></tr></thead>
+        <tbody id="btHist"><tr><td colspan="5" class="bt-empty">Loading…</td></tr></tbody>
+      </table>
+      <button type="button" class="bt-more" id="btMore" style="display:none;">Show all</button>
+    </div>
+
+    <div class="bt-foot">Returns are price only, from the list date's close to the close 2 trading days later, adjusted for
+      splits, before dividends, taxes and trading costs. Lists younger than 2 trading days show their return so far,
+      marked "day 1 of 2", and are left out of the summary until they finish. "List mean" is the average of the listed
+      stocks' returns (up to ten); SPY is the S&amp;P 500 ETF over the same span. Lists marked † were rebuilt on October 23, 2026 from each day's published
+      scanner data; lists from October 23, 2026 on are recorded each evening. Volatility uses daily closes adjusted for dividends. Rankings are mechanical and
+      change daily. For informational purposes only. Not investment advice.</div>
+
+  </div>
+
+  <script src="assets/feature_flags.js?v=4"></script>
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // Sign-in required only (same access level the homepage section had); no subscription check.
+    onAuthStateChanged(auth, (user) => {
+      if (!user) { window.location.href = "login.html"; return; }
+      const hEl = document.getElementById("headerEmail"); hEl.textContent = user.email[0].toUpperCase(); hEl.title = user.email;
+    });
+
+    window.doLogout = async function() {
+      await signOut(auth);
+      window.location.href = "login.html";
+    };
+  </script>
+
+<script>
+// SG Tracker: copy of the SPG Tracker, same data (user, 2026-10-28). data/spg_tracker.json is written each evening by spg_tracker.py
+// (5 straight up closes, lowest 1-year volatility first, up to 10 + each close + SPY close); current prices come from
+// data/latest.json, splits from data/splits.json.
+(function() {
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const pct = (v, d = 1) => v == null || isNaN(v) ? '–' : '<span class="' + (v >= 0 ? 'up' : 'dn') + '">' + (v >= 0 ? '+' : '') + v.toFixed(d) + '%</span>';
+  const title = s => s.toLowerCase().replace(/\b([a-z])/g, c => c.toUpperCase());
+  const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+  const empty = (id, n, msg) => { document.getElementById(id).innerHTML = '<tr><td colspan="' + n + '" class="bt-empty">' + msg + '</td></tr>'; };
+  const get = f => fetch('data/' + f + '?t=' + Date.now()).then(r => r.json());
+
+  Promise.all([get('spg_tracker.json'), get('latest.json'), get('splits.json').catch(() => ({}))]).then(([tr, latest, splits]) => {
+    const entries = tr.entries || [];
+    if (!entries.length) { empty('btToday', 7, 'No list recorded yet.'); empty('btHist', 5, 'No lists yet.'); return; }
+    const now = {};
+    (latest.data || []).forEach(r => { now[r.Ticker] = r.Price; });
+
+    // Entry price in today's share terms: divide by any split ratio dated after the list date.
+    // Exit prices are in the exit date's share terms, so only splits between the two dates count.
+    const adj = (t, date, px, until) => { const s = splits[t]; return s && s.date > date && (!until || s.date <= until) ? px / s.ratio : px; };
+    const ret = (t, date, px, exitPx, until) => exitPx && px ? (exitPx / adj(t, date, px, until) - 1) * 100 : null;
+
+    // Today's list
+    const t0 = entries[0];
+    document.getElementById('btTodayDate').textContent = 'List from the ' + fmtDate(t0.date) + ' close'
+      + (t0.qualified != null ? ' · ' + t0.qualified + ' stock' + (t0.qualified === 1 ? '' : 's') + ' up 5 days in a row' : '');
+    document.getElementById('btToday').innerHTML = !t0.picks.length
+      ? '<tr><td colspan="7" class="bt-empty">No stock closed higher five days in a row.</td></tr>'
+      : t0.picks.map(p => {
+      const chips = [];
+      if (p.pxVsMa21 != null) { const v = (p.pxVsMa21 - 1) * 100; chips.push('Price ' + Math.abs(v).toFixed(1) + '% ' + (v >= 0 ? 'above' : 'below') + ' 21-day avg'); }
+      if (p.volVsMa21 != null) chips.push('Volume ' + p.volVsMa21.toFixed(1) + '× 21-day avg');
+      if (p.chg1y != null) chips.push('1Y ' + (p.chg1y >= 0 ? '+' : '') + p.chg1y.toFixed(0) + '%');
+      return '<tr><td class="bt-rank">' + String(p.rank).padStart(2, '0') + '</td>'
+        + '<td><div class="bt-tk">' + esc(p.ticker) + '</div><div class="bt-co">' + esc(title(p.name)) + '</div></td>'
+        + '<td class="bt-sec bt-hide-m">' + esc(p.sector) + '</td>'
+        + '<td class="bt-num">$' + p.price.toFixed(2) + '</td>'
+        + '<td class="bt-num">' + pct(p.chg1d, 2) + '</td>'
+        + '<td class="bt-num"><div class="bt-conv">' + p.vol1y.toFixed(1) + '%</div><div class="bt-sub">5 days ' + (p.chg5d >= 0 ? '+' : '') + p.chg5d.toFixed(1) + '%</div></td>'
+        + '<td class="bt-hide-m"><div class="bt-why">' + chips.map(c => '<span class="bt-chip">' + esc(c) + '</span>').join('') + '</div></td></tr>';
+    }).join('');
+
+    // Track record: each list's return HORIZON trading days later. baizora_tracker.py stores that
+    // session's closes on the entry as e.exit; younger lists use the current prices and are marked
+    // "day N of 2" (N = lists recorded since, one per session). A list recorded at the current close has no return yet.
+    const HORIZON = 2;  // SPG uses 2 trading days (user, 2026-10-23); spg_tracker.py sets the same
+    document.getElementById('btPriceDate').textContent = 'Prices as of ' + fmtDate(latest.date) + (latest.midday ? ' (midday)' : ' close');
+    const rows = entries.filter(e => e.date < latest.date).map(e => {
+      const x = e.exit, until = x ? x.date : null;
+      const rs = e.picks.map(p => ({ t: p.ticker, r: ret(p.ticker, e.date, p.price, x ? x.prices[p.ticker] : now[p.ticker], until) }));
+      const vals = rs.map(v => v.r).filter(v => v != null);
+      const avg = vals.length ? mean(vals) : null;
+      const spyNow = x ? x.spy : now.SPY;
+      const spy = spyNow && e.spy ? (spyNow / e.spy - 1) * 100 : null;
+      const day = x ? HORIZON : Math.min(HORIZON - 1, entries.filter(o => o.date > e.date && o.date <= latest.date).length);
+      return { e, rs, avg, spy, done: !!x, day, diff: avg != null && spy != null ? avg - spy : null };
+    });
+    const scored = rows.filter(r => r.done && r.diff != null);
+    if (scored.length) {
+      const beat = scored.filter(r => r.diff > 0).length;
+      document.getElementById('btSum').innerHTML =
+        '<div><b>' + beat + ' of ' + scored.length + '</b><small>Lists ahead of SPY</small></div>'
+        + '<div><b>' + pct(mean(scored.map(r => r.avg))) + '</b><small>Average list return, 2 days</small></div>'
+        + '<div><b>' + pct(mean(scored.map(r => r.spy))) + '</b><small>Average SPY, same 2 days</small></div>';
+    } else {
+      document.getElementById('btSum').innerHTML = '<div style="grid-column:1/-1" class="bt-empty">The first list gets its 2-day return 2 trading days after it is recorded.</div>';
+    }
+
+    const SHOW = 15;
+    let all = false;
+    const draw = () => {
+      if (!rows.length) { empty('btHist', 5, 'The first list gets a return after the next trading day.'); return; }
+      document.getElementById('btHist').innerHTML = (all ? rows : rows.slice(0, SHOW)).map(r =>
+        '<tr><td class="bt-date">' + esc(fmtDate(r.e.date)) + (r.e.backfilled ? ' †' : '')
+          + (r.done ? '' : '<div class="bt-sub">day ' + r.day + ' of ' + HORIZON + '</div>') + '</td>'
+        + '<td class="bt-hide-m"><div class="bt-picks">' + r.rs.map(x => '<span class="bt-pick">' + esc(x.t) + '<i>' + pct(x.r, 0) + '</i></span>').join('') + '</div></td>'
+        + '<td class="bt-num">' + pct(r.avg) + '</td><td class="bt-num">' + pct(r.spy) + '</td><td class="bt-num">' + pct(r.diff) + '</td></tr>'
+      ).join('');
+      const more = document.getElementById('btMore');
+      more.style.display = rows.length > SHOW && !all ? 'block' : 'none';
+      more.onclick = () => { all = true; draw(); };
+    };
+    draw();
+  }).catch(() => { empty('btToday', 7, 'Tracker data not yet available.'); empty('btHist', 5, 'Tracker data not yet available.'); });
+})();
+</script>
+
+</body>
+</html>
