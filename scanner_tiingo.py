@@ -1242,7 +1242,7 @@ def _yf_wait_for_session(target_date):
     return False
 
 
-def fetch_yfinance_bulk(tickers, period="2y"):
+def fetch_yfinance_bulk(tickers, period="2y", interval="1d"):
     """
     Fetch daily OHLCV for all tickers via yfinance, chunked with retry/backoff
     (Yahoo throttles high-volume scraping). auto_adjust=True means yfinance handles
@@ -1257,7 +1257,7 @@ def fetch_yfinance_bulk(tickers, period="2y"):
         for attempt in range(YF_MAX_RETRIES):
             try:
                 data = yf.download(
-                    tickers=chunk, period=period, group_by="ticker",
+                    tickers=chunk, period=period, interval=interval, group_by="ticker",
                     auto_adjust=True, threads=False, progress=False,
                 )
                 break
@@ -3078,6 +3078,63 @@ def export_candles_weekly_long(tickers):
         print(f"Weekly long export failed (keeping previous file): {e}")
 
 
+MONTHLY_MAX           = os.environ.get("MONTHLY_MAX", "on").lower() != "off"
+MONTHLY_MAX_MAX_AGE   = 25     # days; rebuilt about once a month, these months never change except adjustments
+MONTHLY_MAX_KEEP_DAYS = 3300   # ~9y: keep months older than this, overlapping candles_weekly_long.json's ~10y start
+
+
+def export_candles_monthly_max(tickers):
+    """Write data/candles_monthly_max.json — each ticker's full Yahoo history
+    (period="max") as monthly bars, only the months older than ~9 years (newer
+    months come from the weekly/daily files). Candles only, dates are "YYYY-MM-01".
+    The paid dashboard chart lazy-loads it for the Max period (Monthly). Fetched
+    straight at interval="1mo" so it stays a small download. Rebuilt at most once
+    every MONTHLY_MAX_MAX_AGE days. Never raises; a failure keeps the old file."""
+    if not MONTHLY_MAX or not tickers:
+        return
+    path = os.path.join(DATA_DIR, "candles_monthly_max.json")
+    try:
+        if os.path.exists(path):
+            with open(path) as f:
+                prev_date = json.load(f).get("date")
+            if prev_date and (datetime.strptime(DATE_STR, "%Y-%m-%d") - datetime.strptime(prev_date, "%Y-%m-%d")).days < MONTHLY_MAX_MAX_AGE:
+                print(f"Monthly max export: skipped (built {prev_date})")
+                return
+        cutoff = (datetime.strptime(DATE_STR, "%Y-%m-%d") - timedelta(days=MONTHLY_MAX_KEEP_DAYS)).strftime("%Y-%m")
+        print(f"Monthly max export: fetching full monthly history for {len(tickers)} tickers …")
+        fetched = fetch_yfinance_bulk(list(tickers), period="max", interval="1mo")
+        series = {}
+        for ticker, bars in fetched.items():
+            months, prev_c = {}, None
+            # Old split-adjusted prices can be fractions of a cent, so keep 4 decimals under $1.
+            px = lambda x: round(x, 2) if x >= 1 else round(x, 4)
+            for d, b in sorted(bars.items()):
+                key = d[:7]
+                o, h, l, c = b["o"], b["h"], b["l"], b["c"]
+                if key >= cutoff or c is None or c <= 0:
+                    continue
+                # Pre-2000 Yahoo rows often carry a 0 open (and sometimes 0 low): fall back to
+                # the prior month's close, then make high/low contain open and close.
+                if not o or o <= 0:
+                    o = prev_c if prev_c else c
+                h = max(x for x in (h, o, c) if x and x > 0)
+                l = min(x for x in (l, o, c) if x and x > 0)
+                months[key + "-01"] = [px(o), px(h), px(l), px(c), int(b["v"] or 0)]
+                prev_c = c
+            if months:
+                series[ticker] = months
+        if not series:
+            print("Monthly max export: nothing fetched, keeping previous file")
+            return
+        all_dates = sorted({d for m in series.values() for d in m})
+        data = {t: [m.get(d) for d in all_dates] for t, m in series.items()}
+        with open(path, "w") as f:
+            json.dump({"date": DATE_STR, "dates": all_dates, "data": data}, f)
+        print(f"Monthly max export: {len(data)} tickers, {len(all_dates)} months ({all_dates[0]} .. {all_dates[-1]})")
+    except Exception as e:
+        print(f"Monthly max export failed (keeping previous file): {e}")
+
+
 def _build_briefing_txt(market_date, scan_time, digest, headlines):
     line = "─" * 54
     txt  = f"BAIZORA DAILY MARKET BRIEFING — {market_date}\n{line}\n"
@@ -4146,6 +4203,7 @@ if __name__ == "__main__":
     export_candles(candles_out, smas_out, trading_days)
     export_candles_weekly(weekly_raw)
     export_candles_weekly_long(list(weekly_raw.keys()))
+    export_candles_monthly_max(list(weekly_raw.keys()))
 
     # 6c. Export daily digest + downloadable briefing for homepage card
     export_daily_digest(df)

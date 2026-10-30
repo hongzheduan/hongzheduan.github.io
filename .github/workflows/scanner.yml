@@ -366,6 +366,7 @@ jobs:
           cp data/candles.json         "$TMPBAK/" 2>/dev/null || true
           cp data/candles_weekly.json  "$TMPBAK/" 2>/dev/null || true
           cp data/candles_weekly_long.json "$TMPBAK/" 2>/dev/null || true
+          cp data/candles_monthly_max.json "$TMPBAK/" 2>/dev/null || true
           cp data/index_changes.json   "$TMPBAK/" 2>/dev/null || true
           cp data/index_news.json      "$TMPBAK/" 2>/dev/null || true
           cp data/pending_index_members.json "$TMPBAK/" 2>/dev/null || true
@@ -397,6 +398,7 @@ jobs:
           cp "$TMPBAK/candles.json"          data/ 2>/dev/null || true
           cp "$TMPBAK/candles_weekly.json"   data/ 2>/dev/null || true
           cp "$TMPBAK/candles_weekly_long.json" data/ 2>/dev/null || true
+          cp "$TMPBAK/candles_monthly_max.json" data/ 2>/dev/null || true
           cp "$TMPBAK/index_changes.json"    data/ 2>/dev/null || true
           cp "$TMPBAK/index_news.json"       data/ 2>/dev/null || true
           cp "$TMPBAK/pending_index_members.json" data/ 2>/dev/null || true
@@ -424,6 +426,7 @@ jobs:
           git add data/candles.json                    2>/dev/null || true
           git add data/candles_weekly.json             2>/dev/null || true
           git add data/candles_weekly_long.json        2>/dev/null || true
+          git add data/candles_monthly_max.json        2>/dev/null || true
           git add data/index_changes.json              2>/dev/null || true
           git add data/index_news.json                 2>/dev/null || true
           git add data/pending_index_members.json      2>/dev/null || true

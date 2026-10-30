@@ -1345,7 +1345,7 @@
         gapMinPct: p.gapMinPct != null ? +p.gapMinPct : 0,
         // Chart resolution + period stick across modal opens (default 6M daily).
         chartRes: ["d", "w", "m"].includes(p.chartRes) ? p.chartRes : "d",
-        chartPeriod: ["1M", "3M", "6M", "1Y", "2Y", "5Y", "10Y"].includes(p.chartPeriod) ? p.chartPeriod : "6M"
+        chartPeriod: ["1M", "3M", "6M", "1Y", "2Y", "5Y", "10Y", "MAX"].includes(p.chartPeriod) ? p.chartPeriod : "6M"
       };
     }
     let smaPrefs = _migrateSmaPrefs(JSON.parse(localStorage.getItem("baizora_sma_prefs") || "null"));
@@ -2959,6 +2959,20 @@
       }
       return weeklyLongFetchPromise;
     }
+    // Full-history monthly bars older than ~9y (candles_monthly_max.json), only
+    // fetched when the chart's Max period is picked.
+    let monthlyMaxData = null;
+    let monthlyMaxFetchPromise = null;
+    let monthlyMaxLoadFailed = false;
+    function loadMonthlyMax() {
+      if (!monthlyMaxFetchPromise) {
+        monthlyMaxFetchPromise = fetch("data/candles_monthly_max.json")
+          .then(r => { if (!r.ok) throw new Error("monthly max " + r.status); return r.json(); })
+          .then(d => { monthlyMaxData = d; return d; })
+          .catch(() => { monthlyMaxLoadFailed = true; });
+      }
+      return monthlyMaxFetchPromise;
+    }
 
     /* ── COMPANY DESCRIPTIONS (Wikipedia-sourced, decoupled from price vendor) ── */
     let descData = null;
@@ -3888,7 +3902,8 @@
       "1Y": { d: 252,  w: 52,  m: 12 },
       "2Y": { d: 504,  w: 104, m: 24 },
       "5Y": { d: 1260, w: 260, m: 60 },
-      "10Y": { d: 2520, w: 520, m: 120 }
+      "10Y": { d: 2520, w: 520, m: 120 },
+      "MAX": { d: 1e5,  w: 1e5, m: 1e5 }   // everything loaded at that resolution
     };
     function _currentTf() {
       const btn = document.querySelector(".tf-btn[data-period].active");
@@ -3927,13 +3942,12 @@
           .concat(pad(weeklyData.data[ticker], weeklyData.dates.length)) }
       };
     }
-    function _buildMonthly(ticker, tenY) {
+    function _buildMonthly(ticker, tenY, maxP) {
       const bars = {};   // "YYYY-MM" -> { date: last trading day, c: [o,h,l,c,v] }
       const dFirst = candleData && candleData.dates && candleData.dates[0];
       // First daily month is usually partial, so daily takes over from the next month.
-      const dailyFrom = dFirst
-        ? (m => m === 12 ? `${+dFirst.slice(0, 4) + 1}-01` : `${dFirst.slice(0, 4)}-${String(m + 1).padStart(2, "0")}`)(+dFirst.slice(5, 7))
-        : "9999-99";
+      const nextMonth = d => (m => m === 12 ? `${+d.slice(0, 4) + 1}-01` : `${d.slice(0, 4)}-${String(m + 1).padStart(2, "0")}`)(+d.slice(5, 7));
+      const dailyFrom = dFirst ? nextMonth(dFirst) : "9999-99";
       const add = (src, keep) => {
         const raw = src && src.data && src.data[ticker], dates = src && src.dates;
         if (!raw || !dates) return;
@@ -3949,7 +3963,11 @@
           b.c[3] = c[3]; b.c[4] += c[4] || 0;
         });
       };
-      add(tenY ? _weeklyMerged(ticker) : weeklyData, k => k < dailyFrom);
+      const wk = tenY ? _weeklyMerged(ticker) : weeklyData;
+      // Max: full-history monthly bars up to the first full month the weekly bars cover.
+      const weeklyFrom = (maxP && monthlyMaxData && wk.dates.length) ? nextMonth(wk.dates[0]) : "";
+      if (weeklyFrom) add(monthlyMaxData, k => k < weeklyFrom);
+      add(wk, k => k >= weeklyFrom && k < dailyFrom);
       add(candleData, k => k >= dailyFrom);
       const keys = Object.keys(bars).sort();
       return { dates: keys.map(k => bars[k].date), data: { [ticker]: keys.map(k => bars[k].c) } };
@@ -3960,7 +3978,9 @@
       const weekly     = _modalRes === 'w';
       const monthly    = _modalRes === 'm';   // built from weekly + daily, so it needs the weekly file too
       const daily      = !weekly && !monthly;
-      const tenY       = !daily && (document.querySelector(".tf-btn[data-period].active") || {}).dataset?.period === "10Y";
+      const periodKey  = (document.querySelector(".tf-btn[data-period].active") || {}).dataset?.period;
+      const tenY       = !daily && (periodKey === "10Y" || periodKey === "MAX");   // Max under Weekly = all weekly bars (~10Y)
+      const maxP       = monthly && periodKey === "MAX";
       const canvas     = document.getElementById("candleCanvas");
       const noData     = document.getElementById("candleNoData");
       if (!daily && !weeklyData) {
@@ -3978,7 +3998,14 @@
         loadWeeklyLong().then(() => { if (_modalTicker === ticker) _renderModalChart(ticker, _currentTf()); });
         return;
       }
-      const src        = monthly ? _buildMonthly(ticker, tenY) : (weekly ? (tenY ? _weeklyMerged(ticker) : weeklyData) : candleData);
+      if (maxP && !monthlyMaxData && !monthlyMaxLoadFailed) {
+        // Same lazy pattern for Max; on failure it falls back to the ~10Y monthly view.
+        canvas.style.display = "none"; noData.style.display = "flex";
+        noData.textContent = "正在加载全部历史数据…";
+        loadMonthlyMax().then(() => { if (_modalTicker === ticker) _renderModalChart(ticker, _currentTf()); });
+        return;
+      }
+      const src        = monthly ? _buildMonthly(ticker, tenY, maxP) : (weekly ? (tenY ? _weeklyMerged(ticker) : weeklyData) : candleData);
       const rawCandles = src?.data?.[ticker];
       const rawSma     = src?.sma?.[ticker];
       const dates      = src?.dates;
@@ -4168,6 +4195,8 @@
       document.getElementById("tfDrawerToggle").classList.remove("open");
       // 2Y/5Y/10Y only exist as weekly bars, so switch to Weekly automatically if Daily is active.
       if ((btn.dataset.period === "2Y" || btn.dataset.period === "5Y" || btn.dataset.period === "10Y") && _modalRes === 'd') _setModalRes('w');
+      // Max is meant as a Monthly view (decades of daily/weekly bars don't fit the chart).
+      if (btn.dataset.period === "MAX" && _modalRes !== 'm') _setModalRes('m');
       _saveSmaPrefsNow();   // remember period (+ any auto-switched resolution) for the next chart opened
       _renderModalChart(_modalTicker, _currentTf());
     });
@@ -4739,6 +4768,7 @@
           <button class="tf-btn" data-period="2Y">2年</button>
           <button class="tf-btn" data-period="5Y">5年</button>
           <button class="tf-btn" data-period="10Y">10年</button>
+          <button class="tf-btn" data-period="MAX" title="全部历史（月线）">全部</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">
