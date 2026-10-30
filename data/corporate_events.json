@@ -9417,18 +9417,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/723254/000072325425000038/ctas-20251218.htm"
-    },
-    {
-      "date": "2025-09-24",
-      "eps": 1.2,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-08-31",
-      "revenue": 2718122000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/723254/000072325425000029/ctas-20250924.htm"
     }
   ],
   "CTSH": [
@@ -11536,11 +11524,11 @@
   "DXCM": [
     {
       "date": "2026-10-29",
-      "eps": null,
+      "eps": 0.72,
       "items": "2.02,8.01,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 1344500000,
       "type": [
         "earnings"
       ],
