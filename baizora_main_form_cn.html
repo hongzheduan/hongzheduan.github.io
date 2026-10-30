@@ -1345,7 +1345,7 @@
         gapMinPct: p.gapMinPct != null ? +p.gapMinPct : 0,
         // Chart resolution + period stick across modal opens (default 6M daily).
         chartRes: ["d", "w", "m"].includes(p.chartRes) ? p.chartRes : "d",
-        chartPeriod: ["1W", "1M", "3M", "6M", "1Y", "2Y", "5Y"].includes(p.chartPeriod) ? p.chartPeriod : "6M"
+        chartPeriod: ["1M", "3M", "6M", "1Y", "2Y", "5Y", "10Y"].includes(p.chartPeriod) ? p.chartPeriod : "6M"
       };
     }
     let smaPrefs = _migrateSmaPrefs(JSON.parse(localStorage.getItem("baizora_sma_prefs") || "null"));
@@ -2945,6 +2945,20 @@
       }
       return weeklyFetchPromise;
     }
+    // Older ~5 years of weekly bars (candles_weekly_long.json, candles only), only
+    // fetched when the chart's 10Y period is picked.
+    let weeklyLongData = null;
+    let weeklyLongFetchPromise = null;
+    let weeklyLongLoadFailed = false;
+    function loadWeeklyLong() {
+      if (!weeklyLongFetchPromise) {
+        weeklyLongFetchPromise = fetch("data/candles_weekly_long.json")
+          .then(r => { if (!r.ok) throw new Error("weekly long " + r.status); return r.json(); })
+          .then(d => { weeklyLongData = d; return d; })
+          .catch(() => { weeklyLongLoadFailed = true; });
+      }
+      return weeklyLongFetchPromise;
+    }
 
     /* ── COMPANY DESCRIPTIONS (Wikipedia-sourced, decoupled from price vendor) ── */
     let descData = null;
@@ -3868,13 +3882,13 @@
     // （candles.json 的导出窗口）——若选择"日线"但周期为2年/5年，会自动截断到
     // 可用范围内，与 _renderModalChart 对超出已加载历史的 tf 的现有兜底逻辑一致。
     const PERIOD_TF = {
-      "1W": { d: 5,    w: 1,   m: 1  },
       "1M": { d: 21,   w: 4,   m: 1  },
       "3M": { d: 63,   w: 13,  m: 3  },
       "6M": { d: 126,  w: 26,  m: 6  },
       "1Y": { d: 252,  w: 52,  m: 12 },
       "2Y": { d: 504,  w: 104, m: 24 },
-      "5Y": { d: 1260, w: 260, m: 60 }
+      "5Y": { d: 1260, w: 260, m: 60 },
+      "10Y": { d: 2520, w: 520, m: 120 }
     };
     function _currentTf() {
       const btn = document.querySelector(".tf-btn[data-period].active");
@@ -3897,7 +3911,23 @@
     // older months come from weekly bars (each week counted in the month of its last
     // trading day). Cheap enough (~550 bars) to rebuild on every render, which also
     // keeps the current month in step with live-price updates to the daily bars.
-    function _buildMonthly(ticker) {
+    // 10Y: stitch the older weeks from candles_weekly_long.json in front of
+    // candles_weekly.json. No backend SMAs on the merged series, so weekly SMAs are
+    // computed client-side over all of it (SMA200 then draws across the full window).
+    function _weeklyMerged(ticker) {
+      if (!weeklyLongData || !weeklyData.data[ticker]) return weeklyData;
+      const pad = (raw, len) => !raw ? new Array(len).fill(null)
+        : (raw.length < len ? new Array(len - raw.length).fill(null).concat(raw) : raw);
+      const first = weeklyData.dates[0];
+      let keep = weeklyLongData.dates.findIndex(d => d >= first);
+      if (keep < 0) keep = weeklyLongData.dates.length;
+      return {
+        dates: weeklyLongData.dates.slice(0, keep).concat(weeklyData.dates),
+        data: { [ticker]: pad(weeklyLongData.data[ticker], weeklyLongData.dates.length).slice(0, keep)
+          .concat(pad(weeklyData.data[ticker], weeklyData.dates.length)) }
+      };
+    }
+    function _buildMonthly(ticker, tenY) {
       const bars = {};   // "YYYY-MM" -> { date: last trading day, c: [o,h,l,c,v] }
       const dFirst = candleData && candleData.dates && candleData.dates[0];
       // First daily month is usually partial, so daily takes over from the next month.
@@ -3919,7 +3949,7 @@
           b.c[3] = c[3]; b.c[4] += c[4] || 0;
         });
       };
-      add(weeklyData, k => k < dailyFrom);
+      add(tenY ? _weeklyMerged(ticker) : weeklyData, k => k < dailyFrom);
       add(candleData, k => k >= dailyFrom);
       const keys = Object.keys(bars).sort();
       return { dates: keys.map(k => bars[k].date), data: { [ticker]: keys.map(k => bars[k].c) } };
@@ -3930,6 +3960,7 @@
       const weekly     = _modalRes === 'w';
       const monthly    = _modalRes === 'm';   // built from weekly + daily, so it needs the weekly file too
       const daily      = !weekly && !monthly;
+      const tenY       = !daily && (document.querySelector(".tf-btn[data-period].active") || {}).dataset?.period === "10Y";
       const canvas     = document.getElementById("candleCanvas");
       const noData     = document.getElementById("candleNoData");
       if (!daily && !weeklyData) {
@@ -3939,7 +3970,15 @@
         noData.textContent = "正在加载周线数据…";
         return;
       }
-      const src        = monthly ? _buildMonthly(ticker) : (weekly ? weeklyData : candleData);
+      if (tenY && !weeklyLongData && !weeklyLongLoadFailed) {
+        // First 10Y open: pull the older weekly file, then re-render if still on this view.
+        // If it fails, 10Y just shows the ~5Y that candles_weekly.json has.
+        canvas.style.display = "none"; noData.style.display = "flex";
+        noData.textContent = "正在加载10年数据…";
+        loadWeeklyLong().then(() => { if (_modalTicker === ticker) _renderModalChart(ticker, _currentTf()); });
+        return;
+      }
+      const src        = monthly ? _buildMonthly(ticker, tenY) : (weekly ? (tenY ? _weeklyMerged(ticker) : weeklyData) : candleData);
       const rawCandles = src?.data?.[ticker];
       const rawSma     = src?.sma?.[ticker];
       const dates      = src?.dates;
@@ -4127,8 +4166,8 @@
       document.getElementById("tfDrawerToggle").textContent = btn.textContent + " ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
-      // 2Y/5Y only exist as weekly bars, so switch to Weekly automatically if Daily is active.
-      if ((btn.dataset.period === "2Y" || btn.dataset.period === "5Y") && _modalRes === 'd') _setModalRes('w');
+      // 2Y/5Y/10Y only exist as weekly bars, so switch to Weekly automatically if Daily is active.
+      if ((btn.dataset.period === "2Y" || btn.dataset.period === "5Y" || btn.dataset.period === "10Y") && _modalRes === 'd') _setModalRes('w');
       _saveSmaPrefsNow();   // remember period (+ any auto-switched resolution) for the next chart opened
       _renderModalChart(_modalTicker, _currentTf());
     });
@@ -4693,13 +4732,13 @@
       <div class="overlay-drawer-wrap">
         <button type="button" class="overlay-drawer-toggle" id="tfDrawerToggle">6月 &#9662;</button>
         <div class="overlay-drawer-panel" id="candleTimeframes" style="width:auto;">
-          <button class="tf-btn" data-period="1W">1周</button>
           <button class="tf-btn" data-period="1M">1月</button>
           <button class="tf-btn" data-period="3M">3月</button>
           <button class="tf-btn active" data-period="6M">6月</button>
           <button class="tf-btn" data-period="1Y">1年</button>
           <button class="tf-btn" data-period="2Y">2年</button>
           <button class="tf-btn" data-period="5Y">5年</button>
+          <button class="tf-btn" data-period="10Y">10年</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">

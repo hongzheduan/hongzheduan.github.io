@@ -3024,6 +3024,60 @@ def export_candles_weekly(weekly_raw):
     print(f"Weekly candles export: {len(data)} tickers, {n} weeks")
 
 
+WEEKLY_LONG          = os.environ.get("WEEKLY_LONG", "on").lower() != "off"
+WEEKLY_LONG_MAX_AGE  = 6      # days; rebuilt about once a week, older weeks barely change
+WEEKLY_LONG_KEEP_DAYS = 1640  # ~4.5y: keep weeks older than this, overlapping candles_weekly.json's ~5y start
+
+
+def export_candles_weekly_long(tickers):
+    """Write data/candles_weekly_long.json — the OLDER ~5 years of weekly bars
+    (roughly 10y ago up to ~4.5y ago), candles only, same shared-`dates` shape as
+    candles_weekly.json. The paid dashboard chart lazy-loads it only for the 10Y
+    period and stitches it in front of candles_weekly.json (weekly SMAs are then
+    computed client-side over the merged series). Rebuilt at most once every
+    WEEKLY_LONG_MAX_AGE days from a separate 10y yfinance download, so the daily
+    scan's own 5y window is untouched. Never raises — a failure keeps the old file."""
+    if not WEEKLY_LONG or not tickers:
+        return
+    path = os.path.join(DATA_DIR, "candles_weekly_long.json")
+    try:
+        if os.path.exists(path):
+            with open(path) as f:
+                prev_date = json.load(f).get("date")
+            if prev_date and (datetime.strptime(DATE_STR, "%Y-%m-%d") - datetime.strptime(prev_date, "%Y-%m-%d")).days < WEEKLY_LONG_MAX_AGE:
+                print(f"Weekly long export: skipped (built {prev_date})")
+                return
+        cutoff = (datetime.strptime(DATE_STR, "%Y-%m-%d") - timedelta(days=WEEKLY_LONG_KEEP_DAYS)).strftime("%Y-%m-%d")
+        print(f"Weekly long export: fetching 10y daily bars for {len(tickers)} tickers …")
+        fetched = fetch_yfinance_bulk(list(tickers), period="10y")
+        series = {}
+        for ticker, bars in fetched.items():
+            rows = [(d, b["o"], b["h"], b["l"], b["c"], b["v"]) for d, b in sorted(bars.items()) if d < cutoff]
+            if not rows:
+                continue
+            df = pd.DataFrame(rows, columns=["Date", "Open", "High", "Low", "Close", "Volume"])
+            df["Date"] = pd.to_datetime(df["Date"])
+            wk = _build_weekly_series(df, max_weeks=600)
+            if wk:
+                series[ticker] = (wk[0], wk[1])
+        if not series:
+            print("Weekly long export: nothing fetched — keeping previous file")
+            return
+        all_dates = sorted({d for dates, _c in series.values() for d in dates})
+        idx_of = {d: i for i, d in enumerate(all_dates)}
+        data = {}
+        for ticker, (dates, candles) in series.items():
+            row = [None] * len(all_dates)
+            for k, d in enumerate(dates):
+                row[idx_of[d]] = candles[k]
+            data[ticker] = row
+        with open(path, "w") as f:
+            json.dump({"date": DATE_STR, "dates": all_dates, "data": data}, f)
+        print(f"Weekly long export: {len(data)} tickers, {len(all_dates)} weeks ({all_dates[0]} .. {all_dates[-1]})")
+    except Exception as e:
+        print(f"Weekly long export failed (keeping previous file): {e}")
+
+
 def _build_briefing_txt(market_date, scan_time, digest, headlines):
     line = "─" * 54
     txt  = f"BAIZORA DAILY MARKET BRIEFING — {market_date}\n{line}\n"
@@ -4091,6 +4145,7 @@ if __name__ == "__main__":
     # 6b. Export candle data
     export_candles(candles_out, smas_out, trading_days)
     export_candles_weekly(weekly_raw)
+    export_candles_weekly_long(list(weekly_raw.keys()))
 
     # 6c. Export daily digest + downloadable briefing for homepage card
     export_daily_digest(df)
