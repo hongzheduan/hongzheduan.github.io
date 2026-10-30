@@ -1342,7 +1342,10 @@
         sarActive: "sarActive" in p ? !!p.sarActive : false,
         sarStep: p.sarStep || 0.02, sarMax: p.sarMax || 0.2,
         gapActive: "gapActive" in p ? !!p.gapActive : false,
-        gapMinPct: p.gapMinPct != null ? +p.gapMinPct : 0
+        gapMinPct: p.gapMinPct != null ? +p.gapMinPct : 0,
+        // Chart resolution + period stick across modal opens (default 6M daily).
+        chartRes: ["d", "w", "m"].includes(p.chartRes) ? p.chartRes : "d",
+        chartPeriod: ["1W", "1M", "3M", "6M", "1Y", "2Y", "5Y"].includes(p.chartPeriod) ? p.chartPeriod : "6M"
       };
     }
     let smaPrefs = _migrateSmaPrefs(JSON.parse(localStorage.getItem("baizora_sma_prefs") || "null"));
@@ -3568,14 +3571,12 @@
       document.getElementById("tickerModal").style.display = "flex";
       document.body.style.overflow = "hidden";
 
-      // reset timeframe to 6M daily; restore the user's saved SMA selection on each open
-      _modalRes = 'd';
-      document.querySelectorAll(".res-btn").forEach(b => b.classList.toggle("active", b.dataset.res === "d"));
-      document.getElementById("resDrawerToggle").textContent = "日线 ▾";
-      document.getElementById("resToggles").classList.remove("open");
-      document.getElementById("resDrawerToggle").classList.remove("open");
-      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.period === "6M"));
-      document.getElementById("tfDrawerToggle").textContent = "6月 ▾";
+      // restore the last-used resolution + period (default 6M daily) and the user's saved SMA selection on each open
+      _setModalRes(smaPrefs.chartRes);
+      const _openPeriod = smaPrefs.chartPeriod || "6M";
+      document.querySelectorAll(".tf-btn").forEach(b => b.classList.toggle("active", b.dataset.period === _openPeriod));
+      const _openPeriodBtn = document.querySelector(".tf-btn[data-period].active");
+      document.getElementById("tfDrawerToggle").textContent = (_openPeriodBtn ? _openPeriodBtn.textContent : "6M") + " ▾";
       document.getElementById("candleTimeframes").classList.remove("open");
       document.getElementById("tfDrawerToggle").classList.remove("open");
       _smaList = (smaPrefs.smaList && smaPrefs.smaList.length ? smaPrefs.smaList.slice(0, 5) : [20, 50, 200]);
@@ -3678,7 +3679,9 @@
         sarStep: _sarStep, sarMax: _sarMax,
         gapActive: document.getElementById("gapChip").classList.contains("active"),
         gapMinPct: _gapMinPct,
-        baizKey: _baizKey
+        baizKey: _baizKey,
+        chartRes: _modalRes,
+        chartPeriod: (document.querySelector(".tf-btn[data-period].active") || {}).dataset?.period || "6M"
       };
       saveSmaPrefs();
     }
@@ -4126,6 +4129,7 @@
       document.getElementById("tfDrawerToggle").classList.remove("open");
       // 2Y/5Y only exist as weekly bars, so switch to Weekly automatically if Daily is active.
       if ((btn.dataset.period === "2Y" || btn.dataset.period === "5Y") && _modalRes === 'd') _setModalRes('w');
+      _saveSmaPrefsNow();   // remember period (+ any auto-switched resolution) for the next chart opened
       _renderModalChart(_modalTicker, _currentTf());
     });
 
@@ -4133,6 +4137,7 @@
       const btn = e.target.closest(".res-btn");
       if (!btn || !_modalTicker) return;
       _setModalRes(btn.dataset.res);
+      _saveSmaPrefsNow();   // remember resolution for the next chart opened
       _renderModalChart(_modalTicker, _currentTf());
     });
 
