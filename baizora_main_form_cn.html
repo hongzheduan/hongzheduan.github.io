@@ -3178,6 +3178,8 @@
       dates.forEach(d => { const m = new Date(d + 'T12:00:00').getMonth(); if (m !== _pm) { _monthBoundaries++; _pm = m; } });
       const moStride = Math.max(1, Math.ceil(_monthBoundaries / 7));
       let lastMo = -1, lastYr = -1, moCount = 0;
+      // Monthly bars (~30 days apart): label by month + year, not month + day.
+      const monthlyBars = n > 1 && (new Date(dates[n - 1]) - new Date(dates[0])) / (n - 1) > 25 * 864e5;
       dates.forEach((d, i) => {
         const dt = new Date(d + 'T12:00:00');
         const mo = dt.getMonth(), yr = dt.getFullYear();
@@ -3185,7 +3187,7 @@
         if (n < 100) {
           if (i % Math.round(n / 6) !== 0 && !isLast) return;
           ctx.fillStyle = isLast ? C_AXIS_HI : C_AXIS;
-          ctx.fillText(dt.toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" }), toX(i) + cndW / 2, H - 8);
+          ctx.fillText(monthlyBars ? `${String(yr).slice(-2)}年${mo + 1}月` : dt.toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" }), toX(i) + cndW / 2, H - 8);
         } else {
           if (mo === lastMo && !isLast) return;
           if (!isLast) { lastMo = mo; moCount++; }
@@ -3863,13 +3865,13 @@
     // （candles.json 的导出窗口）——若选择"日线"但周期为2年/5年，会自动截断到
     // 可用范围内，与 _renderModalChart 对超出已加载历史的 tf 的现有兜底逻辑一致。
     const PERIOD_TF = {
-      "1W": { d: 5,    w: 1   },
-      "1M": { d: 21,   w: 4   },
-      "3M": { d: 63,   w: 13  },
-      "6M": { d: 126,  w: 26  },
-      "1Y": { d: 252,  w: 52  },
-      "2Y": { d: 504,  w: 104 },
-      "5Y": { d: 1260, w: 260 }
+      "1W": { d: 5,    w: 1,   m: 1  },
+      "1M": { d: 21,   w: 4,   m: 1  },
+      "3M": { d: 63,   w: 13,  m: 3  },
+      "6M": { d: 126,  w: 26,  m: 6  },
+      "1Y": { d: 252,  w: 52,  m: 12 },
+      "2Y": { d: 504,  w: 104, m: 24 },
+      "5Y": { d: 1260, w: 260, m: 60 }
     };
     function _currentTf() {
       const btn = document.querySelector(".tf-btn[data-period].active");
@@ -3880,27 +3882,61 @@
     // 选择这两个周期时不再置灰，而是自动切换到周线（见周期按钮的点击处理）；
     // 用户仍可手动切回日线。
     function _setModalRes(res) {
-      _modalRes = res === 'w' ? 'w' : 'd';
+      _modalRes = (res === 'w' || res === 'm') ? res : 'd';
       document.querySelectorAll(".res-btn").forEach(b => b.classList.toggle("active", b.dataset.res === _modalRes));
       const activeRes = document.querySelector(".res-btn.active");
       if (activeRes) document.getElementById("resDrawerToggle").textContent = activeRes.textContent + " ▾";
       document.getElementById("resToggles").classList.remove("open");
       document.getElementById("resDrawerToggle").classList.remove("open");
     }
+    // Monthly bars are rolled up client-side, no extra data file: months fully
+    // covered by the daily export (~1Y) come from daily bars so open/close are exact;
+    // older months come from weekly bars (each week counted in the month of its last
+    // trading day). Cheap enough (~550 bars) to rebuild on every render, which also
+    // keeps the current month in step with live-price updates to the daily bars.
+    function _buildMonthly(ticker) {
+      const bars = {};   // "YYYY-MM" -> { date: last trading day, c: [o,h,l,c,v] }
+      const dFirst = candleData && candleData.dates && candleData.dates[0];
+      // First daily month is usually partial, so daily takes over from the next month.
+      const dailyFrom = dFirst
+        ? (m => m === 12 ? `${+dFirst.slice(0, 4) + 1}-01` : `${dFirst.slice(0, 4)}-${String(m + 1).padStart(2, "0")}`)(+dFirst.slice(5, 7))
+        : "9999-99";
+      const add = (src, keep) => {
+        const raw = src && src.data && src.data[ticker], dates = src && src.dates;
+        if (!raw || !dates) return;
+        const off = dates.length - raw.length;
+        raw.forEach((c, i) => {
+          if (!c) return;
+          const d = dates[i + off], key = d.slice(0, 7);
+          if (!keep(key)) return;
+          const b = bars[key];
+          if (!b) { bars[key] = { date: d, c: [c[0], c[1], c[2], c[3], c[4] || 0] }; return; }
+          b.date = d;
+          b.c[1] = Math.max(b.c[1], c[1]); b.c[2] = Math.min(b.c[2], c[2]);
+          b.c[3] = c[3]; b.c[4] += c[4] || 0;
+        });
+      };
+      add(weeklyData, k => k < dailyFrom);
+      add(candleData, k => k >= dailyFrom);
+      const keys = Object.keys(bars).sort();
+      return { dates: keys.map(k => bars[k].date), data: { [ticker]: keys.map(k => bars[k].c) } };
+    }
     function _renderModalChart(ticker, tf) {
       _modalTicker = ticker;
       _hideChartHover();
       const weekly     = _modalRes === 'w';
+      const monthly    = _modalRes === 'm';   // built from weekly + daily, so it needs the weekly file too
+      const daily      = !weekly && !monthly;
       const canvas     = document.getElementById("candleCanvas");
       const noData     = document.getElementById("candleNoData");
-      if (weekly && !weeklyData) {
+      if (!daily && !weeklyData) {
         canvas.style.display = "none"; noData.style.display = "flex";
         if (weeklyLoadFailed) { noData.textContent = "周线数据暂时不可用"; return; }
-        loadWeekly().then(() => { if (_modalTicker === ticker && _modalRes === 'w') _renderModalChart(ticker, tf); });
+        loadWeekly().then(() => { if (_modalTicker === ticker && _modalRes !== 'd') _renderModalChart(ticker, tf); });
         noData.textContent = "正在加载周线数据…";
         return;
       }
-      const src        = weekly ? weeklyData : candleData;
+      const src        = monthly ? _buildMonthly(ticker) : (weekly ? weeklyData : candleData);
       const rawCandles = src?.data?.[ticker];
       const rawSma     = src?.sma?.[ticker];
       const dates      = src?.dates;
@@ -3914,7 +3950,7 @@
         const slicedDates   = dates.slice(-slice);
         const slicedCandles = candles.slice(-slice);
         // 周线本身已相隔 7 天，若走日线的缺口填充器会在每根真实K线之间塞入约4根空K线。
-        const filled = weekly
+        const filled = !daily
           ? { dates: slicedDates, candles: slicedCandles }
           : fillCalendarGaps(slicedDates, slicedCandles);
         canvas.style.display = "block"; noData.style.display = "none";
@@ -3923,7 +3959,7 @@
           const padded = !raw ? new Array(dates.length).fill(null)
             : (raw.length < dates.length ? new Array(dates.length - raw.length).fill(null).concat(raw) : raw);
           const slicedVals = padded.slice(-slice);
-          return weekly ? slicedVals : fillCalendarGaps(slicedDates, slicedVals).candles;
+          return !daily ? slicedVals : fillCalendarGaps(slicedDates, slicedVals).candles;
         };
         // 列表周期匹配 sma20/50/200 时优先用后端预计算值。日线：由完整 ~5Y 历史滚动而来，
         // 全窗口有效。周线：为 20/50/200 “周” 均线，故 sma200 是部分线（需 ~3.8 年的周数据）。
@@ -3934,7 +3970,7 @@
           return { color: SMA_PALETTE[i % SMA_PALETTE.length], values: alignToDates(raw) };
         });
         let scoreData = null;
-        if (_baizKey && !weekly) {   // 评分火花线是 ~252 点的日线序列，无周线对应
+        if (_baizKey && daily) {   // 评分火花线是 ~252 点的日线序列，无周线对应
           const row = allRows.find(x => x.Ticker === ticker);
           const rawScoreVals = row ? row[_baizKey + "Spark1Y"] : null;
           if (rawScoreVals && rawScoreVals.length) {
@@ -3985,7 +4021,7 @@
         _lastChartExtras = { scoreData, macdData, rsiData, priceLo: priceRange.lo, priceHi: priceRange.hi };
       } else {
         canvas.style.display = "none"; noData.style.display = "flex";
-        noData.textContent = weekly ? "该股票暂无周线数据" : "暂无图表数据";
+        noData.textContent = monthly ? "该股票暂无月线数据" : (weekly ? "该股票暂无周线数据" : "暂无图表数据");
         _lastChartCandles = null;
         _lastChartDates = null;
         _lastChartExtras = null;
@@ -4064,7 +4100,7 @@
         rsiLabel.style.display = "none";
       }
       const dt = new Date(_lastChartDates[idx] + "T12:00:00");
-      const dateLbl = dt.toLocaleDateString("zh-CN", { year: "numeric", month: "short", day: "numeric" });
+      const dateLbl = dt.toLocaleDateString("zh-CN", _modalRes === 'm' ? { year: "numeric", month: "short" } : { year: "numeric", month: "short", day: "numeric" });
       // 固定显示在图表顶部而非跟随鼠标——跟随鼠标的提示框会挡住正想查看的K线/柱状条。
       tip.innerHTML = `<span style="color:#334155;margin-right:10px;">${dateLbl}</span>${body}`;
       tip.style.display = "block";
@@ -4646,6 +4682,7 @@
         <div class="overlay-drawer-panel" id="resToggles" style="width:auto;">
           <button type="button" class="res-btn active" data-res="d" title="日K线">日线</button>
           <button type="button" class="res-btn" data-res="w" title="周K线（首次使用时加载）">周线</button>
+          <button type="button" class="res-btn" data-res="m" title="月K线（由周线与日线合成）">月线</button>
         </div>
       </div>
       <div class="overlay-drawer-wrap">
