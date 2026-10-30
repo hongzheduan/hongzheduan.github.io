@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-29 16:53 ET",
+ "updated": "2026-10-30 16:24 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
  "ipos": [
@@ -18,20 +18,6 @@
    "shares": 16000000.0
   },
   {
-   "deal_id": "1405733-119610",
-   "ticker": "ASPE",
-   "company": "Aspen Neuroscience, Inc.",
-   "sector": "Healthcare",
-   "industry": "Pharmaceutical Preparations",
-   "sic": "2834",
-   "cik": "0002124080",
-   "deal_usd": 183281250.0,
-   "exchange": "Nasdaq",
-   "date": "2026-10-30",
-   "price_range": "15.00-17.00",
-   "shares": 9375000.0
-  },
-  {
    "deal_id": "1320589-119617",
    "ticker": "BBTX",
    "company": "Bambusa Therapeutics, Inc.",
@@ -39,10 +25,24 @@
    "industry": "Biological Products",
    "sic": "2836",
    "cik": "0002044950",
-   "deal_usd": 183281250.0,
+   "deal_usd": 168888880.0,
    "exchange": "Nasdaq",
    "date": "2026-10-30",
-   "price_range": "15.00-17.00",
+   "price_range": "16.00",
+   "shares": 10555555.0
+  },
+  {
+   "deal_id": "1405733-119610",
+   "ticker": "ASPE",
+   "company": "Aspen Neuroscience, Inc.",
+   "sector": "Healthcare",
+   "industry": "Pharmaceutical Preparations",
+   "sic": "2834",
+   "cik": "0002124080",
+   "deal_usd": 140625000.0,
+   "exchange": "Nasdaq",
+   "date": "2026-10-30",
+   "price_range": "15.00",
    "shares": 9375000.0
   }
  ],
