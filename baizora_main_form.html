@@ -3960,10 +3960,17 @@
       const first = weeklyData.dates[0];
       let keep = weeklyLongData.dates.findIndex(d => d >= first);
       if (keep < 0) keep = weeklyLongData.dates.length;
+      const allDates = weeklyLongData.dates.slice(0, keep).concat(weeklyData.dates);
+      const allBars  = pad(weeklyLongData.data[ticker], weeklyLongData.dates.length).slice(0, keep)
+        .concat(pad(weeklyData.data[ticker], weeklyData.dates.length));
+      // The shared date axis has a row for any ticker's off-Friday week end, leaving
+      // nulls for everyone else that would break every SMA window spanning one. Drop
+      // those holes; nulls before the ticker's first bar stay as calendar padding.
+      const firstBar = allBars.findIndex(c => c);
+      const kept = allBars.map((c, i) => i).filter(i => allBars[i] || i < firstBar);
       return {
-        dates: weeklyLongData.dates.slice(0, keep).concat(weeklyData.dates),
-        data: { [ticker]: pad(weeklyLongData.data[ticker], weeklyLongData.dates.length).slice(0, keep)
-          .concat(pad(weeklyData.data[ticker], weeklyData.dates.length)) }
+        dates: kept.map(i => allDates[i]),
+        data: { [ticker]: kept.map(i => allBars[i]) }
       };
     }
     function _buildMonthly(ticker, tenY, maxP) {
