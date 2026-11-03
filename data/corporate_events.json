@@ -21448,6 +21448,18 @@
   ],
   "LDOS": [
     {
+      "date": "2026-11-03",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1336920/000133692026000290/ldos-20261103.htm"
+    },
+    {
       "date": "2026-10-05",
       "items": "1.01,7.01,9.01",
       "label": "Material Agreement",
@@ -26724,11 +26736,11 @@
   "O": [
     {
       "date": "2026-11-02",
-      "eps": null,
+      "eps": 0.43,
       "items": "2.02,7.01,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 1621582000,
       "type": [
         "earnings"
       ],
@@ -28482,11 +28494,11 @@
   "PLTR": [
     {
       "date": "2026-11-02",
-      "eps": null,
+      "eps": 0.44,
       "items": "2.02,7.01,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 2313411000,
       "type": [
         "earnings"
       ],
