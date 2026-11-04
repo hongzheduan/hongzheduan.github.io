@@ -3657,6 +3657,55 @@ def _pending_match_company_hint(title, hints):
     return None
 
 
+# Headline wording that ends the leading company name ("Okta Shares Rise..." -> "Okta").
+_PENDING_NAME_STOP_RE = re.compile(
+    r"(?:'s\b|\b(?:stocks?|shares?|rises?|jumps?|joins?|joining|surges?|soars?|gains?|climbs?"
+    r"|rally|rallies|rips|added|adds|to|on|as|after|ahead|has|upgraded|q[1-4]|and|is)\b).*$",
+    re.IGNORECASE,
+)
+_PENDING_NAME_MIN_LEN = 4
+
+
+def _pending_normalize_name(name):
+    """Lowercase a company name and drop punctuation/legal suffixes, so 'Okta, Inc.' == 'okta'."""
+    s = re.sub(r"/[a-z]+/?", " ", name.lower().replace("&", " and "))
+    s = re.sub(r"[^a-z0-9 ]", " ", s)
+    s = re.sub(r"\b(?:inc|incorporated|corp|corporation|co|company|companies|ltd|limited|plc|llc|lp"
+               r"|holdings?|group|the)\b", " ", s)
+    return " ".join(s.split())
+
+
+def _pending_build_name_index():
+    """Normalized SEC company name -> [(ticker, cik)], for names outside our tracked universe."""
+    _load_edgar_cik_map()
+    index = {}
+    for ticker, title in _edgar_name_map.items():
+        norm = _pending_normalize_name(title)
+        if norm:
+            index.setdefault(norm, []).append((ticker, _edgar_cik_map.get(ticker)))
+    return index
+
+
+def _pending_ticker_from_name(title, name_index):
+    """Resolve a headline's leading company name to a ticker, or None if unsure.
+
+    Tries an exact name match, then a whole-word prefix ('JPMorgan' -> 'jpmorgan chase and')
+    that must point at a single company. Ambiguity returns None: a missed headline costs less
+    than scanning and tagging the wrong stock.
+    """
+    head = re.sub(r"\s+-\s+[^-]+$", "", title)   # drop Google News' " - Publisher" suffix
+    norm = _pending_normalize_name(_PENDING_NAME_STOP_RE.sub("", head))
+    if len(norm) < _PENDING_NAME_MIN_LEN:
+        return None
+    matches = name_index.get(norm)
+    if not matches:
+        matches = [m for name, ms in name_index.items() if name.startswith(norm + " ") for m in ms]
+        if len({cik for _, cik in matches}) != 1:
+            return None
+    # company_tickers.json is largest-first, so dict order puts the primary share class first
+    return matches[0][0]
+
+
 def _pending_is_rumor(title):
     t = title.lower()
     return any(w in t for w in _PENDING_RUMOR_WORDS)
@@ -3718,6 +3767,7 @@ def update_pending_index_members():
         existing = {}
 
     company_hints = {t: c["company"] for (t, _), c in existing.items() if c.get("company")}
+    name_index = _pending_build_name_index()
 
     for it in news_items:
         cat = it.get("category", "")
@@ -3725,12 +3775,17 @@ def update_pending_index_members():
             continue
         index = "sp500" if cat.startswith("S&P") else "nasdaq100"
         title = it.get("title", "")
-        ticker = _pending_extract_ticker(title) or _pending_match_company_hint(title, company_hints)
+        ticker = (_pending_extract_ticker(title)
+                  or _pending_match_company_hint(title, company_hints)
+                  or _pending_ticker_from_name(title, name_index))
         if not ticker:
+            print(f"  [pending_index] no ticker for headline: {title}")
             continue
         hint = _pending_extract_company_hint(title, ticker)
         if hint:
             company_hints[ticker] = hint
+        elif ticker not in company_hints and _edgar_name_map.get(ticker):
+            company_hints[ticker] = _edgar_name_map[ticker]
         key = (ticker, index)
         if key in official_added:
             existing.pop(key, None)
