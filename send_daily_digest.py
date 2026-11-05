@@ -154,7 +154,7 @@ def main():
         subscribers = get_subscribers()
     except Exception as e:
         print(f"send_daily_digest: failed to read subscribers from Firestore — {e}")
-        return
+        sys.exit(1)
 
     if not subscribers:
         print("send_daily_digest: no active subscribers.")
@@ -176,13 +176,16 @@ def main():
                 sent += 1
             else:
                 failed += 1
-                print(f"  {email}: Resend returned {status} — {body[:200]}")
+                # Actions logs aren't private: never print a subscriber's address
+                print(f"  subscriber send failed: Resend returned {status} — {body[:200].replace(email, '<subscriber>')}")
         except Exception as e:
             failed += 1
-            print(f"  {email}: send error — {e}")
+            print(f"  subscriber send failed: {str(e).replace(email, '<subscriber>')}")
         time.sleep(SEND_PACE_SEC)
 
     print(f"send_daily_digest: sent {sent}, failed {failed}, total subscribers {len(subscribers)}")
+    if failed:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

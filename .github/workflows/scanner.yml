@@ -476,16 +476,22 @@ jobs:
         # crons are same-day retries of the same data, and would otherwise send
         # subscribers 2-4 duplicate emails. No-ops safely (see send_daily_digest.py)
         # until RESEND_API_KEY and FIREBASE_SERVICE_ACCOUNT_JSON are both set.
+        # 2026-11-04: the secret used to be pasted into the shell command, so spaces in the
+        # JSON broke the check ("[: too many arguments"), credentials were never written,
+        # and the digest silently skipped while the step stayed green. Pass it through env.
+        # continue-on-error: a failed send shows on the step but doesn't block the steps below.
         if: env.IS_HOLIDAY != 'True' && github.event.schedule == '30 22 * * 1-5'
+        continue-on-error: true
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
         run: |
-          if [ -n "${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}" ]; then
-            echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > /tmp/firebase-sa.json
+          if [ -n "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            trap 'rm -f /tmp/firebase-sa.json' EXIT
+            printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > /tmp/firebase-sa.json
             export GOOGLE_APPLICATION_CREDENTIALS=/tmp/firebase-sa.json
           fi
           python send_daily_digest.py
-          rm -f /tmp/firebase-sa.json
 
       - name: Regenerate stock pages
         if: env.IS_HOLIDAY != 'True' && env.BETA_RUN != '1' && env.EDGAR_ONLY != '1' && env.SKIP_SCAN != '1' && env.MIDDAY_SNAPSHOT != '1'
