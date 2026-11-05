@@ -20,7 +20,7 @@ import time
 import requests
 
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
-FROM_ADDRESS = "Baizora Daily Digest <digest@baizora.com>"
+FROM_ADDRESS = "Baizora Daily Digest <support@baizora.com>"
 UNSUB_BASE = "https://us-central1-baizora.cloudfunctions.net/api/unsubscribe"
 SEND_PACE_SEC = 0.3  # stay well under Resend's per-second rate limit
 
