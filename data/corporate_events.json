@@ -1689,6 +1689,15 @@
   ],
   "ALGN": [
     {
+      "date": "2026-11-06",
+      "items": "1.01,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1097149/000109714926000085/algn-20261105.htm"
+    },
+    {
       "date": "2026-10-28",
       "items": "5.02,7.01,9.01",
       "label": "Leadership Change",
@@ -3988,11 +3997,11 @@
     },
     {
       "date": "2026-11-05",
-      "eps": null,
+      "eps": 0.68,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 908554000,
       "type": [
         "earnings"
       ],
@@ -19130,6 +19139,18 @@
   ],
   "HUM": [
     {
+      "date": "2026-11-06",
+      "eps": null,
+      "items": "2.02,7.01,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000064/hum-20261106.htm"
+    },
+    {
       "date": "2026-07-29",
       "items": "5.02,9.01",
       "label": "Leadership Change",
@@ -24364,11 +24385,11 @@
   "MET": [
     {
       "date": "2026-11-04",
-      "eps": null,
+      "eps": 3.67,
       "items": "2.02,7.01,8.01,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 728000000,
       "type": [
         "earnings"
       ],
@@ -24908,8 +24929,8 @@
       "eps": null,
       "items": "2.02,7.01,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 2563053000,
       "type": [
         "earnings"
       ],
@@ -25372,6 +25393,18 @@
     }
   ],
   "MRNA": [
+    {
+      "date": "2026-11-06",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1682852/000168285226000194/mrna-20261106.htm"
+    },
     {
       "date": "2026-09-30",
       "items": "5.02,7.01,9.01",
@@ -32817,11 +32850,11 @@
   "SMCI": [
     {
       "date": "2026-11-03",
-      "eps": null,
+      "eps": 1.75,
       "items": "2.02,8.01,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 19945832000,
       "type": [
         "earnings"
       ],
@@ -32829,11 +32862,11 @@
     },
     {
       "date": "2026-10-20",
-      "eps": null,
+      "eps": 1.75,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 19945832000,
       "type": [
         "earnings"
       ],
@@ -37708,6 +37741,18 @@
   ],
   "VEEV": [
     {
+      "date": "2026-11-06",
+      "eps": 1.66,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": "2026-07-31",
+      "revenue": 927963000,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1393052/000139305226000039/veev-20261105.htm"
+    },
+    {
       "date": "2026-08-26",
       "eps": 1.66,
       "items": "2.02,9.01",
@@ -38512,6 +38557,18 @@
     }
   ],
   "VST": [
+    {
+      "date": "2026-11-06",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1692819/000169281926000023/vistra-20261106.htm"
+    },
     {
       "date": "2026-11-05",
       "items": "2.01,2.03,3.02,7.01,9.01",
