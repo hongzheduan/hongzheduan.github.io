@@ -1,8 +1,23 @@
 {
- "updated": "2026-11-05 16:48 ET",
+ "updated": "2026-11-06 16:17 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
- "ipos": [],
+ "ipos": [
+  {
+   "deal_id": "1407089-119692",
+   "ticker": "RZRA",
+   "company": "Rezera Inc.",
+   "sector": "Healthcare",
+   "industry": "Pharmaceutical Preparations",
+   "sic": "2834",
+   "cik": "0002141583",
+   "deal_usd": 249166671.0,
+   "exchange": "Nasdaq",
+   "date": "2026-11-12",
+   "price_range": "11.00-13.00",
+   "shares": 16666667.0
+  }
+ ],
  "filed": [
   {
    "deal_id": "1407642-119728",
@@ -25,17 +40,6 @@
    "cik": "0002145089",
    "deal_usd": 100000000.0,
    "filed_date": "2026-10-23"
-  },
-  {
-   "deal_id": "1407089-119692",
-   "ticker": "RZRA",
-   "company": "NODTHERA INC.",
-   "sector": "Healthcare",
-   "industry": "Pharmaceutical Preparations",
-   "sic": "2834",
-   "cik": "0002141583",
-   "deal_usd": 100000000.0,
-   "filed_date": "2026-10-21"
   },
   {
    "deal_id": "1235548-119602",
