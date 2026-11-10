@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-09 18:59 ET",
+ "updated": "2026-11-10 16:40 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
  "ipos": [
@@ -16,6 +16,34 @@
    "date": "2026-11-12",
    "price_range": "11.00-13.00",
    "shares": 16666667.0
+  },
+  {
+   "deal_id": "1235548-119602",
+   "ticker": "VVVV",
+   "company": "vVARDIS Holding AG",
+   "sector": "Healthcare",
+   "industry": "Surgical & Medical Instruments & Apparatus",
+   "sic": "3841",
+   "cik": "0001907709",
+   "deal_usd": 262857144.0,
+   "exchange": "NYSE",
+   "date": "2026-11-13",
+   "price_range": "21.00-24.00",
+   "shares": 9523810.0
+  },
+  {
+   "deal_id": "1407588-119709",
+   "ticker": "WWB",
+   "company": "WINDWARD BIO GROUP AG",
+   "sector": "Healthcare",
+   "industry": "Biological Products",
+   "sic": "2836",
+   "cik": "0002145089",
+   "deal_usd": 213088212.0,
+   "exchange": "Nasdaq",
+   "date": "2026-11-13",
+   "price_range": "16.00-18.00",
+   "shares": 10294117.0
   }
  ],
  "filed": [
@@ -29,28 +57,6 @@
    "cik": "0002130357",
    "deal_usd": 1000000000.0,
    "filed_date": "2026-10-26"
-  },
-  {
-   "deal_id": "1407588-119709",
-   "ticker": "WWB",
-   "company": "WINDWARD BIO GROUP AG",
-   "sector": "Healthcare",
-   "industry": "Biological Products",
-   "sic": "2836",
-   "cik": "0002145089",
-   "deal_usd": 100000000.0,
-   "filed_date": "2026-10-23"
-  },
-  {
-   "deal_id": "1235548-119602",
-   "ticker": "VVVV",
-   "company": "vVARDIS Holding AG",
-   "sector": "Healthcare",
-   "industry": "Surgical & Medical Instruments & Apparatus",
-   "sic": "3841",
-   "cik": "0001907709",
-   "deal_usd": 262857144.0,
-   "filed_date": "2026-10-09"
   },
   {
    "deal_id": "1405308-119590",
