@@ -707,3 +707,4 @@
 2026-11-08 11:43 UTC  EDGAR-only
 2026-11-09 18:40 UTC  manual-midday-test
 2026-11-09 21:43 UTC  manual
+2026-11-10 02:50 UTC  430PM-scan
