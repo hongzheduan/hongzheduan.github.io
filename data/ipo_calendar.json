@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-10 16:40 ET",
+ "updated": "2026-11-11 17:29 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
  "ipos": [
@@ -44,19 +44,33 @@
    "date": "2026-11-13",
    "price_range": "16.00-18.00",
    "shares": 10294117.0
-  }
- ],
- "filed": [
+  },
   {
    "deal_id": "1407642-119728",
    "ticker": "ANT",
-   "company": "Anthropic, PBC",
+   "company": "ANTHROPIC, PBC",
    "sector": "Technology",
    "industry": "Prepackaged Software",
    "sic": "7372",
    "cik": "0002130357",
-   "deal_usd": 1000000000.0,
-   "filed_date": "2026-10-26"
+   "deal_usd": 74002500000.0,
+   "exchange": "Nasdaq",
+   "date": "2026-11-19",
+   "price_range": "70.00-78.00",
+   "shares": 825000000.0
+  }
+ ],
+ "filed": [
+  {
+   "deal_id": "1409648-119907",
+   "ticker": "ABGC",
+   "company": "American Barrick Gold Corp",
+   "sector": null,
+   "industry": null,
+   "sic": "",
+   "cik": "0002162540",
+   "deal_usd": 100000000.0,
+   "filed_date": "2026-11-10"
   },
   {
    "deal_id": "1405308-119590",
