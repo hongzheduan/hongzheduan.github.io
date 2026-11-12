@@ -9443,11 +9443,11 @@
   "CRWV": [
     {
       "date": "2026-11-10",
-      "eps": null,
+      "eps": -1.27,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 3661000000,
       "type": [
         "earnings"
       ],
@@ -9519,7 +9519,7 @@
       "items": "2.02,9.01",
       "label": "Earnings Report",
       "period_end": "2025-12-31",
-      "revenue": 1571904000,
+      "revenue": 1572000000,
       "type": [
         "earnings"
       ],
@@ -19949,6 +19949,15 @@
   ],
   "INVH": [
     {
+      "date": "2026-11-12",
+      "items": "5.02,7.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1687229/000119312526456656/d464876d8k.htm"
+    },
+    {
       "date": "2026-10-28",
       "eps": 0.27,
       "items": "2.02,9.01",
@@ -26916,6 +26925,15 @@
   ],
   "NRG": [
     {
+      "date": "2026-11-12",
+      "items": "1.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1013871/000110465926125375/tm2629511d1_8k.htm"
+    },
+    {
       "date": "2026-11-09",
       "eps": 2.59,
       "items": "2.02",
@@ -30200,6 +30218,15 @@
     }
   ],
   "PSA": [
+    {
+      "date": "2026-11-12",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1393311/000119312526456624/d158518d8k.htm"
+    },
     {
       "date": "2026-11-06",
       "items": "1.01,2.03,9.01",
@@ -38705,6 +38732,18 @@
     }
   ],
   "VYLR": [
+    {
+      "date": "2026-11-12",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/2128626/000212862626000009/vylr-20261111.htm"
+    },
     {
       "date": "2026-10-07",
       "items": "1.01,2.03,9.01",
