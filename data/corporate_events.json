@@ -1991,6 +1991,18 @@
   ],
   "AMAT": [
     {
+      "date": "2026-11-12",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/6951/000162828026073360/amat-20261112.htm"
+    },
+    {
       "date": "2026-08-27",
       "items": "5.02,7.01,9.01",
       "label": "Leadership Change",
@@ -9540,6 +9552,18 @@
   ],
   "CSCO": [
     {
+      "date": "2026-11-12",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/858877/000085887726000170/csco-20261112.htm"
+    },
+    {
       "date": "2026-10-09",
       "items": "5.02",
       "label": "Leadership Change",
@@ -13953,6 +13977,18 @@
     }
   ],
   "EXPD": [
+    {
+      "date": "2026-11-12",
+      "eps": 2.65,
+      "items": "2.02,7.01,9.01",
+      "label": "Earnings Report",
+      "period_end": "2026-09-30",
+      "revenue": 4107649000,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/746515/000119312526457594/expd-20261111.htm"
+    },
     {
       "date": "2026-11-03",
       "eps": 2.65,
@@ -20817,11 +20853,11 @@
   "JCI": [
     {
       "date": "2026-10-27",
-      "eps": null,
+      "eps": 1.6,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 7113000000,
       "type": [
         "earnings"
       ],
@@ -20838,11 +20874,11 @@
     },
     {
       "date": "2026-07-29",
-      "eps": null,
+      "eps": 1.23,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-06-30",
+      "revenue": 6614000000,
       "type": [
         "earnings"
       ],
@@ -25466,6 +25502,15 @@
   ],
   "MRVL": [
     {
+      "date": "2026-11-12",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1835632/000183563226000026/mrvl-20261111.htm"
+    },
+    {
       "date": "2026-11-02",
       "items": "1.01,9.01",
       "label": "Material Agreement",
@@ -27268,6 +27313,15 @@
   ],
   "NVDA": [
     {
+      "date": "2026-11-12",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000082/nvda-20261111.htm"
+    },
+    {
       "date": "2026-08-26",
       "eps": 2.46,
       "items": "2.02,9.01",
@@ -27960,6 +28014,15 @@
     }
   ],
   "ON": [
+    {
+      "date": "2026-11-12",
+      "items": "1.01,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1097864/000114036126043431/ef20085485_8k.htm"
+    },
     {
       "date": "2026-11-02",
       "eps": 0.79,
@@ -31676,11 +31739,11 @@
   "ROK": [
     {
       "date": "2026-11-05",
-      "eps": null,
+      "eps": 3.1,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 2332000000,
       "type": [
         "earnings"
       ],
@@ -32253,11 +32316,11 @@
   "SBUX": [
     {
       "date": "2026-10-29",
-      "eps": null,
+      "eps": 0.59,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-27",
+      "revenue": 9141300000,
       "type": [
         "earnings"
       ],
@@ -33493,6 +33556,15 @@
     }
   ],
   "SRE": [
+    {
+      "date": "2026-11-12",
+      "items": "5.02,8.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1032208/000103220826000057/sempra-20261112.htm"
+    },
     {
       "date": "2026-11-05",
       "eps": null,
@@ -35093,6 +35165,15 @@
     }
   ],
   "TGT": [
+    {
+      "date": "2026-11-12",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/27419/000002741926000049/tgt-20261111.htm"
+    },
     {
       "date": "2026-08-19",
       "eps": 4.11,
@@ -38734,11 +38815,11 @@
   "VYLR": [
     {
       "date": "2026-11-12",
-      "eps": null,
+      "eps": -0.85,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 905000000,
       "type": [
         "earnings"
       ],
@@ -40516,6 +40597,15 @@
     }
   ],
   "ZBH": [
+    {
+      "date": "2026-11-12",
+      "items": "1.01,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1136869/000119312526458323/d118853d8k.htm"
+    },
     {
       "date": "2026-11-04",
       "eps": 1,
