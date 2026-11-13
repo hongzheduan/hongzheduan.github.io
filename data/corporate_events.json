@@ -1374,6 +1374,15 @@
   ],
   "AKAM": [
     {
+      "date": "2026-11-12",
+      "items": "1.01,2.03,3.02,7.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1086222/000119312526458699/d58145d8k.htm"
+    },
+    {
       "date": "2026-11-09",
       "items": "1.01,2.03,8.01,9.01",
       "label": "Material Agreement",
@@ -2986,18 +2995,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1841666/000184166625000028/apa8k-20251105.htm"
-    },
-    {
-      "date": "2025-10-08",
-      "eps": 0.57,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-09-30",
-      "revenue": null,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1841666/000184166625000023/apa8k-20251008.htm"
     }
   ],
   "APD": [
@@ -13034,18 +13031,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/821189/000082118925000129/eog-20251106.htm"
-    },
-    {
-      "date": "2025-10-08",
-      "eps": 2.7,
-      "items": "2.02",
-      "label": "Earnings Report",
-      "period_end": "2025-09-30",
-      "revenue": 5847000000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/821189/000082118925000101/eog-20251008.htm"
     }
   ],
   "EQIX": [
@@ -18849,6 +18834,15 @@
     }
   ],
   "HST": [
+    {
+      "date": "2026-11-12",
+      "items": "1.01,8.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1070750/000162828026073508/hst-20261112.htm"
+    },
     {
       "date": "2026-11-04",
       "eps": 0.1,
