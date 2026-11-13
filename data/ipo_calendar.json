@@ -1,40 +1,12 @@
 {
- "updated": "2026-11-12 17:04 ET",
+ "updated": "2026-11-13 16:50 ET",
  "min_deal_usd": 100000000,
  "filed_lookback_days": 180,
  "ipos": [
   {
-   "deal_id": "1235548-119602",
-   "ticker": "VVVV",
-   "company": "vVARDIS Holding AG",
-   "sector": "Healthcare",
-   "industry": "Surgical & Medical Instruments & Apparatus",
-   "sic": "3841",
-   "cik": "0001907709",
-   "deal_usd": 262857144.0,
-   "exchange": "NYSE",
-   "date": "2026-11-13",
-   "price_range": "21.00-24.00",
-   "shares": 9523810.0
-  },
-  {
-   "deal_id": "1407588-119709",
-   "ticker": "WWB",
-   "company": "WINDWARD BIO GROUP AG",
-   "sector": "Healthcare",
-   "industry": "Biological Products",
-   "sic": "2836",
-   "cik": "0002145089",
-   "deal_usd": 213088212.0,
-   "exchange": "Nasdaq",
-   "date": "2026-11-13",
-   "price_range": "16.00-18.00",
-   "shares": 10294117.0
-  },
-  {
    "deal_id": "1407642-119728",
    "ticker": "ANT",
-   "company": "ANTHROPIC, PBC",
+   "company": "Anthropic, PBC",
    "sector": "Technology",
    "industry": "Prepackaged Software",
    "sic": "7372",
@@ -94,7 +66,7 @@
   {
    "deal_id": "1402874-119401",
    "ticker": "NSCL",
-   "company": "NSCALE Ltd",
+   "company": "Nscale plc",
    "sector": "Technology",
    "industry": "Prepackaged Software",
    "sic": "7372",
