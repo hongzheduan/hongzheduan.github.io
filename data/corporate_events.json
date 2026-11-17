@@ -11111,6 +11111,18 @@
   ],
   "DIS": [
     {
+      "date": "2026-11-17",
+      "eps": 1.51,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": "2026-10-03",
+      "revenue": 25947000000,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1744489/000174448926000065/dis-20261117.htm"
+    },
+    {
       "date": "2026-08-05",
       "eps": 1.51,
       "items": "2.02,9.01",
@@ -17768,6 +17780,27 @@
     }
   ],
   "HD": [
+    {
+      "date": "2026-11-17",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/354950/000035495026000184/hd-20261117.htm"
+    },
+    {
+      "date": "2026-11-17",
+      "items": "5.02,7.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/354950/000035495026000182/hd-20261113.htm"
+    },
     {
       "date": "2026-08-21",
       "items": "5.02",
@@ -33261,6 +33294,15 @@
     }
   ],
   "SPGI": [
+    {
+      "date": "2026-11-17",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/64040/000006404026000063/spgi-20261116.htm"
+    },
     {
       "date": "2026-10-27",
       "eps": 4.25,
