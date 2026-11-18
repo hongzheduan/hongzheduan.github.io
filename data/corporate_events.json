@@ -1659,6 +1659,15 @@
   ],
   "ALGN": [
     {
+      "date": "2026-11-18",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1097149/000109714926000088/algn-20261117.htm"
+    },
+    {
       "date": "2026-11-06",
       "items": "1.01,2.03,9.01",
       "label": "Material Agreement",
@@ -4864,6 +4873,15 @@
     }
   ],
   "BG": [
+    {
+      "date": "2026-11-18",
+      "items": "1.01,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1996862/000162828026074820/bg-20261116.htm"
+    },
     {
       "date": "2026-11-03",
       "items": "1.01,2.03,9.01",
@@ -10958,11 +10976,11 @@
   "DHI": [
     {
       "date": "2026-10-29",
-      "eps": null,
+      "eps": 2.66,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-09-30",
+      "revenue": 9371200000,
       "type": [
         "earnings"
       ],
@@ -12341,6 +12359,15 @@
     }
   ],
   "ED": [
+    {
+      "date": "2026-11-18",
+      "items": "1.01,8.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1047862/000119312526467177/d182418d8k.htm"
+    },
     {
       "date": "2026-11-05",
       "eps": 2.06,
@@ -13918,6 +13945,18 @@
     }
   ],
   "EXPD": [
+    {
+      "date": "2026-11-18",
+      "eps": 2.65,
+      "items": "2.02,7.01,9.01",
+      "label": "Earnings Report",
+      "period_end": "2026-09-30",
+      "revenue": 4107649000,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/746515/000119312526466274/expd-20261118.htm"
+    },
     {
       "date": "2026-11-12",
       "eps": 2.65,
@@ -18382,6 +18421,16 @@
     }
   ],
   "HPE": [
+    {
+      "date": "2026-11-18",
+      "items": "1.01,5.02,7.01,9.01",
+      "label": "Leadership Change + Material Agreement",
+      "type": [
+        "agreement",
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1645590/000164559026000092/hpe-20261118.htm"
+    },
     {
       "date": "2026-09-02",
       "eps": 1.06,
@@ -22882,6 +22931,18 @@
   ],
   "LOW": [
     {
+      "date": "2026-11-18",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/60667/000006066726000126/low-20261118.htm"
+    },
+    {
       "date": "2026-11-17",
       "items": "5.02",
       "label": "Leadership Change",
@@ -25164,6 +25225,15 @@
   ],
   "MRK": [
     {
+      "date": "2026-11-18",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/310158/000031015826000255/mrk-20261116.htm"
+    },
+    {
       "date": "2026-10-29",
       "eps": 2.04,
       "items": "2.02,9.01",
@@ -26196,6 +26266,15 @@
     }
   ],
   "NDAQ": [
+    {
+      "date": "2026-11-18",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1120193/000119312526467087/d61921d8k.htm"
+    },
     {
       "date": "2026-10-26",
       "items": "5.02,9.01",
@@ -28350,6 +28429,18 @@
   ],
   "P": [
     {
+      "date": "2026-11-18",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1474432/000147443226000110/pstg-20261118.htm"
+    },
+    {
       "date": "2026-08-26",
       "eps": 0.21,
       "items": "2.02,9.01",
@@ -28412,6 +28503,18 @@
     }
   ],
   "PANW": [
+    {
+      "date": "2026-11-18",
+      "eps": null,
+      "items": "2.02,3.02,7.01,8.01,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1327567/000132756726000030/panw-20261117.htm"
+    },
     {
       "date": "2026-09-01",
       "eps": -0.39,
@@ -33316,6 +33419,15 @@
   ],
   "SPGI": [
     {
+      "date": "2026-11-18",
+      "items": "1.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/64040/000110465926129710/tm2629623d6_8k.htm"
+    },
+    {
       "date": "2026-11-17",
       "items": "5.02,9.01",
       "label": "Leadership Change",
@@ -35106,6 +35218,18 @@
     }
   ],
   "TJX": [
+    {
+      "date": "2026-11-18",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/109198/000010919826000058/tjx-20261118.htm"
+    },
     {
       "date": "2026-10-20",
       "items": "5.02",
