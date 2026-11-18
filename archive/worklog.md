@@ -748,3 +748,4 @@
   no-video (no qualifying stocks): 1y_vol_peak
 2026-11-18 02:31 UTC  430PM-scan
 2026-11-18 02:48 UTC  500PM-scan
+2026-11-18 03:00 UTC  530PM-scan
