@@ -20326,6 +20326,15 @@
   ],
   "IT": [
     {
+      "date": "2026-11-19",
+      "items": "5.02,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/749251/000119312526467771/d188671d8k.htm"
+    },
+    {
       "date": "2026-11-03",
       "eps": 3.35,
       "items": "2.02,7.01,9.01",
@@ -28370,11 +28379,11 @@
   "PANW": [
     {
       "date": "2026-11-18",
-      "eps": null,
+      "eps": 0.57,
       "items": "2.02,3.02,7.01,8.01,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-10-31",
+      "revenue": 3445000000,
       "type": [
         "earnings"
       ],
@@ -39525,6 +39534,18 @@
     }
   ],
   "WMT": [
+    {
+      "date": "2026-11-19",
+      "eps": null,
+      "items": "2.02,9.01",
+      "label": "Earnings Report",
+      "period_end": null,
+      "revenue": null,
+      "type": [
+        "earnings"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000168/wmt-20261119.htm"
+    },
     {
       "date": "2026-11-16",
       "items": "5.02,9.01",
