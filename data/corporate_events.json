@@ -377,18 +377,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1800/000162828026002982/abt-20260122.htm"
-    },
-    {
-      "date": "2025-10-15",
-      "eps": 0.94,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-09-30",
-      "revenue": 11369000000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1800/000162828025045049/abt-20251015.htm"
     }
   ],
   "ACGL": [
@@ -4620,19 +4608,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/10795/000162828025049835/bdx-20251106.htm"
-    },
-    {
-      "date": "2025-10-15",
-      "eps": 1.72,
-      "items": "2.02,5.02,7.01,9.01",
-      "label": "Earnings Report + Leadership Change",
-      "period_end": "2025-09-30",
-      "revenue": 8301000000,
-      "type": [
-        "earnings",
-        "leadership"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/10795/000162828025045106/bdx-20251009.htm"
     }
   ],
   "BE": [
@@ -7072,18 +7047,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/759944/000075994426000017/cfg-20260121.htm"
-    },
-    {
-      "date": "2025-10-15",
-      "eps": 1.05,
-      "items": "2.02,7.01,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-09-30",
-      "revenue": 452000000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/759944/000075994425000139/cfg-20251015.htm"
     }
   ],
   "CHD": [
@@ -18402,18 +18365,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1645590/000164559025000126/hpe-20251204.htm"
-    },
-    {
-      "date": "2025-10-15",
-      "eps": 0.21,
-      "items": "2.02,7.01,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-07-31",
-      "revenue": 9136000000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1645590/000164559025000111/hpe-20251015.htm"
     }
   ],
   "HPQ": [
@@ -19802,11 +19753,20 @@
   "INTU": [
     {
       "date": "2026-11-19",
-      "eps": null,
+      "items": "1.01,8.01,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/896878/000119312526468834/d182669d8k.htm"
+    },
+    {
+      "date": "2026-11-19",
+      "eps": 2.59,
       "items": "2.02,8.01,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-10-31",
+      "revenue": 4354000000,
       "type": [
         "earnings"
       ],
@@ -20683,18 +20643,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/728535/000143774926001357/jbht20260114_8k.htm"
-    },
-    {
-      "date": "2025-10-15",
-      "eps": 1.76,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-09-30",
-      "revenue": null,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/728535/000143774925031039/jbht20251015_8k.htm"
     }
   ],
   "JBL": [
@@ -29091,18 +29039,6 @@
         "leadership"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/80661/000008066126000071/pgr-20260126.htm"
-    },
-    {
-      "date": "2025-10-15",
-      "eps": 4.45,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-09-30",
-      "revenue": 22512000000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/80661/000008066125000126/pgr-20251015.htm"
     }
   ],
   "PH": [
@@ -29375,18 +29311,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1045609/000119312526017256/pld-20260121.htm"
-    },
-    {
-      "date": "2025-10-15",
-      "eps": 0.82,
-      "items": "2.02,7.01,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-09-30",
-      "revenue": 2213881000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1045609/000119312525239551/pld-20251015.htm"
     }
   ],
   "PLTR": [
@@ -29591,18 +29515,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/713676/000071367625000136/pnc-20251107.htm"
-    },
-    {
-      "date": "2025-10-15",
-      "eps": 4.35,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-09-30",
-      "revenue": 5915000000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/713676/000071367625000126/pnc-20251015.htm"
     }
   ],
   "PNR": [
@@ -34196,18 +34108,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/1601712/000160171226000003/syf-20260127.htm"
-    },
-    {
-      "date": "2025-10-15",
-      "eps": 2.86,
-      "items": "2.02,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-09-30",
-      "revenue": null,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/1601712/000160171225000256/syf-20251015.htm"
     }
   ],
   "SYK": [
@@ -36832,18 +36732,6 @@
         "earnings"
       ],
       "url": "https://www.sec.gov/Archives/edgar/data/100517/000010051726000014/ual-20260120.htm"
-    },
-    {
-      "date": "2025-10-15",
-      "eps": 2.9,
-      "items": "2.02,7.01,9.01",
-      "label": "Earnings Report",
-      "period_end": "2025-09-30",
-      "revenue": 15225000000,
-      "type": [
-        "earnings"
-      ],
-      "url": "https://www.sec.gov/Archives/edgar/data/100517/000010051725000190/ual-20251015.htm"
     }
   ],
   "UBER": [
