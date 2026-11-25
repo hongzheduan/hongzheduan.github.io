@@ -861,11 +861,11 @@
   "ADSK": [
     {
       "date": "2026-11-24",
-      "eps": null,
+      "eps": 2.68,
       "items": "2.02,7.01,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-10-31",
+      "revenue": 2160000000,
       "type": [
         "earnings"
       ],
@@ -2459,6 +2459,15 @@
   ],
   "AMT": [
     {
+      "date": "2026-11-25",
+      "items": "1.01,2.03,9.01",
+      "label": "Material Agreement",
+      "type": [
+        "agreement"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1053507/000119312526478472/d114688d8k.htm"
+    },
+    {
       "date": "2026-11-13",
       "items": "1.01,2.03,9.01",
       "label": "Material Agreement",
@@ -3923,6 +3932,15 @@
     }
   ],
   "AXON": [
+    {
+      "date": "2026-11-25",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1069183/000162828026075976/axon-20261119.htm"
+    },
     {
       "date": "2026-11-05",
       "items": "1.01,3.02,7.01,9.01",
@@ -19967,6 +19985,15 @@
   ],
   "IP": [
     {
+      "date": "2026-11-25",
+      "items": "5.02,8.01,9.01",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/51434/000162828026075971/ip-20261122.htm"
+    },
+    {
       "date": "2026-11-16",
       "items": "1.01,2.03,9.01",
       "label": "Material Agreement",
@@ -24023,6 +24050,15 @@
     }
   ],
   "MDLZ": [
+    {
+      "date": "2026-11-25",
+      "items": "5.02",
+      "label": "Leadership Change",
+      "type": [
+        "leadership"
+      ],
+      "url": "https://www.sec.gov/Archives/edgar/data/1103982/000162828026075952/mdlz-20261120.htm"
+    },
     {
       "date": "2026-10-29",
       "eps": 1.02,
@@ -34952,11 +34988,11 @@
   "TGT": [
     {
       "date": "2026-11-18",
-      "eps": null,
+      "eps": 2.65,
       "items": "2.02,9.01",
       "label": "Earnings Report",
-      "period_end": null,
-      "revenue": null,
+      "period_end": "2026-10-31",
+      "revenue": 27067000000,
       "type": [
         "earnings"
       ],
