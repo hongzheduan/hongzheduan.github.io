@@ -1125,6 +1125,47 @@
       font-weight: 500;
       color: #e2e8f0;
     }
+    /* strength items: hover (desktop) or tap/focus (mobile) reveals a how-to tip */
+    .pf-hint {
+      font-family: 'DM Mono', monospace; font-style: normal; font-size: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8;
+      margin-left: 10px; vertical-align: middle;
+    }
+    .pulse-find__list li.pf-item {
+      position: relative; cursor: help; outline: none; width: fit-content; max-width: 100%;
+      transition: color 0.15s;
+    }
+    .pf-name {
+      text-decoration: underline dotted rgba(147,197,253,0.55); text-underline-offset: 3px;
+      text-decoration-thickness: 1px;
+    }
+    .pulse-find__list li.pf-item:hover,
+    .pulse-find__list li.pf-item:focus { color: #ffffff; }
+    .pf-item:hover .pf-name, .pf-item:focus .pf-name { text-decoration-color: #60a5fa; }
+    .pf-tip {
+      display: none; position: absolute; left: 0; top: calc(100% + 6px); z-index: 60;
+      width: min(340px, 85vw); padding: 10px 12px; border-radius: 10px;
+      background: #0d1e3d; border: 1px solid rgba(96,165,250,0.45);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400;
+      line-height: 1.55; color: #e2e8f0; text-align: left; font-style: normal;
+    }
+    .pf-tip b { color: #93c5fd; font-weight: 600; }
+    /* desktop: strengths in two columns so the list can grow without pushing the CTA down */
+    @media (min-width: 901px) {
+      .pulse-find__list:has(.pf-item) { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+      .hero-left-card .pulse-find__list li.pf-item { font-size: 12px; font-weight: 700; line-height: 1.4; }
+      .hero-left-card .pulse-find__lead { font-size: 18px; }
+      .pulse-find__list li.pf-item:nth-child(even) .pf-tip { left: auto; right: 0; }
+    }
+    .pf-item:hover .pf-tip, .pf-item:focus .pf-tip, .pf-item:focus-within .pf-tip { display: block; }
+    /* mobile: no hover, and a floating box would cover the next items, so the
+       tapped item's tip opens inline instead */
+    @media (max-width: 900px) {
+      .pf-hint { display: block; margin: 4px 0 0; }
+      .pf-tip { position: static; width: auto; margin-top: 6px; font-size: 12px; }
+      .hero-left-card .pulse-find__list li.pf-item { font-size: 13px; font-weight: 700; line-height: 1.4; }
+    }
     .pulse-find__list li.pulse-find__more {
       font-style: italic;
       font-weight: 400;
@@ -1571,13 +1612,32 @@ Promise.all([
       <h1 class="hero-title" style="font-size:clamp(26px,2.8vw,34px);">Pulse of the Market:<br>Price, Volume and Trend</h1>
 
       <div class="pulse-find">
-        <div class="pulse-find__lead">Powerful sort to easily find</div>
+        <div class="pulse-find__lead">Find in one click <span class="pf-hint">hover or tap for how</span></div>
         <ul class="pulse-find__list">
-          <li>Day's biggest price movers</li>
-          <li>Unusual volume</li>
-          <li>Stocks trading at a key level such as the SMA200</li>
-          <li>Stocks approaching their heaviest-volume price</li>
-          <li class="pulse-find__more">and much more</li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">Strongest overall setups by Baizora Score</span>
+            <div class="pf-tip"><b>How:</b> open the <b>BAIZORA</b> tab and sort <b>Baizora</b> high to low. The 0 to 100 score blends relative strength, momentum, breakout, trend and volume pressure into one number. <b>Momentum+</b>, <b>Persist</b> and <b>Conviction</b> sort the same way for other angles.</div></li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">Price sort: top gainers and losers, today or over any window</span>
+            <div class="pf-tip"><b>How:</b> on <b>1D</b> sort <b>1D P CHG%</b> for the day's movers. Switch to <b>3M</b>, <b>6M</b>, <b>9M</b>, <b>1Y</b>, <b>2Y</b> or <b>5Y</b> and sort <b>P CHG%</b> for the whole window, or <b>MAX P CHG%</b> for its biggest single-day jump. Click any ticker for the full chart.</div></li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">Volume sort: heaviest trading and unusual volume</span>
+            <div class="pf-tip"><b>How:</b> on <b>1D</b> sort <b>Vol (M)</b> for the most shares traded, or <b>VOL/MA21</b> for unusual volume (2.0 = twice the 21-day average). On longer windows sort <b>MAX V CHG%</b> for the biggest volume spike, and on 3M to 1Y <b>VOL RANK</b> 1 means today was the heaviest day of that window.</div></li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">Fundamental sort: P/E, EPS and P/E vs sector</span>
+            <div class="pf-tip"><b>How:</b> open the <b>FUND</b> tab and sort <b>P/E</b>, <b>EPS</b> or <b>Mkt Cap ($B)</b>. <b>PE vs Sector</b> shows each stock's P/E as a premium (+) or discount (&minus;) to its sector average, so you can compare peers at a glance. <b>Beta</b> and <b>Vol 30D</b> sort by how much the stock swings.</div></li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">Momentum sort: RSI and MACD</span>
+            <div class="pf-tip"><b>How:</b> open the <b>TECH</b> tab and sort <b>RSI</b> (14). Low end = oversold (green, under 30), high end = overbought (red, over 70). Sort <b>MACD</b> low to high to find the closest crossovers: it is the gap between the MACD and signal lines, green when MACD is above the signal and red when below.</div></li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">Stocks sitting on a key level like the SMA200</span>
+            <div class="pf-tip"><b>How:</b> open the <b>TECH</b> tab and sort <b>Dist SMA200</b>. Values near 0% are right at the 200-day average. Want only the oversold ones? Pick <b>Screens → SMA200 Oversold</b> (within 5% of the SMA200 with RSI(14) under 35).</div></li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">Price nearing its heaviest-volume level</span>
+            <div class="pf-tip"><b>How:</b> on the <b>TECH</b> tab sort <b>Dist POC</b>. The POC is the price that traded the most volume over the last year, a common support or resistance zone. Click a ticker and turn on <b>Vol Profile</b> to see it on the chart.</div></li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">Fresh breakouts</span>
+            <div class="pf-tip"><b>How:</b> pick <b>Screens → Breakouts</b>. Shows stocks that closed above a tight base or a flag in the last 5 sessions on heavy volume and are still holding above it.</div></li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">Oversold stocks turning up</span>
+            <div class="pf-tip"><b>How:</b> pick <b>Screens → SAR Buy Oversold</b>. Parabolic SAR flipped from sell to buy in the last 5 sessions while RSI(14) was under 35.</div></li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">Steady buying pressure</span>
+            <div class="pf-tip"><b>How:</b> pick <b>Screens → Green Streak</b> for several green candles in a row, or <b>Long Green Bar</b> for a big up day that closed near its high. Both let you set the minimum.</div></li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">New index members, including rumored adds</span>
+            <div class="pf-tip"><b>How:</b> open the <b>All</b> menu and pick <b>New Members</b>. Lists stocks added to the S&amp;P 500 or Nasdaq-100 in the last 30 days, plus ones reported or rumored to join in the next 30. Unconfirmed entries come from news coverage, so treat them as speculative.</div></li>
+          <li class="pf-item" tabindex="0"><span class="pf-name">Market heatmap, including P/E vs sector average</span>
+            <div class="pf-tip"><b>How:</b> scroll to <b>Market Heatmap</b> below for the day's moves, then open the <b>Full heatmap</b>. Tiles are grouped by sector and sized by market cap. Switch the color with <b>Color: 1D Change</b>, <b>Baizora Score</b>, <b>P/E</b> or <b>P/E vs Sector</b>, where green is a discount to the sector average and red is a premium. Click any tile for its chart.</div></li>
         </ul>
       </div>
       <div class="hero-bullets">
