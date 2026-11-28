@@ -1,6 +1,6 @@
 Tiingo vs yfinance comparison — 2026-11-27
 Threshold: >10% for all metrics
-134 flagged diffs above threshold
+128 flagged diffs above threshold
 
 ============================================================
 KNOWN EXPECTED DIFFERENCES (not bugs)
@@ -121,8 +121,8 @@ MKTCAP  -- 14 flagged (>10%)
     ACN      ours=$161.72B  yf=$142.86B  diff=13.2% ***
 
 ------------------------------------------------------------
-PE  -- 53 flagged (>10%)
-  FLAGGED (top 20 of 53):
+PE  -- 51 flagged (>10%)
+  FLAGGED (top 20 of 51):
     BKNG     ours=72.750  yf=16.311  diff=346.0% ***
     BE       ours=0.430  yf=98.800  diff=99.6% ***
     BXP      ours=34.540  yf=19.234  diff=79.6% ***
@@ -142,7 +142,7 @@ PE  -- 53 flagged (>10%)
     HAL      ours=18.940  yf=13.609  diff=39.2% ***
     DLR      ours=44.340  yf=70.532  diff=37.1% ***
     FER      ours=44.340  yf=33.104  diff=33.9% ***
-    NTRS     ours=17.730  yf=13.282  diff=33.5% ***
+    NTRS     ours=17.730  yf=13.272  diff=33.6% ***
   TOP 10 LARGEST DIFF:
     BKNG     ours=72.750  yf=16.311  diff=346.0% ***
     BE       ours=0.430  yf=98.800  diff=99.6% ***
@@ -156,8 +156,8 @@ PE  -- 53 flagged (>10%)
     KMB      ours=11.010  yf=20.823  diff=47.1% ***
 
 ------------------------------------------------------------
-EPS  -- 66 flagged (>10%)
-  FLAGGED (top 20 of 66):
+EPS  -- 62 flagged (>10%)
+  FLAGGED (top 20 of 62):
     BE       ours=381.260  yf=1.650  diff=23006.7% ***
     VMRK     ours=2.310  yf=-0.150  diff=1640.0% ***
     SKYD     ours=-0.230  yf=-0.020  diff=1050.0% ***
